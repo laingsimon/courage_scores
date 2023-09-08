@@ -15,7 +15,11 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
         _userService = userService;
     }
 
-    protected override async Task<ActionResult<ErrorDetail>> ApplyUpdates(ErrorDetail model, ErrorDetailDto update, CancellationToken token)
+    [ExcludeFromCodeCoverage]
+    public override bool RequiresLogin => false;
+
+    protected override async Task<ActionResult<ErrorDetail>> ApplyUpdates(ErrorDetail model, ErrorDetailDto update,
+        CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
@@ -30,11 +34,11 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
 
         return new ActionResult<ErrorDetail>
         {
-            Messages = { "Error added" },
+            Messages =
+            {
+                "Error added",
+            },
             Success = true,
         };
     }
-
-    [ExcludeFromCodeCoverage]
-    public override bool RequiresLogin => false;
 }

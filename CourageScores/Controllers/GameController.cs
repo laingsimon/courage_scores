@@ -14,8 +14,8 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class GameController : Controller
 {
-    private readonly IGameService _gameService;
     private readonly ICommandFactory _commandFactory;
+    private readonly IGameService _gameService;
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygStorageService;
 
     public GameController(IGameService gameService, ICommandFactory commandFactory, IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygStorageService)

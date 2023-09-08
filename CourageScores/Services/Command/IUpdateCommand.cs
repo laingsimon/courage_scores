@@ -14,8 +14,8 @@ public interface IUpdateCommand<in TIn> : IUpdateCommand
 
 public interface IUpdateCommand<in TIn, TOut> : IUpdateCommand<TIn>
 {
-    Task<ActionResult<TOut>> ApplyUpdate(TIn model, CancellationToken token);
-
     [ExcludeFromCodeCoverage]
     bool RequiresLogin => true;
+
+    Task<ActionResult<TOut>> ApplyUpdate(TIn model, CancellationToken token);
 }

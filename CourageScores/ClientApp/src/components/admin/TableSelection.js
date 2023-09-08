@@ -1,7 +1,7 @@
 import React from 'react';
 import {any, sortBy} from "../../helpers/collections";
 
-export function TableSelection({ allTables, selected, onTableChange, requireCanExport, requireCanImport }) {
+export function TableSelection({allTables, selected, onTableChange, requireCanExport, requireCanImport}) {
     async function toggleTable(table) {
         if (!onTableChange) {
             return;
@@ -23,12 +23,14 @@ export function TableSelection({ allTables, selected, onTableChange, requireCanE
             </li>);
         }
 
-        return (<li onClick={async () => await toggleTable(table)} key={table.name} className={`list-group-item${selected.indexOf(table.name) !== -1 ? ' active' : ''}`}>
+        return (<li onClick={async () => await toggleTable(table)} key={table.name}
+                    className={`list-group-item${selected.indexOf(table.name) !== -1 ? ' active' : ''}`}>
             {table.name}
         </li>);
     }
 
     return (<ul className="list-group mb-3">
-        {allTables ? allTables.sort(sortBy('name')).map(t => renderTable(t)) : (<li className="list-group-item">Loading tables...</li>)}
+        {allTables ? allTables.sort(sortBy('name')).map(t => renderTable(t)) : (
+            <li className="list-group-item">Loading tables...</li>)}
     </ul>);
 }

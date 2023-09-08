@@ -3,6 +3,7 @@
 import {cleanUp, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
+import {legBuilder} from "../../../helpers/builders";
 
 describe('MatchStatistics', () => {
     let context;
@@ -13,9 +14,9 @@ describe('MatchStatistics', () => {
 
     async function renderComponent(props) {
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
-            { },
+            {},
+            {name: 'Courage Scores'},
+            {},
             <MatchStatistics {...props} />);
     }
 
@@ -86,33 +87,14 @@ describe('MatchStatistics', () => {
     }
 
     it('renders 2 player statistics', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            home: {
-                throws: [{
-                    score: 123,
-                    noOfDarts: 3,
-                }],
-                score: 123,
-                noOfDarts: 3,
-                bust: false,
-            },
-            away: {
-                throws: [ {
-                    score: 100,
-                    noOfDarts: 3,
-                }, {
-                    score: 150,
-                    noOfDarts: 3,
-                }],
-                score: 250,
-                noOfDarts: 6,
-                bust: false,
-            },
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .build();
         await renderComponent({
-            legs: { 0: leg },
+            legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
             home: 'HOME',
@@ -128,28 +110,20 @@ describe('MatchStatistics', () => {
                 'Leg: 1Details',
                 'Average: 123 (3 darts)Remaining: 378',
                 'Average: 125 (6 darts)Remaining: 251']);
-        assertMatchAverage(['Match average3️⃣','123','125'], false, true);
-        assertMatchDartCount(['Match darts','3','6'], true, false);
+        assertMatchAverage(['Match average3️⃣', '123', '125'], false, true);
+        assertMatchDartCount(['Match darts', '3', '6'], true, false);
     });
 
     it('renders single player statistics', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            home: {
-                throws: [{
-                    score: 123,
-                    noOfDarts: 3,
-                }],
-                score: 123,
-                noOfDarts: 3,
-                bust: false,
-            },
-            away: { },
-            winner: 'home',
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away({})
+            .winner('home')
+            .build();
         await renderComponent({
-            legs: { 0: leg },
+            legs: {0: leg},
             homeScore: 3,
             home: 'HOME',
             singlePlayer: true,
@@ -162,7 +136,7 @@ describe('MatchStatistics', () => {
             [
                 'Leg: 1Details',
                 'Average: 123 (3 darts)Checkout: 123']);
-        assertMatchAverage(['Match average3️⃣','123']);
-        assertMatchDartCount(['Match darts','3'], true);
+        assertMatchAverage(['Match average3️⃣', '123']);
+        assertMatchDartCount(['Match darts', '3'], true);
     });
 });

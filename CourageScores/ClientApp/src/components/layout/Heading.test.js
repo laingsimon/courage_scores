@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../helpers/tests";
+import {cleanUp, doClick, renderApp} from "../../helpers/tests";
 import React from "react";
 import {Heading} from "./Heading";
 
@@ -15,7 +15,7 @@ describe('Heading', () => {
     async function renderComponent(build, branding) {
         reportedError = null;
         context = await renderApp(
-            { },
+            {},
             branding,
             {
                 onError: (err) => {
@@ -26,12 +26,12 @@ describe('Heading', () => {
                 },
                 build
             },
-            (<Heading />));
+            (<Heading/>));
     }
 
     describe('renders', () => {
         it('branded email', async () => {
-            await renderComponent({ }, {
+            await renderComponent({}, {
                 email: 'someone@somewhere.com',
             });
 
@@ -41,7 +41,7 @@ describe('Heading', () => {
         });
 
         it('branded facebook', async () => {
-            await renderComponent({ }, {
+            await renderComponent({}, {
                 facebook: 'CourageScores',
             });
 
@@ -50,7 +50,7 @@ describe('Heading', () => {
         });
 
         it('branded twitter', async () => {
-            await renderComponent({ }, {
+            await renderComponent({}, {
                 twitter: 'CourageScores',
             });
 
@@ -59,7 +59,7 @@ describe('Heading', () => {
         });
 
         it('branded name', async () => {
-            await renderComponent({ }, {
+            await renderComponent({}, {
                 name: 'Courage Scores',
             });
 
@@ -97,7 +97,9 @@ describe('Heading', () => {
                 date: '2023-04-05T06:07:08',
             });
             let alert;
-            window.alert = (message) => { alert = message };
+            window.alert = (message) => {
+                alert = message
+            };
 
             await doClick(context.container.querySelector('span.bg-warning'));
 

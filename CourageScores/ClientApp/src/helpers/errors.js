@@ -6,7 +6,7 @@ export function mapError(error) {
         return {message: error.message, stack: error.stack};
     }
 
-    return { message: error };
+    return {message: error};
 }
 
 export function mapForLogging(error, account) {

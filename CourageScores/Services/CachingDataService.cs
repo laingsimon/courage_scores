@@ -12,10 +12,10 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     where TModel : AuditedEntity, IPermissionedEntity, new()
     where TDto : AuditedDto
 {
-    private readonly IGenericDataService<TModel, TDto> _underlyingService;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IUserService _userService;
     private readonly IHttpContextAccessor _accessor;
+    private readonly IMemoryCache _memoryCache;
+    private readonly IGenericDataService<TModel, TDto> _underlyingService;
+    private readonly IUserService _userService;
 
     public CachingDataService(IGenericDataService<TModel, TDto> underlyingService, IMemoryCache memoryCache, IUserService userService, IHttpContextAccessor accessor)
     {
@@ -51,13 +51,19 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
     public Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
     {
-        InvalidateCaches(new[] { new CacheKey(id, null) });
+        InvalidateCaches(new[]
+        {
+            new CacheKey(id, null),
+        });
         return _underlyingService.Upsert(id, updateCommand, token);
     }
 
     public Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
     {
-        InvalidateCaches(new[] { new CacheKey(id, null) });
+        InvalidateCaches(new[]
+        {
+            new CacheKey(id, null),
+        });
         return _underlyingService.Delete(id, token);
     }
 
@@ -71,7 +77,10 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         if (IsNoCacheRequest())
         {
-            InvalidateCaches(new[] { key });
+            InvalidateCaches(new[]
+            {
+                key,
+            });
         }
         return await _memoryCache.GetOrCreateAsync(key, _ => provider());
     }
@@ -94,8 +103,8 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     protected class CacheKey : IEquatable<CacheKey>
     {
         private readonly Guid? _id;
-        private readonly string? _where;
         private readonly string _model;
+        private readonly string? _where;
 
         public CacheKey(Guid? id, string? where)
         {
@@ -106,16 +115,31 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         public bool Equals(CacheKey? other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
             return Nullable.Equals(_id, other._id) && _where == other._where && _model == other._model;
         }
 
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
             return Equals((CacheKey)obj);
         }
 

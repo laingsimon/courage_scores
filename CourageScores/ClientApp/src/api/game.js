@@ -12,7 +12,7 @@ class GameApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Scores/${id}`, Object.assign({ lastUpdated }, scores));
+        return this.http.put(`/api/Scores/${id}`, Object.assign({lastUpdated}, scores));
     }
 
     update(game, lastUpdated) {
@@ -20,7 +20,7 @@ class GameApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Game`, Object.assign({ lastUpdated }, game));
+        return this.http.put(`/api/Game`, Object.assign({lastUpdated}, game));
     }
 
     delete(id) {
@@ -28,4 +28,4 @@ class GameApi {
     }
 }
 
-export { GameApi };
+export {GameApi};

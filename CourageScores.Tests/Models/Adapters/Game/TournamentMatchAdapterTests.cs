@@ -11,11 +11,11 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class TournamentMatchAdapterTests
 {
-    private static readonly TournamentSide SideA = new TournamentSide();
-    private static readonly TournamentSideDto SideADto = new TournamentSideDto();
-    private static readonly TournamentSide SideB = new TournamentSide();
-    private static readonly TournamentSideDto SideBDto = new TournamentSideDto();
-    private readonly CancellationToken _token = new CancellationToken();
+    private static readonly TournamentSide SideA = new();
+    private static readonly TournamentSideDto SideADto = new();
+    private static readonly TournamentSide SideB = new();
+    private static readonly TournamentSideDto SideBDto = new();
+    private readonly CancellationToken _token = new();
     private TournamentMatchAdapter _adapter = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
@@ -28,13 +28,19 @@ public class TournamentMatchAdapterTests
             Access = new AccessDto
             {
                 RecordScoresAsYouGo = true,
-            }
+            },
         };
         _userService = new Mock<IUserService>();
         _adapter = new TournamentMatchAdapter(
             new MockAdapter<TournamentSide, TournamentSideDto>(
-                new[] { SideA, SideB },
-                new[] { SideADto, SideBDto }),
+                new[]
+                {
+                    SideA, SideB,
+                },
+                new[]
+                {
+                    SideADto, SideBDto,
+                }),
             _userService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);

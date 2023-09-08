@@ -10,7 +10,7 @@ namespace CourageScores.Tests.Models.Adapters.Health;
 [TestFixture]
 public class DivisionDateHealthDtoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private DivisionDateHealthDtoAdapter _adapter = null!;
     private Mock<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>> _fixtureAdapter = null!;
 
@@ -29,7 +29,10 @@ public class DivisionDateHealthDtoAdapterTests
         var model = new DivisionFixtureDateDto
         {
             Date = new DateTime(2001, 02, 03),
-            Fixtures = { fixture },
+            Fixtures =
+            {
+                fixture,
+            },
         };
         _fixtureAdapter
             .Setup(a => a.Adapt(It.Is<LeagueFixtureHealthDtoAdapter.FixtureDateMapping>(m => m.Fixture == fixture && m.Date == model.Date), _token))
@@ -38,6 +41,9 @@ public class DivisionDateHealthDtoAdapterTests
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Date, Is.EqualTo(model.Date));
-        Assert.That(result.Fixtures, Is.EqualTo(new[] { fixtureDto }));
+        Assert.That(result.Fixtures, Is.EqualTo(new[]
+        {
+            fixtureDto,
+        }));
     }
 }

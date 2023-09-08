@@ -11,8 +11,8 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class SeasonTemplateController : Controller
 {
-    private readonly ISeasonTemplateService _seasonTemplateService;
     private readonly ICommandFactory _commandFactory;
+    private readonly ISeasonTemplateService _seasonTemplateService;
 
     public SeasonTemplateController(
         ISeasonTemplateService seasonTemplateService,

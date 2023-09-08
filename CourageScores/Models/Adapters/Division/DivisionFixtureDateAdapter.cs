@@ -10,9 +10,9 @@ namespace CourageScores.Models.Adapters.Division;
 
 public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
 {
-    private readonly IUserService _userService;
     private readonly IDivisionFixtureAdapter _divisionFixtureAdapter;
     private readonly IDivisionTournamentFixtureDetailsAdapter _divisionTournamentFixtureDetailsAdapter;
+    private readonly IUserService _userService;
 
     public DivisionFixtureDateAdapter(
         IUserService userService,

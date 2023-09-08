@@ -1,15 +1,15 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, findButton} from "./helpers/tests";
+import {cleanUp, doClick, findButton, noop} from "./helpers/tests";
 import React from "react";
 import {App} from "./App";
-import {createTemporaryId} from "./helpers/projection";
 import {act} from "@testing-library/react";
 import {MemoryRouter, Route} from "react-router-dom";
 import {IocContainer} from "./IocContainer";
 import ReactDOM from "react-dom/client";
 import {useApp} from "./AppContainer";
 import {BrandingContainer} from "./BrandingContainer";
+import {divisionBuilder} from "./helpers/builders";
 
 describe('App', () => {
     let context;
@@ -55,7 +55,7 @@ describe('App', () => {
         }
 
         reportedError = null;
-        settings = { };
+        settings = {};
         context = await renderApp(
             {
                 divisionApi,
@@ -66,7 +66,7 @@ describe('App', () => {
                 settings,
             },
             (<BrandingContainer name='COURAGE LEAGUE'>
-                <App embed={embed} testRoute={testRoute} />
+                <App embed={embed} testRoute={testRoute}/>
             </BrandingContainer>),
             testRoute ? '/test' : null);
     }
@@ -135,7 +135,7 @@ describe('App', () => {
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
         const menuItemText = menuItems.map(li => li.textContent);
         const divisionMenuItems = loading ? [] : allDivisions.map(d => d.name);
-        const expectedMenuItemsAfterDivisions = [ ];
+        const expectedMenuItemsAfterDivisions = [];
 
         if (!loading) {
             if (account) {
@@ -152,8 +152,8 @@ describe('App', () => {
     }
 
     function TestElement() {
-        const { onError, clearError, invalidateCacheAndTryAgain, reportClientSideException } = useApp();
-        const error = { message: 'ERROR' };
+        const {onError, clearError, invalidateCacheAndTryAgain, reportClientSideException} = useApp();
+        const error = {message: 'ERROR'};
 
         return (<div>
             <button onClick={() => onError(error)}>onError</button>
@@ -209,13 +209,10 @@ describe('App', () => {
         });
 
         it('with divisions', async () => {
-            allDivisions = [ {
-                id: createTemporaryId(),
-                name: 'Division One'
-            }, {
-                id: createTemporaryId(),
-                name: 'Division Two'
-            } ];
+            allDivisions = [
+                divisionBuilder('Division One').build(),
+                divisionBuilder('Division Two').build()
+            ];
 
             await renderComponent(null);
 
@@ -227,7 +224,10 @@ describe('App', () => {
         it('when still loading', async () => {
             let resolve;
             let reject;
-            allDivisions = new Promise((res, rej) => { resolve = res; reject = rej; });
+            allDivisions = new Promise((res, rej) => {
+                resolve = res;
+                reject = rej;
+            });
 
             await renderComponent();
 
@@ -242,8 +242,8 @@ describe('App', () => {
             await renderComponent(
                 null,
                 false,
-                (<Route path='/test' element={<TestElement />} />));
-            console.error = () => { };
+                (<Route path='/test' element={<TestElement/>}/>));
+            console.error = noop;
 
             await doClick(findButton(context.container, 'onError'));
 
@@ -258,7 +258,7 @@ describe('App', () => {
             await renderComponent(
                 null,
                 false,
-                (<Route path='/test' element={<TestElement />} />));
+                (<Route path='/test' element={<TestElement/>}/>));
 
             await doClick(findButton(context.container, 'reportClientSideException'));
 
@@ -273,7 +273,7 @@ describe('App', () => {
             await renderComponent(
                 null,
                 false,
-                (<Route path='/test' element={<TestElement />} />));
+                (<Route path='/test' element={<TestElement/>}/>));
 
             await doClick(findButton(context.container, 'invalidateCacheAndTryAgain'));
 
@@ -285,7 +285,7 @@ describe('App', () => {
             await renderComponent(
                 null,
                 false,
-                (<Route path='/test' element={<TestElement />} />));
+                (<Route path='/test' element={<TestElement/>}/>));
             await doClick(findButton(context.container, 'onError'));
 
             await doClick(findButton(context.container, 'Clear error'));

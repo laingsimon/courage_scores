@@ -41,18 +41,18 @@ describe('SummaryDataRow', () => {
 
     function createLeg(homeWinner, awayWinner) {
         const winningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 100, bust: false, noOfDarts: 3 },
-            { score: 110, bust: false, noOfDarts: 3 },
-            { score: 120, bust: false, noOfDarts: 3 },
-            { score: 81, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 100, bust: false, noOfDarts: 3},
+            {score: 110, bust: false, noOfDarts: 3},
+            {score: 120, bust: false, noOfDarts: 3},
+            {score: 81, bust: false, noOfDarts: 3},
         ];
         const notWinningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
         ];
 
         return {

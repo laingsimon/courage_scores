@@ -20,16 +20,16 @@ namespace CourageScores.Tests.Services.Season.Creation;
 [TestFixture]
 public class SeasonTemplateServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private SeasonTemplateService _service = null!;
     private Mock<IGenericDataService<Template, TemplateDto>> _underlyingService = null!;
     private Mock<IUserService> _userService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
-    private Mock<IDivisionService> _divisionService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<ICompatibilityCheckFactory> _checkFactory = null!;
     private Mock<ICompatibilityCheck> _check = null!;
     private Mock<ISeasonProposalStrategy> _proposalStrategy = null!;
-    private Mock<ITeamService> _teamService = null!;
+    private Mock<ICachingTeamService> _teamService = null!;
     private UserDto? _user;
     private TemplateDto[] _templates = null!;
     private SeasonDto _season = null!;
@@ -41,12 +41,12 @@ public class SeasonTemplateServiceTests
     {
         _underlyingService = new Mock<IGenericDataService<Template, TemplateDto>>();
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
-        _divisionService = new Mock<IDivisionService>();
+        _seasonService = new Mock<ICachingSeasonService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _checkFactory = new Mock<ICompatibilityCheckFactory>();
         _check = new Mock<ICompatibilityCheck>();
         _proposalStrategy = new Mock<ISeasonProposalStrategy>();
-        _teamService = new Mock<ITeamService>();
+        _teamService = new Mock<ICachingTeamService>();
         _service = new SeasonTemplateService(
             _underlyingService.Object,
             _userService.Object,
@@ -60,7 +60,7 @@ public class SeasonTemplateServiceTests
             Access = new AccessDto
             {
                 ManageGames = true,
-            }
+            },
         };
         _templates = Array.Empty<TemplateDto>();
         var divisionId = Guid.NewGuid();
@@ -69,8 +69,11 @@ public class SeasonTemplateServiceTests
             Id = Guid.NewGuid(),
             Divisions =
             {
-                new DivisionDto { Id = divisionId },
-            }
+                new DivisionDto
+                {
+                    Id = divisionId,
+                },
+            },
         };
         _division = new DivisionDataDto
         {
@@ -106,7 +109,10 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(_season.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Not logged in",
+        }));
     }
 
     [Test]
@@ -118,7 +124,10 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(_season.Id, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
     }
 
     [Test]
@@ -127,7 +136,10 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(Guid.NewGuid(), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Season not found" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Season not found",
+        }));
     }
 
     [TestCase(true, true)]
@@ -168,19 +180,70 @@ public class SeasonTemplateServiceTests
         var division1 = Guid.NewGuid();
         var division2 = Guid.NewGuid();
         var template = new TemplateDto();
-        _templates = new[] { template };
-        var division1Team1 = new TeamDto { Seasons = { new TeamSeasonDto { DivisionId = division1, SeasonId = _season.Id } } };
-        var division1Team2 = new TeamDto { Seasons = { new TeamSeasonDto { DivisionId = division1, SeasonId = _season.Id } } };
-        var division2Team1 = new TeamDto { Seasons = { new TeamSeasonDto { DivisionId = division2, SeasonId = _season.Id } } };
-        _teamsInSeason = new[] { division1Team1, division1Team2, division2Team1 };
+        _templates = new[]
+        {
+            template,
+        };
+        var division1Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                },
+            },
+        };
+        var division1Team2 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                },
+            },
+        };
+        var division2Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division2,
+                    SeasonId = _season.Id,
+                },
+            },
+        };
+        _teamsInSeason = new[]
+        {
+            division1Team1,
+            division1Team2,
+            division2Team1,
+        };
         var expected = new Dictionary<Guid, TeamDto[]>
         {
-            { division1, new[] { division1Team1, division1Team2 } },
-            { division2, new[] { division2Team1 } },
+            {
+                division1, new[]
+                {
+                    division1Team1, division1Team2,
+                }
+            },
+            {
+                division2, new[]
+                {
+                    division2Team1,
+                }
+            },
         };
         _check
             .Setup(c => c.Check(template, It.IsAny<TemplateMatchContext>(), _token))
-            .ReturnsAsync(new ActionResultDto<TemplateDto> { Success = true });
+            .ReturnsAsync(new ActionResultDto<TemplateDto>
+            {
+                Success = true,
+            });
 
         await _service.GetForSeason(_season.Id, _token);
 
@@ -191,10 +254,16 @@ public class SeasonTemplateServiceTests
     public async Task GetForSeason_GivenTemplateIncompatible_ReturnsIncompatible()
     {
         var template = new TemplateDto();
-        _templates = new[] { template };
+        _templates = new[]
+        {
+            template,
+        };
         _check
             .Setup(c => c.Check(template, It.IsAny<TemplateMatchContext>(), _token))
-            .ReturnsAsync(new ActionResultDto<TemplateDto> { Success = false });
+            .ReturnsAsync(new ActionResultDto<TemplateDto>
+            {
+                Success = false,
+            });
 
         var result = await _service.GetForSeason(_season.Id, _token);
 
@@ -207,10 +276,16 @@ public class SeasonTemplateServiceTests
     public async Task GetForSeason_GivenTemplateCompatible_ReturnsCompatible()
     {
         var template = new TemplateDto();
-        _templates = new[] { template };
+        _templates = new[]
+        {
+            template,
+        };
         _check
             .Setup(c => c.Check(template, It.IsAny<TemplateMatchContext>(), _token))
-            .ReturnsAsync(new ActionResultDto<TemplateDto> { Success = true });
+            .ReturnsAsync(new ActionResultDto<TemplateDto>
+            {
+                Success = true,
+            });
 
         var result = await _service.GetForSeason(_season.Id, _token);
 
@@ -223,26 +298,14 @@ public class SeasonTemplateServiceTests
     public async Task ProposeForSeason_WhenLoggedOut_ReturnsNotLoggedIn()
     {
         _user = null;
-        var template = new TemplateDto { Id = Guid.NewGuid() };
-        _templates = new[] { template };
-        var request = new ProposalRequestDto
+        var template = new TemplateDto
         {
-            SeasonId = _season.Id,
-            TemplateId = template.Id,
+            Id = Guid.NewGuid(),
         };
-
-        var result = await _service.ProposeForSeason(request,  _token);
-
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
-    }
-
-    [Test]
-    public async Task ProposeForSeason_WhenNotPermitted_ReturnsNotPermitted()
-    {
-        _user!.Access!.ManageGames = false;
-        var template = new TemplateDto { Id = Guid.NewGuid() };
-        _templates = new[] { template };
+        _templates = new[]
+        {
+            template,
+        };
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,
@@ -252,14 +315,50 @@ public class SeasonTemplateServiceTests
         var result = await _service.ProposeForSeason(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Not logged in",
+        }));
+    }
+
+    [Test]
+    public async Task ProposeForSeason_WhenNotPermitted_ReturnsNotPermitted()
+    {
+        _user!.Access!.ManageGames = false;
+        var template = new TemplateDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        _templates = new[]
+        {
+            template,
+        };
+        var request = new ProposalRequestDto
+        {
+            SeasonId = _season.Id,
+            TemplateId = template.Id,
+        };
+
+        var result = await _service.ProposeForSeason(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
     }
 
     [Test]
     public async Task ProposeForSeason_WhenSeasonNotFound_ReturnsSeasonNotFound()
     {
-        var template = new TemplateDto { Id = Guid.NewGuid() };
-        _templates = new[] { template };
+        var template = new TemplateDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        _templates = new[]
+        {
+            template,
+        };
         var request = new ProposalRequestDto
         {
             SeasonId = Guid.NewGuid(),
@@ -269,14 +368,23 @@ public class SeasonTemplateServiceTests
         var result = await _service.ProposeForSeason(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Season not found" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Season not found",
+        }));
     }
 
     [Test]
     public async Task ProposeForSeason_WhenTemplateNotFound_ReturnsTemplateNotFound()
     {
-        var template = new TemplateDto { Id = Guid.NewGuid() };
-        _templates = new[] { template };
+        var template = new TemplateDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        _templates = new[]
+        {
+            template,
+        };
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,
@@ -286,14 +394,23 @@ public class SeasonTemplateServiceTests
         var result = await _service.ProposeForSeason(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Template not found" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Template not found",
+        }));
     }
 
     [Test]
     public async Task ProposeForSeason_WhenPermitted_ProposesFixturesForAllDivisions()
     {
-        var template = new TemplateDto { Id = Guid.NewGuid() };
-        _templates = new[] { template };
+        var template = new TemplateDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        _templates = new[]
+        {
+            template,
+        };
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,
@@ -315,15 +432,63 @@ public class SeasonTemplateServiceTests
         var division1 = Guid.NewGuid();
         var division2 = Guid.NewGuid();
         var template = new TemplateDto();
-        _templates = new[] { template };
-        var division1Team1 = new TeamDto { Seasons = { new TeamSeasonDto { DivisionId = division1, SeasonId = _season.Id } } };
-        var division1Team2 = new TeamDto { Seasons = { new TeamSeasonDto { DivisionId = division1, SeasonId = _season.Id } } };
-        var division2Team1 = new TeamDto { Seasons = { new TeamSeasonDto { DivisionId = division2, SeasonId = _season.Id } } };
-        _teamsInSeason = new[] { division1Team1, division1Team2, division2Team1 };
+        _templates = new[]
+        {
+            template,
+        };
+        var division1Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                },
+            },
+        };
+        var division1Team2 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                },
+            },
+        };
+        var division2Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division2,
+                    SeasonId = _season.Id,
+                },
+            },
+        };
+        _teamsInSeason = new[]
+        {
+            division1Team1,
+            division1Team2,
+            division2Team1,
+        };
         var expected = new Dictionary<Guid, TeamDto[]>
         {
-            { division1, new[] { division1Team1, division1Team2 } },
-            { division2, new[] { division2Team1 } },
+            {
+                division1, new[]
+                {
+                    division1Team1, division1Team2,
+                }
+            },
+            {
+                division2, new[]
+                {
+                    division2Team1,
+                }
+            },
         };
         var request = new ProposalRequestDto
         {

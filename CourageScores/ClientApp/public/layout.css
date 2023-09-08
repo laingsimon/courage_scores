@@ -142,11 +142,11 @@ input[type="date"] {
     overflow-x: auto;
 }
 
-.no-list-indent{
+.no-list-indent {
     padding-left: 0px;
 }
 
-.no-list-indent ::marker{
+.no-list-indent ::marker {
     content: '';
 }
 
@@ -173,6 +173,10 @@ input.single-character-input {
 
 .width-10, table .width-10 {
     width: 10px;
+}
+
+.width-20, table .width-20 {
+    width: 20px;
 }
 
 .width-50-pc, table .width-50-pc {
@@ -379,4 +383,8 @@ body .width-50 {
 
 .clear-float {
     clear: both;
+}
+
+.outline-0 {
+    outline: none;
 }

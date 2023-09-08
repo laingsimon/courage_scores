@@ -2,7 +2,7 @@
 
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {renderApp, cleanUp, doClick, doChange, findButton, setFile} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, noop, renderApp, setFile} from "../../helpers/tests";
 import {ImportData} from "./ImportData";
 
 describe('ImportData', () => {
@@ -13,7 +13,7 @@ describe('ImportData', () => {
     const dataApi = {
         import: async (request) => {
             importRequest = request;
-            return apiResponse || { success: true, result: { tables: [] }, errors: [], warnings: [], messages: [] };
+            return apiResponse || {success: true, result: {tables: []}, errors: [], warnings: [], messages: []};
         }
     };
 
@@ -26,10 +26,10 @@ describe('ImportData', () => {
         apiResponse = null;
         importRequest = null;
         context = await renderApp(
-            { dataApi },
-            { name: 'Courage Scores' },
+            {dataApi},
+            {name: 'Courage Scores'},
             {
-                account: { },
+                account: {},
                 appLoading: false,
                 onError: (err) => {
                     reportedError = {
@@ -37,10 +37,10 @@ describe('ImportData', () => {
                         stack: err.stack
                     };
                 },
-                reportClientSideException: () => { },
+                reportClientSideException: noop,
             },
             (<AdminContainer {...adminProps}>
-                <ImportData />
+                <ImportData/>
             </AdminContainer>));
     }
 
@@ -49,26 +49,23 @@ describe('ImportData', () => {
         await setFile(context.container, 'input[type="file"]', file, context.user);
     }
 
+    const props = {
+        tables: [
+            {name: 'Table 1', canImport: true},
+            {name: 'Table 2', canImport: false}
+        ]
+    };
+
     it('renders tables', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
 
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        expect(tables.map(t => t.textContent)).toEqual([ 'Table 1', 'Table 2' ]);
+        expect(tables.map(t => t.textContent)).toEqual(['Table 1', 'Table 2']);
     });
 
     it('can select importable table', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -81,12 +78,7 @@ describe('ImportData', () => {
     });
 
     it('cannot select non-importable table', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table2 = tables.filter(t => t.textContent.indexOf('Table 2') !== -1)[0];
@@ -99,12 +91,7 @@ describe('ImportData', () => {
     });
 
     it('cannot import when no file selected', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         let alert;
         window.alert = (msg) => alert = msg;
@@ -117,12 +104,7 @@ describe('ImportData', () => {
     });
 
     it('cannot import when no tables selected', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         let alert;
         window.alert = (msg) => alert = msg;
@@ -141,12 +123,7 @@ describe('ImportData', () => {
     });
 
     it('can import data with password', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -163,17 +140,12 @@ describe('ImportData', () => {
             dryRun: true,
             purgeData: false,
             password: 'pass',
-            tables: [ 'Table 1' ],
+            tables: ['Table 1'],
         });
     });
 
     it('can import data without password', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -189,17 +161,12 @@ describe('ImportData', () => {
             dryRun: true,
             purgeData: false,
             password: '',
-            tables: [ 'Table 1' ],
+            tables: ['Table 1'],
         });
     });
 
     it('can import data with purge and commit', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -217,17 +184,12 @@ describe('ImportData', () => {
             dryRun: false,
             purgeData: true,
             password: '',
-            tables: [ 'Table 1' ],
+            tables: ['Table 1'],
         });
     });
 
     it('renders import results', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -242,9 +204,9 @@ describe('ImportData', () => {
                     'Table 1': 5
                 }
             },
-            errors: [ 'some_error' ],
-            warnings: [ 'some_warning' ],
-            messages: [ 'some_message' ],
+            errors: ['some_error'],
+            warnings: ['some_warning'],
+            messages: ['some_message'],
         };
 
         await doClick(findButton(context.container, 'Import data'));
@@ -257,12 +219,7 @@ describe('ImportData', () => {
     });
 
     it('can handle error during import', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -270,7 +227,7 @@ describe('ImportData', () => {
             await doClick(table1);
         }
         await setFileToImport();
-        apiResponse = { success: false };
+        apiResponse = {success: false};
 
         await doClick(findButton(context.container, 'Import data'));
 
@@ -280,12 +237,7 @@ describe('ImportData', () => {
     });
 
     it('can handle http 500 error during import', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -295,7 +247,7 @@ describe('ImportData', () => {
         await setFileToImport();
         apiResponse = {
             status: 500,
-            body: { },
+            body: {},
             text: async () => 'some text error',
         };
 
@@ -307,12 +259,7 @@ describe('ImportData', () => {
     });
 
     it('can handle http 400 error during import', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -322,8 +269,10 @@ describe('ImportData', () => {
         await setFileToImport();
         apiResponse = {
             status: 400,
-            body: { },
-            json: async () => { return { errors: [ 'some error' ] }; },
+            body: {},
+            json: async () => {
+                return {errors: ['some error']};
+            },
         };
 
         await doClick(findButton(context.container, 'Import data'));
@@ -334,12 +283,7 @@ describe('ImportData', () => {
     });
 
     it('can handle unexpected error during import', async () => {
-        await renderComponent({
-            tables: [
-                { name: 'Table 1', canImport: true },
-                { name: 'Table 2', canImport: false }
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -349,10 +293,12 @@ describe('ImportData', () => {
         await setFileToImport();
         apiResponse = {
             status: 400,
-            body: { },
-            json: async () => { throw new Error('some error'); },
+            body: {},
+            json: async () => {
+                throw new Error('some error');
+            },
         };
-        console.error = () => { };
+        console.error = noop;
 
         await doClick(findButton(context.container, 'Import data'));
 

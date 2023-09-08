@@ -114,6 +114,11 @@ public class AuditExtensionsTests
         Assert.That(model.Deleted, Is.EqualTo(new DateTime(2003, 04, 05)));
     }
 
-    private class Model : AuditedEntity { }
-    private class Dto : AuditedDto  { }
+    private class Model : AuditedEntity
+    {
+    }
+
+    private class Dto : AuditedDto
+    {
+    }
 }

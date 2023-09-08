@@ -14,7 +14,7 @@ export async function doClick(container, selector) {
     // noinspection JSUnresolvedFunction
     expect(item).toBeTruthy();
     expect(item.disabled || false).toEqual(false);
-    const clickEvent = new MouseEvent('click', { bubbles: true });
+    const clickEvent = new MouseEvent('click', {bubbles: true});
     await act(async () => {
         item.dispatchEvent(clickEvent);
     });
@@ -26,7 +26,7 @@ export async function doChange(container, selector, text, user) {
         throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
     }
 
-    fireEvent.change(input, { target: { value: text } });
+    fireEvent.change(input, {target: {value: text}});
     if (!user) {
         throw new Error('user not available');
     }
@@ -39,7 +39,7 @@ export async function setFile(container, selector, file, user) {
         throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
     }
 
-    fireEvent.change(input, { target: { files: [ file ] } });
+    fireEvent.change(input, {target: {files: [file]}});
     if (!user) {
         throw new Error('user not available');
     }
@@ -63,12 +63,12 @@ export async function renderApp(iocProps, brandingProps, appProps, content, rout
         const component = (<MemoryRouter initialEntries={[currentPath]}>
             <Routes>
                 <Route path={route} element={<IocContainer {...iocProps}>
-                        <BrandingContainer {...brandingProps}>
-                            <AppContainer {...appProps}>
-                                {content}
-                            </AppContainer>
-                        </BrandingContainer>
-                    </IocContainer>} />
+                    <BrandingContainer {...brandingProps}>
+                        <AppContainer {...appProps}>
+                            {content}
+                        </AppContainer>
+                    </BrandingContainer>
+                </IocContainer>}/>
             </Routes>
         </MemoryRouter>);
         ReactDOM.createRoot(container).render(component);
@@ -92,7 +92,7 @@ export function cleanUp(context) {
 }
 
 export function findButton(container, text) {
-    if (!container){
+    if (!container) {
         throw new Error('Container is null');
     }
     const matching = Array.from(container.querySelectorAll('button')).filter(b => b.textContent === text);
@@ -124,4 +124,8 @@ export async function doSelectOption(container, text) {
     }
 
     await doClick(matchingItems[0]);
+}
+
+export function noop() {
+    // do nothing
 }

@@ -4,16 +4,17 @@ import {all, any, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useDependencies} from "../../IocContainer";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function AssignTeamToSeasons({ teamOverview, onClose }) {
-    const { season: currentSeason, onReloadDivision } = useDivisionData();
-    const { seasons, teams, onError, reloadAll } = useApp();
-    const { teamApi } = useDependencies();
+export function AssignTeamToSeasons({teamOverview, onClose}) {
+    const {season: currentSeason, onReloadDivision} = useDivisionData();
+    const {seasons, teams, onError, reloadAll} = useApp();
+    const {teamApi} = useDependencies();
     const team = teams.filter(t => t.id === teamOverview.id)[0];
     const initialSeasonIds = team ? team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId) : [];
-    const [ selectedSeasonIds, setSelectedSeasonIds ] = useState(initialSeasonIds);
-    const [ saving, setSaving ] = useState(false);
-    const [ copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason ] = useState(true);
+    const [selectedSeasonIds, setSelectedSeasonIds] = useState(initialSeasonIds);
+    const [saving, setSaving] = useState(false);
+    const [copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason] = useState(true);
     const changes = getChanges(initialSeasonIds, selectedSeasonIds);
 
     async function saveChanges() {
@@ -90,7 +91,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
             setSelectedSeasonIds(selectedSeasonIds.filter(id => id !== seasonId));
         } else {
             // add
-            setSelectedSeasonIds(selectedSeasonIds.concat([ seasonId ]));
+            setSelectedSeasonIds(selectedSeasonIds.concat([seasonId]));
         }
     }
 
@@ -132,8 +133,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
                     <button className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
                 <button className="btn btn-primary" onClick={saveChanges} disabled={!changes.changed}>
-                    {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
-                                     aria-hidden="true"></span>) : null}
+                    {saving ? (<LoadingSpinnerSmall/>) : null}
                     Apply changes
                 </button>
             </div>

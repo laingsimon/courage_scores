@@ -7,8 +7,8 @@ namespace CourageScores.Tests.Models.Adapters.Health;
 [TestFixture]
 public class LeagueFixtureHealthDtoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly LeagueFixtureHealthDtoAdapter _adapter = new LeagueFixtureHealthDtoAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly LeagueFixtureHealthDtoAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenDivisionFixture_SetsPropertiesCorrectly()

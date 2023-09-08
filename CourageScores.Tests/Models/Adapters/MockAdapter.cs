@@ -17,7 +17,9 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
         {
             _modelToDtoMap = new Dictionary<TModel, TDto>
             {
-                { model, dto! }
+                {
+                    model, dto!
+                },
             };
         }
         else
@@ -29,7 +31,9 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
         {
             _dtoToModelMap = new Dictionary<TDto, TModel>
             {
-                { dto, model! }
+                {
+                    dto, model!
+                },
             };
         }
         else
@@ -40,7 +44,11 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
 
     public MockAdapter(IEnumerable<TModel> models, IEnumerable<TDto> dtos)
     {
-        var zipped = models.Zip(dtos, (model, dto) => new { model, dto }).ToArray();
+        var zipped = models.Zip(dtos, (model, dto) => new
+        {
+            model,
+            dto,
+        }).ToArray();
         _modelToDtoMap = zipped.ToDictionary(a => a.model, a => a.dto);
         _dtoToModelMap = zipped.ToDictionary(a => a.dto, a => a.model);
     }

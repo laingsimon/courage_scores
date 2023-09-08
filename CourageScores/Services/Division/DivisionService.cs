@@ -15,19 +15,19 @@ namespace CourageScores.Services.Division;
 
 public class DivisionService : IDivisionService
 {
-    private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
-    private readonly ITeamService _genericTeamService;
-    private readonly IGenericDataService<Models.Cosmos.Season.Season, SeasonDto> _genericSeasonService;
-    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
-    private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
-    private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
     private readonly ISystemClock _clock;
     private readonly IDivisionDataDtoFactory _divisionDataDtoFactory;
+    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
+    private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
+    private readonly IGenericDataService<Models.Cosmos.Season.Season, SeasonDto> _genericSeasonService;
+    private readonly ICachingTeamService _genericTeamService;
+    private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
+    private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IUserService _userService;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
-        ITeamService genericTeamService,
+        ICachingTeamService genericTeamService,
         IGenericDataService<Models.Cosmos.Season.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
@@ -64,7 +64,8 @@ public class DivisionService : IDivisionService
 
         var allSeasons = await _genericSeasonService.GetAll(token).ToList();
         var season = filter.SeasonId == null
-            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date).MaxBy(s => s.EndDate)
+            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date)
+                .MaxBy(s => s.EndDate)
             : allSeasons.SingleOrDefault(s => s.Id == filter.SeasonId);
 
         if (season == null)
@@ -72,7 +73,8 @@ public class DivisionService : IDivisionService
             return await _divisionDataDtoFactory.SeasonNotFound(division, allSeasons, token);
         }
 
-        var allTeamsInSeason = await _genericTeamService.GetAll(token).WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id) || !t.Seasons.Any()).ToList();
+        var allTeamsInSeason = await _genericTeamService.GetAll(token)
+            .WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id) || !t.Seasons.Any()).ToList();
         var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, token);
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, division, token);
     }
@@ -91,7 +93,7 @@ public class DivisionService : IDivisionService
             .ToList();
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
-            .WhereAsync(n => filter.DivisionId == null || (n.DivisionId == null || n.DivisionId == filter.DivisionId))
+            .WhereAsync(n => filter.DivisionId == null || n.DivisionId == null || n.DivisionId == filter.DivisionId)
             .ToList();
         var games = await GetGames(filter, season, token);
         var tournamentGames = await _tournamentGameRepository
@@ -116,13 +118,17 @@ public class DivisionService : IDivisionService
         }
 
         return await _gameRepository
-            .GetSome(filter.DivisionId != null ? $"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true" : $"t.SeasonId = '{season.Id}'",
+            .GetSome(
+                filter.DivisionId != null
+                    ? $"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true"
+                    : $"t.SeasonId = '{season.Id}'",
                 token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeGame(g))
             .ToList();
     }
 
     #region delegating members
+
     [ExcludeFromCodeCoverage]
     public Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {

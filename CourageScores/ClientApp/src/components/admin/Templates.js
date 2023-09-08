@@ -3,22 +3,28 @@ import React, {useEffect, useState} from "react";
 import {useApp} from "../../AppContainer";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
-import {stateChanged} from "../../helpers/events";
+import {stateChanged, valueChanged} from "../../helpers/events";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {TemplateTextEditor} from "./TemplateTextEditor";
+import {TemplateVisualEditor} from "./TemplateVisualEditor";
 
 export function Templates() {
-    const EMPTY_TEMPLATE = {};
+    const EMPTY_TEMPLATE = {
+        sharedAddresses: [],
+        divisions: [],
+    };
 
-    const { templateApi } = useDependencies();
-    const { onError } = useApp();
-    const [ templates, setTemplates ] = useState(null);
-    const [ loading, setLoading ] = useState(null);
-    const [ editing, setEditing ] = useState(null);
-    const [ selected, setSelected ] = useState(null);
-    const [ saving, setSaving ] = useState(false);
-    const [ deleting, setDeleting ] = useState(false);
-    const [ valid, setValid ] = useState(null);
-    const [ saveError, setSaveError ] = useState(null);
-    const [ fixtureToFormat, setFixtureToFormat ] = useState('');
+    const {templateApi} = useDependencies();
+    const {onError} = useApp();
+    const [templates, setTemplates] = useState(null);
+    const [loading, setLoading] = useState(null);
+    const [selected, setSelected] = useState(null);
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [valid, setValid] = useState(null);
+    const [saveError, setSaveError] = useState(null);
+    const [fixtureToFormat, setFixtureToFormat] = useState('');
+    const [editorFormat, setEditorFormat] = useState('visual');
 
     async function loadTemplates() {
         try {
@@ -32,73 +38,38 @@ export function Templates() {
     }
 
     useEffect(() => {
-        /* istanbul ignore next */
-        if (loading) {
             /* istanbul ignore next */
-            return;
-        }
+            if (loading) {
+                /* istanbul ignore next */
+                return;
+            }
 
-        setLoading(true);
-        // noinspection JSIgnoredPromiseFromCall
-        loadTemplates();
-    },
-    // eslint-disable-next-line
-    []);
+            setLoading(true);
+            // noinspection JSIgnoredPromiseFromCall
+            loadTemplates();
+        },
+        // eslint-disable-next-line
+        []);
 
     function toggleSelected(t) {
         return () => {
             if (isSelected(t)) {
-                setEditing(null);
                 setSelected(null);
                 return;
             }
 
-            setSelected(t);
+            setSelected(Object.assign({}, t));
             setEditingTemplate(t);
         }
     }
 
     function setEditingTemplate(t) {
-        let jsonString = JSON.stringify(t, excludePropertiesFromEdit, '  ');
-
-        // fixture inlining
-        jsonString = jsonString.replaceAll(',\n              "away"', ', "away"');
-        jsonString = jsonString.replaceAll('"\n            }', '" }');
-        jsonString = jsonString.replaceAll('{\n              "', '{ "');
-        jsonString = jsonString.replaceAll(', "away": null\n            }', ' }');
-
-        // division shared address inlining
-        jsonString = jsonString.replaceAll('[\n          "', '[ "');
-        jsonString = jsonString.replaceAll('",\n          "', '", "');
-        jsonString = jsonString.replaceAll('"\n        ]', '" ]');
-
-        // season shared address inlining
-        jsonString = jsonString.replaceAll('[\n      "', '[ "');
-        jsonString = jsonString.replaceAll('",\n      "', '", "');
-        jsonString = jsonString.replaceAll('"\n    ]', '" ]');
-
-        setEditing(jsonString);
         setValid(true);
-    }
-
-    function excludePropertiesFromEdit(key, value) {
-        switch (key) {
-            case 'id':
-            case 'created':
-            case 'author':
-            case 'editor':
-            case 'updated':
-            case 'deleted':
-            case 'remover':
-            case 'templateHealth':
-                return undefined;
-            default:
-                return value;
-        }
+        setSelected(t);
     }
 
     function isSelected(t) {
-        if (!editing || !selected) {
+        if (!selected) {
             return false;
         }
 
@@ -106,10 +77,15 @@ export function Templates() {
     }
 
     function renderTemplates() {
-        return (<ul className="list-group mb-2">
-            {templates.map(t => (<li key={t.id} className={`list-group-item d-flex justify-content-between align-items-center${isSelected(t) ? ' active' : ''}`} onClick={toggleSelected(t)}>
-                <label>{t.name}</label>
-                {renderBadge(t.templateHealth)}
+        return (<ul className="list-group mb-2" name="templates">
+            {templates.map(t => (<li key={t.id}
+                                     className={`list-group-item flex-column${isSelected(t) ? ' active' : ''}`}
+                                     onClick={toggleSelected(t)}>
+                <div className="d-flex w-100 justify-content-between">
+                    <label>{t.name}</label>
+                    {renderBadge(t.templateHealth)}
+                </div>
+                {t.description ? (<small className="mb-1">{t.description}</small>) : null}
             </li>))}
         </ul>);
     }
@@ -140,14 +116,11 @@ export function Templates() {
         setSaving(true);
 
         try {
-            const template = JSON.parse(editing);
-            if (selected) {
-                template.lastUpdated = selected.updated;
-                template.id = selected.id;
-            }
+            const template = Object.assign({}, selected);
+            template.lastUpdated = selected.updated;
             const result = await templateApi.update(template);
             if (result.success) {
-                setEditing(null);
+                setSelected(null);
                 await loadTemplates();
             } else {
                 setSaveError(result);
@@ -161,6 +134,7 @@ export function Templates() {
     }
 
     async function deleteTemplate() {
+        /* istanbul ignore next */
         if (deleting) {
             /* istanbul ignore next */
             return;
@@ -174,7 +148,7 @@ export function Templates() {
         try {
             const result = await templateApi.delete(selected.id);
             if (result.success) {
-                setEditing(null);
+                setSelected(null);
                 await loadTemplates();
             } else {
                 setSaveError(result);
@@ -184,16 +158,6 @@ export function Templates() {
             onError(e);
         } finally {
             setDeleting(false);
-        }
-    }
-
-    function updateTemplate(json) {
-        setEditing(json);
-        try {
-            JSON.parse(json);
-            setValid(true);
-        } catch (e) {
-            setValid(false);
         }
     }
 
@@ -216,7 +180,7 @@ export function Templates() {
             }
 
             fixtureBatch.push(fixture);
-            if (fixtureBatch.length === 2){
+            if (fixtureBatch.length === 2) {
                 const fixture = {
                     home: fixtureBatch[0],
                 };
@@ -236,36 +200,66 @@ export function Templates() {
         return (<div className="content-background p-3">
             <h3>Manage templates</h3>
             {loading || loading === null
-                ? (<p><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span> Loading templates...</p>)
+                ? (<p><LoadingSpinnerSmall/> Loading templates...</p>)
                 : renderTemplates()}
-            {editing !== null ? <div>
+            {selected ? <div>
                 <p>Template definition</p>
-                <textarea className="width-100 min-height-100" rows="15" value={editing} onChange={e => updateTemplate(e.target.value)}></textarea>
+                <div className="input-group mb-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Name</span>
+                    </div>
+                    <input name="name" className="form-control" value={selected.name} onChange={valueChanged(selected, setSelected)} />
+                </div>
+                <div className="input-group mb-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Description</span>
+                    </div>
+                    <input name="description" className="form-control" value={selected.description || ''} onChange={valueChanged(selected, setSelected)} />
+                </div>
+                <div className="form-check form-switch input-group-prepend mb-2">
+                    <input type="checkbox" className="form-check-input"
+                           name="editorFormat" id="editorFormat"
+                           checked={editorFormat === 'visual'}
+                           onChange={event => setEditorFormat(event.target.checked ? 'visual' : 'text')}/>
+                    <label className="form-check-label" htmlFor="editorFormat">Visual editor</label>
+                </div>
+                {editorFormat === 'text' ? (<TemplateTextEditor template={selected} setValid={setValid} onUpdate={setSelected} />) : null}
+                {editorFormat === 'visual' ? (<TemplateVisualEditor template={selected} setValid={setValid} onUpdate={setSelected} />) : null}
                 <div>
                     <button className="btn btn-primary margin-right" onClick={saveTemplate} disabled={!valid}>
-                        {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                        {saving
+                            ? (<LoadingSpinnerSmall/>)
+                            : null}
                         Save
                     </button>
-                    {selected && selected.id ? (<button className="btn btn-danger margin-right" onClick={deleteTemplate}>
-                        {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                        Delete
-                    </button>) : null}
+                    {selected && selected.id ? (
+                        <button className="btn btn-danger margin-right" onClick={deleteTemplate}>
+                            {deleting
+                                ? (<LoadingSpinnerSmall/>)
+                                : null}
+                            Delete
+                        </button>) : null}
                 </div>
-                {selected && selected.templateHealth ? (<div>
-                    <ViewHealthCheck result={selected.templateHealth} />
+                {selected.templateHealth ? (<div className="alert alert-success mt-3 p-1 pt-3">
+                    <ViewHealthCheck result={selected.templateHealth}/>
                 </div>) : null}
-                <div className="mt-3 text-secondary">
+                {editorFormat === 'text' ? (<div className="mt-3 text-secondary">
                     <div>Authoring tools: Copy fixture template from excel (per division)</div>
-                    <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel" onChange={stateChanged(setFixtureToFormat)} />
-                    <textarea value={formatFixtureInput()} className="d-inline-block width-100" placeholder="Copy into template" readOnly={true}></textarea>
-                </div>
+                    <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel"
+                              onChange={stateChanged(setFixtureToFormat)}/>
+                    <textarea value={formatFixtureInput()} className="d-inline-block width-100"
+                              placeholder="Copy into template" readOnly={true}></textarea>
+                </div>) : null}
             </div> : (<div>
-                <button className="btn btn-primary margin-right" onClick={() => setEditingTemplate(EMPTY_TEMPLATE)}>Add</button>
+                <button className="btn btn-primary margin-right" onClick={() => setEditingTemplate(EMPTY_TEMPLATE)}>
+                    Add
+                </button>
             </div>)}
-            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save template" />) : null}
+            {saveError
+                ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save template"/>)
+                : null}
         </div>);
-    }
-    catch (e) {
+    } catch (e) {
         /* istanbul ignore next */
         onError(e);
     }

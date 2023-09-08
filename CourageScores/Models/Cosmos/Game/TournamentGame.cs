@@ -88,27 +88,12 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public string? Gender { get; set; }
 
-    [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto? user)
-    {
-        return user?.Access?.ManageTournaments == true;
-    }
-
-    [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto? user)
-    {
-        return user?.Access?.ManageTournaments == true;
-    }
-
-    [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto? user)
-    {
-        return user?.Access?.ManageTournaments == true;
-    }
-
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
-        scope = scope.With(new VisitorScope { Tournament = this });
+        scope = scope.With(new VisitorScope
+        {
+            Tournament = this,
+        });
 
         visitor.VisitGame(this);
 
@@ -131,5 +116,23 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
         }
 
         Round?.Accept(scope, visitor);
+    }
+
+    [ExcludeFromCodeCoverage]
+    public bool CanCreate(UserDto? user)
+    {
+        return user?.Access?.ManageTournaments == true;
+    }
+
+    [ExcludeFromCodeCoverage]
+    public bool CanEdit(UserDto? user)
+    {
+        return user?.Access?.ManageTournaments == true;
+    }
+
+    [ExcludeFromCodeCoverage]
+    public bool CanDelete(UserDto? user)
+    {
+        return user?.Access?.ManageTournaments == true;
     }
 }

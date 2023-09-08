@@ -11,14 +11,14 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class UpdateRecordedScoreAsYouGoDtoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private UpdateRecordedScoreAsYouGoDtoAdapter _adapter = null!;
-    private Mock<ITeamService> _teamService = null!;
+    private Mock<ICachingTeamService> _teamService = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _teamService = new Mock<ITeamService>();
+        _teamService = new Mock<ICachingTeamService>();
         _adapter = new UpdateRecordedScoreAsYouGoDtoAdapter(_teamService.Object);
     }
 
@@ -94,8 +94,14 @@ public class UpdateRecordedScoreAsYouGoDtoAdapterTests
         var match = new TournamentMatch
         {
             Id = Guid.NewGuid(),
-            SideA = new TournamentSide { Name = "SIDE A" },
-            SideB = new TournamentSide { Name = "SIDE B" },
+            SideA = new TournamentSide
+            {
+                Name = "SIDE A",
+            },
+            SideB = new TournamentSide
+            {
+                Name = "SIDE B",
+            },
         };
         var sayg = new RecordedScoreAsYouGoDto();
 
@@ -121,8 +127,14 @@ public class UpdateRecordedScoreAsYouGoDtoAdapterTests
         var match = new TournamentMatch
         {
             Id = Guid.NewGuid(),
-            SideA = new TournamentSide { TeamId = teamADto.Id },
-            SideB = new TournamentSide { TeamId = teamBDto.Id },
+            SideA = new TournamentSide
+            {
+                TeamId = teamADto.Id,
+            },
+            SideB = new TournamentSide
+            {
+                TeamId = teamBDto.Id,
+            },
         };
         var sayg = new RecordedScoreAsYouGoDto();
         _teamService.Setup(s => s.Get(teamADto.Id, _token)).ReturnsAsync(teamADto);
@@ -140,8 +152,14 @@ public class UpdateRecordedScoreAsYouGoDtoAdapterTests
         var match = new TournamentMatch
         {
             Id = Guid.NewGuid(),
-            SideA = new TournamentSide { TeamId = Guid.NewGuid() },
-            SideB = new TournamentSide { TeamId = Guid.NewGuid() },
+            SideA = new TournamentSide
+            {
+                TeamId = Guid.NewGuid(),
+            },
+            SideB = new TournamentSide
+            {
+                TeamId = Guid.NewGuid(),
+            },
         };
         var sayg = new RecordedScoreAsYouGoDto();
 
@@ -157,8 +175,14 @@ public class UpdateRecordedScoreAsYouGoDtoAdapterTests
         var match = new TournamentMatch
         {
             Id = Guid.NewGuid(),
-            SideA = new TournamentSide { Id = Guid.NewGuid() },
-            SideB = new TournamentSide { Id = Guid.NewGuid() },
+            SideA = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
+            SideB = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
         };
         var sayg = new RecordedScoreAsYouGoDto();
 

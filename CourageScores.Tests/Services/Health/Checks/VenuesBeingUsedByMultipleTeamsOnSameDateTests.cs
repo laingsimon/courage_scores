@@ -9,11 +9,26 @@ namespace CourageScores.Tests.Services.Health.Checks;
 [TestFixture]
 public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly VenuesBeingUsedByMultipleTeamsOnSameDate _check = new VenuesBeingUsedByMultipleTeamsOnSameDate();
-    private readonly DivisionTeamDto _teamA = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "A", Address = "ADDRESS" };
-    private readonly DivisionTeamDto _teamB = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "B", Address = "ADDRESS" };
-    private readonly DivisionTeamDto _anotherTeam = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY", Address = "Another address" };
+    private readonly CancellationToken _token = new();
+    private readonly VenuesBeingUsedByMultipleTeamsOnSameDate _check = new();
+    private readonly DivisionTeamDto _teamA = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "A",
+        Address = "ADDRESS",
+    };
+    private readonly DivisionTeamDto _teamB = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "B",
+        Address = "ADDRESS",
+    };
+    private readonly DivisionTeamDto _anotherTeam = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "AWAY",
+        Address = "Another address",
+    };
 
     [Test]
     public async Task RunCheck_GivenNoDates_ReturnsSuccess()
@@ -21,11 +36,19 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _teamB,
+                _anotherTeam,
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -36,7 +59,12 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _teamB,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -45,13 +73,16 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 03), _teamA, _anotherTeam),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -59,12 +90,25 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
     [Test]
     public async Task RunCheck_GivenTeamWithNoAddress_ReturnsSuccess()
     {
-        var teamANoAddress = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "A" };
-        var anotherTeamNoAddress = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY" };
+        var teamANoAddress = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "A",
+        };
+        var anotherTeamNoAddress = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY",
+        };
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _teamB,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -73,13 +117,16 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 03), teamANoAddress, anotherTeamNoAddress),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -90,7 +137,11 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -99,14 +150,18 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 03), _teamA, _anotherTeam),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var division2 = new DivisionHealthDto
         {
             Name = "DIVISION 2",
-            Teams = { _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamB,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -115,13 +170,16 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 03), _anotherTeam, _teamB),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1, division2 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1, division2,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -132,7 +190,12 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _teamB,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -142,13 +205,16 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     {
                         Fixture(new DateTime(2001, 02, 03), _teamA, _anotherTeam),
                         Fixture(new DateTime(2001, 02, 03), _teamB, null),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -159,7 +225,12 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _teamB,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -169,16 +240,22 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     {
                         Fixture(new DateTime(2001, 02, 03), _teamA, _anotherTeam),
                         Fixture(new DateTime(2001, 02, 03), _teamB, _anotherTeam),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1,
+        }, context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "ADDRESS is being used for 2 fixtures on 3 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "ADDRESS is being used for 2 fixtures on 3 Feb 2001",
+        }));
     }
 
     [Test]
@@ -187,7 +264,11 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -196,14 +277,18 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 03), _teamA, _anotherTeam),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var division2 = new DivisionHealthDto
         {
             Name = "DIVISION 2",
-            Teams = { _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamB,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -212,16 +297,22 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 03), _teamB, _anotherTeam),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1, division2 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1, division2,
+        }, context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "ADDRESS is being used for 2 fixtures on 3 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "ADDRESS is being used for 2 fixtures on 3 Feb 2001",
+        }));
     }
 
     [Test]
@@ -230,7 +321,11 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         var division1 = new DivisionHealthDto
         {
             Name = "DIVISION 1",
-            Teams = { _teamA, _anotherTeam },
+            Teams =
+            {
+                _teamA,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -239,14 +334,18 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 03), _teamA, _anotherTeam),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var division2 = new DivisionHealthDto
         {
             Name = "DIVISION 2",
-            Teams = { _teamB, _anotherTeam },
+            Teams =
+            {
+                _teamB,
+                _anotherTeam,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -255,13 +354,16 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
                     Fixtures =
                     {
                         Fixture(new DateTime(2001, 02, 10), _teamB, _anotherTeam),
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division1, division2 }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division1, division2,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }

@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {EditSeason} from "./EditSeason";
-import {createTemporaryId} from "../helpers/projection";
+import {divisionBuilder, seasonBuilder} from "../helpers/builders";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -26,7 +26,7 @@ describe('EditSeason', () => {
     let deletedId;
     const seasonApi = {
         update: (data, lastUpdated) => {
-            updatedSeason = { data, lastUpdated };
+            updatedSeason = {data, lastUpdated};
             return apiResponse;
         },
         delete: (id) => {
@@ -40,8 +40,13 @@ describe('EditSeason', () => {
     });
 
     async function renderComponent(props, seasons, divisions) {
-        window.alert = (message) => { alert = message };
-        window.confirm = (message) => { confirm = message; return confirmResponse };
+        window.alert = (message) => {
+            alert = message
+        };
+        window.confirm = (message) => {
+            confirm = message;
+            return confirmResponse
+        };
         alert = null;
         confirm = null;
         reportedError = null;
@@ -55,8 +60,8 @@ describe('EditSeason', () => {
             success: true,
         };
         context = await renderApp(
-            { seasonApi },
-            { name: 'Courage Scores' },
+            {seasonApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -69,37 +74,30 @@ describe('EditSeason', () => {
             },
             (<EditSeason
                 {...props}
-                onClose={() => closed = true }
-                onSave={() => saved = true }
-                setSaveError={(err) => saveError = err }
+                onClose={() => closed = true}
+                onSave={() => saved = true}
+                setSaveError={(err) => saveError = err}
             />));
     }
 
-    const division1 = {
-        id: createTemporaryId(),
-        name: 'DIVISION 1',
-    };
-    const division2 = {
-        id: createTemporaryId(),
-        name: 'DIVISION 2',
-    };
-    const divisions = [ division1, division2 ];
+    const division1 = divisionBuilder('DIVISION 1').build();
+    const division2 = divisionBuilder('DIVISION 2').build();
+    const season = seasonBuilder('SEASON')
+        .starting('2023-01-01T00:00:00')
+        .ending('2023-05-01T00:00:00')
+        .withDivision(division1)
+        .withDivisionId(division1)
+        .build();
+    const divisions = [division1, division2];
 
     it('updates season name', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         let updatedData;
         await renderComponent({
             data: season,
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME', context.user);
@@ -110,20 +108,13 @@ describe('EditSeason', () => {
     });
 
     it('updates season dates', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         let updatedData;
         await renderComponent({
             data: season,
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doChange(context.container, 'input[name="startDate"]', '2023-06-01', context.user);
@@ -138,20 +129,13 @@ describe('EditSeason', () => {
     });
 
     it('can select a division', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         let updatedData;
         await renderComponent({
             data: season,
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
@@ -161,24 +145,17 @@ describe('EditSeason', () => {
 
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.divisionIds).toEqual([ division1.id, division2.id ]);
+        expect(updatedData.divisionIds).toEqual([division1.id, division2.id]);
     });
 
     it('can unselect a division', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         let updatedData;
         await renderComponent({
             data: season,
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
@@ -188,27 +165,20 @@ describe('EditSeason', () => {
 
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.divisionIds).toEqual([ ]);
+        expect(updatedData.divisionIds).toEqual([]);
     });
 
     it('updates copy teams from when no id', async () => {
-        const season = {
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
-        const otherSeason = {
-            id: createTemporaryId(),
-            name: 'OTHER SEASON',
-        };
+        const seasonWithoutId = Object.assign({}, season);
+        seasonWithoutId.id = null;
+        const otherSeason = seasonBuilder('OTHER SEASON').build();
         let updatedData;
         await renderComponent({
-            data: season,
+            data: seasonWithoutId,
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ otherSeason ], divisions);
+        }, [otherSeason], divisions);
         expect(reportedError).toBeNull();
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
@@ -218,16 +188,11 @@ describe('EditSeason', () => {
     });
 
     it('prevents save when season name is empty', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: '',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
+        const seasonWithoutName = Object.assign({}, season);
+        seasonWithoutName.name = '';
         await renderComponent({
-            data: season,
-        }, [ season ], divisions);
+            data: seasonWithoutName,
+        }, [seasonWithoutName], divisions);
 
         await doClick(findButton(context.container, 'Update season'));
 
@@ -236,16 +201,9 @@ describe('EditSeason', () => {
     });
 
     it('saves season updates', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doClick(findButton(context.container, 'Update season'));
@@ -257,16 +215,9 @@ describe('EditSeason', () => {
     });
 
     it('reports saveError if an error during save', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         apiResponse = {
             success: false
@@ -279,16 +230,9 @@ describe('EditSeason', () => {
     });
 
     it('confirms if season should be deleted', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doClick(findButton(context.container, 'Delete season'));
@@ -298,16 +242,9 @@ describe('EditSeason', () => {
     });
 
     it('deletes season', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
@@ -318,16 +255,9 @@ describe('EditSeason', () => {
     });
 
     it('reports saveError if season cannot be deleted', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         confirmResponse = true;
         apiResponse = {
@@ -342,16 +272,9 @@ describe('EditSeason', () => {
     });
 
     it('navigates to home when season deleted', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
-        }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         confirmResponse = true;
 

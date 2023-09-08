@@ -1,8 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {LegStatistics} from "./LegStatistics";
+import {legBuilder} from "../../../helpers/builders";
 
 describe('LegStatistics', () => {
     let context;
@@ -13,9 +14,9 @@ describe('LegStatistics', () => {
 
     async function renderComponent(props) {
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
-            { },
+            {},
+            {name: 'Courage Scores'},
+            {},
             <LegStatistics {...props} />,
             null,
             null,
@@ -42,14 +43,10 @@ describe('LegStatistics', () => {
 
     it('renders nothing when no darts thrown', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 0,
-                },
-                away: {
-                    noOfDarts: 0,
-                },
-            }
+            leg: legBuilder()
+                .home(c => c.noOfDarts(0))
+                .away(c => c.noOfDarts(0))
+                .build()
         });
 
         expect(context.container.innerHTML).toEqual('');
@@ -57,19 +54,11 @@ describe('LegStatistics', () => {
 
     it('renders 2 player statistics for leg without winner', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [],
-                },
-                startingScore: 501,
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100))
+                .away(c => c.noOfDarts(3).score(50))
+                .startingScore(501)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -87,24 +76,12 @@ describe('LegStatistics', () => {
 
     it('renders 2 player statistics for leg with home winner', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50
-                    }],
-                },
-                startingScore: 501,
-                winner: 'home',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                .startingScore(501)
+                .winner('home')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -122,24 +99,12 @@ describe('LegStatistics', () => {
 
     it('renders 2 player statistics for leg with away winner', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50
-                    }],
-                },
-                startingScore: 501,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                .startingScore(501)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -157,18 +122,12 @@ describe('LegStatistics', () => {
 
     it('renders single player statistics for leg with winner', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100
-                    }],
-                },
-                away: { },
-                startingScore: 501,
-                winner: 'home',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                .away({})
+                .startingScore(501)
+                .winner('home')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -185,17 +144,11 @@ describe('LegStatistics', () => {
 
     it('renders single player statistics for leg without winner', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100
-                    }],
-                },
-                away: { },
-                startingScore: 501,
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                .away({})
+                .startingScore(501)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -212,24 +165,12 @@ describe('LegStatistics', () => {
 
     it('can expand 2 player statistics', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50
-                    }],
-                },
-                startingScore: 100,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                .startingScore(100)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -241,32 +182,19 @@ describe('LegStatistics', () => {
         await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-        expect(homeThrows.map(getCellContent)).toEqual([ [ '_100_', '0', '' ] ]);
+        expect(homeThrows.map(getCellContent)).toEqual([['_100_', '0', '']]);
         const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '50', '' ] ]);
+        expect(awayThrows.map(getCellContent)).toEqual([['50', '50', '']]);
     });
 
     it('can expand 2 player statistics with bust scores', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 120,
-                        bust: true,
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50
-                    }],
-                },
-                startingScore: 100,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(120, true))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                .startingScore(100)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -278,31 +206,19 @@ describe('LegStatistics', () => {
         await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-        expect(homeThrows.map(getCellContent)).toEqual([ [ '_~~120~~_', '100', '' ] ]);
+        expect(homeThrows.map(getCellContent)).toEqual([['_~~120~~_', '100', '']]);
         const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '50', '' ] ]);
+        expect(awayThrows.map(getCellContent)).toEqual([['50', '50', '']]);
     });
 
     it('can expand 2 player statistics with 180s', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 180,
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50
-                    }],
-                },
-                startingScore: 200,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(180))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                .startingScore(200)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -314,26 +230,18 @@ describe('LegStatistics', () => {
         await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-        expect(homeThrows.map(getCellContent)).toEqual([ [ '_**180**_', '20', '' ] ]);
+        expect(homeThrows.map(getCellContent)).toEqual([['_**180**_', '20', '']]);
         const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '150', '' ] ]);
+        expect(awayThrows.map(getCellContent)).toEqual([['50', '150', '']]);
     });
 
     it('can expand 2 player statistics with no throws', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [],
-                },
-                startingScore: 501,
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100))
+                .away(c => c.noOfDarts(3).score(50))
+                .startingScore(501)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -352,19 +260,12 @@ describe('LegStatistics', () => {
 
     it('can single player expand statistics', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }],
-                },
-                away: { },
-                startingScore: 501,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                .away({})
+                .startingScore(501)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -376,31 +277,17 @@ describe('LegStatistics', () => {
         await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-        expect(homeThrows.map(getCellContent)).toEqual([ [ '_100_', '401', '3' ] ]);
+        expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '3']]);
     });
 
     it('can toggle expanded statistics to show averages', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50,
-                        noOfDarts: 3,
-                    }],
-                },
-                startingScore: 501,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                .startingScore(501)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -413,33 +300,19 @@ describe('LegStatistics', () => {
         await doClick(findButton(firstCell, 'Click to show running average'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-        expect(homeThrows.map(getCellContent)).toEqual([ [ '_100_', '401', '100' ] ]);
+        expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '100']]);
         const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '451', '50' ] ]);
+        expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '50']]);
     });
 
     it('can toggle expanded statistics to show no of darts', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50,
-                        noOfDarts: 3,
-                    }],
-                },
-                startingScore: 501,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                .startingScore(501)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -451,33 +324,19 @@ describe('LegStatistics', () => {
         await doClick(firstCell, 'input[id^="showThrows_"]');
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-        expect(homeThrows.map(getCellContent)).toEqual([ [ '_100_', '401', '3' ] ]);
+        expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '3']]);
         const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '451', '3' ] ]);
+        expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '3']]);
     });
 
     it('can toggle expanded statistics to show 1-dart averages', async () => {
         await renderComponent({
-            leg: {
-                home: {
-                    noOfDarts: 3,
-                    score: 100,
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }],
-                },
-                away: {
-                    noOfDarts: 3,
-                    score: 50,
-                    throws: [{
-                        score: 50,
-                        noOfDarts: 3,
-                    }],
-                },
-                startingScore: 501,
-                winner: 'away',
-            },
+            leg: legBuilder()
+                .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                .startingScore(501)
+                .winner('away')
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             legNumber: 1,
@@ -490,8 +349,8 @@ describe('LegStatistics', () => {
         await doClick(findButton(firstCell, 'Click to show running average'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-        expect(homeThrows.map(getCellContent)).toEqual([ [ '_100_', '401', '33.33' ] ]);
+        expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '33.33']]);
         const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '451', '16.67' ] ]);
+        expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '16.67']]);
     });
 });

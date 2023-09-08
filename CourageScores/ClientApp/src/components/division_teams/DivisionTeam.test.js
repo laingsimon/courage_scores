@@ -1,10 +1,11 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionTeam} from "./DivisionTeam";
 import {DivisionDataContainer} from "../DivisionDataContainer";
+import {divisionBuilder, seasonBuilder} from "../../helpers/builders";
 
 describe('DivisionTeam', () => {
     let context;
@@ -15,8 +16,8 @@ describe('DivisionTeam', () => {
 
     const teamApi = {
         update: async (team, lastUpdated) => {
-            updatedTeam = { team, lastUpdated };
-            return apiResponse || { success: true, result: team };
+            updatedTeam = {team, lastUpdated};
+            return apiResponse || {success: true, result: team};
         }
     };
 
@@ -33,8 +34,8 @@ describe('DivisionTeam', () => {
         divisionReloaded = false;
         updatedTeam = null;
         context = await renderApp(
-            { teamApi },
-            { name: 'Courage Scores' },
+            {teamApi},
+            {name: 'Courage Scores'},
             {
                 account,
                 onError: (err) => {
@@ -45,7 +46,7 @@ describe('DivisionTeam', () => {
                 seasons: []
             },
             (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
-                <DivisionTeam team={team} />
+                <DivisionTeam team={team}/>
             </DivisionDataContainer>),
             null,
             null,
@@ -54,14 +55,9 @@ describe('DivisionTeam', () => {
 
     describe('when logged out', () => {
         const account = null;
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .build();
 
         it('renders team details', async () => {
             const team = {
@@ -75,7 +71,7 @@ describe('DivisionTeam', () => {
                 difference: 6
             };
 
-            await renderComponent(team, account, { id: division.id, season });
+            await renderComponent(team, account, {id: division.id, season});
             expect(reportedError).toBeNull();
 
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -103,7 +99,7 @@ describe('DivisionTeam', () => {
                 difference: 6
             };
 
-            await renderComponent(team, account, { id: division.id, season });
+            await renderComponent(team, account, {id: division.id, season});
             expect(reportedError).toBeNull();
 
             const firstCell = context.container.querySelector('td:first-child');
@@ -118,14 +114,10 @@ describe('DivisionTeam', () => {
                 manageTeams: true,
             }
         };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
 
         it('can edit team', async () => {
             const team = {
@@ -138,7 +130,7 @@ describe('DivisionTeam', () => {
                 fixturesDrawn: 5,
                 difference: 6
             };
-            await renderComponent(team, account, { id: division.id, season });
+            await renderComponent(team, account, {id: division.id, season});
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
 
@@ -162,7 +154,7 @@ describe('DivisionTeam', () => {
                 difference: 6,
                 updated: '2023-07-01T00:00:00',
             };
-            await renderComponent(team, account, { id: division.id, season });
+            await renderComponent(team, account, {id: division.id, season});
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '✏️'));
@@ -188,7 +180,7 @@ describe('DivisionTeam', () => {
                 fixturesDrawn: 5,
                 difference: 6
             };
-            await renderComponent(team, account, { id: division.id, season });
+            await renderComponent(team, account, {id: division.id, season});
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '✏️'));
@@ -211,7 +203,7 @@ describe('DivisionTeam', () => {
                 difference: 6,
                 seasons: []
             };
-            await renderComponent(team, account, { id: division.id, season }, [ team ]);
+            await renderComponent(team, account, {id: division.id, season}, [team]);
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
 
@@ -235,7 +227,7 @@ describe('DivisionTeam', () => {
                 difference: 6,
                 seasons: []
             };
-            await renderComponent(team, account, { id: division.id, season }, [ team ]);
+            await renderComponent(team, account, {id: division.id, season}, [team]);
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '➕'));

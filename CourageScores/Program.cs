@@ -9,10 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    })
+    .AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
     .AddCookie(options =>
     {
         options.LoginPath = "/api/Account/Login"; // Must be lowercase
@@ -25,14 +22,8 @@ builder.Services
 
 // Add services to the container.
 builder.Services
-    .AddControllersWithViews(options =>
-    {
-        options.Filters.Add<CacheManagementFilter>();
-    })
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+    .AddControllersWithViews(options => { options.Filters.Add<CacheManagementFilter>(); })
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -46,17 +37,14 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
-{
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+{
     app.UseHsts();
 }
 
 var debugToken = configuration["DebugToken"];
 var handler = new ExceptionHandler(app.Environment.IsDevelopment(), debugToken);
-app.UseExceptionHandler(exceptionHandlerApp =>
-{
-    exceptionHandlerApp.Run(handler.HandleException);
-});
+app.UseExceptionHandler(exceptionHandlerApp => { exceptionHandlerApp.Run(handler.HandleException); });
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -79,8 +67,8 @@ app.UseCors(cors =>
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller}/{action=Index}/{id?}");
+        "default",
+        "{controller}/{action=Index}/{id?}");
 });
 
 app.MapFallbackToFile("index.html");
@@ -90,5 +78,4 @@ app.Run();
 [ExcludeFromCodeCoverage]
 public partial class Program
 {
-
 }

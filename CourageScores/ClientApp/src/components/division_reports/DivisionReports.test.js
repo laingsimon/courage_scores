@@ -1,12 +1,13 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, renderApp, findButton, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
+import {seasonBuilder} from "../../helpers/builders";
 
-describe('DivisionTeams', () => {
+describe('DivisionReports', () => {
     let context;
     let reportedError;
     let divisionReloaded = false;
@@ -28,37 +29,37 @@ describe('DivisionTeams', () => {
         divisionReloaded = false;
         requestedReports = [];
         context = await renderApp(
-            { reportApi },
-            { name: 'Courage Scores' },
+            {reportApi},
+            {name: 'Courage Scores'},
             {
                 account: account,
                 onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
+                    if (err.message) {
+                        reportedError = {
+                            message: err.message,
+                            stack: err.stack
+                        };
+                    } else {
+                        reportedError = err;
+                    }
                 },
                 error: null,
             },
             (<DivisionDataContainer {...divisionData}>
-                <DivisionReports />
+                <DivisionReports/>
             </DivisionDataContainer>));
     }
 
     function createDivisionData(divisionId) {
-        const season = {
-            id: createTemporaryId(),
-            name: 'A season',
-            startDate: '2022-02-03T00:00:00',
-            endDate: '2022-08-25T00:00:00',
-            divisions: []
-        };
         return {
             id: divisionId,
             name: 'DIVISION',
-            teams: [ ],
-            players: [ ],
-            season: season
+            teams: [],
+            players: [],
+            season: seasonBuilder('A season')
+                .starting('2022-02-03T00:00:00')
+                .ending('2022-08-25T00:00:00')
+                .build()
         };
     }
 
@@ -67,7 +68,7 @@ describe('DivisionTeams', () => {
     }
 
     describe('when logged in', () => {
-        const account = { access: { runReports: true } };
+        const account = {access: {runReports: true}};
 
         it('renders component', async () => {
             const divisionId = createTemporaryId();
@@ -85,18 +86,33 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ {
+                reports: [{
                     name: 'A report',
                     description: 'A report description',
                     valueHeading: 'Value',
                     rows: []
-                } ],
-                messages: [ ]
+                }],
+                messages: []
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
+        });
+
+        it('handles api exception when fetching reports', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                Exception: {
+                    Message: 'Some server side error',
+                },
+            };
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            expect(reportedError).toEqual('Some server side error');
         });
 
         it('remembers selected report after subsequent fetch', async () => {
@@ -116,8 +132,8 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ report1, report2 ],
-                messages: [ ]
+                reports: [report1, report2],
+                messages: []
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
 
@@ -145,15 +161,15 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ report1, report2 ],
-                messages: [ ]
+                reports: [report1, report2],
+                messages: []
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
 
             returnReport = {
-                reports: [ report1 ],
-                messages: [ ]
+                reports: [report1],
+                messages: []
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
 
@@ -178,15 +194,15 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ report1, report2 ],
-                messages: [ ]
+                reports: [report1, report2],
+                messages: []
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
 
             returnReport = {
-                reports: [ ],
-                messages: [ ]
+                reports: [],
+                messages: []
             }
             await doClick(findButton(context.container, '📊 Get reports...'));
 
@@ -199,20 +215,20 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ {
+                reports: [{
                     name: 'A report',
                     description: 'A report description',
                     valueHeading: 'Value',
                     rows: []
-                } ],
-                messages: [ 'A message' ]
+                }],
+                messages: ['A message']
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const messages = context.container.querySelectorAll('.content-background ul > li');
-            expect(Array.from(messages).map(li => li.textContent)).toEqual([ 'A message' ]);
+            expect(Array.from(messages).map(li => li.textContent)).toEqual(['A message']);
         });
 
         it('renders report options', async () => {
@@ -220,7 +236,7 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ {
+                reports: [{
                     name: 'A report',
                     description: 'A report description',
                     valueHeading: 'Value',
@@ -230,15 +246,15 @@ describe('DivisionTeams', () => {
                     description: 'Another report description',
                     valueHeading: 'Count',
                     rows: []
-                } ],
-                messages: [ ]
+                }],
+                messages: []
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const reportOptions = context.container.querySelectorAll('.content-background div.btn-group > div[role="menu"] > button');
-            expect(Array.from(reportOptions).map(li => li.textContent)).toEqual([ 'A report description', 'Another report description' ]);
+            expect(Array.from(reportOptions).map(li => li.textContent)).toEqual(['A report description', 'Another report description']);
         });
 
         it('renders report rows', async () => {
@@ -246,11 +262,11 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ {
+                reports: [{
                     name: 'A report',
                     description: 'A report description',
                     valueHeading: 'A value heading',
-                    rows: [ {
+                    rows: [{
                         playerName: 'A player',
                         teamName: 'A team',
                         value: 1
@@ -258,9 +274,9 @@ describe('DivisionTeams', () => {
                         playerName: 'Another player',
                         teamName: 'Another team',
                         value: 2
-                    } ]
-                } ],
-                messages: [ ]
+                    }]
+                }],
+                messages: []
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
@@ -269,11 +285,11 @@ describe('DivisionTeams', () => {
             const reportTable = context.container.querySelector('.content-background table');
             expect(reportTable).toBeTruthy();
             const reportHeadings = reportTable.querySelectorAll('thead tr th');
-            expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual([ '', 'Player', 'Team', 'A value heading' ]);
+            expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual(['', 'Player', 'Team', 'A value heading']);
             const reportRows = reportTable.querySelectorAll('tbody tr');
             expect(reportRows.length).toEqual(2);
-            assertReportRow(reportRows[0], [ '1', 'A player', 'A team', '1' ]);
-            assertReportRow(reportRows[1], [ '2', 'Another player', 'Another team', '2' ]);
+            assertReportRow(reportRows[0], ['1', 'A player', 'A team', '1']);
+            assertReportRow(reportRows[1], ['2', 'Another player', 'Another team', '2']);
         });
 
         it('renders per-division print heading', async () => {
@@ -281,11 +297,11 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ {
+                reports: [{
                     name: 'A report',
                     description: 'A report description',
                     valueHeading: 'A value heading',
-                    rows: [ {
+                    rows: [{
                         playerName: 'A player',
                         teamName: 'A team',
                         value: 1
@@ -293,10 +309,10 @@ describe('DivisionTeams', () => {
                         playerName: 'Another player',
                         teamName: 'Another team',
                         value: 2
-                    } ],
+                    }],
                     thisDivisionOnly: true,
-                } ],
-                messages: [ ]
+                }],
+                messages: []
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));
@@ -312,11 +328,11 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(account, divisionData);
             returnReport = {
-                reports: [ {
+                reports: [{
                     name: 'A report',
                     description: 'A report description',
                     valueHeading: 'A value heading',
-                    rows: [ {
+                    rows: [{
                         playerName: 'A player',
                         teamName: 'A team',
                         value: 1
@@ -324,10 +340,10 @@ describe('DivisionTeams', () => {
                         playerName: 'Another player',
                         teamName: 'Another team',
                         value: 2
-                    } ],
+                    }],
                     thisDivisionOnly: false,
-                } ],
-                messages: [ ]
+                }],
+                messages: []
             }
 
             await doClick(findButton(context.container, '📊 Get reports...'));

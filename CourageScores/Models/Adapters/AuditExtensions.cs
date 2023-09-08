@@ -6,8 +6,8 @@ namespace CourageScores.Models.Adapters;
 public static class AuditExtensions
 {
     public static TDto AddAuditProperties<TModel, TDto>(this TDto dto, TModel model)
-        where TModel: AuditedEntity
-        where TDto: AuditedDto
+        where TModel : AuditedEntity
+        where TDto : AuditedDto
     {
         dto.Author = model.Author;
         dto.Created = model.Created;
@@ -19,8 +19,8 @@ public static class AuditExtensions
     }
 
     public static TModel AddAuditProperties<TModel, TDto>(this TModel model, TDto dto)
-        where TModel: AuditedEntity
-        where TDto: AuditedDto
+        where TModel : AuditedEntity
+        where TDto : AuditedDto
     {
         if (dto.Author != null)
         {

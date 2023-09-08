@@ -1,21 +1,12 @@
 // noinspection JSUnresolvedReference
 
 import {add180, addHiCheck, remove180, removeHiCheck} from "./Accolades";
-import {createTemporaryId} from "../../helpers/projection";
+import {playerBuilder} from "../../helpers/builders";
 
 describe('Accolades', () => {
-    const player1 = {
-        id: createTemporaryId(),
-        name: 'PLAYER 1',
-    };
-    const player2 = {
-        id: createTemporaryId(),
-        name: 'PLAYER 2',
-    };
-    const player3 = {
-        id: createTemporaryId(),
-        name: 'PLAYER 3',
-    };
+    const player1 = playerBuilder('PLAYER 1').build();
+    const player2 = playerBuilder('PLAYER 2').build();
+    const player3 = playerBuilder('PLAYER 3').build();
 
     describe('add180', () => {
         it('will add player to a null set', async () => {
@@ -26,7 +17,7 @@ describe('Accolades', () => {
 
             sut(player1);
 
-            expect(updated.oneEighties).toEqual([ player1 ]);
+            expect(updated.oneEighties).toEqual([player1]);
         });
 
         it('will add player to an empty set', async () => {
@@ -37,7 +28,7 @@ describe('Accolades', () => {
 
             sut(player1);
 
-            expect(updated.oneEighties).toEqual([ player1 ]);
+            expect(updated.oneEighties).toEqual([player1]);
         });
     });
 
@@ -45,12 +36,12 @@ describe('Accolades', () => {
         it('will remove player at index', async () => {
             let updated;
             const sut = remove180({
-                oneEighties: [ player1, player2, player3 ],
+                oneEighties: [player1, player2, player3],
             }, u => updated = u);
 
             sut(player2.id, 1);
 
-            expect(updated.oneEighties).toEqual([ player1, player3 ]);
+            expect(updated.oneEighties).toEqual([player1, player3]);
         });
     });
 
@@ -63,11 +54,11 @@ describe('Accolades', () => {
 
             sut(player1, '140');
 
-            expect(updated.over100Checkouts).toEqual([ {
+            expect(updated.over100Checkouts).toEqual([{
                 id: player1.id,
                 name: player1.name,
                 notes: '140',
-            } ]);
+            }]);
         });
 
         it('will add player to an empty set', async () => {
@@ -78,11 +69,11 @@ describe('Accolades', () => {
 
             sut(player1, '140');
 
-            expect(updated.over100Checkouts).toEqual([ {
+            expect(updated.over100Checkouts).toEqual([{
                 id: player1.id,
                 name: player1.name,
                 notes: '140',
-            } ]);
+            }]);
         });
     });
 
@@ -90,12 +81,12 @@ describe('Accolades', () => {
         it('will remove player at index', async () => {
             let updated;
             const sut = removeHiCheck({
-                over100Checkouts: [ player1, player2, player3 ],
+                over100Checkouts: [player1, player2, player3],
             }, u => updated = u);
 
             sut(player2.id, 1);
 
-            expect(updated.over100Checkouts).toEqual([ player1, player3 ]);
+            expect(updated.over100Checkouts).toEqual([player1, player3]);
         });
     });
 });

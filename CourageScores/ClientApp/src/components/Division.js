@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Link, useParams} from "react-router-dom";
 import {NavLink} from "reactstrap";
 import {DivisionTeams} from "./division_teams/DivisionTeams";
@@ -20,15 +20,15 @@ import {DivisionHealth} from "./division_health/DivisionHealth";
 
 export function Division() {
     const INVALID = 'INVALID';
-    const { divisionApi } = useDependencies();
-    const { account, onError, error, divisions, seasons, controls } = useApp();
-    const { divisionId: divisionIdish, mode, seasonId: seasonIdish } = useParams();
-    const [ divisionData, setDivisionData ] = useState(null);
-    const [ overrideDivisionData, setOverrideDivisionData ] = useState(null);
-    const [ loading, setLoading ] = useState(false);
-    const [ dataRequested, setDataRequested ] = useState(false);
+    const {divisionApi} = useDependencies();
+    const {account, onError, error, divisions, seasons, controls} = useApp();
+    const {divisionId: divisionIdish, mode, seasonId: seasonIdish} = useParams();
+    const [divisionData, setDivisionData] = useState(null);
+    const [overrideDivisionData, setOverrideDivisionData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [dataRequested, setDataRequested] = useState(false);
     const effectiveTab = mode || 'teams';
-    const [ dataErrors, setDataErrors ] = useState(null);
+    const [dataErrors, setDataErrors] = useState(null);
     const divisionId = getDivisionId(divisionIdish);
     const seasonId = getSeasonId(seasonIdish);
 
@@ -141,56 +141,55 @@ export function Division() {
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
-        }
-        finally {
+        } finally {
             setLoading(false);
         }
     }
 
     useEffect(() => {
-        if (loading || error) {
-            return;
-        }
-        if (!seasons.length) {
-            return;
-        }
-
-        function beginReload() {
-            setDataRequested(true);
-
-            if (divisionId !== INVALID && seasonId !== INVALID) {
-                setLoading(true);
-                // noinspection JSIgnoredPromiseFromCall
-                reloadDivisionData(true);
+            if (loading || error) {
+                return;
             }
-        }
-
-        try {
-            if (!divisionId) {
+            if (!seasons.length) {
                 return;
             }
 
-            if (!divisionData) {
-                beginReload();
-                return;
+            function beginReload() {
+                setDataRequested(true);
+
+                if (divisionId !== INVALID && seasonId !== INVALID) {
+                    setLoading(true);
+                    // noinspection JSIgnoredPromiseFromCall
+                    reloadDivisionData(true);
+                }
             }
-            if (divisionData.status) {
-                // dont reload if there was a previous 'status' - representing an issue loading the data
-                return;
+
+            try {
+                if (!divisionId) {
+                    return;
+                }
+
+                if (!divisionData) {
+                    beginReload();
+                    return;
+                }
+                if (divisionData.status) {
+                    // dont reload if there was a previous 'status' - representing an issue loading the data
+                    return;
+                }
+                if ((divisionData.id !== divisionId) || (seasonId && (divisionData.season || {}).id !== seasonId)) {
+                    beginReload();
+                }
+            } catch (e) {
+                /* istanbul ignore next */
+                onError(e);
             }
-            if ((divisionData.id !== divisionId) || (seasonId && (divisionData.season || {}).id !== seasonId)) {
-                beginReload();
-            }
-        } catch (e) {
-            /* istanbul ignore next */
-            onError(e);
-        }
-    },
-    // eslint-disable-next-line
-    [ divisionData, loading, divisionId, seasonId, error, seasons ]);
+        },
+        // eslint-disable-next-line
+        [divisionData, loading, divisionId, seasonId, error, seasons]);
 
     if (loading || !dataRequested) {
-        return (<Loading />);
+        return (<Loading/>);
     }
 
     const divisionDataToUse = overrideDivisionData || divisionData;
@@ -204,8 +203,12 @@ export function Division() {
         return (<div>
             {controls || !divisionDataToUse.season ? (<DivisionControls
                 originalSeasonData={divisionDataToUse.season}
-                originalDivisionData={{name: divisionDataToUse.name, id: divisionDataToUse.id, updated: divisionDataToUse.updated}}
-                onDivisionOrSeasonChanged={reloadDivisionData} />) : null}
+                originalDivisionData={{
+                    name: divisionDataToUse.name,
+                    id: divisionDataToUse.id,
+                    updated: divisionDataToUse.updated
+                }}
+                onDivisionOrSeasonChanged={reloadDivisionData}/>) : null}
             {controls ? (<ul className="nav nav-tabs d-print-none">
                 <li className="nav-item">
                     <NavLink tag={Link}
@@ -215,7 +218,9 @@ export function Division() {
                 {effectiveTab.startsWith('team:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>Team Details</NavLink>
+                             to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>
+                        Team Details
+                    </NavLink>
                 </li>) : null}
                 <li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'fixtures' ? 'active' : ''}
@@ -229,7 +234,9 @@ export function Division() {
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>Player Details</NavLink>
+                             to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>
+                        Player Details
+                    </NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
                     <NavLink tag={EmbedAwareLink} className={effectiveTab === 'reports' ? 'active' : ''}
@@ -248,7 +255,8 @@ export function Division() {
                     })}
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
-            </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData} setDivisionData={setOverrideDivisionData}>
+            </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData}
+                                              setDivisionData={setOverrideDivisionData}>
                 {effectiveTab === 'teams' && divisionDataToUse.season
                     ? (<DivisionTeams/>)
                     : null}

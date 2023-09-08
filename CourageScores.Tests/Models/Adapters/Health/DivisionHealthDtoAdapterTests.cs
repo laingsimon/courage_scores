@@ -10,7 +10,7 @@ namespace CourageScores.Tests.Models.Adapters.Health;
 [TestFixture]
 public class DivisionHealthDtoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<ISimpleOnewayAdapter<DivisionFixtureDateDto, DivisionDateHealthDto>> _dateAdapter = null!;
     private DivisionHealthDtoAdapter _adapter = null!;
 
@@ -35,7 +35,10 @@ public class DivisionHealthDtoAdapterTests
             {
                 dateModel,
             },
-            Teams = { team }
+            Teams =
+            {
+                team,
+            },
         };
         _dateAdapter.Setup(a => a.Adapt(dateModel, _token)).ReturnsAsync(dateDto);
 
@@ -43,7 +46,13 @@ public class DivisionHealthDtoAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
-        Assert.That(result.Dates, Is.EqualTo(new[] { dateDto }));
-        Assert.That(result.Teams, Is.EqualTo(new[] { team }));
+        Assert.That(result.Dates, Is.EqualTo(new[]
+        {
+            dateDto,
+        }));
+        Assert.That(result.Teams, Is.EqualTo(new[]
+        {
+            team,
+        }));
     }
 }

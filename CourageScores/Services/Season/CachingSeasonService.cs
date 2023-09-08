@@ -4,13 +4,13 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Season;
 
-public class CachingSeasonService : CachingDataService<Models.Cosmos.Season.Season, SeasonDto>, ISeasonService
+public class CachingSeasonService : CachingDataService<Models.Cosmos.Season.Season, SeasonDto>, ICachingSeasonService
 {
     private readonly ISeasonService _seasonService;
 
     public CachingSeasonService(ISeasonService seasonService, IMemoryCache memoryCache, IUserService userService,
         IHttpContextAccessor accessor)
-        :base(seasonService, memoryCache, userService, accessor)
+        : base(seasonService, memoryCache, userService, accessor)
     {
         _seasonService = seasonService;
     }

@@ -3,8 +3,16 @@ import {useApp} from "../../../AppContainer";
 import {matchEquals} from "./MatchComparer";
 import {repeat} from "../../../helpers/projection";
 
-export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData }) {
-    const { onError } = useApp();
+export function MergeMatch({
+                               readOnly,
+                               matches,
+                               matchIndex,
+                               homeSubmission,
+                               awaySubmission,
+                               setFixtureData,
+                               fixtureData
+                           }) {
+    const {onError} = useApp();
     const homeSubmissionMatch = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
     const awaySubmissionMatch = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
     const publishedMatch = matches && matches[matchIndex];
@@ -28,7 +36,9 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
     function combinePlayers(homePlayers, awayPlayers) {
         return repeat(
             Math.max(homePlayers.length, awayPlayers.length),
-            index => { return { homePlayer: homePlayers[index], awayPlayer: awayPlayers[index] } });
+            index => {
+                return {homePlayer: homePlayers[index], awayPlayer: awayPlayers[index]}
+            });
     }
 
     function renderSubmissionMatch(match) {
@@ -39,9 +49,11 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
         return (<span>
             <div>{homeSubmission.home.name}: {match.homeScore} - {awaySubmission.away.name}: {match.awayScore}</div>
             <ol>
-                {combinePlayers(match.homePlayers, match.awayPlayers).map(p => (<li key={p.homePlayer.id || p.awayPlayer.id}>
-                    <span className="text-nowrap">{p.homePlayer.name}</span> vs <span className="text-nowrap">{p.awayPlayer.name}</span>
-                </li>))}
+                {combinePlayers(match.homePlayers, match.awayPlayers).map(p => (
+                    <li key={p.homePlayer.id || p.awayPlayer.id}>
+                        <span className="text-nowrap">{p.homePlayer.name}</span> vs <span
+                        className="text-nowrap">{p.awayPlayer.name}</span>
+                    </li>))}
             </ol>
         </span>);
     }
@@ -56,7 +68,9 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
                 <td colSpan="5">
                     {renderSubmissionMatch(homeSubmissionMatch)}
                     <div className="text-center">
-                        <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
+                        <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)}
+                                className="btn btn-success btn-sm margin-left">Accept
+                        </button>
                     </div>
                 </td>
             </tr>);

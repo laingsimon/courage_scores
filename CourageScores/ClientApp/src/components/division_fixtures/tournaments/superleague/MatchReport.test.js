@@ -3,7 +3,12 @@
 import {cleanUp, renderApp} from "../../../../helpers/tests";
 import React from "react";
 import {MatchReport} from "./MatchReport";
-import {createTemporaryId} from "../../../../helpers/projection";
+import {
+    divisionBuilder,
+    legBuilder,
+    saygBuilder,
+    tournamentMatchBuilder
+} from "../../../../helpers/builders";
 
 describe('MatchReport', () => {
     let context;
@@ -38,39 +43,35 @@ describe('MatchReport', () => {
     }
 
     function createLeg(homeWinner, awayWinner) {
-        const winningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 100, bust: false, noOfDarts: 3 },
-            { score: 110, bust: false, noOfDarts: 3 },
-            { score: 120, bust: false, noOfDarts: 3 },
-            { score: 81, bust: false, noOfDarts: 3 },
-        ];
-        const notWinningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-        ];
+        function winningThrows(c) {
+            return c
+                .withThrow(90, false, 3)
+                .withThrow(100, false, 3)
+                .withThrow(110, false, 3)
+                .withThrow(120, false, 3)
+                .withThrow(81, false, 3);
+        }
 
-        return {
-            home: {
-                throws: homeWinner ? winningThrows : notWinningThrows
-            },
-            away: {
-                throws: awayWinner ? winningThrows : notWinningThrows
-            },
-            startingScore: 501,
-        };
+        function notWinningThrows(c) {
+            return c
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3);
+        }
+
+        return legBuilder()
+            .home(c => homeWinner ? winningThrows(c) : notWinningThrows(c))
+            .away(c => awayWinner ? winningThrows(c) : notWinningThrows(c))
+            .startingScore(501)
+            .build();
     }
 
     describe('renders', () => {
         it('correct headings', async () => {
             await renderComponent({
-                division: {
-                    id: createTemporaryId(),
-                    name: 'DIVISION',
-                },
+                division: divisionBuilder('DIVISION').build(),
                 showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
@@ -87,10 +88,7 @@ describe('MatchReport', () => {
 
         it('correct heading rows', async () => {
             await renderComponent({
-                division: {
-                    id: createTemporaryId(),
-                    name: 'DIVISION',
-                },
+                division: divisionBuilder('DIVISION').build(),
                 showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
@@ -103,9 +101,9 @@ describe('MatchReport', () => {
             expect(reportedError).toBeNull();
             const rows = Array.from(context.container.querySelectorAll('thead tr'));
             expect(rows.length).toEqual(3);
-            expect(getRowContent(rows[0], 'th')).toEqual([ 'HOSTvOPPONENT']);
+            expect(getRowContent(rows[0], 'th')).toEqual(['HOSTvOPPONENT']);
             expect(rows[0].querySelector('th').colSpan).toEqual(23);
-            expect(getRowContent(rows[1], 'th')).toEqual([ '', 'Scores', '', '', 'Scores', '' ]);
+            expect(getRowContent(rows[1], 'th')).toEqual(['', 'Scores', '', '', 'Scores', '']);
             expect(rows[1].querySelectorAll('th')[1].colSpan).toEqual(4);
             expect(rows[1].querySelectorAll('th')[4].colSpan).toEqual(4);
             expect(getRowContent(rows[2], 'th')).toEqual([
@@ -117,30 +115,22 @@ describe('MatchReport', () => {
 
         it('sayg matches', async () => {
             const saygMatch = {
-                match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(true, false),
-                        '1': createLeg(true, false),
-                    }
-                }
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build()
             }
 
             await renderComponent({
-                division: {
-                    id: createTemporaryId(),
-                    name: 'DIVISION',
-                },
+                division: divisionBuilder('DIVISION').build(),
                 showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
                 gender: 'GENDER',
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
             });
 
             expect(reportedError).toBeNull();
@@ -154,30 +144,22 @@ describe('MatchReport', () => {
 
         it('legs won', async () => {
             const saygMatch = {
-                match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(true, false),
-                        '1': createLeg(true, false),
-                    }
-                }
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build()
             }
 
             await renderComponent({
-                division: {
-                    id: createTemporaryId(),
-                    name: 'DIVISION',
-                },
+                division: divisionBuilder('DIVISION').build(),
                 showWinner: false,
                 noOfThrows: 3,
                 noOfLegs: 3,
                 gender: 'GENDER',
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
             });
 
             expect(reportedError).toBeNull();

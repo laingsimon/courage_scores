@@ -1,15 +1,23 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange, doSelectOption} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
 import React from "react";
-import {toMap, any} from "../../../helpers/collections";
+import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {Score} from "./Score";
+import {
+    divisionBuilder,
+    fixtureBuilder,
+    matchBuilder,
+    playerBuilder,
+    seasonBuilder,
+    teamBuilder
+} from "../../../helpers/builders";
 
 describe('Score', () => {
     let context;
     let reportedError;
-    let fixtureDataMap = { };
+    let fixtureDataMap = {};
     let updatedFixtures;
     let createdPlayer;
     let teamsReloaded;
@@ -27,15 +35,15 @@ describe('Score', () => {
             updatedFixtures[fixtureId] = fixtureData;
             return saveGameApiResult || {
                 success: true,
-                messages: [ 'Fixture updated' ],
+                messages: ['Fixture updated'],
                 result: fixtureData,
             }
         }
     };
     const playerApi = {
         create: (divisionId, seasonId, teamId, playerDetails) => {
-            const newPlayer = Object.assign({ id: createTemporaryId() }, playerDetails);
-            createdPlayer = { divisionId, seasonId, teamId, playerDetails, newPlayer };
+            const newPlayer = Object.assign(playerBuilder().build(), playerDetails);
+            createdPlayer = {divisionId, seasonId, teamId, playerDetails, newPlayer};
             if (!newPlayerApiResult) {
                 throw new Error('You must set newPlayerApiResult to a factory method instance');
             }
@@ -45,7 +53,7 @@ describe('Score', () => {
     const originalConsoleLog = console.log;
 
     beforeEach(() => {
-        console.log = () => { };
+        console.log = noop;
     });
 
     afterEach(() => {
@@ -55,14 +63,14 @@ describe('Score', () => {
 
     async function renderComponent(id, appData, account) {
         reportedError = null;
-        updatedFixtures = { };
+        updatedFixtures = {};
         createdPlayer = null;
         teamsReloaded = false;
         newPlayerApiResult = null;
         saveGameApiResult = null;
         context = await renderApp(
-            { gameApi,  playerApi },
-            { name: 'Courage Scores' },
+            {gameApi, playerApi},
+            {name: 'Courage Scores'},
             {
                 account,
                 onError: (err) => {
@@ -76,140 +84,92 @@ describe('Score', () => {
                     }
                 },
                 error: null,
-                reportClientSideException: () => { },
+                reportClientSideException: noop,
                 reloadTeams: () => {
                     teamsReloaded = true;
                 },
                 ...appData
             },
-            (<Score />),
+            (<Score/>),
             '/:fixtureId',
             '/' + id);
     }
 
     function getDefaultAppData() {
-        const division = {
-            id: createTemporaryId(),
-            name: 'A division'
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'A season',
-            startDate: '2022-02-03T00:00:00',
-            endDate: '2022-08-25T00:00:00',
-            divisions: [ division ]
-        };
-        const homePlayer = {
-            id: createTemporaryId(),
-            name: 'Home player'
-        };
-        const awayPlayer = {
-            id: createTemporaryId(),
-            name: 'Away player'
-        };
-        const homeTeam = {
-            id: createTemporaryId(),
-            name: 'Home team',
-            seasons: [ {
-                seasonId: season.id,
-                players: [ homePlayer ]
-            } ]
-        };
-        const awayTeam = {
-            id: createTemporaryId(),
-            name: 'Away team',
-            seasons: [ {
-                seasonId: season.id,
-                players: [ awayPlayer ]
-            } ]
-        };
+        const division = divisionBuilder('A division').build();
+        const season = seasonBuilder('A season')
+            .starting('2022-02-03T00:00:00')
+            .ending('2022-08-25T00:00:00')
+            .withDivision(division)
+            .build();
+        const homePlayer = playerBuilder('Home player').build();
+        const awayPlayer = playerBuilder('Away player').build();
+        const homeTeam = teamBuilder('Home team')
+            .forSeason(season, division, [ homePlayer ])
+            .build();
+        const awayTeam = teamBuilder('Away team')
+            .forSeason(season, division, [ awayPlayer ])
+            .build();
 
         return {
-            divisions: toMap([ division ]),
-            seasons: toMap([ season ]),
-            teams: toMap([ homeTeam, awayTeam ])
+            divisions: toMap([division]),
+            seasons: toMap([season]),
+            teams: toMap([homeTeam, awayTeam])
         };
     }
 
-    function getUnplayedFixtureData(fixtureId, appData) {
+    function getUnplayedFixtureData(appData) {
         const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
-        return {
-            home: {
-                id: homeTeam.id,
-                name: homeTeam.name
-            },
-            away: {
-                id: awayTeam.id,
-                name: awayTeam.name
-            },
-            seasonId: appData.seasons.filter(_ => true)[0].id,
-            divisionId: appData.divisions.filter(_ => true)[0].id,
-            matches: [],
-            matchOptions: [],
-            date: '2023-01-02T00:00:00'
-        };
+        return fixtureBuilder('2023-01-02T00:00:00')
+            .forSeason(appData.seasons.filter(_ => true)[0])
+            .forDivision(appData.divisions.filter(_ => true)[0])
+            .playing(homeTeam, awayTeam)
+            .addTo(fixtureDataMap)
+            .build();
     }
 
-    function getPlayedFixtureData(fixtureId, appData) {
+    function getPlayedFixtureData(appData) {
         const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
         function createMatch(homeScore, awayScore) {
-            return {
-                homePlayers: [ {
-                    id: createTemporaryId(),
-                    name: 'Home player'
-                }],
-                awayPlayers: [ {
-                    id: createTemporaryId(),
-                    name: 'Away player'
-                }],
-                homeScore: homeScore,
-                awayScore: awayScore,
-                id: createTemporaryId()
-            };
+            return matchBuilder()
+                .withHome('Home player')
+                .withAway('Away player')
+                .scores(homeScore, awayScore)
+                .build();
         }
 
         const firstDivision = appData.divisions.filter(_ => true)[0];
         const firstSeason = appData.seasons.filter(_ => true)[0];
 
-        return {
-            home: {
-                id: homeTeam ? homeTeam.id : createTemporaryId(),
-                name: homeTeam ? homeTeam.name : 'not found',
-                manOfTheMatch: createTemporaryId()
-            },
-            away: {
-                id: awayTeam ? awayTeam.id : createTemporaryId(),
-                name: awayTeam ? awayTeam.name : 'not found',
-                manOfTheMatch: createTemporaryId()
-            },
-            seasonId: firstSeason ? firstSeason.id : createTemporaryId(),
-            divisionId: firstDivision ? firstDivision.id : createTemporaryId(),
-            matches: [
-                createMatch(3,2),
-                createMatch(3,2),
-                createMatch(3,2),
-                createMatch(3,2),
-                createMatch(3,2),
-                createMatch(3,0),
-                createMatch(3,0),
-                createMatch(3,0)
-            ],
-            matchOptions: [],
-            date: '2023-01-02T00:00:00',
-            oneEighties: [ {
-                id: createTemporaryId(),
-                name: 'Home player'
-            } ],
-            over100Checkouts: [ {
-                id: createTemporaryId(),
-                name: 'Away player',
-                notes: '140'
-            } ]
-        };
+        return fixtureBuilder('2023-01-02T00:00:00')
+            .playing({
+                    id: homeTeam ? homeTeam.id : createTemporaryId(),
+                    name: homeTeam ? homeTeam.name : 'not found',
+                    manOfTheMatch: createTemporaryId()
+                },
+                {
+                    id: awayTeam ? awayTeam.id : createTemporaryId(),
+                    name: awayTeam ? awayTeam.name : 'not found',
+                    manOfTheMatch: createTemporaryId()
+                })
+            .forSeason(firstSeason ? firstSeason : createTemporaryId())
+            .forDivision(firstDivision ? firstDivision : createTemporaryId())
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 0))
+            .withMatch(createMatch(3, 0))
+            .withMatch(createMatch(3, 0))
+            .with180('Home player')
+            .withHiCheck('Away player', '140')
+            .addTo(fixtureDataMap)
+            .build();
     }
 
     function assertMatchRow(tr, ...expectedCellText) {
@@ -229,41 +189,40 @@ describe('Score', () => {
         const account = null;
 
         it('renders when fixture not found', async () => {
-            const fixtureId = createTemporaryId();
+            const fixture = fixtureBuilder().build();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = null;
+            fixtureDataMap[fixture.id] = null;
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('Game could not be found');
         });
 
         it('renders when fixture data not returned successfully', async () => {
-            const fixtureId = createTemporaryId();
+            const fixture = fixtureBuilder().build();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = { status: 400, errors: { 'key': 'Some error' } };
+            fixtureDataMap[fixture.id] = {status: 400, errors: {'key': 'Some error'}};
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('Error accessing fixture: Code: 400 -- key: Some error');
         });
 
         it('renders when home or away are not defined', async () => {
-            const fixtureId = createTemporaryId();
+            const fixture = fixtureBuilder().build();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = { };
+            fixtureDataMap[fixture.id] = {};
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('Either home or away team are undefined for this game');
         });
 
         it('renders score card with no results', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getUnplayedFixtureData(fixtureId, appData);
+            const fixture = getUnplayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.content-background');
@@ -276,11 +235,10 @@ describe('Score', () => {
         });
 
         it('renders score card with results', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.content-background');
@@ -304,48 +262,44 @@ describe('Score', () => {
         });
 
         it('renders when no divisions', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             appData.divisions = [];
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no divisions are available');
         });
 
         it('renders when no seasons', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             appData.seasons = [];
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no seasons are available');
         });
 
         it('renders when no teams', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             appData.teams = [];
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no teams are available');
         });
     });
 
     describe('when logged in', () => {
-        const account = { access: { manageScores: true } };
+        const account = {access: {manageScores: true}};
 
         it('renders score card without results', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getUnplayedFixtureData(fixtureId, appData);
+            const fixture = getUnplayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.content-background');
@@ -371,11 +325,10 @@ describe('Score', () => {
         });
 
         it('renders score card with results', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.content-background');
@@ -401,42 +354,38 @@ describe('Score', () => {
         });
 
         it('renders when no divisions', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             appData.divisions = [];
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no divisions are available');
         });
 
         it('renders when no seasons', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             appData.seasons = [];
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no seasons are available');
         });
 
         it('renders when no teams', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             appData.teams = [];
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no teams are available');
         });
 
         it('renders when team has no seasons', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
             appData.teams = toMap(appData.teams.map(t => {
                 if (t.name === 'Home team') {
                     t.seasons = null;
@@ -444,15 +393,14 @@ describe('Score', () => {
                 return t;
             }));
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toEqual('home team has no seasons');
         });
 
         it('renders when team is not registered to season', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
             appData.teams = toMap(appData.teams.map(t => {
                 if (t.name === 'Home team') {
                     t.seasons = [];
@@ -460,41 +408,35 @@ describe('Score', () => {
                 return t;
             }));
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toContain('home team has not registered for this season: ');
         });
 
         it('renders when team not found', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             appData.teams = toMap(appData.teams.filter(t => t.name !== 'Home team'));
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toContain('home team could not be found - ');
         });
 
         it('renders previously renamed players', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const fixture = getPlayedFixtureData(appData);
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
-            const newHomeTeamPlayer = {
-                id: createTemporaryId(),
-                name: 'New name',
-                captain: true,
-            };
+            const newHomeTeamPlayer = playerBuilder('New name').captain().build();
             homeTeam.seasons[0].players.push(newHomeTeamPlayer);
-            const firstSinglesMatch = fixtureDataMap[fixtureId].matches[0];
+            const firstSinglesMatch = fixtureDataMap[fixture.id].matches[0];
             firstSinglesMatch.homePlayers[0] = Object.assign(
-                { },
+                {},
                 newHomeTeamPlayer,
-                { name: 'Old name' });
+                {name: 'Old name'});
             firstSinglesMatch.sut = true;
 
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixture.id, appData, account);
 
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
@@ -506,14 +448,13 @@ describe('Score', () => {
         });
 
         it('can add a player to home team', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({ }, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.map(ts => {
-                    const newTeamSeason = Object.assign({ }, ts);
+                    const newTeamSeason = Object.assign({}, ts);
 
                     if (ts.seasonId === createdPlayer.seasonId) {
                         newTeamSeason.players = newTeamSeason.players.concat([
@@ -548,12 +489,11 @@ describe('Score', () => {
         });
 
         it('can handle missing team season during add new player', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({ }, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.filter(_ => false); // return no team seasons
 
                 return {
@@ -580,14 +520,13 @@ describe('Score', () => {
         });
 
         it('can handle new player not found after creating new player', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({ }, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.map(ts => {
-                    return Object.assign({ }, ts);
+                    return Object.assign({}, ts);
                 });
 
                 return {
@@ -614,10 +553,9 @@ describe('Score', () => {
         });
 
         it('can add a player to away team', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
 
             expect(reportedError).toBeNull();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
@@ -631,10 +569,9 @@ describe('Score', () => {
         });
 
         it('can close add player dialog', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
             expect(reportedError).toBeNull();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
@@ -648,22 +585,20 @@ describe('Score', () => {
         });
 
         it('can save scores', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
 
             await doClick(findButton(context.container, 'Save'));
 
             expect(reportedError).toBeNull();
-            expect(updatedFixtures[fixtureId]).not.toBeNull();
+            expect(updatedFixtures[fixture.id]).not.toBeNull();
         });
 
         it('renders error if save fails', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
             saveGameApiResult = {
                 success: false,
             };
@@ -674,16 +609,12 @@ describe('Score', () => {
         });
 
         it('can change player', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
-            const anotherHomePlayer = {
-                id: createTemporaryId(),
-                name: 'Another player'
-            };
+            const anotherHomePlayer = playerBuilder('Another player').build();
             homeTeam.seasons[0].players.push(anotherHomePlayer);
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -692,15 +623,14 @@ describe('Score', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(reportedError).toBeNull();
-            expect(updatedFixtures[fixtureId]).not.toBeNull();
-            expect(updatedFixtures[fixtureId].matches[0].homePlayers).toEqual([anotherHomePlayer]);
+            expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].matches[0].homePlayers).toEqual([anotherHomePlayer]);
         });
 
         it('can change match options', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData, account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData, account);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
@@ -713,19 +643,17 @@ describe('Score', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(reportedError).toBeNull();
-            expect(updatedFixtures[fixtureId]).not.toBeNull();
-            expect(updatedFixtures[fixtureId].matchOptions[0].numberOfLegs).toEqual('30');
+            expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].matchOptions[0].numberOfLegs).toEqual('30');
         });
 
         it('can unpublish unselected submission', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            const fixtureData = getPlayedFixtureData(fixtureId, appData);
+            const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
-            fixtureData.homeSubmission = getPlayedFixtureData(fixtureId, appData);
-            fixtureData.awaySubmission = getPlayedFixtureData(fixtureId, appData);
-            fixtureDataMap[fixtureId] = fixtureData;
-            await renderComponent(fixtureId, appData, account);
+            fixtureData.homeSubmission = getPlayedFixtureData(appData);
+            fixtureData.awaySubmission = getPlayedFixtureData(appData);
+            await renderComponent(fixtureData.id, appData, account);
             expect(reportedError).toBeNull();
             let alert;
             window.alert = (msg) => alert = msg;
@@ -743,18 +671,16 @@ describe('Score', () => {
         });
 
         it('can unpublish home submission', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            const fixtureData = getPlayedFixtureData(fixtureId, appData);
+            const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
-            fixtureData.homeSubmission = getPlayedFixtureData(fixtureId, appData);
-            fixtureData.awaySubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.homeSubmission = getPlayedFixtureData(appData);
+            fixtureData.awaySubmission = getPlayedFixtureData(appData);
             fixtureData.homeSubmission.matches.forEach(match => {
                 match.homeScore = 1;
                 match.awayScore = 1;
             });
-            fixtureDataMap[fixtureId] = fixtureData;
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixtureData.id, appData, account);
             expect(reportedError).toBeNull();
             let alert;
             window.alert = (msg) => alert = msg;
@@ -774,18 +700,16 @@ describe('Score', () => {
         });
 
         it('can unpublish away submission', async () => {
-            const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
-            const fixtureData = getPlayedFixtureData(fixtureId, appData);
+            const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
-            fixtureData.homeSubmission = getPlayedFixtureData(fixtureId, appData);
-            fixtureData.awaySubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.homeSubmission = getPlayedFixtureData(appData);
+            fixtureData.awaySubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission.matches.forEach(match => {
                 match.homeScore = 2;
                 match.awayScore = 2;
             });
-            fixtureDataMap[fixtureId] = fixtureData;
-            await renderComponent(fixtureId, appData, account);
+            await renderComponent(fixtureData.id, appData, account);
             expect(reportedError).toBeNull();
             let alert;
             window.alert = (msg) => alert = msg;

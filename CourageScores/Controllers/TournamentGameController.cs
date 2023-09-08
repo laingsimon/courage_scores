@@ -12,8 +12,8 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class TournamentGameController : Controller
 {
-    private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
     private readonly ICommandFactory _commandFactory;
+    private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
 
     public TournamentGameController(IGenericDataService<TournamentGame, TournamentGameDto> tournamentService, ICommandFactory commandFactory)
     {

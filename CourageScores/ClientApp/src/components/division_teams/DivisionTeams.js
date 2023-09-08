@@ -8,11 +8,11 @@ import {sortBy} from "../../helpers/collections";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
 
 export function DivisionTeams() {
-    const { id: divisionId, season, teams, onReloadDivision } = useDivisionData();
-    const { account } = useApp();
+    const {id: divisionId, season, teams, onReloadDivision} = useDivisionData();
+    const {account} = useApp();
     const isAdmin = account && account.access && account.access.manageTeams;
-    const [ newTeam, setNewTeam ] = useState(false);
-    const [ teamDetails, setTeamDetails ] = useState({
+    const [newTeam, setNewTeam] = useState(false);
+    const [teamDetails, setTeamDetails] = useState({
         name: '',
         address: '',
         newDivisionId: divisionId
@@ -43,24 +43,24 @@ export function DivisionTeams() {
     }
 
     return (<div className="content-background p-3">
-        <PrintDivisionHeading />
+        <PrintDivisionHeading/>
         <div className="overflow-x-auto clear-float">
             <table className="table">
                 <thead>
-                    <tr>
-                        <th>Venue</th>
-                        <th>Played</th>
-                        <th>Points</th>
-                        <th>Won</th>
-                        <th>Lost</th>
-                        <th>Drawn</th>
-                        <th>+/-</th>
-                    </tr>
+                <tr>
+                    <th>Venue</th>
+                    <th>Played</th>
+                    <th>Points</th>
+                    <th>Won</th>
+                    <th>Lost</th>
+                    <th>Drawn</th>
+                    <th>+/-</th>
+                </tr>
                 </thead>
                 <tbody>
                 {teams.sort(sortBy('rank')).map(team => (<DivisionTeam
                     key={team.id}
-                    team={team} />))}
+                    team={team}/>))}
                 </tbody>
             </table>
         </div>

@@ -7,17 +7,18 @@ namespace CourageScores.Services.Season.Creation;
 
 public class TemplateMatchContext
 {
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public SeasonDto SeasonDto { get; }
-    public Dictionary<Guid, TeamDto[]> Teams { get; }
-    public List<DivisionDataDto> Divisions { get; }
-
-    public TemplateMatchContext(SeasonDto seasonDto, IEnumerable<DivisionDataDto> divisions, Dictionary<Guid, TeamDto[]> teams)
+    public TemplateMatchContext(SeasonDto seasonDto, IEnumerable<DivisionDataDto> divisions,
+        Dictionary<Guid, TeamDto[]> teams)
     {
         SeasonDto = seasonDto;
         Teams = teams;
         Divisions = divisions.ToList();
     }
+
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    public SeasonDto SeasonDto { get; }
+    public Dictionary<Guid, TeamDto[]> Teams { get; }
+    public List<DivisionDataDto> Divisions { get; }
 
     public IReadOnlyCollection<string[]> GetSeasonSharedAddresses()
     {
@@ -58,10 +59,6 @@ public class TemplateMatchContext
 
     public class DivisionSharedAddressMapping
     {
-        public DivisionDataDto SeasonDivision { get; }
-        public DivisionTemplateDto TemplateDivision { get; }
-        public TeamDto[] Teams { get; }
-
         public DivisionSharedAddressMapping(
             DivisionDataDto seasonDivision,
             DivisionTemplateDto templateDivision,
@@ -72,10 +69,14 @@ public class TemplateMatchContext
             Teams = teams;
         }
 
+        public DivisionDataDto SeasonDivision { get; }
+        public DivisionTemplateDto TemplateDivision { get; }
+        public TeamDto[] Teams { get; }
+
         public IReadOnlyCollection<TeamDto[]> SharedAddressesFromSeason => Teams
-                .GroupBy(t => t.Address.Trim(), StringComparer.OrdinalIgnoreCase)
-                .Where(g => g.Count() > 1)
-                .Select(g => g.ToArray())
-                .ToArray();
+            .GroupBy(t => t.Address.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.ToArray())
+            .ToArray();
     }
 }

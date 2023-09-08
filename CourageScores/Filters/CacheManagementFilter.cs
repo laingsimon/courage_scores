@@ -6,8 +6,8 @@ namespace CourageScores.Filters;
 
 public class CacheManagementFilter : IActionFilter
 {
-    private readonly ScopedCacheManagementFlags _flags;
     private readonly ICachingDivisionService _cachingDivisionService;
+    private readonly ScopedCacheManagementFlags _flags;
 
     public CacheManagementFilter(ScopedCacheManagementFlags flags, ICachingDivisionService cachingDivisionService)
     {
@@ -17,7 +17,8 @@ public class CacheManagementFilter : IActionFilter
 
     [ExcludeFromCodeCoverage]
     public void OnActionExecuting(ActionExecutingContext context)
-    { }
+    {
+    }
 
     public void OnActionExecuted(ActionExecutedContext context)
     {

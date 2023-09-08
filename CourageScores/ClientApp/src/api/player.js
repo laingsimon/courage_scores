@@ -16,8 +16,8 @@ class PlayerApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.patch(`/api/Player/${seasonId}/${teamId}/${playerId}`, Object.assign({ lastUpdated }, player));
+        return this.http.patch(`/api/Player/${seasonId}/${teamId}/${playerId}`, Object.assign({lastUpdated}, player));
     }
 }
 
-export { PlayerApi };
+export {PlayerApi};

@@ -52,8 +52,14 @@ public class DivisionDataFilterTests
         var game = new Game
         {
             Date = DateTime.Parse(MatchingDate),
-            Home = new GameTeam { Id = Guid.Parse(MatchingTeamId) },
-            Away = new GameTeam { Id = Guid.NewGuid() },
+            Home = new GameTeam
+            {
+                Id = Guid.Parse(MatchingTeamId),
+            },
+            Away = new GameTeam
+            {
+                Id = Guid.NewGuid(),
+            },
         };
 
         var result = filter.IncludeGame(game);
@@ -75,8 +81,14 @@ public class DivisionDataFilterTests
         var game = new Game
         {
             Date = DateTime.Parse(MatchingDate),
-            Home = new GameTeam { Id = Guid.NewGuid() },
-            Away = new GameTeam { Id = Guid.Parse(MatchingTeamId) },
+            Home = new GameTeam
+            {
+                Id = Guid.NewGuid(),
+            },
+            Away = new GameTeam
+            {
+                Id = Guid.Parse(MatchingTeamId),
+            },
         };
 
         var result = filter.IncludeGame(game);
@@ -108,8 +120,8 @@ public class DivisionDataFilterTests
                 new TournamentSide // side with mis-matching team id
                 {
                     TeamId = Guid.NewGuid(),
-                }
-            }
+                },
+            },
         };
 
         var result = filter.IncludeTournament(tournament);

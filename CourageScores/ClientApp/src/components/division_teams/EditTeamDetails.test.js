@@ -1,9 +1,10 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails} from "./EditTeamDetails";
+import {divisionBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('EditTeamDetails', () => {
     let context;
@@ -16,17 +17,19 @@ describe('EditTeamDetails', () => {
 
     const teamApi = {
         update: async (team, lastUpdated) => {
-            updatedTeam = { team, lastUpdated };
-            return apiResponse || { success: true, result: team };
+            updatedTeam = {team, lastUpdated};
+            return apiResponse || {success: true, result: team};
         }
     };
 
     async function onSaved() {
         saved = true;
     }
+
     async function onChange(name, value) {
-        change = { name, value };
+        change = {name, value};
     }
+
     async function onCancel() {
         canceled = true;
     }
@@ -42,33 +45,25 @@ describe('EditTeamDetails', () => {
         change = null;
         canceled = false;
         context = await renderApp(
-            { teamApi },
-            { name: 'Courage Scores' },
+            {teamApi},
+            {name: 'Courage Scores'},
             {
                 divisions,
                 onError: (err) => {
                     reportedError = err;
                 },
             },
-            (<EditTeamDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel} />));
+            (<EditTeamDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel}/>));
     }
 
     describe('renders', () => {
         it('name', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: null,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
 
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
             expect(nameGroup).toBeTruthy();
@@ -79,20 +74,12 @@ describe('EditTeamDetails', () => {
         });
 
         it('address', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: null,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
 
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
             expect(addressGroup).toBeTruthy();
@@ -103,20 +90,12 @@ describe('EditTeamDetails', () => {
         });
 
         it('division', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             expect(divisionGroup).toBeTruthy();
@@ -127,24 +106,13 @@ describe('EditTeamDetails', () => {
         });
 
         it('new division', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: otherDivision.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(otherDivision.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             expect(divisionGroup).toBeTruthy();
@@ -157,20 +125,12 @@ describe('EditTeamDetails', () => {
 
     describe('interactivity', () => {
         it('name can be changed', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
 
             await doChange(nameGroup, 'input', 'NEW', context.user);
@@ -181,20 +141,12 @@ describe('EditTeamDetails', () => {
         });
 
         it('address can be changed', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
 
             await doChange(addressGroup, 'input', 'NEW', context.user);
@@ -205,24 +157,13 @@ describe('EditTeamDetails', () => {
         });
 
         it('division can be changed', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
 
             await doSelectOption(divisionGroup.querySelector('.dropdown-menu'), 'OTHER DIVISION');
@@ -233,24 +174,14 @@ describe('EditTeamDetails', () => {
         });
 
         it('division cannot be changed when new team', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
 
             await renderComponent({
-                team: {
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').noId().address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             const dropdown = divisionGroup.querySelector('button.dropdown-toggle');
@@ -260,17 +191,12 @@ describe('EditTeamDetails', () => {
         });
 
         it('prevents save when no name', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const team = {
-                id: createTemporaryId(),
-                name: '',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const team = teamBuilder('')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .build();
             await renderComponent({
                 team: {
                     id: team.id,
@@ -280,9 +206,11 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division ]);
+            }, [division]);
             let alert;
-            window.alert = (message) => { alert = message };
+            window.alert = (message) => {
+                alert = message
+            };
 
             await doClick(findButton(context.container, 'Save team'));
 
@@ -291,22 +219,14 @@ describe('EditTeamDetails', () => {
         });
 
         it('can save team changes', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-                updated: '2023-07-01T00:00:00',
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .updated('2023-07-01T00:00:00')
+                .build();
             await renderComponent({
                 team: {
                     id: team.id,
@@ -317,7 +237,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             await doClick(findButton(context.container, 'Save team'));
 
@@ -334,20 +254,13 @@ describe('EditTeamDetails', () => {
         });
 
         it('can create team', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
-            const team = {
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .season(createTemporaryId())
+                .division(division)
+                .build();
             await renderComponent({
                 team: {
                     name: team.name,
@@ -356,7 +269,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -373,20 +286,13 @@ describe('EditTeamDetails', () => {
         });
 
         it('shows an error if unable to save', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
-            const team = {
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .build();
             await renderComponent({
                 team: {
                     name: team.name,
@@ -395,8 +301,8 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division, otherDivision ]);
-            apiResponse = { success: false };
+            }, [division, otherDivision]);
+            apiResponse = {success: false};
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -406,18 +312,14 @@ describe('EditTeamDetails', () => {
             expect(context.container.textContent).toContain('Could not save team details');
         });
 
-        it('can cancel', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+        it('can close error dialog after save failure', async () => {
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .build();
             await renderComponent({
                 team: {
                     name: team.name,
@@ -426,7 +328,32 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division ]);
+            }, [division, otherDivision]);
+            apiResponse = {success: false};
+            await doClick(findButton(context.container, 'Add team'));
+            expect(context.container.textContent).toContain('Could not save team details');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not save team details');
+        });
+
+        it('can cancel', async () => {
+            const division = divisionBuilder('DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .season(createTemporaryId())
+                .division(division)
+                .build();
+            await renderComponent({
+                team: {
+                    name: team.name,
+                    address: team.address,
+                    newDivisionId: division.id,
+                },
+                divisionId: team.divisionId,
+                seasonId: team.seasonId,
+            }, [division]);
 
             await doClick(findButton(context.container, 'Cancel'));
 

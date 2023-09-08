@@ -4,6 +4,7 @@ import {cleanUp, renderApp} from "../../../../helpers/tests";
 import React from "react";
 import {MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../../helpers/rendering";
+import {tournamentMatchBuilder} from "../../../../helpers/builders";
 
 describe('MasterDraw', () => {
     let context;
@@ -35,15 +36,9 @@ describe('MasterDraw', () => {
 
     describe('renders', () => {
         it('matches', async () => {
-            const match1 = {
-                sideA: { name: 'A' },
-                sideB: { name: 'B' },
-            };
-            const match2 = {
-                sideA: { name: 'C' },
-                sideB: { name: 'D' },
-            };
-            const matches = [ match1, match2 ];
+            const match1 = tournamentMatchBuilder().sideA('A').sideB('B').build();
+            const match2 = tournamentMatchBuilder().sideA('C').sideB('D').build();
+            const matches = [match1, match2];
 
             await renderComponent({
                 matches: matches,
@@ -58,8 +53,8 @@ describe('MasterDraw', () => {
             const table = context.container.querySelector('table.table');
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual([ '1', 'A', 'v', 'B' ]);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual([ '2', 'C', 'v', 'D' ]);
+            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B']);
+            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D']);
         });
 
         it('tournament properties', async () => {

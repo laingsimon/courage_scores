@@ -5,8 +5,6 @@ namespace CourageScores.Models.Dtos;
 [ExcludeFromCodeCoverage]
 public class EditDivisionDto : IIntegrityCheckDto
 {
-    public DateTime? LastUpdated { get; set; }
-
     /// <summary>
     /// The id for the entity
     /// </summary>
@@ -16,4 +14,6 @@ public class EditDivisionDto : IIntegrityCheckDto
     /// The name of this division
     /// </summary>
     public string Name { get; set; } = null!;
+
+    public DateTime? LastUpdated { get; set; }
 }

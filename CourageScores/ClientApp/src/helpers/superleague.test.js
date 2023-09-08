@@ -1,16 +1,23 @@
 // noinspection JSUnresolvedReference
 
-import React from "react";
 import {
     countLegThrowsBetween,
     countMatch100,
     countMatch140,
-    countMatch180, getMatchWinner,
-    getNoOfLegs, isLegWinner, legsWon,
-    matchTons, maxNoOfThrowsAllMatches,
-    playerOverallAverage, sumOverThrows,
-    legTons, legActualDarts, legGameShot, legScoreLeft,
-    legTonsSplit
+    countMatch180,
+    getMatchWinner,
+    getNoOfLegs,
+    isLegWinner,
+    legActualDarts,
+    legGameShot,
+    legScoreLeft,
+    legsWon,
+    legTons,
+    legTonsSplit,
+    matchTons,
+    maxNoOfThrowsAllMatches,
+    playerOverallAverage,
+    sumOverThrows
 } from "./superleague";
 
 describe('superleague', () => {
@@ -26,7 +33,7 @@ describe('superleague', () => {
                 legs: {
                     '0': {
                         home: {
-                            throws: [ {
+                            throws: [{
                                 score: 100,
                                 noOfDarts: 3,
                                 bust: false,
@@ -34,16 +41,16 @@ describe('superleague', () => {
                                 score: 150,
                                 noOfDarts: 3,
                                 bust: true,
-                            } ]
+                            }]
                         }
                     },
                     '1': {
                         home: {
-                            throws: [ {
+                            throws: [{
                                 score: 50,
                                 bust: false,
                                 noOfDarts: 2,
-                            } ]
+                            }]
                         }
                     }
                 }
@@ -65,7 +72,7 @@ describe('superleague', () => {
         });
 
         it('should return null when no legs', () => {
-            const result = countMatch100({ legs: null }, 'home');
+            const result = countMatch100({legs: null}, 'home');
 
             expect(result).toBeNull();
         });
@@ -77,13 +84,13 @@ describe('superleague', () => {
                         home: {
                             throws: [
                                 /* valid */
-                                { score: 100, bust: false },
-                                { score: 139, bust: false },
+                                {score: 100, bust: false},
+                                {score: 139, bust: false},
 
                                 /* invalid */
-                                { score: 99, bust: false },
-                                { score: 100, bust: true },
-                                { score: 140, bust: false },
+                                {score: 99, bust: false},
+                                {score: 100, bust: true},
+                                {score: 140, bust: false},
                             ]
                         }
                     }
@@ -104,7 +111,7 @@ describe('superleague', () => {
         });
 
         it('should return null when no legs', () => {
-            const result = countMatch140({ legs: null }, 'home');
+            const result = countMatch140({legs: null}, 'home');
 
             expect(result).toBeNull();
         });
@@ -116,13 +123,13 @@ describe('superleague', () => {
                         home: {
                             throws: [
                                 /* valid */
-                                { score: 140, bust: false },
-                                { score: 179, bust: false },
+                                {score: 140, bust: false},
+                                {score: 179, bust: false},
 
                                 /* invalid */
-                                { score: 139, bust: false },
-                                { score: 140, bust: true },
-                                { score: 180, bust: false },
+                                {score: 139, bust: false},
+                                {score: 140, bust: true},
+                                {score: 180, bust: false},
                             ]
                         }
                     }
@@ -143,7 +150,7 @@ describe('superleague', () => {
         });
 
         it('should return null when no legs', () => {
-            const result = countMatch180({ legs: null }, 'home');
+            const result = countMatch180({legs: null}, 'home');
 
             expect(result).toBeNull();
         });
@@ -155,11 +162,11 @@ describe('superleague', () => {
                         home: {
                             throws: [
                                 /* valid */
-                                { score: 180, bust: false },
+                                {score: 180, bust: false},
 
                                 /* invalid */
-                                { score: 179, bust: false },
-                                { score: 180, bust: true },
+                                {score: 179, bust: false},
+                                {score: 180, bust: true},
                             ]
                         }
                     }
@@ -180,7 +187,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs', () => {
-            const result = matchTons({ legs: null }, 'home');
+            const result = matchTons({legs: null}, 'home');
 
             expect(result).toEqual(0);
         });
@@ -192,9 +199,9 @@ describe('superleague', () => {
                         home: {
                             throws: [
                                 /* valid */
-                                { score: 100, bust: false },
-                                { score: 140, bust: false },
-                                { score: 180, bust: false },
+                                {score: 100, bust: false},
+                                {score: 140, bust: false},
+                                {score: 180, bust: false},
                             ]
                         }
                     }
@@ -216,7 +223,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 if no legs data', () => {
-            const result = getNoOfLegs({ legs: null });
+            const result = getNoOfLegs({legs: null});
 
             expect(result).toEqual(0);
         });
@@ -257,13 +264,13 @@ describe('superleague', () => {
         });
 
         it('should return 0 given no legs', () => {
-            const result = sumOverThrows({ legs: null }, 'home', 'noOfDarts');
+            const result = sumOverThrows({legs: null}, 'home', 'noOfDarts');
 
             expect(result).toEqual(0);
         });
 
         it('should return 0 given no prop', () => {
-            const result = sumOverThrows({ legs: {} }, 'home', null);
+            const result = sumOverThrows({legs: {}}, 'home', null);
 
             expect(result).toEqual(0);
         });
@@ -285,7 +292,7 @@ describe('superleague', () => {
                     }
                 }
             };
-            const result = sumOverThrows({ legs: legs }, 'home', 'noOfDarts', false);
+            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts', false);
 
             expect(result).toEqual(6);
         });
@@ -307,7 +314,7 @@ describe('superleague', () => {
                     }
                 }
             };
-            const result = sumOverThrows({ legs: legs }, 'home', 'noOfDarts', false);
+            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts', false);
 
             expect(result).toEqual(4);
         });
@@ -329,7 +336,7 @@ describe('superleague', () => {
                     }
                 }
             };
-            const result = sumOverThrows({ legs: legs }, 'home', 'noOfDarts', true);
+            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts', true);
 
             expect(result).toEqual(6);
         });
@@ -343,13 +350,13 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no sayg data', () => {
-            const result = maxNoOfThrowsAllMatches([ {} ]);
+            const result = maxNoOfThrowsAllMatches([{}]);
 
             expect(result).toEqual(0);
         });
 
         it('should return 0 when no sayg legs', () => {
-            const result = maxNoOfThrowsAllMatches([ { saygData: {} } ]);
+            const result = maxNoOfThrowsAllMatches([{saygData: {}}]);
 
             expect(result).toEqual(0);
         });
@@ -361,17 +368,17 @@ describe('superleague', () => {
                     legs: {
                         '0': {
                             home: {
-                                throws: [ {}, {}, { bust: true } ]
+                                throws: [{}, {}, {bust: true}]
                             },
                             away: {
-                                throws: [ {}, {} ]
+                                throws: [{}, {}]
                             }
                         }
                     }
                 }
             };
 
-            const result = maxNoOfThrowsAllMatches([ saygMatch ]);
+            const result = maxNoOfThrowsAllMatches([saygMatch]);
 
             expect(result).toEqual(3);
         });
@@ -383,17 +390,17 @@ describe('superleague', () => {
                     legs: {
                         '0': {
                             home: {
-                                throws: [ {}, {}, {} ]
+                                throws: [{}, {}, {}]
                             },
                             away: {
-                                throws: [ {}, {}, {}, { bust: true } ]
+                                throws: [{}, {}, {}, {bust: true}]
                             }
                         }
                     }
                 }
             };
 
-            const result = maxNoOfThrowsAllMatches([ saygMatch ]);
+            const result = maxNoOfThrowsAllMatches([saygMatch]);
 
             expect(result).toEqual(4);
         });
@@ -406,21 +413,21 @@ describe('superleague', () => {
                     '0': {
                         home: {
                             throws: [
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 50, bust: false },
-                                { score: 51, bust: true },
-                                { score: 51, bust: false },
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 50, bust: false},
+                                {score: 51, bust: true},
+                                {score: 51, bust: false},
                             ]
                         },
                         away: {
                             throws: [
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
                             ]
                         },
                         startingScore: 501,
@@ -439,21 +446,21 @@ describe('superleague', () => {
                     '0': {
                         home: {
                             throws: [
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
                             ]
                         },
                         away: {
                             throws: [
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 50, bust: false },
-                                { score: 51, bust: true },
-                                { score: 51, bust: false },
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 50, bust: false},
+                                {score: 51, bust: true},
+                                {score: 51, bust: false},
                             ]
                         },
                         startingScore: 501,
@@ -472,18 +479,18 @@ describe('superleague', () => {
                     '0': {
                         home: {
                             throws: [
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
                             ]
                         },
                         away: {
                             throws: [
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
-                                { score: 100, bust: false },
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
+                                {score: 100, bust: false},
                             ]
                         },
                         startingScore: 501,
@@ -515,12 +522,12 @@ describe('superleague', () => {
             const leg = {
                 home: {
                     throws: [
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: true },
-                        { score: 101, bust: false },
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: true},
+                        {score: 101, bust: false},
                     ],
                 },
                 startingScore: 501,
@@ -535,9 +542,9 @@ describe('superleague', () => {
             const leg = {
                 home: {
                     throws: [
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
                     ],
                 },
                 startingScore: 501,
@@ -557,13 +564,13 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no data for matches', () => {
-            const result = legsWon([ { saygData: null } ], 'home');
+            const result = legsWon([{saygData: null}], 'home');
 
             expect(result).toEqual(0);
         });
 
         it('should return 0 when no legs for data', () => {
-            const result = legsWon([ { saygData: { legs: null } } ], 'home');
+            const result = legsWon([{saygData: {legs: null}}], 'home');
 
             expect(result).toEqual(0);
         });
@@ -586,7 +593,7 @@ describe('superleague', () => {
                 }
             }
 
-            const result = legsWon([ { saygData: saygData } ], 'home');
+            const result = legsWon([{saygData: saygData}], 'home');
 
             expect(result).toEqual(2);
         });
@@ -609,7 +616,7 @@ describe('superleague', () => {
                 }
             }
 
-            const result = legsWon([ { saygData: saygData } ], 'home');
+            const result = legsWon([{saygData: saygData}], 'home');
 
             expect(result).toEqual(0);
         });
@@ -639,13 +646,13 @@ describe('superleague', () => {
                 home: {
                     throws: [
                         /* valid */
-                        { score: 100, bust: false },
-                        { score: 139, bust: false },
+                        {score: 100, bust: false},
+                        {score: 139, bust: false},
 
                         /* invalid */
-                        { score: 99, bust: false },
-                        { score: 100, bust: true },
-                        { score: 140, bust: false },
+                        {score: 99, bust: false},
+                        {score: 100, bust: true},
+                        {score: 140, bust: false},
                     ]
                 },
             };
@@ -662,14 +669,14 @@ describe('superleague', () => {
                 home: {
                     throws: [
                         /* valid */
-                        { score: 100, bust: false },
-                        { score: 140, bust: false },
-                        { score: 180, bust: false },
+                        {score: 100, bust: false},
+                        {score: 140, bust: false},
+                        {score: 180, bust: false},
 
                         /* invalid */
-                        { score: 100, bust: true },
-                        { score: 140, bust: true },
-                        { score: 180, bust: true },
+                        {score: 100, bust: true},
+                        {score: 140, bust: true},
+                        {score: 180, bust: true},
                     ]
                 },
             };
@@ -687,14 +694,14 @@ describe('superleague', () => {
                 home: {
                     throws: [
                         /* valid */
-                        { score: 100, bust: false },
-                        { score: 140, bust: false },
-                        { score: 180, bust: false },
+                        {score: 100, bust: false},
+                        {score: 140, bust: false},
+                        {score: 180, bust: false},
 
                         /* invalid */
-                        { score: 100, bust: true },
-                        { score: 140, bust: true },
-                        { score: 180, bust: true },
+                        {score: 100, bust: true},
+                        {score: 140, bust: true},
+                        {score: 180, bust: true},
                     ]
                 },
             };
@@ -710,13 +717,13 @@ describe('superleague', () => {
                 home: {
                     throws: [
                         /* valid */
-                        { score: 100, bust: false },
-                        { score: 140, bust: false },
+                        {score: 100, bust: false},
+                        {score: 140, bust: false},
 
                         /* invalid */
-                        { score: 100, bust: true },
-                        { score: 140, bust: true },
-                        { score: 180, bust: true },
+                        {score: 100, bust: true},
+                        {score: 140, bust: true},
+                        {score: 180, bust: true},
                     ]
                 },
             };
@@ -737,7 +744,7 @@ describe('superleague', () => {
 
         it('returns 0 if no throws', () => {
             const leg = {
-                home: { throws: null },
+                home: {throws: null},
             };
 
             const result = legActualDarts(leg, 'home');
@@ -749,8 +756,8 @@ describe('superleague', () => {
             const leg = {
                 home: {
                     throws: [
-                        { noOfDarts: 3 },
-                        { noOfDarts: 3, bust: true },
+                        {noOfDarts: 3},
+                        {noOfDarts: 3, bust: true},
                     ]
                 },
             };
@@ -770,7 +777,7 @@ describe('superleague', () => {
 
         it('returns null if no throws', () => {
             const leg = {
-                home: { throws: null },
+                home: {throws: null},
             };
 
             const result = legGameShot(leg, 'home');
@@ -782,10 +789,10 @@ describe('superleague', () => {
             const leg = {
                 home: {
                     throws: [
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 50, bust: false },
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 50, bust: false},
                     ]
                 },
                 startingScore: 501,
@@ -800,11 +807,11 @@ describe('superleague', () => {
             const leg = {
                 home: {
                     throws: [
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 101, bust: false },
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 101, bust: false},
                     ]
                 },
                 startingScore: 501,
@@ -825,7 +832,7 @@ describe('superleague', () => {
 
         it('returns null if no throws', () => {
             const leg = {
-                home: { throws: null },
+                home: {throws: null},
             };
 
             const result = legScoreLeft(leg, 'home');
@@ -837,11 +844,11 @@ describe('superleague', () => {
             const leg = {
                 home: {
                     throws: [
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 75, bust: true },
-                        { score: 50, bust: false },
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 75, bust: true},
+                        {score: 50, bust: false},
                     ]
                 },
                 startingScore: 501,
@@ -856,11 +863,11 @@ describe('superleague', () => {
             const leg = {
                 home: {
                     throws: [
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 100, bust: false },
-                        { score: 101, bust: false },
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 100, bust: false},
+                        {score: 101, bust: false},
                     ]
                 },
                 startingScore: 501,

@@ -9,8 +9,8 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionTeamAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly DivisionTeamAdapter _adapter = new DivisionTeamAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly DivisionTeamAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenTeamAndScore_SetsPropertiesCorrectly()
@@ -33,10 +33,31 @@ public class DivisionTeamAdapterTests
         {
             new DivisionPlayerDto
             {
-                Singles = { WinRate = 1, TeamWinRate = 10, TeamLossRate = 11, MatchesWon = 21, MatchesLost = 31 },
-                Pairs = { WinRate = 2, TeamWinRate = 20, TeamLossRate = 12, MatchesWon = 22, MatchesLost = 32 },
-                Triples = { WinRate = 3, TeamWinRate = 30, TeamLossRate = 13, MatchesWon = 23, MatchesLost = 33 },
-            }
+                Singles =
+                {
+                    WinRate = 1,
+                    TeamWinRate = 10,
+                    TeamLossRate = 11,
+                    MatchesWon = 21,
+                    MatchesLost = 31,
+                },
+                Pairs =
+                {
+                    WinRate = 2,
+                    TeamWinRate = 20,
+                    TeamLossRate = 12,
+                    MatchesWon = 22,
+                    MatchesLost = 32,
+                },
+                Triples =
+                {
+                    WinRate = 3,
+                    TeamWinRate = 30,
+                    TeamLossRate = 13,
+                    MatchesWon = 23,
+                    MatchesLost = 33,
+                },
+            },
         };
 
         var result = await _adapter.Adapt(team, score, teamPlayers, _token);
@@ -49,11 +70,11 @@ public class DivisionTeamAdapterTests
         Assert.That(result.FixturesLost, Is.EqualTo(3));
         Assert.That(result.FixturesDrawn, Is.EqualTo(4));
         Assert.That(result.Address, Is.EqualTo(team.Address));
-        Assert.That(result.MatchesWon, Is.EqualTo(21+22+23));
-        Assert.That(result.MatchesLost, Is.EqualTo(31+32+33));
-        Assert.That(result.WinRate, Is.EqualTo(10+20+30));
-        Assert.That(result.LossRate, Is.EqualTo(11+12+13));
-        Assert.That(result.Difference, Is.EqualTo((10+20+30) - (11+12+13)));
+        Assert.That(result.MatchesWon, Is.EqualTo(21 + 22 + 23));
+        Assert.That(result.MatchesLost, Is.EqualTo(31 + 32 + 33));
+        Assert.That(result.WinRate, Is.EqualTo(10 + 20 + 30));
+        Assert.That(result.LossRate, Is.EqualTo(11 + 12 + 13));
+        Assert.That(result.Difference, Is.EqualTo(10 + 20 + 30 - (11 + 12 + 13)));
         Assert.That(result.Updated, Is.EqualTo(team.Updated));
     }
 

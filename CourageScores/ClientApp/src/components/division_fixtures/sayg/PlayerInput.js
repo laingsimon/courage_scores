@@ -3,13 +3,24 @@ import {stateChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {useApp} from "../../../AppContainer";
 
-export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }) {
-    const [ score, setScore ] = useState('');
-    const { onError } = useApp();
-    const [ focusEventHandle, setFocusEventHandle ] = useState(null);
+export function PlayerInput({
+                                home,
+                                away,
+                                homeScore,
+                                awayScore,
+                                on180,
+                                onHiCheck,
+                                onChange,
+                                onLegComplete,
+                                leg,
+                                singlePlayer
+                            }) {
+    const [score, setScore] = useState('');
+    const {onError} = useApp();
+    const [focusEventHandle, setFocusEventHandle] = useState(null);
     const accumulator = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore = accumulator ? leg.startingScore - accumulator.score : -1;
-    const [ savingInput, setSavingInput ] = useState(false);
+    const [savingInput, setSavingInput] = useState(false);
 
     const playerLookup = {
         home: home,
@@ -159,7 +170,8 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
     return (<div className="text-center">
         <h2>
-            <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>
+            <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong
+            className="text-primary">{leg.startingScore - accumulator.score}</strong>
         </h2>
         {singlePlayer ? (<h5>Leg {homeScore + 1}</h5>) : (<h5>{homeScore} - {awayScore}</h5>)}
         {accumulator.noOfDarts ? (<p>
@@ -172,31 +184,41 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                 <span className="margin-right">
                     Score
                 </span>
-                <input data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
-                {savingInput ? (<span className="position-absolute spinner-border spinner-border-sm mt-3 top-50 opacity-50 margin-left text-secondary" role="status"
-                                 aria-hidden="true"></span>) : null}
+                <input data-score-input="true" autoFocus type="number" min="0" max="180"
+                       className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)}
+                       onKeyUp={keyUp}/>
+                {savingInput ? (<span
+                    className="position-absolute spinner-border spinner-border-sm mt-3 top-50 opacity-50 margin-left text-secondary"
+                    role="status"
+                    aria-hidden="true"></span>) : null}
             </label>
         </h4>
         <p className="my-3">
             {!savingInput && checkout && isSingleDartScore(intScore, true)
-                ? (<button className="btn btn-primary margin-right fs-3 border-1" onClick={() => addThrow(score, 1, true, false)}>📌</button>)
+                ? (<button className="btn btn-primary margin-right fs-3 border-1"
+                           onClick={() => addThrow(score, 1, true, false)}>📌</button>)
                 : null}
             {!savingInput && checkout && isTwoDartScore(intScore)
-                ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
+                ? (<button className="btn btn-primary margin-right fs-3"
+                           onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
                 : null}
             {!savingInput && isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
-                ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>)
+                ? (<button className="btn btn-primary margin-right fs-3"
+                           onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>)
                 : null}
         </p>
         <p className="my-3">
             {!savingInput && isSingleDartScore(intScore) && !hasRemainingDouble && canBeBust
-                ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 1, true, true)}>💥</button>)
+                ? (<button className="btn btn-warning margin-right fs-3"
+                           onClick={() => addThrow(score, 1, true, true)}>💥</button>)
                 : null}
             {!savingInput && isTwoDartScore(intScore) && !hasRemainingDouble && canBeBust
-                ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
+                ? (<button className="btn btn-warning margin-right fs-3"
+                           onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
                 : null}
             {!savingInput && isThreeDartScore(intScore) && !hasRemainingDouble && canBeBust
-                ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>)
+                ? (<button className="btn btn-warning margin-right fs-3"
+                           onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>)
                 : null}
         </p>
     </div>);

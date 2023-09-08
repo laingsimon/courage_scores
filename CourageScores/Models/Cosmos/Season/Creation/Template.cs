@@ -11,6 +11,7 @@ public class Template : AuditedEntity, IPermissionedEntity
     public List<DivisionTemplate> Divisions { get; set; } = new();
     public List<List<string>> SharedAddresses { get; set; } = new();
     public SeasonHealthCheckResultDto? TemplateHealth { get; set; }
+    public string? Description { get; set; }
 
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)

@@ -9,14 +9,14 @@ public class RecordScoresDto : IGameDto, IIntegrityCheckDto
     public ManOfTheMatchDto? Home { get; set; } = new();
     public ManOfTheMatchDto? Away { get; set; } = new();
     public List<RecordScoresGameMatchDto> Matches { get; set; } = new();
+    public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
+    public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();
+    public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
     public string Address { get; set; } = null!;
     public bool Postponed { get; set; }
     public bool IsKnockout { get; set; }
     public bool AccoladesCount { get; set; }
     public DateTime Date { get; set; }
-    public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
-    public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();
-    public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
     public DateTime? LastUpdated { get; set; }
 
     [ExcludeFromCodeCoverage]

@@ -8,14 +8,14 @@ namespace CourageScores.Services.Command;
 
 public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, TournamentGame>
 {
-    private static readonly GameMatchOption DefaultMatchOptions = new GameMatchOption
+    private static readonly GameMatchOption DefaultMatchOptions = new()
     {
         NumberOfLegs = 5,
         StartingScore = 501,
     };
 
-    private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private readonly ICommandFactory _commandFactory;
+    private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private CreateTournamentSaygDto? _request;
 
     public CreateTournamentMatchSaygCommand(
@@ -45,7 +45,10 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             return new ActionResult<TournamentGame>
             {
                 Success = false,
-                Errors = { "Match not found" },
+                Errors =
+                {
+                    "Match not found",
+                },
                 Result = model,
             };
         }
@@ -55,7 +58,10 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             return new ActionResult<TournamentGame>
             {
                 Success = true,
-                Warnings = { "Match already has a sayg id" },
+                Warnings =
+                {
+                    "Match already has a sayg id",
+                },
                 Result = model,
             };
         }
@@ -78,7 +84,10 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             return new ActionResult<TournamentGame>
             {
                 Success = true,
-                Messages = result.Messages.Concat(new[] {  "Sayg added to match" }).ToList(),
+                Messages = result.Messages.Concat(new[]
+                {
+                    "Sayg added to match",
+                }).ToList(),
                 Warnings = result.Warnings,
                 Errors = result.Errors,
                 Result = model,

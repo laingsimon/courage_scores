@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {ErrorDisplay} from "./ErrorDisplay";
 
@@ -23,8 +23,8 @@ describe('ErrorDisplay', () => {
         closed = false;
         reportedClientSideException = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -36,7 +36,7 @@ describe('ErrorDisplay', () => {
                     reportedClientSideException = err;
                 }
             },
-            (<ErrorDisplay {...props} onClose={onClose} />));
+            (<ErrorDisplay {...props} onClose={onClose}/>));
     }
 
     describe('with client side exception', () => {
@@ -68,8 +68,8 @@ describe('ErrorDisplay', () => {
 
         it('renders when null errors', async () => {
             await renderComponent({
-                messages: [ 'message1' ],
-                warnings: [ 'warning1' ],
+                messages: ['message1'],
+                warnings: ['warning1'],
                 title: '',
                 Exception: null
             });
@@ -82,8 +82,8 @@ describe('ErrorDisplay', () => {
 
         it('renders when null warnings', async () => {
             await renderComponent({
-                messages: [ 'message1' ],
-                errors: [ 'error1' ],
+                messages: ['message1'],
+                errors: ['error1'],
                 title: '',
                 Exception: null
             });
@@ -96,8 +96,8 @@ describe('ErrorDisplay', () => {
 
         it('renders when null messages', async () => {
             await renderComponent({
-                errors: [ 'error1' ],
-                warnings: [ 'warning1' ],
+                errors: ['error1'],
+                warnings: ['warning1'],
                 title: '',
                 Exception: null
             });
@@ -113,14 +113,14 @@ describe('ErrorDisplay', () => {
         it('reports error to API', async () => {
             await renderComponent({
                 errors: {
-                    'property': [ 'some property error' ]
+                    'property': ['some property error']
                 },
                 warnings: [],
                 messages: [],
                 title: '',
                 Exception: {
                     Type: 'dotnet type',
-                    StackTrace: [ 'dotnet', 'stack', 'trace' ],
+                    StackTrace: ['dotnet', 'stack', 'trace'],
                     Message: 'dotnet message'
                 }
             });
@@ -131,14 +131,14 @@ describe('ErrorDisplay', () => {
         it('renders correctly', async () => {
             await renderComponent({
                 errors: {
-                    'property': [ 'some property error' ]
+                    'property': ['some property error']
                 },
                 warnings: [],
                 messages: [],
                 title: '',
                 Exception: {
                     Type: 'dotnet type',
-                    StackTrace: [ 'dotnet', 'stack', 'trace' ],
+                    StackTrace: ['dotnet', 'stack', 'trace'],
                     Message: 'dotnet message'
                 }
             });
@@ -153,7 +153,7 @@ describe('ErrorDisplay', () => {
         it('renders correctly with no stack trace', async () => {
             await renderComponent({
                 errors: {
-                    'property': [ 'some property error' ]
+                    'property': ['some property error']
                 },
                 warnings: [],
                 messages: [],

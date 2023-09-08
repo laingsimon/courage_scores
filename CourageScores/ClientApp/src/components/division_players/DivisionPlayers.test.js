@@ -5,15 +5,14 @@ import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionPlayers} from "./DivisionPlayers";
+import {seasonBuilder} from "../../helpers/builders";
 
 describe('DivisionPlayers', () => {
     let context;
     let reportedError;
     let divisionReloaded = false;
     let account;
-    const playerApi = {
-
-    };
+    const playerApi = {};
 
     afterEach(() => {
         cleanUp(context);
@@ -23,8 +22,8 @@ describe('DivisionPlayers', () => {
         reportedError = null;
         divisionReloaded = false;
         context = await renderApp(
-            { playerApi },
-            { name: 'Courage Scores' },
+            {playerApi},
+            {name: 'Courage Scores'},
             {
                 account: account,
                 onError: (err) => {
@@ -41,16 +40,13 @@ describe('DivisionPlayers', () => {
     }
 
     function createDivisionData(divisionId) {
-        const season = {
-            id: createTemporaryId(),
-            name: 'A season',
-            startDate: '2022-02-03T00:00:00',
-            endDate: '2022-08-25T00:00:00',
-            divisions: []
-        };
+        const season = seasonBuilder('A season')
+            .starting('2022-02-03T00:00:00')
+            .ending('2022-08-25T00:00:00')
+            .build();
         return {
             id: divisionId,
-            players: [ {
+            players: [{
                 id: createTemporaryId(),
                 name: 'A captain',
                 rank: 1,
@@ -82,7 +78,7 @@ describe('DivisionPlayers', () => {
                     matchesWon: 17,
                     matchesLost: 18
                 }
-            } ],
+            }],
             season: season
         };
     }
@@ -105,14 +101,14 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: undefined, hideHeading: undefined });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
-            assertPlayer(playersRows[0], [ '1', '🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5' ]);
-            assertPlayer(playersRows[1], [ '11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
+            assertPlayer(playersRows[0], ['1', '🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
+            assertPlayer(playersRows[1], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
             const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
@@ -127,13 +123,13 @@ describe('DivisionPlayers', () => {
             captain.singles.matchesLost = 0;
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: undefined, hideHeading: undefined });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(1);
-            assertPlayer(playersRows[0], [ '11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
+            assertPlayer(playersRows[0], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
         });
 
         it('without heading', async () => {
@@ -141,8 +137,8 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: undefined, hideHeading: true });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: undefined, hideHeading: true});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
@@ -156,14 +152,14 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: true, hideHeading: undefined });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: true, hideHeading: undefined});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
-            assertPlayer(playersRows[0], [ '1', '🤴 A captain', '6', '7', '8', '2', '3', '4', '5' ]);
-            assertPlayer(playersRows[1], [ '11', 'A player', '16', '17', '18', '12', '13', '14', '15' ]);
+            assertPlayer(playersRows[0], ['1', '🤴 A captain', '6', '7', '8', '2', '3', '4', '5']);
+            assertPlayer(playersRows[1], ['11', 'A player', '16', '17', '18', '12', '13', '14', '15']);
             const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
         });
@@ -171,7 +167,7 @@ describe('DivisionPlayers', () => {
 
     describe('when logged in', () => {
         beforeEach(() => {
-            account = { access: { managePlayers: true } };
+            account = {access: {managePlayers: true}};
         });
 
         it('renders players with heading and venue', async () => {
@@ -179,14 +175,14 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: undefined, hideHeading: undefined });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
-            assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5' ]);
-            assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
+            assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
+            assertPlayer(playersRows[1], ['11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
             const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
@@ -201,14 +197,14 @@ describe('DivisionPlayers', () => {
             captain.singles.matchesLost = 0;
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: undefined, hideHeading: undefined });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
-            assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', 'A team', '0', '0', '0', '2', '3', '4', '5' ]);
-            assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
+            assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', 'A team', '0', '0', '0', '2', '3', '4', '5']);
+            assertPlayer(playersRows[1], ['11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
         });
 
         it('without heading', async () => {
@@ -216,8 +212,8 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: undefined, hideHeading: true });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: undefined, hideHeading: true});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
@@ -231,14 +227,14 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision },
-                { hideVenue: true, hideHeading: undefined });
+                {...divisionData, onReloadDivision: onReloadDivision},
+                {hideVenue: true, hideHeading: undefined});
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
-            assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', '6', '7', '8', '2', '3', '4', '5' ]);
-            assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', '16', '17', '18', '12', '13', '14', '15' ]);
+            assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', '6', '7', '8', '2', '3', '4', '5']);
+            assertPlayer(playersRows[1], ['11', '✏️🗑️A player', '16', '17', '18', '12', '13', '14', '15']);
             const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
         });

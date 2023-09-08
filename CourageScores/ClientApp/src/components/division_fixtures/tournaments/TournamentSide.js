@@ -1,20 +1,21 @@
 import React, {useState} from 'react';
 import {EditSide} from "./EditSide";
+import {count, isEmpty} from "../../../helpers/collections";
 
-export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
-    const [ editSide, setEditSide ] = useState(null);
+export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
+    const [editSide, setEditSide] = useState(null);
 
-    function renderPlayers () {
-        if (!side.players) {
+    function renderPlayers() {
+        if (isEmpty(side.players || [])) {
             return null;
         }
 
-        if (side.players.length === 1 && side.players[0].name === side.name) {
+        if (count(side.players || []) === 1 && side.players[0].name === side.name) {
             return null;
         }
 
         return (<ol className="no-list-indent">
-            {side.players.map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
+            {(side.players || []).map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
                 {p.name}
             </li>))}
         </ol>);
@@ -35,10 +36,11 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
                 }
                 setEditSide(null);
             }}
-            onDelete={onRemove} />);
+            onDelete={onRemove}/>);
     }
 
-    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
+    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
+                 style={{flexBasis: '100px', flexGrow: 1, flexShrink: 1}}>
         {renderSideName()}
         {renderPlayers()}
         {readOnly ? null : (<div className="position-absolute-bottom-right">

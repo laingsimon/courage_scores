@@ -17,7 +17,7 @@ public static class ImportExtensions
     }
 
     public static IEnumerable<T> NotDeleted<T>(this IEnumerable<T> items)
-        where T: AuditedEntity
+        where T : AuditedEntity
     {
         return items.Where(i => i.Deleted == null);
     }

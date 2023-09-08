@@ -6,8 +6,8 @@ namespace CourageScores.Services.Health.Checks;
 
 public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
 {
-    private readonly int _maxContiguousEvents;
     private readonly int _intervalDays;
+    private readonly int _maxContiguousEvents;
 
     public ContiguousHomeOrAwayFixtures(int maxContiguousEvents = 2, int intervalDays = 7)
     {
@@ -22,7 +22,10 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
     {
         return (await divisions.SelectAsync(division => RunDivisionCheck(division, token)).ToList())
             .Aggregate(
-                new HealthCheckResultDto { Success = true },
+                new HealthCheckResultDto
+                {
+                    Success = true,
+                },
                 (prev, current) => prev.MergeWith(current));
     }
 
@@ -30,7 +33,10 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
     {
         return (await division.Teams.SelectAsync(team => RunTeamCheck(division, team, token)).ToList())
             .Aggregate(
-                new HealthCheckResultDto { Success = true },
+                new HealthCheckResultDto
+                {
+                    Success = true,
+                },
                 (prev, current) => prev.MergeWith(current));
     }
 
@@ -111,6 +117,7 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
 
         public string Location { get; }
         public DateTime Date { get; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public IReadOnlyCollection<LeagueFixtureHealthDto> Fixtures { get; }
     }

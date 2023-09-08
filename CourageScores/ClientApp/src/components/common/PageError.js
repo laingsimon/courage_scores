@@ -1,17 +1,17 @@
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../AppContainer";
 
-export function PageError({ error }){
-    const [ showStack, setShowStack ] = useState(false);
-    const [ errorReported, setErrorReported ] = useState(false);
-    const { clearError, reportClientSideException, invalidateCacheAndTryAgain } = useApp();
+export function PageError({error}) {
+    const [showStack, setShowStack] = useState(false);
+    const [errorReported, setErrorReported] = useState(false);
+    const {clearError, reportClientSideException, invalidateCacheAndTryAgain} = useApp();
 
     useEffect(() => {
-        // noinspection JSIgnoredPromiseFromCall
-        doReportClientSideException();
-    },
-    // eslint-disable-next-line
-    [errorReported])
+            // noinspection JSIgnoredPromiseFromCall
+            doReportClientSideException();
+        },
+        // eslint-disable-next-line
+        [errorReported])
 
     async function doReportClientSideException() {
         if (errorReported) {
@@ -28,7 +28,8 @@ export function PageError({ error }){
         <p>
             <span className="fw-bold">{error.message || error}</span>
             {error.stack ? (<span className="form-switch margin-left">
-                <input className="form-check-input" type="checkbox" id="showStack" checked={showStack} onChange={event => setShowStack(event.target.checked)}/>
+                <input className="form-check-input" type="checkbox" id="showStack" checked={showStack}
+                       onChange={event => setShowStack(event.target.checked)}/>
                 <label className="margin-left form-check-label" htmlFor="showStack">Show stack</label>
             </span>) : null}
         </p>

@@ -11,9 +11,9 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionTournamentFixtureDetailsAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
-    private Mock<IAdapter<TournamentSide,TournamentSideDto>> _tournamentSideAdapter = null!;
+    private Mock<IAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -29,15 +29,21 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         {
             Players =
             {
-                new TournamentPlayer { Id = Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357") },
-            }
+                new TournamentPlayer
+                {
+                    Id = Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"),
+                },
+            },
         };
         var runnerUp = new TournamentSide
         {
             Players =
             {
-                new TournamentPlayer { Id = Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C") },
-            }
+                new TournamentPlayer
+                {
+                    Id = Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"),
+                },
+            },
         };
         var game = new TournamentGame
         {
@@ -51,7 +57,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             {
                 winner,
                 runnerUp,
-            }
+            },
         };
         var winnerDto = new TournamentSideDto();
         var runnerUpDto = new TournamentSideDto();
@@ -64,9 +70,15 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.Date, Is.EqualTo(game.Date));
         Assert.That(result.Type, Is.EqualTo(game.Type));
         Assert.That(result.Notes, Is.EqualTo(game.Notes));
-        Assert.That(result.Sides, Is.EqualTo(new[] { winnerDto, runnerUpDto }));
+        Assert.That(result.Sides, Is.EqualTo(new[]
+        {
+            winnerDto, runnerUpDto,
+        }));
         Assert.That(result.Id, Is.EqualTo(game.Id));
-        Assert.That(result.Players, Is.EqualTo(new[] { Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"), Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"), }));
+        Assert.That(result.Players, Is.EqualTo(new[]
+        {
+            Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"), Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"),
+        }));
         Assert.That(result.Proposed, Is.False);
         Assert.That(result.SeasonId, Is.EqualTo(game.SeasonId));
         Assert.That(result.WinningSide, Is.EqualTo(null));
@@ -86,7 +98,10 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             Sides = Enumerable.Range(1, sideCount).Select(sideNo => new TournamentSide
             {
                 Name = sideNo.ToString(),
-                Players = Enumerable.Range(1, playerCount).Select(playerNo => new TournamentPlayer { Name = playerNo.ToString() }).ToList(),
+                Players = Enumerable.Range(1, playerCount).Select(playerNo => new TournamentPlayer
+                {
+                    Name = playerNo.ToString(),
+                }).ToList(),
             }).ToList(),
         };
         var sideDto = new TournamentSideDto();
@@ -103,7 +118,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         var game = new TournamentGame
         {
             Id = Guid.NewGuid(),
-            Round = new TournamentRound()
+            Round = new TournamentRound(),
         };
 
         var result = await _adapter.Adapt(game, _token);
@@ -115,8 +130,14 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     [TestCase(1, 2, "B")]
     public async Task Adapt_GivenWinningRound_SetsPropertiesCorrectly(int scoreA, int scoreB, string winnerName)
     {
-        var sideA = new TournamentSide { Name = "A" };
-        var sideB = new TournamentSide { Name = "B" };
+        var sideA = new TournamentSide
+        {
+            Name = "A",
+        };
+        var sideB = new TournamentSide
+        {
+            Name = "B",
+        };
         var game = new TournamentGame
         {
             Id = Guid.NewGuid(),
@@ -138,12 +159,18 @@ public class DivisionTournamentFixtureDetailsAdapterTests
                             ScoreA = scoreA,
                             ScoreB = scoreB,
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
-        var sideADto = new TournamentSideDto { Name = "A" };
-        var sideBDto = new TournamentSideDto { Name = "B" };
+        var sideADto = new TournamentSideDto
+        {
+            Name = "A",
+        };
+        var sideBDto = new TournamentSideDto
+        {
+            Name = "B",
+        };
         _tournamentSideAdapter.Setup(a => a.Adapt(sideA, _token)).ReturnsAsync(sideADto);
         _tournamentSideAdapter.Setup(a => a.Adapt(sideB, _token)).ReturnsAsync(sideBDto);
 
@@ -158,7 +185,12 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     {
         var teamsWithSameAddress = new[]
         {
-            new TeamDto { Id = Guid.NewGuid(), Name = "team1", Address = "address", },
+            new TeamDto
+            {
+                Id = Guid.NewGuid(),
+                Name = "team1",
+                Address = "address",
+            },
         };
 
         var result = await _adapter.ForUnselectedVenue(teamsWithSameAddress, _token);
@@ -179,8 +211,18 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     {
         var teamsWithSameAddress = new[]
         {
-            new TeamDto { Id = Guid.NewGuid(), Name = "team1", Address = "address", },
-            new TeamDto { Id = Guid.NewGuid(), Name = "team2", Address = "address", },
+            new TeamDto
+            {
+                Id = Guid.NewGuid(),
+                Name = "team1",
+                Address = "address",
+            },
+            new TeamDto
+            {
+                Id = Guid.NewGuid(),
+                Name = "team2",
+                Address = "address",
+            },
         };
 
         var result = await _adapter.ForUnselectedVenue(teamsWithSameAddress, _token);

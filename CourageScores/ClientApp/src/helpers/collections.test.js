@@ -1,79 +1,68 @@
 // noinspection JSUnresolvedReference
 
-import {
-    all,
-    any,
-    count,
-    distinct,
-    elementAt,
-    isEmpty,
-    max,
-    sortBy,
-    sum, toDictionary,
-    toMap
-} from "./collections.js";
+import {all, any, count, distinct, elementAt, isEmpty, max, sortBy, sum, toDictionary, toMap} from "./collections.js";
 
 describe('collections', () => {
     describe('toMap', () => {
         it('should return map of items', () => {
             const items = [
-                { id: 'a', name: 'a' },
-                { id: 'b', name: 'b' },
-                { id: 'c', name: 'c' }
+                {id: 'a', name: 'a'},
+                {id: 'b', name: 'b'},
+                {id: 'c', name: 'c'}
             ];
 
             const map = toMap(items);
 
-            expect(map['a']).toEqual({ id: 'a', name: 'a' });
-            expect(map['b']).toEqual({ id: 'b', name: 'b' });
-            expect(map['c']).toEqual({ id: 'c', name: 'c' });
+            expect(map['a']).toEqual({id: 'a', name: 'a'});
+            expect(map['b']).toEqual({id: 'b', name: 'b'});
+            expect(map['c']).toEqual({id: 'c', name: 'c'});
         });
 
         it('should be able to filter items', () => {
             const items = [
-                { id: 'a', name: 'a' },
-                { id: 'b', name: 'b' },
-                { id: 'c', name: 'c' }
+                {id: 'a', name: 'a'},
+                {id: 'b', name: 'b'},
+                {id: 'c', name: 'c'}
             ];
 
             const filteredItems = toMap(items).filter(item => item.name === 'a');
 
-            expect(filteredItems).toEqual([ { id: 'a', name: 'a' } ]);
+            expect(filteredItems).toEqual([{id: 'a', name: 'a'}]);
         });
 
         it('should be able to map items', () => {
             const items = [
-                { id: 'a', name: 'a' },
-                { id: 'b', name: 'b' },
-                { id: 'c', name: 'c' }
+                {id: 'a', name: 'a'},
+                {id: 'b', name: 'b'},
+                {id: 'c', name: 'c'}
             ];
 
             const mappedItems = toMap(items).map(item => item.name.toUpperCase());
 
-            expect(mappedItems).toEqual([ 'A', 'B', 'C' ]);
+            expect(mappedItems).toEqual(['A', 'B', 'C']);
         });
 
         it('should be able to sort items', () => {
             const items = [
-                { id: 'b', name: 'b' },
-                { id: 'a', name: 'a' },
-                { id: 'c', name: 'c' }
+                {id: 'b', name: 'b'},
+                {id: 'a', name: 'a'},
+                {id: 'c', name: 'c'}
             ];
 
             const sortedItems = toMap(items).sort(sortBy('name'));
 
             expect(sortedItems).toEqual([
-                { id: 'a', name: 'a' },
-                { id: 'b', name: 'b' },
-                { id: 'c', name: 'c' }
+                {id: 'a', name: 'a'},
+                {id: 'b', name: 'b'},
+                {id: 'c', name: 'c'}
             ]);
         });
 
         it('should return length', () => {
             const items = [
-                { id: 'b', name: 'b' },
-                { id: 'a', name: 'a' },
-                { id: 'c', name: 'c' }
+                {id: 'b', name: 'b'},
+                {id: 'a', name: 'a'},
+                {id: 'c', name: 'c'}
             ];
 
             const map = toMap(items);
@@ -85,53 +74,53 @@ describe('collections', () => {
     describe('sortBy', () => {
         it('should sort items in ascending order', () => {
             const items = [
-                { name: 'b' },
-                { name: 'c' },
-                { name: 'a' }
+                {name: 'b'},
+                {name: 'c'},
+                {name: 'a'}
             ];
 
             const sorted = items.sort(sortBy('name'));
 
             expect(sorted).toEqual([
-                { name: 'a' },
-                { name: 'b' },
-                { name: 'c' } ]);
+                {name: 'a'},
+                {name: 'b'},
+                {name: 'c'}]);
         });
 
         it('should sort items in descending order', () => {
             const items = [
-                { name: 'b' },
-                { name: 'c' },
-                { name: 'a' }
+                {name: 'b'},
+                {name: 'c'},
+                {name: 'a'}
             ];
 
             const sorted = items.sort(sortBy('name', true));
 
             expect(sorted).toEqual([
-                { name: 'c' },
-                { name: 'b' },
-                { name: 'a' } ]);
+                {name: 'c'},
+                {name: 'b'},
+                {name: 'a'}]);
         });
 
         it('should sort items by nested property', () => {
             const items = [
-                { home: { name: 'b' } },
-                { home: { name: 'c' } },
-                { home: { name: 'a' } },
+                {home: {name: 'b'}},
+                {home: {name: 'c'}},
+                {home: {name: 'a'}},
             ];
 
             const sorted = items.sort(sortBy('home.name'));
 
             expect(sorted).toEqual([
-                { home: { name: 'a' } },
-                { home: { name: 'b' } },
-                { home: { name: 'c' } } ]);
+                {home: {name: 'a'}},
+                {home: {name: 'b'}},
+                {home: {name: 'c'}}]);
         });
     });
 
     describe('any', () => {
         it('should return true if items found', () => {
-            const items = [ 1 ];
+            const items = [1];
 
             const result = any(items);
 
@@ -139,7 +128,7 @@ describe('collections', () => {
         });
 
         it('should return true if items found', () => {
-            const items = [ 1, 2 ];
+            const items = [1, 2];
 
             const result = any(items, i => i < 2);
 
@@ -147,7 +136,7 @@ describe('collections', () => {
         });
 
         it('should return false if empty', () => {
-            const items = [ ];
+            const items = [];
 
             const result = any(items);
 
@@ -155,7 +144,7 @@ describe('collections', () => {
         });
 
         it('should return false if none match', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = any(items, i => i > 3);
 
@@ -173,7 +162,7 @@ describe('collections', () => {
         });
 
         it('should return true if all match', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = all(items, i => i < 4);
 
@@ -181,7 +170,7 @@ describe('collections', () => {
         });
 
         it('should return false if some do not match', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = all(items, i => i <= 2);
 
@@ -199,7 +188,7 @@ describe('collections', () => {
         });
 
         it('should return true if no items match', () => {
-            const items = [ 1, 3, 5 ];
+            const items = [1, 3, 5];
 
             const result = isEmpty(items, i => i % 2 === 0);
 
@@ -207,7 +196,7 @@ describe('collections', () => {
         });
 
         it('should return false if empty', () => {
-            const items = [ 1 ];
+            const items = [1];
 
             const result = isEmpty(items);
 
@@ -217,7 +206,7 @@ describe('collections', () => {
 
     describe('count', () => {
         it('returns count of items', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = count(items);
 
@@ -225,7 +214,7 @@ describe('collections', () => {
         });
 
         it('returns 0 when empty', () => {
-            const items = [ ];
+            const items = [];
 
             const result = count(items);
 
@@ -233,7 +222,7 @@ describe('collections', () => {
         });
 
         it('returns count of items that match the predicate', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = count(items, i => i < 2);
 
@@ -241,7 +230,7 @@ describe('collections', () => {
         });
 
         it('returns 0 when no items match the predicate', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = count(items, i => i > 4);
 
@@ -251,7 +240,7 @@ describe('collections', () => {
 
     describe('sum', () => {
         it('should return a sum of the items', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = sum(items, i => i);
 
@@ -261,7 +250,7 @@ describe('collections', () => {
 
     describe('max', () => {
         it('should return value of max item', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = max(items, i => i);
 
@@ -269,7 +258,7 @@ describe('collections', () => {
         });
 
         it('should return 0 when empty', () => {
-            const items = [ ];
+            const items = [];
 
             const result = max(items, i => i);
 
@@ -279,7 +268,7 @@ describe('collections', () => {
 
     describe('elementAt', () => {
         it('should return item at index', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = elementAt(items, 1);
 
@@ -287,7 +276,7 @@ describe('collections', () => {
         });
 
         it('should return item at index adapted', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = elementAt(items, 1, i => i * 10);
 
@@ -295,7 +284,7 @@ describe('collections', () => {
         });
 
         it('should return null if no item at index', () => {
-            const items = [ 1, 2, 3 ];
+            const items = [1, 2, 3];
 
             const result = elementAt(items, 5);
 
@@ -306,52 +295,52 @@ describe('collections', () => {
     describe('distinct', () => {
         it('should remove duplicates', () => {
             const items = [
-                { name: 'a' },
-                { name: 'a' },
-                { name: 'b' }
+                {name: 'a'},
+                {name: 'a'},
+                {name: 'b'}
             ];
 
             const result = distinct(items, 'name');
 
             expect(result).toEqual([
-                { name: 'a' },
-                { name: 'b' } ]);
+                {name: 'a'},
+                {name: 'b'}]);
         });
 
         it('should remove duplicates by nested property', () => {
             const items = [
-                { home: { name: 'a' } },
-                { home: { name: 'a' } },
-                { home: { name: 'b' } },
+                {home: {name: 'a'}},
+                {home: {name: 'a'}},
+                {home: {name: 'b'}},
             ];
 
             const result = distinct(items, 'home.name');
 
             expect(result).toEqual([
-                { home: { name: 'a' } },
-                { home: { name: 'b' } } ]);
+                {home: {name: 'a'}},
+                {home: {name: 'b'}}]);
         });
 
         it('should remove duplicates by numerical values', () => {
             const items = [
-                { age: 1 },
-                { age: 1 },
-                { age: 2 }
+                {age: 1},
+                {age: 1},
+                {age: 2}
             ];
 
             const result = distinct(items, 'age');
 
             expect(result).toEqual([
-                { age: 1 },
-                { age: 2 } ]);
+                {age: 1},
+                {age: 2}]);
         });
 
         it('should remove duplicate values', () => {
-            const items = [ 1, 1, 2 ];
+            const items = [1, 1, 2];
 
             const result = distinct(items);
 
-            expect(result).toEqual([ 1, 2 ]);
+            expect(result).toEqual([1, 2]);
         });
     });
 
@@ -363,29 +352,29 @@ describe('collections', () => {
         });
 
         it('should return map keyed correctly', () => {
-            const item1 = { name: 'NAME' };
-            const result = toDictionary([ item1 ], a => a.name, a => a);
+            const item1 = {name: 'NAME'};
+            const result = toDictionary([item1], a => a.name, a => a);
 
-            expect(Object.keys(result)).toEqual([ 'NAME' ]);
+            expect(Object.keys(result)).toEqual(['NAME']);
         });
 
         it('should return map with values via selector', () => {
-            const item1 = { name: 'NAME', age: 1 };
-            const result = toDictionary([ item1 ], a => a.name, a => a.age);
+            const item1 = {name: 'NAME', age: 1};
+            const result = toDictionary([item1], a => a.name, a => a.age);
 
             expect(result['NAME']).toEqual(1);
         });
 
         it('should return map with item values', () => {
-            const item1 = { name: 'NAME', age: 1 };
-            const result = toDictionary([ item1 ], a => a.name);
+            const item1 = {name: 'NAME', age: 1};
+            const result = toDictionary([item1], a => a.name);
 
             expect(result['NAME']).toEqual(item1);
         });
 
         it('should throw for duplicate ids', () => {
-            const item1 = { name: 'NAME', age: 1 };
-            const item2 = { name: 'NAME', age: 2 };
+            const item1 = {name: 'NAME', age: 1};
+            const item2 = {name: 'NAME', age: 2};
             let error;
 
             try {

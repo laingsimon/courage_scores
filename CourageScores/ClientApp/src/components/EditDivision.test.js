@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {EditDivision} from "./EditDivision";
-import {createTemporaryId} from "../helpers/projection";
+import {divisionBuilder} from "../helpers/builders";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -26,7 +26,7 @@ describe('EditDivision', () => {
     let deletedId;
     const divisionApi = {
         update: (data, lastUpdated) => {
-            updatedDivision = { data, lastUpdated };
+            updatedDivision = {data, lastUpdated};
             return apiResponse;
         },
         delete: (id) => {
@@ -40,8 +40,13 @@ describe('EditDivision', () => {
     });
 
     async function renderComponent(props) {
-        window.alert = (message) => { alert = message };
-        window.confirm = (message) => { confirm = message; return confirmResponse };
+        window.alert = (message) => {
+            alert = message
+        };
+        window.confirm = (message) => {
+            confirm = message;
+            return confirmResponse
+        };
         alert = null;
         confirm = null;
         reportedError = null;
@@ -55,8 +60,8 @@ describe('EditDivision', () => {
             success: true,
         };
         context = await renderApp(
-            { divisionApi },
-            { name: 'Courage Scores' },
+            {divisionApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -67,17 +72,14 @@ describe('EditDivision', () => {
             },
             (<EditDivision
                 {...props}
-                onClose={() => closed = true }
-                onSave={() => saved = true }
-                setSaveError={(err) => saveError = err }
+                onClose={() => closed = true}
+                onSave={() => saved = true}
+                setSaveError={(err) => saveError = err}
             />));
     }
 
     it('updates division name', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const division = divisionBuilder('DIVISION').build();
         let updatedData;
         await renderComponent({
             data: division,
@@ -95,10 +97,7 @@ describe('EditDivision', () => {
     });
 
     it('prevents save when division name is empty', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: '',
-        }
+        const division = divisionBuilder('').build();
         await renderComponent({
             data: division,
         });
@@ -110,10 +109,7 @@ describe('EditDivision', () => {
     });
 
     it('saves division updates', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
         });
@@ -128,10 +124,7 @@ describe('EditDivision', () => {
     });
 
     it('reports saveError if an error during save', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
         });
@@ -147,10 +140,7 @@ describe('EditDivision', () => {
     });
 
     it('confirms if division should be deleted', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
         });
@@ -163,10 +153,7 @@ describe('EditDivision', () => {
     });
 
     it('deletes division', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
         });
@@ -180,10 +167,7 @@ describe('EditDivision', () => {
     });
 
     it('reports saveError if division cannot be deleted', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
         });
@@ -201,10 +185,7 @@ describe('EditDivision', () => {
     });
 
     it('navigates to home when division deleted', async () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
         });

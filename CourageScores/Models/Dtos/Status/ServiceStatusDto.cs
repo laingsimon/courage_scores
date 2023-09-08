@@ -5,6 +5,12 @@ namespace CourageScores.Models.Dtos.Status;
 [ExcludeFromCodeCoverage]
 public class ServiceStatusDto
 {
+    public enum SeasonStatusEnum
+    {
+        InSeason,
+        OutOfSeason,
+    }
+
     /// <summary>
     /// Can the API access the database
     /// </summary>
@@ -29,10 +35,4 @@ public class ServiceStatusDto
     /// The duration the api service has been running for
     /// </summary>
     public TimeSpan UpTime { get; set; }
-
-    public enum SeasonStatusEnum
-    {
-        InSeason,
-        OutOfSeason
-    }
 }

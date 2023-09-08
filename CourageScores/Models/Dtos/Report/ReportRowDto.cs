@@ -31,5 +31,5 @@ public class ReportRowDto
     /// <summary>
     /// The attributed value to this report row
     /// </summary>
-    public double Value { get; set; }
+    public double? Value { get; set; }
 }

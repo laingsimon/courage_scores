@@ -17,11 +17,12 @@ import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {ExportDataButton} from "../../common/ExportDataButton";
 import {PrintableSheet} from "./PrintableSheet";
+import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 
 export function Tournament() {
-    const { tournamentId } = useParams();
-    const { appLoading, account, seasons, onError, teams, reloadTeams, divisions } = useApp();
-    const { divisionApi, tournamentApi } = useDependencies();
+    const {tournamentId} = useParams();
+    const {appLoading, account, seasons, onError, teams, reloadTeams, divisions} = useApp();
+    const {divisionApi, tournamentApi} = useDependencies();
     const canManageTournaments = account && account.access && account.access.manageTournaments;
     const canManagePlayers = account && account.access && account.access.managePlayers;
     const [loading, setLoading] = useState('init');
@@ -33,11 +34,14 @@ export function Tournament() {
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
-    const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
-    const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
-    const [ warnBeforeSave, setWarnBeforeSave ] = useState(null);
+    const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState(false);
+    const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
+    const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
-    const genderOptions = [ { text: 'Undefined', value: '' }, { text: 'Men', value: 'men' }, { text: 'Women', value: 'women' } ];
+    const genderOptions = [{text: 'Undefined', value: ''}, {text: 'Men', value: 'men'}, {
+        text: 'Women',
+        value: 'women'
+    }];
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -61,7 +65,7 @@ export function Tournament() {
             }
         },
         // eslint-disable-next-line
-        [ appLoading, loading, seasons ]);
+        [appLoading, loading, seasons]);
 
     async function loadFixtureData() {
         try {
@@ -109,11 +113,14 @@ export function Tournament() {
         const players = teams
             .filter(t => any(selectedTournamentTeams, id => id === t.id))
             .map(t => {
-                return { teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0], divisionId: t.divisionId };
+                return {
+                    teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0],
+                    divisionId: t.divisionId
+                };
             })
             .filter(mapping => mapping.teamSeason)
             .flatMap(mapping => mapping.teamSeason.players.map(p => {
-                return Object.assign({}, p, { divisionId: mapping.divisionId });
+                return Object.assign({}, p, {divisionId: mapping.divisionId});
             }));
         players.sort(sortBy('name'));
 
@@ -162,7 +169,7 @@ export function Tournament() {
         setPatching(true);
 
         try {
-            const response = await tournamentApi.patch(tournamentId, nestInRound ? { round: patch } : patch);
+            const response = await tournamentApi.patch(tournamentId, nestInRound ? {round: patch} : patch);
             if (!response.success) {
                 setSaveError(response);
             } else {
@@ -190,7 +197,7 @@ export function Tournament() {
     async function reloadPlayers() {
         await reloadTeams();
         setAddPlayerDialogOpen(false);
-        setNewPlayerDetails({ name: '', captain: false });
+        setNewPlayerDetails({name: '', captain: false});
     }
 
     function getExportTables() {
@@ -203,19 +210,19 @@ export function Tournament() {
         }
 
         const exportRequest = {
-            tournamentGame: [ tournamentId ],
-            season: [ tournamentData.seasonId ],
+            tournamentGame: [tournamentId],
+            season: [tournamentData.seasonId],
         };
 
         if (tournamentData.divisionId) {
-            exportRequest.division = [ tournamentData.divisionId ];
+            exportRequest.division = [tournamentData.divisionId];
         }
 
         for (let i = 0; i < tournamentData.sides.length; i++) {
             const side = tournamentData.sides[i];
 
             if (side.teamId) {
-                teamIds = teamIds.concat([ side.teamId ]);
+                teamIds = teamIds.concat([side.teamId]);
             } else if (any(side.players || [])) {
                 // get the team ids for the players
                 // find the teamId for each player
@@ -236,7 +243,9 @@ export function Tournament() {
     }
 
     function getTeamIdForPlayer(player) {
-        const teamToSeasonMaps = teams.map(t => { return { teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0], team: t } });
+        const teamToSeasonMaps = teams.map(t => {
+            return {teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0], team: t}
+        });
         const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, p => p.id === player.id));
 
         if (any(teamsWithPlayer)) {
@@ -247,11 +256,11 @@ export function Tournament() {
     }
 
     if (loading !== 'ready') {
-        return (<Loading />);
+        return (<Loading/>);
     }
 
     try {
-        const season = tournamentData ? seasons[tournamentData.seasonId] : { id: EMPTY_ID, name: 'Not found' };
+        const season = tournamentData ? seasons[tournamentData.seasonId] : {id: EMPTY_ID, name: 'Not found'};
         if (!season) {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');
@@ -266,8 +275,10 @@ export function Tournament() {
                 {canManageTournaments ? (<h4 className="pb-2 d-print-none">
                     <span>Edit tournament: </span>
                     <span className="me-4">{renderDate(tournamentData.date)}</span>
-                    <button className="btn btn-sm margin-left btn-outline-primary margin-right" onClick={window.print}>🖨️</button>
-                    <ExportDataButton tables={getExportTables()} />
+                    <button className="btn btn-sm margin-left btn-outline-primary margin-right"
+                            onClick={window.print}>🖨️
+                    </button>
+                    <ExportDataButton tables={getExportTables()}/>
                 </h4>) : null}
                 {canManageTournaments
                     ? (<div className="input-group mb-1 d-print-none">
@@ -301,9 +312,12 @@ export function Tournament() {
                         <label htmlFor="note-text" className="input-group-text">Options</label>
                         <div className="form-control">
                             <div className="form-check form-switch margin-right my-1">
-                                <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesCount" id="accoladesCount"
-                                       checked={tournamentData.accoladesCount} onChange={valueChanged(tournamentData, setTournamentData)} />
-                                <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks in players table?</label>
+                                <input disabled={saving} type="checkbox" className="form-check-input"
+                                       name="accoladesCount" id="accoladesCount"
+                                       checked={tournamentData.accoladesCount}
+                                       onChange={valueChanged(tournamentData, setTournamentData)}/>
+                                <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks
+                                    in players table?</label>
                             </div>
 
                             <div className="my-1">
@@ -311,20 +325,27 @@ export function Tournament() {
                                 <BootstrapDropdown
                                     value={tournamentData.divisionId}
                                     onChange={propChanged(tournamentData, setTournamentData, 'divisionId')}
-                                    options={[ { value: null, text: 'All divisions' } ].concat(divisions.map(d => { return { value: d.id, text: d.name } }))}
-                                    disabled={saving} />
+                                    options={[{value: null, text: 'All divisions'}].concat(divisions.map(d => {
+                                        return {value: d.id, text: d.name}
+                                    }))}
+                                    disabled={saving}/>
                             </div>
 
                             <div className="my-1">
                                 <span className="margin-right">Best of:</span>
-                                <input disabled={saving} className="form-control no-spinner width-50 d-inline" type="number" min="3" value={tournamentData.bestOf || ''} name="bestOf" onChange={valueChanged(tournamentData, setTournamentData, '')} />
+                                <input disabled={saving} className="form-control no-spinner width-50 d-inline"
+                                       type="number" min="3" value={tournamentData.bestOf || ''} name="bestOf"
+                                       onChange={valueChanged(tournamentData, setTournamentData, '')}/>
                                 <span> (Number of legs)</span>
                             </div>
 
                             <div className="form-check form-switch my-1">
-                                <input disabled={saving} type="checkbox" className="form-check-input" name="singleRound" id="singleRound"
-                                       checked={tournamentData.singleRound} onChange={valueChanged(tournamentData, setTournamentData)} />
-                                <label className="form-check-label" htmlFor="singleRound">Single round? (aka Super league match?)</label>
+                                <input disabled={saving} type="checkbox" className="form-check-input" name="singleRound"
+                                       id="singleRound"
+                                       checked={tournamentData.singleRound}
+                                       onChange={valueChanged(tournamentData, setTournamentData)}/>
+                                <label className="form-check-label" htmlFor="singleRound">Single round? (aka Super
+                                    league match?)</label>
                             </div>
                         </div>
                     </div>)
@@ -336,15 +357,15 @@ export function Tournament() {
                             <div className="form-group input-group mb-1">
                                 <label htmlFor="host" className="input-group-text">Host</label>
                                 <input id="host" className="form-control" disabled={saving}
-                                          value={tournamentData.host || ''} name="host"
-                                          onChange={valueChanged(tournamentData, setTournamentData)}></input>
+                                       value={tournamentData.host || ''} name="host"
+                                       onChange={valueChanged(tournamentData, setTournamentData)}></input>
                             </div>
 
                             <div className="form-group input-group mb-1">
                                 <label htmlFor="opponent" className="input-group-text">Opponent</label>
                                 <input id="opponent" className="form-control" disabled={saving}
-                                          value={tournamentData.opponent || ''} name="opponent"
-                                          onChange={valueChanged(tournamentData, setTournamentData)}></input>
+                                       value={tournamentData.opponent || ''} name="opponent"
+                                       onChange={valueChanged(tournamentData, setTournamentData)}></input>
                             </div>
 
                             <div className="form-group input-group mb-1">
@@ -353,7 +374,7 @@ export function Tournament() {
                                     value={tournamentData.gender}
                                     onChange={propChanged(tournamentData, setTournamentData, 'gender')}
                                     options={genderOptions}
-                                    disabled={saving} />
+                                    disabled={saving}/>
                             </div>
                         </div>
                     </div>)
@@ -367,17 +388,21 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}>
-                    {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />) : null}
-                    {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division} />) : null}
-                    {tournamentData.singleRound && canSave ? (<div className="d-screen-none"><SuperLeaguePrintout division={division} /></div>) : null}
-                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canSave} />) : null}
+                    {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
+                                                applyPatch={applyPatch}/>) : null}
+                    {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division}/>) : null}
+                    {tournamentData.singleRound && canSave ? (
+                        <div className="d-screen-none"><SuperLeaguePrintout division={division}/></div>) : null}
+                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canSave}/>) : null}
                 </TournamentContainer>
-                {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
-                    {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
-                                     aria-hidden="true"></span>) : null}
-                    Save
-                </button>) : null}
-                {canManagePlayers ? (<button className="btn btn-primary d-print-none" onClick={() => setAddPlayerDialogOpen(true)}>Add player</button>) : null}
+                {canManageTournaments ? (
+                    <button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
+                        {saving ? (<LoadingSpinnerSmall/>) : null}
+                        Save
+                    </button>) : null}
+                {canManagePlayers ? (
+                    <button className="btn btn-primary d-print-none" onClick={() => setAddPlayerDialogOpen(true)}>Add
+                        player</button>) : null}
             </div>) : (<div>Tournament not found</div>)}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save tournament details"/>) : null}

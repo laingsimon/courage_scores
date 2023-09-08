@@ -2,8 +2,8 @@ import React from "react";
 import {any, isEmpty} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 
-export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
-    const { onError } = useApp();
+export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
+    const {onError} = useApp();
 
     function getRecordsToMerge(team, record) {
         const submission = data[team + 'Submission'];

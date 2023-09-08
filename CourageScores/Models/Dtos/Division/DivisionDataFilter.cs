@@ -16,13 +16,13 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     public bool IncludeGame(Cosmos.Game.Game game)
     {
         return (Date == null || game.Date == Date.Value)
-            && (TeamId == null || game.Home.Id == TeamId.Value || game.Away.Id == TeamId);
+               && (TeamId == null || game.Home.Id == TeamId.Value || game.Away.Id == TeamId);
     }
 
     public bool IncludeTournament(Cosmos.Game.TournamentGame game)
     {
         return (Date == null || game.Date == Date.Value)
-            && (TeamId == null || game.Sides.Any(s => s.TeamId != null && s.TeamId == TeamId));
+               && (TeamId == null || game.Sides.Any(s => s.TeamId != null && s.TeamId == TeamId));
     }
 
     public bool Equals(DivisionDataFilter? other)

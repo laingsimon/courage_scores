@@ -4,8 +4,8 @@ namespace CourageScores.Services.Data;
 
 public class ZipFileReader : IZipFileReader
 {
-    private readonly ZipFile _zip;
     private readonly IJsonSerializerService _serializer;
+    private readonly ZipFile _zip;
 
     public ZipFileReader(ZipFile zip, IJsonSerializerService serializer)
     {

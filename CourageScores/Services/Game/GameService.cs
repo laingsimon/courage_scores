@@ -91,6 +91,7 @@ public class GameService : IGameService
     }
 
     #region delegating members
+
     [ExcludeFromCodeCoverage]
     public Task<ActionResultDto<GameDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Game.Game, TOut> updateCommand, CancellationToken token)
     {
@@ -102,5 +103,6 @@ public class GameService : IGameService
     {
         return _underlyingService.Delete(id, token);
     }
+
     #endregion
 }

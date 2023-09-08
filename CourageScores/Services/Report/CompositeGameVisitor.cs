@@ -15,14 +15,6 @@ public class CompositeGameVisitor : IGameVisitor
         _underlyingVisitors = underlyingVisitors.ToArray();
     }
 
-    private void ForEachVisitor(Action<IGameVisitor> action)
-    {
-        foreach (var visitor in _underlyingVisitors)
-        {
-            action(visitor);
-        }
-    }
-
     public void VisitGame(Models.Cosmos.Game.Game game)
     {
         ForEachVisitor(visitor => visitor.VisitGame(game));
@@ -95,5 +87,13 @@ public class CompositeGameVisitor : IGameVisitor
     public void VisitDataError(IVisitorScope scope, string dataError)
     {
         ForEachVisitor(visitor => visitor.VisitDataError(scope, dataError));
+    }
+
+    private void ForEachVisitor(Action<IGameVisitor> action)
+    {
+        foreach (var visitor in _underlyingVisitors)
+        {
+            action(visitor);
+        }
     }
 }

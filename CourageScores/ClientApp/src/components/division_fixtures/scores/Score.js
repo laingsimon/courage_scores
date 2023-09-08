@@ -1,7 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import {useParams} from "react-router-dom";
+import React, {useEffect, useState} from 'react';
+import {Link, useParams} from "react-router-dom";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
-import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
@@ -26,11 +25,12 @@ import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "../../../helpers/matchOptions";
 import {PageError} from "../../common/PageError";
+import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 
 export function Score() {
-    const { fixtureId } = useParams();
-    const { gameApi } = useDependencies();
-    const { appLoading, account, divisions, seasons, onError, teams, reloadTeams } = useApp();
+    const {fixtureId} = useParams();
+    const {gameApi} = useDependencies();
+    const {appLoading, account, divisions, seasons, onError, teams, reloadTeams} = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
@@ -40,8 +40,8 @@ export function Score() {
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [submission, setSubmission] = useState(null);
-    const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
-    const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
+    const [createPlayerFor, setCreatePlayerFor] = useState(null);
+    const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const access = getAccess();
 
     function renderCreatePlayerDialog() {
@@ -97,7 +97,7 @@ export function Score() {
                 divisionId={fixtureData.divisionId}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={() => setCreatePlayerFor(null)}
-                onSaved={playerCreated} />
+                onSaved={playerCreated}/>
         </Dialog>);
     }
 
@@ -156,7 +156,7 @@ export function Score() {
             loadFixtureData();
         },
         // eslint-disable-next-line
-        [ appLoading, seasons, teams, divisions ]);
+        [appLoading, seasons, teams, divisions]);
 
     function loadTeamPlayers(teamId, seasonId, teamType, matches) {
         const teamData = teams[teamId];
@@ -181,17 +181,17 @@ export function Score() {
         const players = teamSeasons[seasonId].players.filter(p => p); // copy the players list
 
         matches.forEach(match => {
-           const matchPlayers = match[teamType + 'Players'];
-           matchPlayers.forEach(matchPlayer => {
-               const correspondingPlayer = players.filter(p => p.id === matchPlayer.id)[0];
-               if (correspondingPlayer && correspondingPlayer.name !== matchPlayer.name && !correspondingPlayer.renamed) {
-                   correspondingPlayer.name = `${correspondingPlayer.name} (nee ${matchPlayer.name})`;
-                   correspondingPlayer.renamed = true;
-               }
-               if (correspondingPlayer && correspondingPlayer.captain) {
-                   matchPlayer.captain = correspondingPlayer.captain;
-               }
-           });
+            const matchPlayers = match[teamType + 'Players'];
+            matchPlayers.forEach(matchPlayer => {
+                const correspondingPlayer = players.filter(p => p.id === matchPlayer.id)[0];
+                if (correspondingPlayer && correspondingPlayer.name !== matchPlayer.name && !correspondingPlayer.renamed) {
+                    correspondingPlayer.name = `${correspondingPlayer.name} (nee ${matchPlayer.name})`;
+                    correspondingPlayer.renamed = true;
+                }
+                if (correspondingPlayer && correspondingPlayer.captain) {
+                    matchPlayer.captain = correspondingPlayer.captain;
+                }
+            });
         });
 
         players.sort(sortBy('name'));
@@ -208,7 +208,7 @@ export function Score() {
             }
         },
         // eslint-disable-next-line
-        [ teams ]);
+        [teams]);
 
     function loadPlayerData(gameData) {
         const homeTeamPlayers = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches) || [];
@@ -258,7 +258,7 @@ export function Score() {
                     getMatchOptionDefaults(4, matchOptions),
                     getMatchOptionDefaults(5, matchOptions),
                     getMatchOptionDefaults(6, matchOptions),
-                    getMatchOptionDefaults(7, matchOptions) ];
+                    getMatchOptionDefaults(7, matchOptions)];
             }
 
             if (!gameData.matches || isEmpty(gameData.matches)) {
@@ -311,7 +311,7 @@ export function Score() {
             setSaving(true);
 
             const newData = Object.assign({}, data);
-            newData.matches = [ {}, {}, {}, {}, {}, {}, {}, {} ];
+            newData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
             newData.resultsPublished = false;
             setData(newData);
             if (submission) {
@@ -372,7 +372,7 @@ export function Score() {
                 onMatchOptionsChanged={onMatchOptionsChanged}
                 on180={add180(fixtureData, setFixtureData)}
                 onHiCheck={addHiCheck(fixtureData, setFixtureData)}
-                setCreatePlayerFor={onCreatePlayer} />
+                setCreatePlayerFor={onCreatePlayer}/>
         </MatchTypeContainer>);
     }
 
@@ -385,7 +385,7 @@ export function Score() {
                 homeSubmission={fixtureData.homeSubmission}
                 awaySubmission={fixtureData.awaySubmission}
                 setFixtureData={setFixtureData}
-                fixtureData={fixtureData} />);
+                fixtureData={fixtureData}/>);
         }
 
         return null;
@@ -397,7 +397,7 @@ export function Score() {
                 fixtureData={fixtureData}
                 saving={saving}
                 access={access}
-                setFixtureData={setFixtureData} />);
+                setFixtureData={setFixtureData}/>);
         }
 
         return null;
@@ -408,7 +408,7 @@ export function Score() {
             && access === 'admin'
             && (data.homeSubmission || data.awaySubmission)
             && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
-            return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers} />);
+            return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers}/>);
         }
 
         return null;
@@ -420,41 +420,41 @@ export function Score() {
             access={access}
             fixtureData={fixtureData}
             setFixtureData={setFixtureData}
-            allPlayers={allPlayers} />);
+            allPlayers={allPlayers}/>);
     }
 
     function renderMerge180sAndHiCheck() {
         if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
-            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={setFixtureData} />);
+            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={setFixtureData}/>);
         }
 
         return null;
     }
 
     if (loading !== 'ready') {
-        return (<Loading />);
+        return (<Loading/>);
     }
 
     if (!fixtureData || !fixtureData.matches) {
-        return (<PageError error="Unable to load score card, fixture data not loaded" />);
+        return (<PageError error="Unable to load score card, fixture data not loaded"/>);
     }
 
     const finalScore = fixtureData.matches.map(match => {
-        return { awayScore: match.awayScore, homeScore: match.homeScore };
+        return {awayScore: match.awayScore, homeScore: match.homeScore};
     }).reduce((prev, current) => {
         return {
             awayScore: prev.awayScore + current.awayScore,
             homeScore: prev.homeScore + current.homeScore
         };
-    }, { awayScore: 0, homeScore: 0 });
+    }, {awayScore: 0, homeScore: 0});
     const winner = finalScore.homeScore > finalScore.awayScore
         ? 'home'
         : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
-        const season = seasons[fixtureData.seasonId] || { id: EMPTY_ID, name: 'Not found' };
-        const division = divisions[fixtureData.divisionId] || { id: EMPTY_ID, name: 'Not found' };
+        const season = seasons[fixtureData.seasonId] || {id: EMPTY_ID, name: 'Not found'};
+        const division = divisions[fixtureData.divisionId] || {id: EMPTY_ID, name: 'Not found'};
 
         const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
@@ -541,8 +541,7 @@ export function Score() {
                     </table>
                     {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (
                         <button className="btn btn-primary" onClick={saveScores}>
-                            {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
-                                             aria-hidden="true"></span>) : null}
+                            {saving ? (<LoadingSpinnerSmall/>) : null}
                             Save
                         </button>) : null}
                     {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (

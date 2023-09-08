@@ -6,19 +6,23 @@ import {useApp} from "../../../AppContainer";
 import {any, sortBy} from "../../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
 
-export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
-    const { teams: teamMap, onError } = useApp();
-    const { tournamentData, season, alreadyPlaying } = useTournament();
-    const [ playerFilter, setPlayerFilter ] = useState('');
+export function EditSide({side, onChange, onClose, onApply, onDelete}) {
+    const {teams: teamMap, onError} = useApp();
+    const {tournamentData, season, alreadyPlaying} = useTournament();
+    const [playerFilter, setPlayerFilter] = useState('');
     const divisionId = tournamentData.divisionId;
-    const selectATeam = { value: '', text: 'Select team', className: 'text-warning' };
-    const teamOptions = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
+    const selectATeam = {value: '', text: 'Select team', className: 'text-warning'};
+    const teamOptions = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map(t => {
+        return {value: t.id, text: t.name};
+    }).sort(sortBy('text')));
     const allPossiblePlayers = teamMap
         .filter(a => a) // turn the map back into an array
         .flatMap(t => {
             const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
-                return teamSeason.players.map(p => { return { id: p.id, name: p.name, team: t } }) || [];
+                return teamSeason.players.map(p => {
+                    return {id: p.id, name: p.name, team: t}
+                }) || [];
             }
 
             return [];
@@ -45,7 +49,7 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
             }
 
             return any(s.players || [], p => p.id === player.id)
-                ? [ s ]
+                ? [s]
                 : [];
         })[0];
     }
@@ -98,7 +102,7 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
     }
 
     async function togglePlayer(player) {
-        if (side.players && any(side.players, p => p.id === player.id)) {
+        if (any(side.players || [], p => p.id === player.id)) {
             await onRemovePlayer(player.id);
             return;
         }
@@ -151,7 +155,8 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                        onChange={valueChanged(side, onChange)}/>
             </div>
             <div className="form-check form-switch margin-right my-1">
-                <input type="checkbox" className="form-check-input" checked={side.noShow || false} name="noShow" id="noShow"
+                <input type="checkbox" className="form-check-input" checked={side.noShow || false} name="noShow"
+                       id="noShow"
                        onChange={valueChanged(side, onChange)}/>
                 <label className="form-check-label" htmlFor="noShow">No show on the night?</label>
             </div>
@@ -159,21 +164,25 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                 <div className="input-group-prepend">
                     <span className="input-group-text">Team</span>
                 </div>
-                <BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId} />
+                <BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId}/>
             </div>)}
             {side.teamId ? null : (<div>
                 <div className="d-flex justify-content-between align-items-center p-2 pt-0">
                     <div>Who's playing</div>
                     <div>
                         <span className="margin-right">Filter</span>
-                        <input name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter} />
-                        {playerFilter ? (<span className="margin-left">{filteredPlayers.length} of {allPossiblePlayers.length} player/s</span>) : null}
+                        <input name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter}/>
+                        {playerFilter
+                            ? (<span className="margin-left">
+                                {filteredPlayers.length} of {allPossiblePlayers.length} player/s
+                            </span>)
+                            : null}
                     </div>
                 </div>
                 <div className="max-scroll-height overflow-auto height-250">
                     <ol className="list-group mb-3">
                         {filteredPlayers.sort(sortBy('name')).map(player => {
-                            const selected = side.players && any(side.players, p => p.id === player.id);
+                            const selected = any(side.players || [], p => p.id === player.id);
                             const playingInAnotherTournament = alreadyPlaying[player.id];
                             const selectedInAnotherSide = getOtherSidePlayerSelectedIn(player);
                             const hasSameNameAsAnotherPlayer = allPossiblePlayers.filter(p => p.name === player.name).length > 1;

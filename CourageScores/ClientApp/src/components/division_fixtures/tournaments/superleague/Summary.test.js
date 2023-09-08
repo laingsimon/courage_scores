@@ -3,6 +3,7 @@
 import {cleanUp, renderApp} from "../../../../helpers/tests";
 import React from "react";
 import {Summary} from "./Summary";
+import {legBuilder, saygBuilder, tournamentMatchBuilder} from "../../../../helpers/builders";
 
 describe('Summary', () => {
     let context;
@@ -37,37 +38,36 @@ describe('Summary', () => {
     }
 
     function createLeg(homeWinner, awayWinner) {
-        const winningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 100, bust: false, noOfDarts: 3 },
-            { score: 110, bust: false, noOfDarts: 3 },
-            { score: 120, bust: false, noOfDarts: 3 },
-            { score: 81, bust: false, noOfDarts: 3 },
-        ];
-        const notWinningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-        ];
+        function winningThrows(c) {
+            return c
+                .withThrow(90, false, 3)
+                .withThrow(100, false, 3)
+                .withThrow(110, false, 3)
+                .withThrow(120, false, 3)
+                .withThrow(81, false, 3);
+        }
 
-        return {
-            home: {
-                throws: homeWinner ? winningThrows : notWinningThrows
-            },
-            away: {
-                throws: awayWinner ? winningThrows : notWinningThrows
-            },
-            startingScore: 501,
-        };
+        function notWinningThrows(c) {
+            return c
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3);
+        }
+
+        return legBuilder()
+            .home(c => homeWinner ? winningThrows(c) : notWinningThrows(c))
+            .away(c => awayWinner ? winningThrows(c) : notWinningThrows(c))
+            .startingScore(501)
+            .build();
     }
 
     describe('renders', () => {
         it('when no sayg matches', async () => {
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ ],
+                saygMatches: [],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -79,23 +79,16 @@ describe('Summary', () => {
 
         it('correct row headings', async () => {
             const saygMatch = {
-                match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                    scoreA: 1,
-                    scoreB: 2,
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(true, false),
-                        '1': createLeg(true, false),
-                    }
-                }
+                match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build()
             }
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -113,23 +106,16 @@ describe('Summary', () => {
 
         it('sayg matches', async () => {
             const saygMatch = {
-                match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                    scoreA: 1,
-                    scoreB: 2,
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(true, false),
-                        '1': createLeg(true, false),
-                    }
-                }
+                match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build()
             }
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -146,23 +132,16 @@ describe('Summary', () => {
 
         it('total row', async () => {
             const saygMatch = {
-                match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                    scoreA: 1,
-                    scoreB: 2,
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(true, false),
-                        '1': createLeg(true, false),
-                    }
-                }
+                match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build()
             }
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -180,23 +159,16 @@ describe('Summary', () => {
 
         it('rounded average', async () => {
             const saygMatch = {
-                match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                    scoreA: 1,
-                    scoreB: 2,
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(true, false),
-                        '1': createLeg(true, false),
-                    }
-                }
+                match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build()
             }
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -215,24 +187,17 @@ describe('Summary', () => {
 
         it('darts for windows average', async () => {
             const saygMatch = {
-                match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                    scoreA: 1,
-                    scoreB: 2,
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(true, false),
-                        '1': createLeg(false, true),
-                        '2': createLeg(true, false),
-                    }
-                }
+                match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(false, true))
+                    .withLeg('2', createLeg(true, false))
+                    .build()
             }
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',

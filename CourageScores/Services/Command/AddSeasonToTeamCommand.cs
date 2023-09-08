@@ -8,16 +8,16 @@ namespace CourageScores.Services.Command;
 public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamSeason>
 {
     private readonly IAuditingHelper _auditingHelper;
-    private readonly ISeasonService _seasonService;
     private readonly ScopedCacheManagementFlags _cacheFlags;
-    private Guid? _seasonId;
-    private Guid? _divisionId;
+    private readonly ICachingSeasonService _seasonService;
     private Guid? _copyPlayersFromOtherSeasonId;
+    private Guid? _divisionId;
+    private Guid? _seasonId;
     private bool _skipSeasonExistenceCheck;
 
     public AddSeasonToTeamCommand(
         IAuditingHelper auditingHelper,
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         ScopedCacheManagementFlags cacheFlags)
     {
         _auditingHelper = auditingHelper;
@@ -66,7 +66,10 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = false,
-                Errors = { "Cannot edit a team that has been deleted" },
+                Errors =
+                {
+                    "Cannot edit a team that has been deleted",
+                },
             };
         }
 
@@ -75,7 +78,10 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = false,
-                Errors = { "Season not found" },
+                Errors =
+                {
+                    "Season not found",
+                },
             };
         }
 
@@ -91,7 +97,10 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
                 return new ActionResult<TeamSeason>
                 {
                     Success = true,
-                    Messages = { $"Season already exists, {teamSeason.Players.Count} players copied" },
+                    Messages =
+                    {
+                        $"Season already exists, {teamSeason.Players.Count} players copied",
+                    },
                     Result = teamSeason,
                 };
             }
@@ -100,7 +109,10 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = true,
-                Messages = { "Season already exists" },
+                Messages =
+                {
+                    "Season already exists",
+                },
                 Result = teamSeason,
             };
         }
@@ -123,9 +135,12 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         return new ActionResult<TeamSeason>
         {
             Success = true,
-            Messages = { _copyPlayersFromOtherSeasonId.HasValue
-                ? $"Season added to the {model.Name} team, {teamSeason.Players.Count} players copied"
-                : $"Season added to the {model.Name} team" },
+            Messages =
+            {
+                _copyPlayersFromOtherSeasonId.HasValue
+                    ? $"Season added to the {model.Name} team, {teamSeason.Players.Count} players copied"
+                    : $"Season added to the {model.Name} team",
+            },
             Result = teamSeason,
         };
     }

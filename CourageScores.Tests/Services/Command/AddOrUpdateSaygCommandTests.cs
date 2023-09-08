@@ -13,11 +13,11 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateSaygCommandTests
 {
-    private static readonly Leg LegModel = new Leg();
-    private static readonly LegDto LegDto = new LegDto();
-    private readonly CancellationToken _token = new CancellationToken();
+    private static readonly Leg LegModel = new();
+    private static readonly LegDto LegDto = new();
+    private readonly CancellationToken _token = new();
     private AddOrUpdateSaygCommand _command = null!;
-    private ISimpleAdapter<Leg,LegDto> _adapter = null!;
+    private ISimpleAdapter<Leg, LegDto> _adapter = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
 
@@ -37,7 +37,12 @@ public class AddOrUpdateSaygCommandTests
         var model = new RecordedScoreAsYouGo();
         var updateDto = new UpdateRecordedScoreAsYouGoDto
         {
-            Legs = { { 1, LegDto } },
+            Legs =
+            {
+                {
+                    1, LegDto
+                },
+            },
             HomeScore = 1,
             AwayScore = 2,
             YourName = "you",
@@ -49,8 +54,14 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(model.Legs.Keys, Is.EquivalentTo(new[] { 1 }));
-        Assert.That(model.Legs.Values, Is.EquivalentTo(new[] { LegModel }));
+        Assert.That(model.Legs.Keys, Is.EquivalentTo(new[]
+        {
+            1,
+        }));
+        Assert.That(model.Legs.Values, Is.EquivalentTo(new[]
+        {
+            LegModel,
+        }));
         Assert.That(model.HomeScore, Is.EqualTo(1));
         Assert.That(model.AwayScore, Is.EqualTo(2));
         Assert.That(model.YourName, Is.EqualTo("you"));
@@ -66,7 +77,12 @@ public class AddOrUpdateSaygCommandTests
         var model = new RecordedScoreAsYouGo();
         var updateDto = new UpdateRecordedScoreAsYouGoDto
         {
-            Legs = { { 1, LegDto } },
+            Legs =
+            {
+                {
+                    1, LegDto
+                },
+            },
             HomeScore = 1,
             AwayScore = 2,
             YourName = "you",
@@ -79,8 +95,14 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(model.Legs.Keys, Is.EquivalentTo(new[] { 1 }));
-        Assert.That(model.Legs.Values, Is.EquivalentTo(new[] { LegModel }));
+        Assert.That(model.Legs.Keys, Is.EquivalentTo(new[]
+        {
+            1,
+        }));
+        Assert.That(model.Legs.Values, Is.EquivalentTo(new[]
+        {
+            LegModel,
+        }));
         Assert.That(model.HomeScore, Is.EqualTo(1));
         Assert.That(model.AwayScore, Is.EqualTo(2));
         Assert.That(model.YourName, Is.EqualTo("you"));
@@ -102,7 +124,7 @@ public class AddOrUpdateSaygCommandTests
                 Access = new AccessDto
                 {
                     RecordScoresAsYouGo = permitted,
-                }
+                },
             };
         }
         var model = new RecordedScoreAsYouGo();
@@ -120,7 +142,10 @@ public class AddOrUpdateSaygCommandTests
         }
         else
         {
-            Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted to modify tournament sayg sessions" }));
+            Assert.That(result.Errors, Is.EqualTo(new[]
+            {
+                "Not permitted to modify tournament sayg sessions",
+            }));
         }
     }
 
@@ -132,7 +157,7 @@ public class AddOrUpdateSaygCommandTests
             Access = new AccessDto
             {
                 RecordScoresAsYouGo = true,
-            }
+            },
         };
         var model = new RecordedScoreAsYouGo
         {
@@ -146,7 +171,10 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Sayg session ids cannot be removed" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "Sayg session ids cannot be removed",
+        }));
     }
 
     [Test]
@@ -157,7 +185,7 @@ public class AddOrUpdateSaygCommandTests
             Access = new AccessDto
             {
                 RecordScoresAsYouGo = true,
-            }
+            },
         };
         var model = new RecordedScoreAsYouGo
         {
@@ -171,6 +199,9 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Sayg session ids cannot be changed" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "Sayg session ids cannot be changed",
+        }));
     }
 }

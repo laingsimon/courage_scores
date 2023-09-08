@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import {createContext, useContext} from "react";
 import {Http} from "./api/http";
 import {Settings} from "./api/settings";
 import {TeamApi} from "./api/team";
@@ -23,7 +23,7 @@ export function useDependencies() {
 }
 
 /* istanbul ignore next */
-export function IocContainer({ children, ...services }) {
+export function IocContainer({children, ...services}) {
     const settings = new Settings();
     const http = new Http(settings);
     const defaultServices = {

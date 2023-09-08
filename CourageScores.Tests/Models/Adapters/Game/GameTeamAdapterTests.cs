@@ -12,10 +12,10 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 public class GameTeamAdapterTests
 {
     private const string UserTeamId = "BB6F3067-F2C2-464F-9136-EA6E0C1E2AD0";
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private GameTeamAdapter _adapter = null!;
     private Mock<IUserService> _userService = null!;
-    private UserDto? _user = new UserDto
+    private UserDto? _user = new()
     {
         TeamId = Guid.Parse(UserTeamId),
         Access = new AccessDto(),

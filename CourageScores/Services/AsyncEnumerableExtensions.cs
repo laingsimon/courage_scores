@@ -126,10 +126,10 @@ public static class AsyncEnumerableExtensions
         this IReadOnlyDictionary<TKeyIn, TValueIn> sourceDictionary,
         Func<TKeyIn, TKeyOut> keyTransform,
         Func<TValueIn, Task<TValueOut>> valueTransform)
-        where TKeyOut: notnull
+        where TKeyOut : notnull
     {
         return new Dictionary<TKeyOut, TValueOut>(await sourceDictionary.SelectAsync(async pair =>
-            new KeyValuePair<TKeyOut,TValueOut>(keyTransform(pair.Key), await valueTransform(pair.Value)))
+                new KeyValuePair<TKeyOut, TValueOut>(keyTransform(pair.Key), await valueTransform(pair.Value)))
             .ToList());
     }
 }

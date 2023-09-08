@@ -1,6 +1,6 @@
 import {repeat} from "../../../../helpers/projection";
 
-export function MatchLogTableHeading({ team, noOfThrows }) {
+export function MatchLogTableHeading({team, noOfThrows}) {
     return (<>
         <tr>
             <th colSpan="9">{team}</th>

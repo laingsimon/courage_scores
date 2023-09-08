@@ -9,10 +9,18 @@ namespace CourageScores.Tests.Services.Health.Checks;
 [TestFixture]
 public class TeamsPlayingMultipleFixturesOnSameDateTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly TeamsPlayingMultipleFixturesOnSameDate _check = new TeamsPlayingMultipleFixturesOnSameDate();
-    private readonly DivisionTeamDto _home = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "HOME" };
-    private readonly DivisionTeamDto _away = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY" };
+    private readonly CancellationToken _token = new();
+    private readonly TeamsPlayingMultipleFixturesOnSameDate _check = new();
+    private readonly DivisionTeamDto _home = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "HOME",
+    };
+    private readonly DivisionTeamDto _away = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "AWAY",
+    };
 
     [Test]
     public async Task Check_WhenNoDates_ReturnsSuccess()
@@ -20,11 +28,18 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { _home, _away },
+            Teams =
+            {
+                _home,
+                _away,
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -35,18 +50,25 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { _home, _away },
+            Teams =
+            {
+                _home,
+                _away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
                 {
                     Date = new DateTime(2001, 02, 03),
-                }
-            }
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -60,7 +82,10 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -71,7 +96,11 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { _home, _away },
+            Teams =
+            {
+                _home,
+                _away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -88,13 +117,16 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
                             Date = new DateTime(2001, 02, 03),
                             Id = Guid.NewGuid(),
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -105,7 +137,11 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { _home, _away },
+            Teams =
+            {
+                _home,
+                _away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -131,16 +167,22 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
                             Date = new DateTime(2001, 02, 03),
                             Id = Guid.NewGuid(),
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME is playing multiple fixtures on 3 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "DIVISION: HOME is playing multiple fixtures on 3 Feb 2001",
+        }));
     }
 
     [Test]
@@ -149,7 +191,11 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { _home, _away },
+            Teams =
+            {
+                _home,
+                _away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -166,7 +212,7 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
                             Date = new DateTime(2001, 02, 03),
                             Id = Guid.NewGuid(),
                         },
-                    }
+                    },
                 },
                 new DivisionDateHealthDto
                 {
@@ -182,13 +228,16 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
                             Date = new DateTime(2001, 02, 10),
                             Id = Guid.NewGuid(),
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
     }

@@ -5,9 +5,9 @@ import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolad
 import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
 
-export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
-    const { onError } = useApp();
-    const { division, season } = useLeagueFixture();
+export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}) {
+    const {onError} = useApp();
+    const {division, season} = useLeagueFixture();
 
     function getApplicablePlayers() {
         const players = fixtureData.matches.flatMap((match) => {
@@ -49,7 +49,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                     onRemovePlayer={remove180(fixtureData, setFixtureData)}
                     onAddPlayer={add180(fixtureData, setFixtureData)}
                     division={division}
-                    season={season} />
+                    season={season}/>
             </td>
             <td className="width-1 p-0"></td>
             <td colSpan="2">
@@ -64,7 +64,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                     showNotes={true}
                     division={division}
                     season={season}
-                    dropdownClassName="hi-check-player-dropdown" />
+                    dropdownClassName="hi-check-player-dropdown"/>
             </td>
         </tr>);
     } catch (e) {

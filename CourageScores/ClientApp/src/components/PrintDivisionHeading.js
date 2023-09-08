@@ -1,8 +1,8 @@
 import React from "react";
 import {useDivisionData} from "./DivisionDataContainer";
 
-export function PrintDivisionHeading({ hideDivision }) {
-    const { season, name } = useDivisionData();
+export function PrintDivisionHeading({hideDivision}) {
+    const {season, name} = useDivisionData();
 
     if (!season) {
         return null;

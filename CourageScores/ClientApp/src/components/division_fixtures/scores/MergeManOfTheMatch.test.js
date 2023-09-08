@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
-import {createTemporaryId} from "../../../helpers/projection";
+import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
+import {playerBuilder} from "../../../helpers/builders";
 
 describe('MergeManOfTheMatch', () => {
     let context;
@@ -18,8 +18,8 @@ describe('MergeManOfTheMatch', () => {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -31,27 +31,24 @@ describe('MergeManOfTheMatch', () => {
             (<MergeManOfTheMatch
                 data={data}
                 allPlayers={allPlayers}
-                setData={(data) => updatedData = data} />),
+                setData={(data) => updatedData = data}/>),
             null,
             null,
             'tbody');
     }
 
     describe('renders', () => {
-        const playerId = createTemporaryId();
-        const allPlayers = [ {
-            id: playerId,
-            name: 'MOM',
-        } ];
+        const player = playerBuilder('MOM').build();
+        const allPlayers = [player];
 
         it('when home merged', async () => {
             const data = {
                 home: {
-                    manOfTheMatch: playerId,
+                    manOfTheMatch: player.id,
                 },
-                away: { },
+                away: {},
                 homeSubmission: {
-                    home: { },
+                    home: {},
                     away: {},
                 },
                 awaySubmission: {
@@ -68,9 +65,9 @@ describe('MergeManOfTheMatch', () => {
 
         it('when away merged', async () => {
             const data = {
-                home: { },
+                home: {},
                 away: {
-                    manOfTheMatch: playerId,
+                    manOfTheMatch: player.id,
                 },
                 homeSubmission: {
                     home: {},
@@ -90,8 +87,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('when nothing to merge for home', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},
@@ -110,8 +107,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('when nothing to merge for away', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},
@@ -130,11 +127,11 @@ describe('MergeManOfTheMatch', () => {
 
         it('when home unmerged', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     },
                     away: {},
                 },
@@ -152,8 +149,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('when away unmerged', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},
@@ -161,7 +158,7 @@ describe('MergeManOfTheMatch', () => {
                 awaySubmission: {
                     home: {},
                     away: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     }
                 },
             };
@@ -174,19 +171,16 @@ describe('MergeManOfTheMatch', () => {
     });
 
     describe('interactivity', () => {
-        const playerId = createTemporaryId();
-        const allPlayers = [ {
-            id: playerId,
-            name: 'MOM',
-        } ];
+        const player = playerBuilder('MOM').build();
+        const allPlayers = [player];
 
         it('can change home man of match', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     },
                     away: {},
                 },
@@ -201,13 +195,13 @@ describe('MergeManOfTheMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();
-            expect(updatedData.home.manOfTheMatch).toEqual(playerId);
+            expect(updatedData.home.manOfTheMatch).toEqual(player.id);
         });
 
         it('can change away man of match', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},
@@ -215,7 +209,7 @@ describe('MergeManOfTheMatch', () => {
                 awaySubmission: {
                     home: {},
                     away: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     }
                 },
             };
@@ -225,7 +219,7 @@ describe('MergeManOfTheMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();
-            expect(updatedData.away.manOfTheMatch).toEqual(playerId);
+            expect(updatedData.away.manOfTheMatch).toEqual(player.id);
         });
     })
 });

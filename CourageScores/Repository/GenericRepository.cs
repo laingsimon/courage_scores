@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.Azure.Cosmos;
 using CourageScores.Models.Cosmos;
+using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Repository;
 
@@ -9,8 +9,9 @@ public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>
     where T : CosmosEntity
 {
     public GenericRepository(Database database, ICosmosTableNameResolver tableNameResolver)
-        :base(database, tableNameResolver)
-    { }
+        : base(database, tableNameResolver)
+    {
+    }
 
     public async Task<T?> Get(Guid id, CancellationToken token)
     {

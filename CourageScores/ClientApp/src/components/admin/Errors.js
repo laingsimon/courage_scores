@@ -1,16 +1,17 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import {sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 export function Errors() {
-    const [ since, setSince ] = useState(new Date().toISOString().substring(0, 10));
-    const [ loading, setLoading ] = useState(false);
-    const [ errors, setErrors ] = useState([]);
-    const [ focusedError, setFocusedError ] = useState(null);
-    const { errorApi } = useDependencies();
-    const { onError } = useApp();
+    const [since, setSince] = useState(new Date().toISOString().substring(0, 10));
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState([]);
+    const [focusedError, setFocusedError] = useState(null);
+    const {errorApi} = useDependencies();
+    const {onError} = useApp();
 
     async function retrieveErrors() {
         /* istanbul ignore next */
@@ -41,9 +42,12 @@ export function Errors() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Since</span>
             </div>
-            <input type="date" disabled={loading} className="form-control" value={since} onChange={stateChanged(setSince)}/>
+            <input type="date" disabled={loading} className="form-control" value={since}
+                   onChange={stateChanged(setSince)}/>
             <button className="btn btn-primary margin-right" onClick={retrieveErrors} disabled={loading}>
-                {loading ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {loading
+                    ? (<LoadingSpinnerSmall/>)
+                    : null}
                 Refresh
             </button>
         </div>
@@ -56,10 +60,15 @@ export function Errors() {
                         errorToShow = error;
                     }
 
-                    return (<li className={`list-group-item d-flex justify-content-between align-items-center${isFocused ? ' active' : ''}`} onClick={() => setFocusedError(isFocused ? null : error.id)} key={error.id}>
-                        {time.toLocaleDateString()} @ {time.toLocaleTimeString()} - {error.message}
-                        <span className={`badge rounded-pill ${error.source === 'Api' ? 'bg-primary' : 'bg-secondary'}`}>{error.source}</span>
-                    </li>);
+                    return (
+                        <li className={`list-group-item d-flex justify-content-between align-items-center${isFocused ? ' active' : ''}`}
+                            onClick={() => setFocusedError(isFocused ? null : error.id)} key={error.id}>
+                            {time.toLocaleDateString()} @ {time.toLocaleTimeString()} - {error.message}
+                            <span
+                                className={`badge rounded-pill ${error.source === 'Api' ? 'bg-primary' : 'bg-secondary'}`}>
+                                {error.source}
+                            </span>
+                        </li>);
                 })}
             </ul>
         </div>

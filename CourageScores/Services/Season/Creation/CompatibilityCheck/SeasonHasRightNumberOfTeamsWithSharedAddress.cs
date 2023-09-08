@@ -14,7 +14,10 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddress : ICompatibilityCheck
             return Task.FromResult(new ActionResultDto<TemplateDto>
             {
                 Success = false,
-                Warnings = { $"Template supports up-to {template.SharedAddresses.Count} cross-division shared addresses, found {seasonSharedAddresses.Count}" },
+                Warnings =
+                {
+                    $"Template supports up-to {template.SharedAddresses.Count} cross-division shared addresses, found {seasonSharedAddresses.Count}",
+                },
             });
         }
 

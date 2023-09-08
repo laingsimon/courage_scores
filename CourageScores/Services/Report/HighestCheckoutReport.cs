@@ -5,8 +5,8 @@ namespace CourageScores.Services.Report;
 
 public class HighestCheckoutReport : IReport
 {
-    private readonly int _topCount;
     private readonly Dictionary<Guid, int> _playerCheckoutRecord = new();
+    private readonly int _topCount;
 
     public HighestCheckoutReport(int topCount = 3)
     {

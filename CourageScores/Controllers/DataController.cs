@@ -10,8 +10,8 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class DataController : Controller
 {
-    private readonly IDataService _dataService;
     private readonly ICosmosTableService _cosmosTableService;
+    private readonly IDataService _dataService;
 
     public DataController(IDataService dataService, ICosmosTableService cosmosTableService)
     {

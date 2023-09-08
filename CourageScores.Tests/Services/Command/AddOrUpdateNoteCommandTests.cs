@@ -9,7 +9,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateNoteCommandTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private AddOrUpdateNoteCommand _command = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 

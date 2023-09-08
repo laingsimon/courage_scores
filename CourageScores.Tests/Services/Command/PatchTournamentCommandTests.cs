@@ -10,9 +10,9 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class PatchTournamentCommandTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly TournamentPlayer _oneEightyPlayer = new TournamentPlayer();
-    private readonly NotableTournamentPlayer _hiCheckPlayer = new NotableTournamentPlayer();
+    private readonly CancellationToken _token = new();
+    private readonly TournamentPlayer _oneEightyPlayer = new();
+    private readonly NotableTournamentPlayer _hiCheckPlayer = new();
 
     private PatchTournamentCommand _command = null!;
     private TournamentGame _tournament = null!;
@@ -42,7 +42,10 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "No tournament data to update" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "No tournament data to update",
+        }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -56,7 +59,10 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Round doesn't exist" }));
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "Round doesn't exist",
+        }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -65,7 +71,7 @@ public class PatchTournamentCommandTests
     {
         _patch.Round = new PatchTournamentRoundDto
         {
-            NextRound = new PatchTournamentRoundDto()
+            NextRound = new PatchTournamentRoundDto(),
         };
         _tournament.Round = new TournamentRound();
 
@@ -74,7 +80,10 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Round doesn't exist" }));
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "Round doesn't exist",
+        }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -89,7 +98,10 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "No round details to update" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "No round details to update",
+        }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -98,8 +110,14 @@ public class PatchTournamentCommandTests
     {
         var match = new TournamentMatch
         {
-            SideA = new TournamentSide { Id = Guid.NewGuid() },
-            SideB = new TournamentSide { Id = Guid.NewGuid() }
+            SideA = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
+            SideB = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
         };
         _patch.Round = new PatchTournamentRoundDto
         {
@@ -109,11 +127,14 @@ public class PatchTournamentCommandTests
                 SideB = match.SideB.Id,
                 ScoreA = 1,
                 ScoreB = 2,
-            }
+            },
         };
         _tournament.Round = new TournamentRound
         {
-            Matches = { match }
+            Matches =
+            {
+                match,
+            },
         };
 
         var result = await _command
@@ -121,7 +142,10 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Match updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Match updated",
+        }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
         Assert.That(match.ScoreA, Is.EqualTo(1));
         Assert.That(match.ScoreB, Is.EqualTo(2));
@@ -132,8 +156,14 @@ public class PatchTournamentCommandTests
     {
         var match = new TournamentMatch
         {
-            SideA = new TournamentSide { Id = Guid.NewGuid() },
-            SideB = new TournamentSide { Id = Guid.NewGuid() }
+            SideA = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
+            SideB = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
         };
         _patch.Round = new PatchTournamentRoundDto
         {
@@ -141,11 +171,14 @@ public class PatchTournamentCommandTests
             {
                 SideA = match.SideA.Id,
                 SideB = match.SideB.Id,
-            }
+            },
         };
         _tournament.Round = new TournamentRound
         {
-            Matches = { match }
+            Matches =
+            {
+                match,
+            },
         };
 
         var result = await _command
@@ -153,7 +186,10 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "No match details to update" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "No match details to update",
+        }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -162,8 +198,14 @@ public class PatchTournamentCommandTests
     {
         var match = new TournamentMatch
         {
-            SideA = new TournamentSide { Id = Guid.NewGuid() },
-            SideB = new TournamentSide { Id = Guid.NewGuid() }
+            SideA = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
+            SideB = new TournamentSide
+            {
+                Id = Guid.NewGuid(),
+            },
         };
         _patch.Round = new PatchTournamentRoundDto
         {
@@ -173,11 +215,14 @@ public class PatchTournamentCommandTests
                 SideB = Guid.NewGuid(),
                 ScoreA = 1,
                 ScoreB = 2,
-            }
+            },
         };
         _tournament.Round = new TournamentRound
         {
-            Matches = { match }
+            Matches =
+            {
+                match,
+            },
         };
 
         var result = await _command
@@ -185,7 +230,10 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Match not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "Match not found",
+        }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -200,7 +248,10 @@ public class PatchTournamentCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo(_tournament));
-        Assert.That(_tournament.OneEighties, Is.EquivalentTo(new[] { _oneEightyPlayer }));
+        Assert.That(_tournament.OneEighties, Is.EquivalentTo(new[]
+        {
+            _oneEightyPlayer,
+        }));
     }
 
     [Test]
@@ -214,6 +265,9 @@ public class PatchTournamentCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo(_tournament));
-        Assert.That(_tournament.Over100Checkouts, Is.EquivalentTo(new[] { _hiCheckPlayer }));
+        Assert.That(_tournament.Over100Checkouts, Is.EquivalentTo(new[]
+        {
+            _hiCheckPlayer,
+        }));
     }
 }

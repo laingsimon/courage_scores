@@ -5,8 +5,6 @@ namespace CourageScores.Models.Dtos.Game;
 [ExcludeFromCodeCoverage]
 public class EditTournamentGameDto : IIntegrityCheckDto
 {
-    public DateTime? LastUpdated { get; set; }
-
     public Guid Id { get; set; }
     public string? Address { get; set; }
     public DateTime Date { get; set; }
@@ -22,8 +20,9 @@ public class EditTournamentGameDto : IIntegrityCheckDto
     public bool AccoladesCount { get; set; }
     public Guid? DivisionId { get; set; }
 
-    public List<RecordTournamentScoresPlayerDto> OneEighties { get; set; } = new ();
-    public List<TournamentOver100CheckoutDto> Over100Checkouts { get; set; } = new ();
+    public List<RecordTournamentScoresPlayerDto> OneEighties { get; set; } = new();
+    public List<TournamentOver100CheckoutDto> Over100Checkouts { get; set; } = new();
+    public DateTime? LastUpdated { get; set; }
 
     [ExcludeFromCodeCoverage]
     public class RecordTournamentScoresPlayerDto

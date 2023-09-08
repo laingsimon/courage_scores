@@ -1,6 +1,17 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
+import {
+    cleanUp,
+    doClick,
+    doSelectOption,
+    findButton,
+    noop,
+    renderApp,
+} from "../../helpers/tests";
+import {
+    divisionFixtureBuilder,
+    teamBuilder, seasonBuilder, divisionBuilder, divisionDataBuilder
+} from "../../helpers/builders";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
 import {toMap} from "../../helpers/collections";
@@ -20,12 +31,12 @@ describe('DivisionFixture', () => {
 
     const gameApi = {
         update: async (fixture, lastUpdated) => {
-            savedFixture = { fixture, lastUpdated };
-            return apiResponse || { success: true };
+            savedFixture = {fixture, lastUpdated};
+            return apiResponse || {success: true};
         },
         delete: async (id) => {
             deletedFixture = id;
-            return apiResponse || { success: true };
+            return apiResponse || {success: true};
         }
     }
 
@@ -54,8 +65,8 @@ describe('DivisionFixture', () => {
         deletedFixture = null;
         apiResponse = null;
         context = await renderApp(
-            { gameApi },
-            { name: 'Courage Scores' },
+            {gameApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -65,13 +76,13 @@ describe('DivisionFixture', () => {
                 },
                 account,
                 teams,
-                reportClientSideException: () => {},
+                reportClientSideException: noop,
             },
             (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
                 <DivisionFixture
                     {...props}
                     beforeReloadDivision={onBeforeReloadDivision}
-                    onUpdateFixtures={(data) => updatedFixtures = data} />
+                    onUpdateFixtures={(data) => updatedFixtures = data}/>
             </DivisionDataContainer>),
             null,
             null,
@@ -79,39 +90,25 @@ describe('DivisionFixture', () => {
     }
 
     describe('when logged out', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const team = {
-            id: createTemporaryId(),
-            name: 'TEAM',
-        };
+        const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
+        const team = teamBuilder('TEAM').build();
         const account = null;
 
         it('renders unplayed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                awayTeam: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .playing('HOME', 'AWAY')
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -125,24 +122,19 @@ describe('DivisionFixture', () => {
 
         it('renders postponed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                awayTeam: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                postponed: true
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .postponed()
+                .playing('HOME', 'AWAY')
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -156,24 +148,19 @@ describe('DivisionFixture', () => {
 
         it('renders qualifier fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                awayTeam: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                isKnockout: true
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .playing('HOME', 'AWAY')
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -187,19 +174,18 @@ describe('DivisionFixture', () => {
 
         it('renders bye', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                }
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .bye('HOME')
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, name: division.name, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -213,34 +199,17 @@ describe('DivisionFixture', () => {
     });
 
     describe('when logged in', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const homeTeam = {
-            id: createTemporaryId(),
-            name: 'HOME',
-            address: 'HOME ADDRESS',
-            seasons: [{
-                seasonId: season.id,
-                divisionId: division.id,
-                players: [],
-            }],
-        };
-        const awayTeam = {
-            id: createTemporaryId(),
-            name: 'AWAY',
-            address: 'AWAY ADDRESS',
-            seasons: [{
-                seasonId: season.id,
-                divisionId: division.id,
-                players: [],
-            }],
-        };
+        const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
+        const homeTeam = teamBuilder('HOME')
+            .address('HOME ADDRESS')
+            .forSeason(season, division)
+            .build();
+        const awayTeam = teamBuilder('AWAY')
+            .address('AWAY ADDRESS')
+            .forSeason(season, division)
+            .build();
+
         const account = {
             access: {
                 manageGames: true,
@@ -249,18 +218,18 @@ describe('DivisionFixture', () => {
 
         it('renders unplayed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -272,19 +241,19 @@ describe('DivisionFixture', () => {
 
         it('renders postponed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                postponed: true,
-                fixturesUsingAddress: [ ],
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .postponed()
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -296,19 +265,19 @@ describe('DivisionFixture', () => {
 
         it('renders qualifier fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -320,17 +289,18 @@ describe('DivisionFixture', () => {
 
         it('renders bye', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, name: division.name, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -342,23 +312,21 @@ describe('DivisionFixture', () => {
 
         it('renders selectable away team with same address (league fixture)', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeamAtHomeAddress = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'HOME ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeamAtHomeAddress = teamBuilder('ANOTHER TEAM')
+                .address('HOME ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeamAtHomeAddress ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeamAtHomeAddress ]));
+                toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -368,23 +336,21 @@ describe('DivisionFixture', () => {
 
         it('renders unselectable away team playing elsewhere (league fixture)', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
-            const anotherFixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .build();
+            const anotherFixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture, anotherFixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture).withFixture(anotherFixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -392,30 +358,22 @@ describe('DivisionFixture', () => {
         });
 
         it('renders unselectable away team played fixture previously (league fixture)', async () => {
-            const fixture = {
-                id: createTemporaryId(),
-                date: '2023-05-06T00:00:00',
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
-            const anotherFixture = {
-                id: createTemporaryId(),
-                date: '2023-05-13T00:00:00',
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                isKnockout: false,
-            };
+            const fixture = divisionFixtureBuilder('2023-05-06T00:00:00')
+                .bye(homeTeam)
+                .build();
+            const anotherFixture = divisionFixtureBuilder('2023-05-13T00:00:00')
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date: fixture.date, readOnly: false },
-                {
-                    id: division.id,
-                    fixtures: [
-                        { date: fixture.date, fixtures: [ fixture ] },
-                        { date: anotherFixture.date, fixtures: [ anotherFixture ] } ],
-                    season,
-                    teams: [ homeTeam, awayTeam ] },
+                {fixture, date: fixture.date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -423,30 +381,23 @@ describe('DivisionFixture', () => {
         });
 
         it('renders selectable away team when away team is playing a qualifier on another date', async () => {
-            const fixture = {
-                id: createTemporaryId(),
-                date: '2023-05-06T00:00:00',
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
-            const anotherFixture = {
-                id: createTemporaryId(),
-                date: '2023-05-13T00:00:00',
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                isKnockout: true,
-            };
+            const fixture = divisionFixtureBuilder('2023-05-06T00:00:00')
+                .bye(homeTeam)
+                .build();
+            const anotherFixture = divisionFixtureBuilder('2023-05-13T00:00:00')
+                .playing(homeTeam, awayTeam)
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date: fixture.date, readOnly: false },
-                {
-                    id: division.id,
-                    fixtures: [
-                        { date: fixture.date, fixtures: [ fixture ] },
-                        { date: anotherFixture.date, fixtures: [ anotherFixture ] } ],
-                    season,
-                    teams: [ homeTeam, awayTeam ] },
+                {fixture, date: fixture.date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -455,28 +406,23 @@ describe('DivisionFixture', () => {
 
         it('renders selectable away team with same address (qualifier)', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
-            const anotherTeamAtHomeAddress = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'HOME ADDRESS',
-                seasons: [{
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    players: [],
-                }],
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .knockout()
+                .build();
+            const anotherTeamAtHomeAddress = teamBuilder('ANOTHER TEAM')
+                .address('HOME ADDRESS')
+                .forSeason(season, division)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeamAtHomeAddress ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeamAtHomeAddress ]));
+                toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -485,25 +431,23 @@ describe('DivisionFixture', () => {
 
         it('renders unselectable away team playing elsewhere (qualifier)', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
-            const anotherFixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                isKnockout: true,
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .knockout()
+                .build();
+            const anotherFixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture, anotherFixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture).withFixture(anotherFixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -512,18 +456,18 @@ describe('DivisionFixture', () => {
 
         it('renders selectable home team when no other fixtures for date', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -532,65 +476,48 @@ describe('DivisionFixture', () => {
 
         it('renders no away selection when home address is in use', async () => {
             const date = '2023-05-06T00:00:00';
-            const otherFixture = {
-                id: createTemporaryId(),
-                divisionId: createTemporaryId(),
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME - SAME ADDRESS',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                }
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                isKnockout: true,
-                fixturesUsingAddress: [ otherFixture ]
-            };
+            const otherFixtureId = createTemporaryId();
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .knockout()
+                .withOtherFixtureUsingUsingAddress('HOME - SAME ADDRESS', otherFixtureId)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.querySelector('.dropdown-menu')).toBeFalsy();
             expect(awayCell.textContent).toContain('🚫 HOME - SAME ADDRESS vs AWAY using this venue');
             const linkToOtherFixture = awayCell.querySelector('a');
-            expect(linkToOtherFixture.href).toEqual(`http://localhost/score/${otherFixture.id}`);
+            expect(linkToOtherFixture.href).toEqual(`http://localhost/score/${otherFixtureId}`);
         });
 
         it('renders unselectable away team played fixture previously (qualifier)', async () => {
-            const fixture = {
-                id: createTemporaryId(),
-                date: '2023-05-06T00:00:00',
-                homeTeam: homeTeam,
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
-            const anotherFixture = {
-                id: createTemporaryId(),
-                date: '2023-05-13T00:00:00',
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                isKnockout: true,
-            };
+            const fixture = divisionFixtureBuilder('2023-05-06T00:00:00')
+                .bye(homeTeam)
+                .knockout()
+                .build();
+            const anotherFixture = divisionFixtureBuilder('2023-05-13T00:00:00')
+                .playing(homeTeam, awayTeam)
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date: fixture.date, readOnly: false },
-                {
-                    id: division.id,
-                    fixtures: [
-                        { date: fixture.date, fixtures: [ fixture ] },
-                        { date: anotherFixture.date, fixtures: [ anotherFixture ] } ],
-                    season,
-                    teams: [ homeTeam, awayTeam ] },
+                {fixture, date: fixture.date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -599,32 +526,30 @@ describe('DivisionFixture', () => {
 
         it('can change away team', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).not.toBeNull();
-            expect(updatedFixtures([ { date, fixtures: [ fixture ] } ])).toEqual([{
+            expect(updatedFixtures([{date, fixtures: [fixture]}])).toEqual([{
                 date,
-                fixtures: [ {
+                fixtures: [{
                     id: fixture.id,
                     date,
                     homeTeam,
@@ -633,44 +558,37 @@ describe('DivisionFixture', () => {
                         name: anotherTeam.name,
                     },
                     originalAwayTeamId: 'unset',
-                    fixturesUsingAddress: [ ],
-                } ]
+                    fixturesUsingAddress: [],
+                }]
             }]);
         });
 
         it('can change away team for qualifiers', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                {
-                    id: division.id,
-                    fixtures: [ { date, fixtures: [ fixture ], isKnockout: true } ],
-                    season,
-                    teams: [ homeTeam, awayTeam, anotherTeam ]
-                },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture).knockout(), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).not.toBeNull();
-            expect(updatedFixtures([ { date, fixtures: [ fixture ], isKnockout: true } ])).toEqual([{
+            expect(updatedFixtures([{date, fixtures: [fixture], isKnockout: true}])).toEqual([{
                 date,
-                fixtures: [ {
+                fixtures: [{
                     date,
                     homeTeam,
                     awayTeam: {
@@ -679,33 +597,30 @@ describe('DivisionFixture', () => {
                     },
                     id: fixture.id,
                     originalAwayTeamId: 'unset',
-                    fixturesUsingAddress: [ ],
-                } ],
+                    fixturesUsingAddress: [],
+                }],
                 isKnockout: true,
             }]);
         });
 
         it('can save league fixture change', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                originalAwayTeamId: 'unset',
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .originalAwayTeamId('unset')
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
 
@@ -719,26 +634,23 @@ describe('DivisionFixture', () => {
 
         it('can save qualifier change', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                originalAwayTeamId: 'unset',
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .originalAwayTeamId('unset')
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
 
@@ -752,29 +664,26 @@ describe('DivisionFixture', () => {
 
         it('handles error during save', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                originalAwayTeamId: 'unset',
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .knockout()
+                .originalAwayTeamId('unset')
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(saveCell, '💾'));
 
@@ -788,28 +697,28 @@ describe('DivisionFixture', () => {
 
         it('can delete league fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let confirm;
-            window.confirm = (message) => { confirm = message; return true; }
+            window.confirm = (message) => {
+                confirm = message;
+                return true;
+            }
 
             await doClick(findButton(saveCell, '🗑'));
 
@@ -822,28 +731,28 @@ describe('DivisionFixture', () => {
 
         it('cannot delete fixture if readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let prompted = false;
-            window.confirm = () => { prompted = true; return false; };
+            window.confirm = () => {
+                prompted = true;
+                return false;
+            };
 
             const button = findButton(saveCell, '🗑');
 
@@ -852,24 +761,21 @@ describe('DivisionFixture', () => {
 
         it('does not delete league fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => false;
@@ -884,28 +790,25 @@ describe('DivisionFixture', () => {
 
         it('handles error during delete', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(saveCell, '🗑'));
 
@@ -919,28 +822,25 @@ describe('DivisionFixture', () => {
 
         it('can close error dialog from deletion failure', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
             await doClick(findButton(saveCell, '🗑'));
             expect(context.container.textContent).toContain('Could not save fixture details');
 
@@ -951,29 +851,29 @@ describe('DivisionFixture', () => {
 
         it('can delete qualifier', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                isKnockout: true,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .knockout()
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let confirm;
-            window.confirm = (message) => { confirm = message; return true; }
+            window.confirm = (message) => {
+                confirm = message;
+                return true;
+            }
 
             await doClick(findButton(saveCell, '🗑'));
 
@@ -986,25 +886,22 @@ describe('DivisionFixture', () => {
 
         it('cannot save when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                originalAwayTeamId: 'unset',
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .originalAwayTeamId('unset')
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
 
             const saveCell = context.container.querySelector('td:nth-child(6)');
             const deleteButton = findButton(saveCell, '💾');
@@ -1013,24 +910,21 @@ describe('DivisionFixture', () => {
 
         it('cannot delete when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .playing(homeTeam, awayTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
 
             const saveCell = context.container.querySelector('td:nth-child(6)');
             const deleteButton = findButton(saveCell, '🗑');
@@ -1039,23 +933,21 @@ describe('DivisionFixture', () => {
 
         it('cannot change away team when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = {
-                id: createTemporaryId(),
-                name: 'ANOTHER TEAM',
-                address: 'ANOTHER ADDRESS',
-                seasons: [],
-            };
-            const fixture = {
-                id: createTemporaryId(),
-                date: date,
-                homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
-            };
+            const anotherTeam = teamBuilder('ANOTHER TEAM')
+                .address('ANOTHER ADDRESS')
+                .build();
+            const fixture = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .build();
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');

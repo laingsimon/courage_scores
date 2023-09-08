@@ -11,9 +11,9 @@ namespace CourageScores.Tests.Services.Season.Creation.CompatibilityCheck;
 [TestFixture]
 public class NoMoreThanTemplateDivisionTeamCountTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly SeasonDto _season = new SeasonDto();
-    private readonly NoMoreThanTemplateDivisionTeamCount _check = new NoMoreThanTemplateDivisionTeamCount();
+    private readonly CancellationToken _token = new();
+    private readonly SeasonDto _season = new();
+    private readonly NoMoreThanTemplateDivisionTeamCount _check = new();
 
     [Test]
     public async Task Check_GivenFewerTeamsInADivisionThanTemplate_ReturnsTemplateCompatible()
@@ -36,13 +36,16 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                                     Home = new TeamPlaceholderDto("H"),
                                     Away = new TeamPlaceholderDto("A"),
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
-            }
+            },
         }; // template has 2 teams
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new[]
         {
             new TeamDto(),
@@ -73,11 +76,11 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                                 {
                                     Home = new TeamPlaceholderDto("H"),
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
-            }
+            },
         }; // template has 1 team
         var division = new DivisionDataDto
         {
@@ -114,20 +117,19 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                                     Home = new TeamPlaceholderDto("H"),
                                     Away = new TeamPlaceholderDto("A"),
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
-            }
+            },
         }; // template has 2 teams
         var division = new DivisionDataDto
         {
-            Id = Guid.NewGuid()
+            Id = Guid.NewGuid(),
         };
         var teams = new[]
         {
-            new TeamDto(),
-            new TeamDto(),
+            new TeamDto(), new TeamDto(),
         }; // division has 2 teams
 
         var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
@@ -156,11 +158,11 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                                     Home = new TeamPlaceholderDto("H"),
                                     Away = new TeamPlaceholderDto("A"),
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
-            }
+            },
         }; // template has 2 teams
         var division = new DivisionDataDto
         {
@@ -177,17 +179,25 @@ public class NoMoreThanTemplateDivisionTeamCountTests
         var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Division One has 3 teams, template has fewer (2)" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Division One has 3 teams, template has fewer (2)",
+        }));
     }
 
     private TemplateMatchContext TemplateMatchContext(DivisionDataDto division, TeamDto[] teams)
     {
         return new TemplateMatchContext(
             _season,
-            new[] { division },
+            new[]
+            {
+                division,
+            },
             new Dictionary<Guid, TeamDto[]>
             {
-                { division.Id, teams },
+                {
+                    division.Id, teams
+                },
             });
     }
 }

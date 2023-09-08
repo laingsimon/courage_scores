@@ -1,11 +1,11 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doChange, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {act} from "@testing-library/react";
 import React from "react";
 import {SaygLoadingContainer, useSayg} from "./SaygLoadingContainer";
-import {createTemporaryId} from "../../../helpers/projection";
 import {any} from "../../../helpers/collections";
+import {legBuilder, saygBuilder} from "../../../helpers/builders";
 
 describe('SaygLoadingContainer', () => {
     let context;
@@ -30,7 +30,7 @@ describe('SaygLoadingContainer', () => {
             upsertedData = data;
             return apiResponse || {
                 success: true,
-                result: Object.assign({ id: createTemporaryId() }, data),
+                result: Object.assign({id: 'NEW_ID'}, data),
             };
         },
     }
@@ -50,11 +50,11 @@ describe('SaygLoadingContainer', () => {
     }
 
     async function onHiCheck(player, score) {
-        hiCheck = { player, score };
+        hiCheck = {player, score};
     }
 
     async function onScoreChange(homeScore, awayScore) {
-        changedScore = { homeScore, awayScore };
+        changedScore = {homeScore, awayScore};
     }
 
     async function onSaved(data) {
@@ -73,15 +73,17 @@ describe('SaygLoadingContainer', () => {
         saved = null;
         loadError = null;
         context = await renderApp(
-            { saygApi },
-            { name: 'Courage Scores' },
-            { onError: (err) => {
+            {saygApi},
+            {name: 'Courage Scores'},
+            {
+                onError: (err) => {
                     reportedError = {
                         message: err.message,
                         stack: err.stack
                     };
                 },
-                reportClientSideException: () => {},
+                reportClientSideException: () => {
+                },
             },
             <SaygLoadingContainer
                 {...props}
@@ -89,29 +91,25 @@ describe('SaygLoadingContainer', () => {
                 onHiCheck={onHiCheck}
                 onScoreChange={onScoreChange}
                 onSaved={onSaved}
-                onLoadError={onLoadError} />);
+                onLoadError={onLoadError}/>);
     }
 
     it('gets sayg data for given id', async () => {
-        const id = createTemporaryId();
-        saygDataMap[id] = {
-            legs: {
-                '0': {
-                    startingScore: 501,
-                }
-            },
-        };
+        const saygData = saygBuilder()
+            .withLeg('0', l => l.startingScore(501))
+            .addTo(saygDataMap)
+            .build();
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
-            id: id,
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            id: saygData.id,
             defaultData: null,
             autoSave: false,
         });
 
         expect(reportedError).toBeNull();
         expect(loadedWithData).toEqual({
-            sayg: saygDataMap[id],
+            sayg: saygDataMap[saygData.id],
             saveDataAndGetId: expect.any(Function),
             setSayg: expect.any(Function)
         });
@@ -120,7 +118,7 @@ describe('SaygLoadingContainer', () => {
     it('uses default data if given no id', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -147,11 +145,11 @@ describe('SaygLoadingContainer', () => {
     });
 
     it('reports load error if no sayg data returned', async () => {
-        const id = createTemporaryId();
+        const id = 'NO_DATA_ID';
         saygDataMap[id] = null;
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -162,11 +160,11 @@ describe('SaygLoadingContainer', () => {
     });
 
     it('reports load error if no legs in returned sayg data', async () => {
-        const id = createTemporaryId();
+        const id = 'NO_LEGS_ID';
         saygDataMap[id] = {};
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -177,19 +175,15 @@ describe('SaygLoadingContainer', () => {
     });
 
     it('sets lastUpdated in sayg data', async () => {
-        const id = createTemporaryId();
-        saygDataMap[id] = {
-            legs: {
-                '0': {
-                    startingScore: 501,
-                }
-            },
-            updated: '2023-07-21',
-        };
+        const saygData = saygBuilder()
+            .withLeg('0', l => l.startingScore(501))
+            .updated('2023-07-21')
+            .addTo(saygDataMap)
+            .build();
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
-            id: id,
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            id: saygData.id,
             defaultData: null,
             autoSave: false,
         });
@@ -201,14 +195,12 @@ describe('SaygLoadingContainer', () => {
     it('should be able to update sayg data', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 isDefault: true,
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
@@ -233,13 +225,11 @@ describe('SaygLoadingContainer', () => {
     it('should be able to save data and get id', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
@@ -258,18 +248,16 @@ describe('SaygLoadingContainer', () => {
     it('should handle error during upsert', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
         });
-        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+        apiResponse = {success: false, errors: ['SOME ERROR']};
         let result;
 
         await act(async () => {
@@ -286,18 +274,16 @@ describe('SaygLoadingContainer', () => {
     it('should be able to close error details after upsert failure', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
         });
-        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+        apiResponse = {success: false, errors: ['SOME ERROR']};
         await act(async () => {
             await loadedWithData.saveDataAndGetId();
         });
@@ -311,18 +297,16 @@ describe('SaygLoadingContainer', () => {
     it('should handle exception during upsert', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
         });
-        apiResponse = { success: true, result: 'SOMETHING THAT WILL TRIGGER AN EXCEPTION' };
+        apiResponse = {success: true, result: 'SOMETHING THAT WILL TRIGGER AN EXCEPTION'};
         let result;
 
         await act(async () => {
@@ -344,22 +328,13 @@ describe('SaygLoadingContainer', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
                 legs: {
-                    '0': {
-                        currentThrow: 'home',
-                        playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
-                        ],
-                        startingScore: 501,
-                        home: {
-                            score: 451,
-                            throws: [],
-                        },
-                        away: {
-                            score: 200,
-                            throws: [ {} ],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .currentThrow('home')
+                        .playerSequence('home', 'away')
+                        .home(c => c.score(451))
+                        .away(c => c.score(200).withThrow(0))
+                        .build()
                 },
             },
             autoSave: true,
@@ -370,7 +345,7 @@ describe('SaygLoadingContainer', () => {
 
         expect(upsertedData).not.toBeNull();
         expect(saved).not.toBeNull();
-        expect(changedScore).toEqual({ homeScore: 1, awayScore: 0 });
+        expect(changedScore).toEqual({homeScore: 1, awayScore: 0});
     });
 
     it('should save data when player sequence changes and auto save enabled', async () => {
@@ -384,17 +359,11 @@ describe('SaygLoadingContainer', () => {
                 yourName: 'HOME',
                 opponentName: 'AWAY',
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {
-                            score: 0,
-                            throws: [],
-                        },
-                        away: {
-                            score: 0,
-                            throws: [ ],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .home(c => c.score(0))
+                        .away(c => c.score(0))
+                        .build()
                 },
             },
             autoSave: true,
@@ -417,17 +386,11 @@ describe('SaygLoadingContainer', () => {
                 yourName: 'HOME',
                 opponentName: 'AWAY',
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {
-                            score: 0,
-                            throws: [],
-                        },
-                        away: {
-                            score: 0,
-                            throws: [ ],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .home(c => c.score(0))
+                        .away(c => c.score(0))
+                        .build()
                 },
             },
             autoSave: false,
@@ -448,22 +411,13 @@ describe('SaygLoadingContainer', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
                 legs: {
-                    '0': {
-                        currentThrow: 'home',
-                        playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
-                        ],
-                        startingScore: 501,
-                        home: {
-                            score: 451,
-                            throws: [],
-                        },
-                        away: {
-                            score: 200,
-                            throws: [ {} ],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .playerSequence('home', 'away')
+                        .currentThrow('home')
+                        .home(c => c.score(451))
+                        .away(c => c.score(200).withThrow(0))
+                        .build()
                 },
             },
             autoSave: false,
@@ -474,13 +428,13 @@ describe('SaygLoadingContainer', () => {
 
         expect(upsertedData).toBeNull();
         expect(saved).toBeNull();
-        expect(changedScore).toEqual({ homeScore: 1, awayScore: 0 });
+        expect(changedScore).toEqual({homeScore: 1, awayScore: 0});
     });
 
-    function TestComponent({ onLoaded }) {
-        const { sayg, setSayg, saveDataAndGetId } = useSayg();
+    function TestComponent({onLoaded}) {
+        const {sayg, setSayg, saveDataAndGetId} = useSayg();
 
-        onLoaded({ sayg, setSayg, saveDataAndGetId });
+        onLoaded({sayg, setSayg, saveDataAndGetId});
 
         return (<div>Loaded</div>)
     }

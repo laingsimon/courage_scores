@@ -12,11 +12,11 @@ namespace CourageScores.Services.Identity;
 
 public class UserService : IUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IUserRepository _userRepository;
-    private readonly ISimpleAdapter<User, UserDto> _userAdapter;
     private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IGenericRepository<Models.Cosmos.Team.Team> _teamRepository;
+    private readonly ISimpleAdapter<User, UserDto> _userAdapter;
+    private readonly IUserRepository _userRepository;
     private User? _user;
     private bool _userResolved;
 
@@ -87,7 +87,10 @@ public class UserService : IUserService
             return new ActionResultDto<UserDto>
             {
                 Success = false,
-                Warnings = { "Not logged in" }
+                Warnings =
+                {
+                    "Not logged in",
+                },
             };
         }
 
@@ -96,7 +99,10 @@ public class UserService : IUserService
             return new ActionResultDto<UserDto>
             {
                 Success = false,
-                Warnings = { "Not permitted" }
+                Warnings =
+                {
+                    "Not permitted",
+                },
             };
         }
 
@@ -107,7 +113,10 @@ public class UserService : IUserService
             return new ActionResultDto<UserDto>
             {
                 Success = false,
-                Warnings = { "Not found" }
+                Warnings =
+                {
+                    "Not found",
+                },
             };
         }
 
@@ -120,7 +129,10 @@ public class UserService : IUserService
             return new ActionResultDto<UserDto>
             {
                 Success = false,
-                Warnings = { "Cannot remove your own user access" }
+                Warnings =
+                {
+                    "Cannot remove your own user access",
+                },
             };
         }
 
@@ -129,7 +141,10 @@ public class UserService : IUserService
         return new ActionResultDto<UserDto>
         {
             Success = true,
-            Messages = { "Access updated" },
+            Messages =
+            {
+                "Access updated",
+            },
             Result = await _userAdapter.Adapt(userToUpdate, token),
         };
     }
@@ -184,7 +199,7 @@ public class UserService : IUserService
         {
             EmailAddress = emailAddress,
             Name = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-            GivenName = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"]
+            GivenName = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
         };
 
         var existingUser = await _userRepository.GetUser(emailAddress);

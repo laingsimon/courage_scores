@@ -127,7 +127,7 @@ export function legsWon(saygMatches, accumulatorName) {
 }
 
 export function countLegThrowsBetween(leg, accumulatorName, lowerInclusive, upperExclusive) {
-    const accumulator = leg[accumulatorName] || { };
+    const accumulator = leg[accumulatorName] || {};
     const throws = accumulator.throws || [];
     return count(throws, thr => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
 }

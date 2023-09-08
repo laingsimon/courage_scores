@@ -17,11 +17,11 @@ namespace CourageScores.Tests.Services.Health;
 [TestFixture]
 public class HealthCheckServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private HealthCheckService _service = null!;
     private Mock<IUserService> _userService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
-    private Mock<IDivisionService> _divisionService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<ISeasonHealthCheckFactory> _healthCheckFactory = null!;
     private Mock<ISeasonHealthCheck> _healthCheck = null!;
     private Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>> _seasonAdapter = null!;
@@ -34,8 +34,8 @@ public class HealthCheckServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
-        _divisionService = new Mock<IDivisionService>();
+        _seasonService = new Mock<ICachingSeasonService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _healthCheckFactory = new Mock<ISeasonHealthCheckFactory>();
         _healthCheck = new Mock<ISeasonHealthCheck>();
         _seasonAdapter = new Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>>();
@@ -50,7 +50,7 @@ public class HealthCheckServiceTests
             Access = new AccessDto
             {
                 RunHealthChecks = true,
-            }
+            },
         };
         _division1 = new DivisionDataDto
         {
@@ -66,9 +66,15 @@ public class HealthCheckServiceTests
             Name = "SEASON",
             Divisions =
             {
-                new DivisionDto { Id = _division1.Id },
-                new DivisionDto { Id = _division2.Id },
-            }
+                new DivisionDto
+                {
+                    Id = _division1.Id,
+                },
+                new DivisionDto
+                {
+                    Id = _division2.Id,
+                },
+            },
         };
 
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
@@ -79,7 +85,10 @@ public class HealthCheckServiceTests
         _divisionService
             .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division2.Id && f.SeasonId == _season.Id), _token))
             .ReturnsAsync(_division2);
-        _healthCheckFactory.Setup(f => f.GetHealthChecks()).Returns(new[] { _healthCheck.Object });
+        _healthCheckFactory.Setup(f => f.GetHealthChecks()).Returns(new[]
+        {
+            _healthCheck.Object,
+        });
         _healthCheck.Setup(c => c.Name).Returns("CHECK");
     }
 
@@ -141,15 +150,28 @@ public class HealthCheckServiceTests
             Id = Guid.NewGuid(),
             Divisions =
             {
-                new DivisionDto { Id = divisionId },
-            }
+                new DivisionDto
+                {
+                    Id = divisionId,
+                },
+            },
         };
         _seasonService.Setup(s => s.Get(seasonWithMissingDivision.Id, _token)).ReturnsAsync(seasonWithMissingDivision);
         _divisionService
             .Setup(d => d.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == divisionId), _token))
-            .ReturnsAsync(() => new DivisionDataDto { Id = divisionId, DataErrors = { $"Requested division ({divisionId}) was not found" } });
+            .ReturnsAsync(() => new DivisionDataDto
+            {
+                Id = divisionId,
+                DataErrors =
+                {
+                    $"Requested division ({divisionId}) was not found",
+                },
+            });
         _healthCheck.Setup(c => c.RunCheck(It.IsAny<IReadOnlyCollection<DivisionHealthDto>>(), It.IsAny<HealthCheckContext>(), _token))
-            .ReturnsAsync(() => new HealthCheckResultDto { Success = true });
+            .ReturnsAsync(() => new HealthCheckResultDto
+            {
+                Success = true,
+            });
         _seasonAdapter
             .Setup(a => a.Adapt(It.IsAny<SeasonHealthDtoAdapter.SeasonAndDivisions>(), _token))
             .ReturnsAsync(new SeasonHealthDto());
@@ -168,7 +190,10 @@ public class HealthCheckServiceTests
         var result = await _service.Check(seasonHealthDto, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "No divisions" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "No divisions",
+        }));
     }
 
     [Test]
@@ -178,16 +203,25 @@ public class HealthCheckServiceTests
         {
             Divisions =
             {
-                new DivisionHealthDto()
-            }
+                new DivisionHealthDto(),
+            },
         };
         _healthCheck.Setup(c => c.RunCheck(It.IsAny<IReadOnlyCollection<DivisionHealthDto>>(), It.IsAny<HealthCheckContext>(), _token))
             .ReturnsAsync(() => new HealthCheckResultDto
             {
                 Success = true,
-                Errors = { "Check errors" },
-                Warnings = { "Check warnings" },
-                Messages = { "Check messages" },
+                Errors =
+                {
+                    "Check errors",
+                },
+                Warnings =
+                {
+                    "Check warnings",
+                },
+                Messages =
+                {
+                    "Check messages",
+                },
             });
 
         var result = await _service.Check(seasonHealthDto, _token);
@@ -202,16 +236,25 @@ public class HealthCheckServiceTests
         {
             Divisions =
             {
-                new DivisionHealthDto()
-            }
+                new DivisionHealthDto(),
+            },
         };
         _healthCheck.Setup(c => c.RunCheck(seasonHealthDto.Divisions, It.IsAny<HealthCheckContext>(), _token))
             .ReturnsAsync(() => new HealthCheckResultDto
             {
                 Success = false,
-                Errors = { "Check errors" },
-                Warnings = { "Check warnings" },
-                Messages = { "Check messages" },
+                Errors =
+                {
+                    "Check errors",
+                },
+                Warnings =
+                {
+                    "Check warnings",
+                },
+                Messages =
+                {
+                    "Check messages",
+                },
             });
 
         var result = await _service.Check(seasonHealthDto, _token);

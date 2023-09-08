@@ -6,7 +6,7 @@ public class StatefulLookup<TKey, TValue> : IDictionary<TKey, TValue>
     where TKey : notnull
 {
     private readonly Dictionary<TKey, TValue> _currentData;
-    private readonly Dictionary<TKey, TValue> _newData = new Dictionary<TKey, TValue>();
+    private readonly Dictionary<TKey, TValue> _newData = new();
 
     public StatefulLookup(Dictionary<TKey, TValue>? currentData = null)
     {

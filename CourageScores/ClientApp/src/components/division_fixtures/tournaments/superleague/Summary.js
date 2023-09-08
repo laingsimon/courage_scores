@@ -11,8 +11,8 @@ import {
 } from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
 
-export function Summary({ showWinner, saygMatches, noOfLegs, host, opponent }) {
-    const { onError } = useApp();
+export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
+    const {onError} = useApp();
 
     function renderDartsForWindowsAverage(side) {
         const sumOfScores = sum(saygMatches, s => sumOverThrows(s.saygData, side, 'score'));
@@ -70,7 +70,7 @@ export function Summary({ showWinner, saygMatches, noOfLegs, host, opponent }) {
                     hostPlayerName={map.match.sideA.name}
                     hostScore={map.match.scoreA}
                     opponentPlayerName={map.match.sideB.name}
-                    opponentScore={map.match.scoreB} />))}
+                    opponentScore={map.match.scoreB}/>))}
                 <tr className="fw-bold">
                     <td></td>
                     <td>Total</td>

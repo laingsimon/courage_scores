@@ -25,7 +25,13 @@ public class AccessDatabase : IDisposable
 
     public async IAsyncEnumerable<string> GetTables([EnumeratorCancellation] CancellationToken token)
     {
-        var schema = await _connection.GetSchemaAsync("Tables", new[] { null, null, null, "Table" }, token);
+        var schema = await _connection.GetSchemaAsync("Tables", new[]
+        {
+            null,
+            null,
+            null,
+            "Table",
+        }, token);
         foreach (DataRow row in schema.Rows)
         {
             yield return (string)row["TABLE_NAME"];

@@ -1,10 +1,10 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {DivisionControls} from "./DivisionControls";
-import {createTemporaryId} from "../helpers/projection";
 import {renderDate} from "../helpers/rendering";
+import {divisionBuilder, seasonBuilder} from "../helpers/builders";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -23,7 +23,7 @@ describe('DivisionControls', () => {
     let updatedDivision;
     const seasonApi = {
         update: (data, lastUpdated) => {
-            updatedSeason = { data, lastUpdated };
+            updatedSeason = {data, lastUpdated};
             return {
                 success: true
             }
@@ -31,7 +31,7 @@ describe('DivisionControls', () => {
     };
     const divisionApi = {
         update: (data, lastUpdated) => {
-            updatedDivision = { data, lastUpdated };
+            updatedDivision = {data, lastUpdated};
             return {
                 success: true
             }
@@ -54,8 +54,8 @@ describe('DivisionControls', () => {
         updatedSeason = null;
         updatedDivision = null;
         context = await renderApp(
-            { seasonApi, divisionApi },
-            { name: 'Courage Scores' },
+            {seasonApi, divisionApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -68,12 +68,14 @@ describe('DivisionControls', () => {
                 seasons,
                 reloadSeasons: () => {
                     reloadSeasonsCalled = true;
-                    return seasons; },
+                    return seasons;
+                },
                 reloadDivisions: () => {
                     reloadDivisionsCalled = true;
-                    return divisions; }
+                    return divisions;
+                }
             },
-            (<DivisionControls {...props} onDivisionOrSeasonChanged={divisionOrSeasonChanged} />),
+            (<DivisionControls {...props} onDivisionOrSeasonChanged={divisionOrSeasonChanged}/>),
             route,
             currentPath);
     }
@@ -130,30 +132,21 @@ describe('DivisionControls', () => {
 
     describe('when logged out', () => {
         const account = null;
-        const division1 = {
-            id: createTemporaryId(),
-            name: 'Division 1',
-        };
-        const division2 = {
-            id: createTemporaryId(),
-            name: 'Division 2',
-        };
-        const season1 = {
-            id: createTemporaryId(),
-            startDate: getDate(-1),
-            endDate: getDate(2),
-            name: 'Season 1',
-            divisions: [ division1, division2 ],
-        };
-        const season2 = {
-            id: createTemporaryId(),
-            startDate: getDate(2),
-            endDate: getDate(4),
-            name: 'Season 2',
-            divisions: [ division1 ],
-        };
-        const seasons = [ season1, season2 ];
-        const divisions = [ division1, division2 ];
+        const division1 = divisionBuilder('Division 1').build();
+        const division2 = divisionBuilder('Division 2').build();
+        const season1 = seasonBuilder('Season 1')
+            .starting(getDate(-1))
+            .ending(getDate(2))
+            .withDivision(division1)
+            .withDivision(division2)
+            .build();
+        const season2 = seasonBuilder('Season 2')
+            .starting(getDate(2))
+            .ending(getDate(4))
+            .withDivision(division1)
+            .build();
+        const seasons = [season1, season2];
+        const divisions = [division1, division2];
 
         describe('when in season', () => {
             it('shows current season', async () => {
@@ -179,7 +172,7 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
-                    'Season 1 ' + seasonDates(season1) ]);
+                    'Season 1 ' + seasonDates(season1)]);
             });
 
             it('shows current division', async () => {
@@ -204,7 +197,7 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 1',
-                    'Division 2' ]);
+                    'Division 2']);
             });
         });
 
@@ -232,7 +225,7 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
-                    'Season 1 ' + seasonDates(season1) ]);
+                    'Season 1 ' + seasonDates(season1)]);
             });
 
             it('shows all divisions', async () => {
@@ -255,7 +248,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions);
 
                 expect(reportedError).toBeNull();
-                expect(getOptions(getDivisionButtonGroup())).toEqual([ ]);
+                expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
     });
@@ -267,30 +260,21 @@ describe('DivisionControls', () => {
                 manageSeasons: true,
             }
         };
-        const division3 = {
-            id: createTemporaryId(),
-            name: 'Division 3',
-        };
-        const division4 = {
-            id: createTemporaryId(),
-            name: 'Division 4',
-        };
-        const season3 = {
-            id: createTemporaryId(),
-            startDate: getDate(-1),
-            endDate: getDate(2),
-            name: 'Season 3',
-            divisions: [ division3, division4 ],
-        };
-        const season4 = {
-            id: createTemporaryId(),
-            startDate: getDate(2),
-            endDate: getDate(4),
-            name: 'Season 4',
-            divisions: [ division3 ],
-        };
-        const seasons = [ season3, season4 ];
-        const divisions = [ division3, division4 ];
+        const division3 = divisionBuilder('Division 3').build();
+        const division4 = divisionBuilder('Division 4').build();
+        const season3 = seasonBuilder('Season 3')
+            .starting(getDate(-1))
+            .ending(getDate(2))
+            .withDivision(division3)
+            .withDivision(division4)
+            .build();
+        const season4 = seasonBuilder('Season 4')
+            .starting(getDate(2))
+            .ending(getDate(4))
+            .withDivision(division3)
+            .build();
+        const seasons = [season3, season4];
+        const divisions = [division3, division4];
 
         describe('when in season', () => {
             it('shows current season', async () => {
@@ -318,7 +302,7 @@ describe('DivisionControls', () => {
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
-                    '➕ New season' ]);
+                    '➕ New season']);
             });
 
             it('shows current division', async () => {
@@ -344,7 +328,7 @@ describe('DivisionControls', () => {
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 3',
                     'Division 4',
-                    '➕ New division' ]);
+                    '➕ New division']);
             });
         });
 
@@ -373,7 +357,7 @@ describe('DivisionControls', () => {
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
-                    '➕ New season' ]);
+                    '➕ New season']);
             });
 
             it('shows all divisions', async () => {
@@ -396,36 +380,27 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions);
 
                 expect(reportedError).toBeNull();
-                expect(getOptions(getDivisionButtonGroup())).toEqual([ ]);
+                expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
     });
 
     describe('interactivity', () => {
-        const division5 = {
-            id: createTemporaryId(),
-            name: 'Division 5',
-        };
-        const division6 = {
-            id: createTemporaryId(),
-            name: 'Division 6',
-        };
-        const season5 = {
-            id: createTemporaryId(),
-            startDate: getDate(-1),
-            endDate: getDate(2),
-            name: 'Season 5',
-            divisions: [ division5, division6 ],
-        };
-        const season6 = {
-            id: createTemporaryId(),
-            startDate: getDate(2),
-            endDate: getDate(4),
-            name: 'Season 6',
-            divisions: [ division5 ],
-        };
-        const seasons = [ season5, season6 ];
-        const divisions = [ division5, division6 ];
+        const division5 = divisionBuilder('Division 5').build();
+        const division6 = divisionBuilder('Division 6').build();
+        const season5 = seasonBuilder('Season 5')
+            .starting(getDate(-1))
+            .ending(getDate(2))
+            .withDivision(division5)
+            .withDivision(division6)
+            .build();
+        const season6 = seasonBuilder('Season 6')
+            .starting(getDate(2))
+            .ending(getDate(4))
+            .withDivision(division5)
+            .build();
+        const seasons = [season5, season6];
+        const divisions = [division5, division6];
 
         describe('common', () => {
             const account = null;

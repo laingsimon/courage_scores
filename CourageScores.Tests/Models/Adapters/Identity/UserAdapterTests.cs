@@ -7,8 +7,8 @@ namespace CourageScores.Tests.Models.Adapters.Identity;
 
 public class UserAdapterTests
 {
-    private readonly UserAdapter _adapter = new UserAdapter(new AccessAdapter());
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly UserAdapter _adapter = new(new AccessAdapter());
+    private readonly CancellationToken _token = new();
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesSuccessfully()
@@ -20,7 +20,7 @@ public class UserAdapterTests
             Id = Guid.NewGuid(),
             Name = "name",
             EmailAddress = "email@somewhere.com",
-            GivenName = "Simon"
+            GivenName = "Simon",
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -41,7 +41,7 @@ public class UserAdapterTests
             Id = Guid.NewGuid(),
             Name = "name",
             EmailAddress = "email@somewhere.com",
-            GivenName = "Simon"
+            GivenName = "Simon",
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -57,7 +57,7 @@ public class UserAdapterTests
             TeamId = Guid.NewGuid(),
             Name = "name",
             EmailAddress = "email@somewhere.com",
-            GivenName = "Simon"
+            GivenName = "Simon",
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -75,7 +75,7 @@ public class UserAdapterTests
         {
             Name = "name   ",
             EmailAddress = "email@somewhere.com   ",
-            GivenName = "Simon   "
+            GivenName = "Simon   ",
         };
 
         var result = await _adapter.Adapt(dto, _token);

@@ -18,6 +18,9 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         _userService = userService;
     }
 
+    [ExcludeFromCodeCoverage]
+    public override bool RequiresLogin => false;
+
     protected override async Task<ActionResult<RecordedScoreAsYouGo>> ApplyUpdates(RecordedScoreAsYouGo model, UpdateRecordedScoreAsYouGoDto update, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
@@ -26,7 +29,10 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
             return new ActionResult<RecordedScoreAsYouGo>
             {
                 Success = false,
-                Errors = { "Not permitted to modify tournament sayg sessions" },
+                Errors =
+                {
+                    "Not permitted to modify tournament sayg sessions",
+                },
             };
         }
 
@@ -41,9 +47,12 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
             return new ActionResult<RecordedScoreAsYouGo>
             {
                 Success = false,
-                Warnings = { update.TournamentMatchId != null
-                    ? "Sayg session ids cannot be changed"
-                    : "Sayg session ids cannot be removed" },
+                Warnings =
+                {
+                    update.TournamentMatchId != null
+                        ? "Sayg session ids cannot be changed"
+                        : "Sayg session ids cannot be removed",
+                },
             };
         }
 
@@ -58,10 +67,10 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         return new ActionResult<RecordedScoreAsYouGo>
         {
             Success = true,
-            Messages = { "Sayg data updated" },
+            Messages =
+            {
+                "Sayg data updated",
+            },
         };
     }
-
-    [ExcludeFromCodeCoverage]
-    public override bool RequiresLogin => false;
 }

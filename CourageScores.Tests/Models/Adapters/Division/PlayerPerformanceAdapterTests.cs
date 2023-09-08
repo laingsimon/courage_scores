@@ -7,8 +7,8 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class PlayerPerformanceAdapterTests
 {
-    private readonly PlayerPerformanceAdapter _adapter = new PlayerPerformanceAdapter();
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly PlayerPerformanceAdapter _adapter = new();
+    private readonly CancellationToken _token = new();
 
     [Test]
     public async Task Adapt_GivenScore_SetsPropertiesCorrectly()

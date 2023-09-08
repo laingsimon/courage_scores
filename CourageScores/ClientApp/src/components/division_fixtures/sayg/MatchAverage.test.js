@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
+import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {MatchAverage} from "./MatchAverage";
 
@@ -15,12 +15,12 @@ describe('MatchAverage', () => {
     async function renderComponent(props) {
         oneDartAverage = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
-            { },
+            {},
+            {name: 'Courage Scores'},
+            {},
             <MatchAverage
                 {...props}
-                setOneDartAverage={(value) => oneDartAverage = value} />,
+                setOneDartAverage={(value) => oneDartAverage = value}/>,
             null,
             null,
             'tbody');

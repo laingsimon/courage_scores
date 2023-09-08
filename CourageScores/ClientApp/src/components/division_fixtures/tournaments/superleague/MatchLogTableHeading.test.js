@@ -49,8 +49,8 @@ describe('MatchLogTableHeading', () => {
             expect(reportedError).toBeNull();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(rows.length).toEqual(2);
-            expect(getRowContent(rows[0])).toEqual([ 'TEAM', 'Dart average', '', '' ]);
-            expect(getRowContent(rows[1])).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4' ]);
+            expect(getRowContent(rows[0])).toEqual(['TEAM', 'Dart average', '', '']);
+            expect(getRowContent(rows[1])).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4']);
         });
 
         it('correct dart average offset', async () => {

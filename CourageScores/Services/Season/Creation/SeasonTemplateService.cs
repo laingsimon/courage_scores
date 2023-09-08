@@ -14,22 +14,22 @@ namespace CourageScores.Services.Season.Creation;
 
 public class SeasonTemplateService : ISeasonTemplateService
 {
+    private readonly ICompatibilityCheckFactory _compatibilityCheckFactory;
+    private readonly ICachingDivisionService _divisionService;
+    private readonly ISeasonProposalStrategy _proposalStrategy;
+    private readonly ICachingSeasonService _seasonService;
+    private readonly ICachingTeamService _teamService;
     private readonly IGenericDataService<Template, TemplateDto> _underlyingService;
     private readonly IUserService _userService;
-    private readonly ISeasonService _seasonService;
-    private readonly IDivisionService _divisionService;
-    private readonly ICompatibilityCheckFactory _compatibilityCheckFactory;
-    private readonly ISeasonProposalStrategy _proposalStrategy;
-    private readonly ITeamService _teamService;
 
     public SeasonTemplateService(
         IGenericDataService<Template, TemplateDto> underlyingService,
         IUserService userService,
-        ISeasonService seasonService,
-        IDivisionService divisionService,
+        ICachingSeasonService seasonService,
+        ICachingDivisionService divisionService,
         ICompatibilityCheckFactory compatibilityCheckFactory,
         ISeasonProposalStrategy proposalStrategy,
-        ITeamService teamService)
+        ICachingTeamService teamService)
     {
         _underlyingService = underlyingService;
         _userService = userService;
@@ -124,11 +124,15 @@ public class SeasonTemplateService : ISeasonTemplateService
         return new ActionResultDto<T>
         {
             Success = false,
-            Errors = { error },
+            Errors =
+            {
+                error,
+            },
         };
     }
 
     #region delegating members
+
     [ExcludeFromCodeCoverage]
     public Task<TemplateDto?> Get(Guid id, CancellationToken token)
     {
@@ -158,5 +162,6 @@ public class SeasonTemplateService : ISeasonTemplateService
     {
         return _underlyingService.Delete(id, token);
     }
+
     #endregion
 }

@@ -19,7 +19,7 @@ public class AddOrUpdateGameCommandTests
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<ITeamService> _teamService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private CancellationToken _token;
     private AddOrUpdateGameCommand _command = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
@@ -44,14 +44,24 @@ public class AddOrUpdateGameCommandTests
         {
             SeasonId = _season.Id,
         };
-        _homeTeam = new TeamDto { Id = Guid.NewGuid(), Created = DateTime.Now, Updated = DateTime.Now };
-        _awayTeam = new TeamDto { Id = Guid.NewGuid(), Created = DateTime.Now, Updated = DateTime.Now };
+        _homeTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Created = DateTime.Now,
+            Updated = DateTime.Now,
+        };
+        _awayTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Created = DateTime.Now,
+            Updated = DateTime.Now,
+        };
     }
 
     [SetUp]
     public void SetupEachTest()
     {
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
         _token = new CancellationToken();
@@ -83,7 +93,10 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update a game where the home team and away team are the same" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "Unable to update a game where the home team and away team are the same",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -102,7 +115,10 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "SeasonId must be provided" }));
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "SeasonId must be provided",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -122,7 +138,10 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Unable to add or update game, season not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "Unable to add or update game, season not found",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -211,9 +230,19 @@ public class AddOrUpdateGameCommandTests
         var fail = new ActionResultDto<TeamDto>
         {
             Success = false,
-            Errors = { "Some error1", "Some error2" },
-            Warnings = { "Some warning" },
-            Messages = { "Some message" },
+            Errors =
+            {
+                "Some error1",
+                "Some error2",
+            },
+            Warnings =
+            {
+                "Some warning",
+            },
+            Messages =
+            {
+                "Some message",
+            },
         };
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(() => _season);
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);

@@ -1,10 +1,10 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
+import {divisionBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('AssignTeamToSeasons', () => {
     let context;
@@ -18,18 +18,19 @@ describe('AssignTeamToSeasons', () => {
 
     const teamApi = {
         add: async (teamId, seasonId, copyFromSeasonId) => {
-            apiAdded.push({ teamId, seasonId, copyFromSeasonId });
-            return apiResponse || { success: true };
+            apiAdded.push({teamId, seasonId, copyFromSeasonId});
+            return apiResponse || {success: true};
         },
         delete: async (teamId, seasonId) => {
-            apiDeleted.push({ teamId, seasonId });
-            return apiResponse || { success: true };
+            apiDeleted.push({teamId, seasonId});
+            return apiResponse || {success: true};
         }
     };
 
     async function onReloadDivision() {
         divisionReloaded = true;
     }
+
     async function onClose() {
         closed = true;
     }
@@ -46,8 +47,8 @@ describe('AssignTeamToSeasons', () => {
         apiAdded = [];
         apiDeleted = [];
         context = await renderApp(
-            { teamApi },
-            { name: 'Courage Scores' },
+            {teamApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = err;
@@ -59,59 +60,49 @@ describe('AssignTeamToSeasons', () => {
                 seasons
             },
             (<DivisionDataContainer season={currentSeason} onReloadDivision={onReloadDivision}>
-                <AssignTeamToSeasons teamOverview={teamOverview} onClose={onClose} />
+                <AssignTeamToSeasons teamOverview={teamOverview} onClose={onClose}/>
             </DivisionDataContainer>));
     }
 
-    describe('component', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-05-01T00:00:00'
-        };
+    describe('renders', () => {
+        const season = seasonBuilder('SEASON')
+            .starting('2023-05-01T00:00:00')
+            .build();
+        const division = divisionBuilder('DIVISION').build();
 
-        it('renders when team not found', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [],
-            }
+        it('when team not found', async () => {
+            const team = teamBuilder('TEAM').build();
             await renderComponent(team, [], [season], season);
 
             expect(reportedError).toBeNull();
             expect(context.container.textContent).toContain('Team not found: TEAM');
         });
 
-        it('renders selected seasons', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [ {
-                    seasonId: season.id
-                } ],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+        it('selected seasons', async () => {
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             expect(reportedError).toBeNull();
             expect(context.container.textContent).toContain('Associate TEAM with the following seasons');
             const seasons = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(seasons.length).toEqual(2);
-            expect(seasons.map(s => s.textContent)).toEqual([ 'PREVIOUS SEASON', 'SEASON' ]);
+            expect(seasons.map(s => s.textContent)).toEqual(['PREVIOUS SEASON', 'SEASON']);
             expect(seasons[0].className).not.toContain('active');
             expect(seasons[1].className).toContain('active');
         });
+    });
+
+    describe('interactivity', () => {
+        const season = seasonBuilder('SEASON')
+            .starting('2023-05-01T00:00:00')
+            .build();
+        const division = divisionBuilder('DIVISION').build();
 
         it('can change copy team from current season', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [ ],
-            }
+            const team = teamBuilder('TEAM').build();
             await renderComponent(team, [team], [season], season);
 
             await doClick(context.container, '.list-group .list-group-item'); // select the season
@@ -130,68 +121,63 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('can unassign a selected season', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [ {
-                    seasonId: season.id
-                } ],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             await doClick(context.container, '.list-group .list-group-item.active');
 
             const items = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(items.map(i => i.className)).toEqual([ 'list-group-item', 'list-group-item bg-danger' ]);
+            expect(items.map(i => i.className)).toEqual(['list-group-item', 'list-group-item bg-danger']);
             await doClick(findButton(context.container, 'Apply changes'));
             expect(reportedError).toBeNull();
             expect(apiAdded).toEqual([]);
-            expect(apiDeleted).toEqual([ { teamId: team.id, seasonId: season.id }]);
+            expect(apiDeleted).toEqual([{teamId: team.id, seasonId: season.id}]);
         });
 
         it('can assign an unselected season', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [ {
-                    seasonId: season.id
-                } ],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             await doClick(context.container, '.list-group .list-group-item:not(.active)');
 
             const items = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(items.map(i => i.className)).toEqual([ 'list-group-item bg-success', 'list-group-item active' ]);
+            expect(items.map(i => i.className)).toEqual(['list-group-item bg-success', 'list-group-item active']);
             await doClick(findButton(context.container, 'Apply changes'));
             expect(reportedError).toBeNull();
-            expect(apiAdded).toEqual([ { teamId: team.id, seasonId: otherSeason.id, copyFromSeasonId: season.id }]);
-            expect(apiDeleted).toEqual([ ]);
+            expect(apiAdded).toEqual([{teamId: team.id, seasonId: otherSeason.id, copyFromSeasonId: season.id}]);
+            expect(apiDeleted).toEqual([]);
+        });
+
+        it('reports any errors during save', async () => {
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
+            await renderComponent(team, [team], [season, otherSeason], season);
+            let alert;
+            window.alert = (msg) => alert = msg;
+            console.error = () => {};
+            await doClick(context.container, '.list-group .list-group-item:not(.active)');
+            apiResponse = {
+                success: false,
+            };
+
+            await doClick(findButton(context.container, 'Apply changes'));
+
+            expect(alert).toEqual('There were 1 error/s when applying these changes; some changes may not have been saved');
         });
 
         it('can close', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [ {
-                    seasonId: season.id
-                } ],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             await doClick(findButton(context.container, 'Close'));

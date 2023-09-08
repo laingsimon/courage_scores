@@ -42,7 +42,7 @@ public class ClientTests
                 UseShellExecute = false,
                 StandardOutputEncoding = Encoding.UTF8,
                 StandardErrorEncoding = Encoding.UTF8,
-            }
+            },
         };
         process.OutputDataReceived += (_, args) => output.AddStdOut(args.Data);
         process.ErrorDataReceived += (_, args) => output.AddStdErr(args.Data);
@@ -59,7 +59,7 @@ public class ClientTests
 
     private static string GetExecutablePath(string fileName)
     {
-        var paths = (Environment.GetEnvironmentVariable("PATH")?.Split(";") ?? Array.Empty<string>());
+        var paths = Environment.GetEnvironmentVariable("PATH")?.Split(";") ?? Array.Empty<string>();
 
         foreach (var path in paths)
         {
@@ -75,7 +75,7 @@ public class ClientTests
 
     private class ProcessOutput : IEnumerable<ProcessMessage>
     {
-        private readonly List<ProcessMessage> _messages = new List<ProcessMessage>();
+        private readonly List<ProcessMessage> _messages = new();
 
         public void AddStdOut(string? line)
         {

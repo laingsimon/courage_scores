@@ -1,6 +1,6 @@
 import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../../helpers/projection";
-import {any, sortBy} from "../../../helpers/collections";
+import {any, count, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
@@ -8,25 +8,25 @@ import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
 
-export function PrintableSheet({ printOnly }) {
-    const { name } = useBranding();
-    const { onError, teams, divisions } = useApp();
-    const { tournamentData, season, division } = useTournament();
+export function PrintableSheet({printOnly}) {
+    const {name} = useBranding();
+    const {onError, teams, divisions} = useApp();
+    const {tournamentData, season, division} = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
-    const [ wiggle, setWiggle ] = useState(!printOnly);
+    const [wiggle, setWiggle] = useState(!printOnly);
 
     useEffect(() => {
-        if (!wiggle) {
-            return;
-        }
+            if (!wiggle) {
+                return;
+            }
 
-        setWiggle(false);
-        setupWiggle();
-    },
-    // eslint-disable-next-line
-    [ wiggle ]);
+            setWiggle(false);
+            setupWiggle();
+        },
+        // eslint-disable-next-line
+        [wiggle]);
 
     function setupWiggle() {
         const wiggler = {
@@ -68,7 +68,7 @@ export function PrintableSheet({ printOnly }) {
         }
 
         function movement(percentage) {
-            return { scrollLeft: percentage * element.getBoundingClientRect().width };
+            return {scrollLeft: percentage * element.getBoundingClientRect().width};
         }
 
         function movements(lowerPercentage, upperPercentage, times) {
@@ -124,14 +124,16 @@ export function PrintableSheet({ printOnly }) {
         if (side && side.teamId && division) {
             const team = teams[side.teamId];
 
-            return (<EmbedAwareLink to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</EmbedAwareLink>);
+            return (<EmbedAwareLink
+                to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</EmbedAwareLink>);
         }
 
-        const teamAndDivision = side && side.players && side.players.length === 1
+        const teamAndDivision = side && count(side.players || []) === 1
             ? findTeamAndDivisionForPlayer(side.players[0])
             : null;
         if (side && teamAndDivision && teamAndDivision.division) {
-            return (<EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${side.players[0].name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
+            return (<EmbedAwareLink
+                to={`/division/${teamAndDivision.division.name}/player:${side.players[0].name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
         }
 
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
@@ -145,7 +147,7 @@ export function PrintableSheet({ printOnly }) {
             }
 
             const hasPlayer = any(teamSeason.players, p => p.id === player.id);
-            return hasPlayer ? { team: t, divisionId: teamSeason.divisionId } : null;
+            return hasPlayer ? {team: t, divisionId: teamSeason.divisionId} : null;
         }).filter(a => a !== null)[0];
 
         if (!teamAndDivisionMapping) {
@@ -190,8 +192,8 @@ export function PrintableSheet({ printOnly }) {
                 }
 
                 return {
-                    sideA: { name: m.sideA.name, link: getLinkToSide(m.sideA) },
-                    sideB: { name: m.sideB.name, link: getLinkToSide(m.sideB) },
+                    sideA: {name: m.sideA.name, link: getLinkToSide(m.sideA)},
+                    sideB: {name: m.sideB.name, link: getLinkToSide(m.sideB)},
                     scoreA: m.scoreA || '0',
                     scoreB: m.scoreB || '0',
                     bye: false,
@@ -205,7 +207,7 @@ export function PrintableSheet({ printOnly }) {
             .filter(side => !any(playedInThisRound, s => s.id === side.id))
             .map(side => {
                 return {
-                    sideA: { 
+                    sideA: {
                         id: side.id,
                         name: side.name,
                         link: getLinkToSide(side),
@@ -222,10 +224,10 @@ export function PrintableSheet({ printOnly }) {
 
         if (!any(winnersFromThisRound)) {
             // partially played tournament... project the remaining rounds as unplayed...
-            return [ layoutDataForRound ].concat(getUnplayedLayoutData(Math.ceil(playedInThisRound.length / 2), depth + 1));
+            return [layoutDataForRound].concat(getUnplayedLayoutData(Math.ceil(playedInThisRound.length / 2), depth + 1));
         }
 
-        return [ layoutDataForRound ].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map(b => b.sideA)), round.nextRound, depth + 1));
+        return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map(b => b.sideA)), round.nextRound, depth + 1));
     }
 
     function getUnplayedLayoutData(sideLength, depth) {
@@ -238,8 +240,8 @@ export function PrintableSheet({ printOnly }) {
             name: null,
             matches: repeat(Math.floor(sideLength / 2), _ => {
                 return {
-                    sideA: { name: null },
-                    sideB: { name: null },
+                    sideA: {name: null},
+                    sideB: {name: null},
                     scoreA: null,
                     scoreB: null,
                     bye: false,
@@ -249,8 +251,8 @@ export function PrintableSheet({ printOnly }) {
         };
         if (hasBye) {
             layoutDataForRound.matches.push({
-                sideA: { name: null },
-                sideB: { name: null },
+                sideA: {name: null},
+                sideB: {name: null},
                 scoreA: null,
                 scoreB: null,
                 bye: true,
@@ -258,7 +260,7 @@ export function PrintableSheet({ printOnly }) {
             });
         }
 
-        return [ layoutDataForRound ].concat(getUnplayedLayoutData(Math.floor(sideLength / 2) + (hasBye ? 1 : 0), depth + 1));
+        return [layoutDataForRound].concat(getUnplayedLayoutData(Math.floor(sideLength / 2) + (hasBye ? 1 : 0), depth + 1));
     }
 
     function render180s() {
@@ -294,7 +296,8 @@ export function PrintableSheet({ printOnly }) {
 
                 if (teamAndDivision && teamAndDivision.division) {
                     return (<div key={id} className="p-1 no-wrap">
-                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> x {oneEightyMap[id]}
+                        <EmbedAwareLink
+                            to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> x {oneEightyMap[id]}
                     </div>);
                 }
 
@@ -313,7 +316,8 @@ export function PrintableSheet({ printOnly }) {
 
                 if (teamAndDivision && teamAndDivision.division) {
                     return (<div key={player.name} className="p-1 no-wrap">
-                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> ({player.notes})
+                        <EmbedAwareLink
+                            to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> ({player.notes})
                     </div>);
                 }
 
@@ -346,10 +350,12 @@ export function PrintableSheet({ printOnly }) {
                 <span className="d-print-none margin-left">
                     <ShareButton
                         text={`${name}: ${tournamentData.type} at ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
-                        <button className="btn btn-sm margin-left btn-outline-primary" onClick={window.print}>🖨️</button>
+                        <button className="btn btn-sm margin-left btn-outline-primary"
+                                onClick={window.print}>🖨️</button>
                 </span>
             </div>
-            <div datatype="rounds-and-players" className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
+            <div datatype="rounds-and-players"
+                 className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
                 {layoutData.map((roundData, index) => (
                     <div key={index} datatype={`round-${index}`} className="d-flex flex-column p-3">
                         {index === layoutData.length - 1 ? render180s() : null}
@@ -366,12 +372,14 @@ export function PrintableSheet({ printOnly }) {
                             {matchData.bye ? null : (<div className="text-center dotted-line-through">
                                 <span className="px-3 bg-white position-relative">vs</span>
                             </div>)}
-                            {matchData.bye ? null : (<div datatype="sideB"
-                                 className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
-                                <div className="no-wrap pe-3" datatype="sideBname">{matchData.sideB.link || (
-                                    <span>&nbsp;</span>)}</div>
-                                <div datatype="scoreB">{matchData.scoreB || ''}</div>
-                            </div>)}
+                            {matchData.bye
+                                ? null
+                                : (<div datatype="sideB"
+                                        className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
+                                    <div className="no-wrap pe-3" datatype="sideBname">{matchData.sideB.link || (
+                                        <span>&nbsp;</span>)}</div>
+                                    <div datatype="scoreB">{matchData.scoreB || ''}</div>
+                                </div>)}
                         </div>))}
                         {index === layoutData.length - 1 ? renderHiChecks() : null}
                     </div>))}

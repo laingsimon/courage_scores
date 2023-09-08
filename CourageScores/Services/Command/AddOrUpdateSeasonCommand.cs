@@ -10,14 +10,14 @@ namespace CourageScores.Services.Command;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.Season, EditSeasonDto>
 {
-    private readonly ISeasonService _seasonService;
-    private readonly ITeamService _teamService;
-    private readonly ICommandFactory _commandFactory;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly ICommandFactory _commandFactory;
     private readonly IGenericRepository<Models.Cosmos.Division> _divisionRepository;
+    private readonly ICachingSeasonService _seasonService;
+    private readonly ITeamService _teamService;
 
     public AddOrUpdateSeasonCommand(
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         ITeamService teamService,
         ICommandFactory commandFactory,
         ScopedCacheManagementFlags cacheFlags,
@@ -49,7 +49,10 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
         return new ActionResult<Models.Cosmos.Season.Season>
         {
             Success = true,
-            Messages = { "Season updated" },
+            Messages =
+            {
+                "Season updated",
+            },
         };
     }
 
@@ -61,7 +64,10 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
             return new ActionResult<Models.Cosmos.Season.Season>
             {
                 Success = false,
-                Warnings = { "Could not find season to copy teams from" },
+                Warnings =
+                {
+                    "Could not find season to copy teams from",
+                },
             };
         }
 
@@ -87,7 +93,10 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
         return new ActionResult<Models.Cosmos.Season.Season>
         {
             Success = true,
-            Messages = { $"Copied {teamsCopied} of {totalTeams} team/s from other season" },
+            Messages =
+            {
+                $"Copied {teamsCopied} of {totalTeams} team/s from other season",
+            },
         };
     }
 }

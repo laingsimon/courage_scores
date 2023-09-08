@@ -1,9 +1,9 @@
 ﻿// noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
-import {createTemporaryId} from "../../../helpers/projection";
+import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {MergeMatch} from "./MergeMatch";
+import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
 
 describe('MergeMatch', () => {
     let context;
@@ -18,8 +18,8 @@ describe('MergeMatch', () => {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -28,7 +28,7 @@ describe('MergeMatch', () => {
                     };
                 },
             },
-            (<MergeMatch {...props} setFixtureData={(data) => updatedData = data} />),
+            (<MergeMatch {...props} setFixtureData={(data) => updatedData = data}/>),
             null,
             null,
             'tbody');
@@ -39,20 +39,17 @@ describe('MergeMatch', () => {
             const match = {
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers:[],
-                awayPlayers:[],
+                homePlayers: [],
+                awayPlayers: [],
             };
 
             await renderComponent({
                 readOnly: false,
-                matches: [ match ],
+                matches: [match],
                 matchIndex: 0,
-                homeSubmission: {
-                },
-                awaySubmission: {
-                },
-                fixtureData: {
-                }
+                homeSubmission: {},
+                awaySubmission: {},
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -60,33 +57,22 @@ describe('MergeMatch', () => {
         });
 
         it('when home and away submissions match', async () => {
-            const match = { };
+            const match = {};
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: false,
-                matches: [ match ],
+                matches: [match],
                 matchIndex: 0,
-                homeSubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                awaySubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                fixtureData: {
-                }
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -98,32 +84,21 @@ describe('MergeMatch', () => {
 
         it('when home and away submissions match and readonly', async () => {
             const match = {};
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: true,
-                matches: [ match ],
+                matches: [match],
                 matchIndex: 0,
-                homeSubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                awaySubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                fixtureData: {
-                }
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -134,25 +109,42 @@ describe('MergeMatch', () => {
             expect(td.querySelector('button').disabled).toEqual(true);
         });
 
+        it('when home but no away submission match', async () => {
+            const match = {};
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY'))
+                .build();
+            await renderComponent({
+                readOnly: true,
+                matches: [match],
+                matchIndex: 0,
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
+            });
+
+            expect(reportedError).toBeNull();
+            const td = context.container.querySelector('td:nth-child(3)');
+            expect(td.colSpan).toEqual(2);
+            expect(td.querySelector('span').textContent).toEqual('No match');
+        });
+
         it('when nothing to merge for either home or away', async () => {
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s.author('HOME CAPTAIN').playing('HOME', 'AWAY'))
+                .awaySubmission(s => s.author('AWAY CAPTAIN').playing('HOME', 'AWAY'))
+                .build();
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ ]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ ]
-                },
-                fixtureData: {
-                }
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -160,34 +152,25 @@ describe('MergeMatch', () => {
         });
 
         it('when home unmerged', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .build();
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                fixtureData: {
-                }
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -198,35 +181,26 @@ describe('MergeMatch', () => {
             expect(homeSubmission.textContent).toContain('HOME PLAYER vs AWAY PLAYER');
         });
 
-        it('when home unmerged and readonly', async () =>{
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+        it('when home unmerged and readonly', async () => {
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .build();
             await renderComponent({
                 readOnly: true,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                fixtureData: {
-                }
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -236,34 +210,25 @@ describe('MergeMatch', () => {
         });
 
         it('when away unmerged', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
-                },
-                fixtureData: {
-                }
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -274,35 +239,26 @@ describe('MergeMatch', () => {
             expect(awaySubmission.textContent).toContain('HOME PLAYER vs AWAY PLAYER');
         });
 
-        it('when away unmerged and readonly', async () =>{
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+        it('when away unmerged and readonly', async () => {
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: true,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
-                },
-                fixtureData: {
-                }
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -314,34 +270,27 @@ describe('MergeMatch', () => {
 
     describe('interactivity', () => {
         it('can merge home submission', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .withMatch(m => m)
+                .build();
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {
-                    matches: [ {} ],
+                    matches: [{}]
                 }
             });
             const homeSubmission = context.container.querySelector('td:nth-child(1)');
@@ -350,42 +299,35 @@ describe('MergeMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData.matches[0]).toEqual({
-                awayPlayers: [ awayPlayer ],
-                homePlayers: [ homePlayer ],
+                awayPlayers: [awayPlayer],
+                homePlayers: [homePlayer],
                 awayScore: 2,
                 homeScore: 1,
             });
         });
 
         it('can merge away submission', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch(m => m)
+                .build();
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homePlayers: [],
-                        awayPlayers: [],
-                    } ]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {
-                    matches: [ {} ]
+                    matches: [{}]
                 }
             });
             const awaySubmission = context.container.querySelector('td:nth-child(3)');
@@ -394,8 +336,45 @@ describe('MergeMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData.matches[0]).toEqual({
-                awayPlayers: [ awayPlayer ],
-                homePlayers: [ homePlayer ],
+                awayPlayers: [awayPlayer],
+                homePlayers: [homePlayer],
+                awayScore: 2,
+                homeScore: 1,
+            });
+        });
+
+        it('can merge matching submissions', async () => {
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch(m => m)
+                .build();
+            await renderComponent({
+                readOnly: false,
+                matches: [{}],
+                matchIndex: 0,
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {
+                    matches: [{}]
+                }
+            });
+            const homeSubmission = context.container.querySelector('td:nth-child(1)');
+
+            await doClick(findButton(homeSubmission, 'Accept'));
+
+            expect(reportedError).toBeNull();
+            expect(updatedData.matches[0]).toEqual({
+                awayPlayers: [awayPlayer],
+                homePlayers: [homePlayer],
                 awayScore: 2,
                 homeScore: 1,
             });

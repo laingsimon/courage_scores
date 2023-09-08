@@ -10,27 +10,27 @@ import {useTournament} from "../TournamentContainer";
 import {useLocation} from "react-router-dom";
 import {getNoOfLegs, maxNoOfThrowsAllMatches} from "../../../../helpers/superleague";
 
-export function SuperLeaguePrintout({ division }) {
-    const { onError } = useApp();
-    const { tournamentData } = useTournament();
-    const { saygApi } = useDependencies();
+export function SuperLeaguePrintout({division}) {
+    const {onError} = useApp();
+    const {tournamentData} = useTournament();
+    const {saygApi} = useDependencies();
     const location = useLocation();
-    const [ saygDataMap, setSaygDataMap ] = useState({});
+    const [saygDataMap, setSaygDataMap] = useState({});
     const [loading, setLoading] = useState(false);
     const matches = (tournamentData.round || {}).matches || [];
     const unloadedIds = matches.map(m => m.saygId).filter(id => id && !any(Object.keys(saygDataMap), key => key === id));
     const showWinner = location.search.indexOf('winner') !== -1;
 
     useEffect(() => {
-        if (loading) {
-            return;
-        }
+            if (loading) {
+                return;
+            }
 
-        // noinspection JSIgnoredPromiseFromCall
-        loadSaygData(unloadedIds);
-    },
-    // eslint-disable-next-line
-    [ loading, saygDataMap ]);
+            // noinspection JSIgnoredPromiseFromCall
+            loadSaygData(unloadedIds);
+        },
+        // eslint-disable-next-line
+        [loading, saygDataMap]);
 
     async function loadSaygData(ids) {
         if (!any(ids)) {
@@ -73,20 +73,20 @@ export function SuperLeaguePrintout({ division }) {
                 opponent={tournamentData.opponent}
                 date={tournamentData.date}
                 gender={tournamentData.gender}
-                notes={tournamentData.notes} />
+                notes={tournamentData.notes}/>
             <MatchLog
                 host={tournamentData.host}
                 opponent={tournamentData.opponent}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
                 noOfLegs={noOfLegs}
-                saygMatches={saygMatches} />
+                saygMatches={saygMatches}/>
             <Summary
                 showWinner={showWinner}
                 noOfLegs={noOfLegs}
                 saygMatches={saygMatches}
                 host={tournamentData.host}
-                opponent={tournamentData.opponent} />
+                opponent={tournamentData.opponent}/>
             <MatchReport
                 gender={tournamentData.gender}
                 host={tournamentData.host}
@@ -95,7 +95,7 @@ export function SuperLeaguePrintout({ division }) {
                 division={division}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                noOfLegs={noOfLegs} />
+                noOfLegs={noOfLegs}/>
         </div>);
     } catch (e) {
         /* istanbul ignore next */

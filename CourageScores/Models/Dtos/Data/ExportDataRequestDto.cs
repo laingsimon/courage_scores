@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace CourageScores.Models.Dtos.Data;
 
@@ -23,8 +23,8 @@ public class ExportDataRequestDto
     [Obsolete($"Use {nameof(CaseInsensitiveTables)} instead; this instance has case-sensitive keys")]
     public Dictionary<string, List<Guid>> Tables { get; set; } = new();
 
-    [Newtonsoft.Json.JsonIgnore]
     [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
 #pragma warning disable CS0618
     public IDictionary<string, List<Guid>> CaseInsensitiveTables =>
         Tables.ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);

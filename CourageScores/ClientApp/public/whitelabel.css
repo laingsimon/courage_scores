@@ -1,44 +1,44 @@
 nav {
-  background-color: #1A57BF;
-  color: #000000;
+    background-color: #1A57BF;
+    color: #000000;
 }
 
 body .nav-link,
 body .navbar-brand,
 body .nav-link:hover,
 body .nav-link:focus {
-  color: #ffffff;
+    color: #ffffff;
 }
 
 h1 {
-  color: #218CFF;
+    color: #218CFF;
 }
 
 body.darts-background {
-  background: #2D4187;
+    background: #2D4187;
 }
 
 .content-background {
-  background-color: #ffffff;
+    background-color: #ffffff;
 }
 
 .social-header {
-  background: #1A57BF;
+    background: #1A57BF;
 }
 
 .bg-yellow {
-  background-color: #2075BF;
+    background-color: #2075BF;
 }
 
 body .bg-winner,
 body .table td.bg-winner {
-  background-color: #77E3FF;
+    background-color: #77E3FF;
 }
 
 .hover-highlight:hover {
-  background-color: #dddddd;
+    background-color: #dddddd;
 }
 
 .text-secondary-50 {
-  color: #bbbbbb;
+    color: #bbbbbb;
 }

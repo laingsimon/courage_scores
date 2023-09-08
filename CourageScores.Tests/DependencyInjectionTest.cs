@@ -72,7 +72,10 @@ public class DependencyInjectionTest
     {
         public Task<Database> CreateDatabase()
         {
-            return Task.FromResult(new Mock<Database> { DefaultValue = DefaultValue.Mock }.Object);
+            return Task.FromResult(new Mock<Database>
+            {
+                DefaultValue = DefaultValue.Mock,
+            }.Object);
         }
     }
 }

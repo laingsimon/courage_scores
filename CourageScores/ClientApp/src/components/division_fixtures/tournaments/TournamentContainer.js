@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react";
+import {createContext, useContext} from "react";
+
 const TournamentContext = createContext({});
 
 export function useTournament() {
@@ -6,7 +7,7 @@ export function useTournament() {
 }
 
 /* istanbul ignore next */
-export function TournamentContainer({ children, ...data }) {
+export function TournamentContainer({children, ...data}) {
     return (<TournamentContext.Provider value={data}>
         {children}
     </TournamentContext.Provider>)

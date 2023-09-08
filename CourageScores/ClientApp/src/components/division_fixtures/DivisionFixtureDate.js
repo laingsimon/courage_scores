@@ -9,11 +9,19 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
 
-export function DivisionFixtureDate({ date, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
-    const { account, controls } = useApp();
+export function DivisionFixtureDate({
+                                        date,
+                                        showPlayers,
+                                        startAddNote,
+                                        setEditNote,
+                                        setShowPlayers,
+                                        setNewFixtures,
+                                        onTournamentChanged
+                                    }) {
+    const {account, controls} = useApp();
     const navigate = useNavigate();
     const location = useLocation();
-    const { fixtures, teams } = useDivisionData();
+    const {fixtures, teams} = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
 
@@ -64,7 +72,7 @@ export function DivisionFixtureDate({ date, showPlayers, startAddNote, setEditNo
             return true; // a real fixture
         }
 
-        if (fixture.awayTeam !== null) {
+        if (fixture.awayTeam) {
             // an away team has been selected; assume it is valid
             return true;
         }
@@ -112,40 +120,49 @@ export function DivisionFixtureDate({ date, showPlayers, startAddNote, setEditNo
 
     const hasKnockoutFixture = any(date.fixtures, f => f.id !== f.homeTeam.id && f.isKnockout);
     const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(date.tournamentFixtures, f => !f.proposed) && !any(date.fixtures, f => f.id !== f.homeTeam.id)) || date.isNew);
+    const allowTournamentProposals = !any(date.fixtures, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout);
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
             📅 {renderDate(date.date)}
-            {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
+            {isNoteAdmin
+                ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>
+                    📌 Add note
+                </button>)
+                : null}
             {any(date.tournamentFixtures, f => !f.proposed) && !date.isNew && controls ? (
                 <span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
-                           id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />
-                    <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
+                           id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false}
+                           onChange={() => toggleShowPlayers(date.date)}/>
+                    <label className="form-check-label margin-left"
+                           htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                 </span>) : null}
             {showQualifierToggle ? (<span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            disabled={any(date.fixtures, f => f.isKnockout && f.id !== f.homeTeam.id)}
                            id={'isKnockout_' + date.date}
                            checked={any(date.fixtures, f => f.isKnockout && f.id !== f.homeTeam.id) || date.isKnockout || false}
-                           onChange={onChangeIsKnockout} />
-                    <label className="form-check-label margin-left" htmlFor={'isKnockout_' + date.date}>Qualifier</label>
+                           onChange={onChangeIsKnockout}/>
+                    <label className="form-check-label margin-left"
+                           htmlFor={'isKnockout_' + date.date}>Qualifier</label>
                 </span>) : null}
         </h4>
-        {date.notes.map(note => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote} />))}
+        {date.notes.map(note => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">
             <tbody>
             {date.fixtures.filter(isPotentialFixtureValid).map(f => (<DivisionFixture
                 key={f.id}
                 fixture={f}
                 date={date.date}
-                onUpdateFixtures={onUpdateFixtures} />))}
-            {any(date.fixtures, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout) || date.isKnockout ? null : date.tournamentFixtures.map(tournament => (<TournamentFixture
-                key={tournament.address + '-' + tournament.date}
-                tournament={tournament}
-                date={date.date}
-                onTournamentChanged={onTournamentChanged}
-                expanded={showPlayers[date.date]} />))}
+                onUpdateFixtures={onUpdateFixtures}/>))}
+            {date.tournamentFixtures.filter(t => !date.isKnockout || !t.proposal || (allowTournamentProposals && t.proposal)).map(tournament => (
+                <TournamentFixture
+                    key={tournament.address + '-' + tournament.date}
+                    tournament={tournament}
+                    date={date.date}
+                    onTournamentChanged={onTournamentChanged}
+                    expanded={showPlayers[date.date]}/>))}
             </tbody>
         </table>
     </div>);

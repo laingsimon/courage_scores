@@ -67,7 +67,7 @@ public static class DependencyInjectionExtensions
             Converters =
             {
                 new StringEnumConverter(),
-            }
+            },
         });
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
 
@@ -107,6 +107,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<CachingTeamService>();
         services.AddScoped(typeof(CachingDataService<,>));
         services.AddScoped<ICachingDivisionService, CachingDivisionService>();
+        services.AddScoped<ICachingSeasonService, CachingSeasonService>();
+        services.AddScoped<ICachingTeamService, CachingTeamService>();
 
         services.AddScoped<ICosmosTableService, CosmosTableService>();
         services.AddScoped<IDataImporterFactory, DataImporterFactory>();
@@ -123,6 +125,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IFixtureDateAssignmentStrategy, FixtureDateAssignmentStrategy>();
 
         services.AddScoped<IStatusService, StatusService>();
+        services.AddScoped<IReportFactory, ReportFactory>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -194,9 +197,9 @@ public static class DependencyInjectionExtensions
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
-        where TModel: AuditedEntity
-        where TDto: AuditedDto
-        where TAdapter: class, IAdapter<TModel, TDto>
+        where TModel : AuditedEntity
+        where TDto : AuditedDto
+        where TAdapter : class, IAdapter<TModel, TDto>
     {
         services.AddScoped<IAdapter<TModel, TDto>, TAdapter>();
     }

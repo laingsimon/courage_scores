@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doClick, renderApp, doChange, findButton} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
-import {createTemporaryId} from "../../../helpers/projection";
+import {divisionBuilder, playerBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
 
 describe('MultiPlayerSelection', () => {
     let context;
@@ -11,10 +11,10 @@ describe('MultiPlayerSelection', () => {
     let addedPlayer;
     let removedPlayer;
     const onAddPlayer = (player, notes) => {
-        addedPlayer = { player, notes };
+        addedPlayer = {player, notes};
     }
     const onRemovePlayer = (id, index) => {
-        removedPlayer = { id, index };
+        removedPlayer = {id, index};
     }
 
     afterEach(() => {
@@ -26,8 +26,8 @@ describe('MultiPlayerSelection', () => {
         addedPlayer = null;
         removedPlayer = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -48,19 +48,11 @@ describe('MultiPlayerSelection', () => {
     }
 
     describe('renders', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const player = {
-            id: createTemporaryId(),
-            name: 'PLAYER',
-            notes: 'NOTES',
-        }
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
+        const player = playerBuilder('PLAYER').notes('NOTES').build();
 
         it('readonly component', async () => {
             await renderComponent({
@@ -113,7 +105,7 @@ describe('MultiPlayerSelection', () => {
 
             expect(reportedError).toBeNull();
             const selectedPlayers = getSelectedPlayers();
-            expect(selectedPlayers.length).toEqual(1+1);
+            expect(selectedPlayers.length).toEqual(1 + 1);
             const selectedPlayer = selectedPlayers[0];
             const removePlayerButton = selectedPlayer.querySelector('button');
             expect(removePlayerButton).toBeTruthy();
@@ -134,7 +126,7 @@ describe('MultiPlayerSelection', () => {
 
             expect(reportedError).toBeNull();
             const selectedPlayers = getSelectedPlayers();
-            expect(selectedPlayers.length).toEqual(1+1);
+            expect(selectedPlayers.length).toEqual(1 + 1);
             const selectedPlayer = selectedPlayers[0];
             const removePlayerButton = selectedPlayer.querySelector('button');
             expect(removePlayerButton).toBeTruthy();
@@ -203,13 +195,7 @@ describe('MultiPlayerSelection', () => {
                 allPlayers: [player],
                 division: division,
                 season: season,
-            }, [{
-                name: 'TEAM_NAME',
-                seasons: [ {
-                    seasonId: season.id,
-                    players: [player],
-                }]
-            }]);
+            }, [teamBuilder('TEAM_NAME').forSeason(season, division, [player]).build()]);
 
             expect(reportedError).toBeNull();
             const selectedPlayer = getSelectedPlayers()[0];
@@ -221,17 +207,14 @@ describe('MultiPlayerSelection', () => {
         });
 
         it('disabled selected players link via id when team has no matching season', async () => {
+            const team = teamBuilder().forSeason(seasonBuilder('ANOTHER SEASON').build(), division).build();
             await renderComponent({
                 disabled: true,
                 players: [player],
                 allPlayers: [player],
                 division: division,
                 season: season,
-            }, [{
-                seasons: [ {
-                    seasonId: createTemporaryId(),
-                }]
-            }]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const selectedPlayer = getSelectedPlayers()[0];
@@ -250,7 +233,7 @@ describe('MultiPlayerSelection', () => {
                 division: division,
                 season: season,
             }, [{
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id,
                     players: [],
                 }]
@@ -313,11 +296,7 @@ describe('MultiPlayerSelection', () => {
     });
 
     describe('interactivity', () => {
-        const player = {
-            id: createTemporaryId(),
-            name: 'PLAYER',
-            notes: 'NOTES',
-        }
+        const player = playerBuilder('PLAYER').notes('NOTES').build();
         let alert;
         window.alert = (message) => {
             alert = message;

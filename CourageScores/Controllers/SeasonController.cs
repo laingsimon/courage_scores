@@ -13,11 +13,11 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class SeasonController : Controller
 {
-    private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
     private readonly IHealthCheckService _healthCheckService;
+    private readonly ICachingSeasonService _seasonService;
 
-    public SeasonController(CachingSeasonService seasonService, ICommandFactory commandFactory, IHealthCheckService healthCheckService)
+    public SeasonController(ICachingSeasonService seasonService, ICommandFactory commandFactory, IHealthCheckService healthCheckService)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;

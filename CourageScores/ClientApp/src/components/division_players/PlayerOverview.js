@@ -7,11 +7,11 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
-export function PlayerOverview({ playerId }) {
-    const { name } = useBranding();
-    const { players, teams, fixtures: divisionDataFixtures, season, name: divisionName } = useDivisionData();
-    const player = players.filter(p => p.id === playerId)[0] || { id: null, name: 'Unknown', fixtures: {} };
-    const team = teams.filter(t => t.id === player.teamId)[0] || { id: null, name: 'Unknown' };
+export function PlayerOverview({playerId}) {
+    const {name} = useBranding();
+    const {players, teams, fixtures: divisionDataFixtures, season, name: divisionName} = useDivisionData();
+    const player = players.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}};
+    const team = teams.filter(t => t.id === player.teamId)[0] || {id: null, name: 'Unknown'};
     const fixtures = divisionDataFixtures.map(fixtureDate => {
         const fixtureId = player.fixtures[fixtureDate.date];
         const tournamentFixtures = fixtureDate.tournamentFixtures
@@ -57,9 +57,10 @@ export function PlayerOverview({ playerId }) {
             </td>
             <td className="text-end">
                 <div className="mt-4">
-                {fixture.homeTeam.id === team.id
-                    ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                    {fixture.homeTeam.id === team.id
+                        ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
+                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                                           className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -67,9 +68,10 @@ export function PlayerOverview({ playerId }) {
             <td className="align-middle">{renderScore(fixture.awayScore, fixture.postponed)}</td>
             <td>
                 <div className="mt-4">
-                {fixture.awayTeam.id === team.id
-                    ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)}
+                    {fixture.awayTeam.id === team.id
+                        ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
+                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
+                                           className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
         </tr>);
@@ -92,7 +94,8 @@ export function PlayerOverview({ playerId }) {
             <td colSpan="2">
                 {tournament.winningSide ? (<div className="mt-4">
                     {tournament.winningSide
-                        ? (<span className="margin-left">Winner: <strong className="text-primary">{tournament.winningSide.name}</strong></span>)
+                        ? (<span className="margin-left">Winner: <strong
+                            className="text-primary">{tournament.winningSide.name}</strong></span>)
                         : null}
                 </div>) : null}
             </td>
@@ -109,10 +112,11 @@ export function PlayerOverview({ playerId }) {
         <h3>
             {player.name}
             <span className="h6 margin-left">
-                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">{team.name}</EmbedAwareLink>
+                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}
+                                className="margin-right">{team.name}</EmbedAwareLink>
             </span>
             <span className="margin-left">
-                <ShareButton text={`${name}: ${player.name}`} />
+                <ShareButton text={`${name}: ${player.name}`}/>
             </span>
         </h3>
 
@@ -135,7 +139,7 @@ export function PlayerOverview({ playerId }) {
         </div>
 
         <div className="overflow-x-auto">
-            <DivisionPlayers hideHeading={true} hideVenue={true} players={[ player ]} onPlayerSaved={null} />
+            <DivisionPlayers hideHeading={true} hideVenue={true} players={[player]} onPlayerSaved={null}/>
         </div>
     </div>)
 }

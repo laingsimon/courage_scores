@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Models.Adapters.Team;
 [TestFixture]
 public class TeamPlayerAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<IUserService> _userService = null!;
     private TeamPlayerAdapter _adapter = null!;
     private UserDto? _user;
@@ -36,7 +36,7 @@ public class TeamPlayerAdapterTests
             Access = new AccessDto
             {
                 ManageTeams = true,
-            }
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -73,7 +73,7 @@ public class TeamPlayerAdapterTests
             Access = new AccessDto
             {
                 ManageTeams = false,
-            }
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
