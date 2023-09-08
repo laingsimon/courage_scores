@@ -16,6 +16,23 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
         onUpdate(dates.filter((a, i) => index !== i));
     }
 
+    function moveDate(index, movement) {
+        const date = dates[index];
+        const newDates = dates.flatMap((d, i) => {
+            if (i === index + movement) {
+                return movement > 0
+                    ? [ d, date ]
+                    : [ date, d ];
+            }
+            if (i === index) {
+                return [];
+            }
+
+            return [d];
+        });
+        onUpdate(newDates);
+    }
+
     return (<ul className="list-group mb-3">
         <li className="list-group-item bg-info text-light">
             Weeks
@@ -28,7 +45,9 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
                 onDelete={() => deleteDate(index)}
                 onUpdate={(update) => updateDate(update, index)}
                 divisionSharedAddresses={divisionSharedAddresses}
-                templateSharedAddresses={templateSharedAddresses} />
+                templateSharedAddresses={templateSharedAddresses}
+                moveEarlier={index > 0 ? () => moveDate(index, -1) : null}
+                moveLater={index < (dates.length - 1) ? () => moveDate(index, 1) : null} />
         </li>)}
         <button className="list-group-item btn-primary small" onClick={addDate}>
             ➕ Add a week

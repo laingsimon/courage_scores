@@ -2,7 +2,7 @@ import {useState} from "react";
 import {any} from "../../helpers/collections";
 import {valueChanged} from "../../helpers/events";
 
-export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses }) {
+export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }) {
     const [ newFixture, setNewFixture ] = useState({
         home: null,
         away: null,
@@ -73,5 +73,7 @@ export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedA
             <button className="ms-1 bg-info border-0 px-0" onClick={addFixture}>➕</button>
         </span>
         <button className="btn btn-sm btn-outline-danger float-end p-1" onClick={onDelete}>🗑️</button>
+        <button className="btn btn-sm btn-outline-info float-end p-1" disabled={!moveEarlier} onClick={moveEarlier}>⬆</button>
+        <button className="btn btn-sm btn-outline-info float-end p-1" disabled={!moveLater} onClick={moveLater}>⬇</button>
     </div>);
 }

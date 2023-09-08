@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useApp} from "../../AppContainer";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
-import {stateChanged, valueChanged} from "../../helpers/events";
+import {valueChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
@@ -23,8 +23,8 @@ export function Templates() {
     const [deleting, setDeleting] = useState(false);
     const [valid, setValid] = useState(null);
     const [saveError, setSaveError] = useState(null);
-    const [fixtureToFormat, setFixtureToFormat] = useState('');
     const [editorFormat, setEditorFormat] = useState('visual');
+    const [shouldRefreshHealth, setShouldRefreshHealth] = useState(false);
 
     async function loadTemplates() {
         try {
@@ -51,6 +51,28 @@ export function Templates() {
         // eslint-disable-next-line
         []);
 
+    useEffect(() => {
+        if (!shouldRefreshHealth || !selected) {
+            return;
+        }
+
+        // noinspection JSIgnoredPromiseFromCall
+        refreshHealth();
+    },
+    // eslint-disable-next-line
+    [shouldRefreshHealth, selected]);
+
+    async function refreshHealth() {
+        setShouldRefreshHealth(false);
+        const response = await templateApi.health(selected);
+
+        if (selected && response && response.result) {
+            const newTemplate = Object.assign({}, selected);
+            newTemplate.templateHealth = response.result;
+            setSelected(newTemplate);
+        }
+    }
+
     function toggleSelected(t) {
         return () => {
             if (isSelected(t)) {
@@ -65,7 +87,7 @@ export function Templates() {
 
     function setEditingTemplate(t) {
         setValid(true);
-        setSelected(t);
+        setSelected(Object.assign({}, t));
     }
 
     function isSelected(t) {
@@ -77,7 +99,7 @@ export function Templates() {
     }
 
     function renderTemplates() {
-        return (<ul className="list-group mb-2" name="templates">
+        return (<ul className="list-group mb-2" datatype="templates">
             {templates.map(t => (<li key={t.id}
                                      className={`list-group-item flex-column${isSelected(t) ? ' active' : ''}`}
                                      onClick={toggleSelected(t)}>
@@ -161,39 +183,9 @@ export function Templates() {
         }
     }
 
-    function formatFixtureInput() {
-        const lines = fixtureToFormat.split('\n');
-        return lines.filter(l => l.trim() !== '').map(formatFixtureLine).join(', ');
-    }
-
-    function formatFixtureLine(excelLine) {
-        const fixtures = excelLine.split(/\s+/);
-
-        const toFormat = {
-            fixtures: []
-        };
-        let fixtureBatch = [];
-        while (fixtures.length > 0) {
-            const fixture = fixtures.shift();
-            if (!fixture) {
-                continue;
-            }
-
-            fixtureBatch.push(fixture);
-            if (fixtureBatch.length === 2) {
-                const fixture = {
-                    home: fixtureBatch[0],
-                };
-                if (fixtureBatch[1] !== '-') {
-                    fixture.away = fixtureBatch[1];
-                }
-
-                toFormat.fixtures.push(fixture);
-                fixtureBatch = [];
-            }
-        }
-
-        return JSON.stringify(toFormat, null, '    ');
+    function updateTemplate(newTemplate) {
+        setSelected(newTemplate);
+        setShouldRefreshHealth(true);
     }
 
     try {
@@ -223,8 +215,8 @@ export function Templates() {
                            onChange={event => setEditorFormat(event.target.checked ? 'visual' : 'text')}/>
                     <label className="form-check-label" htmlFor="editorFormat">Visual editor</label>
                 </div>
-                {editorFormat === 'text' ? (<TemplateTextEditor template={selected} setValid={setValid} onUpdate={setSelected} />) : null}
-                {editorFormat === 'visual' ? (<TemplateVisualEditor template={selected} setValid={setValid} onUpdate={setSelected} />) : null}
+                {editorFormat === 'text' ? (<TemplateTextEditor template={selected} setValid={setValid} onUpdate={updateTemplate} />) : null}
+                {editorFormat === 'visual' ? (<TemplateVisualEditor template={selected} setValid={setValid} onUpdate={updateTemplate} />) : null}
                 <div>
                     <button className="btn btn-primary margin-right" onClick={saveTemplate} disabled={!valid}>
                         {saving
@@ -242,13 +234,6 @@ export function Templates() {
                 </div>
                 {selected.templateHealth ? (<div className="alert alert-success mt-3 p-1 pt-3">
                     <ViewHealthCheck result={selected.templateHealth}/>
-                </div>) : null}
-                {editorFormat === 'text' ? (<div className="mt-3 text-secondary">
-                    <div>Authoring tools: Copy fixture template from excel (per division)</div>
-                    <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel"
-                              onChange={stateChanged(setFixtureToFormat)}/>
-                    <textarea value={formatFixtureInput()} className="d-inline-block width-100"
-                              placeholder="Copy into template" readOnly={true}></textarea>
                 </div>) : null}
             </div> : (<div>
                 <button className="btn btn-primary margin-right" onClick={() => setEditingTemplate(EMPTY_TEMPLATE)}>

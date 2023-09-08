@@ -1,17 +1,21 @@
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
 using CourageScores.Services.Division;
+using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
 using CourageScores.Services.Team;
+using CourageScores.Tests.Models.Adapters;
 using Moq;
 using NUnit.Framework;
 
@@ -35,6 +39,9 @@ public class SeasonTemplateServiceTests
     private SeasonDto _season = null!;
     private DivisionDataDto? _division;
     private TeamDto[] _teamsInSeason = null!;
+    private MockAdapter<Template, TemplateDto> _templateAdapter = null!;
+    private Mock<IHealthCheckService> _healthCheckService = null!;
+    private Mock<ISimpleOnewayAdapter<Template,SeasonHealthDto>> _healthCheckAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -47,6 +54,9 @@ public class SeasonTemplateServiceTests
         _check = new Mock<ICompatibilityCheck>();
         _proposalStrategy = new Mock<ISeasonProposalStrategy>();
         _teamService = new Mock<ICachingTeamService>();
+        _healthCheckAdapter = new Mock<ISimpleOnewayAdapter<Template, SeasonHealthDto>>();
+        _healthCheckService = new Mock<IHealthCheckService>();
+        _templateAdapter = new MockAdapter<Template, TemplateDto>();
         _service = new SeasonTemplateService(
             _underlyingService.Object,
             _userService.Object,
@@ -54,7 +64,10 @@ public class SeasonTemplateServiceTests
             _divisionService.Object,
             _checkFactory.Object,
             _proposalStrategy.Object,
-            _teamService.Object);
+            _teamService.Object,
+            _healthCheckAdapter.Object,
+            _healthCheckService.Object,
+            _templateAdapter);
         _user = new UserDto
         {
             Access = new AccessDto
@@ -499,6 +512,54 @@ public class SeasonTemplateServiceTests
         await _service.ProposeForSeason(request, _token);
 
         _proposalStrategy.Verify(s => s.ProposeFixtures(It.Is<TemplateMatchContext>(context => TeamsAreCorrectlyMapped(context, expected)), template, _token));
+    }
+
+    [Test]
+    public async Task GetTemplateHealth_WhenLoggedOut_ReturnsNotLoggedIn()
+    {
+        _user = null;
+        var template = new EditTemplateDto();
+
+        var result = await _service.GetTemplateHealth(template, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Not logged in",
+        }));
+    }
+
+    [Test]
+    public async Task GetTemplateHealth_WhenNotPermitted_ReturnsNotLoggedIn()
+    {
+        _user!.Access!.ManageSeasonTemplates = false;
+        var template = new EditTemplateDto();
+
+        var result = await _service.GetTemplateHealth(template, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
+    }
+
+    [Test]
+    public async Task GetTemplateHealth_WhenPermitted_ReturnsTemplateHealth()
+    {
+        _user!.Access!.ManageSeasonTemplates = true;
+        var editTemplateDto = new EditTemplateDto();
+        var templateHealth = new SeasonHealthCheckResultDto();
+        var seasonHealth = new SeasonHealthDto();
+        var template = new Template();
+        _templateAdapter.AddMapping(template, editTemplateDto);
+        _healthCheckAdapter.Setup(a => a.Adapt(template, _token)).ReturnsAsync(seasonHealth);
+        _healthCheckService.Setup(s => s.Check(seasonHealth, _token)).ReturnsAsync(templateHealth);
+
+        var result = await _service.GetTemplateHealth(editTemplateDto, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.EqualTo(templateHealth));
     }
 
     private static bool TeamsAreCorrectlyMapped(TemplateMatchContext context, Dictionary<Guid, TeamDto[]> expected)
