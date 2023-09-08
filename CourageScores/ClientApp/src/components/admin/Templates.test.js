@@ -13,6 +13,7 @@ describe('Templates', () => {
     let apiResponse;
     let deleted;
     let updated;
+    let healthRequestFor;
     const templateApi = {
         getAll: async () => {
             return templates;
@@ -24,7 +25,11 @@ describe('Templates', () => {
         update: async (data) => {
             updated = data;
             return apiResponse || {success: true};
-        }
+        },
+        health: async (template) => {
+            healthRequestFor = template;
+            return apiResponse || {success: true, result: { checks: {}, errors: [], warnings: [], messages: [] } };
+        },
     };
 
     afterEach(() => {
@@ -36,6 +41,7 @@ describe('Templates', () => {
         updated = null;
         deleted = null;
         apiResponse = null;
+        healthRequestFor = null;
     })
 
     async function renderComponent() {
@@ -216,7 +222,7 @@ describe('Templates', () => {
             await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             expect(reportedError).toBeNull();
-            const templateItems = Array.from(context.container.querySelectorAll('ul[name="templates"] .list-group-item'));
+            const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
             expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column active']);
         });
 
@@ -281,6 +287,36 @@ describe('Templates', () => {
             await doChange(context.container, 'textarea', '{}', context.user);
 
             expect(reportedError).toBeNull();
+        });
+
+        it('updates health as template changes', async () => {
+            const template = {
+                id: createTemporaryId(),
+                name: 'TEMPLATE',
+                updated: '2023-08-01',
+                sharedAddresses: [],
+                divisions: [],
+            };
+            templates = [template];
+            await renderComponent();
+            await doClick(context.container, '.list-group .list-group-item:first-child');
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            const health = {
+                checks: {},
+                errors: [],
+                warnings: [],
+                messages: ['UPDATED HEALTH'],
+            };
+            apiResponse = {
+                success: true,
+                result: health,
+            };
+
+            await doChange(context.container, 'textarea', '{}', context.user);
+
+            expect(reportedError).toBeNull();
+            const healthCheck = context.container.querySelector('div[datatype="view-health-check"]');
+            expect(healthCheck.textContent).toContain('UPDATED HEALTH');
         });
 
         it('prevents saving an invalid template', async () => {
@@ -439,123 +475,6 @@ describe('Templates', () => {
             await doClick(findButton(context.container, 'Close'));
 
             expect(context.container.textContent).not.toContain('Could not save template');
-        });
-
-        it('does not transform single line excel whitespace input', async () => {
-            const template = {
-                id: createTemporaryId(),
-                name: 'TEMPLATE',
-                sharedAddresses: [],
-                divisions: [],
-            };
-            templates = [template];
-            await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
-            const input = '   ';
-
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
-
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]');
-            expect(textareaOutput.value).toEqual('');
-        });
-
-        it('transforms single line excel fixture input correctly', async () => {
-            const template = {
-                id: createTemporaryId(),
-                name: 'TEMPLATE',
-                sharedAddresses: [],
-                divisions: [],
-            };
-            templates = [template];
-            await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
-            const input = 'A\tB\t\tC\t\D';
-
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
-
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]');
-            expect(JSON.parse(textareaOutput.value)).toEqual({
-                fixtures: [
-                    {home: 'A', away: 'B'},
-                    {home: 'C', away: 'D'}
-                ]
-            });
-        });
-
-        it('transforms multi line excel fixture input correctly', async () => {
-            const template = {
-                id: createTemporaryId(),
-                name: 'TEMPLATE',
-                sharedAddresses: [],
-                divisions: [],
-            };
-            templates = [template];
-            await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
-            const input = 'A\tB\t\tC\t\D\n' +
-                'E\tF\t\tG\tH\n\n';
-
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
-
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]');
-            expect(JSON.parse('[' + textareaOutput.value + ']')).toEqual([{
-                fixtures: [
-                    {home: 'A', away: 'B'},
-                    {home: 'C', away: 'D'}
-                ]
-            }, {
-                fixtures: [
-                    {home: 'E', away: 'F'},
-                    {home: 'G', away: 'H'}
-                ]
-            }]);
-        });
-
-        it('transforms single line excel bye fixture input correctly', async () => {
-            const template = {
-                id: createTemporaryId(),
-                name: 'TEMPLATE',
-                sharedAddresses: [],
-                divisions: [],
-            };
-            templates = [template];
-            await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
-            const input = 'A\t-\t\tC\t\D';
-
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
-
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]');
-            expect(JSON.parse(textareaOutput.value)).toEqual({
-                fixtures: [
-                    {home: 'A'},
-                    {home: 'C', away: 'D'}
-                ]
-            });
-        });
-
-        it('clears transformed output when input is cleared', async () => {
-            const template = {
-                id: createTemporaryId(),
-                name: 'TEMPLATE',
-                sharedAddresses: [],
-                divisions: [],
-            };
-            templates = [template];
-            await renderComponent();
-            await doClick(findButton(context.container, 'Add'));
-            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
-            const input = 'A\t-\t\tC\t\D';
-
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
-            await doChange(context.container, 'textarea[placeholder="Copy from excel"]', '', context.user);
-
-            const textareaOutput = context.container.querySelector('textarea[placeholder="Copy into template"]');
-            expect(textareaOutput.value).toEqual('');
         });
     });
 });

@@ -111,6 +111,72 @@ describe('TemplateDates', () => {
             expect(update).toEqual([]);
         });
 
+        it('can move a date earlier', async () => {
+            await renderComponent({
+                dates: [{
+                    fixtures: [{
+                        home: 'A',
+                        away: 'B',
+                    }]
+                }, {
+                    fixtures: [{
+                        home: 'C',
+                        away: 'D',
+                    }]
+                }],
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+            });
+            const secondDate = context.container.querySelector('.list-group-item:nth-child(3)');
+
+            await doClick(findButton(secondDate, '⬆'));
+
+            expect(update).toEqual([{
+                fixtures: [{
+                    home: 'C',
+                    away: 'D',
+                }]
+            }, {
+                fixtures: [{
+                    home: 'A',
+                    away: 'B',
+                }]
+            }]);
+        });
+
+        it('can move a date later', async () => {
+            await renderComponent({
+                dates: [{
+                    fixtures: [{
+                        home: 'A',
+                        away: 'B',
+                    }]
+                }, {
+                    fixtures: [{
+                        home: 'C',
+                        away: 'D',
+                    }]
+                }],
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+            });
+            const firstDate = context.container.querySelector('.list-group-item:nth-child(2)');
+
+            await doClick(findButton(firstDate, '⬇'));
+
+            expect(update).toEqual([{
+                fixtures: [{
+                    home: 'C',
+                    away: 'D',
+                }]
+            }, {
+                fixtures: [{
+                    home: 'A',
+                    away: 'B',
+                }]
+            }]);
+        });
+
         it('can update a date/week', async () => {
             await renderComponent({
                 dates: [{

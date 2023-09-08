@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Services.Command;
 using CourageScores.Services.Season.Creation;
@@ -57,5 +58,11 @@ public class SeasonTemplateController : Controller
     public async Task<ActionResultDto<TemplateDto>> DeleteTemplate(Guid id, CancellationToken token)
     {
         return await _seasonTemplateService.Delete(id, token);
+    }
+
+    [HttpPost("/api/Template/Health")]
+    public async Task<ActionResultDto<SeasonHealthCheckResultDto>> GetTemplateHealth(EditTemplateDto template, CancellationToken token)
+    {
+        return await _seasonTemplateService.GetTemplateHealth(template, token);
     }
 }

@@ -1,9 +1,11 @@
 import React, {useState} from "react";
+import {stateChanged} from "../../helpers/events";
 
 export function TemplateTextEditor({ template, setValid, onUpdate }) {
-    const [ editing, setEditing ] = useState(setEditingTemplate(template));
+    const [ editing, setEditing ] = useState(formatTemplateAsSingleLine(template));
+    const [fixtureToFormat, setFixtureToFormat] = useState('');
 
-    function setEditingTemplate(t) {
+    function formatTemplateAsSingleLine(t) {
         let jsonString = JSON.stringify(t, excludePropertiesFromEdit, '  ');
 
         // fixture inlining
@@ -54,9 +56,53 @@ export function TemplateTextEditor({ template, setValid, onUpdate }) {
         }
     }
 
-    return (<textarea className="width-100 min-height-100"
+    function formatFixtureInput() {
+        const lines = fixtureToFormat.split('\n');
+        return lines.filter(l => l.trim() !== '').map(formatFixtureLine).join(', ');
+    }
+
+    function formatFixtureLine(excelLine) {
+        const fixtures = excelLine.split(/\s+/);
+
+        const toFormat = {
+            fixtures: []
+        };
+        let fixtureBatch = [];
+        while (fixtures.length > 0) {
+            const fixture = fixtures.shift();
+            if (!fixture) {
+                continue;
+            }
+
+            fixtureBatch.push(fixture);
+            if (fixtureBatch.length === 2) {
+                const fixture = {
+                    home: fixtureBatch[0],
+                };
+                if (fixtureBatch[1] !== '-') {
+                    fixture.away = fixtureBatch[1];
+                }
+
+                toFormat.fixtures.push(fixture);
+                fixtureBatch = [];
+            }
+        }
+
+        return JSON.stringify(toFormat, null, '    ');
+    }
+
+    return (<>
+        <textarea className="width-100 min-height-100"
           rows="15"
           value={editing}
           onChange={e => updateTemplate(e.target.value)}>
-    </textarea>);
+        </textarea>
+        <div className="mt-3 text-secondary">
+            <div>Authoring tools: Copy fixture template from excel (per division)</div>
+            <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel"
+                      onChange={stateChanged(setFixtureToFormat)}></textarea>
+            <textarea value={formatFixtureInput()} className="d-inline-block width-100"
+                      placeholder="Copy into template" readOnly={true}></textarea>
+        </div>
+    </>);
 }

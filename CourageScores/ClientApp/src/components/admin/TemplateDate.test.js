@@ -69,7 +69,7 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            expect(fixtures.map(f => f.textContent)).toEqual([ '🗑️' ]);
+            expect(fixtures.map(f => f.textContent)).toEqual([ '🗑️',  '⬆', '⬇' ]);
         });
 
         it('existing fixture', async () => {
@@ -87,7 +87,7 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            expect(fixtures.map(f => f.textContent)).toEqual([ 'A - B ×', '🗑️' ]);
+            expect(fixtures.map(f => f.textContent)).toEqual([ 'A - B ×', '🗑️',  '⬆', '⬇' ]);
         });
 
         it('existing bye', async () => {
@@ -105,7 +105,7 @@ describe('TemplateDate', () => {
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
-            expect(fixtures.map(f => f.textContent)).toEqual([ 'A ×', '🗑️' ]);
+            expect(fixtures.map(f => f.textContent)).toEqual([ 'A ×', '🗑️',  '⬆', '⬇' ]);
         });
 
         it('fixture with home template shared address', async () => {
