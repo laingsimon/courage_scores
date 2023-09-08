@@ -13,6 +13,7 @@ describe('Templates', () => {
     let apiResponse;
     let deleted;
     let updated;
+    let healthRequestFor;
     const templateApi = {
         getAll: async () => {
             return templates;
@@ -24,7 +25,11 @@ describe('Templates', () => {
         update: async (data) => {
             updated = data;
             return apiResponse || {success: true};
-        }
+        },
+        health: async (template) => {
+            healthRequestFor = template;
+            return apiResponse || {success: true, result: { checks: {}, errors: [], warnings: [], messages: [] } };
+        },
     };
 
     afterEach(() => {
@@ -36,6 +41,7 @@ describe('Templates', () => {
         updated = null;
         deleted = null;
         apiResponse = null;
+        healthRequestFor = null;
     })
 
     async function renderComponent() {
@@ -281,6 +287,36 @@ describe('Templates', () => {
             await doChange(context.container, 'textarea', '{}', context.user);
 
             expect(reportedError).toBeNull();
+        });
+
+        it('updates health as template changes', async () => {
+            const template = {
+                id: createTemporaryId(),
+                name: 'TEMPLATE',
+                updated: '2023-08-01',
+                sharedAddresses: [],
+                divisions: [],
+            };
+            templates = [template];
+            await renderComponent();
+            await doClick(context.container, '.list-group .list-group-item:first-child');
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
+            const health = {
+                checks: {},
+                errors: [],
+                warnings: [],
+                messages: ['UPDATED HEALTH'],
+            };
+            apiResponse = {
+                success: true,
+                result: health,
+            };
+
+            await doChange(context.container, 'textarea', '{}', context.user);
+
+            expect(reportedError).toBeNull();
+            const healthCheck = context.container.querySelector('div[datatype="view-health-check"]');
+            expect(healthCheck.textContent).toContain('UPDATED HEALTH');
         });
 
         it('prevents saving an invalid template', async () => {

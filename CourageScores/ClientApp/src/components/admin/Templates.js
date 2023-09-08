@@ -25,6 +25,7 @@ export function Templates() {
     const [saveError, setSaveError] = useState(null);
     const [fixtureToFormat, setFixtureToFormat] = useState('');
     const [editorFormat, setEditorFormat] = useState('visual');
+    const [shouldRefreshHealth, setShouldRefreshHealth] = useState(false);
 
     async function loadTemplates() {
         try {
@@ -51,6 +52,28 @@ export function Templates() {
         // eslint-disable-next-line
         []);
 
+    useEffect(() => {
+        if (!shouldRefreshHealth || !selected) {
+            return;
+        }
+
+        // noinspection JSIgnoredPromiseFromCall
+        refreshHealth();
+    },
+    // eslint-disable-next-line
+    [shouldRefreshHealth, selected]);
+
+    async function refreshHealth() {
+        setShouldRefreshHealth(false);
+        const response = await templateApi.health(selected);
+
+        if (selected && response && response.result) {
+            const newTemplate = Object.assign({}, selected);
+            newTemplate.templateHealth = response.result;
+            setSelected(newTemplate);
+        }
+    }
+
     function toggleSelected(t) {
         return () => {
             if (isSelected(t)) {
@@ -65,7 +88,7 @@ export function Templates() {
 
     function setEditingTemplate(t) {
         setValid(true);
-        setSelected(t);
+        setSelected(Object.assign({}, t));
     }
 
     function isSelected(t) {
@@ -196,6 +219,11 @@ export function Templates() {
         return JSON.stringify(toFormat, null, '    ');
     }
 
+    function updateTemplate(newTemplate) {
+        setSelected(newTemplate);
+        setShouldRefreshHealth(true);
+    }
+
     try {
         return (<div className="content-background p-3">
             <h3>Manage templates</h3>
@@ -223,8 +251,8 @@ export function Templates() {
                            onChange={event => setEditorFormat(event.target.checked ? 'visual' : 'text')}/>
                     <label className="form-check-label" htmlFor="editorFormat">Visual editor</label>
                 </div>
-                {editorFormat === 'text' ? (<TemplateTextEditor template={selected} setValid={setValid} onUpdate={setSelected} />) : null}
-                {editorFormat === 'visual' ? (<TemplateVisualEditor template={selected} setValid={setValid} onUpdate={setSelected} />) : null}
+                {editorFormat === 'text' ? (<TemplateTextEditor template={selected} setValid={setValid} onUpdate={updateTemplate} />) : null}
+                {editorFormat === 'visual' ? (<TemplateVisualEditor template={selected} setValid={setValid} onUpdate={updateTemplate} />) : null}
                 <div>
                     <button className="btn btn-primary margin-right" onClick={saveTemplate} disabled={!valid}>
                         {saving

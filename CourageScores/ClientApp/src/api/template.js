@@ -26,6 +26,10 @@ class TemplateApi {
     propose(request) {
         return this.http.post(`/api/Template/Propose/`, request);
     }
+
+    health(template) {
+        return this.http.post(`/api/Template/Health/`, template);
+    }
 }
 
 export {TemplateApi};
