@@ -77,7 +77,7 @@ export function Templates() {
     }
 
     function renderTemplates() {
-        return (<ul className="list-group mb-2" name="templates">
+        return (<ul className="list-group mb-2" datatype="templates">
             {templates.map(t => (<li key={t.id}
                                      className={`list-group-item flex-column${isSelected(t) ? ' active' : ''}`}
                                      onClick={toggleSelected(t)}>

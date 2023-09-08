@@ -216,7 +216,7 @@ describe('Templates', () => {
             await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             expect(reportedError).toBeNull();
-            const templateItems = Array.from(context.container.querySelectorAll('ul[name="templates"] .list-group-item'));
+            const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
             expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column active']);
         });
 
