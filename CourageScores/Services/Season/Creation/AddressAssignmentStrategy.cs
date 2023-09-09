@@ -30,12 +30,43 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
             return false;
         }
 
-        return await ApplyTemplatePlaceholders(
-            context,
-            seasonSharedAddresses,
-            templateSeasonSharedAddressPlaceholders,
-            "",
-            token);
+        var success = true;
+        var index = 0;
+        foreach (var division in context.MatchContext.Divisions)
+        {
+            var divisionalTeamIds = context.MatchContext.Teams[division.Id].ToHashSet();
+            var teamsForThisDivisionWithSeasonSharedAddresses = seasonSharedAddresses
+                .Select(array => array.Where(a => divisionalTeamIds.Contains(a)).ToArray())
+                .ToArray();
+
+            var divisionTemplate = context.Template.Divisions.ElementAtOrDefault(index);
+            if (divisionTemplate == null)
+            {
+                success = false;
+                context.Result.Errors.Add($"Division not found in template at index {index}");
+                index++;
+                continue;
+            }
+
+            var placeholdersInDivisionTemplate = divisionTemplate.Dates
+                .SelectMany(d => d.Fixtures)
+                .SelectMany(f => new[] {f.Home.Key, f.Away?.Key})
+                .Where(a => a != null)
+                .ToHashSet();
+            var sharedAddressPlaceHoldersWithFixturesInThisDivisions = templateSeasonSharedAddressPlaceholders
+                .Select(array => array.Where(a => placeholdersInDivisionTemplate.Contains(a.Key)).ToList())
+                .ToList();
+
+            success = await ApplyTemplatePlaceholders(
+                context,
+                teamsForThisDivisionWithSeasonSharedAddresses,
+                sharedAddressPlaceHoldersWithFixturesInThisDivisions,
+                "",
+                token) && success;
+            index++;
+        }
+
+        return success;
     }
 
     private static async Task<bool> AssignSharedAddressTeamsPerDivision(ProposalContext context, CancellationToken token)

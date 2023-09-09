@@ -28,10 +28,7 @@ public class AddressAssignmentStrategyTests
             Id = Guid.NewGuid(),
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1, division2,
-            },
+            Array(division1, division2),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
@@ -76,6 +73,11 @@ public class AddressAssignmentStrategyTests
                     new TeamPlaceholderDto("B"), new TeamPlaceholderDto("A"),
                 }.ToList(),
             },
+            Divisions =
+            {
+                Division(FixtureDate("A", "D"), FixtureDate("A")),
+                Division(FixtureDate("B", "C"), FixtureDate("C")),
+            },
         };
         var teamA = new TeamDto
         {
@@ -96,24 +98,15 @@ public class AddressAssignmentStrategyTests
             Id = Guid.NewGuid(),
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1, division2,
-            },
+            Array(division1, division2),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA,
-                    }
+                    division1.Id, Array(teamA)
                 },
                 {
-                    division2.Id, new[]
-                    {
-                        teamB,
-                    }
+                    division2.Id, Array(teamB)
                 },
             });
 
@@ -144,6 +137,11 @@ public class AddressAssignmentStrategyTests
                     new TeamPlaceholderDto("D"), new TeamPlaceholderDto("C"),
                 }.ToList(),
             },
+            Divisions =
+            {
+                Division(FixtureDate("A", "C"), FixtureDate("A")),
+                Division(FixtureDate("B", "D"), FixtureDate("B")),
+            },
         };
         var teamA = new TeamDto
         {
@@ -164,24 +162,15 @@ public class AddressAssignmentStrategyTests
             Id = Guid.NewGuid(),
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1, division2,
-            },
+            Array(division1, division2),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA,
-                    }
+                    division1.Id, Array(teamA)
                 },
                 {
-                    division2.Id, new[]
-                    {
-                        teamB,
-                    }
+                    division2.Id, Array(teamB)
                 },
             });
 
@@ -207,6 +196,12 @@ public class AddressAssignmentStrategyTests
                 {
                     new TeamPlaceholderDto("A"), new TeamPlaceholderDto("B"),
                 }.ToList(),
+            },
+            Divisions =
+            {
+                Division(FixtureDate("A", "D"), FixtureDate("A")),
+                Division(FixtureDate("D", "B"), FixtureDate("D")),
+                Division(FixtureDate("C")),
             },
         };
         var teamA = new TeamDto
@@ -237,32 +232,18 @@ public class AddressAssignmentStrategyTests
             Id = Guid.NewGuid(),
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1,
-                division2,
-                division3,
-            },
+            Array(division1, division2, division3),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA,
-                    }
+                    division1.Id, Array(teamA)
                 },
                 {
-                    division2.Id, new[]
-                    {
-                        teamB,
-                    }
+                    division2.Id, Array(teamB)
                 },
                 {
-                    division3.Id, new[]
-                    {
-                        teamC,
-                    }
+                    division3.Id, Array(teamC)
                 },
             });
 
@@ -301,18 +282,12 @@ public class AddressAssignmentStrategyTests
             Name = "Division 1",
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1,
-            },
+            Array(division1),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA, teamB,
-                    }
+                    division1.Id, Array(teamA, teamB)
                 },
             });
 
@@ -361,18 +336,12 @@ public class AddressAssignmentStrategyTests
         };
 
         var context = ProposalContext(
-            new[]
-            {
-                division1,
-            },
+            Array(division1),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA, teamB,
-                    }
+                    division1.Id, Array(teamA, teamB)
                 },
             });
 
@@ -426,18 +395,12 @@ public class AddressAssignmentStrategyTests
             Name = "Division 1",
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1,
-            },
+            Array(division1),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA, teamB,
-                    }
+                    division1.Id, Array(teamA, teamB)
                 },
             });
 
@@ -492,20 +455,12 @@ public class AddressAssignmentStrategyTests
             Name = "Division 1",
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1,
-            },
+            Array(division1),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA,
-                        teamB,
-                        teamC,
-                    }
+                    division1.Id, Array(teamA, teamB, teamC)
                 },
             });
 
@@ -544,18 +499,12 @@ public class AddressAssignmentStrategyTests
             Name = "Division 1",
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1,
-            },
+            Array(division1),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA, teamB,
-                    }
+                    division1.Id, Array(teamA, teamB)
                 },
             });
 
@@ -621,18 +570,12 @@ public class AddressAssignmentStrategyTests
             Name = "Division 1",
         };
         var context = ProposalContext(
-            new[]
-            {
-                division1,
-            },
+            Array(division1),
             template,
             new Dictionary<Guid, TeamDto[]>
             {
                 {
-                    division1.Id, new[]
-                    {
-                        teamA, teamB,
-                    }
+                    division1.Id, Array(teamA, teamB)
                 },
             });
 
@@ -647,6 +590,11 @@ public class AddressAssignmentStrategyTests
         }));
     }
 
+    private static T[] Array<T>(params T[] items)
+    {
+        return items;
+    }
+
     private ProposalContext ProposalContext(IEnumerable<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams)
     {
         return new ProposalContext(
@@ -656,5 +604,28 @@ public class AddressAssignmentStrategyTests
             {
                 Result = new ProposalResultDto(),
             });
+    }
+
+    private static DateTemplateDto FixtureDate(string home, string? away = null)
+    {
+        return new DateTemplateDto
+        {
+            Fixtures =
+            {
+                new FixtureTemplateDto
+                {
+                    Home = new TeamPlaceholderDto(home),
+                    Away = away != null ? new TeamPlaceholderDto(away) : null,
+                },
+            }
+        };
+    }
+
+    private static DivisionTemplateDto Division(params DateTemplateDto[] dates)
+    {
+        return new DivisionTemplateDto
+        {
+            Dates = dates.ToList(),
+        };
     }
 }
