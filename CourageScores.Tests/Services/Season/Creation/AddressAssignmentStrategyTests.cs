@@ -73,7 +73,7 @@ public class AddressAssignmentStrategyTests
             {
                 new[]
                 {
-                    new TeamPlaceholderDto("A"), new TeamPlaceholderDto("B"),
+                    new TeamPlaceholderDto("B"), new TeamPlaceholderDto("A"),
                 }.ToList(),
             },
         };
@@ -120,8 +120,8 @@ public class AddressAssignmentStrategyTests
         var result = await _strategy.AssignAddresses(context, _token);
 
         Assert.That(result, Is.True);
-        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(teamA).Or.EqualTo(teamB));
-        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(teamB).Or.EqualTo(teamA));
+        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(teamA));
+        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(teamB));
         Assert.That(context.PlaceholderMapping.Values, Is.EquivalentTo(new[]
         {
             teamA, teamB,
@@ -137,11 +137,11 @@ public class AddressAssignmentStrategyTests
             {
                 new[]
                 {
-                    new TeamPlaceholderDto("A"), new TeamPlaceholderDto("B"),
+                    new TeamPlaceholderDto("B"), new TeamPlaceholderDto("A"),
                 }.ToList(),
                 new[]
                 {
-                    new TeamPlaceholderDto("C"), new TeamPlaceholderDto("D"),
+                    new TeamPlaceholderDto("D"), new TeamPlaceholderDto("C"),
                 }.ToList(),
             },
         };
@@ -188,8 +188,8 @@ public class AddressAssignmentStrategyTests
         var result = await _strategy.AssignAddresses(context, _token);
 
         Assert.That(result, Is.True);
-        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(teamA).Or.EqualTo(teamB));
-        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(teamB).Or.EqualTo(teamA));
+        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(teamA));
+        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(teamB));
         Assert.That(context.PlaceholderMapping.Values, Is.EquivalentTo(new[]
         {
             teamA, teamB,
