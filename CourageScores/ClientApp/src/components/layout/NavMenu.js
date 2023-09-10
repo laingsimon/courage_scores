@@ -43,13 +43,14 @@ export function NavMenu() {
     }
 
     function shouldShowDivision(division) {
-        const season = seasons ? seasons.filter(s => s.isCurrent === true)[0] : null;
+        const currentSeasons = (seasons || []).filter(s => s.isCurrent === true);
+        const currentDivisions = currentSeasons.flatMap(s => s.divisions || []);
 
-        if (!season || isEmpty(season.divisions || [])) {
+        if (isEmpty(currentDivisions)) {
             return true;
         }
 
-        return any(season.divisions, d => d.id === division.id);
+        return any(currentDivisions, d => d.id === division.id);
     }
 
     function hasAdminAccess(access) {
