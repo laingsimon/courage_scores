@@ -50,7 +50,7 @@ export function ScoreAsYouGo({
             const currentLegIndex = (homeScore || 0) + (awayScore || 0);
             const currentLeg = data.legs[currentLegIndex];
 
-            const unbeatable = newHomeScore > (numberOfLegs / 2) || newAwayScore > (numberOfLegs > 2);
+            const unbeatable = newHomeScore > (numberOfLegs / 2) || newAwayScore > (numberOfLegs / 2);
             if (!currentLeg.isLastLeg && !unbeatable) {
                 const newData = addLeg(currentLegIndex + 1);
                 const newLeg = newData.legs[currentLegIndex + 1];
