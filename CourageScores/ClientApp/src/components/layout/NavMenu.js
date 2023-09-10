@@ -85,6 +85,19 @@ export function NavMenu() {
         });
     }
 
+    function getDivisionAddress(division) {
+        const currentSeasons = seasons
+            .filter(s => s.isCurrent)
+            .filter(s => any(s.divisions, d => d.id === division.id));
+
+        if (currentSeasons.length !== 1) {
+            return `/division/${division.name}/${season.id}`;
+        }
+
+        const season = currentSeasons[0];
+        return `/division/${division.name}/${season.id}`;
+    }
+
     if (navMenuError) {
         return (<div>ERROR: {navMenuError.message}: {navMenuError.stack}</div>)
     }
