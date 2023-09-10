@@ -29,9 +29,26 @@ export function PlayerInput({
 
     async function keyUp(event) {
         if (event.key === 'Enter') {
-            /* istanbul ignore next */
-            await addThrow(score, 3, true);
-            /* istanbul ignore next */
+            if (savingInput) {
+                return;
+            }
+
+            const singleDartScore = checkout && isSingleDartScore(intScore, true);
+            const twoDartScore = checkout && isTwoDartScore(intScore);
+            const threeDartScore = isThreeDartScore(intScore) && (hasRemainingDouble || checkout);
+            let possibleOptions = (singleDartScore ? 1 : 0) + (twoDartScore ? 1 : 0) + (threeDartScore ? 1 : 0);
+            if (possibleOptions > 1) {
+                // require user to click if there are 2 or more possible options
+                return false;
+            }
+
+            if (singleDartScore) {
+                await addThrow(score, 1, true);
+            } else if (twoDartScore) {
+                await addThrow(score, 2, true);
+            } else if (threeDartScore) {
+                await addThrow(score, 3, true);
+            }
             return false;
         }
     }

@@ -462,7 +462,7 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(461).noOfDarts(0))
+            .home(c => c.score(380).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
@@ -471,10 +471,50 @@ describe('PlayerInput', () => {
             singlePlayer: true
         });
 
-        await setScoreInput('50');
+        await setScoreInput('121');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
         expect(reportedError).toBeNull();
         expect(changedLegs.length).toEqual(1);
+    });
+
+    it('does not accept ambiguous dart-number score via enter key press', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(451).noOfDarts(0))
+            .build();
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput('50'); // could be bull (1 dart), 10, D20 (2 darts) or a range of 3-dart options
+        await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs.length).toEqual(0);
+    });
+
+    it('does not accept invalid score via enter key press', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(261).noOfDarts(0))
+            .build();
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput('200');
+        await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs.length).toEqual(0);
     });
 });

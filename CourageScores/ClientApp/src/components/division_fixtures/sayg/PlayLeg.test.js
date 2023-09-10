@@ -154,7 +154,7 @@ describe('PlayLeg', () => {
         const previousPlayerScore = context.container.querySelector('div > div:nth-child(1)');
         window.confirm = () => true;
 
-        await doClick(previousPlayerScore.querySelector('p[title="Click to change score"]'));
+        await doClick(findButton(previousPlayerScore, 'Undo'));
 
         expect(changedLeg).toEqual({
             currentThrow: 'away',

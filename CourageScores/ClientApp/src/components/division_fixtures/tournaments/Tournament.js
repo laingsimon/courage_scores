@@ -309,7 +309,7 @@ export function Tournament() {
                     : null}
                 {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-print-none">
-                        <label htmlFor="note-text" className="input-group-text">Options</label>
+                        <label className="input-group-text">Options</label>
                         <div className="form-control">
                             <div className="form-check form-switch margin-right my-1">
                                 <input disabled={saving} type="checkbox" className="form-check-input"
@@ -352,7 +352,7 @@ export function Tournament() {
                     : null}
                 {canManageTournaments && tournamentData.singleRound
                     ? (<div className="form-group input-group mb-3 d-print-none" data-options-for="superleague">
-                        <label htmlFor="note-text" className="input-group-text">Super league options</label>
+                        <label className="input-group-text">Super league options</label>
                         <div className="form-control">
                             <div className="form-group input-group mb-1">
                                 <label htmlFor="host" className="input-group-text">Host</label>

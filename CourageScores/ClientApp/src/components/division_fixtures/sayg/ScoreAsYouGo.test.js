@@ -296,6 +296,7 @@ describe('ScoreAsYouGo', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .playerSequence('home', 'away')
+            .lastLeg()
             .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
             .away(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
             .startingScore(501)
@@ -325,6 +326,44 @@ describe('ScoreAsYouGo', () => {
         expect(completedLegs).toEqual([{homeScore: 2, awayScore: 0}]);
         expect(changedLegs.length).toEqual(1);
         expect(Object.keys(changedLegs[0].legs)).toEqual(['0', '1']);
+        expect(changedLegs[0].legs[1].currentThrow).toEqual('away');
+    });
+
+    it('shows statistics if away player wins over half of legs', async () => {
+        const leg = legBuilder()
+            .currentThrow('away')
+            .lastLeg()
+            .playerSequence('home', 'away')
+            .home(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .away(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .startingScore(501)
+            .build();
+        await renderComponent({
+            data: {
+                legs: {
+                    '0': {
+                        home: {throws: []},
+                        away: {throws: [{score: 100}, {score: 100}, {score: 100}, {score: 100}, {score: 101}]},
+                    },
+                    '1': leg
+                }
+            },
+            home: 'HOME',
+            away: 'AWAY',
+            startingScore: 501,
+            numberOfLegs: 3,
+            awayScore: 1,
+            homeScore: 0,
+            singlePlayer: false,
+        });
+
+        await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
+        await doClick(findButton(context.container, '📌📌📌'));
+
+        expect(completedLegs).toEqual([{homeScore: 0, awayScore: 2}]);
+        expect(changedLegs.length).toEqual(1);
+        expect(Object.keys(changedLegs[0].legs)).toEqual(['0', '1']);
+        expect(changedLegs[0].legs[1].currentThrow).toEqual('home');
     });
 
     it('can record winner for single player match', async () => {

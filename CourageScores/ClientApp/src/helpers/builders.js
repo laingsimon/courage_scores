@@ -748,6 +748,14 @@ export function saygBuilder(id) {
         sayg.updated = updated;
         return builder;
     };
+    builder.numberOfLegs = (legs) => {
+        sayg.numberOfLegs = legs;
+        return builder;
+    };
+    builder.startingScore = (score) => {
+        sayg.startingScore = score;
+        return builder;
+    };
 
     return builder;
 }

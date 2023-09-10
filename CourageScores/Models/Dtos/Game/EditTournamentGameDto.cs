@@ -19,6 +19,7 @@ public class EditTournamentGameDto : IIntegrityCheckDto
     public TournamentRoundDto? Round { get; set; }
     public bool AccoladesCount { get; set; }
     public Guid? DivisionId { get; set; }
+    public Guid SeasonId { get; set; }
 
     public List<RecordTournamentScoresPlayerDto> OneEighties { get; set; } = new();
     public List<TournamentOver100CheckoutDto> Over100Checkouts { get; set; } = new();
