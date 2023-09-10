@@ -43,13 +43,14 @@ export function NavMenu() {
     }
 
     function shouldShowDivision(division) {
-        const season = seasons ? seasons.filter(s => s.isCurrent === true)[0] : null;
+        const currentSeasons = (seasons || []).filter(s => s.isCurrent === true);
+        const currentDivisions = currentSeasons.flatMap(s => s.divisions || []);
 
-        if (!season || isEmpty(season.divisions || [])) {
+        if (isEmpty(currentDivisions)) {
             return true;
         }
 
-        return any(season.divisions, d => d.id === division.id);
+        return any(currentDivisions, d => d.id === division.id);
     }
 
     function hasAdminAccess(access) {
@@ -84,6 +85,19 @@ export function NavMenu() {
         });
     }
 
+    function getDivisionAddress(division) {
+        const currentSeasons = seasons
+            .filter(s => s.isCurrent)
+            .filter(s => any(s.divisions, d => d.id === division.id));
+
+        if (currentSeasons.length !== 1) {
+            return `/division/${division.name}`;
+        }
+
+        const season = currentSeasons[0];
+        return `/division/${division.name}/teams/${season.name}`;
+    }
+
     if (navMenuError) {
         return (<div>ERROR: {navMenuError.message}: {navMenuError.stack}</div>)
     }
@@ -99,8 +113,8 @@ export function NavMenu() {
                         {!appLoading && divisions.filter(shouldShowDivision).map(division => (
                             <li className="nav-item" key={division.id}>
                                 <NavLink tag={Link} onClick={navigate}
-                                         className={getClassName(`/division/${division.name}`)}
-                                         to={`/division/${division.name}`}>
+                                         className={getClassName(`/division/${ division.name}`)}
+                                         to={getDivisionAddress(division)}>
                                     {division.name}
                                 </NavLink>
                             </li>))}
