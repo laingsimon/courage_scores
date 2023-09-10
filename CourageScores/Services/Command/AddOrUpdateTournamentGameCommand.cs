@@ -50,16 +50,16 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
     protected override async Task<ActionResult<TournamentGame>> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
-        var latestSeason = await _seasonService.GetForDate(update.Date, token);
+        var season = await _seasonService.Get(update.SeasonId, token);
 
-        if (latestSeason == null)
+        if (season == null)
         {
             return new ActionResult<TournamentGame>
             {
                 Success = false,
                 Warnings =
                 {
-                    "Unable to add or update game, no season exists",
+                    "Season not found",
                 },
             };
         }
@@ -72,7 +72,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         game.Address = update.Address?.Trim() ?? "";
         game.Date = update.Date;
-        game.SeasonId = latestSeason.Id;
+        game.SeasonId = season.Id;
         game.Notes = update.Notes?.Trim();
         game.Type = update.Type?.Trim();
         game.BestOf = update.BestOf;

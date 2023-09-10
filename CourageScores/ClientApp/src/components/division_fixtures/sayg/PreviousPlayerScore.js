@@ -26,18 +26,21 @@ export function PreviousPlayerScore({home, away, leg, undoLastThrow}) {
     }
 
     return (<div className="text-secondary-50 text-center">
+        <button className="float-end btn btn-outline-warning" onClick={changeScore}>
+            Undo
+        </button>
         <p className="my-0">
             <strong>{playerLookup[opponent]} </strong> requires <strong className="text-dark">
             {leg.startingScore - accumulator.score}
         </strong>
         </p>
-        <p className="my-0" onClick={changeScore} title="Click to change score">
+        <p className="my-0">
             thrown <strong>{accumulator.noOfDarts}</strong> darts
             {accumulator.noOfDarts
                 ? (<span>, average: <strong>{round2dp(accumulator.score / (accumulator.noOfDarts / 3))}</strong></span>)
                 : null}
         </p>
-        <p className="my-0" onClick={changeScore} title="Click to change score">
+        <p className="my-0" title="Click to change score">
             Last score: <strong className="text-dark">{lastThrow.score}</strong>
             {accumulator.bust ? (<strong> 💥 </strong>) : null}
         </p>

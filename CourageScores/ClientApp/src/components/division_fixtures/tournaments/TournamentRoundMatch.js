@@ -9,6 +9,7 @@ import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {count} from "../../../helpers/collections";
+import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
 
 export function TournamentRoundMatch({
                                          readOnly,
@@ -103,10 +104,7 @@ export function TournamentRoundMatch({
     }
 
     function renderSaygDialog() {
-        const home = match.sideA.name;
-        const away = match.sideB.name;
-        return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
-                        onClose={() => setSaygOpen(null)} className="text-start">
+        return (<Dialog slim={true} onClose={() => setSaygOpen(null)} className="text-start">
             <SaygLoadingContainer
                 id={match.saygId}
                 onHiCheck={recordHiCheck}
@@ -122,6 +120,7 @@ export function TournamentRoundMatch({
                         }
                     }, true);
                 }}>
+                <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
         </Dialog>)
     }
