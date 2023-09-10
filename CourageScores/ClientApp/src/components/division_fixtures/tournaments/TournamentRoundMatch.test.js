@@ -64,6 +64,10 @@ describe('TournamentRoundMatch', () => {
         cleanUp(context);
     });
 
+    beforeEach(() => {
+        saygApiData = {};
+    });
+
     function onHiCheck(player, notes) {
         hiChecks.push({player, notes});
     }
@@ -84,7 +88,6 @@ describe('TournamentRoundMatch', () => {
         updatedTournamentData = null;
         hiChecks = [];
         oneEighties = [];
-        saygApiData = {};
         addSaygLookup = [];
         updatedSaygData = null;
         updatedPatch = null;
@@ -331,7 +334,11 @@ describe('TournamentRoundMatch', () => {
             });
 
             it('can open sayg if it exists', async () => {
-                const saygData = saygBuilder().build();
+                const saygData = saygBuilder()
+                    .numberOfLegs(7)
+                    .startingScore(501)
+                    .addTo(saygApiData)
+                    .build();
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
@@ -350,7 +357,7 @@ describe('TournamentRoundMatch', () => {
                 expect(reportedError).toBeNull();
                 const dialog = context.container.querySelector('.modal-dialog');
                 expect(dialog).toBeTruthy();
-                expect(dialog.textContent).toContain('SIDE A vs SIDE B');
+                expect(dialog.textContent).toContain('SIDE A vs SIDE B - best of 7');
             });
         });
 

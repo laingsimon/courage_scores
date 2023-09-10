@@ -5,9 +5,9 @@ export function Dialog({children, onClose, title, slim, className}) {
         <div className={`modal fade show text-black ${className || ''}`} role="dialog" style={{display: 'block'}}>
             <div className={`modal-dialog modal-dialog-centered${slim ? '' : ' modal-dialog-larger-max-width'}`}>
                 <div className="modal-content">
-                    <div className="modal-header justify-content-center">
+                    {title ? (<div className="modal-header justify-content-center">
                         <h5>{title}</h5>
-                    </div>
+                    </div>) : null}
                     <div className="modal-body">
                         {children}
                     </div>

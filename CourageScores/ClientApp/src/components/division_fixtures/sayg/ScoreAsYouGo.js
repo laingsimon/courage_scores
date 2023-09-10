@@ -89,14 +89,14 @@ export function ScoreAsYouGo({
     const leg = getLeg(legIndex);
 
     return (<PlayLeg
-        leg={leg}
-        home={home}
-        away={away}
-        onChange={(newLeg) => legChanged(newLeg, legIndex)}
-        onLegComplete={recordWinner}
-        on180={on180}
-        onHiCheck={onHiCheck}
-        homeScore={homeScore}
-        awayScore={awayScore}
-        singlePlayer={singlePlayer}/>);
+            leg={leg}
+            home={home}
+            away={away}
+            onChange={(newLeg) => legChanged(newLeg, legIndex)}
+            onLegComplete={recordWinner}
+            on180={on180}
+            onHiCheck={onHiCheck}
+            homeScore={homeScore}
+            awayScore={awayScore}
+            singlePlayer={singlePlayer}/>);
 }
