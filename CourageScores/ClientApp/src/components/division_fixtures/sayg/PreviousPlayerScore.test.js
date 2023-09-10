@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
+import {cleanUp, doClick, renderApp, findButton} from "../../../helpers/tests";
 import React from "react";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {legBuilder} from "../../../helpers/builders";
@@ -51,7 +51,7 @@ describe('PreviousPlayerScore', () => {
                 .build(),
         });
 
-        const opponentScore = context.container.querySelector('p:nth-child(1)');
+        const opponentScore = context.container.querySelector('p:nth-child(2)');
         expect(opponentScore.textContent).toEqual('AWAY  requires 251');
     });
 
@@ -67,7 +67,7 @@ describe('PreviousPlayerScore', () => {
                 .build(),
         });
 
-        const opponentStatistics = context.container.querySelector('p:nth-child(2)');
+        const opponentStatistics = context.container.querySelector('p:nth-child(3)');
         expect(opponentStatistics.textContent).toEqual('thrown 6 darts, average: 125');
     });
 
@@ -83,7 +83,7 @@ describe('PreviousPlayerScore', () => {
                 .build(),
         });
 
-        const opponentStatistics = context.container.querySelector('p:nth-child(2)');
+        const opponentStatistics = context.container.querySelector('p:nth-child(3)');
         expect(opponentStatistics.textContent).toEqual('thrown 0 darts');
     });
 
@@ -104,7 +104,7 @@ describe('PreviousPlayerScore', () => {
             return true;
         };
 
-        await doClick(context.container.querySelector('p:nth-child(2)'));
+        await doClick(findButton(context.container, 'Undo'));
 
         expect(confirm).toEqual('Are you sure you want to change this score?');
         expect(lastThrowUndone).toEqual(true);
@@ -140,7 +140,7 @@ describe('PreviousPlayerScore', () => {
                 .build(),
         });
 
-        const opponentLastThrow = context.container.querySelector('p:nth-child(3)');
+        const opponentLastThrow = context.container.querySelector('p:nth-child(4)');
         expect(opponentLastThrow.textContent).toEqual('Last score: 150');
     });
 
@@ -156,7 +156,7 @@ describe('PreviousPlayerScore', () => {
                 .build(),
         });
 
-        const opponentLastThrow = context.container.querySelector('p:nth-child(3)');
+        const opponentLastThrow = context.container.querySelector('p:nth-child(4)');
         expect(opponentLastThrow.textContent).toEqual('Last score: 150 💥 ');
     });
 
@@ -177,7 +177,7 @@ describe('PreviousPlayerScore', () => {
             return true;
         };
 
-        await doClick(context.container.querySelector('p:nth-child(3)'));
+        await doClick(findButton(context.container, 'Undo'));
 
         expect(confirm).toEqual('Are you sure you want to change this score?');
         expect(lastThrowUndone).toEqual(true);
