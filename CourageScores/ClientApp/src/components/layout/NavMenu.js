@@ -95,7 +95,7 @@ export function NavMenu() {
         }
 
         const season = currentSeasons[0];
-        return `/division/${division.name}/${season.name}`;
+        return `/division/${division.name}/teams/${season.name}`;
     }
 
     if (navMenuError) {
