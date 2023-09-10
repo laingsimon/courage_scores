@@ -113,8 +113,8 @@ export function NavMenu() {
                         {!appLoading && divisions.filter(shouldShowDivision).map(division => (
                             <li className="nav-item" key={division.id}>
                                 <NavLink tag={Link} onClick={navigate}
-                                         className={getClassName(`/division/${division.name}`)}
-                                         to={`/division/${division.name}`}>
+                                         className={getClassName(getDivisionAddress(division))}
+                                         to={getDivisionAddress(division)}>
                                     {division.name}
                                 </NavLink>
                             </li>))}
