@@ -91,7 +91,7 @@ export function NavMenu() {
             .filter(s => any(s.divisions, d => d.id === division.id));
 
         if (currentSeasons.length !== 1) {
-            return `/division/${division.name}/${season.id}`;
+            return `/division/${division.name}`;
         }
 
         const season = currentSeasons[0];
