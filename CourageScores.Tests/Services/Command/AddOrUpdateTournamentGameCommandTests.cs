@@ -57,6 +57,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update = new EditTournamentGameDto
         {
             Date = new DateTime(2001, 02, 03),
+            SeasonId = _season.Id,
             LastUpdated = _game.Updated,
         };
         _cacheFlags = new ScopedCacheManagementFlags();
@@ -100,14 +101,14 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenNoLatestSeason_ReturnsUnsuccessful()
     {
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(() => null);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(() => null);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EqualTo(new[]
         {
-            "Unable to add or update game, no season exists",
+            "Season not found",
         }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
@@ -147,7 +148,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.OneEighties.Add(oneEightyPlayerDto);
         _update.Over100Checkouts.Add(over100CheckoutPlayerDto);
         _update.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         _tournamentPlayerAdapter.Setup(a => a.Adapt(oneEightyPlayerDto, _token)).ReturnsAsync(oneEightyPlayer);
         _notableTournamentPlayerAdapter.Setup(a => a.Adapt(over100CheckoutPlayerDto, _token)).ReturnsAsync(over100CheckoutPlayer);
 
@@ -207,7 +208,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.OneEighties.Add(oneEightyPlayerDto);
         _update.Over100Checkouts.Add(over100CheckoutPlayerDto);
         _update.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         _tournamentPlayerAdapter.Setup(a => a.Adapt(oneEightyPlayerDto, _token)).ReturnsAsync(oneEightyPlayer);
         _notableTournamentPlayerAdapter.Setup(a => a.Adapt(over100CheckoutPlayerDto, _token)).ReturnsAsync(over100CheckoutPlayer);
 
@@ -227,7 +228,7 @@ public class AddOrUpdateTournamentGameCommandTests
     public async Task ApplyUpdates_WhenLatestSeasonAndNullRound_UpdatesSides()
     {
         _update.Round = null;
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -241,7 +242,7 @@ public class AddOrUpdateTournamentGameCommandTests
     {
         _update.Round = null;
         _update.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         _game.DivisionId = _update.DivisionId;
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
@@ -258,7 +259,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Round = null;
         _update.DivisionId = Guid.NewGuid();
         _game.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -285,7 +286,7 @@ public class AddOrUpdateTournamentGameCommandTests
             },
         };
         _update.Sides.Add(side);
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -402,7 +403,7 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             side1, side2,
         });
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
         secondRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
 
@@ -492,7 +493,7 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             side1, side2,
         });
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch
         {
             SideA = new TournamentSide
@@ -600,7 +601,7 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             side1, side2,
         });
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
         _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
@@ -705,7 +706,7 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             side1, side2,
         });
-        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
         _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
