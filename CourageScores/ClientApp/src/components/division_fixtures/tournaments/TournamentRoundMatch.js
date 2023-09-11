@@ -10,6 +10,7 @@ import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {count} from "../../../helpers/collections";
 import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
+import {DebugOptions} from "../../common/DebugOptions";
 
 export function TournamentRoundMatch({
                                          readOnly,
@@ -27,7 +28,7 @@ export function TournamentRoundMatch({
                                          patchData
                                      }) {
     const {account, onError} = useApp();
-    const {tournamentApi} = useDependencies();
+    const {tournamentApi, settings} = useDependencies();
     const {tournamentData, setTournamentData, saveTournament} = useTournament();
     const scoreA = Number.parseInt(match.scoreA);
     const scoreB = Number.parseInt(match.scoreB);
@@ -126,6 +127,14 @@ export function TournamentRoundMatch({
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={() => setSaygOpen(null)}>Close</button>
                 </div>
+                <DebugOptions>
+                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Game/Sayg/${match.saygId}`} className="dropdown-item">
+                        <strong>Sayg data</strong><small className="d-block">{match.saygId}</small>
+                    </a>
+                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`} className="dropdown-item">
+                        <strong>Tournament data</strong><small className="d-block">{tournamentData.id}</small>
+                    </a>
+                </DebugOptions>
             </div>
         </Dialog>)
     }
