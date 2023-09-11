@@ -145,6 +145,7 @@ public class SeasonTemplateService : ISeasonTemplateService
         {
             DivisionId = d.Id,
             SeasonId = season.Id,
+            ExcludeProposals = true,
         }, token)).ToList();
 
         var teamsInSeason = await _teamService.GetTeamsForSeason(season.Id, token).ToList();
