@@ -165,6 +165,7 @@ export function UserAdmin() {
         {renderAccessOption('recordScoresAsYouGo', 'Record scores as you go')}
         {renderAccessOption('runHealthChecks', 'Run health checks')}
         {renderAccessOption('manageSeasonTemplates', 'Manage season templates')}
+        {renderAccessOption('showDebugOptions', 'Show debug options')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving
