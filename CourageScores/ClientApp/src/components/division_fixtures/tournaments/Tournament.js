@@ -44,7 +44,7 @@ export function Tournament() {
     }];
 
     useEffect(() => {
-        const isAdmin = (account && account.access && account.access.manageScores);
+        const isAdmin = (account && account.access && account.access.manageTournaments);
         setDisabled(!isAdmin || false);
         setCanSave(isAdmin || false);
     }, [account]);
