@@ -152,7 +152,7 @@ export function TournamentRoundMatch({
                 }}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
-            <div className="modal-footer px-0 pb-0">
+            <div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={() => setSaygOpen(null)}>Close</button>
                 </div>
