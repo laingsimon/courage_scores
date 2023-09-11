@@ -26,6 +26,10 @@ class TournamentApi {
     addSayg(id, matchId, matchOptions) {
         return this.http.post(`/api/Tournament/${id}`, {matchId, matchOptions});
     }
+
+    deleteSayg(id, matchId) {
+        return this.http.delete(`/api/Tournament/${id}/${matchId}`, {});
+    }
 }
 
 export {TournamentApi};

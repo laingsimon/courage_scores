@@ -4,7 +4,7 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {sortBy} from "../../helpers/collections";
-import {handleChange} from "../../helpers/events";
+import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 export function EditPlayerDetails({
@@ -20,6 +20,7 @@ export function EditPlayerDetails({
                                       player
                                   }) {
     const [saving, setSaving] = useState(false);
+    const [multiple, setMultiple] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const {playerApi} = useDependencies();
     const {teams, divisions, onError} = useApp();
@@ -56,7 +57,7 @@ export function EditPlayerDetails({
 
             const response = player.id
                 ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails, player.updated)
-                : await playerApi.create(divisionId, seasonId, player.teamId || team.id, playerDetails);
+                : await createMultiple();
 
             if (response.success) {
                 if (onSaved) {
@@ -71,6 +72,36 @@ export function EditPlayerDetails({
         } finally {
             setSaving(false);
         }
+    }
+
+    async function createMultiple() {
+        const multiPlayerDetails = player.name.split('\n')
+            .filter(name => name && name.trim()) // filter out any empty lines
+            .map(name => {
+                return {
+                    name: name,
+                    emailAddress: multiple ? null : player.emailAddress,
+                    captain: multiple ? null : player.captain,
+                    newTeamId: newTeamId,
+                };
+            });
+
+        const results = [];
+        let success = true;
+        for(let index = 0; index < multiPlayerDetails.length; index++) {
+            const playerDetails = multiPlayerDetails[index];
+            const response = await playerApi.create(divisionId, seasonId, player.teamId || team.id, playerDetails);
+            results.push(response);
+            success = success && response.success;
+        }
+
+        return {
+            success: success,
+            result: results[0].result,
+            errors: results.flatMap(r => r.errors),
+            warnings: results.flatMap(r => r.warnings),
+            messages: results.flatMap(r => r.messages),
+        };
     }
 
     function getTeamOptions() {
@@ -89,6 +120,13 @@ export function EditPlayerDetails({
         }
 
         return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== (newDivisionId || divisionId));
+    }
+
+    function changeMultiple(multiple) {
+        setMultiple(multiple);
+        if (!multiple) {
+            onChange('name', '');
+        }
     }
 
     function renderSelectTeamForNewPlayer() {
@@ -128,27 +166,37 @@ export function EditPlayerDetails({
         {player.id ? renderSelectTeamForExistingPlayer() : renderSelectTeamForNewPlayer()}
         <div className="input-group mb-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Name</span>
+                <span className="input-group-text">
+                    Name
+                    {player.id ? null : (<div className="form-check form-switch margin-left">
+                        <input disabled={saving} type="checkbox"
+                               name="multiple" id="multiple" checked={multiple} onChange={stateChanged(changeMultiple)}
+                               className="form-check-input"/>
+                        <label className="form-check-label" htmlFor="multiple">Multiple</label>
+                    </div>)}
+                </span>
             </div>
-            <input disabled={saving} type="text" className="form-control"
-                   name="name" value={player.name || ''} onChange={handleChange(onChange)}/>
+            {multiple
+                ? (<textarea disabled={saving} className="form-control" name="name" value={player.name || ''} placeholder="Enter one name per line" onChange={handleChange(onChange)}></textarea>)
+                : (<input disabled={saving} type="text" className="form-control"
+                                     name="name" value={player.name || ''} onChange={handleChange(onChange)}/>)}
         </div>
-        <div className="input-group mb-3">
+        {multiple ? null : (<div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Email address (optional)</span>
             </div>
             <input disabled={saving} type="text" className="form-control"
                    name="emailAddress" value={player.emailAddress || ''}
                    placeholder="Email address hidden, enter address to update" onChange={handleChange(onChange)}/>
-        </div>
-        <div className="input-group mb-3">
+        </div>)}
+        {multiple ? null : (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} type="checkbox"
                        name="captain" id="captain" checked={player.captain || false} onChange={handleChange(onChange)}
                        className="form-check-input"/>
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
-        </div>
+        </div>)}
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
@@ -157,7 +205,7 @@ export function EditPlayerDetails({
                 {saving
                     ? (<LoadingSpinnerSmall/>)
                     : null}
-                {player.id ? 'Save player' : 'Add player'}
+                {player.id ? 'Save player' : `Add player${multiple ? 's' : ''}`}
             </button>
         </div>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}

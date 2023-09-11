@@ -59,4 +59,11 @@ public class TournamentGameController : Controller
         var command = _commandFactory.GetCommand<CreateTournamentMatchSaygCommand>().WithRequest(saygRequest);
         return await _tournamentService.Upsert(id, command, token);
     }
+
+    [HttpDelete("/api/Tournament/{id}/{matchId}")]
+    public async Task<ActionResultDto<TournamentGameDto>> CreateSayg(Guid id, Guid matchId, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<DeleteTournamentMatchSaygCommand>().FromMatch(matchId);
+        return await _tournamentService.Upsert(id, command, token);
+    }
 }
