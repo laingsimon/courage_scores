@@ -22,4 +22,5 @@ public class Access
     public bool ManageTournaments { get; set; }
     public bool RunHealthChecks { get; set; }
     public bool ManageSeasonTemplates { get; set; }
+    public bool ShowDebugOptions { get; set; }
 }

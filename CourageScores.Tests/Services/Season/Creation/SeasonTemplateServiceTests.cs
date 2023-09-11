@@ -175,7 +175,7 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(_season.Id, _token);
 
         _divisionService
-            .Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division!.Id && f.SeasonId == _season.Id), _token));
+            .Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division!.Id && f.SeasonId == _season.Id && f.ExcludeProposals == true), _token));
         Assert.That(result.Success, Is.True);
     }
 

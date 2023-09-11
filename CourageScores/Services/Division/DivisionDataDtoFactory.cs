@@ -34,7 +34,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         _userService = userService;
     }
 
-    public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, DivisionDto? division, CancellationToken token)
+    public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, DivisionDto? division, bool includeProposals, CancellationToken token)
     {
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData);
@@ -64,7 +64,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ThenBy(t => t.Name)
                 .ApplyRanks()
                 .ToList(),
-            Fixtures = await GetFixtures(context, division?.Id, token)
+            Fixtures = await GetFixtures(context, division?.Id, includeProposals, token)
                 .OrderByAsync(d => d.Date)
                 .ToList(),
             Players = (await AddAllPlayersIfAdmin(playerResults, user, context, token))
@@ -157,7 +157,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, Guid? divisionId, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, Guid? divisionId, bool includeProposals, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var date in context.GetDates(divisionId))
         {
@@ -177,6 +177,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 notesForDate ?? Array.Empty<FixtureDateNoteDto>(),
                 context.TeamsInSeasonAndDivision,
                 gamesForDate.Except(inDivisionGames).ToArray(),
+                includeProposals,
                 token);
         }
     }

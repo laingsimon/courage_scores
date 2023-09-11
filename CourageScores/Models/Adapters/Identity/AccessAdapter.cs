@@ -26,6 +26,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageTournaments = model.ManageTournaments,
             RunHealthChecks = model.RunHealthChecks,
             ManageSeasonTemplates = model.ManageSeasonTemplates,
+            ShowDebugOptions = model.ShowDebugOptions,
         });
     }
 
@@ -50,6 +51,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageTournaments = dto.ManageTournaments,
             RunHealthChecks = dto.RunHealthChecks,
             ManageSeasonTemplates = dto.ManageSeasonTemplates,
+            ShowDebugOptions = dto.ShowDebugOptions,
         });
     }
 }

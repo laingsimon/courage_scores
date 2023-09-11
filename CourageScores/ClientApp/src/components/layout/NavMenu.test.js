@@ -112,7 +112,7 @@ describe('NavMenu', () => {
             expect(listItems.map(li => li.querySelector('a').href)).toEqual([
                 'https://localhost/BEFORE1',
                 'https://localhost/BEFORE2',
-                'http://localhost/division/' + division.name,
+                'http://localhost/division/' + division.name + '/teams/' + currentSeason.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
                 'https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice']);

@@ -24,13 +24,13 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         _divisionTournamentFixtureDetailsAdapter = divisionTournamentFixtureDetailsAdapter;
     }
 
-    public async Task<DivisionFixtureDateDto> Adapt(
-        DateTime date,
+    public async Task<DivisionFixtureDateDto> Adapt(DateTime date,
         IReadOnlyCollection<Cosmos.Game.Game> gamesForDate,
         IReadOnlyCollection<TournamentGame> tournamentGamesForDate,
         IReadOnlyCollection<FixtureDateNoteDto> notesForDate,
         IReadOnlyCollection<TeamDto> teams,
         IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
+        bool includeProposals,
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
@@ -39,9 +39,9 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         return new DivisionFixtureDateDto
         {
             Date = date,
-            Fixtures = (await FixturesPerDate(gamesForDate, teams, tournamentGamesForDate.Any(), otherFixturesForDate, token).ToList())
+            Fixtures = (await FixturesPerDate(gamesForDate, teams, !tournamentGamesForDate.Any() && includeProposals, otherFixturesForDate, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
-            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments, gamesForDate.Count == 0, token)
+            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments && gamesForDate.Count == 0 && includeProposals, token)
                 .OrderByAsync(f => f.Address).ToList(),
             Notes = notesForDate.ToList(),
         };
@@ -50,7 +50,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
     private async IAsyncEnumerable<DivisionFixtureDto> FixturesPerDate(
         IEnumerable<Cosmos.Game.Game> games,
         IReadOnlyCollection<TeamDto> teams,
-        bool anyTournamentGamesForDate,
+        bool includeFixtureProposals,
         IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
         [EnumeratorCancellation] CancellationToken token)
     {
@@ -70,20 +70,21 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
                 token);
         }
 
-        if (!anyTournamentGamesForDate)
+        if (!includeFixtureProposals)
         {
-            foreach (var remainingTeam in remainingTeams.Values)
-            {
-                var addressInUse = otherFixturesForDate.Where(f => f.Address == remainingTeam.Address).ToArray();
-                yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, addressInUse, token);
-            }
+            yield break;
+        }
+
+        foreach (var remainingTeam in remainingTeams.Values)
+        {
+            var addressInUse = otherFixturesForDate.Where(f => f.Address == remainingTeam.Address).ToArray();
+            yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, addressInUse, token);
         }
     }
 
     private async IAsyncEnumerable<DivisionTournamentFixtureDetailsDto> TournamentFixturesPerDate(
         IReadOnlyCollection<TournamentGame> tournamentGames,
         IReadOnlyCollection<TeamDto> teams,
-        bool canCreateGames,
         bool includePossibleVenues,
         [EnumeratorCancellation] CancellationToken token)
     {
@@ -95,7 +96,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
             yield return await _divisionTournamentFixtureDetailsAdapter.Adapt(game, token);
         }
 
-        if ((tournamentGames.Any() || includePossibleVenues) && canCreateGames)
+        if (includePossibleVenues)
         {
             foreach (var teamAddress in teams
                          .Where(t => !addressesInUse.Contains(t.Name))

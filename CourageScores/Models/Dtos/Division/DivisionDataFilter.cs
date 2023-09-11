@@ -10,6 +10,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     public Guid? DivisionId { get; set; }
     public Guid? SeasonId { get; set; }
     public Guid? TeamId { get; set; }
+    public bool ExcludeProposals { get; set; }
     // ReSharper restore UnusedAutoPropertyAccessor.Global
     // ReSharper restore MemberCanBePrivate.Global
 

@@ -10,6 +10,7 @@ import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {count} from "../../../helpers/collections";
 import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
+import {DebugOptions} from "../../common/DebugOptions";
 
 export function TournamentRoundMatch({
                                          readOnly,
@@ -27,7 +28,7 @@ export function TournamentRoundMatch({
                                          patchData
                                      }) {
     const {account, onError} = useApp();
-    const {tournamentApi} = useDependencies();
+    const {tournamentApi, settings} = useDependencies();
     const {tournamentData, setTournamentData, saveTournament} = useTournament();
     const scoreA = Number.parseInt(match.scoreA);
     const scoreB = Number.parseInt(match.scoreB);
@@ -104,7 +105,7 @@ export function TournamentRoundMatch({
     }
 
     function renderSaygDialog() {
-        return (<Dialog slim={true} onClose={() => setSaygOpen(null)} className="text-start">
+        return (<Dialog slim={true} className="text-start">
             <SaygLoadingContainer
                 id={match.saygId}
                 onHiCheck={recordHiCheck}
@@ -122,6 +123,19 @@ export function TournamentRoundMatch({
                 }}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
+            <div className="modal-footer px-0 pb-0">
+                <div className="left-aligned mx-0">
+                    <button className="btn btn-secondary" onClick={() => setSaygOpen(null)}>Close</button>
+                </div>
+                <DebugOptions>
+                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Game/Sayg/${match.saygId}`} className="dropdown-item">
+                        <strong>Sayg data</strong><small className="d-block">{match.saygId}</small>
+                    </a>
+                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`} className="dropdown-item">
+                        <strong>Tournament data</strong><small className="d-block">{tournamentData.id}</small>
+                    </a>
+                </DebugOptions>
+            </div>
         </Dialog>)
     }
 
@@ -149,12 +163,7 @@ export function TournamentRoundMatch({
             return true;
         }
 
-        if (match.sideA.players.length === 1 && match.sideB.players.length === 1) {
-            // singles tournament, and permitted, allow it to be created
-            return true;
-        }
-
-        return false;
+        return match.sideA.players.length === 1 && match.sideB.players.length === 1;
     }
 
     async function recordHiCheck(sideName, score) {
