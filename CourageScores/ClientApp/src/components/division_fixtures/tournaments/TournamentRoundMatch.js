@@ -104,7 +104,7 @@ export function TournamentRoundMatch({
     }
 
     function renderSaygDialog() {
-        return (<Dialog slim={true} onClose={() => setSaygOpen(null)} className="text-start">
+        return (<Dialog slim={true} className="text-start">
             <SaygLoadingContainer
                 id={match.saygId}
                 onHiCheck={recordHiCheck}
@@ -122,6 +122,11 @@ export function TournamentRoundMatch({
                 }}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
+            <div className="modal-footer px-0 pb-0">
+                <div className="left-aligned mx-0">
+                    <button className="btn btn-secondary" onClick={() => setSaygOpen(null)}>Close</button>
+                </div>
+            </div>
         </Dialog>)
     }
 
@@ -149,12 +154,7 @@ export function TournamentRoundMatch({
             return true;
         }
 
-        if (match.sideA.players.length === 1 && match.sideB.players.length === 1) {
-            // singles tournament, and permitted, allow it to be created
-            return true;
-        }
-
-        return false;
+        return match.sideA.players.length === 1 && match.sideB.players.length === 1;
     }
 
     async function recordHiCheck(sideName, score) {
