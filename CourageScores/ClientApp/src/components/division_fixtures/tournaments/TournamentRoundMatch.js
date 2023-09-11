@@ -104,6 +104,35 @@ export function TournamentRoundMatch({
         </Dialog>);
     }
 
+    async function deleteSayg() {
+        if (!match.saygId) {
+            return;
+        }
+
+        if (!window.confirm('Are you sure you want to delete the sayg data for this match?')) {
+            return;
+        }
+
+        try {
+            const response = await tournamentApi.deleteSayg(tournamentData.id, match.id);
+            if (!response.success) {
+                onError(response);
+                return;
+            }
+
+            window.alert('Sayg removed from match');
+            const newRound = Object.assign({}, round);
+            const newMatch = Object.assign({}, match);
+            newRound.matches[matchIndex] = newMatch;
+            newMatch.saygId = null;
+            onChange(newRound);
+            setSaygOpen(null);
+        } catch (e) {
+            /* istanbul ignore next */
+            onError(e);
+        }
+    }
+
     function renderSaygDialog() {
         return (<Dialog slim={true} className="text-start">
             <SaygLoadingContainer
@@ -131,6 +160,9 @@ export function TournamentRoundMatch({
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Game/Sayg/${match.saygId}`} className="dropdown-item">
                         <strong>Sayg data</strong><small className="d-block">{match.saygId}</small>
                     </a>
+                    <button disabled={!match.saygId} className="dropdown-item text-danger" onClick={deleteSayg}>
+                        Delete sayg
+                    </button>
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Tournament/${tournamentData.id}`} className="dropdown-item">
                         <strong>Tournament data</strong><small className="d-block">{tournamentData.id}</small>
                     </a>
