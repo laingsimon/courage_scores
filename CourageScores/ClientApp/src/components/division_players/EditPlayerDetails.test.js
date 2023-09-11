@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp, doChange} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails} from "./EditPlayerDetails";
@@ -9,7 +9,7 @@ import {divisionBuilder, playerBuilder, seasonBuilder, teamBuilder} from "../../
 describe('EditPlayerDetails', () => {
     let context;
     let reportedError;
-    let createdPlayer;
+    let createdPlayers;
     let updatedPlayer;
     let saved;
     let change;
@@ -17,7 +17,7 @@ describe('EditPlayerDetails', () => {
     let apiResponse;
     const playerApi = {
         create: async (divisionId, seasonId, teamId, playerDetails) => {
-            createdPlayer = {divisionId, seasonId, teamId, playerDetails};
+            createdPlayers.push({divisionId, seasonId, teamId, playerDetails});
             return apiResponse || {success: true};
         },
         update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
@@ -45,7 +45,7 @@ describe('EditPlayerDetails', () => {
     async function renderComponent(props, teams, divisions) {
         reportedError = null;
         updatedPlayer = null;
-        createdPlayer = null;
+        createdPlayers = [];
         apiResponse = null;
         saved = false;
         change = null;
@@ -153,6 +153,38 @@ describe('EditPlayerDetails', () => {
             const items = Array.from(findNewTeamDropdown().querySelectorAll('.dropdown-item'));
             expect(items.map(i => i.textContent)).toEqual([ 'Select team', 'TEAM' ]);
         });
+
+        it('multi-add for new player', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team], [division]);
+            expect(reportedError).toBeNull();
+
+            const multiAdd = context.container.querySelector('input[name="multiple"]');
+            expect(multiAdd).toBeTruthy();
+        });
+
+        it('without multi-add for existing player', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team], [division]);
+            expect(reportedError).toBeNull();
+
+            const multiAdd = context.container.querySelector('input[name="multiple"]');
+            expect(multiAdd).toBeFalsy();
+        });
     });
 
     describe('interactivity', () => {
@@ -221,6 +253,48 @@ describe('EditPlayerDetails', () => {
             expect(change).not.toBeNull();
             expect(change.name).toEqual('newTeamId');
             expect(change.value).toEqual(otherTeam.id);
+        });
+
+        it('can change to multi-add for new player', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError).toBeNull();
+
+            await doClick(context.container, 'input[name="multiple"]');
+
+            const name = context.container.querySelector('textarea');
+            expect(name.value).toEqual('NAME');
+            expect(context.container.querySelector('input[name="captain"]')).toBeFalsy();
+            expect(context.container.querySelector('input[name="emailAddress"]')).toBeFalsy();
+        });
+
+        it('can change back to single-add for new player', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError).toBeNull();
+            await doClick(context.container, 'input[name="multiple"]');
+            await doChange(context.container, 'textarea', 'NAME 1\nNAME 2', context.user);
+
+            await doClick(context.container, 'input[name="multiple"]');
+
+            expect(change.name).toEqual('name');
+            expect(change.value).toEqual('');
+            expect(context.container.querySelector('input[name="captain"]')).toBeTruthy();
+            expect(context.container.querySelector('input[name="emailAddress"]')).toBeTruthy();
         });
 
         it('can change captaincy', async () => {
@@ -309,13 +383,42 @@ describe('EditPlayerDetails', () => {
 
             await doClick(findButton(context.container, 'Add player'));
 
-            expect(createdPlayer).not.toBeNull();
+            expect(createdPlayers.length).toEqual(1);
+            const createdPlayer = createdPlayers[0];
             expect(createdPlayer.seasonId).toEqual(season.id);
             expect(createdPlayer.teamId).toEqual(team.id);
             expect(createdPlayer.playerDetails.name).toEqual('NAME');
             expect(createdPlayer.playerDetails.emailAddress).toEqual('EMAIL');
             expect(createdPlayer.playerDetails.captain).toEqual(true);
             expect(createdPlayer.playerDetails.newTeamId).toEqual(null);
+        });
+
+        it('creates multiple players', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME 1\nNAME 2').noId().build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError).toBeNull();
+            await doClick(context.container, 'input[name="multiple"]');
+
+            await doClick(findButton(context.container, 'Add players'));
+
+            expect(createdPlayers.length).toEqual(2);
+            const createdPlayer1 = createdPlayers[0];
+            const createdPlayer2 = createdPlayers[1];
+            expect(createdPlayer1.seasonId).toEqual(season.id);
+            expect(createdPlayer1.teamId).toEqual(team.id);
+            expect(createdPlayer1.playerDetails.name).toEqual('NAME 1');
+            expect(createdPlayer1.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer2.seasonId).toEqual(season.id);
+            expect(createdPlayer2.teamId).toEqual(team.id);
+            expect(createdPlayer2.playerDetails.name).toEqual('NAME 2');
+            expect(createdPlayer2.playerDetails.newTeamId).toEqual(null);
         });
 
         it('updates existing player', async () => {
