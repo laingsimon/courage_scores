@@ -39,7 +39,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             throw new InvalidOperationException("WithRequest must be called first");
         }
 
-        var match = FindMatch(model, _request.MatchId);
+        var match = FindMatchVisitor.FindMatch(model, _request.MatchId);
         if (match == null)
         {
             return new ActionResult<TournamentGame>
@@ -102,32 +102,5 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             Messages = result.Messages,
             Result = model,
         };
-    }
-
-    private static TournamentMatch? FindMatch(TournamentGame model, Guid matchId)
-    {
-        var visitor = new FindMatchVisitor(matchId);
-        model.Accept(new VisitorScope(), visitor);
-        return visitor.Match;
-    }
-
-    private class FindMatchVisitor : IGameVisitor
-    {
-        private readonly Guid _matchId;
-
-        public FindMatchVisitor(Guid matchId)
-        {
-            _matchId = matchId;
-        }
-
-        public TournamentMatch? Match { get; private set; }
-
-        public void VisitMatch(IVisitorScope scope, TournamentMatch match)
-        {
-            if (match.Id == _matchId)
-            {
-                Match = match;
-            }
-        }
     }
 }
