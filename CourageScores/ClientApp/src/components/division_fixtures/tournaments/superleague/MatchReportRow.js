@@ -9,7 +9,7 @@ import {
     legTonsSplit,
     playerOverallAverage
 } from "../../../../helpers/superleague";
-import {round2dp} from "../../../../helpers/rendering";
+import {ifNaN, round2dp} from "../../../../helpers/rendering";
 
 export function MatchReportRow({
                                    matchIndex,
@@ -35,7 +35,7 @@ export function MatchReportRow({
                 return (<tr key={matchIndex + '_' + legIndex}>
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle">M{matchIndex + 1}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}
-                                           className="align-middle fw-bold text-danger page-break-avoid">{round2dp(playerOverallAverage(saygData, 'home'))}</td>) : null}
+                                           className="align-middle fw-bold text-danger page-break-avoid">{ifNaN(round2dp(playerOverallAverage(saygData, 'home')), '-')}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}
                                            className={`align-middle page-break-avoid ${winner === 'home' && showWinner ? ' bg-winner' : (matchIndex % 2 === 0 ? '' : 'bg-light')}`}>{hostPlayerName}</td>) : null}
                     <td>{legIndex + 1}</td>
@@ -52,7 +52,7 @@ export function MatchReportRow({
                     <td>{legTons(leg, 'home')}</td>
 
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}
-                                           className="align-middle fw-bold text-danger page-break-avoid">{round2dp(playerOverallAverage(saygData, 'away'))}</td>) : null}
+                                           className="align-middle fw-bold text-danger page-break-avoid">{ifNaN(round2dp(playerOverallAverage(saygData, 'away')), '-')}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}
                                            className={`align-middle page-break-avoid ${winner === 'away' && showWinner ? ' bg-winner' : (matchIndex % 2 === 0 ? 'bg-light' : '')}`}>{opponentPlayerName}</td>) : null}
                     {repeat(noOfThrows + 1, throwIndex => {

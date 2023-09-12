@@ -13,3 +13,14 @@ export function renderDate(dateStr) {
         'en-GB',
         {month: "short", day: "numeric"});
 }
+
+/*
+* Return the given value if a number, otherwise the alternative value
+* */
+export function ifNaN(value, valueIfNaN) {
+    if (Number.isNaN(value) || value === null || value === undefined) {
+        return valueIfNaN;
+    }
+
+    return value;
+}
