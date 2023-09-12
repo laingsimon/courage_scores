@@ -2,7 +2,7 @@ import {Dialog} from "../../common/Dialog";
 import React from "react";
 
 export function EditThrow({ score, noOfDarts, competitor, index, bust, onClose, onChange, onSave }) {
-    return (<Dialog title={`Edit throw ${index + 1} for ${competitor}`}>
+    return (<Dialog title={`Edit throw ${index + 1} for ${competitor}`} contentWidth={true} slim={true}>
         <div>
             <div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
