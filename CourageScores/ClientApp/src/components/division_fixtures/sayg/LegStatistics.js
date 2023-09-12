@@ -59,7 +59,9 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
         delete newThrow.index;
 
         newLeg[throwUnderEdit.competitor] = competitor;
-        competitor.throws = competitor.throws.map((thr, index) => index === throwUnderEdit.index ? newThrow : thr);
+        competitor.throws = competitor.throws
+            .map((thr, index) => index === throwUnderEdit.index ? newThrow : thr)
+            .filter(thr => thr.noOfDarts > 0);
         competitor.score = sum(competitor.throws, thr => thr.score);
         competitor.noOfDarts = sum(competitor.throws, thr => thr.noOfDarts);
 
