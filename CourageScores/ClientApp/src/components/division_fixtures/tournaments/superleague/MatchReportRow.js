@@ -47,7 +47,7 @@ export function MatchReportRow({
                             key={`${matchIndex}_${legIndex}_sideA_${throwIndex}`}>{score}</td>);
                     })}
                     <td>{legActualDarts(leg, 'home')}</td>
-                    <td>{legGameShot(leg, 'home')}</td>
+                    <td className={legGameShot(leg, 'home') >= 100 ? 'text-danger' : ''}>{legGameShot(leg, 'home')}</td>
                     <td>{legScoreLeft(leg, 'home')}</td>
                     <td>{legTons(leg, 'home')}</td>
 
@@ -63,7 +63,7 @@ export function MatchReportRow({
                             key={`${matchIndex}_${legIndex}_sideB_${throwIndex}`}>{score}</td>);
                     })}
                     <td>{legActualDarts(leg, 'away')}</td>
-                    <td>{legGameShot(leg, 'away')}</td>
+                    <td className={legGameShot(leg, 'away') >= 100 ? 'text-danger' : ''}>{legGameShot(leg, 'away')}</td>
                     <td>{legScoreLeft(leg, 'away')}</td>
                     <td>{legTonsSplit(leg, 'away')}</td>
                 </tr>);
