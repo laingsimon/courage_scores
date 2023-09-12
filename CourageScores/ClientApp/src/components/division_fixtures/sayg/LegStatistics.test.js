@@ -417,6 +417,38 @@ describe('LegStatistics', () => {
             });
         });
 
+        it('removes throw when noOfDarts set to 0', async () => {
+            let newLeg;
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .startingScore(501)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: true,
+                onChangeLeg: (value) => newLeg = value,
+            });
+            const firstCell = context.container.querySelector('tr td:first-child');
+            await doClick(firstCell, 'input[id^="showThrows_"]');
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            await doClick(homeThrows[0]);
+
+            await doChange(context.container, 'input[name="noOfDarts"]', '0', context.user);
+            await doClick(findButton(context.container, 'Save changes'));
+
+            expect(newLeg.home).toEqual({
+                bust: false,
+                noOfDarts: 0,
+                score: 0,
+                throws: [],
+            });
+        });
+
         it('cannot change throw when no handler', async () => {
             await renderComponent({
                 leg: legBuilder()
