@@ -361,7 +361,6 @@ describe('Tournament', () => {
                 access: {
                     manageTournaments: true,
                     managePlayers: true,
-                    manageScores: true,
                 }
             };
 
@@ -568,7 +567,6 @@ describe('Tournament', () => {
             access: {
                 manageTournaments: true,
                 managePlayers: true,
-                manageScores: true,
             }
         };
 

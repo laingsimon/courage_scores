@@ -514,7 +514,7 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(updatedRound).not.toBeNull();
                 expect(updatedRound.matchOptions).toEqual([{
-                    startingScore: '123',
+                    startingScore: 123,
                     numberOfLegs: 5,
                 }]);
             });

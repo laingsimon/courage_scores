@@ -1,13 +1,15 @@
-import {isEmpty} from "../../../helpers/collections";
+import {isEmpty, sum} from "../../../helpers/collections";
 import {round2dp} from "../../../helpers/rendering";
-import {stateChanged} from "../../../helpers/events";
+import {stateChanged, valueChanged} from "../../../helpers/events";
 import React, {useState} from "react";
+import {EditThrow} from "./EditThrow";
 
-export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDartAverage}) {
+export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDartAverage, onChangeLeg}) {
     const homeStats = leg.home;
     const awayStats = leg.away;
     const [showThrows, setShowThrows] = useState(false);
     const [showAverage, setShowAverage] = useState(false);
+    const [throwUnderEdit, setThrowUnderEdit] = useState(null);
 
     if (homeStats.noOfDarts + awayStats.noOfDarts === 0) {
         return null;
@@ -36,7 +38,36 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
         });
     }
 
-    function renderThrows(throws) {
+    function editThrow(index, competitor) {
+        if (!onChangeLeg) {
+            return;
+        }
+
+        const thr = leg[competitor].throws[index];
+        const throwUnderEdit = Object.assign({
+            index,
+            competitor,
+        }, thr);
+        setThrowUnderEdit(throwUnderEdit);
+    }
+
+    async function saveThrowChange() {
+        const newLeg = Object.assign({}, leg);
+        const competitor = Object.assign({}, leg[throwUnderEdit.competitor]);
+        const newThrow = Object.assign({}, throwUnderEdit);
+        delete newThrow.competitor;
+        delete newThrow.index;
+
+        newLeg[throwUnderEdit.competitor] = competitor;
+        competitor.throws = competitor.throws.map((thr, index) => index === throwUnderEdit.index ? newThrow : thr);
+        competitor.score = sum(competitor.throws, thr => thr.score);
+        competitor.noOfDarts = sum(competitor.throws, thr => thr.noOfDarts);
+
+        await onChangeLeg(newLeg);
+        setThrowUnderEdit(null);
+    }
+
+    function renderThrows(throws, competitor) {
         if (isEmpty(throws)) {
             return (<p>No throws</p>);
         }
@@ -52,7 +83,7 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
             </tr>
             </thead>
             <tbody>
-            {legStatistics.map((stats, index) => <tr key={index} className={stats.checkout ? 'bg-winner' : ''}>
+            {legStatistics.map((stats, index) => <tr key={index} className={stats.checkout ? 'bg-winner' : ''}  onClick={() => editThrow(index, competitor)}>
                 <td className={`${stats.bust ? ' text-decoration-line-through' : ''}${stats.thisScore >= 100 ? ' text-danger' : ''}${stats.thisScore === 180 ? ' fw-bold' : ''}`}>
                     {stats.thisScore}
                 </td>
@@ -86,20 +117,29 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
                 {showAverage ? (<span>Click to show <strong>No. of darts</strong></span>) : null}
                 {!showAverage ? (<span>Click to show <strong>running average</strong></span>) : null}
             </button>) : null}
+            {throwUnderEdit
+                ? (<EditThrow
+                    {...throwUnderEdit}
+                    home={home}
+                    away={away}
+                    onSave={saveThrowChange}
+                    onChange={valueChanged(throwUnderEdit, setThrowUnderEdit)}
+                    onClose={() => setThrowUnderEdit(null)} />)
+                : null}
         </td>
         <td className={leg.winner === 'home' ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(homeStats.score / (homeStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({homeStats.noOfDarts} darts)<br/>
             {leg.winner === 'home'
                 ? (<div>Checkout: <strong>{leg.home.throws[leg.home.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - homeStats.score}</strong></div>)}
-            {showThrows ? (renderThrows(leg.home.throws)) : null}
+            {showThrows ? (renderThrows(leg.home.throws, 'home')) : null}
         </td>
         {singlePlayer ? null : (<td className={leg.winner === 'away' ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(awayStats.score / (awayStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({awayStats.noOfDarts} darts)<br/>
             {leg.winner === 'away'
                 ? (<div>Checkout: <strong>{leg.away.throws[leg.away.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - awayStats.score}</strong></div>)}
-            {showThrows ? (renderThrows(leg.away.throws)) : null}
+            {showThrows ? (renderThrows(leg.away.throws, 'away')) : null}
         </td>)}
     </tr>);
 }

@@ -9,7 +9,7 @@ import {
     playerOverallAverage,
     sumOverThrows
 } from "../../../../helpers/superleague";
-import {round2dp} from "../../../../helpers/rendering";
+import {ifNaN, round2dp} from "../../../../helpers/rendering";
 
 export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
     const {onError} = useApp();
@@ -19,7 +19,7 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
         const sumOfDarts = sum(saygMatches, s => sumOverThrows(s.saygData, side, 'noOfDarts', true));
 
         return (<td title={round2dp(sumOfScores) + ' / ' + round2dp(sumOfDarts)}>
-            {round2dp(sumOfScores / sumOfDarts)}
+            {ifNaN(round2dp(sumOfScores / sumOfDarts), '-')}
         </td>);
     }
 
@@ -27,7 +27,7 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
         const average = sum(saygMatches, map => playerOverallAverage(map.saygData, side));
 
         return (<td title={round2dp(average) + ' / ' + noOfLegs}>
-            {round2dp(average / noOfLegs)}
+            {ifNaN(round2dp(average / noOfLegs), '-')}
         </td>);
     }
 
@@ -79,14 +79,14 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
                     <td>{sum(saygMatches, saygData => countMatch100(saygData, 'home'))}</td>
                     <td>{sum(saygMatches, saygData => countMatch140(saygData, 'home'))}</td>
                     <td>{sum(saygMatches, saygData => countMatch180(saygData, 'home'))}</td>
-                    <td>{round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'home')))}</td>
+                    <td>{ifNaN(round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'home'))), '-')}</td>
                     <td>Total</td>
                     <td>{sum(saygMatches, map => map.match.scoreB)}</td>
                     <td>{sum(saygMatches, saygData => matchTons(saygData, 'away'))}</td>
                     <td>{sum(saygMatches, saygData => countMatch100(saygData, 'away'))}</td>
                     <td>{sum(saygMatches, saygData => countMatch140(saygData, 'away'))}</td>
                     <td>{sum(saygMatches, saygData => countMatch180(saygData, 'away'))}</td>
-                    <td>{round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'away')))}</td>
+                    <td>{ifNaN(round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'away'))), '-')}</td>
                 </tr>
                 </tbody>
                 <tfoot>
