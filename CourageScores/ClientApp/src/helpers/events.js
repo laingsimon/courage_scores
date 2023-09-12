@@ -8,7 +8,9 @@ export function valueChanged(get, set, nullIf) {
             ? event.target.checked
             : event.target.value === nullIf
                 ? null
-                : event.target.value;
+                : event.target.type === 'number'
+                    ? Number.parseFloat(event.target.value)
+                    : event.target.value;
         await set(newData);
     }
 }

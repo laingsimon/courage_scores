@@ -644,7 +644,7 @@ describe('Score', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
-            expect(updatedFixtures[fixture.id].matchOptions[0].numberOfLegs).toEqual('30');
+            expect(updatedFixtures[fixture.id].matchOptions[0].numberOfLegs).toEqual(30);
         });
 
         it('can unpublish unselected submission', async () => {

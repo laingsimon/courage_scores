@@ -4,7 +4,7 @@ import {MatchAverage} from "./MatchAverage";
 import {LegStatistics} from "./LegStatistics";
 import {useState} from "react";
 
-export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer}) {
+export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged}) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
 
     function sumOf(player, prop) {
@@ -40,7 +40,9 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     home={home}
                     away={away}
                     singlePlayer={singlePlayer}
-                    oneDartAverage={oneDartAverage}/>);
+                    oneDartAverage={oneDartAverage}
+                    onChangeLeg={legChanged ? ((newLeg) => legChanged(newLeg, legIndex)) : null}
+                />);
             })}
             </tbody>
             <tfoot>
