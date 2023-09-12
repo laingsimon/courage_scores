@@ -120,6 +120,8 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
             {throwUnderEdit
                 ? (<EditThrow
                     {...throwUnderEdit}
+                    home={home}
+                    away={away}
                     onSave={saveThrowChange}
                     onChange={valueChanged(throwUnderEdit, setThrowUnderEdit)}
                     onClose={() => setThrowUnderEdit(null)} />)
