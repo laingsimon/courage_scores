@@ -358,6 +358,7 @@ describe('TournamentSide', () => {
 
             expect(reportedError).toBeNull();
             expect(removed).toEqual(true);
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
     });
 });

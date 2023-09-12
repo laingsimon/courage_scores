@@ -36,7 +36,10 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
                 }
                 setEditSide(null);
             }}
-            onDelete={onRemove}/>);
+            onDelete={async () => {
+                await onRemove();
+                setEditSide(null);
+            }}/>);
     }
 
     return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
