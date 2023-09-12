@@ -1,12 +1,15 @@
 import {PlayLeg} from "./PlayLeg";
 import {MatchStatistics} from "./MatchStatistics";
 import {useApp} from "../../../AppContainer";
+import {useSayg} from "./SaygLoadingContainer";
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer
                              }) {
-    const {onError} = useApp();
+    const {onError, account} = useApp();
+    const {saveDataAndGetId} = useSayg();
+    const canEditThrows = account && account.access && account.access.recordScoresAsYouGo;
 
     function getLeg(legIndex) {
         const leg = data.legs[legIndex];
@@ -40,6 +43,12 @@ export function ScoreAsYouGo({
         }
         newData.legs[legIndex] = newLeg;
         await onChange(newData);
+        return newData;
+    }
+
+    async function saveChangedLeg(newLeg, legIndex) {
+        const newData = await legChanged(newLeg, legIndex);
+        await saveDataAndGetId(newData);
     }
 
     async function recordWinner(winnerName) {
@@ -83,7 +92,9 @@ export function ScoreAsYouGo({
             homeScore={homeScore}
             home={home}
             away={away}
-            singlePlayer={singlePlayer}/>
+            singlePlayer={singlePlayer}
+            legChanged={canEditThrows ? saveChangedLeg : null}
+        />
     }
 
     const leg = getLeg(legIndex);

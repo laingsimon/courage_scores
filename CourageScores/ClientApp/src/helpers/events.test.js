@@ -1,8 +1,114 @@
 // noinspection JSUnresolvedReference
 
-import {handleChange, propChanged} from './events';
+import {handleChange, propChanged, valueChanged} from './events';
 
 describe('events', () => {
+    describe('valueChanged', () => {
+         it('should set data to true if checkbox checked', async () => {
+            let newObj;
+            const handler = valueChanged({
+                enabled: false,
+            }, val => newObj = val);
+
+            await handler({
+                target: {
+                    type: 'checkbox',
+                    name: 'enabled',
+                    checked: true,
+                    value: null,
+                }
+            });
+
+            expect(newObj.enabled).toEqual(true);
+         });
+
+        it('should set data to false if checkbox unchecked', async () => {
+            let newObj;
+            const handler = valueChanged({
+                enabled: true,
+            }, val => newObj = val);
+
+            await handler({
+                target: {
+                    type: 'checkbox',
+                    name: 'enabled',
+                    checked: false,
+                    value: null,
+                }
+            });
+
+            expect(newObj.enabled).toEqual(false);
+        });
+
+        it('should set data to number if number input changed', async () => {
+            let newObj;
+            const handler = valueChanged({
+                age: 10,
+            }, val => newObj = val);
+
+            await handler({
+                target: {
+                    type: 'number',
+                    name: 'age',
+                    value: '20',
+                }
+            });
+
+            expect(newObj.age).toEqual(20);
+        });
+
+        it('should set data to null if number input changed to nullIf', async () => {
+            let newObj;
+            const handler = valueChanged({
+                age: 10,
+            }, val => newObj = val, '');
+
+            await handler({
+                target: {
+                    type: 'number',
+                    name: 'age',
+                    value: '',
+                }
+            });
+
+            expect(newObj.age).toBeNull();
+        });
+
+        it('should set data to string if input changed', async () => {
+            let newObj;
+            const handler = valueChanged({
+                name: 'NAME',
+            }, val => newObj = val);
+
+            await handler({
+                target: {
+                    type: 'text',
+                    name: 'name',
+                    value: 'NEW',
+                }
+            });
+
+            expect(newObj.name).toEqual('NEW');
+        });
+
+        it('should set data to null if input changed to nullIf', async () => {
+            let newObj;
+            const handler = valueChanged({
+                name: 'NAME',
+            }, val => newObj = val, '');
+
+            await handler({
+                target: {
+                    type: 'text',
+                    name: 'name',
+                    value: '',
+                }
+            });
+
+            expect(newObj.name).toBeNull();
+        });
+    });
+
     describe('propChanged', () => {
         it('updates single property when named', () => {
             let newValue;

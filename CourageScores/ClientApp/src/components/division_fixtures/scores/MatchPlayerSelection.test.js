@@ -703,7 +703,7 @@ describe('MatchPlayerSelection', () => {
 
             expect(updatedMatchOptions).not.toBeNull();
             expect(updatedMatchOptions).toEqual({
-                playerCount: '3',
+                playerCount: 3,
                 numberOfLegs: 5,
                 startingScore: 501,
             });
@@ -733,7 +733,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatchOptions).not.toBeNull();
             expect(updatedMatchOptions).toEqual({
                 playerCount: 1,
-                numberOfLegs: '3',
+                numberOfLegs: 3,
                 startingScore: 501,
             });
         });
@@ -763,7 +763,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatchOptions).toEqual({
                 playerCount: 1,
                 numberOfLegs: 5,
-                startingScore: '601',
+                startingScore: 601,
             });
         });
 
