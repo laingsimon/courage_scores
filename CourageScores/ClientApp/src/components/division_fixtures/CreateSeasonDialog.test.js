@@ -5,7 +5,7 @@ import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
 import {DivisionDataContainer} from "../DivisionDataContainer";
-import {divisionBuilder, fixtureDateBuilder} from "../../helpers/builders";
+import {divisionBuilder, fixtureDateBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('CreateSeasonDialog', () => {
     let context;
@@ -345,6 +345,11 @@ describe('CreateSeasonDialog', () => {
                             divisionBuilder('PROPOSED DIVISION', divisionId).build(),
                             divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                         ],
+                        placeholderMappings: {
+                            C: teamBuilder('TEAM C').build(),
+                            B: teamBuilder('TEAM B').build(),
+                            A: teamBuilder('TEAM A').build(),
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -358,6 +363,8 @@ describe('CreateSeasonDialog', () => {
                 expect(floatingDialog.textContent).toContain('Review the fixtures in the divisions');
                 const options = Array.from(floatingDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
                 expect(options.map(li => li.textContent)).toEqual(['ANOTHER DIVISION', 'DIVISION 1']);
+                const placeholderMappings = Array.from(floatingDialog.querySelectorAll('ul li'));
+                expect(placeholderMappings.map(li => li.textContent)).toEqual([ 'A → TEAM A', 'B → TEAM B', 'C → TEAM C' ]);
             });
         });
 
@@ -431,6 +438,7 @@ describe('CreateSeasonDialog', () => {
                                     .withFixture(f => f.proposal().playing('home', 'away'), '2.3')
                                     .build()]
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -718,6 +726,7 @@ describe('CreateSeasonDialog', () => {
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -790,6 +799,7 @@ describe('CreateSeasonDialog', () => {
                             divisionBuilder('PROPOSED DIVISION', divisionId).build(),
                             divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                         ],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -861,6 +871,7 @@ describe('CreateSeasonDialog', () => {
                             divisionBuilder('PROPOSED DIVISION', divisionId).build(),
                             divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                         ],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -936,6 +947,7 @@ describe('CreateSeasonDialog', () => {
                             name: 'ANOTHER DIVISION',
                             fixtures: []
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1026,6 +1038,7 @@ describe('CreateSeasonDialog', () => {
                                     .build()
                             ]
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1120,6 +1133,7 @@ describe('CreateSeasonDialog', () => {
                                     .build()
                             ]
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1221,6 +1235,7 @@ describe('CreateSeasonDialog', () => {
                                     .build()
                             ]
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1319,6 +1334,7 @@ describe('CreateSeasonDialog', () => {
                                     .build()
                             ]
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1420,6 +1436,7 @@ describe('CreateSeasonDialog', () => {
                                     .build()
                             ]
                         }],
+                        placeholderMappings: {},
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
