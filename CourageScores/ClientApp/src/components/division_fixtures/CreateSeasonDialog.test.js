@@ -350,6 +350,21 @@ describe('CreateSeasonDialog', () => {
                             B: teamBuilder('TEAM B').build(),
                             A: teamBuilder('TEAM A').build(),
                         },
+                        template: {
+                            id: templateId,
+                            sharedAddresses: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [{
+                                    fixtures: [{home: 'A', away: null}],
+                                }],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [{
+                                    fixtures: [{home: 'B', away: 'C'}],
+                                }],
+                            } ]
+                        }
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -364,7 +379,7 @@ describe('CreateSeasonDialog', () => {
                 const options = Array.from(floatingDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
                 expect(options.map(li => li.textContent)).toEqual(['ANOTHER DIVISION', 'DIVISION 1']);
                 const placeholderMappings = Array.from(floatingDialog.querySelectorAll('ul li'));
-                expect(placeholderMappings.map(li => li.textContent)).toEqual([ 'A → TEAM A', 'B → TEAM B', 'C → TEAM C' ]);
+                expect(placeholderMappings.map(li => li.textContent)).toEqual([ 'B → TEAM B', 'C → TEAM C' ]);
             });
         });
 
@@ -439,6 +454,10 @@ describe('CreateSeasonDialog', () => {
                                     .build()]
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -727,6 +746,10 @@ describe('CreateSeasonDialog', () => {
                             name: 'PROPOSED DIVISION',
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -800,6 +823,10 @@ describe('CreateSeasonDialog', () => {
                             divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                         ],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -814,6 +841,99 @@ describe('CreateSeasonDialog', () => {
                     id: anotherDivisionId,
                     name: 'ANOTHER DIVISION',
                 });
+            });
+
+            it('shows placeholders for the selected division', async () => {
+                const seasonId = createTemporaryId();
+                const templateId = createTemporaryId();
+                const divisionId = createTemporaryId();
+                const anotherDivisionId = createTemporaryId();
+                let divisionDataSetTo;
+                compatibilityResponses[seasonId] = {
+                    success: true,
+                    result: [{
+                        success: true,
+                        result: {
+                            id: templateId,
+                            name: 'TEMPLATE',
+                            templateHealth: {
+                                checks: {},
+                                errors: [],
+                                warnings: [],
+                                messages: [],
+                            },
+                        },
+                        errors: [],
+                        warnings: [],
+                        messages: [],
+                    }],
+                };
+                await renderComponent({
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
+                }, {
+                    id: divisionId, setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    }
+                }, {
+                    seasonId: seasonId,
+                });
+                await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
+                expect(reportedError).toBeNull();
+                apiResponse = {
+                    success: true,
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
+                    result: {
+                        proposalHealth: {
+                            checks: {},
+                            errors: [],
+                            warnings: [],
+                            messages: [],
+                        },
+                        divisions: [
+                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                        ],
+                        placeholderMappings: {
+                            C: teamBuilder('TEAM C').build(),
+                            B: teamBuilder('TEAM B').build(),
+                            A: teamBuilder('TEAM A').build(),
+                        },
+                        template: {
+                            id: templateId,
+                            sharedAddresses: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [{
+                                    fixtures: [{home: 'A', away: null}],
+                                }],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [{
+                                    fixtures: [{home: 'B', away: 'C'}],
+                                }],
+                            } ]
+                        },
+                    }
+                };
+                await doClick(findButton(context.container, 'Next'));
+                expect(reportedError).toBeNull();
+                await doClick(findButton(context.container, 'Next'));
+                expect(reportedError).toBeNull();
+                const floatingDialog = context.container.querySelector('div');
+
+                await doSelectOption(floatingDialog.querySelector('.dropdown-menu'), 'ANOTHER DIVISION');
+
+                expect(divisionDataSetTo).toEqual({
+                    id: anotherDivisionId,
+                    name: 'ANOTHER DIVISION',
+                });
+                const placeholderMappings = Array.from(floatingDialog.querySelectorAll('ul li'));
+                expect(placeholderMappings.map(li => li.textContent)).toEqual([ 'A → TEAM A' ]);
             });
 
             it('can navigate back to review', async () => {
@@ -872,6 +992,10 @@ describe('CreateSeasonDialog', () => {
                             divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                         ],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -948,6 +1072,10 @@ describe('CreateSeasonDialog', () => {
                             fixtures: []
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1039,6 +1167,10 @@ describe('CreateSeasonDialog', () => {
                             ]
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1134,6 +1266,10 @@ describe('CreateSeasonDialog', () => {
                             ]
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1236,6 +1372,10 @@ describe('CreateSeasonDialog', () => {
                             ]
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1335,6 +1475,10 @@ describe('CreateSeasonDialog', () => {
                             ]
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -1437,6 +1581,10 @@ describe('CreateSeasonDialog', () => {
                             ]
                         }],
                         placeholderMappings: {},
+                        template: {
+                            divisions: [],
+                            sharedAddresses: [],
+                        },
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));

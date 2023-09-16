@@ -3,7 +3,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import React, {useEffect, useState} from "react";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {any, sortBy} from "../../helpers/collections";
+import {any, distinct, sortBy} from "../../helpers/collections";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
 import {useDivisionData} from "../DivisionDataContainer";
 import {renderDate} from "../../helpers/rendering";
@@ -249,6 +249,12 @@ export function CreateSeasonDialog({seasonId, onClose}) {
 
     if (stage === 'review-proposals') {
         const placeholderMappings = response.result.placeholderMappings;
+        const selectedDivisionIndex = divisionOptions.map(o => o.value).indexOf(selectedDivisionId);
+        const templateDivision = response.result.template.divisions[selectedDivisionIndex] || {dates: []};
+        const placeholdersToRender = distinct(templateDivision.dates
+            .flatMap(d => d.fixtures
+                .flatMap(f => [f.home, f.away])
+                .filter(p => p !== null)));
         return (<>
             <div style={{zIndex: '1051'}}
                  className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
@@ -256,7 +262,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 <BootstrapDropdown options={divisionOptions} value={selectedDivisionId}
                                    onChange={changeVisibleDivision}/>
                 <ul className="mt-3">
-                    {Object.keys(placeholderMappings).sort().map(key => (<li key={key}>
+                    {placeholdersToRender.sort().map(key => (<li key={key}>
                         {key} &rarr; {placeholderMappings[key].name}
                     </li>))}
                 </ul>
