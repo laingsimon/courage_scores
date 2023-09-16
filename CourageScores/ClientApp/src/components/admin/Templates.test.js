@@ -44,7 +44,7 @@ describe('Templates', () => {
         healthRequestFor = null;
     })
 
-    async function renderComponent() {
+    async function renderComponent(search) {
         reportedError = null;
         context = await renderApp(
             {templateApi},
@@ -62,7 +62,9 @@ describe('Templates', () => {
             },
             (<AdminContainer>
                 <Templates/>
-            </AdminContainer>));
+            </AdminContainer>),
+            '/admin/templates/',
+            '/admin/templates/' + (search || ''));
     }
 
     describe('renders', () => {
@@ -77,12 +79,46 @@ describe('Templates', () => {
             await renderComponent();
 
             expect(reportedError).toBeNull();
-            const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => li.querySelector('small').textContent)).toEqual(['DESCRIPTION']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([[]]);
+        });
+
+        it('renders selected template by id', async () => {
+            const template = {
+                id: createTemporaryId(),
+                name: 'TEMPLATE',
+                description: 'DESCRIPTION',
+                sharedAddresses: [],
+                divisions: [],
+            };
+            templates = [template];
+
+            await renderComponent('?select=' + template.id);
+
+            expect(reportedError).toBeNull();
+            const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
+            expect(templateItems.map(li => li.className.indexOf('active') !== -1)).toEqual([true]);
+        });
+
+        it('renders selected template by name', async () => {
+            const template = {
+                id: createTemporaryId(),
+                name: 'TEMPLATE',
+                description: 'DESCRIPTION',
+                sharedAddresses: [],
+                divisions: [],
+            };
+            templates = [template];
+
+            await renderComponent('?select=' + template.name);
+
+            expect(reportedError).toBeNull();
+            const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
+            expect(templateItems.map(li => li.className.indexOf('active') !== -1)).toEqual([true]);
         });
 
         it('renders templates without description', async () => {

@@ -3,7 +3,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import React, {useEffect, useState} from "react";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {any, sortBy} from "../../helpers/collections";
+import {any, distinct, sortBy} from "../../helpers/collections";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
 import {useDivisionData} from "../DivisionDataContainer";
 import {renderDate} from "../../helpers/rendering";
@@ -248,12 +248,41 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         []);
 
     if (stage === 'review-proposals') {
+        const placeholderMappings = response.result.placeholderMappings;
+        const selectedDivisionIndex = divisionOptions.map(o => o.value).indexOf(selectedDivisionId);
+        const templateDivision = response.result.template.divisions[selectedDivisionIndex];
+        const placeholdersToRender = distinct(templateDivision.dates
+            .flatMap(d => d.fixtures
+                .flatMap(f => [f.home, f.away])
+                .filter(p => p !== null)));
+        const templateSharedAddresses = response.result.template.sharedAddresses.flatMap(a => a);
+        const divisionSharedAddresses = templateDivision.sharedAddresses.flatMap(a => a);
         return (<>
             <div style={{zIndex: '1051'}}
                  className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
                 <h6>Review the fixtures in the divisions</h6>
                 <BootstrapDropdown options={divisionOptions} value={selectedDivisionId}
                                    onChange={changeVisibleDivision}/>
+                <ul className="mt-3">
+                    {placeholdersToRender.sort().map(key => {
+                        const isTemplateSharedAddress = any(templateSharedAddresses, a => a === key);
+                        const isDivisionSharedAddress = any(divisionSharedAddresses, a => a === key);
+                        let className = '';
+                        if (isTemplateSharedAddress) {
+                            className += ' bg-warning';
+                        }
+                        if (isDivisionSharedAddress) {
+                            className += ' bg-secondary text-light';
+                        }
+
+                        return (<li key={key}>
+                            <span className={`px-2 ${className}`}>{key}</span> &rarr; {placeholderMappings[key].name}
+                        </li>);
+                    })}
+                </ul>
+                <p>
+                    Template: <a href={`/admin/templates/?select=${response.result.template.id}`} target="_blank" rel="noreferrer">{response.result.template.name}</a>
+                </p>
                 <div className="mt-3">
                     <button className="btn btn-primary margin-right" onClick={onPrevious}>Back</button>
                     <button className="btn btn-primary margin-right" onClick={onNext}>Save all fixtures</button>
