@@ -380,6 +380,8 @@ describe('CreateSeasonDialog', () => {
                 expect(options.map(li => li.textContent)).toEqual(['ANOTHER DIVISION', 'DIVISION 1']);
                 const placeholderMappings = Array.from(floatingDialog.querySelectorAll('ul li'));
                 expect(placeholderMappings.map(li => li.textContent)).toEqual([ 'B → TEAM B', 'C → TEAM C' ]);
+                const templateLink = floatingDialog.querySelector('p a');
+                expect(templateLink.href).toEqual(`http://localhost/admin/templates/?select=${templateId}`);
             });
         });
 

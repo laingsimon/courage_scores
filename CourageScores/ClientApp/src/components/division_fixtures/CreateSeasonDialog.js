@@ -266,6 +266,9 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                         {key} &rarr; {placeholderMappings[key].name}
                     </li>))}
                 </ul>
+                <p>
+                    Template: <a href={`/admin/templates/?select=${response.result.template.id}`} target="_blank" rel="noreferrer">{response.result.template.name}</a>
+                </p>
                 <div className="mt-3">
                     <button className="btn btn-primary margin-right" onClick={onPrevious}>Back</button>
                     <button className="btn btn-primary margin-right" onClick={onNext}>Save all fixtures</button>
