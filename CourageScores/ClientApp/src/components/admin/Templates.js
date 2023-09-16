@@ -7,6 +7,7 @@ import {valueChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
+import {useLocation} from "react-router-dom";
 
 export function Templates() {
     const EMPTY_TEMPLATE = {
@@ -25,12 +26,22 @@ export function Templates() {
     const [saveError, setSaveError] = useState(null);
     const [editorFormat, setEditorFormat] = useState('visual');
     const [shouldRefreshHealth, setShouldRefreshHealth] = useState(false);
+    const location = useLocation();
 
     async function loadTemplates() {
         try {
             const templates = await templateApi.getAll();
             setTemplates(templates);
             setLoading(false);
+
+            const search = new URLSearchParams(location.search);
+            const idish = search.has('select') ? search.get('select') : null;
+            if (!selected && idish) {
+                const templateToSelect = templates.filter(t => t.id === idish || t.name === idish)[0];
+                if (templateToSelect) {
+                    setSelected(templateToSelect);
+                }
+            }
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
