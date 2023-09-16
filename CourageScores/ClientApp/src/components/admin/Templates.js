@@ -211,7 +211,7 @@ export function Templates() {
                     <div className="input-group-prepend">
                         <span className="input-group-text">Name</span>
                     </div>
-                    <input name="name" className="form-control" value={selected.name} onChange={valueChanged(selected, setSelected)} />
+                    <input name="name" className="form-control" value={selected.name || ''} onChange={valueChanged(selected, setSelected)} />
                 </div>
                 <div className="input-group mb-3">
                     <div className="input-group-prepend">
