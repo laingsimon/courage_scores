@@ -44,23 +44,8 @@ describe('TemplateDate', () => {
     }
 
     describe('renders', () => {
-        it('date/week number', async () => {
-            await renderComponent({
-                dateNo: 1,
-                date: {
-                    fixtures: []
-                },
-                divisionSharedAddresses: [],
-                templateSharedAddresses: [],
-            });
-
-            const prefix = context.container.querySelector('small');
-            expect(prefix.textContent).toEqual('1 ');
-        });
-
         it('empty fixtures', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: []
                 },
@@ -78,7 +63,6 @@ describe('TemplateDate', () => {
                 away: 'B',
             };
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [fixture]
                 },
@@ -96,7 +80,6 @@ describe('TemplateDate', () => {
                 away: null,
             };
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [fixture]
                 },
@@ -114,7 +97,6 @@ describe('TemplateDate', () => {
                 away: null,
             };
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [fixture]
                 },
@@ -133,7 +115,6 @@ describe('TemplateDate', () => {
                 away: null,
             };
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [fixture]
                 },
@@ -152,7 +133,6 @@ describe('TemplateDate', () => {
                 away: null,
             };
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [fixture]
                 },
@@ -169,7 +149,6 @@ describe('TemplateDate', () => {
     describe('interactivity', () => {
         it('can add league fixture (Button press)', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: []
                 },
@@ -191,7 +170,6 @@ describe('TemplateDate', () => {
 
         it('can add league fixture (Enter key press)', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: []
                 },
@@ -213,7 +191,6 @@ describe('TemplateDate', () => {
 
         it('cannot add fixture without a home team (Button press)', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: []
                 },
@@ -234,7 +211,6 @@ describe('TemplateDate', () => {
 
         it('cannot add fixture without a home team (Enter key press)', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: []
                 },
@@ -255,7 +231,6 @@ describe('TemplateDate', () => {
 
         it('can add bye fixture', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: []
                 },
@@ -276,7 +251,6 @@ describe('TemplateDate', () => {
 
         it('can delete league fixture', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [{
                         home: 'A',
@@ -296,7 +270,6 @@ describe('TemplateDate', () => {
 
         it('can delete bye fixture', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [{
                         home: 'A',
@@ -316,7 +289,6 @@ describe('TemplateDate', () => {
 
         it('can delete date with fixtures', async () => {
             await renderComponent({
-                dateNo: 1,
                 date: {
                     fixtures: [{
                         home: 'A',

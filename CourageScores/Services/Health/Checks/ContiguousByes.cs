@@ -53,7 +53,7 @@ public class ContiguousByes : ISeasonHealthCheck
 
             if (fixtures.Length > 1)
             {
-                result.Errors.Add($"{division.Name}: Found multiple fixtures on {date.Date:dd MMM yyyy} for {team.Name}");
+                result.Errors.Add($"{division.Name}: Found multiple fixtures on {date.Date:dd MMM} for {team.Name}");
                 result.Success = false;
                 continue;
             }
@@ -90,6 +90,6 @@ public class ContiguousByes : ISeasonHealthCheck
         var firstEvent = contiguousDates.First();
         var lastEvent = contiguousDates.Last();
 
-        return $"{division.Name}: {team.Name} has {contiguousDates.Count} byes in a row from {firstEvent.Date:d MMM yyyy} - {lastEvent.Date:d MMM yyyy}";
+        return $"{division.Name}: {team.Name} has {contiguousDates.Count} byes in a row from {firstEvent.Date:d MMM} - {lastEvent.Date:d MMM}";
     }
 }

@@ -25,7 +25,7 @@ export function ViewHealthCheck({result}) {
                         <div>
                             {checkResult.success ? '✔' : '❌'} {check}
                         </div>
-                        <div className="ps-4">
+                        <div className="ps-4 small">
                             {checkResult.errors.map(renderError)}
                             {checkResult.warnings.map(renderWarning)}
                             {checkResult.messages.map(renderMessage)}

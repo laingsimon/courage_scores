@@ -21,7 +21,7 @@ public class FixturesBeforeEndDate : ISeasonHealthCheck
         return Task.FromResult(new HealthCheckResultDto
         {
             Success = fixturesAfterEnd.Length == 0,
-            Warnings = fixturesAfterEnd.Select(d => $"Fixture exists after season end date: {d:d MMM yyyy}").ToList(),
+            Warnings = fixturesAfterEnd.Select(d => $"Fixture exists after season end date: {d:d MMM}").ToList(),
         });
     }
 }

@@ -30,7 +30,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDate : ISeasonHealthCheck
             foreach (var group in multipleFixturesPerVenue)
             {
                 result.Success = false;
-                result.Warnings.Add($"{group.Key} is being used for {group.Count()} fixtures on {date:d MMM yyyy}");
+                result.Warnings.Add($"{group.Key} is being used for {group.Count()} fixtures on {date:d MMM}");
             }
         }
 

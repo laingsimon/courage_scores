@@ -42,7 +42,7 @@ public class TeamsAreNotPlayingAgainstThemselves : ISeasonHealthCheck
         foreach (var date in division.Dates.Where(d => d.Fixtures.Any(f => f.HomeTeamId == team.Id && f.AwayTeamId == team.Id)))
         {
             result.Success = false;
-            result.Errors.Add($"Found {team.Name} playing against themselves on {date.Date:d MMM yyyy}");
+            result.Errors.Add($"Found {team.Name} playing against themselves on {date.Date:d MMM}");
         }
 
         return Task.FromResult(result);
