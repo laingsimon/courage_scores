@@ -2,7 +2,7 @@ import {useState} from "react";
 import {any} from "../../helpers/collections";
 import {valueChanged} from "../../helpers/events";
 
-export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }) {
+export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }) {
     const [ newFixture, setNewFixture ] = useState({
         home: null,
         away: null,
@@ -49,8 +49,7 @@ export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedA
         return '';
     }
 
-    return (<div>
-        <small className="position-absolute left-0 ps-0 pt-1 text-end width-10">{dateNo} </small>
+    return (<div className="position-relative">
         {date.fixtures.map((f, index) => (<button
             key={index}
             onClick={() => deleteFixture(index)}
