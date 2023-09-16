@@ -102,7 +102,7 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
         var firstEvent = contiguousEvents.First();
         var lastEvent = contiguousEvents.Last();
 
-        return $"{division.Name}: {team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} from {firstEvent.Date:d MMM yyyy} - {lastEvent.Date:d MMM yyyy}";
+        return $"{division.Name}: {team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} from {firstEvent.Date:d MMM} - {lastEvent.Date:d MMM}";
     }
 
     [ExcludeFromCodeCoverage]

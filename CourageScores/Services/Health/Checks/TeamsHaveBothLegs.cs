@@ -75,7 +75,7 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
                     Success = false,
                     Warnings =
                     {
-                        $"{division.Name}: Multiple fixtures for {team1.Name} vs {team2.Name} ({string.Join(", ", homeLegs.Select(l => l.Date.ToString("d MMM yyyy")))})",
+                        $"{division.Name}: Multiple fixtures for {team1.Name} vs {team2.Name} ({string.Join(", ", homeLegs.Select(l => l.Date.ToString("d MMM")))})",
                     },
                 });
         }

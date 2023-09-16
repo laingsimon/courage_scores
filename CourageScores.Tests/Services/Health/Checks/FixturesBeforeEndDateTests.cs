@@ -83,7 +83,7 @@ public class FixturesBeforeEndDateTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EqualTo(new[]
         {
-            "Fixture exists after season end date: 4 Mar 2001",
+            "Fixture exists after season end date: 4 Mar",
         }));
     }
 }

@@ -44,7 +44,7 @@ public class TeamsPlayingMultipleFixturesOnSameDate : ISeasonHealthCheck
         {
             if (date.Fixtures.Count(f => f.HomeTeamId == team.Id) > 1)
             {
-                result.Warnings.Add($"{division.Name}: {team.Name} is playing multiple fixtures on {date.Date:d MMM yyyy}");
+                result.Warnings.Add($"{division.Name}: {team.Name} is playing multiple fixtures on {date.Date:d MMM}");
                 result.Success = false;
             }
         }

@@ -20,7 +20,7 @@ public class FixturesAfterStartDate : ISeasonHealthCheck
         return Task.FromResult(new HealthCheckResultDto
         {
             Success = fixturesBeforeStart.Length == 0,
-            Warnings = fixturesBeforeStart.Select(d => $"Fixture exists before season start date: {d:d MMM yyyy}").ToList(),
+            Warnings = fixturesBeforeStart.Select(d => $"Fixture exists before season start date: {d:d MMM}").ToList(),
         });
     }
 }

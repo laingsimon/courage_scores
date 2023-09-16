@@ -254,7 +254,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "ADDRESS is being used for 2 fixtures on 3 Feb 2001",
+            "ADDRESS is being used for 2 fixtures on 3 Feb",
         }));
     }
 
@@ -311,7 +311,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "ADDRESS is being used for 2 fixtures on 3 Feb 2001",
+            "ADDRESS is being used for 2 fixtures on 3 Feb",
         }));
     }
 

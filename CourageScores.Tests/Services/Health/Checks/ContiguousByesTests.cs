@@ -70,7 +70,7 @@ public class ContiguousByesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME has 2 byes in a row from 3 Feb 2001 - 10 Feb 2001",
+            "DIVISION: HOME has 2 byes in a row from 3 Feb - 10 Feb",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -106,7 +106,7 @@ public class ContiguousByesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME has 2 byes in a row from 3 Feb 2001 - 10 Feb 2001",
+            "DIVISION: HOME has 2 byes in a row from 3 Feb - 10 Feb",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -209,7 +209,7 @@ public class ContiguousByesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME has 4 byes in a row from 3 Feb 2001 - 24 Feb 2001",
+            "DIVISION: HOME has 4 byes in a row from 3 Feb - 24 Feb",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -242,7 +242,7 @@ public class ContiguousByesTests
 
         Assert.That(result.Errors, Is.EquivalentTo(new[]
         {
-            "DIVISION: Found multiple fixtures on 03 Feb 2001 for HOME",
+            "DIVISION: Found multiple fixtures on 03 Feb for HOME",
         }));
         Assert.That(result.Warnings, Is.Empty);
         Assert.That(result.Success, Is.False);
