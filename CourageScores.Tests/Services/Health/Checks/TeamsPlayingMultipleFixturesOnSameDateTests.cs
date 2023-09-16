@@ -181,7 +181,7 @@ public class TeamsPlayingMultipleFixturesOnSameDateTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME is playing multiple fixtures on 3 Feb 2001",
+            "DIVISION: HOME is playing multiple fixtures on 3 Feb",
         }));
     }
 

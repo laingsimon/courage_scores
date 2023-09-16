@@ -100,7 +100,7 @@ public class TeamsAreNotPlayingAgainstThemselvesTests
 
         Assert.That(result.Errors, Is.EquivalentTo(new[]
         {
-            "Found HOME playing against themselves on 3 Feb 2001",
+            "Found HOME playing against themselves on 3 Feb",
         }));
         Assert.That(result.Warnings, Is.Empty);
         Assert.That(result.Success, Is.False);

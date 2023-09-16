@@ -286,7 +286,7 @@ public class TeamsHaveBothLegsTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: Multiple fixtures for AWAY vs HOME (10 Feb 2001, 17 Feb 2001)",
+            "DIVISION: Multiple fixtures for AWAY vs HOME (10 Feb, 17 Feb)",
         }));
     }
 }
