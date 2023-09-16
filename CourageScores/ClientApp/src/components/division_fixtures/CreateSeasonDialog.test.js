@@ -614,7 +614,13 @@ describe('CreateSeasonDialog', () => {
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -878,7 +884,7 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: []
+                    divisions: [divisionBuilder('DIVISION', divisionId).build()]
                 }, {
                     id: divisionId, setDivisionData: (d) => {
                         divisionDataSetTo = d;
@@ -903,10 +909,14 @@ describe('CreateSeasonDialog', () => {
                         divisions: [{
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
+                            sharedAddresses: [],
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -920,6 +930,7 @@ describe('CreateSeasonDialog', () => {
                 expect(divisionDataSetTo).toEqual({
                     id: divisionId,
                     name: 'PROPOSED DIVISION',
+                    sharedAddresses: [],
                 });
                 expect(context.container.querySelector('div').className).toContain('position-fixed');
             });
@@ -983,7 +994,13 @@ describe('CreateSeasonDialog', () => {
                         ],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -1152,7 +1169,13 @@ describe('CreateSeasonDialog', () => {
                         ],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -1232,7 +1255,13 @@ describe('CreateSeasonDialog', () => {
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -1327,7 +1356,13 @@ describe('CreateSeasonDialog', () => {
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -1426,7 +1461,13 @@ describe('CreateSeasonDialog', () => {
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -1532,7 +1573,13 @@ describe('CreateSeasonDialog', () => {
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -1635,7 +1682,13 @@ describe('CreateSeasonDialog', () => {
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }
@@ -1741,7 +1794,13 @@ describe('CreateSeasonDialog', () => {
                         }],
                         placeholderMappings: {},
                         template: {
-                            divisions: [],
+                            divisions: [{
+                                sharedAddresses: [],
+                                dates: [],
+                            }, {
+                                sharedAddresses: [],
+                                dates: [],
+                            }],
                             sharedAddresses: [],
                         },
                     }

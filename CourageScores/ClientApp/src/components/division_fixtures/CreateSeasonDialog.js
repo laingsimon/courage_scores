@@ -250,11 +250,13 @@ export function CreateSeasonDialog({seasonId, onClose}) {
     if (stage === 'review-proposals') {
         const placeholderMappings = response.result.placeholderMappings;
         const selectedDivisionIndex = divisionOptions.map(o => o.value).indexOf(selectedDivisionId);
-        const templateDivision = response.result.template.divisions[selectedDivisionIndex] || {dates: []};
+        const templateDivision = response.result.template.divisions[selectedDivisionIndex];
         const placeholdersToRender = distinct(templateDivision.dates
             .flatMap(d => d.fixtures
                 .flatMap(f => [f.home, f.away])
                 .filter(p => p !== null)));
+        const templateSharedAddresses = response.result.template.sharedAddresses.flatMap(a => a);
+        const divisionSharedAddresses = templateDivision.sharedAddresses.flatMap(a => a);
         return (<>
             <div style={{zIndex: '1051'}}
                  className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
@@ -262,9 +264,21 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 <BootstrapDropdown options={divisionOptions} value={selectedDivisionId}
                                    onChange={changeVisibleDivision}/>
                 <ul className="mt-3">
-                    {placeholdersToRender.sort().map(key => (<li key={key}>
-                        {key} &rarr; {placeholderMappings[key].name}
-                    </li>))}
+                    {placeholdersToRender.sort().map(key => {
+                        const isTemplateSharedAddress = any(templateSharedAddresses, a => a === key);
+                        const isDivisionSharedAddress = any(divisionSharedAddresses, a => a === key);
+                        let className = '';
+                        if (isTemplateSharedAddress) {
+                            className += ' bg-warning';
+                        }
+                        if (isDivisionSharedAddress) {
+                            className += ' bg-secondary text-light';
+                        }
+
+                        return (<li key={key}>
+                            <span className={`px-2 ${className}`}>{key}</span> &rarr; {placeholderMappings[key].name}
+                        </li>);
+                    })}
                 </ul>
                 <p>
                     Template: <a href={`/admin/templates/?select=${response.result.template.id}`} target="_blank" rel="noreferrer">{response.result.template.name}</a>
