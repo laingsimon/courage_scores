@@ -1,6 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
+import {repeat} from "../../helpers/projection";
 import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
@@ -74,6 +75,71 @@ describe('CreateSeasonDialog', () => {
             (<DivisionDataContainer {...divisionDataProps}>
                 <CreateSeasonDialog {...props} onClose={onClose}/>
             </DivisionDataContainer>));
+    }
+
+    function addCompatibleResponse(seasonId, templateId) {
+        const response = getCompatibleResponse(seasonId, templateId);
+        compatibilityResponses[seasonId] = response;
+        return response;
+    }
+
+    function addIncompatibleResponse(seasonId, templateId) {
+        const response = getCompatibleResponse(seasonId, templateId);
+        response.result[0].success = false;
+        compatibilityResponses[seasonId] = response;
+        return response;
+    }
+
+    function getCompatibleResponse(seasonId, templateId) {
+        return {
+            success: true,
+            result: [{
+                success: true,
+                result: {
+                    id: templateId,
+                    name: 'TEMPLATE',
+                    templateHealth: {
+                        checks: {},
+                        errors: [],
+                        warnings: [],
+                        messages: [],
+                    },
+                },
+                errors: [],
+                warnings: [],
+                messages: [],
+            }],
+        };
+    }
+
+    function setApiResponse(success, resultProps) {
+        apiResponse = {
+            success: success,
+            errors: ['ERROR'],
+            warnings: ['WARNING'],
+            messages: ['MESSAGE'],
+            result: Object.assign({
+                proposalHealth: {
+                    checks: {},
+                    errors: [],
+                    warnings: [],
+                    messages: [],
+                }
+            }, resultProps),
+        };
+    }
+
+    function getEmptyTemplate(templateId, noOfDivisions) {
+        return {
+            id: templateId,
+            sharedAddresses: [],
+            divisions: repeat(noOfDivisions, () => {
+                return {
+                    sharedAddresses: [],
+                    dates: [],
+                }
+            }),
+        };
     }
 
     describe('renders', () => {
@@ -183,25 +249,7 @@ describe('CreateSeasonDialog', () => {
             it('proposal result when proposal fails', async () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: []
                 }, null, {
@@ -209,20 +257,7 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: false,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        }
-                    }
-                };
+                setApiResponse(false);
 
                 await doClick(findButton(context.container, 'Next'));
 
@@ -237,25 +272,7 @@ describe('CreateSeasonDialog', () => {
             it('proposal result when proposal succeeds', async () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: []
                 }, null, {
@@ -263,20 +280,7 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        }
-                    }
-                };
+                setApiResponse(true);
 
                 await doClick(findButton(context.container, 'Next'));
 
@@ -296,25 +300,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -329,36 +315,14 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [
-                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
-                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
-                        ],
-                        placeholderMappings: {},
-                        template: {
-                            id: templateId,
-                            sharedAddresses: [],
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            } ]
-                        }
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [
+                        divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
 
@@ -378,25 +342,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -411,44 +357,32 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [
-                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
-                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
-                        ],
-                        placeholderMappings: {
-                            C: teamBuilder('TEAM C').build(),
-                            B: teamBuilder('TEAM B').build(),
-                            A: teamBuilder('TEAM A').build(),
-                        },
-                        template: {
-                            id: templateId,
+                setApiResponse(true, {
+                    divisions: [
+                        divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ],
+                    placeholderMappings: {
+                        C: teamBuilder('TEAM C').build(),
+                        B: teamBuilder('TEAM B').build(),
+                        A: teamBuilder('TEAM A').build(),
+                    },
+                    template: {
+                        id: templateId,
+                        sharedAddresses: [],
+                        divisions: [{
                             sharedAddresses: [],
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [{
-                                    fixtures: [{home: 'A', away: null}],
-                                }],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [{
-                                    fixtures: [{home: 'B', away: 'C'}],
-                                }],
-                            } ]
-                        }
+                            dates: [{
+                                fixtures: [{home: 'A', away: null}],
+                            }],
+                        }, {
+                            sharedAddresses: [],
+                            dates: [{
+                                fixtures: [{home: 'B', away: 'C'}],
+                            }],
+                        } ]
                     }
-                };
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
 
@@ -468,25 +402,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -501,36 +417,14 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [
-                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
-                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
-                        ],
-                        placeholderMappings: {},
-                        template: {
-                            id: templateId,
-                            sharedAddresses: [],
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            } ]
-                        }
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [
+                        divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
 
@@ -549,25 +443,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -582,49 +458,28 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('home', 'away'), '1.1')
-                                    .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
-                                    .build()]
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('home', 'away'), '2.1')
-                                    .withFixture(f => f.proposal().bye('anywhere')) // excluded as awayTeam == undefined
-                                    .withFixture(f => f.proposal().playing('home', 'away'), '2.3')
-                                    .build()]
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('home', 'away'), '1.1')
+                                .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .build()]
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('home', 'away'), '2.1')
+                                .withFixture(f => f.proposal().bye('anywhere')) // excluded as awayTeam == undefined
+                                .withFixture(f => f.proposal().playing('home', 'away'), '2.3')
+                                .build()]
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -643,20 +498,10 @@ describe('CreateSeasonDialog', () => {
         describe('1- pick', () => {
             it('shows details of incompatible template', async () => {
                 const seasonId = createTemporaryId();
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: false,
-                        result: {
-                            id: createTemporaryId(),
-                            name: 'TEMPLATE',
-                            templateHealth: {},
-                        },
-                        errors: ['ERROR'],
-                        warnings: ['WARNING'],
-                        messages: ['MESSAGE'],
-                    }]
-                };
+                const response = addIncompatibleResponse(seasonId, createTemporaryId());
+                response.result[0].errors.push('ERROR');
+                response.result[0].warnings.push('WARNING');
+                response.result[0].messages.push('MESSAGE');
                 await renderComponent({
                     divisions: []
                 }, null, {
@@ -675,25 +520,10 @@ describe('CreateSeasonDialog', () => {
 
             it('shows details of compatible template', async () => {
                 const seasonId = createTemporaryId();
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: createTemporaryId(),
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: ['ERROR'],
-                        warnings: ['WARNING'],
-                        messages: ['MESSAGE'],
-                    }]
-                };
+                const response = addCompatibleResponse(seasonId, createTemporaryId());
+                response.result[0].errors.push('ERROR');
+                response.result[0].warnings.push('WARNING');
+                response.result[0].messages.push('MESSAGE');
                 await renderComponent({
                     divisions: []
                 }, null, {
@@ -712,25 +542,7 @@ describe('CreateSeasonDialog', () => {
 
             it('prevents proposal of fixtures for incompatible template', async () => {
                 const seasonId = createTemporaryId();
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: false,
-                        result: {
-                            id: createTemporaryId(),
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addIncompatibleResponse(seasonId, createTemporaryId());
                 await renderComponent({
                     divisions: []
                 }, null, {
@@ -751,25 +563,7 @@ describe('CreateSeasonDialog', () => {
             it('proposes fixtures for template', async () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: []
                 }, null, {
@@ -777,20 +571,7 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        }
-                    }
-                };
+                setApiResponse(true);
 
                 await doClick(findButton(context.container, 'Next'));
 
@@ -806,25 +587,7 @@ describe('CreateSeasonDialog', () => {
             it('can navigate back to pick', async () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: []
                 }, {
@@ -835,20 +598,7 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        }
-                    }
-                };
+                setApiResponse(true);
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
 
@@ -864,25 +614,7 @@ describe('CreateSeasonDialog', () => {
                 const templateId = createTemporaryId();
                 const divisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [divisionBuilder('DIVISION', divisionId).build()]
                 }, {
@@ -894,33 +626,15 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            sharedAddresses: [],
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        sharedAddresses: [],
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 1),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
 
@@ -943,25 +657,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -976,35 +672,14 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [
-                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
-                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
-                        ],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [
+                        divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1025,25 +700,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1058,44 +715,32 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [
-                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
-                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
-                        ],
-                        placeholderMappings: {
-                            C: teamBuilder('TEAM C').build(),
-                            B: teamBuilder('TEAM B').build(),
-                            A: teamBuilder('TEAM A').build(),
-                        },
-                        template: {
-                            id: templateId,
+                setApiResponse(true, {
+                    divisions: [
+                        divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ],
+                    placeholderMappings: {
+                        C: teamBuilder('TEAM C').build(),
+                        B: teamBuilder('TEAM B').build(),
+                        A: teamBuilder('TEAM A').build(),
+                    },
+                    template: {
+                        id: templateId,
+                        sharedAddresses: [],
+                        divisions: [{
                             sharedAddresses: [],
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [{
-                                    fixtures: [{home: 'A', away: null}],
-                                }],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [{
-                                    fixtures: [{home: 'B', away: 'C'}],
-                                }],
-                            } ]
-                        },
-                    }
-                };
+                            dates: [{
+                                fixtures: [{home: 'A', away: null}],
+                            }],
+                        }, {
+                            sharedAddresses: [],
+                            dates: [{
+                                fixtures: [{home: 'B', away: 'C'}],
+                            }],
+                        } ]
+                    },
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1118,25 +763,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1151,35 +778,14 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [
-                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
-                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
-                        ],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [
+                        divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1199,25 +805,7 @@ describe('CreateSeasonDialog', () => {
                 const divisionId = createTemporaryId();
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1232,40 +820,19 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            fixtures: []
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                            fixtures: []
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: []
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: []
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1285,25 +852,7 @@ describe('CreateSeasonDialog', () => {
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
                 let divisionReloaded;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1322,51 +871,30 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                    .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
-                                    .build()
-                            ]
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
-                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
-                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
-                                    .build()
-                            ]
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .build()
+                        ]
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .build()
+                        ]
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1390,25 +918,7 @@ describe('CreateSeasonDialog', () => {
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
                 let divisionReloaded;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1427,51 +937,30 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                    .withFixture(f => f, '1.2')  // excluded as not a proposal
-                                    .build()
-                            ]
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
-                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
-                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
-                                    .build()
-                            ]
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture(f => f, '1.2')  // excluded as not a proposal
+                                .build()
+                        ]
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .build()
+                        ]
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1502,25 +991,7 @@ describe('CreateSeasonDialog', () => {
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
                 let divisionReloaded;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1539,51 +1010,30 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                    .withFixture(f => f, '1.2') // excluded as not a proposal
-                                    .build()
-                            ]
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
-                                    .withFixture(f => f, '2.2') // excluded as awayTeam == undefined
-                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
-                                    .build()
-                            ]
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture(f => f, '1.2') // excluded as not a proposal
+                                .build()
+                        ]
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture(f => f, '2.2') // excluded as awayTeam == undefined
+                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .build()
+                        ]
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1611,25 +1061,7 @@ describe('CreateSeasonDialog', () => {
                 const anotherDivisionId = createTemporaryId();
                 let divisionDataSetTo;
                 let divisionReloaded;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1648,51 +1080,30 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                    .withFixture(f => f) // excluded as not a proposal
-                                    .build()
-                            ]
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
-                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
-                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
-                                    .build()
-                            ]
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture(f => f) // excluded as not a proposal
+                                .build()
+                        ]
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .build()
+                        ]
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1723,25 +1134,7 @@ describe('CreateSeasonDialog', () => {
                 let divisionDataSetTo;
                 let divisionReloaded;
                 let abort = true;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
@@ -1760,51 +1153,30 @@ describe('CreateSeasonDialog', () => {
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
-                apiResponse = {
-                    success: true,
-                    errors: ['ERROR'],
-                    warnings: ['WARNING'],
-                    messages: ['MESSAGE'],
-                    result: {
-                        proposalHealth: {
-                            checks: {},
-                            errors: [],
-                            warnings: [],
-                            messages: [],
-                        },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                    .withFixture(f => f, '1.2') // excluded as not a proposal
-                                    .build()
-                            ]
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                            fixtures: [
-                                fixtureDateBuilder('2023-01-01')
-                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
-                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
-                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
-                                    .build()
-                            ]
-                        }],
-                        placeholderMappings: {},
-                        template: {
-                            divisions: [{
-                                sharedAddresses: [],
-                                dates: [],
-                            }, {
-                                sharedAddresses: [],
-                                dates: [],
-                            }],
-                            sharedAddresses: [],
-                        },
-                    }
-                };
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture(f => f, '1.2') // excluded as not a proposal
+                                .build()
+                        ]
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .build()
+                        ]
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container, 'Next'));
@@ -1838,25 +1210,7 @@ describe('CreateSeasonDialog', () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
                 let divisionDataResetTo;
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: templateId,
-                            name: 'TEMPLATE',
-                            templateHealth: {
-                                checks: {},
-                                errors: [],
-                                warnings: [],
-                                messages: [],
-                            },
-                        },
-                        errors: [],
-                        warnings: [],
-                        messages: [],
-                    }],
-                };
+                addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
                     divisions: []
                 }, {
