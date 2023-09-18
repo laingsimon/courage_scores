@@ -7,13 +7,7 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
     const {divisions} = useApp();
 
     const divisionOptions = divisions
-        .filter(d => {
-            if (!proposalResult) {
-                return false;
-            }
-
-            return any(proposalResult.divisions, proposedDivision => proposedDivision.id === d.id);
-        })
+        .filter(d => any(proposalResult.divisions, proposedDivision => proposedDivision.id === d.id))
         .sort(sortBy('name'))
         .map(d => {
             return {value: d.id, text: d.name};

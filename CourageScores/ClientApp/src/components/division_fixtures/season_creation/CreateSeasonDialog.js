@@ -11,6 +11,7 @@ import {PickTemplate} from "./PickTemplate";
 import {SavingProposals} from "./SavingProposals";
 import {ReviewProposalHealth} from "./ReviewProposalHealth";
 import {ConfirmSave} from "./ConfirmSave";
+import {AssignPlaceholders} from "./AssignPlaceholders";
 
 export function CreateSeasonDialog({seasonId, onClose}) {
     const {templateApi, gameApi} = useDependencies();
@@ -27,6 +28,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
     const [fixturesToSave, setFixturesToSave] = useState([]);
     const [savingProposal, setSavingProposal] = useState(false);
     const [saveResults, setSaveResults] = useState([]);
+    const [placeholderMappings, setPlaceholderMappings] = useState(null);
 
     async function loadTemplateCompatibility() {
         /* istanbul ignore next */
@@ -51,17 +53,20 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         switch (stage) {
             /* istanbul ignore next */
             default:
-            case '2-review':
-                setDivisionData(null);
+            case '2-assign-placeholders':
                 setStage('1-pick');
+                break;
+            case '3-review':
+                setDivisionData(null);
+                setStage('2-assign-placeholders');
                 return;
-            case '3-review-proposals':
-                setStage('2-review');
+            case '4-review-proposals':
+                setStage('3-review');
                 return;
-            case '4-confirm-save':
-                setStage('3-review-proposals');
+            case '5-confirm-save':
+                setStage('4-review-proposals');
                 return;
-            case '5-saving':
+            case '6-saving':
                 setStage('aborted');
                 return;
         }
@@ -70,12 +75,21 @@ export function CreateSeasonDialog({seasonId, onClose}) {
     async function onNext() {
         switch (stage) {
             case '1-pick':
-                return await onPropose();
-            case '2-review':
-                changeVisibleDivision(selectedDivisionId);
-                setStage('3-review-proposals');
+                if (!selectedTemplate.success) {
+                    alert('This template is not compatible with this season, pick another template');
+                    return;
+                }
+
+                setStage('2-assign-placeholders');
                 return;
-            case '3-review-proposals':
+            case '2-assign-placeholders':
+                await onPropose();
+                return;
+            case '3-review':
+                changeVisibleDivision(selectedDivisionId);
+                setStage('4-review-proposals');
+                return;
+            case '4-review-proposals':
                 const toSave = response.result.divisions
                     .flatMap(d => d.fixtures.flatMap(fd => fd.fixtures.map(f => {
                         return {fixture: f, date: fd, division: d}
@@ -83,13 +97,16 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                     .filter(f => f.fixture.proposal && f.fixture.awayTeam);
 
                 setFixturesToSave(toSave);
-                setStage('3-confirm-save');
+                setStage('5-confirm-save');
                 break;
-            case '4-confirm-save':
-                return await saveProposals();
+            case '5-confirm-save':
+                setSaveMessage(`Starting save...`);
+                setStage('6-saving');
+                setDivisionData(null);
+                return;
             case 'aborted':
                 setSaveMessage(`Resuming save...`);
-                setStage('5-saving');
+                setStage('6-saving');
                 return;
             /* istanbul ignore next */
             default:
@@ -104,18 +121,14 @@ export function CreateSeasonDialog({seasonId, onClose}) {
             return;
         }
 
-        if (!selectedTemplate.success) {
-            alert('This template is not compatible with this season, pick another template');
-            return;
-        }
-
         setProposing(true);
         try {
             const response = await templateApi.propose({
                 templateId: selectedTemplate.result.id,
                 seasonId: seasonId,
+                placeholderMappings: placeholderMappings || {},
             });
-            setStage('2-review');
+            setStage('3-review');
             setResponse(response);
         } catch (e) {
             /* istanbul ignore next */
@@ -125,12 +138,6 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         }
     }
 
-    async function saveProposals() {
-        setSaveMessage(`Starting save...`);
-        setStage('5-saving');
-        setDivisionData(null);
-    }
-
     function changeVisibleDivision(id) {
         setSelectedDivisionId(id);
         const newDivision = response.result.divisions.filter(d => d.id === id)[0];
@@ -138,7 +145,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
     }
 
     useEffect(() => {
-            if (stage !== '5-saving' || fixturesToSave == null) {
+            if (stage !== '6-saving' || fixturesToSave == null) {
                 return;
             }
 
@@ -216,7 +223,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         // eslint-disable-next-line
         []);
 
-    if (stage === '3-review-proposals') {
+    if (stage === '4-review-proposals') {
         return (<ReviewProposalsFloatingDialog
             proposalResult={response.result}
             onNext={onNext}
@@ -225,31 +232,41 @@ export function CreateSeasonDialog({seasonId, onClose}) {
             selectedDivisionId={selectedDivisionId} />);
     }
 
+    function changeTemplate(selectedTemplate) {
+        setSelectedTemplate(selectedTemplate);
+        setPlaceholderMappings(null);
+    }
+
     try {
         return (<Dialog title="Create season fixtures...">
             {stage === '1-pick' ? (<PickTemplate
                 templates={templates}
-                setSelectedTemplate={setSelectedTemplate}
+                setSelectedTemplate={changeTemplate}
                 loading={loading}
                 selectedTemplate={selectedTemplate} />) : null}
-            {stage === '2-review' ? (<ReviewProposalHealth response={response} />) : null}
-            {stage === '4-confirm-save'
+            {stage === '2-assign-placeholders' ? (<AssignPlaceholders
+                seasonId={seasonId}
+                selectedTemplate={selectedTemplate}
+                placeholderMappings={placeholderMappings || {}}
+                setPlaceholderMappings={setPlaceholderMappings} />) : null}
+            {stage === '3-review' ? (<ReviewProposalHealth response={response} />) : null}
+            {stage === '5-confirm-save'
                 ? (<ConfirmSave noOfFixturesToSave={fixturesToSave.length} noOfDivisions={divisions.length} />)
                 : null}
-            {stage === '5-saving' || stage === 'aborted' || stage === 'saved'
+            {stage === '6-saving' || stage === 'aborted' || stage === 'saved'
                 ? (<SavingProposals
                     response={response}
                     noOfFixturesToSave={fixturesToSave.length}
                     saveMessage={saveMessage}
                     saveResults={saveResults}
-                    saving={stage === '5-saving'} />)
+                    saving={stage === '6-saving'} />)
                 : null}
             <div className="modal-footer px-0 mt-3 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={() => {
                         setDivisionData(null);
                         onClose();
-                    }} disabled={stage === '5-saving'}>
+                    }} disabled={stage === '6-saving'}>
                         Close
                     </button>
                 </div>
@@ -258,7 +275,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                     Back
                 </button>
                 <button className="btn btn-primary" onClick={onNext}
-                        disabled={!selectedTemplate || stage === '5-saving' || stage === 'saved'}>
+                        disabled={!selectedTemplate || stage === '6-saving' || stage === 'saved'}>
                     {proposing
                         ? (<LoadingSpinnerSmall/>)
                         : null}
