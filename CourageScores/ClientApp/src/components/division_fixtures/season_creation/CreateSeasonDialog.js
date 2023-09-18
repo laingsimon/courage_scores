@@ -1,13 +1,13 @@
-import {Dialog} from "../common/Dialog";
-import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {Dialog} from "../../common/Dialog";
+import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import React, {useEffect, useState} from "react";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
-import {any, distinct, sortBy} from "../../helpers/collections";
-import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
-import {useDivisionData} from "../DivisionDataContainer";
-import {renderDate} from "../../helpers/rendering";
-import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {useDependencies} from "../../../IocContainer";
+import {useApp} from "../../../AppContainer";
+import {any, distinct, sortBy} from "../../../helpers/collections";
+import {ViewHealthCheck} from "../../division_health/ViewHealthCheck";
+import {useDivisionData} from "../../DivisionDataContainer";
+import {renderDate} from "../../../helpers/rendering";
+import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 
 export function CreateSeasonDialog({seasonId, onClose}) {
     const {templateApi, gameApi} = useDependencies();

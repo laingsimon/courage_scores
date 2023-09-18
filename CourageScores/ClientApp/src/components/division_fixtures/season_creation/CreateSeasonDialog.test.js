@@ -1,12 +1,12 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
-import {repeat} from "../../helpers/projection";
-import {createTemporaryId} from "../../helpers/projection";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
+import {repeat} from "../../../helpers/projection";
+import {createTemporaryId} from "../../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
-import {DivisionDataContainer} from "../DivisionDataContainer";
-import {divisionBuilder, fixtureDateBuilder, teamBuilder} from "../../helpers/builders";
+import {DivisionDataContainer} from "../../DivisionDataContainer";
+import {divisionBuilder, fixtureDateBuilder, teamBuilder} from "../../../helpers/builders";
 
 describe('CreateSeasonDialog', () => {
     let context;
