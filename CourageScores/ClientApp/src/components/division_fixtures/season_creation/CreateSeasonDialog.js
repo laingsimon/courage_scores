@@ -1,13 +1,16 @@
 import {Dialog} from "../../common/Dialog";
-import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import React, {useEffect, useState} from "react";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
-import {any, distinct, sortBy} from "../../../helpers/collections";
-import {ViewHealthCheck} from "../../division_health/ViewHealthCheck";
+import {any} from "../../../helpers/collections";
 import {useDivisionData} from "../../DivisionDataContainer";
 import {renderDate} from "../../../helpers/rendering";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
+import {ReviewProposalsFloatingDialog} from "./ReviewProposalsFloatingDialog";
+import {PickTemplate} from "./PickTemplate";
+import {SavingProposals} from "./SavingProposals";
+import {ReviewProposalHealth} from "./ReviewProposalHealth";
+import {ConfirmSave} from "./ConfirmSave";
 
 export function CreateSeasonDialog({seasonId, onClose}) {
     const {templateApi, gameApi} = useDependencies();
@@ -16,40 +19,14 @@ export function CreateSeasonDialog({seasonId, onClose}) {
     const [loading, setLoading] = useState(false);
     const [templates, setTemplates] = useState(null);
     const [selectedTemplate, setSelectedTemplate] = useState(null);
-    const templateOptions = templates && templates.result
-        ? templates.result.map(getTemplateOption)
-        : [];
     const [proposing, setProposing] = useState(false);
     const [stage, setStage] = useState('pick');
     const [response, setResponse] = useState(null);
-    const divisionOptions = divisions
-        .filter(d => {
-            if (!response) {
-                return false;
-            }
-
-            return any(response.result.divisions, proposedDivision => proposedDivision.id === d.id);
-        })
-        .sort(sortBy('name'))
-        .map(d => {
-            return {value: d.id, text: d.name};
-        })
     const [selectedDivisionId, setSelectedDivisionId] = useState(id);
     const [saveMessage, setSaveMessage] = useState(null);
     const [fixturesToSave, setFixturesToSave] = useState([]);
     const [savingProposal, setSavingProposal] = useState(false);
     const [saveResults, setSaveResults] = useState([]);
-
-    function getTemplateOption(compatibility) {
-        let text = compatibility.success
-            ? <div>{compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
-            : <div>🚫 {compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
-
-        return {
-            value: compatibility.result.id,
-            text: text,
-        };
-    }
 
     async function loadTemplateCompatibility() {
         /* istanbul ignore next */
@@ -232,14 +209,6 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         }
     }
 
-    function getPercentageComplete() {
-        const total = saveResults.length + fixturesToSave.length;
-        const complete = saveResults.length;
-        const percentage = complete / total;
-
-        return percentage * 100;
-    }
-
     useEffect(() => {
             // noinspection JSIgnoredPromiseFromCall
             loadTemplateCompatibility();
@@ -248,138 +217,33 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         []);
 
     if (stage === 'review-proposals') {
-        const placeholderMappings = response.result.placeholderMappings;
-        const selectedDivisionIndex = divisionOptions.map(o => o.value).indexOf(selectedDivisionId);
-        const templateDivision = response.result.template.divisions[selectedDivisionIndex];
-        const placeholdersToRender = distinct(templateDivision.dates
-            .flatMap(d => d.fixtures
-                .flatMap(f => [f.home, f.away])
-                .filter(p => p !== null)));
-        const templateSharedAddresses = response.result.template.sharedAddresses.flatMap(a => a);
-        const divisionSharedAddresses = templateDivision.sharedAddresses.flatMap(a => a);
-        return (<>
-            <div style={{zIndex: '1051'}}
-                 className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
-                <h6>Review the fixtures in the divisions</h6>
-                <BootstrapDropdown options={divisionOptions} value={selectedDivisionId}
-                                   onChange={changeVisibleDivision}/>
-                <ul className="mt-3">
-                    {placeholdersToRender.sort().map(key => {
-                        const isTemplateSharedAddress = any(templateSharedAddresses, a => a === key);
-                        const isDivisionSharedAddress = any(divisionSharedAddresses, a => a === key);
-                        let className = '';
-                        if (isTemplateSharedAddress) {
-                            className += ' bg-warning';
-                        }
-                        if (isDivisionSharedAddress) {
-                            className += ' bg-secondary text-light';
-                        }
-
-                        return (<li key={key}>
-                            <span className={`px-2 ${className}`}>{key}</span> &rarr; {placeholderMappings[key].name}
-                        </li>);
-                    })}
-                </ul>
-                <p>
-                    Template: <a href={`/admin/templates/?select=${response.result.template.id}`} target="_blank" rel="noreferrer">{response.result.template.name}</a>
-                </p>
-                <div className="mt-3">
-                    <button className="btn btn-primary margin-right" onClick={onPrevious}>Back</button>
-                    <button className="btn btn-primary margin-right" onClick={onNext}>Save all fixtures</button>
-                </div>
-            </div>
-            <div className="modal-backdrop fade show"></div>
-        </>);
-    }
-
-    function renderError(e, i) {
-        return (<li className="text-danger" key={i}>{e}</li>);
-    }
-
-    function renderWarning(w, i) {
-        return (<li key={i}>{w}</li>);
-    }
-
-    function renderMessage(m, i) {
-        return (<li className="text-secondary" key={i}>{m}</li>);
+        return (<ReviewProposalsFloatingDialog
+            proposalResult={response.result}
+            onNext={onNext}
+            onPrevious={onPrevious}
+            changeVisibleDivision={changeVisibleDivision}
+            selectedDivisionId={selectedDivisionId} />);
     }
 
     try {
         return (<Dialog title="Create season fixtures...">
-            {stage === 'pick' ? (<div>
-                <span className="margin-right">Fixture template:</span>
-                {loading
-                    ? (<LoadingSpinnerSmall/>)
-                    : (<BootstrapDropdown options={templateOptions}
-                                          value={selectedTemplate ? selectedTemplate.result.id : null}
-                                          onChange={value => setSelectedTemplate(templates.result.filter(t => t.result.id === value)[0])}/>)}
-            </div>) : null}
-            {selectedTemplate && stage === 'pick' ? (
-                <div className={`alert mt-3 ${selectedTemplate.success ? 'alert-success' : 'alert-warning'}`}>
-                    {selectedTemplate.success ? (<h4>✔ Compatible with this season</h4>) : (
-                        <h4>🚫 Incompatible with this season</h4>)}
-                    {any(selectedTemplate.errors)
-                        ? (<ol>{selectedTemplate.errors.map(renderError)}</ol>)
-                        : null}
-                    {any(selectedTemplate.warnings)
-                        ? (<ol>{selectedTemplate.warnings.map(renderWarning)}</ol>)
-                        : null}
-                    {any(selectedTemplate.messages)
-                        ? (<ol>{selectedTemplate.messages.map(renderMessage)}</ol>)
-                        : null}
-
-                    {selectedTemplate.success
-                        ? (<ViewHealthCheck result={selectedTemplate.result.templateHealth}/>)
-                        : null}
-                </div>) : null}
-            {stage === 'review' ? (<div>
-                {response.success ? (<h4>✔ Fixtures have been proposed</h4>) : (
-                    <h4>⚠ There was an issue proposing fixtures</h4>)}
-                <p>Press <kbd>Next</kbd> to review the fixtures in the divisions before saving</p>
-                <div
-                    className={`overflow-auto max-height-250 alert mt-3 ${response.success ? 'alert-success' : 'alert-warning'}`}>
-                    {any(response.errors)
-                        ? (<ol>{response.errors.map(renderError)}</ol>)
-                        : null}
-                    {any(response.warnings)
-                        ? (<ol>{response.warnings.map(renderWarning)}</ol>)
-                        : null}
-                    {any(response.messages)
-                        ? (<ol>{response.messages.map(renderMessage)}</ol>)
-                        : null}
-                    {response.success ? (<ViewHealthCheck result={response.result.proposalHealth}/>) : null}
-                </div>
-            </div>) : null}
+            {stage === 'pick' ? (<PickTemplate
+                templates={templates}
+                setSelectedTemplate={setSelectedTemplate}
+                loading={loading}
+                selectedTemplate={selectedTemplate} />) : null}
+            {stage === 'review' ? (<ReviewProposalHealth response={response} />) : null}
             {stage === 'confirm-save'
-                ? (<div>
-                    <p>Press <kbd>Next</kbd> to save all {fixturesToSave.length} fixtures
-                        across {divisionOptions.length} divisions</p>
-                    <p>You must keep your device on and connected to the internet during the process of saving the
-                        fixtures</p>
-                </div>)
+                ? (<ConfirmSave noOfFixturesToSave={fixturesToSave.length} noOfDivisions={divisions.length} />)
                 : null}
-            {stage === 'saving' || stage === 'aborted' || stage === 'saved' ? (<div>
-                {stage === 'saving' && any(fixturesToSave) ? (
-                    <LoadingSpinnerSmall/>) : null}
-                {saveMessage}
-                <div>{saveResults.length} fixtures of {saveResults.length + fixturesToSave.length} saved</div>
-                <div className="progress">
-                    <div className="progress-bar progress-bar-striped" style={{width: getPercentageComplete() + '%'}}
-                         role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {any(saveResults, r => !r.success) ? (<div className="overflow-auto max-height-250">
-                    {saveResults.map((r, index) => (<div key={index}>
-                        {any(response.errors)
-                            ? (<ol>{response.errors.map(renderError)}</ol>)
-                            : null}
-                        {any(response.warnings) ? (
-                            <ol>{response.warnings.map(renderWarning)}</ol>) : null}
-                        {any(response.messages)
-                            ? (<ol>{response.messages.map(renderMessage)}</ol>)
-                            : null}
-                    </div>))}
-                </div>) : null}
-            </div>) : null}
+            {stage === 'saving' || stage === 'aborted' || stage === 'saved'
+                ? (<SavingProposals
+                    response={response}
+                    noOfFixturesToSave={fixturesToSave.length}
+                    saveMessage={saveMessage}
+                    saveResults={saveResults}
+                    saving={stage === 'saving'} />)
+                : null}
             <div className="modal-footer px-0 mt-3 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={() => {
