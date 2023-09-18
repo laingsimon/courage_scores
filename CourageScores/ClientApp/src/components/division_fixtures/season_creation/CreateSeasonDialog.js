@@ -20,7 +20,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
     const [templates, setTemplates] = useState(null);
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [proposing, setProposing] = useState(false);
-    const [stage, setStage] = useState('pick');
+    const [stage, setStage] = useState('1-pick');
     const [response, setResponse] = useState(null);
     const [selectedDivisionId, setSelectedDivisionId] = useState(id);
     const [saveMessage, setSaveMessage] = useState(null);
@@ -51,17 +51,17 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         switch (stage) {
             /* istanbul ignore next */
             default:
-            case 'review':
+            case '2-review':
                 setDivisionData(null);
-                setStage('pick');
+                setStage('1-pick');
                 return;
-            case 'review-proposals':
-                setStage('review');
+            case '3-review-proposals':
+                setStage('2-review');
                 return;
-            case 'confirm-save':
-                setStage('review-proposals');
+            case '4-confirm-save':
+                setStage('3-review-proposals');
                 return;
-            case 'saving':
+            case '5-saving':
                 setStage('aborted');
                 return;
         }
@@ -69,13 +69,13 @@ export function CreateSeasonDialog({seasonId, onClose}) {
 
     async function onNext() {
         switch (stage) {
-            case 'pick':
+            case '1-pick':
                 return await onPropose();
-            case 'review':
+            case '2-review':
                 changeVisibleDivision(selectedDivisionId);
-                setStage('review-proposals');
+                setStage('3-review-proposals');
                 return;
-            case 'review-proposals':
+            case '3-review-proposals':
                 const toSave = response.result.divisions
                     .flatMap(d => d.fixtures.flatMap(fd => fd.fixtures.map(f => {
                         return {fixture: f, date: fd, division: d}
@@ -83,13 +83,13 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                     .filter(f => f.fixture.proposal && f.fixture.awayTeam);
 
                 setFixturesToSave(toSave);
-                setStage('confirm-save');
+                setStage('3-confirm-save');
                 break;
-            case 'confirm-save':
+            case '4-confirm-save':
                 return await saveProposals();
             case 'aborted':
                 setSaveMessage(`Resuming save...`);
-                setStage('saving');
+                setStage('5-saving');
                 return;
             /* istanbul ignore next */
             default:
@@ -115,7 +115,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 templateId: selectedTemplate.result.id,
                 seasonId: seasonId,
             });
-            setStage('review');
+            setStage('2-review');
             setResponse(response);
         } catch (e) {
             /* istanbul ignore next */
@@ -127,7 +127,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
 
     async function saveProposals() {
         setSaveMessage(`Starting save...`);
-        setStage('saving');
+        setStage('5-saving');
         setDivisionData(null);
     }
 
@@ -138,7 +138,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
     }
 
     useEffect(() => {
-            if (stage !== 'saving' || fixturesToSave == null) {
+            if (stage !== '5-saving' || fixturesToSave == null) {
                 return;
             }
 
@@ -216,7 +216,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         // eslint-disable-next-line
         []);
 
-    if (stage === 'review-proposals') {
+    if (stage === '3-review-proposals') {
         return (<ReviewProposalsFloatingDialog
             proposalResult={response.result}
             onNext={onNext}
@@ -227,38 +227,38 @@ export function CreateSeasonDialog({seasonId, onClose}) {
 
     try {
         return (<Dialog title="Create season fixtures...">
-            {stage === 'pick' ? (<PickTemplate
+            {stage === '1-pick' ? (<PickTemplate
                 templates={templates}
                 setSelectedTemplate={setSelectedTemplate}
                 loading={loading}
                 selectedTemplate={selectedTemplate} />) : null}
-            {stage === 'review' ? (<ReviewProposalHealth response={response} />) : null}
-            {stage === 'confirm-save'
+            {stage === '2-review' ? (<ReviewProposalHealth response={response} />) : null}
+            {stage === '4-confirm-save'
                 ? (<ConfirmSave noOfFixturesToSave={fixturesToSave.length} noOfDivisions={divisions.length} />)
                 : null}
-            {stage === 'saving' || stage === 'aborted' || stage === 'saved'
+            {stage === '5-saving' || stage === 'aborted' || stage === 'saved'
                 ? (<SavingProposals
                     response={response}
                     noOfFixturesToSave={fixturesToSave.length}
                     saveMessage={saveMessage}
                     saveResults={saveResults}
-                    saving={stage === 'saving'} />)
+                    saving={stage === '5-saving'} />)
                 : null}
             <div className="modal-footer px-0 mt-3 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={() => {
                         setDivisionData(null);
                         onClose();
-                    }} disabled={stage === 'saving'}>
+                    }} disabled={stage === '5-saving'}>
                         Close
                     </button>
                 </div>
                 <button className="btn btn-primary" onClick={onPrevious}
-                        disabled={stage === 'pick' || stage === 'saved'}>
+                        disabled={stage === '1-pick' || stage === 'saved'}>
                     Back
                 </button>
                 <button className="btn btn-primary" onClick={onNext}
-                        disabled={!selectedTemplate || stage === 'saving' || stage === 'saved'}>
+                        disabled={!selectedTemplate || stage === '5-saving' || stage === 'saved'}>
                     {proposing
                         ? (<LoadingSpinnerSmall/>)
                         : null}
