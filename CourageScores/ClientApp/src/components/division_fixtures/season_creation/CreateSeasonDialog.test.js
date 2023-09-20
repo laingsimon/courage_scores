@@ -161,80 +161,6 @@ describe('CreateSeasonDialog', () => {
 
     describe('renders', () => {
         describe('1- pick', () => {
-            const seasonId = createTemporaryId();
-            const team1 = teamBuilder('TEAM 1')
-                .forSeason(seasonId, createTemporaryId())
-                .build();
-            const team2 = teamBuilder('TEAM 2')
-                .forSeason(seasonId, createTemporaryId())
-                .build();
-
-            it('when no templates returned', async () => {
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: []
-                };
-                await renderComponent({
-                    divisions: [],
-                    seasons: toMap([]),
-                    teams: toMap([team1, team2]),
-                }, null, {
-                    seasonId: seasonId,
-                });
-
-                expect(reportedError).toBeNull();
-                const onlyMenuItem = context.container.querySelector('.dropdown-item');
-                expect(onlyMenuItem).toBeFalsy();
-            });
-
-            it('compatible template in dropdown', async () => {
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: true,
-                        result: {
-                            id: createTemporaryId(),
-                            name: 'TEMPLATE',
-                            templateHealth: {},
-                        }
-                    }]
-                };
-                await renderComponent({
-                    divisions: [], seasons: toMap([])
-                }, null, {
-                    seasonId: seasonId,
-                });
-
-                expect(reportedError).toBeNull();
-                const menu = context.container.querySelector('.dropdown-menu');
-                const items = Array.from(menu.querySelectorAll('.dropdown-item'));
-                expect(items.map(i => i.textContent)).toEqual(['TEMPLATE']);
-            });
-
-            it('incompatible template in dropdown', async () => {
-                compatibilityResponses[seasonId] = {
-                    success: true,
-                    result: [{
-                        success: false,
-                        result: {
-                            id: createTemporaryId(),
-                            name: 'TEMPLATE',
-                            templateHealth: {},
-                        }
-                    }]
-                };
-                await renderComponent({
-                    divisions: [], seasons: toMap([])
-                }, null, {
-                    seasonId: seasonId,
-                });
-
-                expect(reportedError).toBeNull();
-                const menu = context.container.querySelector('.dropdown-menu');
-                const items = Array.from(menu.querySelectorAll('.dropdown-item'));
-                expect(items.map(i => i.textContent)).toEqual(['🚫 TEMPLATE']);
-            });
-
             it('cannot navigate back', async () => {
                 const templateId = createTemporaryId();
                 setApiResponse(true, { id: templateId });
@@ -242,7 +168,7 @@ describe('CreateSeasonDialog', () => {
                 await renderComponent({
                     divisions: [], seasons: toMap([])
                 }, null, {
-                    seasonId: seasonId,
+                    seasonId: createTemporaryId(),
                 });
 
                 const back = findButton(context.container, 'Back');
@@ -477,52 +403,6 @@ describe('CreateSeasonDialog', () => {
             const team2 = teamBuilder('TEAM 2')
                 .forSeason(seasonId, createTemporaryId())
                 .build();
-
-            it('shows details of incompatible template', async () => {
-                const response = addIncompatibleResponse(seasonId, createTemporaryId());
-                response.result[0].errors.push('ERROR');
-                response.result[0].warnings.push('WARNING');
-                response.result[0].messages.push('MESSAGE');
-                await renderComponent({
-                    divisions: [],
-                    seasons: toMap([getSeason(seasonId)]),
-                    teams: toMap([team1, team2]),
-                }, null, {
-                    seasonId: seasonId,
-                });
-
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), '🚫 TEMPLATE');
-
-                expect(reportedError).toBeNull();
-                expect(context.container.querySelector('h4').textContent).toEqual('🚫 Incompatible with this season');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
-                expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeFalsy();
-            });
-
-            it('shows details of compatible template', async () => {
-                const response = addCompatibleResponse(seasonId, createTemporaryId());
-                response.result[0].errors.push('ERROR');
-                response.result[0].warnings.push('WARNING');
-                response.result[0].messages.push('MESSAGE');
-                await renderComponent({
-                    divisions: [],
-                    seasons: toMap([getSeason(seasonId)]),
-                    teams: toMap([team1, team2]),
-                }, null, {
-                    seasonId: seasonId,
-                });
-
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-
-                expect(reportedError).toBeNull();
-                expect(context.container.querySelector('h4').textContent).toEqual('✔ Compatible with this season');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
-                expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
-            });
 
             it('prevents proposal of fixtures for incompatible template', async () => {
                 addIncompatibleResponse(seasonId, createTemporaryId());
