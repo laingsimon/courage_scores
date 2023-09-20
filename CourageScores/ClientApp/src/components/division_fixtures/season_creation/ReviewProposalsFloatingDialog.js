@@ -19,7 +19,7 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
     const placeholdersToRender = distinct(templateDivision.dates
         .flatMap(d => d.fixtures
             .flatMap(f => [f.home, f.away])
-            .filter(p => p !== null)));
+            .filter(p => p)));
     const templateSharedAddresses = template.sharedAddresses.flatMap(a => a);
     const divisionSharedAddresses = templateDivision.sharedAddresses.flatMap(a => a);
     return (<>
