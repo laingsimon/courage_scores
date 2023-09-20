@@ -35,7 +35,7 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
     }
 
     function getDisplayDate(startDate, index) {
-        const date = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDay());
+        const date = new Date(startDate.valueOf());
         date.setDate(date.getDate() + (index * 7));
         return date;
     }
