@@ -1,5 +1,6 @@
 import React from "react";
 
+/* istanbul ignore next */
 export function ConfirmSave({ noOfFixturesToSave, noOfDivisions }) {
     return (<div>
         <p>Press <kbd>Next</kbd> to save all {noOfFixturesToSave} fixtures
