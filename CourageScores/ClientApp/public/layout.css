@@ -392,3 +392,7 @@ body .width-50 {
 .outline-0 {
     outline: none;
 }
+
+.text-secondary-50 {
+    color: #bbbbbb;
+}
