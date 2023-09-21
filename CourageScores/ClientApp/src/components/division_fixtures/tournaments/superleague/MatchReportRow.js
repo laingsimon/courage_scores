@@ -49,7 +49,7 @@ export function MatchReportRow({
                     <td>{legActualDarts(leg, 'home')}</td>
                     <td className={legGameShot(leg, 'home') >= 100 ? 'text-danger' : ''}>{legGameShot(leg, 'home')}</td>
                     <td>{legScoreLeft(leg, 'home')}</td>
-                    <td>{legTons(leg, 'home')}</td>
+                    <td>{legTonsSplit(leg, 'home')}</td>
 
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}
                                            className="align-middle fw-bold text-danger page-break-avoid">{ifNaN(round2dp(playerOverallAverage(saygData, 'away')), '-')}</td>) : null}
