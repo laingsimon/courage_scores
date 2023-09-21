@@ -5,7 +5,6 @@ import {
     legActualDarts,
     legGameShot,
     legScoreLeft,
-    legTons,
     legTonsSplit,
     playerOverallAverage
 } from "../../../../helpers/superleague";
