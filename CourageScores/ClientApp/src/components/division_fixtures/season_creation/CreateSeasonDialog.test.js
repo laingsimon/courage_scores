@@ -448,7 +448,95 @@ describe('CreateSeasonDialog', () => {
             });
         });
 
-        // 4-review proposals tests are in ReviewProposalsFloatingDialog.test.js
+        describe('4- review proposals', () => {
+            const seasonId = createTemporaryId();
+            const templateId = createTemporaryId();
+            const divisionId = createTemporaryId();
+            const anotherDivisionId = createTemporaryId();
+            const team1 = teamBuilder('TEAM 1')
+                .forSeason(seasonId, divisionId)
+                .build();
+            const team2 = teamBuilder('TEAM 2')
+                .forSeason(seasonId, anotherDivisionId)
+                .build();
+            let divisionDataSetTo;
+            let divisionReloaded;
+
+            beforeEach(async () => {
+                divisionDataSetTo = null;
+                divisionReloaded = null;
+
+                addCompatibleResponse(seasonId, templateId);
+                await renderComponent({
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ],
+                    seasons: toMap([
+                        getSeason(seasonId, divisionId, anotherDivisionId)
+                    ]),
+                    teams: toMap([team1, team2]),
+                }, {
+                    id: divisionId,
+                    setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    },
+                    onReloadDivision: () => {
+                        divisionReloaded = true;
+                    },
+                }, {
+                    seasonId: seasonId,
+                });
+
+                await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
+                expect(reportedError).toBeNull();
+                setApiResponse(true, {
+                    divisions: [{
+                        id: divisionId,
+                        name: 'PROPOSED DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .build()
+                        ]
+                    }, {
+                        id: anotherDivisionId,
+                        name: 'ANOTHER DIVISION',
+                        fixtures: [
+                            fixtureDateBuilder('2023-01-01')
+                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .build()
+                        ]
+                    }],
+                    placeholderMappings: {},
+                    template: getEmptyTemplate(templateId, 2),
+                });
+
+                await doClick(findButton(context.container, 'Next'));
+                await doClick(findButton(context.container, 'Next'));
+                await doClick(findButton(context.container, 'Next'));
+                expect(reportedError).toBeNull();
+            });
+
+            it('can navigate back to (3) review', async () => {
+                await doClick(findButton(context.container, 'Back'));
+
+                expect(context.container.querySelector('div.modal')).toBeTruthy();
+                expect(context.container.querySelector('div.position-fixed')).toBeFalsy();
+                expect(context.container.textContent).toContain('Press Next to review the fixtures in the divisions before saving');
+            });
+
+            it('can navigate forward to (5) confirm-save', async () => {
+                await doClick(findButton(context.container, 'Save all fixtures'));
+
+                expect(context.container.querySelector('div.modal')).toBeTruthy();
+                expect(context.container.querySelector('div.position-fixed')).toBeFalsy();
+                expect(context.container.textContent).toContain('Press Next to save all');
+            });
+        })
 
         describe('5- confirm save', () => {
             const seasonId = createTemporaryId();
