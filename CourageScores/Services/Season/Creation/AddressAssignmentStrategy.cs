@@ -102,7 +102,6 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
     {
         foreach (var divisionMapping in context.MatchContext.GetDivisionMappings(context.Template))
         {
-            // TODO: Find all teams in the division...
             var remainingTeams = divisionMapping.Teams.Except(context.PlaceholderMapping.Values).ToList();
             var allPlaceholders = divisionMapping.TemplateDivision.Dates.SelectMany(d => d.Fixtures).Select(f => f.Home.Key).Distinct();
             var remainingPlaceholders = allPlaceholders.Except(context.PlaceholderMapping.Keys).ToList();
