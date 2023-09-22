@@ -208,7 +208,9 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         } catch (e) {
             setSaveResults(saveResults.concat({
                 success: false,
-                errors: ['Error saving proposal: ' + e.message]
+                errors: ['Error saving proposal: ' + e.message],
+                warnings: [],
+                messages: [],
             }));
             setSaveMessage('Error saving proposal: ' + e.message);
         } finally {
@@ -255,7 +257,6 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 : null}
             {stage === '6-saving' || stage === 'aborted' || stage === 'saved'
                 ? (<SavingProposals
-                    response={response}
                     noOfFixturesToSave={fixturesToSave.length}
                     saveMessage={saveMessage}
                     saveResults={saveResults}

@@ -738,6 +738,8 @@ describe('CreateSeasonDialog', () => {
                     return {
                         success: false,
                         errors: ['SOME ERROR'],
+                        warnings: [],
+                        messages: [],
                     };
                 };
 

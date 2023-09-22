@@ -2,7 +2,7 @@ import {any} from "../../../helpers/collections";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import React from "react";
 
-export function SavingProposals({ saveMessage, noOfFixturesToSave, saveResults, response, saving }) {
+export function SavingProposals({ saveMessage, noOfFixturesToSave, saveResults, saving }) {
     function renderError(e, i) {
         return (<li className="text-danger" key={i}>{e}</li>);
     }
@@ -20,7 +20,7 @@ export function SavingProposals({ saveMessage, noOfFixturesToSave, saveResults, 
         const complete = saveResults.length;
         const percentage = complete / total;
 
-        return percentage * 100;
+        return (percentage * 100).toFixed(2);
     }
 
     return (<div>
@@ -33,14 +33,15 @@ export function SavingProposals({ saveMessage, noOfFixturesToSave, saveResults, 
                  role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         {any(saveResults, r => !r.success) ? (<div className="overflow-auto max-height-250">
-            {saveResults.map((r, index) => (<div key={index}>
-                {any(response.errors)
-                    ? (<ol>{response.errors.map(renderError)}</ol>)
+            {saveResults.filter(r => !r.success).map((r, index) => (<div key={index}>
+                {any(r.errors)
+                    ? (<ol>{r.errors.map(renderError)}</ol>)
                     : null}
-                {any(response.warnings) ? (
-                    <ol>{response.warnings.map(renderWarning)}</ol>) : null}
-                {any(response.messages)
-                    ? (<ol>{response.messages.map(renderMessage)}</ol>)
+                {any(r.warnings)
+                    ? (<ol>{r.warnings.map(renderWarning)}</ol>)
+                    : null}
+                {any(r.messages)
+                    ? (<ol>{r.messages.map(renderMessage)}</ol>)
                     : null}
             </div>))}
         </div>) : null}
