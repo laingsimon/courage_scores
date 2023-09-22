@@ -160,165 +160,9 @@ describe('CreateSeasonDialog', () => {
     }
 
     describe('renders', () => {
-        describe('1- pick', () => {
-            it('cannot navigate back', async () => {
-                const templateId = createTemporaryId();
-                setApiResponse(true, { id: templateId });
+        // 2-assign placeholders tests are in AssignPlaceholder.test.js
 
-                await renderComponent({
-                    divisions: [], seasons: toMap([])
-                }, null, {
-                    seasonId: createTemporaryId(),
-                });
-
-                const back = findButton(context.container, 'Back');
-                expect(back.disabled).toEqual(true);
-            });
-        });
-
-        describe('2- assign placeholders', () => {
-            const seasonId = createTemporaryId();
-            const division = divisionBuilder('DIVISION 1').build();
-            const anotherDivision = divisionBuilder('ANOTHER DIVISION').build();
-            const team1 = teamBuilder('TEAM 1')
-                .forSeason(seasonId, division)
-                .build();
-            const team2 = teamBuilder('TEAM 2')
-                .address('SHARED')
-                .forSeason(seasonId, anotherDivision)
-                .build();
-            const team3 = teamBuilder('TEAM 3')
-                .address('SHARED')
-                .forSeason(seasonId, anotherDivision)
-                .build();
-
-            beforeEach(async () => {
-                const response = addCompatibleResponse(seasonId, createTemporaryId());
-                const template = response.result[0].result;
-                const anotherDivisionTemplate = template.divisions[0];
-                const division1Template = template.divisions[1];
-                template.sharedAddresses = [ [ 'A', 'B' ] ];
-                anotherDivisionTemplate.sharedAddresses = [ [ 'A', 'C' ] ];
-                anotherDivisionTemplate.dates = [
-                    { fixtures: [
-                            { home: 'A', away: 'C' },
-                            { home: 'D', away: null },
-                        ] }
-                ];
-                division1Template.sharedAddresses = [ [ 'E', 'F' ] ];
-                division1Template.dates = [
-                    { fixtures: [
-                            { home: 'B', away: 'F' },
-                        ] }
-                ];
-
-                await renderComponent({
-                    divisions: [
-                        division,
-                        anotherDivision
-                    ],
-                    seasons: toMap([getSeason(seasonId, division.id, anotherDivision.id)]),
-                    teams: toMap([team1, team2, team3]),
-                }, null, {
-                    seasonId: seasonId,
-                });
-
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-
-                await doClick(findButton(context.container, 'Next'));
-            });
-
-            it('each division and appropriate placeholders', async () => {
-                const divisionHeadings = Array.from(context.container.querySelectorAll('h6'));
-                expect(divisionHeadings.map(h => h.textContent)).toEqual(['ANOTHER DIVISION', 'DIVISION 1']);
-                const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
-                expect(placeholderLists.length).toEqual(2); // one for each division
-                expect(Array.from(placeholderLists[0].querySelectorAll('li > span')).map(s => s.textContent)).toEqual(['A', 'C', 'D']);
-                expect(Array.from(placeholderLists[1].querySelectorAll('li > span')).map(s => s.textContent)).toEqual(['B', 'F']);
-            });
-
-            it('unselectable teams with common addresses', async () => {
-                const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
-                const anotherDivisionPlaceholders = placeholderLists[0];
-                const assignablePlaceholder = Array.from(anotherDivisionPlaceholders.querySelectorAll('li'))
-                    .filter(li => li.querySelector('span').textContent === 'D')[0];
-
-                expect(assignablePlaceholder.textContent).toContain('🚫 TEAM 2 (has shared address)');
-                expect(assignablePlaceholder.textContent).toContain('🚫 TEAM 3 (has shared address)');
-            });
-
-            it('unassignable placeholders with template shared addresses', async () => {
-                const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
-                const division1Placeholders = placeholderLists[1];
-                const templateSharedAddressPlaceholder = Array.from(division1Placeholders.querySelectorAll('li'))
-                    .filter(li => li.querySelector('span').textContent === 'B')[0];
-
-                expect(templateSharedAddressPlaceholder.textContent).toContain('Reserved for use by team with shared address across divisions');
-                expect(templateSharedAddressPlaceholder.textContent).not.toContain('Reserved for use by team with shared address in division');
-            });
-
-            it('unassignable placeholders with division shared addresses', async () => {
-                const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
-                const anotherDivisionPlaceholders = placeholderLists[0];
-                const divisionSharedAddressPlaceholder = Array.from(anotherDivisionPlaceholders.querySelectorAll('li'))
-                    .filter(li => li.querySelector('span').textContent === 'C')[0];
-
-                expect(divisionSharedAddressPlaceholder.textContent).toContain('Reserved for use by team with shared address in division');
-                expect(divisionSharedAddressPlaceholder.textContent).not.toContain('Reserved for use by team with shared address across divisions');
-            });
-        });
-
-        describe('3- review', () => {
-            beforeEach(async () => {
-                const seasonId = createTemporaryId();
-                const templateId = createTemporaryId();
-                const team1 = teamBuilder('TEAM 1')
-                    .forSeason(seasonId, createTemporaryId())
-                    .build();
-                const team2 = teamBuilder('TEAM 2')
-                    .forSeason(seasonId, createTemporaryId())
-                    .build();
-
-                addCompatibleResponse(seasonId, templateId);
-                await renderComponent({
-                    divisions: [],
-                    seasons: toMap([getSeason(seasonId)]),
-                    teams: toMap([team1, team2]),
-                }, null, {
-                    seasonId: seasonId,
-                });
-                await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError).toBeNull();
-            });
-
-            it('proposal result when proposal fails', async () => {
-                setApiResponse(false);
-
-                await doClick(findButton(context.container, 'Next'));
-                await doClick(findButton(context.container, 'Next'));
-
-                expect(reportedError).toBeNull();
-                expect(context.container.querySelector('h4').textContent).toEqual('⚠ There was an issue proposing fixtures');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
-                expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeFalsy();
-            });
-
-            it('proposal result when proposal succeeds', async () => {
-                setApiResponse(true);
-
-                await doClick(findButton(context.container, 'Next'));
-                await doClick(findButton(context.container, 'Next'));
-
-                expect(reportedError).toBeNull();
-                expect(context.container.querySelector('h4').textContent).toEqual('✔ Fixtures have been proposed');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
-                expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
-            });
-        });
+        // 3-review tests are in ReviewProposalHealth.test.js
 
         // 4-review proposals tests are in ReviewProposalsFloatingDialog.test.js
 
@@ -425,7 +269,21 @@ describe('CreateSeasonDialog', () => {
                 expect(proposalRequest).toBeNull();
             });
 
-            it('moves to assign-placeholders', async () => {
+            it('cannot navigate back', async () => {
+                const templateId = createTemporaryId();
+                setApiResponse(true, { id: templateId });
+
+                await renderComponent({
+                    divisions: [], seasons: toMap([])
+                }, null, {
+                    seasonId: createTemporaryId(),
+                });
+
+                const back = findButton(context.container, 'Back');
+                expect(back.disabled).toEqual(true);
+            });
+
+            it('moves to (2) assign-placeholders', async () => {
                 const templateId = createTemporaryId();
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent({
@@ -506,56 +364,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next'));
             });
 
-            it('can select a team for a placeholder', async () => {
-                const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
-                const division1Placeholders = placeholderLists[1];
-                const assignablePlaceholder = Array.from(division1Placeholders.querySelectorAll('li'))
-                    .filter(li => li.querySelector('span').textContent === 'G')[0];
-
-                await doSelectOption(assignablePlaceholder.querySelector('.dropdown-menu'), 'TEAM 1');
-
-                await doClick(findButton(context.container, 'Next'));
-                expect(proposalRequest).toEqual({
-                    seasonId: seasonId,
-                    templateId: templateId,
-                    placeholderMappings: {
-                        'G': team1.id
-                    },
-                });
-            });
-
-            it('can unselect a team for a placeholder', async () => {
-                const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
-                const division1Placeholders = placeholderLists[1];
-                const assignablePlaceholder = Array.from(division1Placeholders.querySelectorAll('li'))
-                    .filter(li => li.querySelector('span').textContent === 'G')[0];
-                await doSelectOption(assignablePlaceholder.querySelector('.dropdown-menu'), 'TEAM 1');
-
-                await doSelectOption(assignablePlaceholder.querySelector('.dropdown-menu'), '🎲 Randomly assign');
-
-                await doClick(findButton(context.container, 'Next'));
-                expect(proposalRequest).toEqual({
-                    seasonId: seasonId,
-                    templateId: templateId,
-                    placeholderMappings: {},
-                });
-            });
-
-            it('cannot select same team for another placeholder', async () => {
-                const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
-                const division1Placeholders = placeholderLists[1];
-                const firstAssignablePlaceholder = Array.from(division1Placeholders.querySelectorAll('li'))
-                    .filter(li => li.querySelector('span').textContent === 'G')[0];
-
-                await doSelectOption(firstAssignablePlaceholder.querySelector('.dropdown-menu'), 'TEAM 1');
-
-                const secondAssignablePlaceholder = Array.from(division1Placeholders.querySelectorAll('li'))
-                    .filter(li => li.querySelector('span').textContent === 'H')[0];
-                const options = Array.from(secondAssignablePlaceholder.querySelectorAll('.dropdown-menu .dropdown-item'));
-                expect(options.map(li => li.textContent)).toEqual([ '🎲 Randomly assign', 'TEAM 4' ]); // doesn't contain TEAM 1
-            });
-
-            it('can navigate forwards', async () => {
+            it('can navigate forwards to (3) review', async () => {
                 await doClick(findButton(context.container, 'Next'));
 
                 expect(proposalRequest).toEqual({
@@ -565,7 +374,7 @@ describe('CreateSeasonDialog', () => {
                 });
             });
 
-            it('can navigate backwards', async () => {
+            it('can navigate backwards to (1) pick', async () => {
                 await doClick(findButton(context.container, 'Back'));
 
                 const templateSelection = context.container.querySelector('.dropdown-menu');
@@ -626,7 +435,7 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
             });
 
-            it('can navigate to review-proposals', async () => {
+            it('can navigate to (4) review-proposals', async () => {
                 await doClick(findButton(context.container, 'Next'));
 
                 expect(reportedError).toBeNull();
