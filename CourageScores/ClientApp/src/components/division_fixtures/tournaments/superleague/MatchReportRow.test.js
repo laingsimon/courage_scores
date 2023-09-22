@@ -256,5 +256,59 @@ describe('MatchReportRow', () => {
             expect(hostScoreCells.map(td => td.className.trim())).toEqual(['text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold']);
             expect(opponentScoreCells.map(td => td.className.trim())).toEqual(['text-danger', 'text-danger', 'text-danger', 'text-danger']);
         });
+
+        it('shows non-180-tons correctly', async () => {
+            const saygData = {
+                legs: {
+                    '0': createLeg(true, false),
+                }
+            };
+            saygData.legs['0'].home.throws.forEach(thr => thr.score = 120);
+            saygData.legs['0'].away.throws.forEach(thr => thr.score = 130);
+
+            await renderComponent({
+                matchIndex: 0,
+                saygData,
+                noOfThrows: 3,
+                noOfLegs: 2,
+                showWinner: false,
+                hostPlayerName: 'HOST',
+                opponentPlayerName: 'OPPONENT',
+            });
+
+            expect(reportedError).toBeNull();
+            const rows = Array.from(context.container.querySelectorAll('tr'));
+            const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
+            const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];
+            expect(hostTons.textContent).toEqual('5');
+            expect(opponentTons.textContent).toEqual('5');
+        });
+
+        it('shows 180-tons correctly', async () => {
+            const saygData = {
+                legs: {
+                    '0': createLeg(true, false),
+                }
+            };
+            saygData.legs['0'].home.throws.forEach(thr => thr.score = 180);
+            saygData.legs['0'].away.throws.forEach(thr => thr.score = 180);
+
+            await renderComponent({
+                matchIndex: 0,
+                saygData,
+                noOfThrows: 3,
+                noOfLegs: 2,
+                showWinner: false,
+                hostPlayerName: 'HOST',
+                opponentPlayerName: 'OPPONENT',
+            });
+
+            expect(reportedError).toBeNull();
+            const rows = Array.from(context.container.querySelectorAll('tr'));
+            const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
+            const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];
+            expect(hostTons.textContent).toEqual('5+5');
+            expect(opponentTons.textContent).toEqual('5+5');
+        });
     });
 });
