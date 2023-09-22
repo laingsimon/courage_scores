@@ -198,6 +198,7 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                 {
                     division.Id, teams
                 },
-            });
+            },
+            new Dictionary<string, Guid>());
     }
 }
