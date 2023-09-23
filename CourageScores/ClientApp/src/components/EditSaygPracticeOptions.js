@@ -26,7 +26,7 @@ export function EditSaygPracticeOptions() {
             </div>
             <input type="number" className="form-control" name="startingScore" value={sayg.startingScore}
                    onChange={valueChanged(sayg, setSayg)}/>
-            <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice" buttonText="Save"/>
+            <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice" buttonText="Save "/>
         </div>
         <div className="input-group my-3">
             <div className="input-group-prepend">
