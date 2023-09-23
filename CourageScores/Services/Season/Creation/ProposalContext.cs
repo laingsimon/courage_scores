@@ -20,4 +20,5 @@ public class ProposalContext
     public TemplateDto Template { get; }
     public ActionResultDto<ProposalResultDto> Result { get; }
     public Dictionary<string, TeamDto> PlaceholderMapping => Result.Result!.PlaceholderMappings;
+    public Dictionary<string, Guid> RequestedPlaceholderMappings => MatchContext.RequestedPlaceholderMappings;
 }

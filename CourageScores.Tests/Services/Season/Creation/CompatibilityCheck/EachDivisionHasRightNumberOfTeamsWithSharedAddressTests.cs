@@ -196,6 +196,7 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
                 {
                     division.Id, teams
                 },
-            });
+            },
+            new Dictionary<string, Guid>());
     }
 }

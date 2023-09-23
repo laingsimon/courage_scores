@@ -141,6 +141,9 @@ export function distinct(items, property) {
     return Object.values(map);
 }
 
+/*
+* Produce a map of items keyed on the given selector
+* */
 export function toDictionary(items, keySelector, valueSelector) {
     const dict = {};
 

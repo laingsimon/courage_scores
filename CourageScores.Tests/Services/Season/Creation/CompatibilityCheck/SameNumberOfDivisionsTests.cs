@@ -66,6 +66,6 @@ public class SameNumberOfDivisionsTests
 
     private TemplateMatchContext TemplateMatchContext(IEnumerable<DivisionDataDto> divisions)
     {
-        return new TemplateMatchContext(_season, divisions.ToArray(), new Dictionary<Guid, TeamDto[]>());
+        return new TemplateMatchContext(_season, divisions.ToArray(), new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
     }
 }

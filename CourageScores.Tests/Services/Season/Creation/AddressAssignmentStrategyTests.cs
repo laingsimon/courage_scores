@@ -590,15 +590,171 @@ public class AddressAssignmentStrategyTests
         }));
     }
 
+    [Test]
+    public async Task AssignAddresses_GivenRequestedPlaceholderMappingsToNoExistentTeams_MapsEachTeamToARandomPlaceholder()
+    {
+        var template = new TemplateDto
+        {
+            Divisions =
+            {
+                new DivisionTemplateDto
+                {
+                    Dates =
+                    {
+                        new DateTemplateDto
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplateDto
+                                {
+                                    Home = new TeamPlaceholderDto("A"),
+                                    Away = new TeamPlaceholderDto("B"),
+                                },
+                            },
+                        },
+                        new DateTemplateDto
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplateDto
+                                {
+                                    Home = new TeamPlaceholderDto("B"),
+                                    Away = new TeamPlaceholderDto("A"),
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+        var teamA = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "A",
+            Address = "Venue 1",
+        };
+        var teamB = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "B",
+            Address = "Venue 2",
+        };
+        var division1 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division 1",
+        };
+        var placeholderMappings = new Dictionary<string, Guid>
+        {
+            { "A", Guid.NewGuid() },
+        };
+        var context = ProposalContext(
+            Array(division1),
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                {
+                    division1.Id, Array(teamA, teamB)
+                },
+            },
+            placeholderMappings);
+
+        var result = await _strategy.AssignAddresses(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(teamA).Or.EqualTo(teamB));
+        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(teamB).Or.EqualTo(teamA));
+        Assert.That(context.PlaceholderMapping.Values, Is.EquivalentTo(new[]
+        {
+            teamA, teamB,
+        }));
+    }
+
+    [Test]
+    public async Task AssignAddresses_GivenRequestedPlaceholderMappings_MapsTeamsToGivenPlaceholders()
+    {
+        var template = new TemplateDto
+        {
+            Divisions =
+            {
+                new DivisionTemplateDto
+                {
+                    Dates =
+                    {
+                        new DateTemplateDto
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplateDto
+                                {
+                                    Home = new TeamPlaceholderDto("A"),
+                                    Away = new TeamPlaceholderDto("B"),
+                                },
+                            },
+                        },
+                        new DateTemplateDto
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplateDto
+                                {
+                                    Home = new TeamPlaceholderDto("B"),
+                                    Away = new TeamPlaceholderDto("A"),
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+        var teamA = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "A",
+            Address = "Venue 1",
+        };
+        var teamB = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "B",
+            Address = "Venue 2",
+        };
+        var division1 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division 1",
+        };
+        var placeholderMappings = new Dictionary<string, Guid>
+        {
+            { "A", teamA.Id },
+        };
+        var context = ProposalContext(
+            Array(division1),
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                {
+                    division1.Id, Array(teamA, teamB)
+                },
+            },
+            placeholderMappings);
+
+        var result = await _strategy.AssignAddresses(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(teamA));
+        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(teamB));
+    }
+
     private static T[] Array<T>(params T[] items)
     {
         return items;
     }
 
-    private ProposalContext ProposalContext(IEnumerable<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams)
+    private ProposalContext ProposalContext(IEnumerable<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams, Dictionary<string, Guid>? placeholderMappings = null)
     {
         return new ProposalContext(
-            new TemplateMatchContext(_season, divisions, teams),
+            new TemplateMatchContext(_season, divisions, teams, placeholderMappings ?? new()),
             template,
             new ActionResultDto<ProposalResultDto>
             {

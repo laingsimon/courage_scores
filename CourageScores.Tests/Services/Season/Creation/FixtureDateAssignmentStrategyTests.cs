@@ -408,7 +408,7 @@ public class FixtureDateAssignmentStrategyTests
     private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams)
     {
         return new ProposalContext(
-            new TemplateMatchContext(_season, divisions, teams),
+            new TemplateMatchContext(_season, divisions, teams, new Dictionary<string, Guid>()),
             template,
             new ActionResultDto<ProposalResultDto>
             {

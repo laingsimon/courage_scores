@@ -237,6 +237,7 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddressTests
         return new TemplateMatchContext(
             _season,
             divisions,
-            teams);
+            teams,
+            new Dictionary<string, Guid>());
     }
 }

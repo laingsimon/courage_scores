@@ -15,7 +15,7 @@ public class TemplateMatchContextTests
     [Test]
     public void GetSeasonSharedAddresses_GivenNoDivisions_ReturnsEmpty()
     {
-        var context = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>());
+        var context = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -32,7 +32,8 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division,
-        }, new Dictionary<Guid, TeamDto[]>());
+        }, new Dictionary<Guid, TeamDto[]>(),
+            new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -66,7 +67,7 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division,
-        }, teams);
+        }, teams, new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -106,7 +107,7 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division,
-        }, teams);
+        }, teams, new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -170,7 +171,7 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division1, division2,
-        }, teams);
+        }, teams, new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -240,7 +241,7 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division1, division2,
-        }, teams);
+        }, teams, new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -310,7 +311,7 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division1, division2,
-        }, teams);
+        }, teams, new Dictionary<string, Guid>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -326,7 +327,7 @@ public class TemplateMatchContextTests
     [Test]
     public void GetDivisionMappings_GivenNoDivisionsAnywhere_ReturnsEmpty()
     {
-        var context = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>());
+        var context = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
 
         var result = context.GetDivisionMappings(new TemplateDto());
 
@@ -343,7 +344,7 @@ public class TemplateMatchContextTests
                 new DivisionTemplateDto(),
             },
         };
-        var context = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>());
+        var context = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
 
         var result = context.GetDivisionMappings(template);
 
@@ -360,7 +361,7 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division,
-        }, new Dictionary<Guid, TeamDto[]>());
+        }, new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
 
         var result = context.GetDivisionMappings(new TemplateDto());
 
@@ -384,7 +385,7 @@ public class TemplateMatchContextTests
         var context = new TemplateMatchContext(_season, new[]
         {
             division,
-        }, new Dictionary<Guid, TeamDto[]>());
+        }, new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
 
         var result = context.GetDivisionMappings(template).ToArray();
 

@@ -8,17 +8,19 @@ namespace CourageScores.Services.Season.Creation;
 public class TemplateMatchContext
 {
     public TemplateMatchContext(SeasonDto seasonDto, IEnumerable<DivisionDataDto> divisions,
-        Dictionary<Guid, TeamDto[]> teams)
+        Dictionary<Guid, TeamDto[]> teams, Dictionary<string, Guid> requestedPlaceholderMappings)
     {
         SeasonDto = seasonDto;
         Teams = teams;
         Divisions = divisions.ToList();
+        RequestedPlaceholderMappings = requestedPlaceholderMappings;
     }
 
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public SeasonDto SeasonDto { get; }
     public Dictionary<Guid, TeamDto[]> Teams { get; }
     public List<DivisionDataDto> Divisions { get; }
+    public Dictionary<string, Guid> RequestedPlaceholderMappings { get; }
 
     public IReadOnlyCollection<string[]> GetSeasonSharedAddresses()
     {

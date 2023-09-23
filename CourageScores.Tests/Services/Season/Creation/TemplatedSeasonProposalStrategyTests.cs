@@ -37,7 +37,7 @@ public class TemplatedSeasonProposalStrategyTests
             _dateAssignmentStrategy.Object,
             _healthCheckService.Object,
             _adapter.Object);
-        _matchContext = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>());
+        _matchContext = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>(), new Dictionary<string, Guid>());
     }
 
     [Test]
