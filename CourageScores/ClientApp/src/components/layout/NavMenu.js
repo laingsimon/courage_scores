@@ -107,7 +107,7 @@ export function NavMenu() {
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container>
                 <NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>
                 <button onClick={() => setCollapsed(!collapsed)} type="button" className="mr-2 navbar-toggler">
-                    {appLoading || true
+                    {appLoading
                         ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
                         : (<span className="navbar-toggler-icon"></span>)}
                 </button>
