@@ -374,13 +374,34 @@ describe('EditNote', () => {
             alert = null;
             saveResult = {
                 success: false,
-            }
+            };
 
             await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toBeNull();
             expect(savedNote).not.toBeNull();
             expect(saved).toEqual(false);
+            expect(context.container.textContent).toContain('Could not save note');
+        });
+
+        it('can hide error after problem saving', async () => {
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
+            alert = null;
+            saveResult = {
+                success: false,
+            };
+            await doClick(findButton(context.container, 'Save'));
+
+            await doClick(findButton(context.container.querySelector('.modal-dialog .modal-dialog'), 'Close'));
+
+            expect(closed).toEqual(false);
+            expect(context.container.textContent).not.toContain('Could not save note');
         });
 
         it('can close dialog', async () => {
