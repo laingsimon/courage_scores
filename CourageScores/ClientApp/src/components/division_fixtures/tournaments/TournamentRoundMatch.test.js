@@ -29,6 +29,7 @@ describe('TournamentRoundMatch', () => {
     let updatedPatch;
     let saygApiData;
     let tournamentApiResponse;
+    let deletedSayg;
     const tournamentApi = {
         addSayg: async (tournamentId, matchId, matchOptions) => {
             createdSaygSessions.push({tournamentId, matchId, matchOptions});
@@ -45,6 +46,12 @@ describe('TournamentRoundMatch', () => {
                 success: responseData.success,
                 result: responseData.result
             };
+        },
+        deleteSayg: async (tournamentId, matchId) => {
+            deletedSayg = { tournamentId, matchId };
+            return tournamentApiResponse || {
+                success: true,
+            }
         }
     };
     const saygApi = {
@@ -57,7 +64,7 @@ describe('TournamentRoundMatch', () => {
                 success: true,
                 result: data,
             };
-        },
+        }
     };
 
     afterEach(() => {
@@ -92,6 +99,7 @@ describe('TournamentRoundMatch', () => {
         updatedSaygData = null;
         updatedPatch = null;
         createdSaygSessions = [];
+        deletedSayg = null;
         context = await renderApp(
             {tournamentApi, saygApi},
             {name: 'Courage Scores'},
@@ -829,6 +837,125 @@ describe('TournamentRoundMatch', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
+        });
+
+        it('can delete sayg', async () => {
+            const saygData = saygBuilder()
+                .withLeg('0', l => l.startingScore(501))
+                .build();
+            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
+            const tournamentId = createTemporaryId();
+            const accountWithDebugOptions = Object.assign({}, account);
+            accountWithDebugOptions.access = Object.assign({}, account.access);
+            accountWithDebugOptions.access.showDebugOptions = true;
+            await renderComponent({tournamentData: {id: tournamentId}}, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([sideA, sideB]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: roundBuilder().withMatch(match).build(),
+                matchOptions: {},
+            }, accountWithDebugOptions);
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            let confirm;
+            window.confirm = (msg) => {
+                confirm = msg;
+                return true;
+            };
+            window.alert = () => {};
+            await doClick(findButton(cells[0], '📊'));
+
+            await doClick(findButton(cells[0], 'Delete sayg'));
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeFalsy();
+            expect(deletedSayg).toEqual({
+                matchId: match.id,
+                tournamentId: tournamentId,
+            });
+            expect(confirm).toEqual('Are you sure you want to delete the sayg data for this match?');
+            expect(updatedRound.matches[0].saygId).toBeNull();
+        });
+
+        it('does not delete sayg if unconfirmed', async () => {
+            const saygData = saygBuilder()
+                .withLeg('0', l => l.startingScore(501))
+                .build();
+            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
+            const tournamentId = createTemporaryId();
+            const accountWithDebugOptions = Object.assign({}, account);
+            accountWithDebugOptions.access = Object.assign({}, account.access);
+            accountWithDebugOptions.access.showDebugOptions = true;
+            await renderComponent({tournamentData: {id: tournamentId}}, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([sideA, sideB]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: roundBuilder().withMatch(match).build(),
+                matchOptions: {},
+            }, accountWithDebugOptions);
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            let confirm;
+            window.confirm = (msg) => {
+                confirm = msg;
+                return false;
+            };
+            await doClick(findButton(cells[0], '📊'));
+
+            await doClick(findButton(cells[0], 'Delete sayg'));
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(deletedSayg).toBeNull();
+            expect(confirm).toEqual('Are you sure you want to delete the sayg data for this match?');
+        });
+
+        it('handles error when deleting sayg', async () => {
+            const saygData = saygBuilder()
+                .withLeg('0', l => l.startingScore(501))
+                .build();
+            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
+            const tournamentId = createTemporaryId();
+            const accountWithDebugOptions = Object.assign({}, account);
+            accountWithDebugOptions.access = Object.assign({}, account.access);
+            accountWithDebugOptions.access.showDebugOptions = true;
+            await renderComponent({tournamentData: {id: tournamentId}}, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([sideA, sideB]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: roundBuilder().withMatch(match).build(),
+                matchOptions: {},
+            }, accountWithDebugOptions);
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            let confirm;
+            window.confirm = () => true;
+            await doClick(findButton(cells[0], '📊'));
+            tournamentApiResponse = { success: false, errors: ['ERROR']};
+
+            await doClick(findButton(cells[0], 'Delete sayg'));
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(deletedSayg).toEqual({
+                tournamentId: tournamentId,
+                matchId: match.id,
+            });
+            expect(reportedError).toEqual({
+                errors: ['ERROR'],
+                success: false,
+            });
         });
 
         it('can set first player for match', async () => {

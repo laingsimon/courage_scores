@@ -196,7 +196,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
     async function saveTeamChange() {
         try {
-            if (saving || deleting || readOnly) {
+            // istanbul ignore next
+            if (saving || deleting) {
+                // istanbul ignore next
                 return;
             }
 
@@ -225,7 +227,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
     async function deleteGame() {
         try {
-            if (deleting || saving || readOnly) {
+            // istanbul ignore next
+            if (deleting || saving) {
+                // istanbul ignore next
                 return;
             }
 

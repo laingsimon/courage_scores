@@ -15,10 +15,11 @@ public class CompositeCompatibilityCheckTests
 {
     private readonly CancellationToken _token = new();
     private readonly TemplateDto _template = new();
-    private readonly TemplateMatchContext _context = new(new SeasonDto(), new[]
-    {
-        new DivisionDataDto(),
-    }, new Dictionary<Guid, TeamDto[]>());
+    private readonly TemplateMatchContext _context = new(
+        new SeasonDto(),
+        new[] { new DivisionDataDto() },
+        new Dictionary<Guid, TeamDto[]>(),
+        new Dictionary<string, Guid>());
 
     [Test]
     public async Task Check_GivenNoChecks_ReturnsSuccess()

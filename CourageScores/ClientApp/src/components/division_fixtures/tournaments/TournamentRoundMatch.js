@@ -105,10 +105,6 @@ export function TournamentRoundMatch({
     }
 
     async function deleteSayg() {
-        if (!match.saygId) {
-            return;
-        }
-
         if (!window.confirm('Are you sure you want to delete the sayg data for this match?')) {
             return;
         }

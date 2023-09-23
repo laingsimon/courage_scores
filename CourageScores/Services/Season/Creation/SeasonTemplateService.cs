@@ -71,7 +71,7 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<List<ActionResultDto<TemplateDto>>>("Season not found");
         }
 
-        var context = await CreateContext(season, token);
+        var context = await CreateContext(season, new ProposalRequestDto(), token);
         var checks = _compatibilityCheckFactory.CreateChecks();
 
         return new ActionResultDto<List<ActionResultDto<TemplateDto>>>
@@ -111,7 +111,7 @@ public class SeasonTemplateService : ISeasonTemplateService
             return Error<ProposalResultDto>("Template not found");
         }
 
-        var context = await CreateContext(season, token);
+        var context = await CreateContext(season, request, token);
         return await _proposalStrategy.ProposeFixtures(context, template, token);
     }
 
@@ -139,7 +139,7 @@ public class SeasonTemplateService : ISeasonTemplateService
         };
     }
 
-    private async Task<TemplateMatchContext> CreateContext(SeasonDto season, CancellationToken token)
+    private async Task<TemplateMatchContext> CreateContext(SeasonDto season, ProposalRequestDto request, CancellationToken token)
     {
         var divisions = await season.Divisions.SelectAsync(d => _divisionService.GetDivisionData(new DivisionDataFilter
         {
@@ -153,7 +153,7 @@ public class SeasonTemplateService : ISeasonTemplateService
             .GroupBy(t => t.Seasons.Single(ts => ts.SeasonId == season.Id).DivisionId)
             .ToDictionary(g => g.Key, g => g.ToArray());
 
-        return new TemplateMatchContext(season, divisions, teams);
+        return new TemplateMatchContext(season, divisions, teams, request.PlaceholderMappings);
     }
 
     private static ActionResultDto<T> Error<T>(string error)

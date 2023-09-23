@@ -9,7 +9,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {changeFilter, getFixtureDateFilters, getFixtureFilters, initFilter} from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
-import {CreateSeasonDialog} from "./CreateSeasonDialog";
+import {CreateSeasonDialog} from "./season_creation/CreateSeasonDialog";
 
 export function DivisionFixtures({setNewFixtures}) {
     const {id: divisionId, season, fixtures, onReloadDivision} = useDivisionData();

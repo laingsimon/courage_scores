@@ -102,10 +102,26 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
     {
         foreach (var divisionMapping in context.MatchContext.GetDivisionMappings(context.Template))
         {
-            // TODO: Find all teams in the division...
             var remainingTeams = divisionMapping.Teams.Except(context.PlaceholderMapping.Values).ToList();
             var allPlaceholders = divisionMapping.TemplateDivision.Dates.SelectMany(d => d.Fixtures).Select(f => f.Home.Key).Distinct();
             var remainingPlaceholders = allPlaceholders.Except(context.PlaceholderMapping.Keys).ToList();
+
+            foreach (var placeholder in context.RequestedPlaceholderMappings)
+            {
+                token.ThrowIfCancellationRequested();
+                if (!remainingPlaceholders.Contains(placeholder.Key))
+                {
+                    continue;
+                }
+
+                var team = remainingTeams.SingleOrDefault(t => t.Id == placeholder.Value);
+                if (team != null)
+                {
+                    context.PlaceholderMapping.Add(placeholder.Key, team);
+                    remainingTeams.Remove(team);
+                    remainingPlaceholders.Remove(placeholder.Key);
+                }
+            }
 
             while (remainingTeams.Any())
             {

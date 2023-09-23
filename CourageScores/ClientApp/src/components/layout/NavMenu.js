@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavLink} from 'reactstrap';
+import {Collapse, Navbar, NavbarBrand, NavLink} from 'reactstrap';
 import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
 import {any, isEmpty} from "../../helpers/collections";
@@ -106,7 +106,11 @@ export function NavMenu() {
         return (<header className="d-print-none" data-state={collapsed ? 'collapsed' : 'expanded'}>
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container>
                 <NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>
-                <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="mr-2"/>
+                <button onClick={() => setCollapsed(!collapsed)} type="button" className="mr-2 navbar-toggler">
+                    {appLoading
+                        ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
+                        : (<span className="navbar-toggler-icon"></span>)}
+                </button>
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
                         {renderItems('beforeDivisions')}

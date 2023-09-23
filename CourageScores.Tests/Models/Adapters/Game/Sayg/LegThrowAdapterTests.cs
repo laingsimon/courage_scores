@@ -18,12 +18,14 @@ public class LegThrowAdapterTests
         {
             Score = 100,
             NoOfDarts = 3,
+            Bust = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Score, Is.EqualTo(model.Score));
         Assert.That(result.NoOfDarts, Is.EqualTo(model.NoOfDarts));
+        Assert.That(result.Bust, Is.EqualTo(model.Bust));
     }
 
     [Test]
@@ -33,11 +35,13 @@ public class LegThrowAdapterTests
         {
             Score = 100,
             NoOfDarts = 3,
+            Bust = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Score, Is.EqualTo(dto.Score));
         Assert.That(result.NoOfDarts, Is.EqualTo(dto.NoOfDarts));
+        Assert.That(result.Bust, Is.EqualTo(dto.Bust));
     }
 }

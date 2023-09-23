@@ -7,4 +7,5 @@ public class ProposalRequestDto
 {
     public Guid SeasonId { get; set; }
     public Guid TemplateId { get; set; }
+    public Dictionary<string, Guid> PlaceholderMappings { get; set; } = new();
 }

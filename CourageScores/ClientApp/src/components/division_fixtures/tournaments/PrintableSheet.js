@@ -345,7 +345,7 @@ export function PrintableSheet({printOnly}) {
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center">
-                {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
+                {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
                 <span className="d-print-none margin-left">
                     <ShareButton
@@ -383,7 +383,7 @@ export function PrintableSheet({printOnly}) {
                         </div>))}
                         {index === layoutData.length - 1 ? renderHiChecks() : null}
                     </div>))}
-                <div>
+                {any(tournamentData.sides) ? (<div>
                     <h5>Venue winner</h5>
                     <div datatype="winner"
                          className="p-0 border-solid border-1 m-1 bg-winner fw-bold">
@@ -393,8 +393,8 @@ export function PrintableSheet({printOnly}) {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div datatype="playing" className="ms-5">
+                </div>) : null}
+                {any(tournamentData.sides) ? (<div datatype="playing" className="ms-5">
                     <h4>Playing</h4>
                     <ul className="list-group">
                         {tournamentData.sides.sort(sortBy('name')).map((side, index) => <li
@@ -403,7 +403,7 @@ export function PrintableSheet({printOnly}) {
                             {index + 1} - {getLinkToSide(side)}
                         </li>)}
                     </ul>
-                </div>
+                </div>) : null}
             </div>
         </div>);
     } catch (e) {
