@@ -11,6 +11,7 @@ public class LegThrowAdapter : ISimpleAdapter<LegThrow, LegThrowDto>
         {
             Score = model.Score,
             NoOfDarts = model.NoOfDarts,
+            Bust = model.Bust,
         });
     }
 
@@ -20,6 +21,7 @@ public class LegThrowAdapter : ISimpleAdapter<LegThrow, LegThrowDto>
         {
             Score = dto.Score,
             NoOfDarts = dto.NoOfDarts,
+            Bust = dto.Bust,
         });
     }
 }
