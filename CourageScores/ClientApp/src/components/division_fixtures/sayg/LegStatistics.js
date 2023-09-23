@@ -129,14 +129,14 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
                     onClose={() => setThrowUnderEdit(null)} />)
                 : null}
         </td>
-        <td className={leg.winner === 'home' ? 'bg-winner' : ''}>
+        <td className={(leg.winner === 'home' || leg.home.score === leg.startingScore) ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(homeStats.score / (homeStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({homeStats.noOfDarts} darts)<br/>
             {leg.winner === 'home'
                 ? (<div>Checkout: <strong>{leg.home.throws[leg.home.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - homeStats.score}</strong></div>)}
             {showThrows ? (renderThrows(leg.home.throws, 'home')) : null}
         </td>
-        {singlePlayer ? null : (<td className={leg.winner === 'away' ? 'bg-winner' : ''}>
+        {singlePlayer ? null : (<td className={(leg.winner === 'away' || leg.away.score === leg.startingScore) ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(awayStats.score / (awayStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({awayStats.noOfDarts} darts)<br/>
             {leg.winner === 'away'
                 ? (<div>Checkout: <strong>{leg.away.throws[leg.away.throws.length - 1].score}</strong></div>)
