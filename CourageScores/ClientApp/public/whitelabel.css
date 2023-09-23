@@ -10,6 +10,11 @@ body .nav-link:focus {
     color: #ffffff;
 }
 
+.navbar-toggler .spinner-border {
+    border-color: #ffffff;
+    border-right-color: transparent;
+}
+
 h1 {
     color: #218CFF;
 }
