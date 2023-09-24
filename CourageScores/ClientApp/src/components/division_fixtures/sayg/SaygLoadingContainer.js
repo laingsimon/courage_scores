@@ -13,7 +13,7 @@ export function useSayg() {
 }
 
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
-                                         onLoadError, refreshAllowed, matchStatisticsOnly, initialRefreshInterval }) {
+                                         onLoadError, refreshAllowed, matchStatisticsOnly, initialRefreshInterval, lastLegDisplayOptions }) {
     const [sayg, setSayg] = useState(defaultData);
     const [saveError, setSaveError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -113,6 +113,10 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         setSayg,
         saveDataAndGetId,
         refresh: loadData,
+        refreshAllowed,
+        matchStatisticsOnly,
+        initialRefreshInterval,
+        lastLegDisplayOptions
     };
 
     try {
@@ -136,6 +140,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                     refreshAllowed={refreshAllowed}
                     matchStatisticsOnly={matchStatisticsOnly}
                     initialRefreshInterval={initialRefreshInterval}
+                    lastLegDisplayOptions={lastLegDisplayOptions}
                     onLegComplete={async (homeScore, awayScore) => {
                         const sayg = updateSayg({homeScore, awayScore});
                         if (autoSave) {

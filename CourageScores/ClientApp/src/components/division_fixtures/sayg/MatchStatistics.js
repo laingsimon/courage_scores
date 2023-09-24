@@ -7,16 +7,15 @@ import {useSayg} from "./SaygLoadingContainer";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 
-export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs,
-                                    refreshAllowed, initialRefreshInterval}) {
+export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs }) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
+    const {refresh, refreshAllowed, initialRefreshInterval, lastLegDisplayOptions} = useSayg();
     const [refreshInterval, setRefreshInterval] = useState(initialRefreshInterval || 0);
-    const { refresh } = useSayg();
-    const [ refreshing, setRefreshing ] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [legDisplayOptionsState, setLegDisplayOptions] = useState(getLegDisplayOptions(legs));
     const finished = (homeScore >= numberOfLegs / 2.0) || (awayScore >= numberOfLegs / 2.0);
     const canRefresh = refreshAllowed && !finished;
-    const legDisplayOptions = refreshInterval
+    const legDisplayOptions = refreshInterval && !finished
         ? getLegDisplayOptions(legs, true)
         : legDisplayOptionsState;
 
@@ -37,8 +36,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
         });
 
         if (showThrowsOnLastLeg && lastLegIndex) {
-            options[lastLegIndex].showThrows = true;
-            options[lastLegIndex].showAverage = true; // TODO: make this configurable
+            options[lastLegIndex] = lastLegDisplayOptions;
         }
 
         return options;
@@ -68,7 +66,11 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
         // call out to loading container to refresh the data
         setRefreshing(true);
         try {
-            await refresh();
+            const newSayg = await refresh();
+
+            if (Object.keys(newSayg.legs).length !== Object.keys(legs).length) {
+                setLegDisplayOptions(getLegDisplayOptions(newSayg.legs));
+            }
         } finally {
             setRefreshing(false);
         }
@@ -80,10 +82,9 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
 
     function getRefreshOptions() {
         return [
-            { value: 0, text: '⏸️ No refresh' },
-            { value: 1000, text: '⏩ Live: Extra-Fast' },
-            { value: 10000, text: '▶️ Live: Fast' },
-            { value: 60000, text: '🔃 Live: Medium' },
+            { value: 0, text: '⏸️ Paused' },
+            { value: 10000, text: '⏩ Live (Fast)' },
+            { value: 60000, text: '▶️ Live' },
         ];
     }
 
@@ -93,13 +94,13 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
             {canRefresh
                 ? (<>
                     <BootstrapDropdown
-                        className="margin-left"
+                        className="margin-left float-end"
                         options={getRefreshOptions()}
                         onChange={v => setRefreshInterval(v)}
                         value={refreshInterval} />
                     <span className="width-20 d-inline-block ms-2 text-secondary-50">{refreshing ? <LoadingSpinnerSmall /> : null}</span>
                 </>)
-                : refreshAllowed ? (<span className="width-20 d-inline-block ms-2 text-secondary-50">⏸️</span>) : null}
+                : refreshAllowed && !finished ? (<span className="width-20 d-inline-block ms-2 text-secondary-50">⏸️</span>) : null}
         </h4>
         <table className="table">
             <thead>
@@ -130,7 +131,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     singlePlayer={singlePlayer}
                     oneDartAverage={oneDartAverage}
                     legDisplayOptions={legDisplayOptions[legIndex]}
-                    updateLegDisplayOptions={refreshInterval ? null : (options) => updateLegDisplayOptions(legIndex, options)}
+                    updateLegDisplayOptions={refreshInterval && !finished ? null : (options) => updateLegDisplayOptions(legIndex, options)}
                     onChangeLeg={legChanged ? ((newLeg) => legChanged(newLeg, legIndex)) : null}
                 />);
             })}

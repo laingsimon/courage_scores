@@ -23,7 +23,7 @@ describe('MatchStatistics', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    async function renderComponent(containerProps, props) {
         const saygId = createTemporaryId();
         getCount = 0;
         saygData = Object.assign({ id: saygId }, props);
@@ -31,7 +31,7 @@ describe('MatchStatistics', () => {
             {saygApi},
             {name: 'Courage Scores'},
             {},
-            <SaygLoadingContainer id={saygId} matchStatisticsOnly={true}>
+            <SaygLoadingContainer id={saygId} {...containerProps}>
                 <MatchStatistics {...props} />
             </SaygLoadingContainer>);
     }
@@ -110,7 +110,7 @@ describe('MatchStatistics', () => {
             .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
             .build();
 
-        await renderComponent({
+        await renderComponent({}, {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
@@ -141,7 +141,7 @@ describe('MatchStatistics', () => {
             .winner('home')
             .build();
 
-        await renderComponent({
+        await renderComponent({}, {
             legs: {0: leg},
             homeScore: 3,
             home: 'HOME',
@@ -167,7 +167,7 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
             .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
             .build();
-        await renderComponent({
+        await renderComponent({}, {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
@@ -197,7 +197,7 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
             .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
             .build();
-        await renderComponent({
+        await renderComponent({}, {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
@@ -229,7 +229,7 @@ describe('MatchStatistics', () => {
             .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
             .build();
         let changed;
-        await renderComponent({
+        await renderComponent({}, {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
@@ -257,7 +257,7 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
             .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
             .build();
-        await renderComponent({
+        await renderComponent({}, {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
@@ -284,11 +284,13 @@ describe('MatchStatistics', () => {
             .build();
 
         await renderComponent({
+            refreshAllowed: false,
+            matchStatisticsOnly: true,
+        }, {
             legs: {0: leg},
             homeScore: 1,
             home: 'HOME',
             singlePlayer: true,
-            refreshAllowed: false,
             numberOfLegs: 3,
         });
 
@@ -306,15 +308,19 @@ describe('MatchStatistics', () => {
             .build();
 
         await renderComponent({
+            matchStatisticsOnly: true,
+            refreshAllowed: true,
+            initialRefreshInterval: 10000,
+            lastLegDisplayOptions: { showThrows: true },
+        }, {
             legs: {0: leg},
             homeScore: 2,
             home: 'HOME',
-            refreshAllowed: true,
             numberOfLegs: 3,
         });
 
         expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
-        expect(context.container.querySelector('h4').textContent).toContain('⏸️');
+        expect(context.container.querySelector('h4').textContent).not.toContain('⏸️');
     });
 
     it('does not render refresh options when away has won', async () => {
@@ -327,16 +333,20 @@ describe('MatchStatistics', () => {
             .build();
 
         await renderComponent({
+            matchStatisticsOnly: true,
+            refreshAllowed: true,
+            initialRefreshInterval: 10000,
+            lastLegDisplayOptions: { showThrows: true },
+        }, {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 2,
             home: 'HOME',
-            refreshAllowed: true,
             numberOfLegs: 3,
         });
 
         expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
-        expect(context.container.querySelector('h4').textContent).toContain('⏸️');
+        expect(context.container.querySelector('h4').textContent).not.toContain('⏸️');
     });
 
     it('selects default refresh interval', async () => {
@@ -348,17 +358,20 @@ describe('MatchStatistics', () => {
             .build();
 
         await renderComponent({
+            matchStatisticsOnly: true,
+            refreshAllowed: true,
+            initialRefreshInterval: 10000,
+            lastLegDisplayOptions: { showThrows: true },
+        }, {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
             home: 'HOME',
-            refreshAllowed: true,
             numberOfLegs: 3,
-            initialRefreshInterval: 10000,
         });
 
         expect(context.container.querySelector('h4 .dropdown-menu')).toBeTruthy();
-        expect(context.container.querySelector('h4 .dropdown-item.active').textContent).toEqual('▶️ Live: Fast');
+        expect(context.container.querySelector('h4 .dropdown-item.active').textContent).toEqual('⏩ Live (Fast)');
     });
 
     it('shows throws on last leg when not finished', async () => {
@@ -370,13 +383,16 @@ describe('MatchStatistics', () => {
             .build();
 
         await renderComponent({
+            matchStatisticsOnly: true,
+            refreshAllowed: true,
+            initialRefreshInterval: 10000,
+            lastLegDisplayOptions: { showThrows: true, showAverage: true },
+        }, {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
             home: 'HOME',
-            refreshAllowed: true,
             numberOfLegs: 3,
-            initialRefreshInterval: 10000,
         });
 
         assertLegRow(
@@ -408,13 +424,16 @@ describe('MatchStatistics', () => {
         };
 
         await renderComponent({
+            matchStatisticsOnly: true,
+            refreshAllowed: true,
+            initialRefreshInterval: 10000,
+            lastLegDisplayOptions: { showThrows: true },
+        }, {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
             home: 'HOME',
-            refreshAllowed: true,
             numberOfLegs: 3,
-            initialRefreshInterval: 10000,
         });
 
         expect(interval).toEqual({
@@ -443,16 +462,19 @@ describe('MatchStatistics', () => {
             clearedHandle = handle;
         }
         await renderComponent({
+            matchStatisticsOnly: true,
+            refreshAllowed: true,
+            initialRefreshInterval: 10000,
+            lastLegDisplayOptions: { showThrows: true },
+        }, {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
             home: 'HOME',
-            refreshAllowed: true,
             numberOfLegs: 3,
-            initialRefreshInterval: 10000,
         });
 
-        await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ No refresh');
+        await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ Paused');
 
         expect(clearedHandle).toEqual(123);
     });

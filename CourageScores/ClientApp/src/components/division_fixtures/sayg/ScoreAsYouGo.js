@@ -5,10 +5,10 @@ import {useSayg} from "./SaygLoadingContainer";
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
-                                 homeScore, on180, onHiCheck, singlePlayer, refreshAllowed, matchStatisticsOnly, initialRefreshInterval
+                                 homeScore, on180, onHiCheck, singlePlayer
                              }) {
     const {onError, account} = useApp();
-    const {saveDataAndGetId} = useSayg();
+    const {saveDataAndGetId, matchStatisticsOnly} = useSayg();
     const canEditThrows = account && account.access && account.access.recordScoresAsYouGo;
 
     function getLeg(legIndex) {
@@ -95,8 +95,6 @@ export function ScoreAsYouGo({
             away={away}
             singlePlayer={singlePlayer}
             numberOfLegs={data.numberOfLegs}
-            refreshAllowed={refreshAllowed}
-            initialRefreshInterval={initialRefreshInterval}
             legChanged={canEditThrows ? saveChangedLeg : null}
         />
     }

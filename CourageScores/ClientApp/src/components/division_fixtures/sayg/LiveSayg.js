@@ -10,6 +10,8 @@ export function LiveSayg() {
             refreshAllowed={true}
             matchStatisticsOnly={true}
             autoSave={false}
-            initialRefreshInterval={1000} />
+            initialRefreshInterval={60000}
+            lastLegDisplayOptions={ { showThrows: true, showAverage: true } }
+            />
     </div>);
 }
