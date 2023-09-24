@@ -1,14 +1,12 @@
 import {isEmpty, sum} from "../../../helpers/collections";
 import {round2dp} from "../../../helpers/rendering";
-import {stateChanged, valueChanged} from "../../../helpers/events";
+import {valueChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {EditThrow} from "./EditThrow";
 
-export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDartAverage, onChangeLeg}) {
+export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDartAverage, onChangeLeg, updateLegDisplayOptions, legDisplayOptions }) {
     const homeStats = leg.home;
     const awayStats = leg.away;
-    const [showThrows, setShowThrows] = useState(false);
-    const [showAverage, setShowAverage] = useState(false);
     const [throwUnderEdit, setThrowUnderEdit] = useState(null);
 
     if (homeStats.noOfDarts + awayStats.noOfDarts === 0) {
@@ -81,7 +79,7 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
             <tr>
                 <th>Threw</th>
                 <th>Score</th>
-                <th>{showAverage ? 'Avg' : 'Darts'}</th>
+                <th>{legDisplayOptions.showAverage ? 'Avg' : 'Darts'}</th>
             </tr>
             </thead>
             <tbody>
@@ -91,7 +89,7 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
                 </td>
                 <td>{stats.remaining}</td>
                 <td>
-                    {showAverage
+                    {legDisplayOptions.showAverage
                         ? (oneDartAverage ? round2dp(stats.oneDartRunningAverage) : round2dp(stats.threeDartRunningAverage))
                         : stats.thisNoOfDarts}
                 </td>
@@ -101,7 +99,9 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
     }
 
     function toggleShowAverage() {
-        setShowAverage(!showAverage);
+        const options = Object.assign({}, legDisplayOptions);
+        options.showAverage = !legDisplayOptions.showAverage;
+        updateLegDisplayOptions(options);
     }
 
     return (<tr>
@@ -111,13 +111,13 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
                 ? (<>Winner: <strong className="text-primary">{leg.winner === 'home' ? home : away}</strong></>)
                 : null}
             <div className="form-check form-switch margin-right">
-                <input className="form-check-input" type="checkbox" id={`showThrows_${legNumber}`}
-                       checked={showThrows} onChange={stateChanged(setShowThrows)}/>
+                <input className="form-check-input" type="checkbox" name="showThrows" id={`showThrows_${legNumber}`}
+                       checked={legDisplayOptions.showThrows} onChange={valueChanged(legDisplayOptions, updateLegDisplayOptions)} />
                 <label className="form-check-label small" htmlFor={`showThrows_${legNumber}`}>Details</label>
             </div>
-            {showThrows ? (<button className="btn btn-sm btn-outline-primary margin-right" onClick={toggleShowAverage}>
-                {showAverage ? (<span>Click to show <strong>No. of darts</strong></span>) : null}
-                {!showAverage ? (<span>Click to show <strong>running average</strong></span>) : null}
+            {legDisplayOptions.showThrows ? (<button className="btn btn-sm btn-outline-primary margin-right" onClick={toggleShowAverage}>
+                {legDisplayOptions.showAverage ? (<span>Click to show <strong>No. of darts</strong></span>) : null}
+                {!legDisplayOptions.showAverage ? (<span>Click to show <strong>running average</strong></span>) : null}
             </button>) : null}
             {throwUnderEdit
                 ? (<EditThrow
@@ -134,14 +134,14 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
             {leg.winner === 'home'
                 ? (<div>Checkout: <strong>{leg.home.throws[leg.home.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - homeStats.score}</strong></div>)}
-            {showThrows ? (renderThrows(leg.home.throws, 'home')) : null}
+            {legDisplayOptions.showThrows ? (renderThrows(leg.home.throws, 'home')) : null}
         </td>
         {singlePlayer ? null : (<td className={(leg.winner === 'away' || leg.away.score === leg.startingScore) ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(awayStats.score / (awayStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({awayStats.noOfDarts} darts)<br/>
             {leg.winner === 'away'
                 ? (<div>Checkout: <strong>{leg.away.throws[leg.away.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - awayStats.score}</strong></div>)}
-            {showThrows ? (renderThrows(leg.away.throws, 'away')) : null}
+            {legDisplayOptions.showThrows ? (renderThrows(leg.away.throws, 'away')) : null}
         </td>)}
     </tr>);
 }

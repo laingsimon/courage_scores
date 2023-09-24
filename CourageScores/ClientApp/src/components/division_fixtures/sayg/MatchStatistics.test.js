@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
 import {legBuilder} from "../../../helpers/builders";
@@ -138,5 +138,115 @@ describe('MatchStatistics', () => {
                 'Average: 123 (3 darts)Checkout: 123']);
         assertMatchAverage(['Match average3️⃣', '123']);
         assertMatchDartCount(['Match darts', '3'], true);
+    });
+
+    it('can expand leg to show throws', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .build();
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 3,
+            awayScore: 2,
+            home: 'HOME',
+            away: 'AWAY',
+            singlePlayer: false,
+        });
+
+        await doClick(context.container.querySelector('input[name="showThrows"]'));
+
+        assertLegRow(
+            0,
+            [
+                'Leg: 1DetailsClick to show running average',
+                'Average: 123 (3 darts)Remaining: 378ThrewScoreDarts1233783',
+                '123', '378', '3',
+                'Average: 125 (6 darts)Remaining: 251ThrewScoreDarts10040131502513',
+                '100', '401', '3',
+                '150', '251', '3']);
+    });
+
+    it('can toggle leg to show averages', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .build();
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 3,
+            awayScore: 2,
+            home: 'HOME',
+            away: 'AWAY',
+            singlePlayer: false,
+        });
+
+        await doClick(context.container.querySelector('input[name="showThrows"]'));
+        await doClick(findButton(context.container, 'Click to show running average'));
+
+        assertLegRow(
+            0,
+            [
+                'Leg: 1DetailsClick to show No. of darts',
+                'Average: 123 (3 darts)Remaining: 378ThrewScoreAvg123378123',
+                '123', '378', '123',
+                'Average: 125 (6 darts)Remaining: 251ThrewScoreAvg100401100150251125',
+                '100', '401', '100',
+                '150', '251', '125']);
+    });
+
+    it('allows throw to be edited when change handler is passed in', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .build();
+        let changed;
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 3,
+            awayScore: 2,
+            home: 'HOME',
+            away: 'AWAY',
+            singlePlayer: false,
+            legChanged: () => { changed = true; },
+        });
+        await doClick(context.container.querySelector('input[name="showThrows"]'));
+        const legRow = context.container.querySelector('table tbody tr:nth-child(2)');
+
+        await doClick(legRow, 'table tbody tr:nth-child(2)');
+        expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
+        expect(context.container.querySelector('.modal-dialog').textContent).toContain('Edit throw');
+        await doClick(findButton(legRow, 'Save changes'));
+
+        expect(changed).toEqual(true);
+    });
+
+    it('prevents edit of throw when no change handler is passed in', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .build();
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 3,
+            awayScore: 2,
+            home: 'HOME',
+            away: 'AWAY',
+            singlePlayer: false,
+        });
+        await doClick(context.container.querySelector('input[name="showThrows"]'));
+        const legRow = context.container.querySelector('table tbody tr:nth-child(2)');
+
+        await doClick(legRow, 'table tbody tr:nth-child(2)');
+
+        expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
     });
 });

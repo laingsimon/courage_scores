@@ -6,6 +6,28 @@ import {useState} from "react";
 
 export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged}) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
+    const [legDisplayOptions, setLegDisplayOptions] = useState(getLegDisplayOptions(legs));
+
+    function getLegDisplayOptions(legs) {
+        const options = {};
+        let lastLegIndex = null;
+        Object.keys(legs).forEach(legIndex => {
+            options[legIndex] = {
+                showThrows: false,
+                showAverage: false,
+            };
+            lastLegIndex = legIndex;
+        });
+
+        // optionally show the throws for the last leg
+        return options;
+    }
+
+    function updateLegDisplayOptions(legIndex, options) {
+        const newLegDisplayOptions = Object.assign({}, legDisplayOptions);
+        newLegDisplayOptions[legIndex] = options;
+        setLegDisplayOptions(newLegDisplayOptions);
+    }
 
     function sumOf(player, prop) {
         return sum(Object.values(legs), leg => leg[player][prop]);
@@ -41,6 +63,8 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     away={away}
                     singlePlayer={singlePlayer}
                     oneDartAverage={oneDartAverage}
+                    legDisplayOptions={legDisplayOptions[legIndex]}
+                    updateLegDisplayOptions={(options) => updateLegDisplayOptions(legIndex, options)}
                     onChangeLeg={legChanged ? ((newLeg) => legChanged(newLeg, legIndex)) : null}
                 />);
             })}
