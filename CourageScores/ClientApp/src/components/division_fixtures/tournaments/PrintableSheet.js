@@ -198,6 +198,7 @@ export function PrintableSheet({printOnly}) {
                     scoreB: m.scoreB || '0',
                     bye: false,
                     winner: winner,
+                    saygId: m.saygId,
                 };
             }),
         };
@@ -217,6 +218,7 @@ export function PrintableSheet({printOnly}) {
                     scoreB: null,
                     bye: true,
                     winner: null,
+                    saygId: null,
                 };
             });
 
@@ -246,6 +248,7 @@ export function PrintableSheet({printOnly}) {
                     scoreB: null,
                     bye: false,
                     winner: null,
+                    saygId: null,
                 };
             }),
         };
@@ -257,6 +260,7 @@ export function PrintableSheet({printOnly}) {
                 scoreB: null,
                 bye: true,
                 winner: null,
+                saygId: null,
             });
         }
 
@@ -372,7 +376,10 @@ export function PrintableSheet({printOnly}) {
                                 <div datatype="scoreA">{matchData.scoreA || ''}</div>
                             </div>
                             {matchData.bye ? null : (<div className="text-center dotted-line-through">
-                                <span className="px-3 bg-white position-relative">vs</span>
+                                <span className="px-3 bg-white position-relative">
+                                    vs
+                                    {matchData.saygId ? (<a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer" className="margin-left no-underline">👁️</a>) : null}
+                                </span>
                             </div>)}
                             {matchData.bye
                                 ? null
