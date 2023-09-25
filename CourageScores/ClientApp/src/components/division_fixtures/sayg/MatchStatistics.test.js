@@ -382,15 +382,15 @@ describe('MatchStatistics', () => {
         assertLegRow(
             0,
             [
-                'Leg: 1DetailsClick to show running average',
-                'Average: 100 (3 darts)Remaining: 401ThrewScoreDarts1004013',
+                'Leg: 1running average',
+                'Average: 100 (3 darts)Remaining: 401ThrewScoreAvg100401100',
                 '100',
                 '401',
-                '3',
-                'Average: 112.5 (2 darts)Remaining: 426ThrewScoreDarts754262',
+                '100',
+                'Average: 112.5 (2 darts)Remaining: 426ThrewScoreAvg75426112.5',
                 '75',
                 '426',
-                '2',
+                '112.5',
             ]);
     });
 

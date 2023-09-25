@@ -110,15 +110,18 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
             {leg.winner && !singlePlayer
                 ? (<>Winner: <strong className="text-primary">{leg.winner === 'home' ? home : away}</strong></>)
                 : null}
-            <div className="form-check form-switch margin-right">
+            {updateLegDisplayOptions ? (<div className="form-check form-switch margin-right">
                 <input className="form-check-input" type="checkbox" name="showThrows" id={`showThrows_${legNumber}`}
                        checked={legDisplayOptions.showThrows} onChange={valueChanged(legDisplayOptions, updateLegDisplayOptions)} />
                 <label className="form-check-label small" htmlFor={`showThrows_${legNumber}`}>Details</label>
-            </div>
-            {legDisplayOptions.showThrows ? (<button className="btn btn-sm btn-outline-primary margin-right" onClick={toggleShowAverage}>
+            </div>) : null}
+            {legDisplayOptions.showThrows && updateLegDisplayOptions ? (<button className="btn btn-sm btn-outline-primary margin-right" onClick={toggleShowAverage}>
                 {legDisplayOptions.showAverage ? (<span>Click to show <strong>No. of darts</strong></span>) : null}
                 {!legDisplayOptions.showAverage ? (<span>Click to show <strong>running average</strong></span>) : null}
-            </button>) : null}
+            </button>) : (legDisplayOptions.showThrows ? (<span>
+                {!legDisplayOptions.showAverage ? (<span>No. of darts</span>) : null}
+                {legDisplayOptions.showAverage ? (<span>running average</span>) : null}
+            </span>) : null)}
             {throwUnderEdit
                 ? (<EditThrow
                     {...throwUnderEdit}

@@ -11,6 +11,7 @@ import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {count} from "../../../helpers/collections";
 import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
 import {DebugOptions} from "../../common/DebugOptions";
+import {Link} from "react-router-dom";
 
 export function TournamentRoundMatch({
                                          readOnly,
@@ -154,6 +155,7 @@ export function TournamentRoundMatch({
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={() => setSaygOpen(null)}>Close</button>
                 </div>
+                <Link className="btn btn-success" to={`/live/match/${match.saygId}`}>Live</Link>
                 <DebugOptions>
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Game/Sayg/${match.saygId}`} className="dropdown-item">
                         <strong>Sayg data</strong><small className="d-block">{match.saygId}</small>

@@ -5,7 +5,7 @@ import {useSayg} from "./SaygLoadingContainer";
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
-                                 homeScore, on180, onHiCheck, singlePlayer, refreshAllowed, matchStatisticsOnly
+                                 homeScore, on180, onHiCheck, singlePlayer, refreshAllowed, matchStatisticsOnly, initialRefreshInterval
                              }) {
     const {onError, account} = useApp();
     const {saveDataAndGetId} = useSayg();
@@ -85,7 +85,8 @@ export function ScoreAsYouGo({
     }
 
     const legIndex = (homeScore || 0) + (awayScore || 0);
-    if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0)))) {
+    const hasFinished = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
+    if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
         return <MatchStatistics
             legs={data.legs}
             awayScore={awayScore}
@@ -95,6 +96,7 @@ export function ScoreAsYouGo({
             singlePlayer={singlePlayer}
             numberOfLegs={data.numberOfLegs}
             refreshAllowed={refreshAllowed}
+            initialRefreshInterval={initialRefreshInterval}
             legChanged={canEditThrows ? saveChangedLeg : null}
         />
     }

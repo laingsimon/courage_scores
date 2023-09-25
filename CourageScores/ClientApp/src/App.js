@@ -13,6 +13,7 @@ import {AppContainer} from "./AppContainer";
 import {About} from "./components/About";
 import {mapError, mapForLogging} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
+import {LiveSayg} from "./components/division_fixtures/sayg/LiveSayg";
 
 export function App({embed, controls, testRoute}) {
     const {divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight} = useDependencies();
@@ -127,6 +128,7 @@ export function App({embed, controls, testRoute}) {
                     <Route path='/tournament/:tournamentId' element={<Tournament/>}/>
                     <Route path='/practice' element={<Practice/>}/>
                     <Route path='/about' element={<About/>}/>
+                    <Route path='/live/match/:id' element={<LiveSayg />}/>
                     {testRoute}
                 </Routes>
             </Layout>

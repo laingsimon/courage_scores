@@ -7,7 +7,8 @@ import {useSayg} from "./SaygLoadingContainer";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 
-export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, refreshAllowed, initialRefreshInterval}) {
+export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs,
+                                    refreshAllowed, initialRefreshInterval}) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
     const [refreshInterval, setRefreshInterval] = useState(initialRefreshInterval || 0);
     const { refresh } = useSayg();
@@ -27,11 +28,17 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                 showThrows: false,
                 showAverage: false,
             };
-            lastLegIndex = legIndex;
+
+            const leg = legs[legIndex];
+            if (leg.home.score || leg.away.score) {
+                // leg has started
+                lastLegIndex = legIndex;
+            }
         });
 
         if (showThrowsOnLastLeg && lastLegIndex) {
             options[lastLegIndex].showThrows = true;
+            options[lastLegIndex].showAverage = true; // TODO: make this configurable
         }
 
         return options;
@@ -123,7 +130,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     singlePlayer={singlePlayer}
                     oneDartAverage={oneDartAverage}
                     legDisplayOptions={legDisplayOptions[legIndex]}
-                    updateLegDisplayOptions={(options) => updateLegDisplayOptions(legIndex, options)}
+                    updateLegDisplayOptions={refreshInterval ? null : (options) => updateLegDisplayOptions(legIndex, options)}
                     onChangeLeg={legChanged ? ((newLeg) => legChanged(newLeg, legIndex)) : null}
                 />);
             })}
