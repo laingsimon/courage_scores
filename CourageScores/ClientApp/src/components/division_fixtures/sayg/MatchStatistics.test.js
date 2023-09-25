@@ -1,23 +1,39 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
 import {legBuilder} from "../../../helpers/builders";
+import {SaygLoadingContainer} from "./SaygLoadingContainer";
+import {createTemporaryId} from "../../../helpers/projection";
+import {act} from "@testing-library/react";
 
 describe('MatchStatistics', () => {
     let context;
+    let getCount;
+    let saygData;
+    const saygApi = {
+        get: () => {
+            getCount++;
+            return saygData;
+        }
+    }
 
     afterEach(() => {
         cleanUp(context);
     });
 
     async function renderComponent(props) {
+        const saygId = createTemporaryId();
+        getCount = 0;
+        saygData = Object.assign({ id: saygId }, props);
         context = await renderApp(
-            {},
+            {saygApi},
             {name: 'Courage Scores'},
             {},
-            <MatchStatistics {...props} />);
+            <SaygLoadingContainer id={saygId} matchStatisticsOnly={true}>
+                <MatchStatistics {...props} />
+            </SaygLoadingContainer>);
     }
 
     function assertHeaderText(expected, homeWinner, awayWinner) {
@@ -93,6 +109,7 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
             .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
             .build();
+
         await renderComponent({
             legs: {0: leg},
             homeScore: 3,
@@ -100,6 +117,7 @@ describe('MatchStatistics', () => {
             home: 'HOME',
             away: 'AWAY',
             singlePlayer: false,
+            numberOfLegs: 3,
         });
 
         assertHeaderText(['', 'HOME', 'AWAY'], true, false);
@@ -122,11 +140,13 @@ describe('MatchStatistics', () => {
             .away({})
             .winner('home')
             .build();
+
         await renderComponent({
             legs: {0: leg},
             homeScore: 3,
             home: 'HOME',
             singlePlayer: true,
+            numberOfLegs: 3,
         });
 
         assertHeaderText([]);
@@ -154,6 +174,7 @@ describe('MatchStatistics', () => {
             home: 'HOME',
             away: 'AWAY',
             singlePlayer: false,
+            numberOfLegs: 3,
         });
 
         await doClick(context.container.querySelector('input[name="showThrows"]'));
@@ -183,6 +204,7 @@ describe('MatchStatistics', () => {
             home: 'HOME',
             away: 'AWAY',
             singlePlayer: false,
+            numberOfLegs: 3,
         });
 
         await doClick(context.container.querySelector('input[name="showThrows"]'));
@@ -214,6 +236,7 @@ describe('MatchStatistics', () => {
             home: 'HOME',
             away: 'AWAY',
             singlePlayer: false,
+            numberOfLegs: 3,
             legChanged: () => { changed = true; },
         });
         await doClick(context.container.querySelector('input[name="showThrows"]'));
@@ -241,6 +264,7 @@ describe('MatchStatistics', () => {
             home: 'HOME',
             away: 'AWAY',
             singlePlayer: false,
+            numberOfLegs: 3,
         });
         await doClick(context.container.querySelector('input[name="showThrows"]'));
         const legRow = context.container.querySelector('table tbody tr:nth-child(2)');
@@ -248,5 +272,188 @@ describe('MatchStatistics', () => {
         await doClick(legRow, 'table tbody tr:nth-child(2)');
 
         expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+    });
+
+    it('does not render refresh options when not allowed', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c)
+            .winner('home')
+            .build();
+
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 1,
+            home: 'HOME',
+            singlePlayer: true,
+            refreshAllowed: false,
+            numberOfLegs: 3,
+        });
+
+        expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
+        expect(context.container.querySelector('h4').textContent).not.toContain('⏸️');
+    });
+
+    it('does not render refresh options when home has won', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.noOfDarts(1))
+            .winner('home')
+            .build();
+
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 2,
+            home: 'HOME',
+            refreshAllowed: true,
+            numberOfLegs: 3,
+        });
+
+        expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
+        expect(context.container.querySelector('h4').textContent).toContain('⏸️');
+    });
+
+    it('does not render refresh options when away has won', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.noOfDarts(1))
+            .winner('home')
+            .build();
+
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 2,
+            home: 'HOME',
+            refreshAllowed: true,
+            numberOfLegs: 3,
+        });
+
+        expect(context.container.querySelector('h4 .dropdown-menu')).toBeFalsy();
+        expect(context.container.querySelector('h4').textContent).toContain('⏸️');
+    });
+
+    it('selects default refresh interval', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c)
+            .away(c => c)
+            .build();
+
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 0,
+            home: 'HOME',
+            refreshAllowed: true,
+            numberOfLegs: 3,
+            initialRefreshInterval: 10000,
+        });
+
+        expect(context.container.querySelector('h4 .dropdown-menu')).toBeTruthy();
+        expect(context.container.querySelector('h4 .dropdown-item.active').textContent).toEqual('▶️ Live: Fast');
+    });
+
+    it('shows throws on last leg when not finished', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
+            .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .build();
+
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 0,
+            home: 'HOME',
+            refreshAllowed: true,
+            numberOfLegs: 3,
+            initialRefreshInterval: 10000,
+        });
+
+        assertLegRow(
+            0,
+            [
+                'Leg: 1DetailsClick to show running average',
+                'Average: 100 (3 darts)Remaining: 401ThrewScoreDarts1004013',
+                '100',
+                '401',
+                '3',
+                'Average: 112.5 (2 darts)Remaining: 426ThrewScoreDarts754262',
+                '75',
+                '426',
+                '2',
+            ]);
+    });
+
+    it('repeatedly refreshes sayg data', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
+            .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .build();
+        let interval;
+        window.setInterval = (handler, delay) => {
+            interval = { handler, delay };
+            return 123;
+        };
+
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 0,
+            home: 'HOME',
+            refreshAllowed: true,
+            numberOfLegs: 3,
+            initialRefreshInterval: 10000,
+        });
+
+        expect(interval).toEqual({
+            handler: expect.any(Function),
+            delay: 10000,
+        });
+        expect(getCount).toEqual(1);
+        await act(async () => {
+            await interval.handler();
+        });
+        expect(getCount).toEqual(2);
+    });
+
+    it('cancels refresh of data when paused', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
+            .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .build();
+        let clearedHandle;
+        window.setInterval = () => {
+            return 123;
+        };
+        window.clearInterval = (handle) => {
+            clearedHandle = handle;
+        }
+        await renderComponent({
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 0,
+            home: 'HOME',
+            refreshAllowed: true,
+            numberOfLegs: 3,
+            initialRefreshInterval: 10000,
+        });
+
+        await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ No refresh');
+
+        expect(clearedHandle).toEqual(123);
     });
 });

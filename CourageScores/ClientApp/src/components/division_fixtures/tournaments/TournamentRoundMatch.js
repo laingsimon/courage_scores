@@ -137,6 +137,7 @@ export function TournamentRoundMatch({
                 onHiCheck={recordHiCheck}
                 on180={record180}
                 autoSave={true}
+                refreshAllowed={true}
                 onSaved={async (data) => {
                     await patchData({
                         match: {
