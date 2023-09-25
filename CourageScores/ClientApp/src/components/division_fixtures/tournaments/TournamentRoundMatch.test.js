@@ -522,7 +522,7 @@ describe('TournamentRoundMatch', () => {
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertScore(cells[1], '3');
-                assertScore(cells[3], '');
+                assertScore(cells[3], '0');
             });
 
             it('sideB outright winner shows 0 value score for sideA', async () => {
@@ -541,7 +541,7 @@ describe('TournamentRoundMatch', () => {
                 expect(reportedError).toBeNull();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
-                assertScore(cells[1], '');
+                assertScore(cells[1], '0');
                 assertScore(cells[3], '3');
             });
         });
@@ -939,7 +939,6 @@ describe('TournamentRoundMatch', () => {
             }, accountWithDebugOptions);
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm;
             window.confirm = () => true;
             await doClick(findButton(cells[0], '📊'));
             tournamentApiResponse = { success: false, errors: ['ERROR']};
@@ -1262,6 +1261,32 @@ describe('TournamentRoundMatch', () => {
             });
         });
 
+        it('can clear sideA score', async () => {
+            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
+            returnFromExceptSelected['sideA'] = [sideC, sideD];
+            returnFromExceptSelected['sideB'] = [sideD, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: roundBuilder().withMatch(match).build(),
+                matchOptions: {},
+            }, account);
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+
+            await doChange(cells[1], 'input', '', context.user);
+
+            expect(reportedError).toBeNull();
+            expect(updatedRound).toEqual({
+                matches: [Object.assign({}, match, {scoreA: '0'})],
+                matchOptions: [],
+                nextRound: null,
+            });
+        });
+
         it('can change A side', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
@@ -1309,6 +1334,32 @@ describe('TournamentRoundMatch', () => {
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {scoreB: '5'})],
+                matchOptions: [],
+                nextRound: null,
+            });
+        });
+
+        it('can clear sideB score', async () => {
+            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
+            returnFromExceptSelected['sideA'] = [sideC, sideD];
+            returnFromExceptSelected['sideB'] = [sideD, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: roundBuilder().withMatch(match).build(),
+                matchOptions: {},
+            }, account);
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+
+            await doChange(cells[3], 'input', '', context.user);
+
+            expect(reportedError).toBeNull();
+            expect(updatedRound).toEqual({
+                matches: [Object.assign({}, match, {scoreB: '0'})],
                 matchOptions: [],
                 nextRound: null,
             });

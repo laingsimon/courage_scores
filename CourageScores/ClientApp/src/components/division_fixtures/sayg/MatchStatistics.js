@@ -25,11 +25,11 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
             <tr>
                 <td>Score</td>
                 <td className={`${homeScore > awayScore ? 'bg-winner text-primary' : ''} text-center`}>
-                    <strong>{homeScore}</strong></td>
+                    <strong>{homeScore || '0'}</strong></td>
                 {singlePlayer
                     ? null
                     : (<td className={`${homeScore > awayScore ? '' : 'bg-winner text-primary'} text-center`}>
-                        <strong>{awayScore}</strong>
+                        <strong>{awayScore || '0'}</strong>
                     </td>)}
             </tr>
             {Object.keys(legs).map(legIndex => {

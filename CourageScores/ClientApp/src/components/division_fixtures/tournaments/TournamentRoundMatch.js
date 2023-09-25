@@ -70,7 +70,7 @@ export function TournamentRoundMatch({
         try {
             const newRound = Object.assign({}, round);
             const match = newRound.matches[matchIndex];
-            match[property] = event.target.value;
+            match[property] = event.target.value || '0';
 
             if (onChange) {
                 await onChange(newRound);
@@ -123,6 +123,7 @@ export function TournamentRoundMatch({
             newMatch.saygId = null;
             onChange(newRound);
             setSaygOpen(null);
+            setTournamentData(response.result);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -302,14 +303,14 @@ export function TournamentRoundMatch({
         <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreA || (scoreARecorded ? '0' : '')
-                : (<input type="number" value={scoreARecorded ? (match.scoreA || '') : ''}
+                : (<input type="number" value={scoreARecorded ? (match.scoreA || '0') : ''}
                           max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')}/>)}
         </td>
         <td className="narrow-column">vs</td>
         <td className={hasBothScores && scoreB > scoreA ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreB || (scoreBRecorded ? '0' : '')
-                : (<input type="number" value={scoreBRecorded ? (match.scoreB || '') : ''}
+                : (<input type="number" value={scoreBRecorded ? (match.scoreB || '0') : ''}
                           max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')}/>)}
         </td>
         <td className={hasBothScores && scoreB > scoreA ? 'bg-winner' : ''}>

@@ -290,14 +290,15 @@ export function PrintableSheet({printOnly}) {
                 }
 
                 return 0;
-            }).map(id => {
+            }).map((id, index) => {
                 const player = playerLookup[id];
                 const teamAndDivision = findTeamAndDivisionForPlayer(player);
 
                 if (teamAndDivision && teamAndDivision.division) {
-                    return (<div key={id} className="p-1 no-wrap">
-                        <EmbedAwareLink
-                            to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> x {oneEightyMap[id]}
+                    return (<div key={index} className="p-1 no-wrap">
+                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>
+                            {player.name}
+                        </EmbedAwareLink> x {oneEightyMap[id]}
                     </div>);
                 }
 
@@ -311,13 +312,14 @@ export function PrintableSheet({printOnly}) {
     function renderHiChecks() {
         return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
             <h5>Hi-checks</h5>
-            {tournamentData.over100Checkouts.map(player => {
+            {tournamentData.over100Checkouts.map((player, index) => {
                 const teamAndDivision = findTeamAndDivisionForPlayer(player);
 
                 if (teamAndDivision && teamAndDivision.division) {
-                    return (<div key={player.name} className="p-1 no-wrap">
-                        <EmbedAwareLink
-                            to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> ({player.notes})
+                    return (<div key={index} className="p-1 no-wrap">
+                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>
+                            {player.name}
+                        </EmbedAwareLink> ({player.notes})
                     </div>);
                 }
 
