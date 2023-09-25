@@ -161,7 +161,7 @@ export function TournamentRoundMatch({
                 {finished
                     ? null
                     : (<a className="btn btn-success" target="_blank" rel="noreferrer" href={`/live/match/${match.saygId}`}>
-                        ▶️ Live
+                        👁️ Live
                     </a>)}
                 <DebugOptions>
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Game/Sayg/${match.saygId}`} className="dropdown-item">
@@ -308,7 +308,7 @@ export function TournamentRoundMatch({
                     className="margin-right"/>)}
 
             {canShowLiveSayg() && !canOpenSaygDialog()
-                ? (<Link className="btn btn-sm float-start p-0" to={`/live/match/${match.saygId}`}>📊</Link>)
+                ? (<Link className="btn btn-sm float-start p-0" to={`/live/match/${match.saygId}`}>👁️</Link>)
                 : null}
             {canOpenSaygDialog()
                 ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
