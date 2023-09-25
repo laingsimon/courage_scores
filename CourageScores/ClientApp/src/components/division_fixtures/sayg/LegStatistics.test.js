@@ -471,6 +471,34 @@ describe('LegStatistics', () => {
             expect(context.container.textContent).toContain('Edit throw');
         });
 
+        it('can close change throw dialog', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .startingScore(501)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: true,
+                onChangeLeg: () => {},
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            await doClick(homeThrows[0]);
+            expect(context.container.textContent).toContain('Edit throw');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Edit throw');
+        });
+
         it('can change throw', async () => {
             let newLeg;
             await renderComponent({
