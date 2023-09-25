@@ -123,6 +123,7 @@ export function TournamentRoundMatch({
             newMatch.saygId = null;
             onChange(newRound);
             setSaygOpen(null);
+            setTournamentData(response.result);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
