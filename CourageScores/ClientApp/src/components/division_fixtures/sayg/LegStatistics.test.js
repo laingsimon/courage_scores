@@ -7,17 +7,19 @@ import {legBuilder} from "../../../helpers/builders";
 
 describe('LegStatistics', () => {
     let context;
+    let newLegDisplayOptions;
 
     afterEach(() => {
         cleanUp(context);
     });
 
     async function renderComponent(props) {
+        newLegDisplayOptions = null;
         context = await renderApp(
             {},
             {name: 'Courage Scores'},
             {},
-            <LegStatistics {...props} />,
+            <LegStatistics {...props} updateLegDisplayOptions={op => newLegDisplayOptions = op} />,
             null,
             null,
             'tbody');
@@ -42,18 +44,22 @@ describe('LegStatistics', () => {
     }
 
     describe('renders', () => {
-        it('renders nothing when no darts thrown', async () => {
+        it('when no darts thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.noOfDarts(0))
                     .away(c => c.noOfDarts(0))
-                    .build()
+                    .build(),
+                legDisplayOptions: {
+                    showThrows: false,
+                    showAverage: false,
+                },
             });
 
             expect(context.container.innerHTML).toEqual('');
         });
 
-        it('renders 2 player statistics for leg without winner', async () => {
+        it('2 player match without winner', async () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.noOfDarts(3).score(100))
@@ -65,6 +71,10 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: false,
+                    showAverage: false,
+                },
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -75,7 +85,7 @@ describe('LegStatistics', () => {
                 'Average: 50 (3 darts)Remaining: 451']);
         });
 
-        it('renders 2 player statistics for leg with home winner', async () => {
+        it('2 player match with home winner', async () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.noOfDarts(3).score(100).withThrow(100))
@@ -88,6 +98,10 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: false,
+                    showAverage: false,
+                },
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -98,7 +112,7 @@ describe('LegStatistics', () => {
                 'Average: 50 (3 darts)Remaining: 451']);
         });
 
-        it('renders 2 player statistics for leg with away winner', async () => {
+        it('2 player match away winner', async () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.noOfDarts(3).score(100).withThrow(100))
@@ -111,6 +125,10 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: false,
+                    showAverage: false,
+                },
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -121,7 +139,7 @@ describe('LegStatistics', () => {
                 'Average: 50 (3 darts)Checkout: 50']);
         });
 
-        it('renders single player statistics for leg with winner', async () => {
+        it('single player match with winner', async () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.noOfDarts(3).score(100).withThrow(100))
@@ -134,6 +152,10 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: true,
                 oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: false,
+                    showAverage: false,
+                },
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -143,7 +165,7 @@ describe('LegStatistics', () => {
                 'Average: 100 (3 darts)Checkout: 100']);
         });
 
-        it('renders single player statistics for leg without winner', async () => {
+        it('single player match without winner', async () => {
             await renderComponent({
                 leg: legBuilder()
                     .home(c => c.noOfDarts(3).score(100).withThrow(100))
@@ -155,6 +177,10 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: true,
                 oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: false,
+                    showAverage: false,
+                },
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -162,6 +188,203 @@ describe('LegStatistics', () => {
             expect(cellText).toEqual([
                 'Leg: 1Details',
                 'Average: 100 (3 darts)Remaining: 401']);
+        });
+
+        it('2 player throws', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .startingScore(100)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '0', '']]);
+            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+            expect(awayThrows.map(getCellContent)).toEqual([['50', '50', '']]);
+        });
+
+        it('2 player match with bust scores', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(120, true))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .startingScore(100)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            expect(homeThrows.map(getCellContent)).toEqual([['_~~120~~_', '100', '']]);
+            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+            expect(awayThrows.map(getCellContent)).toEqual([['50', '50', '']]);
+        });
+
+        it('2 player match with 180s', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(180))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .startingScore(200)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            expect(homeThrows.map(getCellContent)).toEqual([['_**180**_', '20', '']]);
+            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+            expect(awayThrows.map(getCellContent)).toEqual([['50', '150', '']]);
+        });
+
+        it('2 player match with no throws', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100))
+                    .away(c => c.noOfDarts(3).score(50))
+                    .startingScore(501)
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+
+            const homeThrows = context.container.querySelector('tr td:nth-child(2) p');
+            expect(homeThrows.textContent).toEqual('No throws');
+            const awayThrows = context.container.querySelector('tr td:nth-child(3) p');
+            expect(awayThrows.textContent).toEqual('No throws');
+        });
+
+        it('single player throws', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away({})
+                    .startingScore(501)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: true,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '3']]);
+        });
+
+        it('averages', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .startingScore(501)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: true,
+                },
+            });
+
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '100']]);
+            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+            expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '50']]);
+        });
+
+        it('no of darts', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .startingScore(501)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '3']]);
+            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+            expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '3']]);
+        });
+
+        it('1-dart averages', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .startingScore(501)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: true,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: true,
+                },
+            });
+
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '33.33']]);
+            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+            expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '16.67']]);
         });
     });
 
@@ -179,108 +402,19 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: false,
+                    showAverage: false,
+                },
             });
             const firstCell = context.container.querySelector('tr td:first-child');
 
-            await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
+            await doClick(firstCell.querySelector('input[name="showThrows"]'));
 
-            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '0', '']]);
-            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-            expect(awayThrows.map(getCellContent)).toEqual([['50', '50', '']]);
-        });
-
-        it('can expand 2 player statistics with bust scores', async () => {
-            await renderComponent({
-                leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(120, true))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
-                    .startingScore(100)
-                    .winner('away')
-                    .build(),
-                home: 'HOME',
-                away: 'AWAY',
-                legNumber: 1,
-                singlePlayer: false,
-                oneDartAverage: false,
+            expect(newLegDisplayOptions).toEqual({
+                showThrows: true,
+                showAverage: false,
             });
-            const firstCell = context.container.querySelector('tr td:first-child');
-
-            await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
-
-            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-            expect(homeThrows.map(getCellContent)).toEqual([['_~~120~~_', '100', '']]);
-            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-            expect(awayThrows.map(getCellContent)).toEqual([['50', '50', '']]);
-        });
-
-        it('can expand 2 player statistics with 180s', async () => {
-            await renderComponent({
-                leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(180))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
-                    .startingScore(200)
-                    .winner('away')
-                    .build(),
-                home: 'HOME',
-                away: 'AWAY',
-                legNumber: 1,
-                singlePlayer: false,
-                oneDartAverage: false,
-            });
-            const firstCell = context.container.querySelector('tr td:first-child');
-
-            await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
-
-            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-            expect(homeThrows.map(getCellContent)).toEqual([['_**180**_', '20', '']]);
-            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-            expect(awayThrows.map(getCellContent)).toEqual([['50', '150', '']]);
-        });
-
-        it('can expand 2 player statistics with no throws', async () => {
-            await renderComponent({
-                leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100))
-                    .away(c => c.noOfDarts(3).score(50))
-                    .startingScore(501)
-                    .build(),
-                home: 'HOME',
-                away: 'AWAY',
-                legNumber: 1,
-                singlePlayer: false,
-                oneDartAverage: false,
-            });
-            const firstCell = context.container.querySelector('tr td:first-child');
-
-            await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
-
-            const homeThrows = context.container.querySelector('tr td:nth-child(2) p');
-            expect(homeThrows.textContent).toEqual('No throws');
-            const awayThrows = context.container.querySelector('tr td:nth-child(3) p');
-            expect(awayThrows.textContent).toEqual('No throws');
-        });
-
-        it('can single player expand statistics', async () => {
-            await renderComponent({
-                leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away({})
-                    .startingScore(501)
-                    .winner('away')
-                    .build(),
-                home: 'HOME',
-                away: 'AWAY',
-                legNumber: 1,
-                singlePlayer: true,
-                oneDartAverage: false,
-            });
-            const firstCell = context.container.querySelector('tr td:first-child');
-
-            await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
-
-            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '3']]);
         });
 
         it('can toggle expanded statistics to show averages', async () => {
@@ -296,65 +430,19 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
             });
             const firstCell = context.container.querySelector('tr td:first-child');
 
-            await doClick(firstCell, 'input[id^="showThrows_"]');
             await doClick(findButton(firstCell, 'Click to show running average'));
 
-            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '100']]);
-            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-            expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '50']]);
-        });
-
-        it('can toggle expanded statistics to show no of darts', async () => {
-            await renderComponent({
-                leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
-                    .startingScore(501)
-                    .winner('away')
-                    .build(),
-                home: 'HOME',
-                away: 'AWAY',
-                legNumber: 1,
-                singlePlayer: false,
-                oneDartAverage: false,
+            expect(newLegDisplayOptions).toEqual({
+                showThrows: true,
+                showAverage: true,
             });
-            const firstCell = context.container.querySelector('tr td:first-child');
-
-            await doClick(firstCell, 'input[id^="showThrows_"]');
-
-            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '3']]);
-            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-            expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '3']]);
-        });
-
-        it('can toggle expanded statistics to show 1-dart averages', async () => {
-            await renderComponent({
-                leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
-                    .startingScore(501)
-                    .winner('away')
-                    .build(),
-                home: 'HOME',
-                away: 'AWAY',
-                legNumber: 1,
-                singlePlayer: false,
-                oneDartAverage: true,
-            });
-            const firstCell = context.container.querySelector('tr td:first-child');
-
-            await doClick(firstCell, 'input[id^="showThrows_"]');
-            await doClick(findButton(firstCell, 'Click to show running average'));
-
-            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
-            expect(homeThrows.map(getCellContent)).toEqual([['_100_', '401', '33.33']]);
-            const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
-            expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '16.67']]);
         });
 
         it('can open change throw dialog', async () => {
@@ -371,14 +459,44 @@ describe('LegStatistics', () => {
                 singlePlayer: false,
                 oneDartAverage: true,
                 onChangeLeg: () => {},
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
             });
-            const firstCell = context.container.querySelector('tr td:first-child');
-            await doClick(firstCell, 'input[id^="showThrows_"]');
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
             await doClick(homeThrows[0]);
 
             expect(context.container.textContent).toContain('Edit throw');
+        });
+
+        it('can close change throw dialog', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .startingScore(501)
+                    .winner('away')
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: true,
+                onChangeLeg: () => {},
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
+            });
+            const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+            await doClick(homeThrows[0]);
+            expect(context.container.textContent).toContain('Edit throw');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Edit throw');
         });
 
         it('can change throw', async () => {
@@ -396,9 +514,11 @@ describe('LegStatistics', () => {
                 singlePlayer: false,
                 oneDartAverage: true,
                 onChangeLeg: (value) => newLeg = value,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
             });
-            const firstCell = context.container.querySelector('tr td:first-child');
-            await doClick(firstCell, 'input[id^="showThrows_"]');
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
             await doClick(homeThrows[0]);
 
@@ -432,9 +552,11 @@ describe('LegStatistics', () => {
                 singlePlayer: false,
                 oneDartAverage: true,
                 onChangeLeg: (value) => newLeg = value,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
             });
-            const firstCell = context.container.querySelector('tr td:first-child');
-            await doClick(firstCell, 'input[id^="showThrows_"]');
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
             await doClick(homeThrows[0]);
 
@@ -463,9 +585,11 @@ describe('LegStatistics', () => {
                 singlePlayer: false,
                 oneDartAverage: true,
                 onChangeLeg: null,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: false,
+                },
             });
-            const firstCell = context.container.querySelector('tr td:first-child');
-            await doClick(firstCell, 'input[id^="showThrows_"]');
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
             await doClick(homeThrows[0]);

@@ -14,6 +14,7 @@ import {
     teamBuilder,
     tournamentBuilder
 } from "../../../helpers/builders";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('PrintableSheet', () => {
     let context;
@@ -95,6 +96,9 @@ describe('PrintableSheet', () => {
                                     ? match.querySelector('div[datatype="scoreB"]').textContent.trim()
                                     : null,
                                 bye: match.textContent.indexOf('Bye') !== -1,
+                                saygLink: match.querySelector('a')
+                                    ? match.querySelector('a').href
+                                    : null,
                             };
                         }),
                 }
@@ -180,7 +184,45 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
+                    },
+                ],
+            });
+        });
+
+        it('renders tournament with sayg id', async () => {
+            const saygId = createTemporaryId();
+            const tournamentData = {
+                round: {
+                    matches: [
+                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2, saygId: saygId},
+                    ],
+                },
+                sides: [sideA, sideB],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
+
+            expect(reportedError).toBeNull();
+            const rounds = getRounds();
+            expect(rounds.length).toEqual(1);
+            expect(rounds[0]).toEqual({
+                heading: 'Final',
+                hiChecks: {players: []},
+                oneEighties: {players: []},
+                matches: [
+                    {
+                        sideAname: 'A',
+                        sideBname: 'B',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false,
+                        saygLink: 'http://localhost/live/match/' + saygId,
                     },
                 ],
             });
@@ -217,7 +259,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '0',
                         scoreB: '0',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'C',
@@ -226,7 +269,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '0',
                         scoreB: '0',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'E',
@@ -235,7 +279,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '0',
                         scoreB: '0',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -251,7 +296,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -260,7 +306,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -276,7 +323,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -318,7 +366,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'C',
@@ -327,7 +376,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -343,7 +393,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -390,7 +441,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'C',
@@ -399,7 +451,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'E',
@@ -408,7 +461,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -424,7 +478,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'C',
@@ -433,7 +488,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -449,7 +505,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -506,7 +563,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'C',
@@ -515,7 +573,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'E',
@@ -524,7 +583,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'G',
@@ -533,7 +593,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'I',
@@ -542,7 +603,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'K',
@@ -551,7 +613,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -567,7 +630,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'E',
@@ -576,7 +640,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'J',
@@ -585,7 +650,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'L',
@@ -594,7 +660,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -610,7 +677,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: 'J',
@@ -619,7 +687,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -635,7 +704,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -984,7 +1054,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1015,7 +1086,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1024,7 +1096,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1040,7 +1113,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1071,7 +1145,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1080,7 +1155,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1096,7 +1172,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1127,7 +1204,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1136,7 +1214,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1145,7 +1224,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1161,7 +1241,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1170,7 +1251,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1186,7 +1268,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1217,7 +1300,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1226,7 +1310,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1235,7 +1320,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1251,7 +1337,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1260,7 +1347,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1276,7 +1364,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1307,7 +1396,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1316,7 +1406,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1325,7 +1416,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1334,7 +1426,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: null,
                         scoreA: '',
                         scoreB: null,
-                        bye: true
+                        bye: true,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1350,7 +1443,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1359,7 +1453,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1375,7 +1470,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1406,7 +1502,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1415,7 +1512,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1424,7 +1522,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1433,7 +1532,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1449,7 +1549,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                     {
                         sideAname: '',
@@ -1458,7 +1559,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });
@@ -1474,7 +1576,8 @@ describe('PrintableSheet', () => {
                         sideBwinner: false,
                         scoreA: '',
                         scoreB: '',
-                        bye: false
+                        bye: false,
+                        saygLink: null,
                     },
                 ],
             });

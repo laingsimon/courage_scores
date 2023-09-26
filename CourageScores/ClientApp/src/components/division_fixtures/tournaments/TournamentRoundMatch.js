@@ -11,6 +11,7 @@ import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {count} from "../../../helpers/collections";
 import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
 import {DebugOptions} from "../../common/DebugOptions";
+import {Link} from "react-router-dom";
 
 export function TournamentRoundMatch({
                                          readOnly,
@@ -131,12 +132,16 @@ export function TournamentRoundMatch({
     }
 
     function renderSaygDialog() {
+        const numberOfLegs = matchOptions.numberOfLegs;
+        const finished = (match.scoreA >= numberOfLegs / 2.0) || (match.scoreB >= numberOfLegs / 2.0);
+
         return (<Dialog slim={true} className="text-start">
             <SaygLoadingContainer
                 id={match.saygId}
                 onHiCheck={recordHiCheck}
                 on180={record180}
                 autoSave={true}
+                refreshAllowed={true}
                 onSaved={async (data) => {
                     await patchData({
                         match: {
@@ -153,10 +158,16 @@ export function TournamentRoundMatch({
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={() => setSaygOpen(null)}>Close</button>
                 </div>
+                {finished
+                    ? null
+                    : (<a className="btn btn-success" target="_blank" rel="noreferrer" href={`/live/match/${match.saygId}`}>
+                        👁️ Live
+                    </a>)}
                 <DebugOptions>
                     <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Game/Sayg/${match.saygId}`} className="dropdown-item">
                         <strong>Sayg data</strong><small className="d-block">{match.saygId}</small>
                     </a>
+                    <a className="dropdown-item" target="_blank" rel="noreferrer" href={`/live/match/${match.saygId}`}>Live match statistics</a>
                     <button disabled={!match.saygId} className="dropdown-item text-danger" onClick={deleteSayg}>
                         Delete sayg
                     </button>
@@ -168,7 +179,7 @@ export function TournamentRoundMatch({
         </Dialog>)
     }
 
-    function canOpenSayg() {
+    function canOpenSaygDialog() {
         const isPermitted = (account || {access: {}}).access.recordScoresAsYouGo;
         const hasSaygData = !!match.saygId;
         const hasSidesSelected = match.sideA !== null && match.sideB !== null;
@@ -193,6 +204,17 @@ export function TournamentRoundMatch({
         }
 
         return match.sideA.players.length === 1 && match.sideB.players.length === 1;
+    }
+
+    function canShowLiveSayg() {
+        const hasSaygData = !!match.saygId;
+        const hasSidesSelected = match.sideA !== null && match.sideB !== null;
+
+        if (!hasSidesSelected) {
+            return false;
+        }
+
+        return hasSaygData;
     }
 
     async function recordHiCheck(sideName, score) {
@@ -285,7 +307,10 @@ export function TournamentRoundMatch({
                     slim={true}
                     className="margin-right"/>)}
 
-            {canOpenSayg()
+            {canShowLiveSayg() && !canOpenSaygDialog()
+                ? (<Link className="btn btn-sm float-start p-0" to={`/live/match/${match.saygId}`}>👁️</Link>)
+                : null}
+            {canOpenSaygDialog()
                 ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
                     {creatingSayg
                         ? (<LoadingSpinnerSmall/>)
