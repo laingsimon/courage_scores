@@ -70,6 +70,8 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         const newRound = Object.assign({}, round);
         newRound.matches = round.matches || [];
         newRound.matches.push(newMatch);
+        newRound.matchOptions = newRound.matchOptions || [];
+        newRound.matchOptions.push(matchOptionDefaults);
         setNewMatch({});
         setWarnBeforeSave(null);
 

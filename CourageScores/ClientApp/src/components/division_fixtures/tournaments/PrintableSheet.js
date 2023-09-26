@@ -184,15 +184,16 @@ export function PrintableSheet({printOnly}) {
 
         const layoutDataForRound = {
             name: round.name,
-            matches: round.matches.map(m => {
+            matches: round.matches.map((m, index) => {
                 let winner = null;
                 playedInThisRound.push(m.sideA);
                 playedInThisRound.push(m.sideB);
+                const numberOfLegs = round.matchOptions[index].numberOfLegs;
 
-                if (m.scoreA > m.scoreB) {
+                if (m.scoreA > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideA);
                     winner = 'sideA';
-                } else if (m.scoreB > m.scoreA) {
+                } else if (m.scoreB > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideB);
                     winner = 'sideB';
                 }

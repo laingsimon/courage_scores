@@ -684,6 +684,40 @@ describe('PrintableSheet', () => {
             });
         });
 
+        it('does not render winner when insufficient legs played', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
+            const sideASinglePlayer = createSide('A', [player1]);
+            const sideBSinglePlayer = createSide('B', [player2]);
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m
+                        .sideA(sideASinglePlayer, 1)
+                        .sideB(sideBSinglePlayer, 2))
+                    .withMatchOption(o => o.numberOfLegs(5)))
+                .withSide(sideASinglePlayer)
+                .withSide(sideBSinglePlayer)
+                .build();
+            const teams = toMap([{
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    players: [player2],
+                }],
+            }]);
+            const divisions = [division];
+
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+
+            expect(reportedError).toBeNull();
+            const winner = getWinner();
+            expect(winner).toEqual({
+                link: null,
+                name: ' ',
+            });
+        });
+
         it('renders winner', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const player2 = playerBuilder('PLAYER 2').build();

@@ -655,7 +655,13 @@ describe('TournamentRound', () => {
             });
 
             it('can add match', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(
+                    {
+                        tournamentData: {
+                            id: createTemporaryId(),
+                            bestOf: 3,
+                        }
+                    }, {
                     round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
@@ -672,6 +678,10 @@ describe('TournamentRound', () => {
                 expect(updatedRound.matches).toEqual([{
                     sideA: side1,
                     sideB: side2,
+                }]);
+                expect(updatedRound.matchOptions).toEqual([{
+                    startingScore: 501,
+                    numberOfLegs: 3,
                 }]);
             });
 

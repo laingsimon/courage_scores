@@ -916,7 +916,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(saygId)
                         .sideA('A')
-                        .sideB('B')))
+                        .sideB('B'))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -959,11 +960,13 @@ describe('Tournament', () => {
                         .saygId(saygId1)
                         .sideA('A')
                         .sideB('B'))
+                    .withMatchOption(o => o.numberOfLegs(3))
                     .round(r => r
                         .withMatch(m => m
                             .saygId(saygId2)
                             .sideA('A')
-                            .sideB('B'))))
+                            .sideB('B'))
+                        .withMatchOption(o => o.numberOfLegs(3))))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1182,7 +1185,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1243,7 +1247,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1297,7 +1302,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1367,7 +1373,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
