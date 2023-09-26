@@ -100,7 +100,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                         value={refreshInterval} />
                     <span className="width-20 d-inline-block ms-2 text-secondary-50">{refreshing ? <LoadingSpinnerSmall /> : null}</span>
                 </>)
-                : refreshAllowed && !finished ? (<span className="width-20 d-inline-block ms-2 text-secondary-50">⏸️</span>) : null}
+                : null}
         </h4>
         <table className="table">
             <thead>
