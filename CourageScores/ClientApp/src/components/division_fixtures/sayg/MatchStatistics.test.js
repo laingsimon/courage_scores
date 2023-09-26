@@ -10,29 +10,50 @@ import {act} from "@testing-library/react";
 
 describe('MatchStatistics', () => {
     let context;
+    let reportedError;
     let getCount;
     let saygData;
+    let updatedSayg;
     const saygApi = {
         get: () => {
             getCount++;
             return saygData;
-        }
+        },
+        upsert: (data) => {
+            updatedSayg = data;
+            return {
+                success: true,
+                result: data,
+            };
+        },
     }
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(containerProps, props) {
-        const saygId = createTemporaryId();
+    beforeEach(() => {
+        reportedError = null;
+        updatedSayg = null;
         getCount = 0;
-        saygData = Object.assign({ id: saygId }, props);
+    });
+
+    async function renderComponent(containerProps, data, appProps) {
+        saygData = data;
+        saygData.id = saygData.id || createTemporaryId();
         context = await renderApp(
             {saygApi},
             {name: 'Courage Scores'},
-            {},
-            <SaygLoadingContainer id={saygId} {...containerProps}>
-                <MatchStatistics {...props} />
+            {
+                ...appProps,
+                onError: (err) => {
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
+                },
+            },
+            <SaygLoadingContainer id={saygData.id} matchStatisticsOnly={true} {...containerProps} >
             </SaygLoadingContainer>);
     }
 
@@ -114,10 +135,10 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
-            home: 'HOME',
-            away: 'AWAY',
-            singlePlayer: false,
+            yourName: 'HOME',
+            opponentName: 'AWAY',
             numberOfLegs: 3,
+            startingScore: 501,
         });
 
         assertHeaderText(['', 'HOME', 'AWAY'], true, false);
@@ -171,9 +192,8 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
-            home: 'HOME',
-            away: 'AWAY',
-            singlePlayer: false,
+            yourName: 'HOME',
+            opponentName: 'AWAY',
             numberOfLegs: 3,
         });
 
@@ -201,9 +221,8 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
-            home: 'HOME',
-            away: 'AWAY',
-            singlePlayer: false,
+            yourName: 'HOME',
+            opponentName: 'AWAY',
             numberOfLegs: 3,
         });
 
@@ -228,16 +247,19 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
             .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
             .build();
-        let changed;
         await renderComponent({}, {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
-            home: 'HOME',
-            away: 'AWAY',
-            singlePlayer: false,
+            yourName: 'HOME',
+            opponentName: 'AWAY',
             numberOfLegs: 3,
-            legChanged: () => { changed = true; },
+        }, {
+            account: {
+                access: {
+                    recordScoresAsYouGo: true
+                },
+            },
         });
         await doClick(context.container.querySelector('input[name="showThrows"]'));
         const legRow = context.container.querySelector('table tbody tr:nth-child(2)');
@@ -247,7 +269,8 @@ describe('MatchStatistics', () => {
         expect(context.container.querySelector('.modal-dialog').textContent).toContain('Edit throw');
         await doClick(findButton(legRow, 'Save changes'));
 
-        expect(changed).toEqual(true);
+        expect(reportedError).toBeNull();
+        expect(updatedSayg).not.toBeNull();
     });
 
     it('prevents edit of throw when no change handler is passed in', async () => {
@@ -261,9 +284,8 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 3,
             awayScore: 2,
-            home: 'HOME',
-            away: 'AWAY',
-            singlePlayer: false,
+            yourName: 'HOME',
+            opponentName: 'AWAY',
             numberOfLegs: 3,
         });
         await doClick(context.container.querySelector('input[name="showThrows"]'));
@@ -289,8 +311,7 @@ describe('MatchStatistics', () => {
         }, {
             legs: {0: leg},
             homeScore: 1,
-            home: 'HOME',
-            singlePlayer: true,
+            yourName: 'HOME',
             numberOfLegs: 3,
         });
 
@@ -315,7 +336,7 @@ describe('MatchStatistics', () => {
         }, {
             legs: {0: leg},
             homeScore: 2,
-            home: 'HOME',
+            yourName: 'HOME',
             numberOfLegs: 3,
         });
 
@@ -341,7 +362,7 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 2,
-            home: 'HOME',
+            yourName: 'HOME',
             numberOfLegs: 3,
         });
 
@@ -366,7 +387,7 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
-            home: 'HOME',
+            yourName: 'HOME',
             numberOfLegs: 3,
         });
 
@@ -391,7 +412,8 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
-            home: 'HOME',
+            yourName: 'HOME',
+            opponentName: 'AWAY',
             numberOfLegs: 3,
         });
 
@@ -432,7 +454,7 @@ describe('MatchStatistics', () => {
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
-            home: 'HOME',
+            yourName: 'HOME',
             numberOfLegs: 3,
         });
 
@@ -477,5 +499,56 @@ describe('MatchStatistics', () => {
         await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ Paused');
 
         expect(clearedHandle).toEqual(123);
+    });
+
+    it('collapses all legs when final leg played', async () => {
+        const id = createTemporaryId();
+        const leg = legBuilder(id)
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
+            .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .build();
+        const finishedLeg = legBuilder(id)
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(501, false, 3).score(501).noOfDarts(3))
+            .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .build();
+        let interval;
+        window.setInterval = (handler, delay) => {
+            interval = { handler, delay };
+            return 123;
+        };
+        await renderComponent({
+            refreshAllowed: true,
+            initialRefreshInterval: 10000,
+            lastLegDisplayOptions: { showThrows: true, initial: true },
+        }, {
+            id,
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 0,
+            yourName: 'HOME',
+            opponentName: 'AWAY',
+            numberOfLegs: 3,
+        });
+
+        saygData = {
+            id,
+            legs: {0: finishedLeg, 1: finishedLeg, 2: finishedLeg},
+            homeScore: 2,
+            awayScore: 0,
+            home: 'HOME',
+            opponentName: 'AWAY',
+            numberOfLegs: 3,
+        };
+        await act(async () => {
+            await interval.handler();
+        });
+
+        const firstRow = context.container.querySelector('table tbody tr:first-child');
+        const finishedHeadings = Array.from(firstRow.querySelectorAll('td'));
+        expect(finishedHeadings.map(th => th.textContent)).toEqual(['Score', '2', '0']);
     });
 });
