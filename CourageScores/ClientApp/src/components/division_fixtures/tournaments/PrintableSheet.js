@@ -1,21 +1,27 @@
 import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../../helpers/projection";
-import {any, count, sortBy} from "../../../helpers/collections";
+import {any, count, isEmpty, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
+import {RefreshControl} from "../RefreshControl";
 
 export function PrintableSheet({printOnly}) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
-    const {tournamentData, season, division} = useTournament();
+    const {tournamentData, season, division, refresh} = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
     const [wiggle, setWiggle] = useState(!printOnly);
+    const winner = getWinner();
+    const initialRefreshInterval = !!winner || isEmpty(tournamentData.sides)
+        ? 0
+        : 60000;
+    const [refreshInterval, setRefreshInterval] = useState(initialRefreshInterval);
 
     useEffect(() => {
             if (!wiggle) {
@@ -350,6 +356,9 @@ export function PrintableSheet({printOnly}) {
 
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
+            {winner ? null : (<div className="float-end">
+                <RefreshControl refreshInterval={refreshInterval} setRefreshInterval={setRefreshInterval} refresh={refresh} />
+            </div>)}
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center">
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
@@ -398,7 +407,7 @@ export function PrintableSheet({printOnly}) {
                          className="p-0 border-solid border-1 m-1 bg-winner fw-bold">
                         <div className="d-flex flex-row justify-content-between p-2 min-width-150">
                             <div className="no-wrap pe-3">
-                                <span>{getWinner() || <>&nbsp;</>}</span>
+                                <span>{winner || <>&nbsp;</>}</span>
                             </div>
                         </div>
                     </div>

@@ -387,7 +387,8 @@ export function Tournament() {
                     alreadyPlaying={alreadyPlaying}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
-                    setWarnBeforeSave={setWarnBeforeSave}>
+                    setWarnBeforeSave={setWarnBeforeSave}
+                    refresh={loadFixtureData}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
                                                 applyPatch={applyPatch}/>) : null}
                     {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division}/>) : null}
