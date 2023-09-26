@@ -123,7 +123,7 @@ describe('PreviousPlayerScore', () => {
         });
         window.confirm = () => false;
 
-        await doClick(context.container.querySelector('p:nth-child(2)'));
+        await doClick(findButton(context.container, 'Undo'));
 
         expect(lastThrowUndone).toEqual(false);
     });
