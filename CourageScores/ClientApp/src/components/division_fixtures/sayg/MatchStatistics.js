@@ -2,16 +2,14 @@ import {sum} from "../../../helpers/collections";
 import {MatchDartCount} from "./MatchDartCount";
 import {MatchAverage} from "./MatchAverage";
 import {LegStatistics} from "./LegStatistics";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {useSayg} from "./SaygLoadingContainer";
-import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
+import {RefreshControl} from "../RefreshControl";
 
 export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs }) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
     const {refresh, refreshAllowed, initialRefreshInterval, lastLegDisplayOptions} = useSayg();
     const [refreshInterval, setRefreshInterval] = useState(initialRefreshInterval || 0);
-    const [refreshing, setRefreshing] = useState(false);
     const [legDisplayOptionsState, setLegDisplayOptions] = useState(getLegDisplayOptions(legs));
     const finished = (homeScore >= numberOfLegs / 2.0) || (awayScore >= numberOfLegs / 2.0);
     const canRefresh = refreshAllowed && !finished;
@@ -48,31 +46,11 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
         setLegDisplayOptions(newLegDisplayOptions);
     }
 
-    useEffect(() => {
-        if (refreshInterval <= 0) {
-            return;
-        }
-
-        const handle = window.setInterval(refreshSaygData, refreshInterval);
-
-        return () => {
-            window.clearInterval(handle);
-        }
-    },
-    // eslint-disable-next-line
-    [refreshInterval]);
-
     async function refreshSaygData() {
-        // call out to loading container to refresh the data
-        setRefreshing(true);
-        try {
-            const newSayg = await refresh();
+        const newSayg = await refresh();
 
-            if (Object.keys(newSayg.legs).length !== Object.keys(legs).length) {
-                setLegDisplayOptions(getLegDisplayOptions(newSayg.legs));
-            }
-        } finally {
-            setRefreshing(false);
+        if (Object.keys(newSayg.legs).length !== Object.keys(legs).length) {
+            setLegDisplayOptions(getLegDisplayOptions(newSayg.legs));
         }
     }
 
@@ -80,26 +58,14 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
         return sum(Object.values(legs), leg => leg[player][prop]);
     }
 
-    function getRefreshOptions() {
-        return [
-            { value: 0, text: '⏸️ Paused' },
-            { value: 10000, text: '⏩ Live (Fast)' },
-            { value: 60000, text: '▶️ Live' },
-        ];
-    }
-
     return (<div>
         <h4 className="text-center">
             Match statistics
             {canRefresh
-                ? (<>
-                    <BootstrapDropdown
-                        className="margin-left float-end"
-                        options={getRefreshOptions()}
-                        onChange={v => setRefreshInterval(v)}
-                        value={refreshInterval} />
-                    <span className="width-20 d-inline-block ms-2 text-secondary-50">{refreshing ? <LoadingSpinnerSmall /> : null}</span>
-                </>)
+                ? (<RefreshControl
+                    refreshInterval={refreshInterval}
+                    setRefreshInterval={setRefreshInterval}
+                    refresh={refreshSaygData} />)
                 : null}
         </h4>
         <table className="table">
