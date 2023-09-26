@@ -79,16 +79,17 @@ export function Tournament() {
             setTournamentData(tournamentData);
 
             const allPlayers = getAllPlayers(tournamentData);
-            const divisionData = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
-            const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
-            const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
             allPlayers.sort(sortBy('name'));
+            setAllPlayers(allPlayers);
 
             const tournamentPlayerMap = {};
-            tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
-
+            if (canManageTournaments) {
+                const divisionData = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
+                const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
+                const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
+                tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
+            }
             setAlreadyPlaying(tournamentPlayerMap);
-            setAllPlayers(allPlayers);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
