@@ -12,7 +12,7 @@ import {RefreshControl} from "../RefreshControl";
 export function PrintableSheet({printOnly}) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
-    const {tournamentData, season, division, refresh} = useTournament();
+    const {tournamentData, season, division, refresh, matchOptionDefaults} = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
@@ -188,7 +188,8 @@ export function PrintableSheet({printOnly}) {
                 let winner = null;
                 playedInThisRound.push(m.sideA);
                 playedInThisRound.push(m.sideB);
-                const numberOfLegs = round.matchOptions[index].numberOfLegs;
+                const matchOptions = round.matchOptions[index] || matchOptionDefaults;
+                const numberOfLegs = matchOptions.numberOfLegs;
 
                 if (m.scoreA > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideA);

@@ -99,6 +99,13 @@ export function Tournament() {
         }
     }
 
+    function getMatchOptionDefaults(tournamentData) {
+        return {
+            startingScore: 501,
+            numberOfLegs: tournamentData.bestOf || 5,
+        };
+    }
+
     function getAllPlayers(tournamentData) {
         const selectedTournamentPlayers = tournamentData.sides
             ? tournamentData.sides.filter(s => !s.noShow).flatMap(side => side.players)
@@ -390,6 +397,7 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}
+                    matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     refresh={loadFixtureData}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
                                                 applyPatch={applyPatch}/>) : null}

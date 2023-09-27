@@ -20,11 +20,7 @@ export function TournamentRound({
     // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
-    const {tournamentData, setWarnBeforeSave} = useTournament();
-    const matchOptionDefaults = {
-        startingScore: 501,
-        numberOfLegs: tournamentData.bestOf || 5,
-    };
+    const {setWarnBeforeSave, matchOptionDefaults} = useTournament();
 
     function setNewSide(sideId, property) {
         const newNewMatch = Object.assign({}, newMatch);
