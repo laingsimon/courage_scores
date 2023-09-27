@@ -347,7 +347,12 @@ export function PrintableSheet({printOnly}) {
             return null;
         }
 
-        const final = layoutData[layoutData.length - 1].matches[0];
+        const finalRound = layoutData[layoutData.length - 1];
+        if (!finalRound || count(finalRound.matches || []) !== 1) {
+            return null;
+        }
+
+        const final = finalRound.matches[0];
         if (final && final.winner) {
             const winningSide = final[final.winner];
             return winningSide.link;
