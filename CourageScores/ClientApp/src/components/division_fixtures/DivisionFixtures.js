@@ -83,7 +83,7 @@ export function DivisionFixtures({setNewFixtures}) {
             }),
             tournamentFixtures: seasonalTeams.map(team => {
                 return {
-                    address: team.name,
+                    address: team.address,
                     proposed: true,
                 };
             }),
