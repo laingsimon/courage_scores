@@ -38,10 +38,11 @@ export function Tournament() {
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
-    const genderOptions = [{text: 'Undefined', value: ''}, {text: 'Men', value: 'men'}, {
-        text: 'Women',
-        value: 'women'
-    }];
+    const genderOptions = [
+        {text: 'Undefined', value: ''},
+        {text: 'Men', value: 'men'},
+        {text: 'Women',value: 'women'}
+    ];
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageTournaments);
