@@ -5,19 +5,8 @@ import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
 import {useTournament} from "./TournamentContainer";
 
-export function TournamentRound({
-                                    round,
-                                    onChange,
-                                    sides,
-                                    readOnly,
-                                    depth,
-                                    onHiCheck,
-                                    on180,
-                                    patchData,
-                                    allowNextRound
-                                }) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData, allowNextRound }) {
     const [newMatch, setNewMatch] = useState({});
-    // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
     const {setWarnBeforeSave, matchOptionDefaults} = useTournament();

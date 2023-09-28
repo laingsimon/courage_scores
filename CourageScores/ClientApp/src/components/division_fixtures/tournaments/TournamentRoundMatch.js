@@ -13,21 +13,8 @@ import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
 import {DebugOptions} from "../../common/DebugOptions";
 import {Link} from "react-router-dom";
 
-export function TournamentRoundMatch({
-                                         readOnly,
-                                         match,
-                                         hasNextRound,
-                                         sideMap,
-                                         exceptSelected,
-                                         matchIndex,
-                                         onChange,
-                                         round,
-                                         matchOptions,
-                                         onMatchOptionsChanged,
-                                         onHiCheck,
-                                         on180,
-                                         patchData
-                                     }) {
+export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange,
+                                         round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }) {
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
     const {tournamentData, setTournamentData, saveTournament} = useTournament();
