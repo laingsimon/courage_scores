@@ -175,7 +175,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             return false;
         }
 
-        if (hasSaygData) {
+        if (hasSaygData && isPermitted) {
             // there is some data, allow it to be viewed
             return true;
         }
@@ -197,11 +197,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         const hasSaygData = !!match.saygId;
         const hasSidesSelected = match.sideA !== null && match.sideB !== null;
 
-        if (!hasSidesSelected) {
-            return false;
-        }
-
-        return hasSaygData;
+        return hasSidesSelected && hasSaygData;
     }
 
     async function recordHiCheck(sideName, score) {
