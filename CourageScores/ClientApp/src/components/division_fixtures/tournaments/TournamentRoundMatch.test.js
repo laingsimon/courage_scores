@@ -348,6 +348,7 @@ describe('TournamentRoundMatch', () => {
                     .addTo(saygApiData)
                     .build();
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
+
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
@@ -360,12 +361,10 @@ describe('TournamentRoundMatch', () => {
                 }, account);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
 
-                await doClick(findButton(cells[0], '📊'));
+                const link = context.container.querySelector('a');
 
-                expect(reportedError).toBeNull();
-                const dialog = context.container.querySelector('.modal-dialog');
-                expect(dialog).toBeTruthy();
-                expect(dialog.textContent).toContain('SIDE A vs SIDE B - best of 7');
+                expect(link.textContent).toEqual('👁️');
+                expect(link.href).toEqual('http://localhost/live/match/' + saygData.id);
             });
         });
 

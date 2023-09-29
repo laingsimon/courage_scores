@@ -567,6 +567,7 @@ describe('Tournament', () => {
             access: {
                 manageTournaments: true,
                 managePlayers: true,
+                recordScoresAsYouGo: true,
             }
         };
 
