@@ -708,6 +708,8 @@ describe('DivisionFixtures', () => {
             expect(newFixtures[0].fixtures[0].isKnockout).toEqual(true);
             expect(newFixtures[0].fixtures[0].accoladesCount).toEqual(true);
             expect(newFixtures[0].fixtures[0].fixturesUsingAddress).toEqual([]);
+            expect(newFixtures[0].tournamentFixtures[0].address).toEqual('ADDRESS');
+            expect(newFixtures[0].tournamentFixtures[0].proposed).toEqual(true);
         });
 
         it('renders new dates correctly', async () => {

@@ -3,18 +3,7 @@ import {stateChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {useApp} from "../../../AppContainer";
 
-export function PlayerInput({
-                                home,
-                                away,
-                                homeScore,
-                                awayScore,
-                                on180,
-                                onHiCheck,
-                                onChange,
-                                onLegComplete,
-                                leg,
-                                singlePlayer
-                            }) {
+export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }) {
     const [score, setScore] = useState('');
     const {onError} = useApp();
     const [focusEventHandle, setFocusEventHandle] = useState(null);

@@ -12,7 +12,7 @@ import {RefreshControl} from "../RefreshControl";
 export function PrintableSheet({printOnly}) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
-    const {tournamentData, season, division, refresh} = useTournament();
+    const {tournamentData, season, division, refresh, matchOptionDefaults} = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
@@ -184,15 +184,17 @@ export function PrintableSheet({printOnly}) {
 
         const layoutDataForRound = {
             name: round.name,
-            matches: round.matches.map(m => {
+            matches: round.matches.map((m, index) => {
                 let winner = null;
                 playedInThisRound.push(m.sideA);
                 playedInThisRound.push(m.sideB);
+                const matchOptions = round.matchOptions[index] || matchOptionDefaults;
+                const numberOfLegs = matchOptions.numberOfLegs;
 
-                if (m.scoreA > m.scoreB) {
+                if (m.scoreA > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideA);
                     winner = 'sideA';
-                } else if (m.scoreB > m.scoreA) {
+                } else if (m.scoreB > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideB);
                     winner = 'sideB';
                 }
@@ -345,7 +347,12 @@ export function PrintableSheet({printOnly}) {
             return null;
         }
 
-        const final = layoutData[layoutData.length - 1].matches[0];
+        const finalRound = layoutData[layoutData.length - 1];
+        if (!finalRound || count(finalRound.matches || []) !== 1) {
+            return null;
+        }
+
+        const final = finalRound.matches[0];
         if (final && final.winner) {
             const winningSide = final[final.winner];
             return winningSide.link;

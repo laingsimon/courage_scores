@@ -421,6 +421,10 @@ export function tournamentBuilder(id) {
         tournament.notes = notes;
         return builder;
     };
+    builder.bestOf = (numberOfLegs) => {
+        tournament.bestOf = numberOfLegs;
+        return builder;
+    };
     builder.forSeason = (seasonOrId) => {
         if (seasonOrId.id) {
             tournament.seasonId = seasonOrId.id;

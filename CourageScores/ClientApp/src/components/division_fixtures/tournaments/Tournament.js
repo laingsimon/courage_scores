@@ -38,10 +38,11 @@ export function Tournament() {
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
-    const genderOptions = [{text: 'Undefined', value: ''}, {text: 'Men', value: 'men'}, {
-        text: 'Women',
-        value: 'women'
-    }];
+    const genderOptions = [
+        {text: 'Undefined', value: ''},
+        {text: 'Men', value: 'men'},
+        {text: 'Women',value: 'women'}
+    ];
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageTournaments);
@@ -96,6 +97,13 @@ export function Tournament() {
         } finally {
             setLoading('ready');
         }
+    }
+
+    function getMatchOptionDefaults(tournamentData) {
+        return {
+            startingScore: 501,
+            numberOfLegs: tournamentData.bestOf || 5,
+        };
     }
 
     function getAllPlayers(tournamentData) {
@@ -389,6 +397,7 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}
+                    matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     refresh={loadFixtureData}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
                                                 applyPatch={applyPatch}/>) : null}

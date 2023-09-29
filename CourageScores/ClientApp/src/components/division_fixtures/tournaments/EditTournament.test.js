@@ -416,9 +416,9 @@ describe('EditTournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(side)
-                .round(r => r.withMatch(
-                    m => m.sideA(side)
-                ))
+                .round(r => r
+                    .withMatch(m => m.sideA(side))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .build();
             await renderComponent({
                 tournamentData,
@@ -456,9 +456,9 @@ describe('EditTournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(side)
-                .round(r => r.withMatch(
-                    m => m.sideB(side)
-                ))
+                .round(r => r
+                    .withMatch(m => m.sideB(side))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .build();
             await renderComponent({
                 tournamentData,
@@ -496,9 +496,9 @@ describe('EditTournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(side)
-                .round(r => r.withMatch(
-                    m => m.sideB(side)
-                ))
+                .round(r => r
+                    .withMatch(m => m.sideB(side))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .build();
             await renderComponent({
                 tournamentData,

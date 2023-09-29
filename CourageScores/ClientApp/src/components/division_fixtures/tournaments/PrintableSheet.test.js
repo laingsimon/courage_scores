@@ -49,14 +49,13 @@ describe('PrintableSheet', () => {
     }
 
     function createSide(name, players) {
+        let side = sideBuilder(name);
+
         if (players && players.length === 1) {
-            return sideBuilder(name)
-                .withPlayer(players[0])
-                .build();
+            side = side.withPlayer(players[0]);
         }
 
-        return sideBuilder(name)
-            .build();
+        return side.build();
     }
 
     function getRounds() {
@@ -156,16 +155,12 @@ describe('PrintableSheet', () => {
             .build();
 
         it('renders tournament with one round', async () => {
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
-                    ],
-                },
-                sides: [sideA, sideB],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatchOption(m => m.numberOfLegs(3)))
+                .withSide(sideA).withSide(sideB)
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 
@@ -193,16 +188,12 @@ describe('PrintableSheet', () => {
 
         it('renders tournament with sayg id', async () => {
             const saygId = createTemporaryId();
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2, saygId: saygId},
-                    ],
-                },
-                sides: [sideA, sideB],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2).saygId(saygId))
+                    .withMatchOption(m => m.numberOfLegs(3)))
+                .withSide(sideA).withSide(sideB)
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 
@@ -229,18 +220,16 @@ describe('PrintableSheet', () => {
         });
 
         it('renders incomplete tournament with six sides and one round', async () => {
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideA, sideB: sideB, scoreA: 0, scoreB: 0},
-                        {sideA: sideC, sideB: sideD, scoreA: 0, scoreB: 0},
-                        {sideA: sideE, sideB: sideF, scoreA: 0, scoreB: 0},
-                    ],
-                },
-                sides: [sideA, sideB, sideC, sideD, sideE, sideF],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 0).sideB(sideB, 0))
+                    .withMatch(m => m.sideA(sideC, 0).sideB(sideD, 0))
+                    .withMatch(m => m.sideA(sideE, 0).sideB(sideF, 0))
+                    .withMatchOption(m => m.numberOfLegs(3))
+                    .withMatchOption(m => m.numberOfLegs(3))
+                    .withMatchOption(m => m.numberOfLegs(3)))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 
@@ -331,23 +320,17 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 2 rounds', async () => {
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
-                        {sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1},
-                    ],
-                    nextRound: {
-                        matches: [
-                            {sideA: sideB, sideB: sideC, scoreA: 2, scoreB: 1},
-                        ],
-                        nextRound: null,
-                    }
-                },
-                sides: [sideA, sideB, sideC, sideD],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch(m => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption(o => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 
@@ -401,28 +384,20 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 3 rounds', async () => {
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
-                        {sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1},
-                    ],
-                    nextRound: {
-                        matches: [
-                            {sideA: sideE, sideB: sideB, scoreA: 2, scoreB: 1},
-                        ],
-                        nextRound: {
-                            matches: [
-                                {sideA: sideC, sideB: sideE, scoreA: 2, scoreB: 1},
-                            ],
-                            nextRound: null,
-                        },
-                    }
-                },
-                sides: [sideA, sideB, sideC, sideD, sideE],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch(m => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideE, 2).sideB(sideB, 1))
+                        .withMatchOption(o => o.numberOfLegs(3))
+                        .round(r => r
+                            .withMatch(m => m.sideA(sideC, 2).sideB(sideE, 1))
+                            .withMatchOption(o => o.numberOfLegs(3)))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 
@@ -513,38 +488,36 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 4 rounds', async () => {
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
-                        {sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1},
-                        {sideA: sideE, sideB: sideF, scoreA: 2, scoreB: 1},
-                        {sideA: sideG, sideB: sideH, scoreA: 1, scoreB: 2},
-                        {sideA: sideI, sideB: sideJ, scoreA: 1, scoreB: 2},
-                        {sideA: sideK, sideB: sideL, scoreA: 1, scoreB: 2},
-                    ],
-                    nextRound: {
-                        matches: [
-                            {sideA: sideB, sideB: sideC, scoreA: 2, scoreB: 1},
-                            {sideA: sideE, sideB: sideH, scoreA: 2, scoreB: 1},
-                        ],
-                        nextRound: {
-                            matches: [
-                                {sideA: sideB, sideB: sideE, scoreA: 2, scoreB: 1},
-                                {sideA: sideJ, sideB: sideL, scoreA: 2, scoreB: 1},
-                            ],
-                            nextRound: {
-                                matches: [
-                                    {sideA: sideB, sideB: sideJ, scoreA: 2, scoreB: 1},
-                                ]
-                            },
-                        },
-                    }
-                },
-                sides: [sideA, sideB, sideC, sideD, sideE, sideF, sideG, sideH, sideI, sideJ, sideK, sideL],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch(m => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatch(m => m.sideA(sideE, 2).sideB(sideF, 1))
+                    .withMatch(m => m.sideA(sideG, 1).sideB(sideH, 2))
+                    .withMatch(m => m.sideA(sideI, 1).sideB(sideJ, 2))
+                    .withMatch(m => m.sideA(sideK, 1).sideB(sideL, 2))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .withMatchOption(o => o.numberOfLegs(3))
+                    .round(r => r
+                        .withMatch(m => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatch(m => m.sideA(sideE, 2).sideB(sideH, 1))
+                        .withMatchOption(o => o.numberOfLegs(3))
+                        .withMatchOption(o => o.numberOfLegs(3))
+                        .round(r => r
+                            .withMatch(m => m.sideA(sideB, 2).sideB(sideE, 1))
+                            .withMatch(m => m.sideA(sideJ, 2).sideB(sideL, 1))
+                            .withMatchOption(o => o.numberOfLegs(3))
+                            .withMatchOption(o => o.numberOfLegs(3))
+                            .round(r => r
+                                .withMatch(m => m.sideA(sideB, 2).sideB(sideJ, 1))
+                                .withMatchOption(o => o.numberOfLegs(3))))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
+                .withSide(sideG).withSide(sideH).withSide(sideI).withSide(sideJ).withSide(sideK).withSide(sideL)
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 
@@ -711,21 +684,101 @@ describe('PrintableSheet', () => {
             });
         });
 
+        it('does not render winner when insufficient legs played', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
+            const sideASinglePlayer = createSide('A', [player1]);
+            const sideBSinglePlayer = createSide('B', [player2]);
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m
+                        .sideA(sideASinglePlayer, 1)
+                        .sideB(sideBSinglePlayer, 2))
+                    .withMatchOption(o => o.numberOfLegs(5)))
+                .withSide(sideASinglePlayer)
+                .withSide(sideBSinglePlayer)
+                .build();
+            const teams = toMap([{
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    players: [player2],
+                }],
+            }]);
+            const divisions = [division];
+
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+
+            expect(reportedError).toBeNull();
+            const winner = getWinner();
+            expect(winner).toEqual({
+                link: null,
+                name: ' ',
+            });
+        });
+
+        it('does not render winner when 2 matches in final round (semi final is last round so far)', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
+            const player3 = playerBuilder('PLAYER 3').build();
+            const player4 = playerBuilder('PLAYER 4').build();
+            const player5 = playerBuilder('PLAYER 5').build();
+            const sideASinglePlayer = createSide('A', [player1]);
+            const sideBSinglePlayer = createSide('B', [player2]);
+            const sideCSinglePlayer = createSide('C', [player3]);
+            const sideDSinglePlayer = createSide('D', [player4]);
+            const sideESinglePlayer = createSide('E', [player5]);
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m
+                        .sideA(sideASinglePlayer, 1)
+                        .sideB(sideBSinglePlayer, 3))
+                    .withMatch(m => m
+                        .sideA(sideCSinglePlayer, 0)
+                        .sideB(sideDSinglePlayer, 0))
+                    .withMatchOption(o => o.numberOfLegs(5))
+                    .withMatchOption(o => o.numberOfLegs(5)))
+                .withSide(sideASinglePlayer)
+                .withSide(sideBSinglePlayer)
+                .withSide(sideCSinglePlayer)
+                .withSide(sideDSinglePlayer)
+                .withSide(sideESinglePlayer)
+                .build();
+            const teams = toMap([{
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    players: [player2],
+                }],
+            }]);
+            const divisions = [division];
+
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+
+            expect(reportedError).toBeNull();
+            const winner = getWinner();
+            expect(winner).toEqual({
+                link: null,
+                name: ' ',
+            });
+        });
+
         it('renders winner', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const player2 = playerBuilder('PLAYER 2').build();
             const sideASinglePlayer = createSide('A', [player1]);
             const sideBSinglePlayer = createSide('B', [player2]);
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideASinglePlayer, sideB: sideBSinglePlayer, scoreA: 1, scoreB: 2},
-                    ],
-                },
-                sides: [sideASinglePlayer, sideBSinglePlayer],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m
+                        .sideA(sideASinglePlayer, 1)
+                        .sideB(sideBSinglePlayer, 2))
+                    .withMatchOption(o => o.numberOfLegs(3)))
+                .withSide(sideASinglePlayer)
+                .withSide(sideBSinglePlayer)
+                .build();
             const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
@@ -749,16 +802,12 @@ describe('PrintableSheet', () => {
             const player2 = playerBuilder('PLAYER 2').build();
             const sideASinglePlayer = createSide('A', [player1]);
             const sideBSinglePlayer = createSide('B', [player2]);
-            const tournamentData = {
-                round: {
-                    matches: [
-                        {sideA: sideASinglePlayer, sideB: sideBSinglePlayer, scoreA: 1, scoreB: 2},
-                    ],
-                },
-                sides: [sideASinglePlayer, sideBSinglePlayer],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.sideA(sideASinglePlayer, 1).sideB(sideBSinglePlayer, 2))
+                    .withMatchOption(o => o.numberOfLegs(3)))
+                .withSide(sideASinglePlayer).withSide(sideBSinglePlayer)
+                .build();
             const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
