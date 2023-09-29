@@ -49,6 +49,24 @@ describe('BootstrapDropdown', () => {
             expect(button.textContent).toEqual(option2.text);
         });
 
+        it('when disabled and something selected with collapsed text', async () => {
+            const option3_collapsedText = {
+                value: 'VALUE 3',
+                text: 'TEXT 3',
+                collapsedText: '3',
+            };
+            await renderComponent({
+                value: option3_collapsedText.value,
+                options: [ option1, option2, option3_collapsedText ],
+                disabled: true,
+            });
+
+            const button = context.container.querySelector('button');
+            expect(button.disabled).toEqual(true);
+            expect(button.className).toContain('dropdown-toggle');
+            expect(button.textContent).toEqual(option3_collapsedText.collapsedText);
+        });
+
         it('when options is null', async () => {
             await renderComponent({
                 options: null,
@@ -176,6 +194,26 @@ describe('BootstrapDropdown', () => {
 
             const toggle = context.container.querySelector('.dropdown-toggle > span');
             expect(toggle.className).toContain('dropdown-text-min-width');
+        });
+
+        it('with collapsed text', async () => {
+            const option3_collapsedText = {
+                value: 'VALUE 3',
+                text: 'TEXT 3',
+                collapsedText: '3',
+            };
+            await renderComponent({
+                value: option3_collapsedText.value,
+                options: [ option1, option2, option3_collapsedText ],
+            });
+
+            const toggle = context.container.querySelector('.dropdown-toggle');
+            const items = Array.from(context.container.querySelectorAll('.dropdown-item'));
+            expect(toggle.textContent).toEqual(option3_collapsedText.collapsedText);
+            const itemTextLookup = toDictionary(items, item => item.textContent, item => item.textContent);
+            expect(itemTextLookup[option1.text]).toEqual('TEXT 1');
+            expect(itemTextLookup[option2.text]).toEqual('TEXT 2');
+            expect(itemTextLookup[option3_collapsedText.text]).toEqual('TEXT 3');
         });
     });
 

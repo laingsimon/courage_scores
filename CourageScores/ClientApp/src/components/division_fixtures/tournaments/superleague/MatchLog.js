@@ -11,9 +11,9 @@ export function MatchLog({showWinner, noOfThrows, host, opponent, saygMatches}) 
     try {
         return (<div className="page-break-after">
             <h2>Match log</h2>
-            {saygMatches.map(matchDataMap => {
+            {saygMatches.map((matchDataMap, index) => {
                 if (!matchDataMap.saygData || !matchDataMap.saygData.legs) {
-                    return (<p key={matchDataMap.match.id} className="text-warning">
+                    return (<p key={index} className="text-warning">
                         ⚠ No data available for the match
                         between {matchDataMap.match.sideA.name} and {matchDataMap.match.sideB.name}
                     </p>);

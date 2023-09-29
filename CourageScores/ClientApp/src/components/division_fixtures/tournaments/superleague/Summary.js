@@ -74,18 +74,18 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
                 <tr className="fw-bold">
                     <td></td>
                     <td>Total</td>
-                    <td>{sum(saygMatches, map => map.match.scoreA)}</td>
-                    <td>{sum(saygMatches, saygData => matchTons(saygData, 'home'))}</td>
-                    <td>{sum(saygMatches, saygData => countMatch100(saygData, 'home'))}</td>
-                    <td>{sum(saygMatches, saygData => countMatch140(saygData, 'home'))}</td>
-                    <td>{sum(saygMatches, saygData => countMatch180(saygData, 'home'))}</td>
+                    <td>{ifNaN(sum(saygMatches, map => map.match.scoreA), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => matchTons(saygData, 'home')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => countMatch100(saygData, 'home')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => countMatch140(saygData, 'home')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => countMatch180(saygData, 'home')), '-')}</td>
                     <td>{ifNaN(round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'home'))), '-')}</td>
                     <td>Total</td>
-                    <td>{sum(saygMatches, map => map.match.scoreB)}</td>
-                    <td>{sum(saygMatches, saygData => matchTons(saygData, 'away'))}</td>
-                    <td>{sum(saygMatches, saygData => countMatch100(saygData, 'away'))}</td>
-                    <td>{sum(saygMatches, saygData => countMatch140(saygData, 'away'))}</td>
-                    <td>{sum(saygMatches, saygData => countMatch180(saygData, 'away'))}</td>
+                    <td>{ifNaN(sum(saygMatches, map => map.match.scoreB), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => matchTons(saygData, 'away')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => countMatch100(saygData, 'away')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => countMatch140(saygData, 'away')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, saygData => countMatch180(saygData, 'away')), '-')}</td>
                     <td>{ifNaN(round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'away'))), '-')}</td>
                 </tr>
                 </tbody>

@@ -38,10 +38,11 @@ export function Tournament() {
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
-    const genderOptions = [{text: 'Undefined', value: ''}, {text: 'Men', value: 'men'}, {
-        text: 'Women',
-        value: 'women'
-    }];
+    const genderOptions = [
+        {text: 'Undefined', value: ''},
+        {text: 'Men', value: 'men'},
+        {text: 'Women',value: 'women'}
+    ];
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageTournaments);
@@ -79,22 +80,30 @@ export function Tournament() {
             setTournamentData(tournamentData);
 
             const allPlayers = getAllPlayers(tournamentData);
-            const divisionData = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
-            const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
-            const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
             allPlayers.sort(sortBy('name'));
+            setAllPlayers(allPlayers);
 
             const tournamentPlayerMap = {};
-            tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
-
+            if (canManageTournaments) {
+                const divisionData = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
+                const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
+                const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
+                tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
+            }
             setAlreadyPlaying(tournamentPlayerMap);
-            setAllPlayers(allPlayers);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading('ready');
         }
+    }
+
+    function getMatchOptionDefaults(tournamentData) {
+        return {
+            startingScore: 501,
+            numberOfLegs: tournamentData.bestOf || 5,
+        };
     }
 
     function getAllPlayers(tournamentData) {
@@ -387,7 +396,9 @@ export function Tournament() {
                     alreadyPlaying={alreadyPlaying}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
-                    setWarnBeforeSave={setWarnBeforeSave}>
+                    setWarnBeforeSave={setWarnBeforeSave}
+                    matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
+                    refresh={loadFixtureData}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
                                                 applyPatch={applyPatch}/>) : null}
                     {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division}/>) : null}

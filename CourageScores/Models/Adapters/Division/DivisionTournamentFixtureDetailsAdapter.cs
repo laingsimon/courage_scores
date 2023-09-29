@@ -40,7 +40,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
     {
         return Task.FromResult(new DivisionTournamentFixtureDetailsDto
         {
-            Address = string.Join(", ", teamAddress.Select(t => t.Name)),
+            Address = string.Join(", ", teamAddress.Select(t => t.Address).Distinct()),
             Date = default,
             Id = default,
             SeasonId = default,

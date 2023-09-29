@@ -1,21 +1,27 @@
 import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../../helpers/projection";
-import {any, count, sortBy} from "../../../helpers/collections";
+import {any, count, isEmpty, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
+import {RefreshControl} from "../RefreshControl";
 
 export function PrintableSheet({printOnly}) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
-    const {tournamentData, season, division} = useTournament();
+    const {tournamentData, season, division, refresh, matchOptionDefaults} = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
     const [wiggle, setWiggle] = useState(!printOnly);
+    const winner = getWinner();
+    const initialRefreshInterval = !!winner || isEmpty(tournamentData.sides)
+        ? 0
+        : 60000;
+    const [refreshInterval, setRefreshInterval] = useState(initialRefreshInterval);
 
     useEffect(() => {
             if (!wiggle) {
@@ -178,15 +184,17 @@ export function PrintableSheet({printOnly}) {
 
         const layoutDataForRound = {
             name: round.name,
-            matches: round.matches.map(m => {
+            matches: round.matches.map((m, index) => {
                 let winner = null;
                 playedInThisRound.push(m.sideA);
                 playedInThisRound.push(m.sideB);
+                const matchOptions = round.matchOptions[index] || matchOptionDefaults;
+                const numberOfLegs = matchOptions.numberOfLegs;
 
-                if (m.scoreA > m.scoreB) {
+                if (m.scoreA > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideA);
                     winner = 'sideA';
-                } else if (m.scoreB > m.scoreA) {
+                } else if (m.scoreB > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideB);
                     winner = 'sideB';
                 }
@@ -198,6 +206,7 @@ export function PrintableSheet({printOnly}) {
                     scoreB: m.scoreB || '0',
                     bye: false,
                     winner: winner,
+                    saygId: m.saygId,
                 };
             }),
         };
@@ -217,6 +226,7 @@ export function PrintableSheet({printOnly}) {
                     scoreB: null,
                     bye: true,
                     winner: null,
+                    saygId: null,
                 };
             });
 
@@ -246,6 +256,7 @@ export function PrintableSheet({printOnly}) {
                     scoreB: null,
                     bye: false,
                     winner: null,
+                    saygId: null,
                 };
             }),
         };
@@ -257,6 +268,7 @@ export function PrintableSheet({printOnly}) {
                 scoreB: null,
                 bye: true,
                 winner: null,
+                saygId: null,
             });
         }
 
@@ -290,14 +302,15 @@ export function PrintableSheet({printOnly}) {
                 }
 
                 return 0;
-            }).map(id => {
+            }).map((id, index) => {
                 const player = playerLookup[id];
                 const teamAndDivision = findTeamAndDivisionForPlayer(player);
 
                 if (teamAndDivision && teamAndDivision.division) {
-                    return (<div key={id} className="p-1 no-wrap">
-                        <EmbedAwareLink
-                            to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> x {oneEightyMap[id]}
+                    return (<div key={index} className="p-1 no-wrap">
+                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>
+                            {player.name}
+                        </EmbedAwareLink> x {oneEightyMap[id]}
                     </div>);
                 }
 
@@ -311,13 +324,14 @@ export function PrintableSheet({printOnly}) {
     function renderHiChecks() {
         return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
             <h5>Hi-checks</h5>
-            {tournamentData.over100Checkouts.map(player => {
+            {tournamentData.over100Checkouts.map((player, index) => {
                 const teamAndDivision = findTeamAndDivisionForPlayer(player);
 
                 if (teamAndDivision && teamAndDivision.division) {
-                    return (<div key={player.name} className="p-1 no-wrap">
-                        <EmbedAwareLink
-                            to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> ({player.notes})
+                    return (<div key={index} className="p-1 no-wrap">
+                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>
+                            {player.name}
+                        </EmbedAwareLink> ({player.notes})
                     </div>);
                 }
 
@@ -333,7 +347,12 @@ export function PrintableSheet({printOnly}) {
             return null;
         }
 
-        const final = layoutData[layoutData.length - 1].matches[0];
+        const finalRound = layoutData[layoutData.length - 1];
+        if (!finalRound || count(finalRound.matches || []) !== 1) {
+            return null;
+        }
+
+        const final = finalRound.matches[0];
         if (final && final.winner) {
             const winningSide = final[final.winner];
             return winningSide.link;
@@ -344,6 +363,9 @@ export function PrintableSheet({printOnly}) {
 
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
+            {winner ? null : (<div className="float-end">
+                <RefreshControl refreshInterval={refreshInterval} setRefreshInterval={setRefreshInterval} refresh={refresh} />
+            </div>)}
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center">
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
@@ -370,7 +392,10 @@ export function PrintableSheet({printOnly}) {
                                 <div datatype="scoreA">{matchData.scoreA || ''}</div>
                             </div>
                             {matchData.bye ? null : (<div className="text-center dotted-line-through">
-                                <span className="px-3 bg-white position-relative">vs</span>
+                                <span className="px-3 bg-white position-relative">
+                                    vs
+                                    {matchData.saygId ? (<a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer" className="margin-left no-underline">👁️</a>) : null}
+                                </span>
                             </div>)}
                             {matchData.bye
                                 ? null
@@ -389,7 +414,7 @@ export function PrintableSheet({printOnly}) {
                          className="p-0 border-solid border-1 m-1 bg-winner fw-bold">
                         <div className="d-flex flex-row justify-content-between p-2 min-width-150">
                             <div className="no-wrap pe-3">
-                                <span>{getWinner() || <>&nbsp;</>}</span>
+                                <span>{winner || <>&nbsp;</>}</span>
                             </div>
                         </div>
                     </div>

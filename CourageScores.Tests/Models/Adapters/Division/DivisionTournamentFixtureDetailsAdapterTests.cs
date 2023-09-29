@@ -195,7 +195,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
 
         var result = await _adapter.ForUnselectedVenue(teamsWithSameAddress, _token);
 
-        Assert.That(result.Address, Is.EqualTo("team1"));
+        Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Id, Is.EqualTo(default(Guid)));
         Assert.That(result.Proposed, Is.True);
         Assert.That(result.Players, Is.Empty);
@@ -227,7 +227,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
 
         var result = await _adapter.ForUnselectedVenue(teamsWithSameAddress, _token);
 
-        Assert.That(result.Address, Is.EqualTo("team1, team2"));
+        Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Id, Is.EqualTo(default(Guid)));
         Assert.That(result.Proposed, Is.True);
         Assert.That(result.Players, Is.Empty);

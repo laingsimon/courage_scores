@@ -15,6 +15,7 @@ describe('TournamentRound', () => {
     let updatedRound;
     let updatedTournamentData;
     let warnBeforeSave;
+    let patchedData;
     const tournamentApi = {
         addSayg: async () => {
             return {
@@ -27,6 +28,14 @@ describe('TournamentRound', () => {
     const saygApi = {
         get: async (id) => {
             return saygApiData[id];
+        },
+        upsert: async (data) => {
+            const result = Object.assign({}, data);
+
+            return {
+                success: true,
+                result: result,
+            };
         }
     };
 
@@ -58,6 +67,7 @@ describe('TournamentRound', () => {
         saygApiData = {};
         updatedRound = null;
         warnBeforeSave = null;
+        patchedData = null;
         context = await renderApp(
             {tournamentApi, saygApi},
             {name: 'Courage Scores'},
@@ -78,7 +88,7 @@ describe('TournamentRound', () => {
                                   setTournamentData={setTournamentData}
                                   saveTournament={noop}
                                   setWarnBeforeSave={msg => warnBeforeSave = msg}>
-                <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180}/>
+                <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180} patchData={(patch, nestInRound) => patchedData = { patch, nestInRound }} />
             </TournamentContainer>));
     }
 
@@ -295,16 +305,21 @@ describe('TournamentRound', () => {
             });
 
             it('played round', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                        .build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder()
+                            .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                            .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                            .build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
 
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
@@ -344,23 +359,28 @@ describe('TournamentRound', () => {
                 const side7 = sideBuilder('SIDE 7').build();
                 const side8 = sideBuilder('SIDE 8').build();
 
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    allowNextRound: true,
-                    round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatch(m => m.sideA(side5, 2).sideB(side6, 1))
-                        .withMatch(m => m.sideA(side7, 2).sideB(side8, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                        .round(r => r
-                            .withMatch(m => m.sideA(side2, 2).sideB(side3, 1))
-                            .withMatch(m => m.sideA(side5, 1).sideB(side7, 2))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
-                        .build(),
-                    sides: [side1, side2, side3, side4, side5, side6, side7, side8],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        allowNextRound: true,
+                        round: roundBuilder()
+                            .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                            .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                            .withMatch(m => m.sideA(side5, 2).sideB(side6, 1))
+                            .withMatch(m => m.sideA(side7, 2).sideB(side8, 1))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                            .round(r => r
+                                .withMatch(m => m.sideA(side2, 2).sideB(side3, 1))
+                                .withMatch(m => m.sideA(side5, 1).sideB(side7, 2))
+                                .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                            .build(),
+                        sides: [side1, side2, side3, side4, side5, side6, side7, side8],
+                        readOnly,
+                        depth: 1,
+                    });
 
                 expect(reportedError).toBeNull();
                 expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual(['Quarter-Final', 'Semi-Final', 'Final']);
@@ -398,14 +418,19 @@ describe('TournamentRound', () => {
 
         describe('interactivity', () => {
             it('can delete match', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder()
-                        .withMatch(m => m.sideA(side1).sideB(side2))
-                        .build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder()
+                            .withMatch(m => m.sideA(side1).sideB(side2))
+                            .build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 window.confirm = () => true;
@@ -422,12 +447,17 @@ describe('TournamentRound', () => {
 
             it('can change sideA score', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(match).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideAScore = matchRow.querySelector('td:nth-child(2)');
@@ -450,12 +480,17 @@ describe('TournamentRound', () => {
 
             it('can change sideB score', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(match).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideBScore = matchRow.querySelector('td:nth-child(4)');
@@ -476,32 +511,19 @@ describe('TournamentRound', () => {
                 });
             });
 
-            it('defaults match options to bestOf', async () => {
-                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId(), bestOf: 9}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
-                expect(reportedError).toBeNull();
-                const matchRow = context.container.querySelector('table tr:nth-child(1)');
-
-                await doClick(findButton(matchRow, '🛠'));
-
-                const matchOptionsDialog = context.container.querySelector('.modal-dialog');
-                expect(matchOptionsDialog).toBeTruthy();
-                expect(matchOptionsDialog.querySelector('input[name="numberOfLegs"]').value).toEqual('9');
-            });
-
             it('can change match options', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 5, startingScore: 501},
+                    },
+                    {
+                        round: roundBuilder().withMatch(match).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
@@ -526,12 +548,18 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: false,
                     }
                 };
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                }, permittedAccount);
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(match).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    },
+                    permittedAccount);
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
@@ -545,12 +573,18 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                }, permittedAccount);
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(match).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    },
+                    permittedAccount);
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
@@ -562,12 +596,17 @@ describe('TournamentRound', () => {
 
             it('can change sideA', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(match).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideA = matchRow.querySelector('td:nth-child(1)');
@@ -590,12 +629,17 @@ describe('TournamentRound', () => {
 
             it('can change sideB', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(match).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideB = matchRow.querySelector('td:nth-child(5)');
@@ -655,12 +699,20 @@ describe('TournamentRound', () => {
             });
 
             it('can add match', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
+                await renderComponent(
+                    {
+                        tournamentData: {
+                            id: createTemporaryId(),
+                            bestOf: 3,
+                        },
+                        matchOptionDefaults: {numberOfLegs: 3, startingScore: 501},
+                    },
+                    {
+                        round: roundBuilder().build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
@@ -672,6 +724,10 @@ describe('TournamentRound', () => {
                 expect(updatedRound.matches).toEqual([{
                     sideA: side1,
                     sideB: side2,
+                }]);
+                expect(updatedRound.matchOptions).toEqual([{
+                    startingScore: 501,
+                    numberOfLegs: 3,
                 }]);
             });
 
@@ -762,12 +818,18 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                }, permittedAccount);
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    },
+                    permittedAccount);
                 saygApiData[saygData.id] = saygData;
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -795,12 +857,18 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                }, permittedAccount);
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
+                        sides: [side1, side2, side3, side4],
+                        readOnly,
+                        depth: 1,
+                    },
+                    permittedAccount);
                 saygApiData[saygData.id] = saygData;
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -814,6 +882,135 @@ describe('TournamentRound', () => {
                 expect(hiCheck).not.toBeNull();
                 expect(hiCheck.note).toEqual(150);
             });
+
+            it('completing a leg patches the match data', async () => {
+                const saygData = saygBuilder()
+                    .withLeg('0', l => l
+                        .playerSequence('home', 'away')
+                        .home(c => c.withThrow(450, false, 3).score(450))
+                        .away(c => c.withThrow(300, false, 3).score(300))
+                        .startingScore(501)
+                        .currentThrow('home'))
+                    .scores(0, 0)
+                    .startingScore(501)
+                    .build();
+                const permittedAccount = {
+                    access: {
+                        recordScoresAsYouGo: true,
+                    }
+                };
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder()
+                            .withMatch(m => m.sideA(side1, 0).sideB(side2, 0).saygId(saygData.id))
+                            .withMatchOption(o => o.numberOfLegs(3).startingScore(501))
+                            .build(),
+                        sides: [side1, side2],
+                        readOnly,
+                        depth: 1,
+                    },
+                    permittedAccount);
+                saygApiData[saygData.id] = saygData;
+                expect(reportedError).toBeNull();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)');
+                await doClick(findButton(matchRow, '📊'));
+                expect(reportedError).toBeNull();
+                const saygDialog = context.container.querySelector('.modal-dialog');
+                expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
+
+                await doChange(saygDialog, 'input[data-score-input="true"]', '51', context.user);
+                await doClick(findButton(saygDialog, '📌📌📌'));
+
+                expect(patchedData).toEqual({
+                    nestInRound: true,
+                    patch: {
+                        match: {
+                            sideA: side1.id,
+                            sideB: side2.id,
+                            scoreA: 1,
+                            scoreB: 0
+                        },
+                    },
+                });
+            });
+
+            it('completing a leg in a nested match patches the match data', async () => {
+                const saygData = saygBuilder()
+                    .withLeg('0', l => l
+                        .playerSequence('home', 'away')
+                        .home(c => c.withThrow(450, false, 3).score(450))
+                        .away(c => c.withThrow(300, false, 3).score(300))
+                        .startingScore(501)
+                        .currentThrow('home'))
+                    .scores(0, 0)
+                    .startingScore(501)
+                    .build();
+                const nestedSaygData = saygBuilder()
+                    .withLeg('0', l => l
+                        .playerSequence('home', 'away')
+                        .home(c => c.withThrow(460, false, 3).score(460))
+                        .away(c => c.withThrow(360, false, 3).score(360))
+                        .startingScore(501)
+                        .currentThrow('home'))
+                    .scores(0, 0)
+                    .startingScore(501)
+                    .build();
+                const permittedAccount = {
+                    access: {
+                        recordScoresAsYouGo: true,
+                    }
+                };
+                await renderComponent(
+                    {
+                        tournamentData: {id: createTemporaryId()},
+                        matchOptionDefaults: {numberOfLegs: 3},
+                    },
+                    {
+                        round: roundBuilder()
+                            .withMatch(m => m.sideA(side1, 3).sideB(side2, 2).saygId(saygData.id))
+                            .withMatchOption(o => o.numberOfLegs(3).startingScore(501))
+                            .round(r => r
+                                .withMatch(m => m.sideA(side1, 0).sideB(side3, 0).saygId(nestedSaygData.id))
+                                .withMatchOption(o => o.numberOfLegs(3).startingScore(501)))
+                            .build(),
+                        sides: [side1, side2, side3],
+                        readOnly,
+                        depth: 1,
+                        allowNextRound: true,
+                    },
+                    permittedAccount);
+                saygApiData[saygData.id] = saygData;
+                saygApiData[nestedSaygData.id] = nestedSaygData;
+                expect(reportedError).toBeNull();
+                const secondRoundTable = context.container.querySelectorAll('table')[1];
+                const matchRow = secondRoundTable.querySelector('tr:nth-child(1)'); // TODO: find the match in the second round
+                await doClick(findButton(matchRow, '📊'));
+                expect(reportedError).toBeNull();
+                const saygDialog = context.container.querySelector('.modal-dialog');
+                expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
+
+                await doChange(saygDialog, 'input[data-score-input="true"]', '41', context.user);
+                await doClick(findButton(saygDialog, '📌📌📌'));
+
+                expect(patchedData).toEqual({
+                    nestInRound: true,
+                    patch: {
+                        nextRound: {
+                            match: {
+                                sideA: side1.id,
+                                sideB: side3.id,
+                                scoreA: 1,
+                                scoreB: 0
+                            },
+                        },
+                    },
+                });
+            });
         });
+
     });
 });

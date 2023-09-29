@@ -5,26 +5,11 @@ import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
 import {useTournament} from "./TournamentContainer";
 
-export function TournamentRound({
-                                    round,
-                                    onChange,
-                                    sides,
-                                    readOnly,
-                                    depth,
-                                    onHiCheck,
-                                    on180,
-                                    patchData,
-                                    allowNextRound
-                                }) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData, allowNextRound }) {
     const [newMatch, setNewMatch] = useState({});
-    // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
-    const {tournamentData, setWarnBeforeSave} = useTournament();
-    const matchOptionDefaults = {
-        startingScore: 501,
-        numberOfLegs: tournamentData.bestOf || 5,
-    };
+    const {setWarnBeforeSave, matchOptionDefaults} = useTournament();
 
     function setNewSide(sideId, property) {
         const newNewMatch = Object.assign({}, newMatch);
@@ -70,6 +55,8 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         const newRound = Object.assign({}, round);
         newRound.matches = round.matches || [];
         newRound.matches.push(newMatch);
+        newRound.matchOptions = newRound.matchOptions || [];
+        newRound.matchOptions.push(matchOptionDefaults);
         setNewMatch({});
         setWarnBeforeSave(null);
 

@@ -99,26 +99,27 @@ describe('SaygLoadingContainer', () => {
             .withLeg('0', l => l.startingScore(501))
             .addTo(saygDataMap)
             .build();
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: saygData.id,
             defaultData: null,
             autoSave: false,
         });
 
         expect(reportedError).toBeNull();
-        expect(loadedWithData).toEqual({
+        expect(containerProps).toEqual({
             sayg: saygDataMap[saygData.id],
             saveDataAndGetId: expect.any(Function),
-            setSayg: expect.any(Function)
+            setSayg: expect.any(Function),
+            refresh: expect.any(Function),
         });
     });
 
     it('uses default data if given no id', async () => {
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -131,7 +132,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         expect(reportedError).toBeNull();
-        expect(loadedWithData).toEqual({
+        expect(containerProps).toEqual({
             sayg: {
                 legs: {
                     '0': {
@@ -140,16 +141,17 @@ describe('SaygLoadingContainer', () => {
                 },
             },
             saveDataAndGetId: expect.any(Function),
-            setSayg: expect.any(Function)
+            setSayg: expect.any(Function),
+            refresh: expect.any(Function),
         });
     });
 
     it('reports load error if no sayg data returned', async () => {
         const id = 'NO_DATA_ID';
         saygDataMap[id] = null;
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -162,9 +164,9 @@ describe('SaygLoadingContainer', () => {
     it('reports load error if no legs in returned sayg data', async () => {
         const id = 'NO_LEGS_ID';
         saygDataMap[id] = {};
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -180,22 +182,22 @@ describe('SaygLoadingContainer', () => {
             .updated('2023-07-21')
             .addTo(saygDataMap)
             .build();
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: saygData.id,
             defaultData: null,
             autoSave: false,
         });
 
         expect(reportedError).toBeNull();
-        expect(loadedWithData.sayg.lastUpdated).toEqual('2023-07-21');
+        expect(containerProps.sayg.lastUpdated).toEqual('2023-07-21');
     });
 
     it('should be able to update sayg data', async () => {
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: null,
             defaultData: {
                 isDefault: true,
@@ -205,10 +207,10 @@ describe('SaygLoadingContainer', () => {
             },
             autoSave: false,
         });
-        expect(loadedWithData.sayg.isDefault).toEqual(true);
+        expect(containerProps.sayg.isDefault).toEqual(true);
 
         await act(() => {
-            loadedWithData.setSayg({
+            containerProps.setSayg({
                 legs: {
                     '0': {
                         startingScore: 501,
@@ -219,13 +221,13 @@ describe('SaygLoadingContainer', () => {
         });
 
         expect(reportedError).toBeNull();
-        expect(loadedWithData.sayg.lastUpdated).toEqual('2023-07-21');
+        expect(containerProps.sayg.lastUpdated).toEqual('2023-07-21');
     });
 
     it('should be able to save data and get id', async () => {
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -237,18 +239,18 @@ describe('SaygLoadingContainer', () => {
         let result;
 
         await act(async () => {
-            result = await loadedWithData.saveDataAndGetId();
+            result = await containerProps.saveDataAndGetId();
         });
 
         expect(saved).not.toBeNull();
         expect(result).toEqual('#' + saved.id);
-        expect(loadedWithData.sayg).toEqual(saved);
+        expect(containerProps.sayg).toEqual(saved);
     });
 
     it('should handle error during upsert', async () => {
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -261,20 +263,20 @@ describe('SaygLoadingContainer', () => {
         let result;
 
         await act(async () => {
-            result = await loadedWithData.saveDataAndGetId();
+            result = await containerProps.saveDataAndGetId();
         });
 
         expect(saved).toBeNull();
         expect(result).toBeNull();
-        expect(loadedWithData.sayg.id).toBeUndefined();
+        expect(containerProps.sayg.id).toBeUndefined();
         expect(context.container.textContent).toContain('Could not save data');
         expect(context.container.textContent).toContain('SOME ERROR');
     });
 
     it('should be able to close error details after upsert failure', async () => {
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -285,7 +287,7 @@ describe('SaygLoadingContainer', () => {
         });
         apiResponse = {success: false, errors: ['SOME ERROR']};
         await act(async () => {
-            await loadedWithData.saveDataAndGetId();
+            await containerProps.saveDataAndGetId();
         });
         expect(context.container.textContent).toContain('Could not save data');
 
@@ -295,9 +297,9 @@ describe('SaygLoadingContainer', () => {
     });
 
     it('should handle exception during upsert', async () => {
-        let loadedWithData;
+        let containerProps;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
+            children: (<TestComponent onLoaded={(data) => containerProps = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -310,13 +312,43 @@ describe('SaygLoadingContainer', () => {
         let result;
 
         await act(async () => {
-            result = await loadedWithData.saveDataAndGetId();
+            result = await containerProps.saveDataAndGetId();
         });
 
         expect(saved).toBeNull();
         expect(result).toBeNull();
-        expect(loadedWithData.sayg.id).toBeUndefined();
+        expect(containerProps.sayg.id).toBeUndefined();
         expect(reportedError).not.toBeNull();
+    });
+
+    it('should allow data to be refreshed', async () => {
+        const saygData = saygBuilder()
+            .withLeg('0', l => l.startingScore(501))
+            .addTo(saygDataMap)
+            .build();
+        const updatedSaygData = saygBuilder(saygData.id)
+            .withLeg('0', l => l.startingScore(601))
+            .build();
+        let containerProps;
+        await renderComponent({
+            children: (<TestComponent onLoaded={(data) => {
+                containerProps = data;
+                saygDataMap[saygData.id] = updatedSaygData;
+            }}/>),
+            id: saygData.id,
+            defaultData: null,
+            autoSave: false,
+        });
+        expect(containerProps.sayg.legs['0'].startingScore).toEqual(501);
+
+        let latestSaygData;
+        await act(async () => {
+            latestSaygData = await containerProps.refresh();
+        });
+
+        expect(reportedError).toBeNull();
+        expect(containerProps.sayg.legs['0'].startingScore).toEqual(601);
+        expect(latestSaygData).toEqual(updatedSaygData);
     });
 
     it('should save data when score changes and auto save enabled', async () => {
@@ -432,9 +464,9 @@ describe('SaygLoadingContainer', () => {
     });
 
     function TestComponent({onLoaded}) {
-        const {sayg, setSayg, saveDataAndGetId} = useSayg();
+        const {sayg, setSayg, saveDataAndGetId, refresh} = useSayg();
 
-        onLoaded({sayg, setSayg, saveDataAndGetId});
+        onLoaded({sayg, setSayg, saveDataAndGetId, refresh});
 
         return (<div>Loaded</div>)
     }

@@ -567,6 +567,7 @@ describe('Tournament', () => {
             access: {
                 manageTournaments: true,
                 managePlayers: true,
+                recordScoresAsYouGo: true,
             }
         };
 
@@ -867,6 +868,75 @@ describe('Tournament', () => {
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         });
 
+        it('produces correct match option defaults when no bestOf', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .withSide(s => s.name('SIDE 1'))
+                .withSide(s => s.name('SIDE 2'))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
+            }, false);
+            let alert;
+            window.alert = (msg) => alert = msg;
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
+            await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(alert).toBeFalsy();
+            const round = updatedTournamentData[0].data.round;
+            expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
+        });
+
+        it('produces correct match option defaults', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .withSide(s => s.name('SIDE 1'))
+                .withSide(s => s.name('SIDE 2'))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .bestOf(7)
+                .accoladesCount()
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
+            }, false);
+            let alert;
+            window.alert = (msg) => alert = msg;
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
+            await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(alert).toBeFalsy();
+            const round = updatedTournamentData[0].data.round;
+            expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
+        });
+
         it('can export tournament and sayg data with no round', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
@@ -916,7 +986,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(saygId)
                         .sideA('A')
-                        .sideB('B')))
+                        .sideB('B'))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -959,11 +1030,13 @@ describe('Tournament', () => {
                         .saygId(saygId1)
                         .sideA('A')
                         .sideB('B'))
+                    .withMatchOption(o => o.numberOfLegs(3))
                     .round(r => r
                         .withMatch(m => m
                             .saygId(saygId2)
                             .sideA('A')
-                            .sideB('B'))))
+                            .sideB('B'))
+                        .withMatchOption(o => o.numberOfLegs(3))))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1182,7 +1255,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1243,7 +1317,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1297,7 +1372,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1367,7 +1443,8 @@ describe('Tournament', () => {
                     .withMatch(m => m
                         .saygId(sayg.id)
                         .sideA(sideA)
-                        .sideB(sideB)))
+                        .sideB(sideB))
+                    .withMatchOption(o => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();

@@ -14,7 +14,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
     if (disabled) {
         return selectedOption
             ? (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`}
-                       disabled>{selectedOption.text}</button>)
+                       disabled>{selectedOption.collapsedText || selectedOption.text}</button>)
             : (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled></button>)
     }
 
@@ -37,7 +37,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
     return (<ButtonDropdown isOpen={dropdownOpen} toggle={toggleOpen} className={className}>
         <DropdownToggle caret color={color || 'outline-light'} className="btn-sm text-dark border-dark" tabIndex="-1">
             <span
-                className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? selectedOption.text || value : value}</span>
+                className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? (selectedOption.collapsedText || selectedOption.text) || value : value}</span>
         </DropdownToggle>
         <DropdownMenu className="max-height-250 overflow-auto">
             {options.map(o => (<DropdownItem key={o.value}
