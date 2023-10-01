@@ -3,11 +3,9 @@ using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
-using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Identity;
-using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
@@ -63,39 +61,18 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (game.Deleted != null)
         {
-            return new ActionResult<GameDto>
-            {
-                Success = false,
-                Errors =
-                {
-                    "Cannot edit a game that has been deleted",
-                },
-            };
+            return Error("Cannot edit a game that has been deleted");
         }
 
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new ActionResult<GameDto>
-            {
-                Success = false,
-                Errors =
-                {
-                    "Game cannot be updated, not logged in",
-                },
-            };
+            return Error("Game cannot be updated, not logged in");
         }
 
         if (!(user.Access?.ManageScores == true || user.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id)))
         {
-            return new ActionResult<GameDto>
-            {
-                Success = false,
-                Errors =
-                {
-                    "Game cannot be updated, not permitted",
-                },
-            };
+            return Error("Game cannot be updated, not permitted");
         }
 
         if (user.Access?.ManageScores == true)
@@ -131,15 +108,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
 
-        return new ActionResult<GameDto>
-        {
-            Success = true,
-            Messages =
-            {
-                "Scores updated",
-            },
-            Result = await _gameAdapter.Adapt(game, token),
-        };
+        return Success("Scores updated", await _gameAdapter.Adapt(game, token));
     }
 
     private async Task<ActionResult<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
@@ -167,8 +136,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                 game.SeasonId = newSeasonId.Value;
 
                 // register both teams with this season.
-                var homeResult = await AddSeasonToTeam(game.Home.Id, command, token);
-                var awayResult = await AddSeasonToTeam(game.Away.Id, command, token);
+                var homeResult = await _teamService.Upsert(game.Home.Id, command, token);
+                var awayResult = await _teamService.Upsert(game.Away.Id, command, token);
 
                 var success = homeResult.Success && awayResult.Success;
                 if (!success)
@@ -189,65 +158,40 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             }
         }
 
-        return new ActionResult<GameDto>
-        {
-            Success = true,
-            Messages =
-            {
-                "Game details updated",
-            },
-        };
+        return Success("Game details updated");
     }
 
     private async Task<ActionResult<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)
     {
         if (game.Matches.Any())
         {
-            return new ActionResult<GameDto>
-            {
-                Success = false,
-                Errors =
-                {
-                    "Submissions cannot be accepted, scores have been published",
-                },
-            };
+            return Error("Submissions cannot be accepted, scores have been published");
         }
 
         if (user.TeamId == game.Home.Id)
         {
             var result = await UpdateResults(MergeDetails(game, game.HomeSubmission ??= NewSubmission(game)), token);
-            if (result.Success)
-            {
-                await _auditingHelper.SetUpdated(game.HomeSubmission, token);
-            }
-            else
+            if (!result.Success)
             {
                 return result;
             }
+
+            await _auditingHelper.SetUpdated(game.HomeSubmission, token);
         }
         else if (user.TeamId == game.Away.Id)
         {
             var result = await UpdateResults(MergeDetails(game, game.AwaySubmission ??= NewSubmission(game)), token);
-            if (result.Success)
-            {
-                await _auditingHelper.SetUpdated(game.AwaySubmission, token);
-            }
-            else
+            if (!result.Success)
             {
                 return result;
             }
+
+            await _auditingHelper.SetUpdated(game.AwaySubmission, token);
         }
 
         // TODO: #123: If both home/away submissions are the same then record the details in the main game
 
-        return new ActionResult<GameDto>
-        {
-            Success = true,
-            Messages =
-            {
-                "Submission updated",
-            },
-        };
+        return Success("Submission updated");
     }
 
     private static Models.Cosmos.Game.Game NewSubmission(Models.Cosmos.Game.Game game)
@@ -278,16 +222,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     {
         if (game.Updated != _scores!.LastUpdated)
         {
-            return new ActionResult<GameDto>
-            {
-                Success = false,
-                Warnings =
-                {
-                    _scores.LastUpdated == null
-                        ? $"Unable to update {nameof(Game)}, data integrity token is missing"
-                        : $"Unable to update {nameof(Game)}, {game.Editor} updated it before you at {game.Updated:d MMM yyyy HH:mm:ss}",
-                },
-            };
+            return Warning(_scores.LastUpdated == null
+                ? $"Unable to update {nameof(Game)}, data integrity token is missing"
+                : $"Unable to update {nameof(Game)}, {game.Editor} updated it before you at {game.Updated:d MMM yyyy HH:mm:ss}");
         }
 
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
@@ -315,19 +252,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             game.Version = Models.Cosmos.Game.Game.CurrentVersion;
         }
 
-        return new ActionResult<GameDto>
-        {
-            Success = true,
-            Messages =
-            {
-                "Game updated",
-            },
-        };
-    }
-
-    private async Task<ActionResultDto<TeamDto>> AddSeasonToTeam(Guid teamId, AddSeasonToTeamCommand command, CancellationToken token)
-    {
-        return await _teamService.Upsert(teamId, command, token);
+        return Success("Game updated");
     }
 
     private async Task<Guid?> GetAppropriateSeasonId(DateTime gameDate, CancellationToken token)
@@ -422,5 +347,42 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         };
         await _auditingHelper.SetUpdated(gamePlayer, token);
         return gamePlayer;
+    }
+
+    private static ActionResult<GameDto> Success(string message, GameDto? result = null)
+    {
+        return new ActionResult<GameDto>
+        {
+            Success = true,
+            Messages =
+            {
+                message,
+            },
+            Result = result,
+        };
+    }
+
+    private static ActionResult<GameDto> Warning(string message)
+    {
+        return new ActionResult<GameDto>
+        {
+            Success = false,
+            Warnings =
+            {
+                message,
+            },
+        };
+    }
+
+    private static ActionResult<GameDto> Error(string message)
+    {
+        return new ActionResult<GameDto>
+        {
+            Success = false,
+            Errors =
+            {
+                message,
+            },
+        };
     }
 }
