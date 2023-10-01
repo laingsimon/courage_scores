@@ -194,6 +194,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>, FixtureTemplateAdapter>();
         services.AddScoped<ISimpleAdapter<List<string>, List<TeamPlaceholderDto>>, SharedAddressAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<Template, SeasonHealthDto>, TemplateToHealthCheckAdapter>();
+
+        services.AddScoped<IUpdateScoresAdapter, UpdateScoresAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
