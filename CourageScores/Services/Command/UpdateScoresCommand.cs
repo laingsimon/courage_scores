@@ -70,12 +70,13 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return Error("Game cannot be updated, not logged in");
         }
 
-        if (!(user.Access?.ManageScores == true || user.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id)))
+        var access = user.Access ?? new AccessDto();
+        if (!(access.ManageScores || access.InputResults && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id)))
         {
             return Error("Game cannot be updated, not permitted");
         }
 
-        if (user.Access?.ManageScores == true)
+        if (access.ManageScores)
         {
             // edit the root game record
             var result = await UpdateResults(game, token);
@@ -87,7 +88,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
             _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
-        else if (user.Access?.InputResults == true)
+        else if (access.InputResults)
         {
             var result = await UpdateSubmission(game, user, token);
             if (!result.Success)
@@ -96,7 +97,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             }
         }
 
-        if (user.Access?.ManageGames == true)
+        if (access.ManageGames)
         {
             var result = await UpdateGameDetails(game, token);
             if (!result.Success)
@@ -133,7 +134,11 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     private async Task<ActionResult<GameDto>?> MoveGameToAlternativeSeason(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
-        if (newSeasonId == null || newSeasonId == game.SeasonId)
+        if (newSeasonId == null)
+        {
+            return Warning($"Unable to find season for date: {game.Date:dd MMM yyyy}");
+        }
+        if (newSeasonId == game.SeasonId)
         {
             return null;
         }

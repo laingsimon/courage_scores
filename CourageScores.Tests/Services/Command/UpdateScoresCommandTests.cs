@@ -143,7 +143,7 @@ public class UpdateScoresCommandTests
     [TestCase(false, false, UserTeamId, null, null)]
     [TestCase(false, true, "88A65752-CBB1-4046-B30A-A7ECB9811F2A", null, null)]
     [TestCase(false, false, UserTeamId, UserTeamId, UserTeamId)]
-    public async Task ApplyUpdate_WhenNotLoggedIn_ReturnsUnsuccessful(bool manageScores, bool inputResults, string? userTeamId, string? homeTeamId, string? awayTeamId)
+    public async Task ApplyUpdate_WhenNotPermitted_ReturnsUnsuccessful(bool manageScores, bool inputResults, string? userTeamId, string? homeTeamId, string? awayTeamId)
     {
         _user!.Access!.ManageScores = manageScores;
         _user!.Access!.InputResults = inputResults;
@@ -311,6 +311,65 @@ public class UpdateScoresCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WhenMatchRemoved_RemovesMatch()
+    {
+        var matchToRemove = new GameMatch
+        {
+            Id = Guid.NewGuid(),
+        };
+        var matchToKeep = new GameMatch
+        {
+            Id = Guid.NewGuid(),
+        };
+        _game.Matches.Add(matchToKeep);
+        _game.Matches.Add(matchToRemove);
+        _user!.Access!.ManageScores = true;
+        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME PLAYER",
+        };
+        var awayPlayer1 = new RecordScoresDto.GameOver100CheckoutDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY PLAYER",
+            Notes = "150",
+        };
+        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
+        {
+            HomePlayers =
+            {
+                homePlayer1,
+            },
+            AwayPlayers =
+            {
+                awayPlayer1,
+            },
+            HomeScore = 1,
+            AwayScore = 2,
+        };
+        _scores.Matches.Add(match1);
+        _scores.OneEighties.Add(homePlayer1);
+        _scores.Over100Checkouts.Add(awayPlayer1);
+        var notablePlayer = new NotablePlayer {Name = "AWAY PLAYER", Notes = "150"};
+        var homePlayer1Adapted = new GamePlayer {Name = "HOME PLAYER"};
+        var matchAdapted = new GameMatch();
+        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(awayPlayer1, _token)).ReturnsAsync(notablePlayer);
+        _scoresAdapter.Setup(a => a.AdaptToPlayer(homePlayer1, _token)).ReturnsAsync(homePlayer1Adapted);
+        _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, match1, _token)).ReturnsAsync(matchAdapted);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Scores updated",
+        }));
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Matches.Count, Is.EqualTo(1));
+        Assert.That(_game.Matches, Is.EqualTo(new[] { matchAdapted })); // only 1 match
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenResultsPublished_ReturnsUnsuccessful()
     {
         _user!.Access!.ManageScores = false;
@@ -410,6 +469,25 @@ public class UpdateScoresCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WhenFailsToUpdateHomeSubmission_ReturnsUnsuccessful()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = true;
+        _game.Home.Id = Guid.Parse(UserTeamId);
+        _scores.LastUpdated = new DateTime(2002, 03, 04); // something different to _game.Updated
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00",
+        }));
+        Assert.That(result.Success, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenPermittedToInputResults_UpdatesAwaySubmissionAndReturnsSuccessful()
     {
         _user!.Access!.ManageScores = false;
@@ -465,6 +543,25 @@ public class UpdateScoresCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WhenFailsToUpdateAwaySubmission_ReturnsUnsuccessful()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = true;
+        _game.Away.Id = Guid.Parse(UserTeamId);
+        _scores.LastUpdated = new DateTime(2002, 03, 04); // something different to _game.Updated
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00",
+        }));
+        Assert.That(result.Success, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenPermittedToManageGames_UpdatesGameDetailsAndReturnsSuccessful()
     {
         var season = new SeasonDto
@@ -473,6 +570,7 @@ public class UpdateScoresCommandTests
             StartDate = new DateTime(2001, 02, 03),
             EndDate = new DateTime(2002, 03, 04),
         };
+        _game.SeasonId = season.Id;
         _game.Date = new DateTime(2001, 02, 03);
         _user!.Access!.ManageGames = true;
         _scores.Address = "new address";
@@ -493,10 +591,78 @@ public class UpdateScoresCommandTests
         Assert.That(_game.IsKnockout, Is.True);
         Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 04)));
         Assert.That(_game.SeasonId, Is.EqualTo(season.Id));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenChangesSeason_UpdatesSeason()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 02, 03),
+            EndDate = new DateTime(2002, 03, 04),
+        };
+        _game.SeasonId = Guid.NewGuid(); // some other season
+        _game.Date = new DateTime(2003, 04, 05);
+        _user!.Access!.ManageGames = true;
+        _scores.Address = "new address";
+        _scores.Postponed = true;
+        _scores.IsKnockout = true;
+        _scores.Date = new DateTime(2001, 02, 04);
+        _seasonService.Setup(s => s.GetForDate(_scores.Date, _token)).ReturnsAsync(season);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 04)));
+        Assert.That(_game.SeasonId, Is.EqualTo(season.Id));
         _teamService.Verify(c => c.Upsert(_game.Home.Id, _addSeasonToTeamCommand.Object, _token));
         _teamService.Verify(c => c.Upsert(_game.Away.Id, _addSeasonToTeamCommand.Object, _token));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(season.Id));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenDateUnchanged_DoesNotChangeSeason()
+    {
+        var seasonId = Guid.NewGuid();
+        _game.SeasonId = seasonId;
+        _game.Date = new DateTime(2001, 02, 04);
+        _user!.Access!.ManageGames = true;
+        _scores.Address = "new address";
+        _scores.Postponed = true;
+        _scores.IsKnockout = true;
+        _scores.Date = _game.Date;
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 04)));
+        Assert.That(_game.SeasonId, Is.EqualTo(seasonId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(seasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenNewSeasonCannotBeFound_DoesNotUpdateSeason()
+    {
+        var oldSeasonId = Guid.NewGuid(); // some other season
+        _game.SeasonId = oldSeasonId;
+        _game.Date = new DateTime(2003, 04, 05);
+        _user!.Access!.ManageGames = true;
+        _scores.Address = "new address";
+        _scores.Postponed = true;
+        _scores.IsKnockout = true;
+        _scores.Date = new DateTime(2001, 02, 04);
+        _seasonService.Setup(s => s.GetForDate(_scores.Date, _token)).ReturnsAsync(() => null);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to find season for date: 04 Feb 2001" }));
+        Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 04)));
+        Assert.That(_game.SeasonId, Is.EqualTo(oldSeasonId));
+        _teamService.Verify(c => c.Upsert(It.IsAny<Guid>(), _addSeasonToTeamCommand.Object, _token), Times.Never);
     }
 
     [Test]
