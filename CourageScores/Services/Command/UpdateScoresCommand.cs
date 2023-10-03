@@ -6,6 +6,7 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
@@ -76,10 +77,14 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return Error("Game cannot be updated, not permitted");
         }
 
+        var result = new ActionResult<GameDto>
+        {
+            Success = true,
+        };
         if (access.ManageScores)
         {
             // edit the root game record
-            var result = await UpdateResults(game, token);
+            result = result.Merge(await UpdateResults(game, token));
             if (!result.Success)
             {
                 return result;
@@ -90,7 +95,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         }
         else if (access.InputResults)
         {
-            var result = await UpdateSubmission(game, user, token);
+            result = result.Merge(await UpdateSubmission(game, user, token));
             if (!result.Success)
             {
                 return result;
@@ -99,7 +104,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (access.ManageGames)
         {
-            var result = await UpdateGameDetails(game, token);
+            result = result.Merge(await UpdateGameDetails(game, token));
             if (!result.Success)
             {
                 return result;
@@ -109,7 +114,12 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
 
-        return Success("Scores updated", await _gameAdapter.Adapt(game, token));
+        return result.Merge(new ActionResult<GameDto>
+        {
+            Success = true,
+            Messages = { "Scores updated" },
+            Result = await _gameAdapter.Adapt(game, token),
+        });
     }
 
     private async Task<ActionResult<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
@@ -151,27 +161,27 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         game.SeasonId = newSeasonId.Value;
 
         // register both teams with this season.
-        var homeResult = await _teamService.Upsert(game.Home.Id, command, token);
-        var awayResult = await _teamService.Upsert(game.Away.Id, command, token);
+        var result = new ActionResult<TeamDto>
+        {
+            Success = true,
+        };
+        result = result.Merge(await _teamService.Upsert(game.Home.Id, command, token));
+        result = result.Merge(await _teamService.Upsert(game.Away.Id, command, token));
 
-        var success = homeResult.Success && awayResult.Success;
-        if (success)
+        if (result.Success)
         {
             return null;
         }
 
-        return new ActionResult<GameDto>
-        {
-            Success = false,
-            Errors = homeResult.Errors.Concat(awayResult.Errors).ToList(),
-            Warnings = homeResult.Warnings.Concat(awayResult.Warnings).ToList(),
-            Messages = homeResult.Messages.Concat(awayResult.Messages)
-                .Concat(new[]
+        return result
+            .Merge(new ActionResult<TeamDto>
+            {
+                Messages =
                 {
                     "Could not add season to home and/or away teams",
-                }).ToList(),
-            Result = await _gameAdapter.Adapt(game, token),
-        };
+                },
+            })
+            .As(await _gameAdapter.Adapt(game, token));
     }
 
     private async Task<ActionResult<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)

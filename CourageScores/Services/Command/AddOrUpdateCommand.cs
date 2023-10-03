@@ -51,19 +51,18 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
         var result = await ApplyUpdates(model, _update!, token);
 
-        return new ActionResult<TModel>
-        {
-            Success = result.Success,
-            Errors = result.Errors,
-            Warnings = result.Warnings,
-            Messages = result.Messages.Any()
-                ? result.Messages
-                : new List<string>
-                {
-                    $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
-                },
-            Result = model,
-        };
+        return result
+            .As(model)
+            .Merge(new ActionResult<TModel>
+            {
+                Success = result.Success,
+                Messages = result.Messages.Any()
+                    ? new List<string>()
+                    : new List<string>
+                    {
+                        $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
+                    },
+            });
     }
 
     public virtual bool RequiresLogin => true;

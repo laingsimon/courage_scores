@@ -207,6 +207,7 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
+            "Game updated",
             "Scores updated",
         }));
         Assert.That(result.Success, Is.True);
@@ -299,6 +300,7 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
+            "Game updated",
             "Scores updated",
         }));
         Assert.That(result.Success, Is.True);
@@ -362,6 +364,7 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
+            "Game updated",
             "Scores updated",
         }));
         Assert.That(result.Success, Is.True);
@@ -457,6 +460,7 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
+            "Submission updated",
             "Scores updated",
         }));
         Assert.That(result.Success, Is.True);
@@ -531,6 +535,7 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
+            "Submission updated",
             "Scores updated",
         }));
         Assert.That(result.Success, Is.True);
@@ -584,6 +589,8 @@ public class UpdateScoresCommandTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
+            "Game updated",
+            "Game details updated",
             "Scores updated",
         }));
         Assert.That(_game.Address, Is.EqualTo("new address"));
@@ -711,6 +718,7 @@ public class UpdateScoresCommandTests
         }));
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
+            "Game updated",
             "message",
             "message",
             "Could not add season to home and/or away teams",

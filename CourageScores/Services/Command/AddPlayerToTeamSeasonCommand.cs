@@ -148,16 +148,15 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)
             {
-                return new ActionResult<TeamPlayer>
-                {
-                    Success = false,
-                    Warnings = result.Warnings.Concat(new[]
+                return result.As<TeamPlayer>()
+                    .Merge(new ActionResult<TeamPlayer>
                     {
-                        $"Could not add the {season.Name} season to team {model.Name}",
-                    }).ToList(),
-                    Messages = result.Messages,
-                    Errors = result.Errors,
-                };
+                        Success = false,
+                        Warnings =
+                        {
+                            $"Could not add the {season.Name} season to team {model.Name}",
+                        },
+                    });
             }
 
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;

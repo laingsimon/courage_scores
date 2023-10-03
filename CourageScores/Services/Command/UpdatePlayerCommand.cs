@@ -189,28 +189,19 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             var addResult = await _teamService.Upsert(_player.NewTeamId.Value, command, token);
             if (!addResult.Success)
             {
-                return new ActionResult<TeamPlayer>
+                return addResult.ToActionResult().As<TeamPlayer>().Merge(new ActionResult<TeamPlayer>
                 {
-                    Success = false,
-                    Errors = addResult.Errors.Concat(new[]
+                    Errors =
                     {
                         "Could not move the player to other team",
-                    }).ToList(),
-                    Warnings = addResult.Warnings,
-                    Messages = addResult.Messages,
-                };
+                    },
+                });
             }
 
             // player has been added to the other team, can remove it from this team now
             await _auditingHelper.SetDeleted(player, token);
 
-            return new ActionResult<TeamPlayer>
-            {
-                Success = true,
-                Messages = addResult.Messages,
-                Warnings = addResult.Warnings,
-                Errors = addResult.Errors,
-            };
+            return addResult.ToActionResult().As<TeamPlayer>();
         }
 
         player.Name = _player.Name;

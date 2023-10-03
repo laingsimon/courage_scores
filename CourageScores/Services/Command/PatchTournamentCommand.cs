@@ -32,43 +32,42 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             throw new InvalidOperationException("WithPatch must be called first");
         }
 
-        var updates = new List<IActionResult<object>>();
+        var updates = new ActionResult<object>
+        {
+            Success = true,
+        };
+        var updatesApplied = false;
         if (_patch.Round != null)
         {
-            updates.Add(await PatchRound(model.Round, _patch.Round));
+            updates = updates.Merge(await PatchRound(model.Round, _patch.Round));
+            updatesApplied = true;
         }
 
         if (_patch.Additional180 != null)
         {
-            updates.Add(await Patch180(model, _patch.Additional180, token));
+            updates = updates.Merge(await Patch180(model, _patch.Additional180, token));
+            updatesApplied = true;
         }
 
         if (_patch.AdditionalOver100Checkout != null)
         {
-            updates.Add(await PatchHiCheck(model, _patch.AdditionalOver100Checkout, token));
+            updates = updates.Merge(await PatchHiCheck(model, _patch.AdditionalOver100Checkout, token));
+            updatesApplied = true;
         }
 
-        if (updates.Any())
+        if (!updatesApplied)
         {
-            return new ActionResult<TournamentGame>
+            updates = updates.Merge(new ActionResult<object>
             {
-                Success = updates.All(u => u.Success),
-                Errors = updates.SelectMany(u => u.Errors).ToList(),
-                Warnings = updates.SelectMany(u => u.Warnings).ToList(),
-                Messages = updates.SelectMany(u => u.Messages).ToList(),
-                Result = model,
-            };
+                Success = false,
+                Warnings =
+                {
+                    "No tournament data to update",
+                },
+            });
         }
 
-        return new ActionResult<TournamentGame>
-        {
-            Success = false,
-            Warnings =
-            {
-                "No tournament data to update",
-            },
-            Result = model,
-        };
+        return updates.As(model);
     }
 
     private async Task<ActionResult<TournamentGame>> Patch180(TournamentGame model, TournamentPlayerDto oneEighty, CancellationToken token)
@@ -113,38 +112,36 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             };
         }
 
-        var updates = new List<IActionResult<object>>();
+        var updates = new ActionResult<object>
+        {
+            Success = true,
+        };
+        var updatesApplied = false;
         if (patchRound.NextRound != null)
         {
-            updates.Add(await PatchRound(currentRound.NextRound, patchRound.NextRound));
+            updates = updates.Merge(await PatchRound(currentRound.NextRound, patchRound.NextRound));
+            updatesApplied = true;
         }
 
         if (patchRound.Match != null)
         {
-            updates.Add(PatchMatch(currentRound.Matches, patchRound.Match));
+            updates = updates.Merge(PatchMatch(currentRound.Matches, patchRound.Match));
+            updatesApplied = true;
         }
 
-        if (updates.Any())
+        if (!updatesApplied)
         {
-            return new ActionResult<TournamentRound>
+            updates = updates.Merge(new ActionResult<object>
             {
-                Success = updates.All(u => u.Success),
-                Errors = updates.SelectMany(u => u.Errors).ToList(),
-                Warnings = updates.SelectMany(u => u.Warnings).ToList(),
-                Messages = updates.SelectMany(u => u.Messages).ToList(),
-                Result = currentRound,
-            };
+                Success = false,
+                Warnings =
+                {
+                    "No round details to update",
+                },
+            });
         }
 
-        return new ActionResult<TournamentRound>
-        {
-            Success = false,
-            Warnings =
-            {
-                "No round details to update",
-            },
-            Result = currentRound,
-        };
+        return updates.As(currentRound);
     }
 
     private static ActionResult<TournamentMatch> PatchMatch(IReadOnlyCollection<TournamentMatch> matches, PatchTournamentMatchDto patchMatch)
