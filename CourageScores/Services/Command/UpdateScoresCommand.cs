@@ -10,16 +10,18 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Command;
 
-public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameDto>
+public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly IUpdateScoresAdapter _updateScoresAdapter;
+    private readonly IEqualityComparer<CosmosGame> _submissionComparer;
     private readonly ICommandFactory _commandFactory;
-    private readonly IAdapter<Models.Cosmos.Game.Game, GameDto> _gameAdapter;
+    private readonly IAdapter<CosmosGame, GameDto> _gameAdapter;
     private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionsAdapter;
     private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
@@ -27,14 +29,15 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     private RecordScoresDto? _scores;
 
     public UpdateScoresCommand(IUserService userService,
-        IAdapter<Models.Cosmos.Game.Game, GameDto> gameAdapter,
+        IAdapter<CosmosGame, GameDto> gameAdapter,
         ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionsAdapter,
         IAuditingHelper auditingHelper,
         ICachingSeasonService seasonService,
         ICommandFactory commandFactory,
         ITeamService teamService,
         ScopedCacheManagementFlags cacheFlags,
-        IUpdateScoresAdapter updateScoresAdapter)
+        IUpdateScoresAdapter updateScoresAdapter,
+        IEqualityComparer<CosmosGame> submissionComparer)
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
@@ -45,6 +48,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         _teamService = teamService;
         _cacheFlags = cacheFlags;
         _updateScoresAdapter = updateScoresAdapter;
+        _submissionComparer = submissionComparer;
     }
 
     public UpdateScoresCommand WithData(RecordScoresDto scores)
@@ -53,7 +57,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return this;
     }
 
-    public async Task<ActionResult<GameDto>> ApplyUpdate(Models.Cosmos.Game.Game game, CancellationToken token)
+    public async Task<ActionResult<GameDto>> ApplyUpdate(CosmosGame game, CancellationToken token)
     {
         if (_scores == null)
         {
@@ -122,7 +126,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         });
     }
 
-    private async Task<ActionResult<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<ActionResult<GameDto>> UpdateGameDetails(CosmosGame game, CancellationToken token)
     {
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         game.Address = _scores!.Address ?? game.Address;
@@ -141,7 +145,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return dateChangedResult ?? Success("Game details updated");
     }
 
-    private async Task<ActionResult<GameDto>?> MoveGameToAlternativeSeason(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<ActionResult<GameDto>?> MoveGameToAlternativeSeason(CosmosGame game, CancellationToken token)
     {
         var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
         if (newSeasonId == null)
@@ -184,7 +188,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             .As(await _gameAdapter.Adapt(game, token));
     }
 
-    private async Task<ActionResult<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)
+    private async Task<ActionResult<GameDto>> UpdateSubmission(CosmosGame game, UserDto user, CancellationToken token)
     {
         if (game.Matches.Any())
         {
@@ -212,12 +216,15 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             await _auditingHelper.SetUpdated(game.AwaySubmission, token);
         }
 
-        // TODO: #123: If both home/away submissions are the same then record the details in the main game
+        if (game.HomeSubmission != null && _submissionComparer.Equals(game.HomeSubmission, game.AwaySubmission))
+        {
+            return PublishScores(game, game.HomeSubmission);
+        }
 
         return Success("Submission updated");
     }
 
-    private async Task<ActionResult<GameDto>> UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<ActionResult<GameDto>> UpdateResults(CosmosGame game, CancellationToken token)
     {
         if (game.Updated != _scores!.LastUpdated)
         {
@@ -248,7 +255,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             game.Over100Checkouts = await _scores.Over100Checkouts.SelectAsync(p => _updateScoresAdapter.AdaptToHiCheckPlayer(p, token)).ToList();
             game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
             game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
-            game.Version = Models.Cosmos.Game.Game.CurrentVersion;
+            game.Version = CosmosGame.CurrentVersion;
         }
 
         return Success("Game updated");
@@ -260,16 +267,28 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return season?.Id;
     }
 
-    private static Models.Cosmos.Game.Game NewSubmission(AuditedEntity game)
+    private static ActionResult<GameDto> PublishScores(CosmosGame game, CosmosGame submissionToPublish)
     {
-        return new Models.Cosmos.Game.Game
+        game.Matches = submissionToPublish.Matches;
+        game.MatchOptions = submissionToPublish.MatchOptions;
+        game.OneEighties = submissionToPublish.OneEighties;
+        game.Over100Checkouts = submissionToPublish.Over100Checkouts;
+        game.Home.ManOfTheMatch = game.HomeSubmission!.Home.ManOfTheMatch;
+        game.Away.ManOfTheMatch = game.AwaySubmission!.Away.ManOfTheMatch;
+
+        return Success("Submission published");
+    }
+
+    private static CosmosGame NewSubmission(AuditedEntity game)
+    {
+        return new CosmosGame
         {
             Updated = game.Updated,
             Editor = game.Editor,
         };
     }
 
-    private static Models.Cosmos.Game.Game MergeDetails(Models.Cosmos.Game.Game game, Models.Cosmos.Game.Game submission)
+    private static CosmosGame MergeDetails(CosmosGame game, CosmosGame submission)
     {
         submission.Id = game.Id;
         submission.Away = game.Away;

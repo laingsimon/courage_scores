@@ -44,6 +44,7 @@ public class UpdateScoresCommandTests
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
     private Mock<IUpdateScoresAdapter> _scoresAdapter = null!;
+    private Mock<IEqualityComparer<CosmosGame>> _submissionComparer = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -58,6 +59,7 @@ public class UpdateScoresCommandTests
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
         _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(null, null);
         _scoresAdapter = new Mock<IUpdateScoresAdapter>();
+        _submissionComparer = new Mock<IEqualityComparer<CosmosGame>>();
         _command = new UpdateScoresCommand(
             _userService.Object,
             _gameAdapter.Object,
@@ -67,7 +69,8 @@ public class UpdateScoresCommandTests
             _commandFactory.Object,
             _teamService.Object,
             _cacheFlags,
-            _scoresAdapter.Object);
+            _scoresAdapter.Object,
+            _submissionComparer.Object);
         _game = new CosmosGame
         {
             Home = new GameTeam(),
@@ -473,6 +476,48 @@ public class UpdateScoresCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WhenUpdatingHomeSubmissionAndMatchesAwaySubmission_PublishesScores()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = true;
+        _game.Home.Id = Guid.Parse(UserTeamId);
+        _game.HomeSubmission = new CosmosGame
+        {
+            Home = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
+            Matches = { new GameMatch() },
+            MatchOptions = { new GameMatchOption() },
+            OneEighties = { new GamePlayer() },
+            Over100Checkouts = { new NotablePlayer() },
+            Editor = "EDITOR",
+            Updated = _scores.LastUpdated!.Value,
+        };
+        _game.AwaySubmission = new CosmosGame
+        {
+            Away = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
+        };
+        _submissionComparer.Setup(c => c.Equals(_game.HomeSubmission, _game.AwaySubmission)).Returns(true);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.AwaySubmission, Is.Not.Null);
+        Assert.That(_game.HomeSubmission, Is.Not.Null);
+        Assert.That(_game.Matches, Is.EqualTo(_game.HomeSubmission.Matches));
+        Assert.That(_game.MatchOptions, Is.EqualTo(_game.HomeSubmission.MatchOptions));
+        Assert.That(_game.OneEighties, Is.EqualTo(_game.HomeSubmission.OneEighties));
+        Assert.That(_game.Over100Checkouts, Is.EqualTo(_game.HomeSubmission.Over100Checkouts));
+        Assert.That(_game.Home.ManOfTheMatch, Is.EqualTo(_game.HomeSubmission.Home.ManOfTheMatch));
+        Assert.That(_game.Away.ManOfTheMatch, Is.EqualTo(_game.AwaySubmission.Away.ManOfTheMatch));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Submission published",
+            "Scores updated",
+        }));
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenFailsToUpdateHomeSubmission_ReturnsUnsuccessful()
     {
         _user!.Access!.ManageScores = false;
@@ -545,6 +590,114 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission!.Over100Checkouts[0], Is.SameAs(notablePlayer));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenUpdatingAwaySubmissionAndMatchesHomeSubmission_PublishesScores()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = true;
+        _game.Away.Id = Guid.Parse(UserTeamId);
+        _game.HomeSubmission = new CosmosGame
+        {
+            Home = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
+            Matches = { new GameMatch() },
+            MatchOptions = { new GameMatchOption() },
+            OneEighties = { new GamePlayer() },
+            Over100Checkouts = { new NotablePlayer() },
+        };
+        _game.AwaySubmission = new CosmosGame
+        {
+            Away = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
+            Editor = "EDITOR",
+            Updated = _scores.LastUpdated!.Value,
+        };
+        _submissionComparer.Setup(c => c.Equals(_game.HomeSubmission, _game.AwaySubmission)).Returns(true);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.AwaySubmission, Is.Not.Null);
+        Assert.That(_game.HomeSubmission, Is.Not.Null);
+        Assert.That(_game.Matches, Is.EqualTo(_game.HomeSubmission.Matches));
+        Assert.That(_game.MatchOptions, Is.EqualTo(_game.HomeSubmission.MatchOptions));
+        Assert.That(_game.OneEighties, Is.EqualTo(_game.HomeSubmission.OneEighties));
+        Assert.That(_game.Over100Checkouts, Is.EqualTo(_game.HomeSubmission.Over100Checkouts));
+        Assert.That(_game.Home.ManOfTheMatch, Is.EqualTo(_game.HomeSubmission.Home.ManOfTheMatch));
+        Assert.That(_game.Away.ManOfTheMatch, Is.EqualTo(_game.AwaySubmission.Away.ManOfTheMatch));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Submission published",
+            "Scores updated",
+        }));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenUpdatingAwaySubmissionAndDoesNotMatchHomeSubmission_DoesNotPublishScores()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = true;
+        _game.Away.Id = Guid.Parse(UserTeamId);
+        _game.HomeSubmission = new CosmosGame
+        {
+            Home = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
+            Matches = { new GameMatch() },
+            MatchOptions = { new GameMatchOption() },
+            OneEighties = { new GamePlayer() },
+            Over100Checkouts = { new NotablePlayer() },
+        };
+        _game.AwaySubmission = new CosmosGame
+        {
+            Away = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
+            Editor = "EDITOR",
+            Updated = _scores.LastUpdated!.Value,
+        };
+        _submissionComparer.Setup(c => c.Equals(_game.HomeSubmission, _game.AwaySubmission)).Returns(false);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.AwaySubmission, Is.Not.Null);
+        Assert.That(_game.HomeSubmission, Is.Not.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Submission updated",
+            "Scores updated",
+        }));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenUpdatingAwaySubmissionAndNoHomeSubmission_DoesNotPublishScores()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = true;
+        _game.Away.Id = Guid.Parse(UserTeamId);
+        _game.HomeSubmission = null;
+        _game.AwaySubmission = new CosmosGame
+        {
+            Away = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
+            Editor = "EDITOR",
+            Updated = _scores.LastUpdated!.Value,
+        };
+        _submissionComparer.Setup(c => c.Equals(_game.HomeSubmission, _game.AwaySubmission)).Returns(true);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.AwaySubmission, Is.Not.Null);
+        Assert.That(_game.HomeSubmission, Is.Null);
+        Assert.That(_game.Matches, Is.Empty);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Submission updated",
+            "Scores updated",
+        }));
     }
 
     [Test]
