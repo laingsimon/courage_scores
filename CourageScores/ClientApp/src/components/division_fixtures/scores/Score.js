@@ -499,7 +499,7 @@ export function Score() {
                     <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
                         <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission}
                                           setFixtureData={setFixtureData} submission={submission}/>
-                        {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (
+                        {hasBeenPlayed || access === 'admin' || (account && access === 'clerk' && ((data.away && account.teamId === data.away.id) || (account.teamId === data.home.id))) ? (
                             <tbody>
                             <tr>
                                 <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
