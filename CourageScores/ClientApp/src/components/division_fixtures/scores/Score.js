@@ -26,6 +26,7 @@ import {MatchTypeContainer} from "./MatchTypeContainer";
 import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "../../../helpers/matchOptions";
 import {PageError} from "../../common/PageError";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
+import {DebugOptions} from "../../common/DebugOptions";
 
 export function Score() {
     const {fixtureId} = useParams();
@@ -540,12 +541,17 @@ export function Score() {
                         </tbody>)}
                     </table>
                     {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (
-                        <button className="btn btn-primary" onClick={saveScores}>
+                        <button className="btn btn-primary margin-right" onClick={saveScores}>
                             {saving ? (<LoadingSpinnerSmall/>) : null}
                             Save
                         </button>) : null}
-                    {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (
-                        <button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
+                    {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission)
+                        ? (<button className="btn btn-warning margin-right" onClick={unpublish}>Unpublish</button>)
+                        : null}
+                    <DebugOptions>
+                        <span className="dropdown-item">Access: {access}</span>
+                        {account ? (<span className="dropdown-item">Team: {teams[account.teamId] ? teams[account.teamId].name : account.teamId}</span>) : null}
+                    </DebugOptions>
                 </div>
             </LeagueFixtureContainer>
             {saveError ? (
