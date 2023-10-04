@@ -1,6 +1,8 @@
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
+using CourageScores.Services.Command;
 using CourageScores.Services.Game;
 using CourageScores.Services.Identity;
 using Moq;
@@ -351,6 +353,90 @@ public class GameServiceTests
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.AwaySubmission.Matches));
         AssertSubmissionHasGameProperties(games.Single(), _game);
+    }
+
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    public async Task Delete_WhenNotPermitted_ExcludesSubmissionsFromResult(bool loggedIn, bool inputResults)
+    {
+        _game!.HomeSubmission = new GameDto();
+        _game!.AwaySubmission = new GameDto();
+        _user!.Access!.InputResults = inputResults;
+        _user = loggedIn ? _user : null;
+        _underlyingService.Setup(s => s.Delete(_game.Id, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
+        {
+            Result = _game,
+            Success = true,
+        });
+
+        var game = await _service.Delete(_game.Id, _token);
+
+        _underlyingService.Verify(s => s.Delete(_game.Id, _token));
+        Assert.That(game.Result!.HomeSubmission, Is.Null);
+        Assert.That(game.Result!.AwaySubmission, Is.Null);
+    }
+
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    public async Task Delete_WhenNotPermitted_ReturnsNull(bool loggedIn, bool inputResults)
+    {
+        _game!.HomeSubmission = new GameDto();
+        _game!.AwaySubmission = new GameDto();
+        _user!.Access!.InputResults = inputResults;
+        _user = loggedIn ? _user : null;
+        _underlyingService.Setup(s => s.Delete(_game.Id, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
+        {
+            Result = null,
+            Success = true,
+        });
+
+        var game = await _service.Delete(_game.Id, _token);
+
+        _underlyingService.Verify(s => s.Delete(_game.Id, _token));
+        Assert.That(game.Result, Is.Null);
+    }
+
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    public async Task Upsert_WhenNotPermitted_ExcludesSubmissionsFromResult(bool loggedIn, bool inputResults)
+    {
+        _game!.HomeSubmission = new GameDto();
+        _game!.AwaySubmission = new GameDto();
+        _user!.Access!.InputResults = inputResults;
+        _user = loggedIn ? _user : null;
+        var command = new Mock<IUpdateCommand<CosmosGame, CosmosGame>>();
+        _underlyingService.Setup(s => s.Upsert(_game.Id, command.Object, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
+        {
+            Result = _game,
+            Success = true,
+        });
+
+        var game = await _service.Upsert(_game.Id, command.Object, _token);
+
+        _underlyingService.Verify(s => s.Upsert(_game.Id, command.Object, _token));
+        Assert.That(game.Result!.HomeSubmission, Is.Null);
+        Assert.That(game.Result!.AwaySubmission, Is.Null);
+    }
+
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    public async Task Upsert_WhenNotPermitted_ReturnsNull(bool loggedIn, bool inputResults)
+    {
+        _game!.HomeSubmission = new GameDto();
+        _game!.AwaySubmission = new GameDto();
+        _user!.Access!.InputResults = inputResults;
+        _user = loggedIn ? _user : null;
+        var command = new Mock<IUpdateCommand<CosmosGame, CosmosGame>>();
+        _underlyingService.Setup(s => s.Upsert(_game.Id, command.Object, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
+        {
+            Result = null,
+            Success = true,
+        });
+
+        var game = await _service.Upsert(_game.Id, command.Object, _token);
+
+        _underlyingService.Verify(s => s.Upsert(_game.Id, command.Object, _token));
+        Assert.That(game.Result, Is.Null);
     }
 
     private static void AssertSubmissionHasGameProperties(GameDto submission, GameDto game)
