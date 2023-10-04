@@ -728,4 +728,80 @@ describe('Score', () => {
             expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '2')); // 16 = 8 matches * 2 sides
         });
     });
+
+    describe('when logged in as a home clerk', () => {
+        const appData = getDefaultAppData();
+        const fixture = getUnplayedFixtureData(appData);
+        const account = {
+            access: {
+                manageScores: false,
+                inputResults: true,
+            },
+            teamId: fixture.home.id,
+        };
+
+        it('renders score card without results', async () => {
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(14);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[2], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[3], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], 'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[11], 'Man of the match');
+            assertMatchRow(matchRows[12], '', '', '');
+            assertMatchRow(matchRows[13], 'Select some player/s to add 180s and hi-checks');
+        });
+    });
+
+    describe('when logged in as an away clerk', () => {
+        const appData = getDefaultAppData();
+        const fixture = getUnplayedFixtureData(appData);
+        const account = {
+            access: {
+                manageScores: false,
+                inputResults: true,
+            },
+            teamId: fixture.away.id,
+        };
+
+        it('renders score card without results', async () => {
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(14);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[2], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[3], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], 'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[11], 'Man of the match');
+            assertMatchRow(matchRows[12], '', '', '');
+            assertMatchRow(matchRows[13], 'Select some player/s to add 180s and hi-checks');
+        });
+    });
 });
