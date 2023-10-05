@@ -248,18 +248,10 @@ public class AddOrUpdateGameCommandTests
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
         _teamService.Setup(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token)).ReturnsAsync(fail);
 
-        InvalidOperationException? thrownException = null;
-        try
-        {
-            await _command.WithData(update).ApplyUpdate(_game, _token);
-        }
-        catch (InvalidOperationException exc)
-        {
-            thrownException = exc;
-        }
+        var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
-        Assert.That(thrownException, Is.Not.Null);
-        Assert.That(thrownException!.Message, Is.EqualTo("Could not add season to team: Some error1, Some error2"));
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Some error1", "Some error2" }));
+        Assert.That(result.Success, Is.False);
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
         _teamService.Verify(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
