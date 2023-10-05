@@ -34,12 +34,9 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
 
     public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
-        if (_request == null)
-        {
-            throw new InvalidOperationException("WithRequest must be called first");
-        }
+        _request.ThrowIfNull($"{nameof(WithRequest)} must be called first");
 
-        var match = FindMatchVisitor.FindMatch(model, _request.MatchId);
+        var match = FindMatchVisitor.FindMatch(model, _request!.MatchId);
         if (match == null)
         {
             return new ActionResult<TournamentGame>

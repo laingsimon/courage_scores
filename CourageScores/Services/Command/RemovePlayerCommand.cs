@@ -37,15 +37,8 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
     public async Task<ActionResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
-        if (_playerId == null)
-        {
-            throw new InvalidOperationException($"PlayerId hasn't been set, ensure {nameof(ForPlayer)} is called");
-        }
-
-        if (_seasonId == null)
-        {
-            throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(FromSeason)} is called");
-        }
+        _playerId.ThrowIfNull($"PlayerId hasn't been set, ensure {nameof(ForPlayer)} is called");
+        _seasonId.ThrowIfNull($"SeasonId hasn't been set, ensure {nameof(FromSeason)} is called");
 
         if (model.Deleted != null)
         {
@@ -86,7 +79,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var season = await _seasonService.Get(_seasonId.Value, token);
+        var season = await _seasonService.Get(_seasonId!.Value, token);
         if (season == null)
         {
             return new ActionResult<TeamPlayer>

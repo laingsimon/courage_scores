@@ -13,10 +13,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
     public async Task<ActionResult<TModel>> ApplyUpdate(TModel model, CancellationToken token)
     {
         var create = false;
-        if (_update == null)
-        {
-            throw new InvalidOperationException($"{nameof(WithData)} must be called first");
-        }
+        _update.ThrowIfNull($"{nameof(WithData)} must be called first");
 
         if (model.Deleted != null)
         {

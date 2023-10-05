@@ -24,12 +24,9 @@ public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
 
     public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
-        if (_matchId == null)
-        {
-            throw new InvalidOperationException("FromMatch must be called first");
-        }
+        _matchId.ThrowIfNull($"{nameof(FromMatch)} must be called first");
 
-        var match = FindMatchVisitor.FindMatch(model, _matchId.Value);
+        var match = FindMatchVisitor.FindMatch(model, _matchId!.Value);
         if (match == null)
         {
             return new ActionResult<TournamentGame>

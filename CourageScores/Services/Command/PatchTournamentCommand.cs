@@ -27,17 +27,14 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
 
     public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
-        if (_patch == null)
-        {
-            throw new InvalidOperationException("WithPatch must be called first");
-        }
+        _patch.ThrowIfNull($"{nameof(WithPatch)} must be called first");
 
         var updates = new ActionResult<object>
         {
             Success = true,
         };
         var updatesApplied = false;
-        if (_patch.Round != null)
+        if (_patch!.Round != null)
         {
             updates = updates.Merge(await PatchRound(model.Round, _patch.Round));
             updatesApplied = true;

@@ -59,10 +59,7 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
 
     public async Task<ActionResult<GameDto>> ApplyUpdate(CosmosGame game, CancellationToken token)
     {
-        if (_scores == null)
-        {
-            throw new InvalidOperationException($"Game hasn't been set, ensure {nameof(WithData)} is called");
-        }
+        _scores.ThrowIfNull($"Game hasn't been set, ensure {nameof(WithData)} is called");
 
         if (game.Deleted != null)
         {
