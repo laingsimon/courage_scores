@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -62,6 +63,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             });
     }
 
+    [ExcludeFromCodeCoverage]
     public virtual bool RequiresLogin => true;
 
     protected abstract Task<ActionResult<TModel>> ApplyUpdates(TModel model, TDto update, CancellationToken token);
