@@ -106,6 +106,10 @@ public class GameService : IGameService
         submission.DivisionId = game.DivisionId;
         submission.IsKnockout = game.IsKnockout;
         submission.SeasonId = game.SeasonId;
+        submission.Author ??= game.Author;
+        submission.Created ??= game.Created;
+        submission.Editor ??= game.Editor;
+        submission.Updated ??= game.Updated;
         return submission;
     }
 }
