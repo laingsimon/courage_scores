@@ -464,7 +464,7 @@ export function Score() {
             homePlayers: homeTeam,
             awayPlayers: awayTeam,
             readOnly: !editable,
-            disabled: access === 'readonly',
+            disabled: access === 'readonly' || (fixtureData.resultsPublished && access !== 'admin'),
             home: data.home,
             away: data.away,
         }
@@ -551,6 +551,14 @@ export function Score() {
                     <DebugOptions>
                         <span className="dropdown-item">Access: {access}</span>
                         {account ? (<span className="dropdown-item">Team: {teams[account.teamId] ? teams[account.teamId].name : account.teamId}</span>) : null}
+                        <span className="dropdown-item">Data: {fixtureData && fixtureData.resultsPublished ? 'published' : 'draft'}</span>
+                        <span className="dropdown-item">
+                            Editable: {editable ? 'Yes' : 'No'}
+                            <span> | </span>
+                            Disabled: {leagueFixtureData.disabled ? 'Yes' : 'No'}
+                            <span> | </span>
+                            InputResults: {(account && account.access && account.access.inputResults) ? 'Yes' : 'No'}
+                        </span>
                     </DebugOptions>
                 </div>
             </LeagueFixtureContainer>

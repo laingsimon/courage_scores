@@ -765,6 +765,32 @@ describe('Score', () => {
             assertMatchRow(matchRows[12], '', '', '');
             assertMatchRow(matchRows[13], 'Select some player/s to add 180s and hi-checks');
         });
+
+        it('renders published score card', async () => {
+            fixture.resultsPublished = true;
+
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(12);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], '', '', '', '', '');
+            assertMatchRow(matchRows[2], '', '', '', '', '');
+            assertMatchRow(matchRows[3], '', '', '', '', '');
+            assertMatchRow(matchRows[4], '', '', '', '', '');
+            assertMatchRow(matchRows[5], '', '', '', '', '');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], '', '', '', '', '');
+            assertMatchRow(matchRows[8], '', '', '', '', '');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], '', '', '', '', '');
+            assertMatchRow(matchRows[11], '');
+        });
     });
 
     describe('when logged in as an away clerk', () => {
@@ -802,6 +828,32 @@ describe('Score', () => {
             assertMatchRow(matchRows[11], 'Man of the match');
             assertMatchRow(matchRows[12], '', '', '');
             assertMatchRow(matchRows[13], 'Select some player/s to add 180s and hi-checks');
+        });
+
+        it('renders published score card', async () => {
+            fixture.resultsPublished = true;
+
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(12);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], '', '', '', '', '');
+            assertMatchRow(matchRows[2], '', '', '', '', '');
+            assertMatchRow(matchRows[3], '', '', '', '', '');
+            assertMatchRow(matchRows[4], '', '', '', '', '');
+            assertMatchRow(matchRows[5], '', '', '', '', '');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], '', '', '', '', '');
+            assertMatchRow(matchRows[8], '', '', '', '', '');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], '', '', '', '', '');
+            assertMatchRow(matchRows[11], '');
         });
     });
 });
