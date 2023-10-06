@@ -313,6 +313,10 @@ export function Score() {
 
             const newData = Object.assign({}, data);
             newData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
+            newData.home.manOfTheMatch = null;
+            newData.away.manOfTheMatch = null;
+            newData.oneEighties = [];
+            newData.over100Checkouts = [];
             newData.resultsPublished = false;
             setData(newData);
             if (submission) {
