@@ -2,6 +2,7 @@
 
 import React from "react";
 import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
+import {toMap} from "../../../helpers/collections";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {divisionBuilder, fixtureBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
@@ -22,7 +23,7 @@ describe('ScoreCardHeading', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(access, data, winner, account, submission, containerProps) {
+    async function renderComponent(access, data, winner, account, submission, containerProps, teams) {
         reportedError = null;
         updatedFixtureData = null;
         updatedSubmission = null;
@@ -37,7 +38,8 @@ describe('ScoreCardHeading', () => {
                     };
                 },
                 error: null,
-                account
+                account,
+                teams: toMap(teams || []),
             },
             (<LeagueFixtureContainer {...containerProps}>
                 <ScoreCardHeading
@@ -64,11 +66,9 @@ describe('ScoreCardHeading', () => {
     function assertToggleShown(home) {
         const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
         expect(heading).toBeTruthy();
-        const headingLink = heading.querySelector('a');
-        expect(headingLink.textContent).toContain(home ? 'HOME' : 'AWAY');
-        const toggle = heading.querySelector('span');
-        expect(toggle).toBeTruthy();
-        expect(toggle.textContent).toContain('📬');
+        const toggleButton = heading.querySelector('.btn');
+        expect(toggleButton.textContent).toContain(home ? 'HOME' : 'AWAY');
+        expect(toggleButton.textContent).toContain('📬');
     }
 
     async function assertRevertToFixtureData(home, data) {
@@ -117,7 +117,7 @@ describe('ScoreCardHeading', () => {
         expect(linkToTeam.href).toContain(`/division/${fixtureData.division.name}/team:${team.name}/${fixtureData.season.name}`);
     }
 
-    describe('when not logged in', () => {
+    describe('when logged out', () => {
         const access = '';
         const account = null;
         const division = divisionBuilder('DIVISION').build();

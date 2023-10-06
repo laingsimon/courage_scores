@@ -406,6 +406,10 @@ export function Score() {
     }
 
     function renderMergeManOfTheMatch() {
+        if (submission) {
+            return null;
+        }
+
         function hasManOfTheMatch(data, side) {
             data = data || {};
             const dataSide = data[side] || {};
@@ -503,7 +507,7 @@ export function Score() {
                         ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access}
                                         fixtureData={fixtureData}/>)
                         : null}
-                    <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
+                    <table className={`table${(access === 'admin' && !submission) || access === 'clerk' ? ' minimal-padding' : ''}`}>
                         <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission}
                                           setFixtureData={setFixtureData} submission={submission}/>
                         {hasBeenPlayed || access === 'admin' || (account && access === 'clerk' && ((data.away && account.teamId === data.away.id) || (account.teamId === data.home.id))) ? (

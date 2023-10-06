@@ -48,7 +48,7 @@ export function MergeMatch({
 
         return (<span>
             <div>{homeSubmission.home.name}: {match.homeScore} - {awaySubmission.away.name}: {match.awayScore}</div>
-            <ol>
+            <ol className="d-inline-block">
                 {combinePlayers(match.homePlayers, match.awayPlayers).map(p => (
                     <li key={p.homePlayer.id || p.awayPlayer.id}>
                         <span className="text-nowrap">{p.homePlayer.name}</span> vs <span
@@ -65,7 +65,7 @@ export function MergeMatch({
     if (submissionsMatch && homeSubmissionMatch) {
         try {
             return (<tr>
-                <td colSpan="5">
+                <td colSpan="5" className="text-center">
                     {renderSubmissionMatch(homeSubmissionMatch)}
                     <div className="text-center">
                         <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)}
@@ -86,7 +86,7 @@ export function MergeMatch({
 
     try {
         return (<tr>
-            <td colSpan="2" className="hover-highlight">
+            <td colSpan="2" className="hover-highlight pe-3 text-end">
                 <strong>from {homeSubmission.author}</strong>
                 {renderSubmissionMatch(homeSubmissionMatch)}
                 <div className="text-center">
@@ -97,11 +97,11 @@ export function MergeMatch({
             </td>
             <td>
                 <div className="vertical-text transform-top-left position-absolute text-nowrap"
-                     style={{marginLeft: '-5px'}}>
-                    <span className="text-nowrap" style={{marginLeft: '-60px'}}>Merge &rarr;</span>
+                     style={{marginLeft: '-15px'}}>
+                    <span className="text-nowrap bg-opacity-25 fw-bold bg-success p-2 shadow-sm" style={{marginLeft: '-75px'}}>Merge &rarr;</span>
                 </div>
             </td>
-            <td colSpan="2" className="hover-highlight">
+            <td colSpan="2" className="hover-highlight ps-3">
                 <strong>from {awaySubmission.author}</strong>
                 {renderSubmissionMatch(awaySubmissionMatch)}
                 <div className="text-center">

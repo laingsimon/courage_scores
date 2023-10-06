@@ -22,7 +22,7 @@ export function MergeManOfTheMatch({data, setData, allPlayers}) {
     }
 
     return (<tr>
-        {data.home.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
+        {data.home.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2" className="text-end">
             {data.homeSubmission && data.homeSubmission.home.manOfTheMatch
                 ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('home', data.homeSubmission.home.manOfTheMatch)}>
                     Use {getName(data.homeSubmission.home.manOfTheMatch)}

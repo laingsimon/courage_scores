@@ -30,7 +30,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
 
     try {
         return (<tr>
-            <td colSpan="2">
+            <td colSpan="2" className="text-end">
                 {(!fixtureData.oneEighties || isEmpty(fixtureData.oneEighties)) && (any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('away', 'oneEighties')))
                     ? (<div>
                         {any(getRecordsToMerge('home', 'oneEighties')) ? (<div>
@@ -40,7 +40,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                                         onClick={() => mergeRecords('home', 'oneEighties')}>Merge
                                 </button>
                             </h6>
-                            <ol>
+                            <ol className="d-inline-block">
                                 {getRecordsToMerge('home', 'oneEighties').map(rec => (
                                     <li key={rec.id}>{rec.name}</li>))}
                             </ol>
@@ -52,7 +52,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                                         onClick={() => mergeRecords('away', 'oneEighties')}>Merge
                                 </button>
                             </h6>
-                            <ol>
+                            <ol className="d-inline-block">
                                 {getRecordsToMerge('away', 'oneEighties').map(rec => (
                                     <li key={rec.id}>{rec.name}</li>))}
                             </ol>
@@ -76,7 +76,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                                         onClick={() => mergeRecords('home', 'over100Checkouts')}>Merge
                                 </button>
                             </h6>
-                            <ol>
+                            <ol className="d-inline-block">
                                 {getRecordsToMerge('home', 'over100Checkouts').map(rec => (
                                     <li key={rec.id}>{rec.name} ({rec.notes})</li>))}
                             </ol>
@@ -88,7 +88,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                                         onClick={() => mergeRecords('away', 'over100Checkouts')}>Merge
                                 </button>
                             </h6>
-                            <ol>
+                            <ol className="d-inline-block">
                                 {getRecordsToMerge('away', 'over100Checkouts').map(rec => (
                                     <li key={rec.id}>{rec.name} ({rec.notes})</li>))}
                             </ol>
