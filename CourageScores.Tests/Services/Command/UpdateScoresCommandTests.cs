@@ -424,7 +424,6 @@ public class UpdateScoresCommandTests
         _user!.Access!.ManageScores = false;
         _user!.Access!.InputResults = true;
         _game.Home.Id = Guid.Parse(UserTeamId);
-
         var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
         {
             Id = Guid.NewGuid(),
@@ -449,6 +448,7 @@ public class UpdateScoresCommandTests
             HomeScore = 1,
             AwayScore = 2,
         };
+        _scores.Home!.ManOfTheMatch = homePlayer1.Id;
         _scores.Matches.Add(match1);
         _scores.OneEighties.Add(homePlayer1);
         _scores.Over100Checkouts.Add(awayPlayer1);
@@ -471,6 +471,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.HomeSubmission!.Matches[0], Is.SameAs(match1Adapted));
         Assert.That(_game.HomeSubmission!.OneEighties[0], Is.SameAs(homePlayer1Adapted));
         Assert.That(_game.HomeSubmission!.Over100Checkouts[0], Is.SameAs(notablePlayer));
+        Assert.That(_game.HomeSubmission!.Home.ManOfTheMatch, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.Home.ManOfTheMatch, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -566,6 +568,7 @@ public class UpdateScoresCommandTests
             HomeScore = 1,
             AwayScore = 2,
         };
+        _scores.Away!.ManOfTheMatch = awayPlayer1.Id;
         _scores.Matches.Add(match1);
         _scores.OneEighties.Add(homePlayer1);
         _scores.Over100Checkouts.Add(awayPlayer1);
@@ -588,6 +591,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission!.Matches[0], Is.SameAs(match1Adapted));
         Assert.That(_game.AwaySubmission!.OneEighties[0], Is.SameAs(homePlayer1Adapted));
         Assert.That(_game.AwaySubmission!.Over100Checkouts[0], Is.SameAs(notablePlayer));
+        Assert.That(_game.AwaySubmission!.Away.ManOfTheMatch, Is.EqualTo(awayPlayer1.Id));
+        Assert.That(_game.Away.ManOfTheMatch, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }

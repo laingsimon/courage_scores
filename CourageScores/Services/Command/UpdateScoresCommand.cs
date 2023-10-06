@@ -288,8 +288,8 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
     private static CosmosGame MergeDetails(CosmosGame game, CosmosGame submission)
     {
         submission.Id = game.Id;
-        submission.Away = game.Away;
-        submission.Home = game.Home;
+        submission.Away = Copy(game.Away);
+        submission.Home = Copy(game.Home);
         submission.Address = game.Address;
         submission.Date = game.Date;
         submission.Postponed = game.Postponed;
@@ -298,6 +298,16 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
         submission.AccoladesCount = game.AccoladesCount;
         submission.SeasonId = game.SeasonId;
         return submission;
+    }
+
+    private static GameTeam Copy(GameTeam team)
+    {
+        return new GameTeam
+        {
+            Id = team.Id,
+            Name = team.Name,
+            ManOfTheMatch = team.ManOfTheMatch,
+        };
     }
 
     private static ActionResult<GameDto> Success(string message, GameDto? result = null)
