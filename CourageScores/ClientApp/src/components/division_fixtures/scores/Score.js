@@ -406,10 +406,16 @@ export function Score() {
     }
 
     function renderMergeManOfTheMatch() {
+        function hasManOfTheMatch(data, side) {
+            data = data || {};
+            const dataSide = data[side] || {};
+            return dataSide.manOfTheMatch;
+        }
+
         if (!fixtureData.resultsPublished
             && access === 'admin'
             && (data.homeSubmission || data.awaySubmission)
-            && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
+            && ((!hasManOfTheMatch(data, 'home') && hasManOfTheMatch(data.homeSubmission, 'home')) || (!hasManOfTheMatch(data, 'away') && hasManOfTheMatch(data.awaySubmission, 'away')))) {
             return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers}/>);
         }
 

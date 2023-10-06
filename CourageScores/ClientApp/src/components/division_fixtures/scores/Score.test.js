@@ -134,27 +134,37 @@ describe('Score', () => {
         const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
+        const firstDivision = appData.divisions.filter(_ => true)[0];
+        const firstSeason = appData.seasons.filter(_ => true)[0];
+
+        function findPlayer(team, name) {
+            if (!firstSeason || !team || !team.seasons) {
+                return name;
+            }
+
+            const teamSeason = team.seasons.filter(s => s.seasonId === firstSeason.id)[0];
+            const player = teamSeason.players.filter(p => p.name === name)[0];
+            return player || (name + ' Not found');
+        }
+
         function createMatch(homeScore, awayScore) {
             return matchBuilder()
-                .withHome('Home player')
-                .withAway('Away player')
+                .withHome(findPlayer(homeTeam, 'Home player'))
+                .withAway(findPlayer(awayTeam, 'Away player'))
                 .scores(homeScore, awayScore)
                 .build();
         }
-
-        const firstDivision = appData.divisions.filter(_ => true)[0];
-        const firstSeason = appData.seasons.filter(_ => true)[0];
 
         return fixtureBuilder('2023-01-02T00:00:00')
             .playing({
                     id: homeTeam ? homeTeam.id : createTemporaryId(),
                     name: homeTeam ? homeTeam.name : 'not found',
-                    manOfTheMatch: createTemporaryId()
+                    manOfTheMatch: findPlayer(homeTeam, 'Home player').id,
                 },
                 {
                     id: awayTeam ? awayTeam.id : createTemporaryId(),
                     name: awayTeam ? awayTeam.name : 'not found',
-                    manOfTheMatch: createTemporaryId()
+                    manOfTheMatch: findPlayer(awayTeam, 'Away player').id,
                 })
             .forSeason(firstSeason ? firstSeason : createTemporaryId())
             .forDivision(firstDivision ? firstDivision : createTemporaryId())
@@ -166,8 +176,8 @@ describe('Score', () => {
             .withMatch(createMatch(3, 0))
             .withMatch(createMatch(3, 0))
             .withMatch(createMatch(3, 0))
-            .with180('Home player')
-            .withHiCheck('Away player', '140')
+            .with180(findPlayer(homeTeam, 'Home player'))
+            .withHiCheck(findPlayer(awayTeam, 'Away player'), '140')
             .addTo(fixtureDataMap)
             .build();
     }
@@ -344,10 +354,10 @@ describe('Score', () => {
             assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
-            assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[7], 'Home player Home playerAdd a player...  Add a player...', '', '', '', 'Away player Away playerAdd a player...  Add a player...');
+            assertMatchRow(matchRows[7], 'Home player Home playerAdd a player...  Add a player...', '', '', '', 'Away player Away playerAdd a player...  Add a player...');
             assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(matchRows[10], 'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[10], 'Home player Home playerAdd a player...  Add a player...  Add a player...', '', '', '', 'Away player Away playerAdd a player...  Add a player...  Add a player...');
             assertMatchRow(matchRows[11], 'Man of the match');
             assertMatchRow(matchRows[12], '', '', '');
             assertMatchRow(matchRows[13], '180s', '', '100+ c/o');
@@ -726,6 +736,44 @@ describe('Score', () => {
                 return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('strong')))).map(str => str.textContent);
             });
             expect(allScores).toEqual(repeat(16, _ => '2')); // 16 = 8 matches * 2 sides
+        });
+
+        it('can show when only home submission present', async () => {
+            const appData = getDefaultAppData();
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            fixtureData.homeSubmission = getPlayedFixtureData(appData);
+            fixtureData.awaySubmission = null;
+            fixtureData.homeSubmission.matches.forEach(match => {
+                match.homeScore = 1;
+                match.awayScore = 1;
+            });
+            fixtureData.homeSubmission.away.manOfTheMatch = null;
+            fixtureData.home.manOfTheMatch = null;
+            fixtureData.away.manOfTheMatch = null;
+
+            await renderComponent(fixtureData.id, appData, account);
+
+            expect(reportedError).toBeNull();
+        });
+
+        it('can show when only away submission present', async () => {
+            const appData = getDefaultAppData();
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            fixtureData.homeSubmission = null;
+            fixtureData.awaySubmission = getPlayedFixtureData(appData);
+            fixtureData.awaySubmission.matches.forEach(match => {
+                match.homeScore = 1;
+                match.awayScore = 1;
+            });
+            fixtureData.awaySubmission.home.manOfTheMatch = null;
+            fixtureData.home.manOfTheMatch = null;
+            fixtureData.away.manOfTheMatch = null;
+
+            await renderComponent(fixtureData.id, appData, account);
+
+            expect(reportedError).toBeNull();
         });
     });
 

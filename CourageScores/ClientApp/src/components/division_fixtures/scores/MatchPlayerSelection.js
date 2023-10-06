@@ -99,10 +99,14 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         }
     }
 
-    function exceptPlayers(playerIndex, propertyName) {
-        const exceptPlayerIds = distinct((otherMatches || []).flatMap(otherMatch => {
-            return (otherMatch[propertyName] || []).filter(p => p || false).map(player => player ? player.id : null);
-        }));
+    function exceptPlayers(playerIndex, side) {
+        const propertyName = side + 'Players';
+        const selectedPlayer = player(playerIndex, side);
+        const exceptPlayerIds = distinct((otherMatches || [])
+            .flatMap(otherMatch => {
+                return (otherMatch[propertyName] || []).filter(p => p || false).map(player => player ? player.id : null);
+            }))
+            .filter(id => id !== selectedPlayer.id); // dont exclude the currently selected player
 
         const playerList = match[propertyName];
         if (!playerList) {
@@ -110,7 +114,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         }
 
         const additionalPlayers = playerList.filter((_, index) => index !== playerIndex).map(player => player.id);
-        return exceptPlayerIds.concat(additionalPlayers);
+        return exceptPlayerIds
+            .concat(additionalPlayers)
+            .filter(id => id !== selectedPlayer.id); // dont exclude the currently selected player;
     }
 
     function renderMatchSettingsDialog() {
@@ -180,7 +186,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         readOnly={readOnly}
                         players={homePlayers}
                         selected={player(index, 'home')}
-                        except={exceptPlayers(index, 'homePlayers')}
+                        except={exceptPlayers(index, 'home')}
                         onChange={(elem, player) => playerChanged(index, player, 'home')}/></div>))}
             </td>
             <td className={`narrow-column align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
@@ -220,7 +226,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                             readOnly={readOnly}
                             players={awayPlayers}
                             selected={player(index, 'away')}
-                            except={exceptPlayers(index, 'awayPlayers')}
+                            except={exceptPlayers(index, 'away')}
                             onChange={(elem, player) => playerChanged(index, player, 'away')}/>
                     </div>))}
             </td>
