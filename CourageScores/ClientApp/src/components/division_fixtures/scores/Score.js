@@ -398,6 +398,7 @@ export function Score() {
                 fixtureData={fixtureData}
                 saving={saving}
                 access={access}
+                disabled={access === 'admin' && submission}
                 setFixtureData={setFixtureData}/>);
         }
 
@@ -417,7 +418,7 @@ export function Score() {
 
     function render180sAndHiCheckInput() {
         return (<HiCheckAnd180s
-            saving={saving}
+            saving={saving || (access === 'admin' && submission)}
             access={access}
             fixtureData={fixtureData}
             setFixtureData={setFixtureData}
@@ -457,14 +458,14 @@ export function Score() {
         const season = seasons[fixtureData.seasonId] || {id: EMPTY_ID, name: 'Not found'};
         const division = divisions[fixtureData.divisionId] || {id: EMPTY_ID, name: 'Not found'};
 
-        const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
+        const editable = !saving && ((access === 'admin' && !submission) || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
             season: season,
             division: division,
             homePlayers: homeTeam,
             awayPlayers: awayTeam,
             readOnly: !editable,
-            disabled: access === 'readonly' || (fixtureData.resultsPublished && access !== 'admin'),
+            disabled: access === 'readonly' || (fixtureData.resultsPublished && access !== 'admin') || (access === 'admin' && submission),
             home: data.home,
             away: data.away,
         }
@@ -540,7 +541,7 @@ export function Score() {
                         </tr>
                         </tbody>)}
                     </table>
-                    {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (
+                    {access !== 'readonly' && ((!data.resultsPublished && access === 'clerk') || (access === 'admin' && !submission)) ? (
                         <button className="btn btn-primary margin-right" onClick={saveScores}>
                             {saving ? (<LoadingSpinnerSmall/>) : null}
                             Save

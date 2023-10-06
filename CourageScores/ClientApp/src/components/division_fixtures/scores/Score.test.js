@@ -694,9 +694,9 @@ describe('Score', () => {
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
                 const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
-                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
+                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('strong')))).map(str => str.textContent);
             });
-            expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '1')); // 16 = 8 matches * 2 sides
+            expect(allScores).toEqual(repeat(16, _ => '1')); // 16 = 8 matches * 2 sides
         });
 
         it('can unpublish away submission', async () => {
@@ -723,9 +723,9 @@ describe('Score', () => {
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
                 const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
-                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
+                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('strong')))).map(str => str.textContent);
             });
-            expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '2')); // 16 = 8 matches * 2 sides
+            expect(allScores).toEqual(repeat(16, _ => '2')); // 16 = 8 matches * 2 sides
         });
     });
 
