@@ -102,7 +102,7 @@ export function MergeMatch({
                 </div>
             </td>
             <td colSpan="2" className="hover-highlight">
-                <strong>from {awaySubmission.author} xx</strong>
+                <strong>from {awaySubmission.author}</strong>
                 {renderSubmissionMatch(awaySubmissionMatch)}
                 <div className="text-center">
                     <button disabled={readOnly} onClick={() => acceptSubmission(awaySubmissionMatch)}
