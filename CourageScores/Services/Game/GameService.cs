@@ -96,10 +96,12 @@ public class GameService : IGameService
 
     private static GameDto MergeDetails(GameDto game, GameDto? submission)
     {
-        submission ??= new GameDto();
+        submission ??= new GameDto
+        {
+            Home = game.Home,
+            Away = game.Away,
+        };
         submission.Id = game.Id;
-        submission.Away = game.Away;
-        submission.Home = game.Home;
         submission.Address = game.Address;
         submission.Date = game.Date;
         submission.Postponed = game.Postponed;

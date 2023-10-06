@@ -139,6 +139,10 @@ public class GameServiceTests
             Editor = "EDITOR",
             Created = new DateTime(2001, 02, 03),
             Updated = new DateTime(2002, 03, 04),
+            Home = new GameTeamDto
+            {
+                ManOfTheMatch = Guid.NewGuid(),
+            },
         };
         _game!.AwaySubmission = new GameDto
         {
@@ -150,6 +154,7 @@ public class GameServiceTests
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game.HomeSubmission.Matches));
+        Assert.That(result.Home, Is.SameAs(_game.HomeSubmission.Home));
         AssertSubmissionHasGameProperties(result, _game);
         AssertHasAuditProperties(result, _game.HomeSubmission);
     }
@@ -176,6 +181,24 @@ public class GameServiceTests
     }
 
     [Test]
+    public async Task Get_WhenResultsUnpublishedUserCanInputResultsForHomeTeamAndNoHomeSubmission_ShouldCreateSubmission()
+    {
+        _game!.AwaySubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _user!.Access!.InputResults = true;
+        _user.TeamId = _game.Home.Id;
+
+        var result = await _service.Get(_game!.Id, _token);
+
+        Assert.That(result, Is.Not.SameAs(_game));
+        Assert.That(result!.Home, Is.SameAs(_game.Home));
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game);
+    }
+
+    [Test]
     public async Task Get_WhenResultsUnpublishedUserCanInputResultsForAwayTeam_ShouldReturnAwayTeamSubmission()
     {
         _game!.HomeSubmission = new GameDto
@@ -189,6 +212,10 @@ public class GameServiceTests
             Editor = "EDITOR",
             Created = new DateTime(2001, 02, 03),
             Updated = new DateTime(2002, 03, 04),
+            Away = new GameTeamDto
+            {
+                ManOfTheMatch = Guid.NewGuid(),
+            },
         };
         _user!.Access!.InputResults = true;
         _user.TeamId = _game.Away.Id;
@@ -196,8 +223,27 @@ public class GameServiceTests
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game.AwaySubmission.Matches));
+        Assert.That(result.Away, Is.SameAs(_game.AwaySubmission.Away));
         AssertSubmissionHasGameProperties(result, _game);
         AssertHasAuditProperties(result, _game.AwaySubmission);
+    }
+
+    [Test]
+    public async Task Get_WhenResultsUnpublishedUserCanInputResultsForAwayTeamAndNoAwaySubmission_ShouldCreateSubmission()
+    {
+        _game!.HomeSubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _user!.Access!.InputResults = true;
+        _user.TeamId = _game.Away.Id;
+
+        var result = await _service.Get(_game!.Id, _token);
+
+        Assert.That(result, Is.Not.SameAs(_game));
+        Assert.That(result!.Away, Is.SameAs(_game.Away));
+        AssertSubmissionHasGameProperties(result, _game);
+        AssertHasAuditProperties(result, _game);
     }
 
     [Test]
@@ -517,8 +563,6 @@ public class GameServiceTests
     private static void AssertSubmissionHasGameProperties(GameDto submission, GameDto game)
     {
         Assert.That(submission.Id, Is.EqualTo(game.Id));
-        Assert.That(submission.Away, Is.EqualTo(game.Away));
-        Assert.That(submission.Home, Is.EqualTo(game.Home));
         Assert.That(submission.Address, Is.EqualTo(game.Address));
         Assert.That(submission.Date, Is.EqualTo(game.Date));
         Assert.That(submission.Postponed, Is.EqualTo(game.Postponed));
