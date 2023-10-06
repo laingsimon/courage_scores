@@ -247,13 +247,13 @@ public class UpdateScoresCommand : IUpdateCommand<CosmosGame, GameDto>
             {
                 game.Matches[index] = await _updateScoresAdapter.UpdateMatch(currentMatch, updatedMatch, token);
             }
-
-            game.OneEighties = await _scores.OneEighties.SelectAsync(p => _updateScoresAdapter.AdaptToPlayer(p, token)).ToList();
-            game.Over100Checkouts = await _scores.Over100Checkouts.SelectAsync(p => _updateScoresAdapter.AdaptToHiCheckPlayer(p, token)).ToList();
-            game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
-            game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
-            game.Version = CosmosGame.CurrentVersion;
         }
+
+        game.OneEighties = await _scores.OneEighties.SelectAsync(p => _updateScoresAdapter.AdaptToPlayer(p, token)).ToList();
+        game.Over100Checkouts = await _scores.Over100Checkouts.SelectAsync(p => _updateScoresAdapter.AdaptToHiCheckPlayer(p, token)).ToList();
+        game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
+        game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
+        game.Version = CosmosGame.CurrentVersion;
 
         return Success("Game updated");
     }
