@@ -63,7 +63,7 @@ export function ScoreCardHeading({data, access, winner, submission, setSubmissio
     {access === 'admin' && submission ? (<tr>
         <th colSpan="5">
             <div className="alert alert-warning fw-normal">
-                You are viewing the submission from <strong>{data[submission].name}</strong>, created by <strong>{data.editor}</strong> as of <strong title={data.updated}>{renderDate(data.updated)}</strong>
+                You are viewing the submission from <strong>{data[submission].name}</strong>, created by <strong>{data[submission].editor}</strong> as of <strong title={data[submission].updated}>{renderDate(data[submission].updated)}</strong>
             </div>
         </th>
     </tr>) : null}
