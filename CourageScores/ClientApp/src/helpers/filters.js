@@ -101,7 +101,7 @@ export function getNotesFilter(notesFilter) {
         default:
             const notes = notesFilter.split(';');
             return new OrFilter(
-                notes.map(note => new Filter(fd => any(fd.notes, n => n.note.toLowerCase() === note.toLowerCase())))
+                notes.map(note => new Filter(fd => any(fd.notes, n => n.note.toLowerCase().indexOf(note.toLowerCase()) === 0)))
             );
     }
 }
