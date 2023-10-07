@@ -426,7 +426,7 @@ describe('filters', () => {
         });
 
         it('keeps dates with single note matching filter', () => {
-            const filter = getNotesFilter('abcd');
+            const filter = getNotesFilter('abc');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('abcd').build()],
@@ -436,7 +436,7 @@ describe('filters', () => {
         });
 
         it('keeps dates with any note matching any filter criteria', () => {
-            const filter = getNotesFilter('abcd;efgh');
+            const filter = getNotesFilter('abc;efg');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('another note').build(), noteBuilder().note('efgh').build()],
@@ -446,7 +446,7 @@ describe('filters', () => {
         });
 
         it('keeps dates with any note matching filter ignoring case', () => {
-            const filter = getNotesFilter('abcd;efgh');
+            const filter = getNotesFilter('abc;efg');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('EFGH').build()],
@@ -456,7 +456,7 @@ describe('filters', () => {
         });
 
         it('ignores dates without any note matching filter', () => {
-            const filter = getNotesFilter('abcd;efgh');
+            const filter = getNotesFilter('abc;efg');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('ijkl').build()],
