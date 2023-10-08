@@ -75,7 +75,18 @@ public static class DependencyInjectionExtensions
         AddRepositories(services);
         AddAdapters(services);
         AddCommands(services);
+        AddComparers(services);
         services.AddSingleton(ApplicationMetrics.Create());
+    }
+
+    private static void AddComparers(IServiceCollection services)
+    {
+        services.AddScoped<IEqualityComparer<Game>, GameComparer>();
+        services.AddScoped<IEqualityComparer<GameMatch>, GameMatchComparer>();
+        services.AddScoped<IEqualityComparer<GameTeam>, GameTeamComparer>();
+        services.AddScoped<IEqualityComparer<GameMatchOption?>, GameMatchOptionComparer>();
+        services.AddScoped<IEqualityComparer<ICollection<GamePlayer>>, GamePlayerComparer>();
+        services.AddScoped<IEqualityComparer<ICollection<NotablePlayer>>, HiChecksComparer>();
     }
 
     private static void AddCommands(IServiceCollection services)
@@ -194,6 +205,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>, FixtureTemplateAdapter>();
         services.AddScoped<ISimpleAdapter<List<string>, List<TeamPlaceholderDto>>, SharedAddressAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<Template, SeasonHealthDto>, TemplateToHealthCheckAdapter>();
+
+        services.AddScoped<IUpdateScoresAdapter, UpdateScoresAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

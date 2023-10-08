@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Services.Command;
@@ -33,6 +32,26 @@ public class GameService : IGameService
     public IAsyncEnumerable<GameDto> GetWhere(string query, CancellationToken token)
     {
         return _underlyingService.GetWhere(query, token).SelectAsync(g => Adapt(g, token));
+    }
+
+    public async Task<ActionResultDto<GameDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Game.Game, TOut> updateCommand, CancellationToken token)
+    {
+        var result = await _underlyingService.Upsert(id, updateCommand, token);
+        if (result.Result != null)
+        {
+            result.Result = await Adapt(result.Result, token);
+        }
+        return result;
+    }
+
+    public async Task<ActionResultDto<GameDto>> Delete(Guid id, CancellationToken token)
+    {
+        var result = await _underlyingService.Delete(id, token);
+        if (result.Result != null)
+        {
+            result.Result = await Adapt(result.Result, token);
+        }
+        return result;
     }
 
     private async Task<GameDto> Adapt(GameDto game, CancellationToken token)
@@ -77,32 +96,22 @@ public class GameService : IGameService
 
     private static GameDto MergeDetails(GameDto game, GameDto? submission)
     {
-        submission ??= new GameDto();
+        submission ??= new GameDto
+        {
+            Home = game.Home,
+            Away = game.Away,
+        };
         submission.Id = game.Id;
-        submission.Away = game.Away;
-        submission.Home = game.Home;
         submission.Address = game.Address;
         submission.Date = game.Date;
         submission.Postponed = game.Postponed;
         submission.DivisionId = game.DivisionId;
         submission.IsKnockout = game.IsKnockout;
         submission.SeasonId = game.SeasonId;
+        submission.Author ??= game.Author;
+        submission.Created ??= game.Created;
+        submission.Editor ??= game.Editor;
+        submission.Updated ??= game.Updated;
         return submission;
     }
-
-    #region delegating members
-
-    [ExcludeFromCodeCoverage]
-    public Task<ActionResultDto<GameDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Game.Game, TOut> updateCommand, CancellationToken token)
-    {
-        return _underlyingService.Upsert(id, updateCommand, token);
-    }
-
-    [ExcludeFromCodeCoverage]
-    public Task<ActionResultDto<GameDto>> Delete(Guid id, CancellationToken token)
-    {
-        return _underlyingService.Delete(id, token);
-    }
-
-    #endregion
 }

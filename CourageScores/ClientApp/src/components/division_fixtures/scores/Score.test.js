@@ -134,27 +134,37 @@ describe('Score', () => {
         const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
+        const firstDivision = appData.divisions.filter(_ => true)[0];
+        const firstSeason = appData.seasons.filter(_ => true)[0];
+
+        function findPlayer(team, name) {
+            if (!firstSeason || !team || !team.seasons) {
+                return name;
+            }
+
+            const teamSeason = team.seasons.filter(s => s.seasonId === firstSeason.id)[0];
+            const player = teamSeason.players.filter(p => p.name === name)[0];
+            return player || (name + ' Not found');
+        }
+
         function createMatch(homeScore, awayScore) {
             return matchBuilder()
-                .withHome('Home player')
-                .withAway('Away player')
+                .withHome(findPlayer(homeTeam, 'Home player'))
+                .withAway(findPlayer(awayTeam, 'Away player'))
                 .scores(homeScore, awayScore)
                 .build();
         }
-
-        const firstDivision = appData.divisions.filter(_ => true)[0];
-        const firstSeason = appData.seasons.filter(_ => true)[0];
 
         return fixtureBuilder('2023-01-02T00:00:00')
             .playing({
                     id: homeTeam ? homeTeam.id : createTemporaryId(),
                     name: homeTeam ? homeTeam.name : 'not found',
-                    manOfTheMatch: createTemporaryId()
+                    manOfTheMatch: findPlayer(homeTeam, 'Home player').id,
                 },
                 {
                     id: awayTeam ? awayTeam.id : createTemporaryId(),
                     name: awayTeam ? awayTeam.name : 'not found',
-                    manOfTheMatch: createTemporaryId()
+                    manOfTheMatch: findPlayer(awayTeam, 'Away player').id,
                 })
             .forSeason(firstSeason ? firstSeason : createTemporaryId())
             .forDivision(firstDivision ? firstDivision : createTemporaryId())
@@ -166,8 +176,8 @@ describe('Score', () => {
             .withMatch(createMatch(3, 0))
             .withMatch(createMatch(3, 0))
             .withMatch(createMatch(3, 0))
-            .with180('Home player')
-            .withHiCheck('Away player', '140')
+            .with180(findPlayer(homeTeam, 'Home player'))
+            .withHiCheck(findPlayer(awayTeam, 'Away player'), '140')
             .addTo(fixtureDataMap)
             .build();
     }
@@ -344,10 +354,10 @@ describe('Score', () => {
             assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[6], 'Pairs');
-            assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
-            assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[7], 'Home player Home playerAdd a player...  Add a player...', '', '', '', 'Away player Away playerAdd a player...  Add a player...');
+            assertMatchRow(matchRows[7], 'Home player Home playerAdd a player...  Add a player...', '', '', '', 'Away player Away playerAdd a player...  Add a player...');
             assertMatchRow(matchRows[9], 'Triples');
-            assertMatchRow(matchRows[10], 'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[10], 'Home player Home playerAdd a player...  Add a player...  Add a player...', '', '', '', 'Away player Away playerAdd a player...  Add a player...  Add a player...');
             assertMatchRow(matchRows[11], 'Man of the match');
             assertMatchRow(matchRows[12], '', '', '');
             assertMatchRow(matchRows[13], '180s', '', '100+ c/o');
@@ -668,6 +678,16 @@ describe('Score', () => {
                 return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
             });
             expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '')); // 16 = 8 matches * 2 sides
+            const manOfTheMatchHeadingRow = Array.from(context.container.querySelectorAll('td')).filter(td => td.textContent === 'Man of the match')[0];
+            const manOfTheMatchDataRow = manOfTheMatchHeadingRow.parentElement.nextSibling;
+            expect(manOfTheMatchDataRow.querySelector('td:nth-child(1) .dropdown-toggle').textContent).toEqual(' ');
+            expect(manOfTheMatchDataRow.querySelector('td:nth-child(3) .dropdown-toggle').textContent).toEqual(' ');
+            const oneEightiesAndHiChecksHeadingRow = Array.from(context.container.querySelectorAll('td')).filter(td => td.textContent.indexOf('Select some player/s to add 180s and hi-checks') === 0)[0];
+            const oneEightiesAndHiChecksDataRow = oneEightiesAndHiChecksHeadingRow.parentElement.nextSibling;
+            const oneEightiesRow = oneEightiesAndHiChecksDataRow.querySelector('td:nth-child(1)');
+            const hiChecksRow = oneEightiesAndHiChecksDataRow.querySelector('td:nth-child(3)');
+            expect(oneEightiesRow.querySelectorAll('button').length).toEqual(2); // merge buttons
+            expect(hiChecksRow.querySelectorAll('button').length).toEqual(2); // merge buttons
         });
 
         it('can unpublish home submission', async () => {
@@ -694,9 +714,9 @@ describe('Score', () => {
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
                 const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
-                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
+                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('strong')))).map(str => str.textContent);
             });
-            expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '1')); // 16 = 8 matches * 2 sides
+            expect(allScores).toEqual(repeat(16, _ => '1')); // 16 = 8 matches * 2 sides
         });
 
         it('can unpublish away submission', async () => {
@@ -723,9 +743,175 @@ describe('Score', () => {
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
                 const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
-                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
+                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('strong')))).map(str => str.textContent);
             });
-            expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '2')); // 16 = 8 matches * 2 sides
+            expect(allScores).toEqual(repeat(16, _ => '2')); // 16 = 8 matches * 2 sides
+        });
+
+        it('can show when only home submission present', async () => {
+            const appData = getDefaultAppData();
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            fixtureData.homeSubmission = getPlayedFixtureData(appData);
+            fixtureData.awaySubmission = null;
+            fixtureData.homeSubmission.matches.forEach(match => {
+                match.homeScore = 1;
+                match.awayScore = 1;
+            });
+            fixtureData.homeSubmission.away.manOfTheMatch = null;
+            fixtureData.home.manOfTheMatch = null;
+            fixtureData.away.manOfTheMatch = null;
+
+            await renderComponent(fixtureData.id, appData, account);
+
+            expect(reportedError).toBeNull();
+        });
+
+        it('can show when only away submission present', async () => {
+            const appData = getDefaultAppData();
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            fixtureData.homeSubmission = null;
+            fixtureData.awaySubmission = getPlayedFixtureData(appData);
+            fixtureData.awaySubmission.matches.forEach(match => {
+                match.homeScore = 1;
+                match.awayScore = 1;
+            });
+            fixtureData.awaySubmission.home.manOfTheMatch = null;
+            fixtureData.home.manOfTheMatch = null;
+            fixtureData.away.manOfTheMatch = null;
+
+            await renderComponent(fixtureData.id, appData, account);
+
+            expect(reportedError).toBeNull();
+        });
+    });
+
+    describe('when logged in as a home clerk', () => {
+        const appData = getDefaultAppData();
+        const fixture = getUnplayedFixtureData(appData);
+        const account = {
+            access: {
+                manageScores: false,
+                inputResults: true,
+            },
+            teamId: fixture.home.id,
+        };
+
+        it('renders score card without results', async () => {
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(14);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[2], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[3], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], 'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[11], 'Man of the match');
+            assertMatchRow(matchRows[12], '', '', '');
+            assertMatchRow(matchRows[13], 'Select some player/s to add 180s and hi-checks');
+        });
+
+        it('renders published score card', async () => {
+            fixture.resultsPublished = true;
+
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(12);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], '', '', '', '', '');
+            assertMatchRow(matchRows[2], '', '', '', '', '');
+            assertMatchRow(matchRows[3], '', '', '', '', '');
+            assertMatchRow(matchRows[4], '', '', '', '', '');
+            assertMatchRow(matchRows[5], '', '', '', '', '');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], '', '', '', '', '');
+            assertMatchRow(matchRows[8], '', '', '', '', '');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], '', '', '', '', '');
+            assertMatchRow(matchRows[11], '');
+        });
+    });
+
+    describe('when logged in as an away clerk', () => {
+        const appData = getDefaultAppData();
+        const fixture = getUnplayedFixtureData(appData);
+        const account = {
+            access: {
+                manageScores: false,
+                inputResults: true,
+            },
+            teamId: fixture.away.id,
+        };
+
+        it('renders score card without results', async () => {
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(14);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[2], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[3], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], 'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...');
+            assertMatchRow(matchRows[11], 'Man of the match');
+            assertMatchRow(matchRows[12], '', '', '');
+            assertMatchRow(matchRows[13], 'Select some player/s to add 180s and hi-checks');
+        });
+
+        it('renders published score card', async () => {
+            fixture.resultsPublished = true;
+
+            await renderComponent(fixture.id, appData, account);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.content-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+            const matchRows = tableBody.querySelectorAll('tr');
+            expect(matchRows.length).toEqual(12);
+            assertMatchRow(matchRows[0], 'Singles');
+            assertMatchRow(matchRows[1], '', '', '', '', '');
+            assertMatchRow(matchRows[2], '', '', '', '', '');
+            assertMatchRow(matchRows[3], '', '', '', '', '');
+            assertMatchRow(matchRows[4], '', '', '', '', '');
+            assertMatchRow(matchRows[5], '', '', '', '', '');
+            assertMatchRow(matchRows[6], 'Pairs');
+            assertMatchRow(matchRows[7], '', '', '', '', '');
+            assertMatchRow(matchRows[8], '', '', '', '', '');
+            assertMatchRow(matchRows[9], 'Triples');
+            assertMatchRow(matchRows[10], '', '', '', '', '');
+            assertMatchRow(matchRows[11], '');
         });
     });
 });

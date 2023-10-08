@@ -24,12 +24,9 @@ public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
 
     public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
-        if (_matchId == null)
-        {
-            throw new InvalidOperationException("FromMatch must be called first");
-        }
+        _matchId.ThrowIfNull($"{nameof(FromMatch)} must be called first");
 
-        var match = FindMatchVisitor.FindMatch(model, _matchId.Value);
+        var match = FindMatchVisitor.FindMatch(model, _matchId!.Value);
         if (match == null)
         {
             return new ActionResult<TournamentGame>
@@ -62,27 +59,14 @@ public class DeleteTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         {
             match.SaygId = null;
 
-            return new ActionResult<TournamentGame>
+            return result.ToActionResult().As(model).Merge(new ActionResult<TournamentGame>
             {
                 Success = true,
-                Messages = result.Messages.Concat(new[]
-                {
-                    "Sayg deleted and removed from match",
-                }).ToList(),
-                Warnings = result.Warnings,
-                Errors = result.Errors,
-                Result = model,
-            };
+                Messages = { "Sayg deleted and removed from match" },
+            });
         }
 
-        return new ActionResult<TournamentGame>
-        {
-            Success = false,
-            Errors = result.Errors,
-            Warnings = result.Warnings,
-            Messages = result.Messages,
-            Result = model,
-        };
+        return result.ToActionResult().As(model);
     }
 
 }

@@ -26,6 +26,7 @@ import {MatchTypeContainer} from "./MatchTypeContainer";
 import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "../../../helpers/matchOptions";
 import {PageError} from "../../common/PageError";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
+import {DebugOptions} from "../../common/DebugOptions";
 
 export function Score() {
     const {fixtureId} = useParams();
@@ -312,6 +313,10 @@ export function Score() {
 
             const newData = Object.assign({}, data);
             newData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
+            newData.home.manOfTheMatch = null;
+            newData.away.manOfTheMatch = null;
+            newData.oneEighties = [];
+            newData.over100Checkouts = [];
             newData.resultsPublished = false;
             setData(newData);
             if (submission) {
@@ -397,6 +402,7 @@ export function Score() {
                 fixtureData={fixtureData}
                 saving={saving}
                 access={access}
+                disabled={access === 'admin' && submission}
                 setFixtureData={setFixtureData}/>);
         }
 
@@ -404,10 +410,20 @@ export function Score() {
     }
 
     function renderMergeManOfTheMatch() {
+        if (submission) {
+            return null;
+        }
+
+        function hasManOfTheMatch(data, side) {
+            data = data || {};
+            const dataSide = data[side] || {};
+            return dataSide.manOfTheMatch;
+        }
+
         if (!fixtureData.resultsPublished
             && access === 'admin'
             && (data.homeSubmission || data.awaySubmission)
-            && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
+            && ((!hasManOfTheMatch(data, 'home') && hasManOfTheMatch(data.homeSubmission, 'home')) || (!hasManOfTheMatch(data, 'away') && hasManOfTheMatch(data.awaySubmission, 'away')))) {
             return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers}/>);
         }
 
@@ -416,7 +432,7 @@ export function Score() {
 
     function render180sAndHiCheckInput() {
         return (<HiCheckAnd180s
-            saving={saving}
+            saving={saving || (access === 'admin' && submission)}
             access={access}
             fixtureData={fixtureData}
             setFixtureData={setFixtureData}
@@ -456,14 +472,14 @@ export function Score() {
         const season = seasons[fixtureData.seasonId] || {id: EMPTY_ID, name: 'Not found'};
         const division = divisions[fixtureData.divisionId] || {id: EMPTY_ID, name: 'Not found'};
 
-        const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
+        const editable = !saving && ((access === 'admin' && !submission) || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
             season: season,
             division: division,
             homePlayers: homeTeam,
             awayPlayers: awayTeam,
             readOnly: !editable,
-            disabled: access === 'readonly',
+            disabled: access === 'readonly' || (fixtureData.resultsPublished && access !== 'admin') || (access === 'admin' && submission),
             home: data.home,
             away: data.away,
         }
@@ -495,10 +511,10 @@ export function Score() {
                         ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access}
                                         fixtureData={fixtureData}/>)
                         : null}
-                    <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
+                    <table className={`table${(access === 'admin' && !submission) || access === 'clerk' ? ' minimal-padding' : ''}`}>
                         <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission}
                                           setFixtureData={setFixtureData} submission={submission}/>
-                        {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (
+                        {hasBeenPlayed || access === 'admin' || (account && access === 'clerk' && ((data.away && account.teamId === data.away.id) || (account.teamId === data.home.id))) ? (
                             <tbody>
                             <tr>
                                 <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
@@ -539,13 +555,26 @@ export function Score() {
                         </tr>
                         </tbody>)}
                     </table>
-                    {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (
-                        <button className="btn btn-primary" onClick={saveScores}>
+                    {access !== 'readonly' && ((!data.resultsPublished && access === 'clerk') || (access === 'admin' && !submission)) ? (
+                        <button className="btn btn-primary margin-right" onClick={saveScores}>
                             {saving ? (<LoadingSpinnerSmall/>) : null}
                             Save
                         </button>) : null}
-                    {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (
-                        <button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
+                    {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission)
+                        ? (<button className="btn btn-warning margin-right" onClick={unpublish}>Unpublish</button>)
+                        : null}
+                    <DebugOptions>
+                        <span className="dropdown-item">Access: {access}</span>
+                        {account ? (<span className="dropdown-item">Team: {teams[account.teamId] ? teams[account.teamId].name : account.teamId}</span>) : null}
+                        <span className="dropdown-item">Data: {fixtureData && fixtureData.resultsPublished ? 'published' : 'draft'}</span>
+                        <span className="dropdown-item">
+                            Editable: {editable ? 'Yes' : 'No'}
+                            <span> | </span>
+                            Disabled: {leagueFixtureData.disabled ? 'Yes' : 'No'}
+                            <span> | </span>
+                            InputResults: {(account && account.access && account.access.inputResults) ? 'Yes' : 'No'}
+                        </span>
+                    </DebugOptions>
                 </div>
             </LeagueFixtureContainer>
             {saveError ? (

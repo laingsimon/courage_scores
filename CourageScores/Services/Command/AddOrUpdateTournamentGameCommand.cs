@@ -96,13 +96,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
-        return new ActionResult<TournamentGame>
-        {
-            Success = context.Success,
-            Errors = context.Errors,
-            Warnings = context.Warnings,
-            Messages = context.Messages,
-        };
+
+        return context.As<TournamentGame>();
     }
 
     private async Task UpdateRoundRecursively(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, IActionResult<TournamentGame> context, CancellationToken token)

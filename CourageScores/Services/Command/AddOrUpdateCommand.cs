@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -13,10 +14,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
     public async Task<ActionResult<TModel>> ApplyUpdate(TModel model, CancellationToken token)
     {
         var create = false;
-        if (_update == null)
-        {
-            throw new InvalidOperationException($"{nameof(WithData)} must be called first");
-        }
+        _update.ThrowIfNull($"{nameof(WithData)} must be called first");
 
         if (model.Deleted != null)
         {
@@ -51,21 +49,21 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
         var result = await ApplyUpdates(model, _update!, token);
 
-        return new ActionResult<TModel>
-        {
-            Success = result.Success,
-            Errors = result.Errors,
-            Warnings = result.Warnings,
-            Messages = result.Messages.Any()
-                ? result.Messages
-                : new List<string>
-                {
-                    $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
-                },
-            Result = model,
-        };
+        return result
+            .As(model)
+            .Merge(new ActionResult<TModel>
+            {
+                Success = result.Success,
+                Messages = result.Messages.Any()
+                    ? new List<string>()
+                    : new List<string>
+                    {
+                        $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
+                    },
+            });
     }
 
+    [ExcludeFromCodeCoverage]
     public virtual bool RequiresLogin => true;
 
     protected abstract Task<ActionResult<TModel>> ApplyUpdates(TModel model, TDto update, CancellationToken token);

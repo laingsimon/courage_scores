@@ -30,31 +30,31 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
 
     try {
         return (<tr>
-            <td colSpan="2">
-                {(!fixtureData.oneEighties || isEmpty(fixtureData.oneEighties)) && (any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('away', 'oneEighties')))
+            <td colSpan="2" className="text-end">
+                {any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('home', 'over100Checkouts'))
                     ? (<div>
-                        {any(getRecordsToMerge('home', 'oneEighties')) ? (<div>
+                        {isEmpty(fixtureData.oneEighties || []) && any(getRecordsToMerge('home', 'oneEighties')) ? (<div datatype="home-180s">
                             <h6>
                                 from {data.homeSubmission.editor || 'Home'}
                                 <button className="btn btn-sm btn-success margin-left"
                                         onClick={() => mergeRecords('home', 'oneEighties')}>Merge
                                 </button>
                             </h6>
-                            <ol>
+                            <ol className="d-inline-block">
                                 {getRecordsToMerge('home', 'oneEighties').map(rec => (
                                     <li key={rec.id}>{rec.name}</li>))}
                             </ol>
                         </div>) : null}
-                        {any(getRecordsToMerge('away', 'oneEighties')) ? (<div>
+                        {isEmpty(fixtureData.over100Checkouts || []) && any(getRecordsToMerge('home', 'over100Checkouts')) ? (<div datatype="home-hichecks">
                             <h6>
-                                from {data.awaySubmission.editor || 'Away'}
+                                from {data.homeSubmission.editor || 'Home'}
                                 <button className="btn btn-sm btn-success margin-left"
-                                        onClick={() => mergeRecords('away', 'oneEighties')}>Merge
+                                        onClick={() => mergeRecords('home', 'over100Checkouts')}>Merge
                                 </button>
                             </h6>
-                            <ol>
-                                {getRecordsToMerge('away', 'oneEighties').map(rec => (
-                                    <li key={rec.id}>{rec.name}</li>))}
+                            <ol className="d-inline-block">
+                                {getRecordsToMerge('home', 'over100Checkouts').map(rec => (
+                                    <li key={rec.id}>{rec.name} ({rec.notes})</li>))}
                             </ol>
                         </div>) : null}
                     </div>)
@@ -67,28 +67,28 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                 </div>
             </td>
             <td colSpan="2">
-                {(!fixtureData.over100Checkouts || isEmpty(fixtureData.over100Checkouts)) && (any(getRecordsToMerge('home', 'over100Checkouts')) || any(getRecordsToMerge('away', 'over100Checkouts')))
+                {any(getRecordsToMerge('away', 'oneEighties')) || any(getRecordsToMerge('away', 'over100Checkouts'))
                     ? (<div>
-                        {any(getRecordsToMerge('home', 'over100Checkouts')) ? (<div>
+                        {isEmpty(fixtureData.oneEighties || []) && any(getRecordsToMerge('away', 'oneEighties')) ? (<div datatype="away-180s">
                             <h6>
-                                from {data.homeSubmission.editor || 'Home'}
+                                from {data.awaySubmission.editor || 'Away'}
                                 <button className="btn btn-sm btn-success margin-left"
-                                        onClick={() => mergeRecords('home', 'over100Checkouts')}>Merge
+                                        onClick={() => mergeRecords('away', 'oneEighties')}>Merge
                                 </button>
                             </h6>
-                            <ol>
-                                {getRecordsToMerge('home', 'over100Checkouts').map(rec => (
-                                    <li key={rec.id}>{rec.name} ({rec.notes})</li>))}
+                            <ol className="d-inline-block">
+                                {getRecordsToMerge('away', 'oneEighties').map(rec => (
+                                    <li key={rec.id}>{rec.name}</li>))}
                             </ol>
                         </div>) : null}
-                        {any(getRecordsToMerge('away', 'over100Checkouts')) ? (<div>
+                        {isEmpty(fixtureData.over100Checkouts || []) && any(getRecordsToMerge('away', 'over100Checkouts')) ? (<div datatype="away-hichecks">
                             <h6>
                                 from {data.awaySubmission.editor || 'Away'}
                                 <button className="btn btn-sm btn-success margin-left"
                                         onClick={() => mergeRecords('away', 'over100Checkouts')}>Merge
                                 </button>
                             </h6>
-                            <ol>
+                            <ol className="d-inline-block">
                                 {getRecordsToMerge('away', 'over100Checkouts').map(rec => (
                                     <li key={rec.id}>{rec.name} ({rec.notes})</li>))}
                             </ol>

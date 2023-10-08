@@ -51,15 +51,8 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
 
     public virtual async Task<ActionResult<TeamSeason>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
-        if (_seasonId == null)
-        {
-            throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(ForSeason)} is called");
-        }
-
-        if (_divisionId == null)
-        {
-            throw new InvalidOperationException($"DivisionId hasn't been set, ensure {nameof(ForDivision)} is called");
-        }
+        _seasonId.ThrowIfNull($"SeasonId hasn't been set, ensure {nameof(ForSeason)} is called");
+        _divisionId.ThrowIfNull($"DivisionId hasn't been set, ensure {nameof(ForDivision)} is called");
 
         if (model.Deleted != null)
         {
@@ -73,7 +66,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             };
         }
 
-        if (_skipSeasonExistenceCheck == false && await _seasonService.Get(_seasonId.Value, token) == null)
+        if (_skipSeasonExistenceCheck == false && await _seasonService.Get(_seasonId!.Value, token) == null)
         {
             return new ActionResult<TeamSeason>
             {
@@ -121,8 +114,8 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         teamSeason = new TeamSeason
         {
             Id = Guid.NewGuid(),
-            SeasonId = _seasonId.Value,
-            DivisionId = _divisionId.Value,
+            SeasonId = _seasonId!.Value,
+            DivisionId = _divisionId!.Value,
             Players = _copyPlayersFromOtherSeasonId.HasValue
                 ? GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value)
                 : new List<TeamPlayer>(),

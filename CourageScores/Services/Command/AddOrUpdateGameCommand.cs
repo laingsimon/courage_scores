@@ -6,10 +6,11 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game, EditGameDto>
+public class AddOrUpdateGameCommand : AddOrUpdateCommand<CosmosGame, EditGameDto>
 {
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly ICommandFactory _commandFactory;
@@ -28,11 +29,11 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         _cacheFlags = cacheFlags;
     }
 
-    protected override async Task<ActionResult<Models.Cosmos.Game.Game>> ApplyUpdates(Models.Cosmos.Game.Game game, EditGameDto update, CancellationToken token)
+    protected override async Task<ActionResult<CosmosGame>> ApplyUpdates(CosmosGame game, EditGameDto update, CancellationToken token)
     {
         if (update.SeasonId == Guid.Empty)
         {
-            return new ActionResult<Models.Cosmos.Game.Game>
+            return new ActionResult<CosmosGame>
             {
                 Success = false,
                 Errors =
@@ -44,7 +45,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
 
         if (update.HomeTeamId == update.AwayTeamId)
         {
-            return new ActionResult<Models.Cosmos.Game.Game>
+            return new ActionResult<CosmosGame>
             {
                 Success = false,
                 Warnings =
@@ -57,7 +58,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         var season = await _seasonService.Get(update.SeasonId, token);
         if (season == null)
         {
-            return new ActionResult<Models.Cosmos.Game.Game>
+            return new ActionResult<CosmosGame>
             {
                 Success = false,
                 Errors =
@@ -80,16 +81,28 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {
-            game.Home = await UpdateTeam(update.HomeTeamId, season, game.DivisionId, token);
+            var homeResult = await UpdateTeam(update.HomeTeamId, season, game.DivisionId, token);
+            if (!homeResult.Success)
+            {
+                return homeResult.As<CosmosGame>();
+            }
+
+            game.Home = homeResult.Result!;
         }
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Away == null || game.Away.Id != update.AwayTeamId)
         {
-            game.Away = await UpdateTeam(update.AwayTeamId, season, game.DivisionId, token);
+            var awayResult = await UpdateTeam(update.AwayTeamId, season, game.DivisionId, token);
+            if (!awayResult.Success)
+            {
+                return awayResult.As<CosmosGame>();
+            }
+
+            game.Away = awayResult.Result!;
         }
 
-        return new ActionResult<Models.Cosmos.Game.Game>
+        return new ActionResult<CosmosGame>
         {
             Success = true,
             Messages =
@@ -99,31 +112,37 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         };
     }
 
-    private async Task<GameTeam> UpdateTeam(Guid teamId, SeasonDto season, Guid divisionId, CancellationToken token)
+    private async Task<ActionResult<GameTeam>> UpdateTeam(Guid teamId, SeasonDto season, Guid divisionId, CancellationToken token)
     {
         var teamDto = await _teamService.Get(teamId, token);
 
         if (teamDto == null)
         {
-            throw new InvalidOperationException("Unable to find team with id " + teamId);
-        }
-
-        if (teamDto.Seasons.All(s => s.SeasonId != season.Id))
-        {
-            // add team to season
-            var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
-                .ForSeason(season.Id)
-                .ForDivision(divisionId);
-
-            var result = await _teamService.Upsert(teamId, command, token);
-
-            if (!result.Success)
+            return new ActionResult<GameTeam>
             {
-                throw new InvalidOperationException("Could not add season to team: " + string.Join(", ", result.Errors));
-            }
+                Errors = { "Unable to find team with id " + teamId },
+                Success = false,
+            };
         }
 
-        return Adapt(teamDto);
+        var result = new ActionResult<GameTeam>
+        {
+            Success = true,
+            Result = Adapt(teamDto),
+        };
+
+        if (teamDto.Seasons.Any(s => s.SeasonId == season.Id))
+        {
+            return result;
+        }
+
+        // add team to season
+        var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
+            .ForSeason(season.Id)
+            .ForDivision(divisionId);
+
+        var addSeasonToTeamResult = await _teamService.Upsert(teamId, command, token);
+        return result.Merge(addSeasonToTeamResult.ToActionResult().As<GameTeam>());
     }
 
     private static GameTeam Adapt(TeamDto teamDto)

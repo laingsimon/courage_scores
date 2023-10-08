@@ -124,13 +124,12 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
             if (!result.Success || result.Result == null)
             {
-                return new ActionResult<Models.Cosmos.Team.Team>
-                {
-                    Success = false,
-                    Messages = result.Messages,
-                    Warnings = result.Warnings,
-                    Errors = result.Errors,
-                };
+                return result
+                    .As<Models.Cosmos.Team.Team>()
+                    .Merge(new ActionResult<Models.Cosmos.Team.Team>
+                    {
+                        Success = false,
+                    });
             }
 
             teamSeason = result.Result;

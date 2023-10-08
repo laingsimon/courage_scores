@@ -59,20 +59,9 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 
     public virtual async Task<ActionResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
-        if (_player == null)
-        {
-            throw new InvalidOperationException($"Player hasn't been set, ensure {nameof(ForPlayer)} is called");
-        }
-
-        if (_seasonId == null)
-        {
-            throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(ToSeason)} is called");
-        }
-
-        if (_divisionId == null)
-        {
-            throw new InvalidOperationException($"DivisionId hasn't been set, ensure {nameof(ToDivision)} is called");
-        }
+        _player.ThrowIfNull($"Player hasn't been set, ensure {nameof(ForPlayer)} is called");
+        _seasonId.ThrowIfNull($"SeasonId hasn't been set, ensure {nameof(ToSeason)} is called");
+        _divisionId.ThrowIfNull($"DivisionId hasn't been set, ensure {nameof(ToDivision)} is called");
 
         if (model.Deleted != null)
         {
@@ -113,7 +102,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             };
         }
 
-        var season = await _seasonService.Get(_seasonId.Value, token);
+        var season = await _seasonService.Get(_seasonId!.Value, token);
         if (season == null)
         {
             return new ActionResult<TeamPlayer>
@@ -143,21 +132,20 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 
             var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
                 .ForSeason(season.Id)
-                .ForDivision(_divisionId.Value);
+                .ForDivision(_divisionId!.Value);
 
             var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)
             {
-                return new ActionResult<TeamPlayer>
-                {
-                    Success = false,
-                    Warnings = result.Warnings.Concat(new[]
+                return result.As<TeamPlayer>()
+                    .Merge(new ActionResult<TeamPlayer>
                     {
-                        $"Could not add the {season.Name} season to team {model.Name}",
-                    }).ToList(),
-                    Messages = result.Messages,
-                    Errors = result.Errors,
-                };
+                        Success = false,
+                        Warnings =
+                        {
+                            $"Could not add the {season.Name} season to team {model.Name}",
+                        },
+                    });
             }
 
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
@@ -166,7 +154,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 
         var players = teamSeason.Players;
 
-        var existingPlayer = players.SingleOrDefault(p => p.Name == _player.Name);
+        var existingPlayer = players.SingleOrDefault(p => p.Name == _player!.Name);
         if (existingPlayer != null)
         {
             if (existingPlayer.Deleted == null)
@@ -183,7 +171,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             }
 
             await _auditingHelper.SetUpdated(existingPlayer, token);
-            existingPlayer.Captain = _player.Captain;
+            existingPlayer.Captain = _player!.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
             return new ActionResult<TeamPlayer>
@@ -199,7 +187,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 
         var newPlayer = new TeamPlayer
         {
-            Name = _player.Name,
+            Name = _player!.Name,
             Captain = _player.Captain,
             EmailAddress = _player.EmailAddress,
             Id = Guid.NewGuid(),

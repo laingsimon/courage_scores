@@ -74,14 +74,28 @@ public class GenericDataServiceTests
     {
         var model = new Model();
         var dto = new Dto();
-        _repository.Setup(r => r.GetAll(_token)).Returns(() => AsyncEnumerable(model));
+        _repository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(model));
         _adapter.Setup(a => a.Adapt(model, _token)).ReturnsAsync(() => dto);
-        var returnedItems = new List<Dto>();
 
-        await foreach (var returnedItem in _service.GetAll(_token))
+        var returnedItems = await _service.GetAll(_token).ToList();
+
+        Assert.That(returnedItems, Is.Not.Empty);
+        Assert.That(returnedItems, Is.EquivalentTo(new[]
         {
-            returnedItems.Add(returnedItem);
-        }
+            dto,
+        }));
+        _adapter.Verify(a => a.Adapt(model, _token));
+    }
+
+    [Test]
+    public async Task GetWhere_WhenCalled_AdaptsAllItems()
+    {
+        var model = new Model();
+        var dto = new Dto();
+        _repository.Setup(r => r.GetSome("filter", _token)).Returns(() => TestUtilities.AsyncEnumerable(model));
+        _adapter.Setup(a => a.Adapt(model, _token)).ReturnsAsync(() => dto);
+
+        var returnedItems = await _service.GetWhere("filter", _token).ToList();
 
         Assert.That(returnedItems, Is.Not.Empty);
         Assert.That(returnedItems, Is.EquivalentTo(new[]
@@ -457,16 +471,6 @@ public class GenericDataServiceTests
         }));
     }
 
-#pragma warning disable CS1998
-    private static async IAsyncEnumerable<T> AsyncEnumerable<T>(params T[] items)
-#pragma warning restore CS1998
-    {
-        foreach (var item in items)
-        {
-            yield return item;
-        }
-    }
-
     [SuppressMessage("ReSharper", "ClassWithVirtualMembersNeverInherited.Local")] // virtual members for Mock<>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class Model : AuditedEntity, IPermissionedEntity
@@ -492,6 +496,7 @@ public class GenericDataServiceTests
         }
     }
 
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")] // must be public to be mockable
     public class AnonymousModel : AuditedEntity, IPermissionedEntity
     {
         public bool CanCreate(UserDto? user)
@@ -510,7 +515,7 @@ public class GenericDataServiceTests
         }
     }
 
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")] // must be public to be mockable
     public class Dto : AuditedDto
     {
     }

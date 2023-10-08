@@ -3,7 +3,7 @@ import React from "react";
 import {distinct, sortBy} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 
-export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData}) {
+export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData, disabled}) {
     const {account, onError} = useApp();
 
     function manOfTheMatchChanged(player, team) {
@@ -46,7 +46,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData}
             <td colSpan="2" className="text-end">
                 {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
                     players={applicablePlayers()}
-                    disabled={access === 'readonly'}
+                    disabled={disabled || access === 'readonly'}
                     readOnly={saving}
                     selected={{id: fixtureData.home.manOfTheMatch}}
                     onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
@@ -55,7 +55,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData}
             <td colSpan="2">
                 {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
                     players={applicablePlayers()}
-                    disabled={access === 'readonly'}
+                    disabled={disabled || access === 'readonly'}
                     readOnly={saving}
                     selected={{id: fixtureData.away.manOfTheMatch}}
                     onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}
