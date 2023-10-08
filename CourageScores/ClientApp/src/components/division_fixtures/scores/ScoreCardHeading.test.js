@@ -6,6 +6,7 @@ import {toMap} from "../../../helpers/collections";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {divisionBuilder, fixtureBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
+import {renderDate} from "../../../helpers/rendering";
 
 describe('ScoreCardHeading', () => {
     let context;
@@ -266,6 +267,17 @@ describe('ScoreCardHeading', () => {
                 season: seasonBuilder('SEASON', submissionData.seasonId).build(),
             };
 
+            it('shows unpublished alert when submission team identified', async () => {
+                const updated = '2023-04-05';
+                submissionData['home'].editor = 'EDITOR';
+                submissionData['home'].updated = updated;
+
+                await renderComponent(access, submissionData, winner, account, 'home', fixtureData, [team]);
+
+                const alert = context.container.querySelector('.alert');
+                expect(alert.textContent).toContain('You are viewing the submission from HOME, created by EDITOR as of ' + renderDate(updated));
+            });
+
             it('shows home submission toggle', async () => {
                 await renderComponent(access, submissionData, winner, account, null, fixtureData);
 
@@ -367,6 +379,23 @@ describe('ScoreCardHeading', () => {
                     division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
                     season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
+
+                it('shows unpublished alert when submission team identified', async () => {
+                    const teams = [team];
+                    await renderComponent(access, submissionData, winner, account, null, fixtureData, teams);
+
+                    const alert = context.container.querySelector('.alert');
+                    expect(alert.textContent).toContain('⚠ You are editing the submission from TEAM, they are not visible on the website.');
+                    expect(alert.textContent).toContain('The results will be published by an administrator, or automatically if someone from HOME submits matching results.');
+                });
+
+                it('shows unpublished alert when no submission team', async () => {
+                    await renderComponent(access, submissionData, winner, account, null, fixtureData);
+
+                    const alert = context.container.querySelector('.alert');
+                    expect(alert.textContent).toContain('⚠ You are editing your submission, they are not visible on the website.');
+                    expect(alert.textContent).toContain('The results will be published by an administrator, or automatically if someone from HOME submits matching results.');
+                });
 
                 it('does not show home submission toggle', async () => {
                     await renderComponent(access, submissionData, winner, account, null, fixtureData);
