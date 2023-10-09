@@ -80,7 +80,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
             <div className="alert alert-warning fw-normal">
                 ⚠ You are editing {submissionTeam ? <>the submission from <strong>{submissionTeam.name}</strong></> : 'your submission'}, they are not visible on the website.<br />
                 <br />
-                The results will be published by an administrator, or automatically if {opposingTeam ? <>someone from <strong>{opposingTeam.name}</strong></> : 'the opponent'} submits matching results.
+                The results will be published by an administrator, or automatically if someone from <strong>{opposingTeam.name}</strong> submits matching results.
             </div>
         </th>
     </tr>) : null}
