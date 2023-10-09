@@ -17,6 +17,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
         : awayScore > homeScore
             ? 'away'
             : 'draw';
+    const submissionData = data[submission + 'Submission'];
 
     function toggleSubmission(submissionToShow) {
         try {
@@ -86,7 +87,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     {access === 'admin' && submission ? (<tr>
         <th colSpan="5">
             <div className="alert alert-warning fw-normal">
-                You are viewing the submission from <strong>{data[submission].name}</strong>, created by <strong>{data[submission].editor}</strong> as of <strong title={data[submission].updated}>{renderDate(data[submission].updated)}</strong>
+                You are viewing the submission from <strong>{data[submission].name}</strong>, created by <strong>{submissionData.editor}</strong> as of <strong title={submissionData.updated}>{renderDate(submissionData.updated)}</strong>
             </div>
         </th>
     </tr>) : null}

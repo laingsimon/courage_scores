@@ -292,8 +292,8 @@ describe('ScoreCardHeading', () => {
 
             it('shows unpublished alert when submission team identified', async () => {
                 const updated = '2023-04-05';
-                submissionData['home'].editor = 'EDITOR';
-                submissionData['home'].updated = updated;
+                submissionData['homeSubmission'].editor = 'EDITOR';
+                submissionData['homeSubmission'].updated = updated;
 
                 await renderComponent(access, submissionData, account, 'home', fixtureData, [team]);
 
