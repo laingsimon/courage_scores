@@ -455,17 +455,6 @@ export function Score() {
         return (<PageError error="Unable to load score card, fixture data not loaded"/>);
     }
 
-    const finalScore = fixtureData.matches.map(match => {
-        return {awayScore: match.awayScore, homeScore: match.homeScore};
-    }).reduce((prev, current) => {
-        return {
-            awayScore: prev.awayScore + current.awayScore,
-            homeScore: prev.homeScore + current.homeScore
-        };
-    }, {awayScore: 0, homeScore: 0});
-    const winner = finalScore.homeScore > finalScore.awayScore
-        ? 'home'
-        : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
@@ -512,8 +501,7 @@ export function Score() {
                                         fixtureData={fixtureData}/>)
                         : null}
                     <table className={`table${(access === 'admin' && !submission) || access === 'clerk' ? ' minimal-padding' : ''}`}>
-                        <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission}
-                                          setFixtureData={setFixtureData} submission={submission}/>
+                        <ScoreCardHeading access={access} data={data} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
                         {hasBeenPlayed || access === 'admin' || (account && access === 'clerk' && ((data.away && account.teamId === data.away.id) || (account.teamId === data.home.id))) ? (
                             <tbody>
                             <tr>

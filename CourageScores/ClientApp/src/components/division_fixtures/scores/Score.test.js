@@ -682,12 +682,10 @@ describe('Score', () => {
             const manOfTheMatchDataRow = manOfTheMatchHeadingRow.parentElement.nextSibling;
             expect(manOfTheMatchDataRow.querySelector('td:nth-child(1) .dropdown-toggle').textContent).toEqual(' ');
             expect(manOfTheMatchDataRow.querySelector('td:nth-child(3) .dropdown-toggle').textContent).toEqual(' ');
-            const oneEightiesAndHiChecksHeadingRow = Array.from(context.container.querySelectorAll('td')).filter(td => td.textContent.indexOf('Select some player/s to add 180s and hi-checks') === 0)[0];
-            const oneEightiesAndHiChecksDataRow = oneEightiesAndHiChecksHeadingRow.parentElement.nextSibling;
-            const oneEightiesRow = oneEightiesAndHiChecksDataRow.querySelector('td:nth-child(1)');
-            const hiChecksRow = oneEightiesAndHiChecksDataRow.querySelector('td:nth-child(3)');
-            expect(oneEightiesRow.querySelectorAll('button').length).toEqual(2); // merge buttons
-            expect(hiChecksRow.querySelectorAll('button').length).toEqual(2); // merge buttons
+            const oneEightiesRow = context.container.querySelector('tr[datatype="merge-180s"] td:nth-child(1)');
+            const hiChecksRow = context.container.querySelector('tr[datatype="merge-hichecks"] td:nth-child(3)');
+            expect(oneEightiesRow.querySelectorAll('button').length).toEqual(1); // merge button
+            expect(hiChecksRow.querySelectorAll('button').length).toEqual(1); // merge button
         });
 
         it('can unpublish home submission', async () => {

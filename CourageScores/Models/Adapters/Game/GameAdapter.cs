@@ -28,7 +28,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
 
     public async Task<GameDto> Adapt(Cosmos.Game.Game model, CancellationToken token)
     {
-        var resultsPublished = model.Matches.Any();
+        var resultsPublished = model.Matches.Any(m => m.HomeScore > 0 && m.AwayScore > 0);
         return await Adapt(model, resultsPublished, token);
     }
 

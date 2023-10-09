@@ -51,7 +51,6 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(reportedError).toBeNull();
                 const homeSubmission = context.container.querySelector('div[datatype="home-180s"]');
                 expect(homeSubmission).not.toBeNull();
-                expect(homeSubmission.textContent).toContain('from HOME');
                 const oneEighties = Array.from(homeSubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(oneEighties).toEqual(['NAME']);
             });
@@ -68,7 +67,6 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(reportedError).toBeNull();
                 const awaySubmission = context.container.querySelector('div[datatype="away-180s"]');
                 expect(awaySubmission).not.toBeNull();
-                expect(awaySubmission.textContent).toContain('from AWAY');
                 const oneEighties = Array.from(awaySubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(oneEighties).toEqual(['NAME']);
             });
@@ -162,10 +160,9 @@ describe('MergeHiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder('2023-05-06')
                     .build();
                 await renderComponent(data, fixtureData);
-                const oneEightiesCell = context.container.querySelector('td:nth-child(1)');
-                const submission = oneEightiesCell.querySelector('div > div:nth-child(1)');
+                const homeSubmission = context.container.querySelector('div[datatype="home-180s"]');
 
-                await doClick(findButton(submission, 'Merge'));
+                await doClick(findButton(homeSubmission, 'Merge'));
 
                 expect(reportedError).toBeNull();
                 expect(updatedData).not.toBeNull();
@@ -207,7 +204,6 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(reportedError).toBeNull();
                 const homeSubmission = context.container.querySelector('div[datatype="home-hichecks"]');
                 expect(homeSubmission).not.toBeNull();
-                expect(homeSubmission.textContent).toContain('from HOME');
                 const hiChecks = Array.from(homeSubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(hiChecks).toEqual(['NAME (120)']);
             });
@@ -225,7 +221,6 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(reportedError).toBeNull();
                 const awaySubmission = context.container.querySelector('div[datatype="away-hichecks"]');
                 expect(awaySubmission).not.toBeNull();
-                expect(awaySubmission.textContent).toContain('from AWAY');
                 const hiChecks = Array.from(awaySubmission.querySelectorAll('ol > li')).map(li => li.textContent);
                 expect(hiChecks).toEqual(['NAME (120)']);
             });

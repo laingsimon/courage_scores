@@ -3,7 +3,7 @@
 import React from "react";
 import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {MergeMatch} from "./MergeMatch";
-import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
+import {fixtureBuilder, matchBuilder, playerBuilder} from "../../../helpers/builders";
 
 describe('MergeMatch', () => {
     let context;
@@ -36,12 +36,11 @@ describe('MergeMatch', () => {
 
     describe('renders', () => {
         it('when published', async () => {
-            const match = {
-                homeScore: 1,
-                awayScore: 2,
-                homePlayers: [],
-                awayPlayers: [],
-            };
+            const match = matchBuilder()
+                .withHome('HOME PLAYER')
+                .withAway('AWAY PLAYER')
+                .scores(1, 2)
+                .build();
 
             await renderComponent({
                 readOnly: false,

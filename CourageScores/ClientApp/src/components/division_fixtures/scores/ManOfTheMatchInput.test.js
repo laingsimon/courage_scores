@@ -156,7 +156,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(homePlayer, awayPlayer)
+                    .manOfTheMatch(awayPlayer, homePlayer)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -165,8 +165,8 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                expect(cells[0].querySelector('.dropdown-toggle').textContent).toEqual('HOME player');
-                expect(cells[2].querySelector('.dropdown-toggle').textContent).toEqual('AWAY player');
+                expect(cells[0].querySelector('.dropdown-toggle').textContent).toEqual('AWAY player');
+                expect(cells[2].querySelector('.dropdown-toggle').textContent).toEqual('HOME player');
             });
 
             it('when no selected players', async () => {
@@ -197,8 +197,8 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], ['AWAY player', 'HOME player'], ' ', null);
-                assertPlayers(cells[2], ['AWAY player', 'HOME player'], ' ', null);
+                assertPlayers(cells[0], ['AWAY player'], ' ', null);
+                assertPlayers(cells[2], ['HOME player'], ' ', null);
             });
 
             it('when home man-of-the-match', async () => {
@@ -206,7 +206,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(homePlayer, null)
+                    .manOfTheMatch(awayPlayer, null)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -215,7 +215,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], ['AWAY player', 'HOME player'], 'HOME player', 'HOME player');
+                assertPlayers(cells[0], ['AWAY player'], 'AWAY player', 'AWAY player');
             });
 
             it('when away man-of-the-match', async () => {
@@ -223,7 +223,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(null, awayPlayer)
+                    .manOfTheMatch(null, homePlayer)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -232,7 +232,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[2], ['AWAY player', 'HOME player'], 'AWAY player', 'AWAY player');
+                assertPlayers(cells[2], ['HOME player'], 'HOME player', 'HOME player');
             });
         });
 

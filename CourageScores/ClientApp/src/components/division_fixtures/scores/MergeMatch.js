@@ -16,7 +16,7 @@ export function MergeMatch({
     const homeSubmissionMatch = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
     const awaySubmissionMatch = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
     const publishedMatch = matches && matches[matchIndex];
-    const isPublished = publishedMatch && Object.keys(publishedMatch).length >= 4; // homeScore+homePlayer + awayScore+awayPlayer = 4 properties
+    const isPublished = publishedMatch && (publishedMatch.homeScore || publishedMatch.awayScore);
     const submissionsMatch = matchEquals(homeSubmissionMatch, awaySubmissionMatch);
 
     function acceptSubmission(match) {
@@ -95,7 +95,7 @@ export function MergeMatch({
                     </button>
                 </div>
             </td>
-            <td>
+            <td className="p-0">
                 <div className="vertical-text transform-top-left position-absolute text-nowrap"
                      style={{marginLeft: '-15px'}}>
                     <span className="text-nowrap bg-opacity-25 fw-bold bg-success p-2 shadow-sm" style={{marginLeft: '-75px'}}>Merge &rarr;</span>
