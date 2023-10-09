@@ -18,15 +18,13 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
         }
     }
 
-    function applicablePlayers() {
+    function applicablePlayers(side) {
+        const property = side + 'Players';
+
         const players = fixtureData.matches.flatMap((match) => {
             const matchPlayers = [];
 
-            (match.homePlayers || []).forEach(player => {
-                matchPlayers.push(player);
-            });
-
-            (match.awayPlayers || []).forEach(player => {
+            (match[property] || []).forEach(player => {
                 matchPlayers.push(player);
             });
 
@@ -45,7 +43,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
         return (<tr>
             <td colSpan="2" className="text-end">
                 {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
-                    players={applicablePlayers()}
+                    players={applicablePlayers('away')}
                     disabled={disabled || access === 'readonly'}
                     readOnly={saving}
                     selected={{id: fixtureData.home.manOfTheMatch}}
@@ -54,7 +52,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
             <td className="width-1 p-0"></td>
             <td colSpan="2">
                 {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
-                    players={applicablePlayers()}
+                    players={applicablePlayers('home')}
                     disabled={disabled || access === 'readonly'}
                     readOnly={saving}
                     selected={{id: fixtureData.away.manOfTheMatch}}
