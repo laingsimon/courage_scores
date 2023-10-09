@@ -17,7 +17,7 @@ describe('ManOfTheMatchInput', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(saving, account, fixtureData, access) {
+    async function renderComponent(saving, account, fixtureData, access, disabled) {
         reportedError = null;
         updatedFixtureData = null;
         context = await renderApp(
@@ -36,7 +36,8 @@ describe('ManOfTheMatchInput', () => {
                 saving={saving}
                 access={access}
                 fixtureData={fixtureData}
-                setFixtureData={setFixtureData}/>),
+                setFixtureData={setFixtureData}
+                disabled={disabled} />),
             null,
             null,
             'tbody');
@@ -45,10 +46,10 @@ describe('ManOfTheMatchInput', () => {
     function assertPlayers(container, names, displayed, selected) {
         names.unshift(' ');
 
-        const homePlayers = container.querySelectorAll('div.btn-group div[role="menu"] button[role="menuitem"]');
+        const players = container.querySelectorAll('div.btn-group div[role="menu"] button[role="menuitem"]');
         const displayedPlayer = container.querySelector('div.btn-group > button > span');
         const selectedPlayer = container.querySelector('div.btn-group div[role="menu"] button[role="menuitem"].active');
-        expect(Array.from(homePlayers).map(span => span.textContent)).toEqual(names);
+        expect(Array.from(players).map(span => span.textContent)).toEqual(names);
         expect(displayedPlayer.textContent).toEqual(displayed);
         if (selected) {
             expect(selectedPlayer).toBeTruthy();
@@ -61,12 +62,16 @@ describe('ManOfTheMatchInput', () => {
     }
 
     describe('when logged out', () => {
+        const account = null;
+        const saving = false;
+        const access = '';
+
         it('when no matches', async () => {
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .build();
 
-            await renderComponent(false, null, fixtureData, '');
+            await renderComponent(saving, account, fixtureData, access);
 
             expect(context.container.innerHTML).toEqual('');
         });
@@ -77,7 +82,7 @@ describe('ManOfTheMatchInput', () => {
                 .withMatch(m => m.withHome().withAway())
                 .build();
 
-            await renderComponent(false, null, fixtureData, '');
+            await renderComponent(saving, account, fixtureData, access);
 
             expect(reportedError).toBeFalsy();
             expect(context.container.innerHTML).toEqual('');
@@ -91,7 +96,7 @@ describe('ManOfTheMatchInput', () => {
                 .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
-            await renderComponent(false, null, fixtureData, '');
+            await renderComponent(saving, account, fixtureData, access);
 
             expect(reportedError).toBeFalsy();
             expect(context.container.innerHTML).toEqual('');
@@ -106,7 +111,7 @@ describe('ManOfTheMatchInput', () => {
                 .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
-            await renderComponent(false, null, fixtureData, '');
+            await renderComponent(saving, account, fixtureData, access);
 
             expect(reportedError).toBeFalsy();
             expect(context.container.innerHTML).toEqual('');
@@ -121,7 +126,7 @@ describe('ManOfTheMatchInput', () => {
                 .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
-            await renderComponent(false, null, fixtureData, '');
+            await renderComponent(saving, account, fixtureData, access);
 
             expect(reportedError).toBeFalsy();
             expect(context.container.innerHTML).toEqual('');
@@ -144,6 +149,24 @@ describe('ManOfTheMatchInput', () => {
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], [], ' ', null);
                 assertPlayers(cells[2], [], ' ', null);
+            });
+
+            it('when disabled', async () => {
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .manOfTheMatch(awayPlayer, homePlayer)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
+
+                await renderComponent(false, account, fixtureData, 'admin', true);
+
+                expect(reportedError).toBeFalsy();
+                const cells = context.container.querySelectorAll('td');
+                expect(cells.length).toEqual(3);
+                expect(cells[0].querySelector('.dropdown-toggle').textContent).toEqual('AWAY player');
+                expect(cells[2].querySelector('.dropdown-toggle').textContent).toEqual('HOME player');
             });
 
             it('when no selected players', async () => {
@@ -174,8 +197,8 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], ['AWAY player', 'HOME player'], ' ', null);
-                assertPlayers(cells[2], ['AWAY player', 'HOME player'], ' ', null);
+                assertPlayers(cells[0], ['AWAY player'], ' ', null);
+                assertPlayers(cells[2], ['HOME player'], ' ', null);
             });
 
             it('when home man-of-the-match', async () => {
@@ -183,7 +206,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(homePlayer, null)
+                    .manOfTheMatch(awayPlayer, null)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -192,7 +215,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], ['AWAY player', 'HOME player'], 'HOME player', 'HOME player');
+                assertPlayers(cells[0], ['AWAY player'], 'AWAY player', 'AWAY player');
             });
 
             it('when away man-of-the-match', async () => {
@@ -200,7 +223,7 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .manOfTheMatch(null, awayPlayer)
+                    .manOfTheMatch(null, homePlayer)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -209,7 +232,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[2], ['AWAY player', 'HOME player'], 'AWAY player', 'AWAY player');
+                assertPlayers(cells[2], ['HOME player'], 'HOME player', 'HOME player');
             });
         });
 

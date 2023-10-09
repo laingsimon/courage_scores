@@ -10,7 +10,17 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 public class GameAdapterTests
 {
     private static readonly GameMatch GameMatch = new();
+    private static readonly GameMatch PublishedGameMatch = new()
+    {
+        HomeScore = 1,
+        AwayScore = 2,
+    };
     private static readonly GameMatchDto GameMatchDto = new();
+    private static readonly GameMatchDto PublishedGameMatchDto = new()
+    {
+        HomeScore = 1,
+        AwayScore = 2,
+    };
     private static readonly GameTeam HomeTeam = new();
     private static readonly GameTeamDto HomeTeamDto = new();
     private static readonly GameTeam AwayTeam = new();
@@ -26,9 +36,11 @@ public class GameAdapterTests
         new MockAdapter<GameMatch, GameMatchDto>(new[]
         {
             GameMatch,
+            PublishedGameMatch,
         }, new[]
         {
             GameMatchDto,
+            PublishedGameMatchDto,
         }),
         new MockAdapter<GameTeam, GameTeamDto>(
             new[]
@@ -92,6 +104,7 @@ public class GameAdapterTests
             HiCheckPlayerDto,
         }));
         Assert.That(result.AccoladesCount, Is.EqualTo(model.AccoladesCount));
+        Assert.That(result.ResultsPublished, Is.False);
     }
 
     [Test]
@@ -101,18 +114,13 @@ public class GameAdapterTests
         {
             Matches =
             {
-                GameMatch,
+                PublishedGameMatch,
             },
         };
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Matches, Is.EqualTo(new[]
-        {
-            GameMatchDto,
-        }));
-        Assert.That(result.HomeSubmission, Is.Null);
-        Assert.That(result.AwaySubmission, Is.Null);
+        Assert.That(result.ResultsPublished, Is.True);
     }
 
     [Test]

@@ -3,7 +3,7 @@ import React from "react";
 import {distinct, sortBy} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 
-export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData}) {
+export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData, disabled}) {
     const {account, onError} = useApp();
 
     function manOfTheMatchChanged(player, team) {
@@ -18,15 +18,13 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData}
         }
     }
 
-    function applicablePlayers() {
+    function applicablePlayers(side) {
+        const property = side + 'Players';
+
         const players = fixtureData.matches.flatMap((match) => {
             const matchPlayers = [];
 
-            (match.homePlayers || []).forEach(player => {
-                matchPlayers.push(player);
-            });
-
-            (match.awayPlayers || []).forEach(player => {
+            (match[property] || []).forEach(player => {
                 matchPlayers.push(player);
             });
 
@@ -45,17 +43,17 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData}
         return (<tr>
             <td colSpan="2" className="text-end">
                 {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
-                    players={applicablePlayers()}
-                    disabled={access === 'readonly'}
+                    players={applicablePlayers('away')}
+                    disabled={disabled || access === 'readonly'}
                     readOnly={saving}
                     selected={{id: fixtureData.home.manOfTheMatch}}
                     onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
             </td>
-            <td className="width-1 p-0"></td>
+            <td className="width-1 p-0 middle-vertical-line width-1"></td>
             <td colSpan="2">
                 {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
-                    players={applicablePlayers()}
-                    disabled={access === 'readonly'}
+                    players={applicablePlayers('home')}
+                    disabled={disabled || access === 'readonly'}
                     readOnly={saving}
                     selected={{id: fixtureData.away.manOfTheMatch}}
                     onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}

@@ -21,10 +21,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 
     public async Task<ActionResult<Models.Cosmos.Team.Team>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
-        if (_seasonId == null)
-        {
-            throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(FromSeason)} is called");
-        }
+        _seasonId.ThrowIfNull($"SeasonId hasn't been set, ensure {nameof(FromSeason)} is called");
 
         if (model.Deleted != null)
         {
@@ -54,7 +51,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             };
         }
 
-        var matchingSeasons = model.Seasons.Where(s => s.SeasonId == _seasonId.Value && s.Deleted == null).ToList();
+        var matchingSeasons = model.Seasons.Where(s => s.SeasonId == _seasonId!.Value && s.Deleted == null).ToList();
         foreach (var matchingSeason in matchingSeasons)
         {
             await _auditingHelper.SetDeleted(matchingSeason, token);
@@ -75,7 +72,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
                 };
             }
 
-            _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = true,
@@ -91,7 +88,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         {
             if (!matchingSeasons.Any())
             {
-                _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
+                _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
                 return new ActionResult<Models.Cosmos.Team.Team>
                 {
                     Success = true,
@@ -104,7 +101,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
                 };
             }
 
-            _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = true,
@@ -117,7 +114,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             };
         }
 
-        _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId!.Value;
 
         return new ActionResult<Models.Cosmos.Team.Team>
         {

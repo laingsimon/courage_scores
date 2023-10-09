@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CourageScores.Services;
 
+[ExcludeFromCodeCoverage]
 public static class AsyncEnumerableExtensions
 {
     [DebuggerStepThrough]
