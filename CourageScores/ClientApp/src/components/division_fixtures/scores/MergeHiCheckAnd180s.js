@@ -60,7 +60,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                     </div>)
                     : null}
             </td>
-            <td className="overflow-hidden position-relative">
+            <td className="overflow-hidden position-relative p-0 middle-vertical-line width-1">
                 <div className="vertical-text transform-top-left position-absolute text-nowrap"
                      style={{marginLeft: '-5px'}}>
                     <span className="text-nowrap" style={{marginLeft: '-60px'}}>Merge &rarr;</span>

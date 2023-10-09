@@ -95,7 +95,7 @@ export function MergeMatch({
                     </button>
                 </div>
             </td>
-            <td>
+            <td className="p-0">
                 <div className="vertical-text transform-top-left position-absolute text-nowrap"
                      style={{marginLeft: '-15px'}}>
                     <span className="text-nowrap bg-opacity-25 fw-bold bg-success p-2 shadow-sm" style={{marginLeft: '-75px'}}>Merge &rarr;</span>

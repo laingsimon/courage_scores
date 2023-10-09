@@ -49,7 +49,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
                     selected={{id: fixtureData.home.manOfTheMatch}}
                     onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
             </td>
-            <td className="width-1 p-0"></td>
+            <td className="width-1 p-0 middle-vertical-line width-1"></td>
             <td colSpan="2">
                 {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
                     players={applicablePlayers('home')}
