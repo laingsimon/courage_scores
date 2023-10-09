@@ -278,7 +278,12 @@ describe('ScoreCardHeading', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
-                .homeSubmission(f => f)
+                .homeSubmission(f => f
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)))
                 .awaySubmission()
                 .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                 .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
@@ -304,7 +309,7 @@ describe('ScoreCardHeading', () => {
             it('shows home submission toggle', async () => {
                 await renderComponent(access, submissionData, account, null, fixtureData);
 
-                assertToggleShown(true, 'HOME (3)');
+                assertToggleShown(true, 'HOME (3-2)');
             });
 
             it('clicking toggle switches to submission and data', async () => {
@@ -326,7 +331,12 @@ describe('ScoreCardHeading', () => {
                 .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
-                .awaySubmission(f => f)
+                .awaySubmission(f => f
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
+                    .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)))
                 .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                 .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                 .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
@@ -340,7 +350,7 @@ describe('ScoreCardHeading', () => {
             it('shows away submission toggle', async () => {
                 await renderComponent(access, submissionData, account, null, fixtureData);
 
-                assertToggleShown(false, 'AWAY (1)');
+                assertToggleShown(false, 'AWAY (3-2)');
             });
 
             it('clicking toggle switches to submission and data', async () => {
@@ -495,7 +505,12 @@ describe('ScoreCardHeading', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
-                    .homeSubmission(f => f, account.teamId)
+                    .homeSubmission(f => f
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)), account.teamId)
                     .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                     .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                     .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
@@ -510,7 +525,7 @@ describe('ScoreCardHeading', () => {
                 it('shows home submission toggle', async () => {
                     await renderComponent(access, submissionData, account, null, fixtureData);
 
-                    assertToggleShown(true, 'HOME (3)');
+                    assertToggleShown(true, 'HOME (3-2)');
                 });
 
                 it('clicking toggle switches to submission and data', async () => {
@@ -618,7 +633,12 @@ describe('ScoreCardHeading', () => {
                     .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
-                    .awaySubmission(f => f, account.teamId)
+                    .awaySubmission(f => f
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
+                        .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3)), account.teamId)
                     .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                     .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                     .withMatch(m => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
@@ -632,7 +652,7 @@ describe('ScoreCardHeading', () => {
                 it('shows away submission toggle', async () => {
                     await renderComponent(access, submissionData, account, null, fixtureData);
 
-                    assertToggleShown(false, 'AWAY (1)');
+                    assertToggleShown(false, 'AWAY (3-2)');
                 });
 
                 it('clicking toggle switches to submission and data', async () => {

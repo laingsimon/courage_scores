@@ -10,8 +10,8 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     const {division, season} = useLeagueFixture();
     const submissionTeam = account && access === 'clerk' && account.teamId ? teams[account.teamId] : null;
     const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
-    const homeScore = getScore('home');
-    const awayScore = getScore('away');
+    const homeScore = getScore(data, 'home');
+    const awayScore = getScore(data, 'away');
     const winner = homeScore > awayScore
         ? 'home'
         : awayScore > homeScore
@@ -40,7 +40,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
             && (access === 'admin' || (account && submission && account.teamId === submission.id && access === 'clerk'));
     }
 
-    function getScore(side) {
+    function getScore(data, side) {
         function sideWonMatch(match) {
             switch (side) {
                 case 'home':
@@ -61,18 +61,18 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
             {canShowSubmissionToggle(data.homeSubmission)
                 ? (<span onClick={() => toggleSubmission('home')}
                          className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                         title="See home submission">📬 {data.home.name} ({getScore('home')})</span>)
+                         title="See home submission">📬 {data.home.name} ({getScore(data.homeSubmission, 'home')}-{getScore(data.homeSubmission, 'away')})</span>)
                 : <EmbedAwareLink to={`/division/${division.name}/team:${data.home.name}/${season.name}`}
-                                  className="margin-right">{data.home.name} - {getScore('home')}</EmbedAwareLink>}
+                                  className="margin-right">{data.home.name} - {homeScore}</EmbedAwareLink>}
         </td>
         <td className="text-center width-1 middle-vertical-line p-0"></td>
         <td colSpan="2" className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}${submission === 'away' ? ' bg-warning' : ''}`}>
             {canShowSubmissionToggle(data.awaySubmission)
                 ? (<span onClick={() => toggleSubmission('away')}
                          className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`}
-                         title="See away submission">📬 {data.away.name} ({getScore('away')})</span>)
+                         title="See away submission">📬 {data.away.name} ({getScore(data.awaySubmission, 'home')}-{getScore(data.awaySubmission, 'away')})</span>)
                 : <EmbedAwareLink to={`/division/${division.name}/team:${data.away.name}/${season.name}`}
-                                  className="margin-right">{getScore('away')} - {data.away.name}</EmbedAwareLink>}
+                                  className="margin-right">{awayScore} - {data.away.name}</EmbedAwareLink>}
         </td>
     </tr>
     {access === 'clerk' && !data.resultsPublished ? (<tr>
