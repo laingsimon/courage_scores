@@ -176,7 +176,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     try {
         return (<tr>
             <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner ' : ''}text-end width-50-pc position-relative`}>
-                {canOpenSayg() ? (<button className="btn btn-sm position-absolute left-0"
+                {canOpenSayg() ? (<button tabIndex="-1" className="btn btn-sm position-absolute left-0"
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
                 {repeat(matchOptions.playerCount).map(index => disabled
@@ -215,7 +215,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
             <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner ' : ''}width-50-pc position-relative`}>
                 {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
                 {readOnly ? null : (
-                    <button tabIndex={-1} title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
+                    <button tabIndex="-1" title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
                             className="btn btn-sm right-0 position-absolute"
                             onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
                 {repeat(matchOptions.playerCount).map(index => disabled

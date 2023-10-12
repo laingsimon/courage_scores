@@ -68,8 +68,10 @@ public class GameMatch : AuditedEntity, IGameVisitable
                 visitor.VisitMatchWin(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
                 visitor.VisitMatchLost(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
             }
-
-            // must be a 0-0 record (i.e. not played) - draw's aren't possible in matches (legs are 3,5 or 7 normally)
+            else
+            {
+                visitor.VisitDataError(scope, $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} is a {HomeScore}-{AwayScore} draw, scores won't count on players table");
+            }
         }
     }
 }
