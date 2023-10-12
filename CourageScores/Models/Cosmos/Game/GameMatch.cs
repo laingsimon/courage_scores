@@ -70,7 +70,7 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
             else
             {
-                visitor.VisitDataError(scope, $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} is a {HomeScore}-{AwayScore} draw");
+                visitor.VisitDataError(scope, $"Match between {string.Join(", ", HomePlayers.Select(p => p.Name))} and {string.Join(", ", AwayPlayers.Select(p => p.Name))} is a {HomeScore}-{AwayScore} draw, scores won't count on players table");
             }
         }
     }
