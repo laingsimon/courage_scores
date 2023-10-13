@@ -7,11 +7,6 @@ namespace CourageScores.Services.Status;
 
 public static class MemoryCacheExtensions
 {
-    public static int Count(this IMemoryCache cache)
-    {
-        return ((MemoryCache)cache).Count;
-    }
-
     public static IEnumerable<object> GetKeys(this IMemoryCache cache)
     {
         var entriesField = typeof(MemoryCache).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
