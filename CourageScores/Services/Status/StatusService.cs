@@ -1,5 +1,6 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Status;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -8,14 +9,16 @@ namespace CourageScores.Services.Status;
 public class StatusService : IStatusService
 {
     private readonly ApplicationMetrics _applicationMetrics;
+    private readonly IUserService _userService;
     private readonly IMemoryCache _memoryCache;
     private readonly ISeasonService _seasonService;
 
-    public StatusService(ISeasonService seasonService, IMemoryCache memoryCache, ApplicationMetrics applicationMetrics)
+    public StatusService(ISeasonService seasonService, IMemoryCache memoryCache, ApplicationMetrics applicationMetrics, IUserService userService)
     {
         _seasonService = seasonService;
         _memoryCache = memoryCache;
         _applicationMetrics = applicationMetrics;
+        _userService = userService;
     }
 
     public async Task<ActionResultDto<ServiceStatusDto>> GetStatus(CancellationToken token)
@@ -46,9 +49,41 @@ public class StatusService : IStatusService
                 : default;
         });
 
-        status.CachedEntries = Try<int?>(result, () => ((MemoryCache)_memoryCache).Count);
+        status.CachedEntries = Try<int?>(result, () => _memoryCache.GetKeys().Count());
         status.StartTime = _applicationMetrics.Started;
         status.UpTime = _applicationMetrics.UpTime;
+
+        return result;
+    }
+
+    public async Task<ActionResultDto<CacheClearedDto>> ClearCache(CancellationToken token)
+    {
+        var dto = new CacheClearedDto();
+        var result = new ActionResultDto<CacheClearedDto>
+        {
+            Success = true,
+            Result = dto,
+        };
+
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            result.Success = false;
+            result.Errors.Add("Not permitted");
+            return result;
+        }
+
+        var count = 0;
+        foreach (var key in _memoryCache.GetKeys())
+        {
+            token.ThrowIfCancellationRequested();
+
+            dto.Keys.Add(key.ExposeFieldsAndProperties());
+            _memoryCache.Remove(key);
+            count++;
+        }
+
+        result.Messages.Add($"{count} entries removed");
 
         return result;
     }
