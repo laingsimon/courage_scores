@@ -152,6 +152,8 @@ public class CachingDivisionService : ICachingDivisionService
 
     private class CacheKey : IEquatable<CacheKey>
     {
+        private readonly DateTime _created = DateTime.UtcNow;
+
         public CacheKey(DivisionDataFilter filter, string type)
         {
             Filter = filter;
