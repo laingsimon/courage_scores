@@ -89,6 +89,24 @@ public class GameMatchTests
     }
 
     [Test]
+    public void Accept_GivenEqualPlayerCountsAndDraw_VisitsDataError()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var homePlayer = new GamePlayer { Name = "HOME" };
+        var awayPlayer = new GamePlayer { Name = "AWAY" };
+        _match.HomePlayers.Add(homePlayer);
+        _match.AwayPlayers.Add(awayPlayer);
+        _match.HomeScore = 1;
+        _match.AwayScore = 1;
+
+        _match.Accept(VisitorScope, visitor.Object);
+
+        visitor.Verify(v => v.VisitMatchWin(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        visitor.Verify(v => v.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        visitor.Verify(v => v.VisitDataError(VisitorScope, "Match between HOME and AWAY is a 1-1 draw, scores won't count on players table"));
+    }
+
+    [Test]
     public void Accept_GivenUnequalPlayerCountsAndHomeWinner_DoesNotMatchWinnerOrLoser()
     {
         var visitor = new Mock<IGameVisitor>();

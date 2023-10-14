@@ -22,4 +22,16 @@ public class StatusController : Controller
     {
         return await _statusService.GetStatus(token);
     }
+
+    [HttpGet("/api/ClearCache")]
+    public async Task<ActionResultDto<CacheClearedDto>> ClearCache(CancellationToken token)
+    {
+        return await _statusService.ClearCache(token);
+    }
+
+    [HttpGet("/api/Status/Cache")]
+    public async Task<ActionResultDto<List<Dictionary<string, object?>>>> GetCacheKeys(CancellationToken token)
+    {
+        return await _statusService.GetCachedEntries(token);
+    }
 }
