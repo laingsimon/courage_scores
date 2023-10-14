@@ -7,4 +7,5 @@ public interface IStatusService
 {
     Task<ActionResultDto<ServiceStatusDto>> GetStatus(CancellationToken token);
     Task<ActionResultDto<CacheClearedDto>> ClearCache(CancellationToken token);
+    Task<ActionResultDto<List<Dictionary<string, object?>>>> GetCachedEntries(CancellationToken token);
 }

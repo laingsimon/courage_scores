@@ -55,6 +55,16 @@ function getContentForReplacement(content) {
     return fragment;
 }
 
+function removeCustomHeaderFromWebConfig(path, callback) {
+    const webConfigPath = path + '/web.config';
+
+    readContent(webConfigPath, (content) => {
+        const newContent = content.replace(/<customHeaders>(.+)<\/customHeaders>/s, '');
+        console.log('Writing updated web.config content to ' + webConfigPath);
+        fs.writeFile(webConfigPath, newContent, callback);
+    });
+}
+
 readContent(contentPath + '/index.html', (content) => {
     const segment = getContentForReplacement(content); // find the segment to replace in the other files
     const filesToCopyIntoBrand = ['layout.css', 'web.config', 'manifest.json', 'host.html', 'parentHeight.js'];
@@ -82,7 +92,7 @@ readContent(contentPath + '/index.html', (content) => {
                     () => exhaustArray(
                         filesToCopyIntoBrand,
                         (file, cb) => copyFile(brandPath, file, cb),
-                        callback)),
+                        () => removeCustomHeaderFromWebConfig(brandPath, callback))),
                 () => {
                     console.log('Completed copying content');
                 });

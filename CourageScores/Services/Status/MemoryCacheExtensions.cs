@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using CourageScores.Models.Dtos.Status;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Status;
@@ -21,7 +22,7 @@ public static class MemoryCacheExtensions
             : entries.Keys.Cast<object>().ToArray();
     }
 
-    public static IReadOnlyDictionary<string, object?> ExposeFieldsAndProperties(this object instance)
+    public static Dictionary<string, object?> ExposeFieldsAndProperties(this object instance)
     {
         var fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         var properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
