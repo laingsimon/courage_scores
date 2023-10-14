@@ -88,6 +88,33 @@ public class StatusService : IStatusService
         return result;
     }
 
+    public async Task<ActionResultDto<List<Dictionary<string, object?>>>> GetCachedEntries(CancellationToken token)
+    {
+        var dto = new List<Dictionary<string, object?>>();
+        var result = new ActionResultDto<List<Dictionary<string, object?>>>
+        {
+            Success = true,
+            Result = dto,
+        };
+
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            result.Success = false;
+            result.Errors.Add("Not permitted");
+            return result;
+        }
+
+        foreach (var key in _memoryCache.GetKeys())
+        {
+            token.ThrowIfCancellationRequested();
+
+            dto.Add(key.ExposeFieldsAndProperties());
+        }
+
+        return result;
+    }
+
     private static async Task<T?> Try<T>(ActionResultDto<ServiceStatusDto> result, Func<Task<T>> action)
     {
         try

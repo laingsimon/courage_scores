@@ -187,6 +187,47 @@ public class StatusServiceTests
         Assert.That(cachedKey["NullStringProperty"], Is.Null);
     }
 
+    [Test]
+    public async Task GetCachedEntries_WhenLoggedOut_ReturnsNotPermitted()
+    {
+        _user = null;
+
+        var result = await _service.GetCachedEntries(_token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task GetCachedEntries_WhenLoggedIn_ReturnsEmptyList()
+    {
+        var result = await _service.GetCachedEntries(_token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetCachedEntries_WhenLoggedIn_ClearsCache()
+    {
+        var key = new CacheEntryKey(name: "NAME")
+        {
+            Address = "ADDRESS",
+        };
+        _memoryCache.GetOrCreate(key, _ => key);
+
+        var result = await _service.GetCachedEntries(_token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result!.Count, Is.EqualTo(1));
+        var cachedKey = result.Result[0];
+        Assert.That(cachedKey.Keys, Is.EquivalentTo(new[] { "_name", "_nullStringField", "Address", "NullStringProperty" }));
+        Assert.That(cachedKey["_name"], Is.EqualTo("NAME"));
+        Assert.That(cachedKey["Address"], Is.EqualTo("ADDRESS"));
+        Assert.That(cachedKey["_nullStringField"], Is.Null);
+        Assert.That(cachedKey["NullStringProperty"], Is.Null);
+    }
+
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
