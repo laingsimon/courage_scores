@@ -54,7 +54,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         })[0];
     }
 
-    async function onRemovePlayer(playerId) {
+    async function onDeselectPlayer(playerId) {
         const newSide = Object.assign({}, side);
         newSide.players = (newSide.players || []).filter(p => p.id !== playerId);
 
@@ -68,7 +68,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         }
     }
 
-    async function onAddPlayer(player) {
+    async function onSelectPlayer(player) {
         const newSide = Object.assign({}, side);
         newSide.players = (newSide.players || []).concat({
             id: player.id,
@@ -103,13 +103,13 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
 
     async function togglePlayer(player) {
         if (any(side.players || [], p => p.id === player.id)) {
-            await onRemovePlayer(player.id);
+            await onDeselectPlayer(player.id);
             return;
         }
 
         const otherSidePlayerSelectedIn = getOtherSidePlayerSelectedIn(player);
         if (!otherSidePlayerSelectedIn) {
-            await onAddPlayer(player);
+            await onSelectPlayer(player);
         }
     }
 
