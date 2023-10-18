@@ -7,9 +7,10 @@ import {any, sortBy} from "../../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
 
 export function EditSide({side, onChange, onClose, onApply, onDelete}) {
-    const {teams: teamMap, onError} = useApp();
+    const {teams: teamMap, onError, account} = useApp();
     const {tournamentData, season, alreadyPlaying} = useTournament();
     const [playerFilter, setPlayerFilter] = useState('');
+    const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState(false);
     const divisionId = tournamentData.divisionId;
     const selectATeam = {value: '', text: 'Select team', className: 'text-warning'};
     const teamOptions = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map(t => {
@@ -27,6 +28,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
 
             return [];
         });
+    const canAddPlayers = account.access.managePlayers && !side.teamId;
 
     function teamSeasonForSameDivision(team) {
         const teamSeason = team.seasons.filter(ts => ts.seasonId === season.id)[0];
@@ -203,6 +205,9 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
+                {canAddPlayers
+                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add player</button>)
+                    : null}
                 {side.id ? (<button className="btn btn-danger margin-right" onClick={onRemoveSide}>
                     Delete side
                 </button>) : null}

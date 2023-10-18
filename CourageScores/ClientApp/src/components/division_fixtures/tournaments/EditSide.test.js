@@ -42,7 +42,7 @@ describe('EditSide', () => {
         deleted = true;
     }
 
-    async function renderComponent(containerProps, side, teams) {
+    async function renderComponent(containerProps, side, teams, account) {
         reportedError = null;
         updatedData = null;
         closed = false;
@@ -63,6 +63,7 @@ describe('EditSide', () => {
                     }
                 },
                 teams: toMap(teams || []),
+                account: (account || { access: {} }),
             },
             (<TournamentContainer {...containerProps}>
                 <EditSide side={side} onChange={onChange} onClose={onClose} onApply={onApply} onDelete={onDelete}/>
@@ -338,6 +339,84 @@ describe('EditSide', () => {
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('.btn-danger')).toBeFalsy();
+        });
+
+        it('add player button when permitted and new side', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .id(undefined)
+                .build();
+            const account = {
+                access: { managePlayers: true },
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+
+            expect(reportedError).toBeNull();
+            const buttons = Array.from(context.container.querySelectorAll('.btn'));
+            const buttonText = buttons.map(btn => btn.textContent);
+            expect(buttonText).toContain('Add player');
+        });
+
+        it('add player button when permitted and editing side', async () => {
+            const side = sideBuilder('SIDE NAME').build();
+            const account = {
+                access: { managePlayers: true },
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+
+            expect(reportedError).toBeNull();
+            const buttons = Array.from(context.container.querySelectorAll('.btn'));
+            const buttonText = buttons.map(btn => btn.textContent);
+            expect(buttonText).toContain('Add player');
+        });
+
+        it('no add player button when not permitted', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .teamId(team.id)
+                .build();
+            const account = {
+                access: { managePlayers: false },
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+
+            expect(reportedError).toBeNull();
+            const buttons = Array.from(context.container.querySelectorAll('.btn'));
+            const buttonText = buttons.map(btn => btn.textContent);
+            expect(buttonText).not.toContain('Add player');
+        });
+
+        it('no add player button when permitted and team side', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .teamId(team.id)
+                .build();
+            const account = {
+                access: { managePlayers: false },
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+
+            expect(reportedError).toBeNull();
+            const buttons = Array.from(context.container.querySelectorAll('.btn'));
+            const buttonText = buttons.map(btn => btn.textContent);
+            expect(buttonText).not.toContain('Add player');
         });
     });
 
