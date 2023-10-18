@@ -152,6 +152,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     private class CacheKey : IEquatable<CacheKey>
     {
+        // ReSharper disable once UnusedMember.Local
         private readonly DateTime _created = DateTime.UtcNow;
 
         public CacheKey(DivisionDataFilter filter, string type)

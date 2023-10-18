@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using CourageScores.Models.Dtos.Status;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Status;
