@@ -21,6 +21,21 @@ describe('EditSide', () => {
     let closed;
     let applied;
     let deleted;
+    let teamsReloaded;
+    let createdPlayer;
+    const playerApi = {
+        create: (divisionId, seasonId, teamId, playerDetails) => {
+            createdPlayer = {
+                divisionId,
+                seasonId,
+                teamId,
+                playerDetails,
+            };
+            return {
+                success: true,
+            };
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -48,8 +63,12 @@ describe('EditSide', () => {
         closed = false;
         applied = false;
         deleted = false;
+        teamsReloaded = false;
+        createdPlayer = null;
         context = await renderApp(
-            {},
+            {
+                playerApi,
+            },
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -64,6 +83,9 @@ describe('EditSide', () => {
                 },
                 teams: toMap(teams || []),
                 account: (account || { access: {} }),
+                reloadTeams: () => {
+                    teamsReloaded = true;
+                }
             },
             (<TournamentContainer {...containerProps}>
                 <EditSide side={side} onChange={onChange} onClose={onClose} onApply={onApply} onDelete={onDelete}/>
@@ -509,7 +531,7 @@ describe('EditSide', () => {
             });
         });
 
-        it('can add player', async () => {
+        it('can select player', async () => {
             const side = sideBuilder('')
                 .build();
             await renderComponent({
@@ -532,7 +554,7 @@ describe('EditSide', () => {
             });
         });
 
-        it('sets side name to player name when player added to new side', async () => {
+        it('sets side name to player name when player selected for new side', async () => {
             const side = sideBuilder(undefined)
                 .build();
             await renderComponent({
@@ -555,7 +577,7 @@ describe('EditSide', () => {
             });
         });
 
-        it('can add player and team name does not change', async () => {
+        it('can select player and team name does not change', async () => {
             const side = sideBuilder('OTHER NAME')
                 .build();
             await renderComponent({
@@ -578,7 +600,7 @@ describe('EditSide', () => {
             });
         });
 
-        it('can add another player', async () => {
+        it('can select another player', async () => {
             const side = sideBuilder('PLAYER')
                 .withPlayer(player)
                 .build();
@@ -609,7 +631,7 @@ describe('EditSide', () => {
             });
         });
 
-        it('can add another player and team name does not change', async () => {
+        it('can select another player and team name does not change', async () => {
             const side = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
@@ -640,7 +662,7 @@ describe('EditSide', () => {
             });
         });
 
-        it('can remove player', async () => {
+        it('can deselect player', async () => {
             const side = sideBuilder('ANOTHER PLAYER, PLAYER')
                 .withPlayer(player)
                 .withPlayer(anotherPlayer)
@@ -779,7 +801,7 @@ describe('EditSide', () => {
             expect(applied).toEqual(false);
         });
 
-        it('can add players that are selected in another tournament', async () => {
+        it('can select players that are selected in another tournament', async () => {
             const side = sideBuilder('SIDE NAME')
                 .build();
             await renderComponent({
@@ -820,6 +842,117 @@ describe('EditSide', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData).toBeNull();
+        });
+
+        it('can open add player dialog', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+            const account = {
+                access: { managePlayers: true },
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+
+            await doClick(findButton(context.container, 'Add player'));
+
+            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const dialog = headingForDialog.closest('.modal-dialog');
+            expect(headingForDialog).toBeTruthy();
+            expect(dialog).toBeTruthy();
+        });
+
+        it('can close add player dialog', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+            const account = {
+                access: { managePlayers: true },
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+            await doClick(findButton(context.container, 'Add player'));
+            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const dialog = headingForDialog.closest('.modal-dialog');
+
+            await doClick(findButton(dialog, 'Cancel'));
+
+            expect(Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...').length).toEqual(0);
+        });
+
+        it('can add player', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+            const account = {
+                access: { managePlayers: true },
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+            await doClick(findButton(context.container, 'Add player'));
+            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const dialog = headingForDialog.closest('.modal-dialog');
+
+            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
+            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doClick(findButton(dialog, 'Add player'));
+
+            expect(createdPlayer).not.toBeNull();
+        });
+
+        it('reloads teams after player added', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+            const account = {
+                access: { managePlayers: true },
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+            await doClick(findButton(context.container, 'Add player'));
+            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const dialog = headingForDialog.closest('.modal-dialog');
+
+            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
+            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doClick(findButton(dialog, 'Add player'));
+
+            expect(teamsReloaded).toEqual(true);
+        });
+
+        it('closes dialog after adding a player', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+            const account = {
+                access: { managePlayers: true },
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+            await doClick(findButton(context.container, 'Add player'));
+            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const dialog = headingForDialog.closest('.modal-dialog');
+
+            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
+            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doClick(findButton(dialog, 'Add player'));
+
+            expect(Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...').length).toEqual(0);
         });
     });
 });

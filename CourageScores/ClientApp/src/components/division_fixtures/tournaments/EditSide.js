@@ -1,16 +1,18 @@
-import {stateChanged, valueChanged} from "../../../helpers/events";
+import {propChanged, stateChanged, valueChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {Dialog} from "../../common/Dialog";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {useApp} from "../../../AppContainer";
 import {any, sortBy} from "../../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
+import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 
 export function EditSide({side, onChange, onClose, onApply, onDelete}) {
-    const {teams: teamMap, onError, account} = useApp();
+    const {teams: teamMap, onError, account, reloadTeams} = useApp();
     const {tournamentData, season, alreadyPlaying} = useTournament();
     const [playerFilter, setPlayerFilter] = useState('');
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState(false);
+    const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const divisionId = tournamentData.divisionId;
     const selectATeam = {value: '', text: 'Select team', className: 'text-warning'};
     const teamOptions = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map(t => {
@@ -145,6 +147,25 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         return player.name.toLowerCase().indexOf(playerFilter.toLowerCase()) !== -1;
     }
 
+    function renderCreatePlayerDialog(season) {
+        return (<Dialog title={`Add a player...`}>
+            <EditPlayerDetails
+                id={null}
+                player={newPlayerDetails}
+                seasonId={season.id}
+                divisionId={tournamentData.divisionId}
+                onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
+                onCancel={() => setAddPlayerDialogOpen(false)}
+                onSaved={reloadPlayers}
+            />
+        </Dialog>);
+    }
+    async function reloadPlayers() {
+        await reloadTeams();
+        setAddPlayerDialogOpen(false);
+        setNewPlayerDetails({name: '', captain: false});
+    }
+
     try {
         const filteredPlayers = allPossiblePlayers.filter(matchesPlayerFilter);
 
@@ -213,6 +234,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
                 </button>) : null}
                 <button className="btn btn-primary" onClick={onSave}>Save</button>
             </div>
+            {addPlayerDialogOpen ? renderCreatePlayerDialog(season) : null}
         </Dialog>);
     } catch (e) {
         /* istanbul ignore next */
