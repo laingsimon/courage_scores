@@ -92,7 +92,7 @@ export function EditPlayerDetails({
             const playerDetails = multiPlayerDetails[index];
             const response = await playerApi.create(divisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);
-            success = success && response.success;
+            success = success && (response.success || false);
         }
 
         return {

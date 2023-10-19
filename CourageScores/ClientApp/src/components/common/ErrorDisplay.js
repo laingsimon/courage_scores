@@ -6,25 +6,41 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
     const [errorReported, setErrorReported] = useState(false);
     const {reportClientSideException} = useApp();
 
-    function renderValidationErrors(errors) {
-        return (<ol className="text-danger">
+    function renderValidationErrors(errors, key) {
+        return (<ol className="text-danger" key={key}>
             {Object.keys(errors).map(key => {
                 return (<li key={key}>{key} {errors[key].map((e, index) => (<p key={index}>{e}</p>))}</li>)
             })}
         </ol>)
     }
 
-    function renderServerSideException(exc) {
+    function renderServerSideException(exc, key) {
         const type = exc.Type;
         const stack = exc.StackTrace;
         const message = exc.Message;
 
-        return (<div>
+        return (<div key={key}>
             <h5>Server side error</h5>
             <p><strong>{type}</strong>: {message}</p>
             <pre>{stack ? stack.join('\n') : ''
             }</pre>
         </div>);
+    }
+
+    function renderError(e, key) {
+        if (!e) {
+            return null;
+        }
+
+        if ((typeof e) === "string") {
+            return (<p key={key + '_error'} className="text-danger">{e}</p>);
+        }
+
+        if (e.Exception) {
+            return renderServerSideException(e.Exception, key);
+        }
+
+        return renderValidationErrors(e, key);
     }
 
     if (errors && !errorReported) {
@@ -47,7 +63,9 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
         <div>
             {Exception ? renderServerSideException(Exception) : null}
             {errors && errors.length !== undefined
-                ? errors.map((e, index) => (<p key={index + '_error'} className="text-danger">{e}</p>))
+                ? errors.map((e, index) => {
+                    return renderError(e, index);
+                })
                 : null}
             {errors && errors.length === undefined
                 ? (renderValidationErrors(errors))

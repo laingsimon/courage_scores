@@ -170,4 +170,55 @@ describe('ErrorDisplay', () => {
             expect(dialog.textContent).toContain('dotnet message');
         });
     });
+
+    describe('multiple server side exceptions', () => {
+        it('renders validation errors', async () => {
+            await renderComponent({
+                errors: [{
+                    property: ['The property field is required'],
+                }],
+                messages: [],
+                warnings: [],
+                title: '',
+                Exception: null
+            });
+
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('The property field is required');
+        });
+
+        it('renders server-side errors', async () => {
+            await renderComponent({
+                errors: [{
+                    Exception: {
+                        Type: 'System.NullReferenceException',
+                        Message: 'Some message',
+                    },
+                }],
+                messages: [],
+                warnings: [],
+                title: '',
+                Exception: null
+            });
+
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('System.NullReferenceException');
+        });
+
+        it('ignore null errors', async () => {
+            await renderComponent({
+                errors: [null],
+                messages: [],
+                warnings: [],
+                title: '',
+                Exception: null
+            });
+
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('There was an error');
+        });
+    });
 });
