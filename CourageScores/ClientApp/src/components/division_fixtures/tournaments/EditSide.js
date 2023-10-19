@@ -227,7 +227,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
                     <button className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
                 {canAddPlayers
-                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add player</button>)
+                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add player/s</button>)
                     : null}
                 {side.id ? (<button className="btn btn-danger margin-right" onClick={onRemoveSide}>
                     Delete side

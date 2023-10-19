@@ -380,7 +380,7 @@ describe('EditSide', () => {
             expect(reportedError).toBeNull();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
-            expect(buttonText).toContain('Add player');
+            expect(buttonText).toContain('Add player/s');
         });
 
         it('add player button when permitted and editing side', async () => {
@@ -398,7 +398,7 @@ describe('EditSide', () => {
             expect(reportedError).toBeNull();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
-            expect(buttonText).toContain('Add player');
+            expect(buttonText).toContain('Add player/s');
         });
 
         it('no add player button when not permitted', async () => {
@@ -857,7 +857,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, side, [team], account);
 
-            await doClick(findButton(context.container, 'Add player'));
+            await doClick(findButton(context.container, 'Add player/s'));
 
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -877,7 +877,7 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: {},
             }, side, [team], account);
-            await doClick(findButton(context.container, 'Add player'));
+            await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
 
@@ -898,7 +898,7 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: {},
             }, side, [team], account);
-            await doClick(findButton(context.container, 'Add player'));
+            await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
 
@@ -921,7 +921,7 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: {},
             }, side, [team], account);
-            await doClick(findButton(context.container, 'Add player'));
+            await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
 
@@ -944,7 +944,7 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: {},
             }, side, [team], account);
-            await doClick(findButton(context.container, 'Add player'));
+            await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
 
