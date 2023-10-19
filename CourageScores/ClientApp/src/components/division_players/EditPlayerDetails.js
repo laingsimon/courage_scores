@@ -81,7 +81,7 @@ export function EditPlayerDetails({
                 return {
                     name: name,
                     emailAddress: multiple ? null : player.emailAddress,
-                    captain: multiple ? null : player.captain,
+                    captain: multiple ? false : player.captain,
                     newTeamId: newTeamId,
                 };
             });

@@ -415,10 +415,12 @@ describe('EditPlayerDetails', () => {
             expect(createdPlayer1.teamId).toEqual(team.id);
             expect(createdPlayer1.playerDetails.name).toEqual('NAME 1');
             expect(createdPlayer1.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer1.playerDetails.captain).toEqual(false);
             expect(createdPlayer2.seasonId).toEqual(season.id);
             expect(createdPlayer2.teamId).toEqual(team.id);
             expect(createdPlayer2.playerDetails.name).toEqual('NAME 2');
             expect(createdPlayer2.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer2.playerDetails.captain).toEqual(false);
         });
 
         it('updates existing player', async () => {
