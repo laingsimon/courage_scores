@@ -1,4 +1,5 @@
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos.Division;
 
 namespace CourageScores.Services.Division;
 
@@ -14,12 +15,17 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitDataError(IVisitorScope scope, string dataError)
     {
+        var error = new DataErrorDto
+        {
+            Message = dataError,
+        };
+
         if (_lastGame != null)
         {
-            dataError = $"{_lastGame.Id} ({_lastGame.Date:dd MMM yyyy}): {dataError}";
+            error.GameId = _lastGame.Id;
         }
 
-        _divisionData.DataErrors.Add(dataError);
+        _divisionData.DataErrors.Add(error);
     }
 
     public void VisitGame(Models.Cosmos.Game.Game game)

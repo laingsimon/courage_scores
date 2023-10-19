@@ -17,6 +17,7 @@ import {DivisionDataContainer} from "./DivisionDataContainer";
 import {isGuid} from "../helpers/projection";
 import {EmbedAwareLink} from "./common/EmbedAwareLink";
 import {DivisionHealth} from "./division_health/DivisionHealth";
+import {DataError} from "./DataError";
 
 export function Division() {
     const INVALID = 'INVALID';
@@ -251,7 +252,7 @@ export function Division() {
                 <h3>⚠ Errors in division data</h3>
                 <ol>
                     {dataErrors.map((error, index) => {
-                        return (<li key={index}>{error}</li>);
+                        return (<DataError key={index} dataError={error} />);
                     })}
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
