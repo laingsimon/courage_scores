@@ -56,7 +56,15 @@ describe('Tournament', () => {
     const playerApi = {
         create: async (divisionId, seasonId, teamId, playerDetails) => {
             createdPlayer = {divisionId, seasonId, teamId, playerDetails};
-            return apiResponse || {success: true};
+            return apiResponse || {
+                success: true,
+                result: {
+                    seasons: [{
+                        seasonId: seasonId,
+                        players: [],
+                    }],
+                }
+            };
         }
     };
     const dataApi = {
