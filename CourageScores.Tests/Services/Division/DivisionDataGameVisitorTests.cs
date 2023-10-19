@@ -81,7 +81,7 @@ public class DivisionDataGameVisitorTests
 
         visitor.VisitDataError(LeagueVisitorScope, "some error");
 
-        Assert.That(divisionData.DataErrors, Has.Member("some error"));
+        Assert.That(divisionData.DataErrors.Select(de => de.Message), Has.Member("some error"));
     }
 
     [Test]

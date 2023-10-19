@@ -78,7 +78,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ApplyRanks()
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
-            DataErrors = canShowDataErrors ? divisionData.DataErrors.ToList() : new List<string>(),
+            DataErrors = canShowDataErrors ? divisionData.DataErrors.ToList() : new List<DataErrorDto>(),
             Updated = division?.Updated,
         };
     }
@@ -143,7 +143,11 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             var teamInSeasonAndDivision = teamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id);
             if (teamInSeasonAndDivision == null)
             {
-                divisionData.DataErrors.Add($"Potential cross-division team found: {id}");
+                divisionData.DataErrors.Add(new DataErrorDto
+                {
+                    TeamId = id,
+                    Message = $"Potential cross-division team found: {id}",
+                });
                 continue;
             }
 
@@ -229,7 +233,10 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             Id = divisionId,
             DataErrors =
             {
-                message,
+                new DataErrorDto
+                {
+                    Message = message,
+                }
             },
         };
     }

@@ -7,18 +7,7 @@ import {sortBy} from "../../helpers/collections";
 import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function EditPlayerDetails({
-                                      onSaved,
-                                      onChange,
-                                      onCancel,
-                                      seasonId,
-                                      team,
-                                      gameId,
-                                      newTeamId,
-                                      divisionId,
-                                      newDivisionId,
-                                      player
-                                  }) {
+export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, newDivisionId, player }) {
     const [saving, setSaving] = useState(false);
     const [multiple, setMultiple] = useState(false);
     const [saveError, setSaveError] = useState(null);
@@ -61,7 +50,7 @@ export function EditPlayerDetails({
 
             if (response.success) {
                 if (onSaved) {
-                    await onSaved(response.result);
+                    await onSaved(response.result, player.id ? null : getNewPlayers(response));
                 }
             } else {
                 setSaveError(response);
@@ -74,6 +63,21 @@ export function EditPlayerDetails({
         }
     }
 
+    function getNewPlayers(response) {
+        try {
+            const teamSeason = response.result.seasons.filter(ts => ts.seasonId === seasonId)[0];
+            const newPlayerDetails = response.playerDetails;
+            const newPlayers = newPlayerDetails.map(request => {
+                return teamSeason.players.filter(p => p.name === request.name)[0];
+            });
+
+            return newPlayers.filter(p => p); // filter out any players that could not be found
+        } catch (e) {
+            onError(e);
+            return [];
+        }
+    }
+
     async function createMultiple() {
         const multiPlayerDetails = player.name.split('\n')
             .filter(name => name && name.trim()) // filter out any empty lines
@@ -81,7 +85,7 @@ export function EditPlayerDetails({
                 return {
                     name: name,
                     emailAddress: multiple ? null : player.emailAddress,
-                    captain: multiple ? null : player.captain,
+                    captain: multiple ? false : player.captain,
                     newTeamId: newTeamId,
                 };
             });
@@ -92,15 +96,17 @@ export function EditPlayerDetails({
             const playerDetails = multiPlayerDetails[index];
             const response = await playerApi.create(divisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);
-            success = success && response.success;
+            response.playerDetails = playerDetails;
+            success = success && (response.success || false);
         }
 
         return {
             success: success,
-            result: results[0].result,
+            result: results[results.length - 1].result,
             errors: results.flatMap(r => r.errors),
             warnings: results.flatMap(r => r.warnings),
             messages: results.flatMap(r => r.messages),
+            playerDetails: results.map(r => r.playerDetails),
         };
     }
 

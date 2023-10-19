@@ -15,10 +15,24 @@ describe('EditPlayerDetails', () => {
     let change;
     let canceled;
     let apiResponse;
+    let cumulativeCreatedPlayers;
+
     const playerApi = {
         create: async (divisionId, seasonId, teamId, playerDetails) => {
             createdPlayers.push({divisionId, seasonId, teamId, playerDetails});
-            return apiResponse || {success: true};
+            cumulativeCreatedPlayers.push(playerDetails);
+            playerDetails.id = createTemporaryId();
+
+            return apiResponse || {
+                success: true,
+                result: {
+                    id: teamId,
+                    seasons: [{
+                        seasonId: seasonId,
+                        players: cumulativeCreatedPlayers,
+                    }]
+                }
+            };
         },
         update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
@@ -26,8 +40,8 @@ describe('EditPlayerDetails', () => {
         }
     }
 
-    async function onSaved() {
-        saved = true;
+    async function onSaved(result, newPlayers) {
+        saved = { result, newPlayers };
     }
 
     async function onChange(name, value) {
@@ -47,9 +61,10 @@ describe('EditPlayerDetails', () => {
         updatedPlayer = null;
         createdPlayers = [];
         apiResponse = null;
-        saved = false;
+        saved = null;
         change = null;
         canceled = false;
+        cumulativeCreatedPlayers = [];
         context = await renderApp(
             {
                 playerApi
@@ -393,6 +408,31 @@ describe('EditPlayerDetails', () => {
             expect(createdPlayer.playerDetails.newTeamId).toEqual(null);
         });
 
+        it('identifies new player', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError).toBeNull();
+
+            await doClick(findButton(context.container, 'Add player'));
+
+            expect(reportedError).toBeNull();
+            expect(saved).not.toBeNull();
+            expect(saved.newPlayers).toEqual([{
+                name: 'NAME',
+                captain: true,
+                emailAddress: 'EMAIL',
+                id: expect.any(String),
+                newTeamId: null,
+            }]);
+        });
+
         it('creates multiple players', async () => {
             await renderComponent({
                 player: playerBuilder('NAME 1\nNAME 2').noId().build(),
@@ -415,10 +455,44 @@ describe('EditPlayerDetails', () => {
             expect(createdPlayer1.teamId).toEqual(team.id);
             expect(createdPlayer1.playerDetails.name).toEqual('NAME 1');
             expect(createdPlayer1.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer1.playerDetails.captain).toEqual(false);
             expect(createdPlayer2.seasonId).toEqual(season.id);
             expect(createdPlayer2.teamId).toEqual(team.id);
             expect(createdPlayer2.playerDetails.name).toEqual('NAME 2');
             expect(createdPlayer2.playerDetails.newTeamId).toEqual(null);
+            expect(createdPlayer2.playerDetails.captain).toEqual(false);
+        });
+
+        it('identifies created players', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME 1\nNAME 2').noId().build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError).toBeNull();
+            await doClick(context.container, 'input[name="multiple"]');
+
+            await doClick(findButton(context.container, 'Add players'));
+
+            expect(reportedError).toBeNull();
+            expect(saved).not.toBeNull();
+            expect(saved.newPlayers).toEqual([{
+                id: expect.any(String),
+                captain: false,
+                name: 'NAME 1',
+                newTeamId: null,
+                emailAddress: null,
+            }, {
+                id: expect.any(String),
+                captain: false,
+                name: 'NAME 2',
+                newTeamId: null,
+                emailAddress: null,
+            }])
         });
 
         it('updates existing player', async () => {
@@ -446,7 +520,8 @@ describe('EditPlayerDetails', () => {
             expect(updatedPlayer.playerDetails.emailAddress).toEqual('EMAIL');
             expect(updatedPlayer.playerDetails.captain).toEqual(true);
             expect(updatedPlayer.playerDetails.newTeamId).toEqual(otherTeam.id);
-            expect(saved).toEqual(true);
+            expect(saved).not.toBeNull();
+            expect(saved.newPlayers).toBeNull();
         });
 
         it('updates existing player in given game', async () => {
@@ -475,7 +550,8 @@ describe('EditPlayerDetails', () => {
             expect(updatedPlayer.playerDetails.emailAddress).toEqual('EMAIL');
             expect(updatedPlayer.playerDetails.captain).toEqual(true);
             expect(updatedPlayer.playerDetails.newTeamId).toEqual(otherTeam.id);
-            expect(saved).toEqual(true);
+            expect(saved).not.toBeNull();
+            expect(saved.newPlayers).toBeNull();
         });
 
         it('handles errors during save', async () => {
@@ -493,7 +569,7 @@ describe('EditPlayerDetails', () => {
 
             await doClick(findButton(context.container, 'Save player'));
 
-            expect(saved).toEqual(false);
+            expect(saved).toBeNull();
             expect(context.container.textContent).toContain('Could not save player details');
         });
 

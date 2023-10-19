@@ -164,7 +164,10 @@ public class HealthCheckServiceTests
                 Id = divisionId,
                 DataErrors =
                 {
-                    $"Requested division ({divisionId}) was not found",
+                    new DataErrorDto
+                    {
+                        Message = $"Requested division ({divisionId}) was not found",
+                    },
                 },
             });
         _healthCheck.Setup(c => c.RunCheck(It.IsAny<IReadOnlyCollection<DivisionHealthDto>>(), It.IsAny<HealthCheckContext>(), _token))
