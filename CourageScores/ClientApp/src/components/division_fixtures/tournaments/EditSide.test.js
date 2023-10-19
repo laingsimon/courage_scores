@@ -13,6 +13,7 @@ import {
     teamBuilder,
     tournamentBuilder
 } from "../../../helpers/builders";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('EditSide', () => {
     let context;
@@ -31,8 +32,16 @@ describe('EditSide', () => {
                 teamId,
                 playerDetails,
             };
+            playerDetails.id = createTemporaryId();
             return {
                 success: true,
+                result: {
+                    id: teamId,
+                    seasons: [{
+                        seasonId: seasonId,
+                        players: [playerDetails],
+                    }]
+                }
             };
         }
     };
@@ -907,6 +916,38 @@ describe('EditSide', () => {
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
+        });
+
+        it('selects newly created player', async () => {
+            const side = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+            const account = {
+                access: { managePlayers: true },
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [team], account);
+            await doClick(findButton(context.container, 'Add player/s'));
+            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const dialog = headingForDialog.closest('.modal-dialog');
+
+            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
+            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doClick(findButton(dialog, 'Add player'));
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toEqual({
+                id: side.id,
+                name: 'SIDE NAME',
+                players: [player, {
+                    id: expect.any(String),
+                    name: 'NAME',
+                    divisionId: tournamentData.divisionId,
+                }]
+            });
         });
 
         it('reloads teams after player added', async () => {

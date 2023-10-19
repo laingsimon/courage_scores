@@ -72,8 +72,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         }
     }
 
-    async function onSelectPlayer(player) {
-        const newSide = Object.assign({}, side);
+    async function onSelectPlayer(player, preventOnChange, sideOverride) {
+        const newSide = Object.assign({}, sideOverride || side);
         newSide.players = (newSide.players || []).concat({
             id: player.id,
             name: player.name,
@@ -85,9 +85,11 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
             newSide.name = newSide.players.sort(sortBy('name')).map(p => p.name).join(', ');
         }
 
-        if (onChange) {
+        if (onChange && !preventOnChange) {
             await onChange(newSide);
         }
+
+        return newSide;
     }
 
     async function updateTeamId(teamId) {
@@ -160,10 +162,23 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
             />
         </Dialog>);
     }
-    async function reloadPlayers() {
+    async function reloadPlayers(newTeam, newPlayers) {
         await reloadTeams();
         setAddPlayerDialogOpen(false);
         setNewPlayerDetails({name: '', captain: false});
+
+        let newSide = side;
+        // select the new players
+        for (let playerIndex in newPlayers) {
+            const player = newPlayers[playerIndex];
+            newSide = await onSelectPlayer({
+                id: player.id,
+                name: player.name,
+                divisionId: tournamentData.divisionId,
+            }, true, newSide);
+        }
+
+        await onChange(newSide);
     }
 
     try {
