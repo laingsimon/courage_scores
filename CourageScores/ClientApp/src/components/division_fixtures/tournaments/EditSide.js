@@ -187,9 +187,9 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         return (<Dialog title={side.id ? 'Edit side' : 'Add side'} slim={true}>
             <div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
-                    <span className="input-group-text">Name</span>
+                    <label htmlFor="name" className="input-group-text">Name</label>
                 </div>
-                <input className="form-control" value={side.name || ''} name="name"
+                <input className="form-control" value={side.name || ''} name="name" id="name"
                        onChange={valueChanged(side, onChange)}/>
             </div>
             <div className="form-check form-switch margin-right my-1">
@@ -208,8 +208,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
                 <div className="d-flex justify-content-between align-items-center p-2 pt-0">
                     <div>Who's playing</div>
                     <div>
-                        <span className="margin-right">Filter</span>
-                        <input name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter}/>
+                        <label htmlFor="playerFilter" className="margin-right">Filter</label>
+                        <input id="playerFilter" name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter}/>
                         {playerFilter
                             ? (<span className="margin-left">
                                 {filteredPlayers.length} of {allPossiblePlayers.length} player/s

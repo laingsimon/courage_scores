@@ -87,21 +87,21 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}) 
     return (<div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Name</span>
+                <label htmlFor="name" className="input-group-text">Name</label>
             </div>
-            <input readOnly={saving} name="name" onChange={valueChanged(data, onUpdateData)} value={data.name || ''}
+            <input readOnly={saving} id="name" name="name" onChange={valueChanged(data, onUpdateData)} value={data.name || ''}
                    className="form-control margin-right"/>
         </div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">From</span>
+                <label htmlFor="startDate" className="input-group-text">From</label>
             </div>
-            <input readOnly={saving} name="startDate" onChange={valueChanged(data, onUpdateData)}
+            <input readOnly={saving} id="startDate" name="startDate" onChange={valueChanged(data, onUpdateData)}
                    value={(data.startDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
             <div className="input-group-prepend">
-                <span className="input-group-text">To</span>
+                <label htmlFor="endDate" className="input-group-text">To</label>
             </div>
-            <input readOnly={saving} name="endDate" onChange={valueChanged(data, onUpdateData)}
+            <input readOnly={saving} id="endDate" name="endDate" onChange={valueChanged(data, onUpdateData)}
                    value={(data.endDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
         </div>
         {data.id ? null : (<div className="input-group margin-right mb-3">

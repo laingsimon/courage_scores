@@ -69,9 +69,9 @@ export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}
     return (<div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Name</span>
+                <label htmlFor="name" className="input-group-text">Name</label>
             </div>
-            <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name"
+            <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name" id="name"
                    className="form-control margin-right"/>
         </div>
         <div className="modal-footer px-0 pb-0">

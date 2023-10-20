@@ -61,17 +61,17 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
         <h4>Team details</h4>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Name</span>
+                <label htmlFor="name" className="input-group-text">Name</label>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="name" value={team.name} onChange={handleChange(onChange)}/>
+                   id="name" name="name" value={team.name} onChange={handleChange(onChange)}/>
         </div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Address</span>
+                <label htmlFor="address" className="input-group-text">Address</label>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="address" value={team.address} onChange={handleChange(onChange)}/>
+                   id="address" name="address" value={team.address} onChange={handleChange(onChange)}/>
         </div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
