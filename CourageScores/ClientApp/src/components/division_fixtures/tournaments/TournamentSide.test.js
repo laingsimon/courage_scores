@@ -45,6 +45,9 @@ describe('TournamentSide', () => {
                     }
                 },
                 teams: toMap(teams || []),
+                account: {
+                    access: {},
+                },
             },
             (<TournamentContainer {...containerProps}>
                 <TournamentSide {...props} onChange={onChange} onRemove={onRemove}/>

@@ -1,15 +1,18 @@
-import {stateChanged, valueChanged} from "../../../helpers/events";
+import {propChanged, stateChanged, valueChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {Dialog} from "../../common/Dialog";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {useApp} from "../../../AppContainer";
 import {any, sortBy} from "../../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
+import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 
 export function EditSide({side, onChange, onClose, onApply, onDelete}) {
-    const {teams: teamMap, onError} = useApp();
+    const {teams: teamMap, onError, account, reloadTeams} = useApp();
     const {tournamentData, season, alreadyPlaying} = useTournament();
     const [playerFilter, setPlayerFilter] = useState('');
+    const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState(false);
+    const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const divisionId = tournamentData.divisionId;
     const selectATeam = {value: '', text: 'Select team', className: 'text-warning'};
     const teamOptions = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map(t => {
@@ -27,6 +30,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
 
             return [];
         });
+    const canAddPlayers = account.access.managePlayers && !side.teamId;
 
     function teamSeasonForSameDivision(team) {
         const teamSeason = team.seasons.filter(ts => ts.seasonId === season.id)[0];
@@ -54,7 +58,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         })[0];
     }
 
-    async function onRemovePlayer(playerId) {
+    async function onDeselectPlayer(playerId) {
         const newSide = Object.assign({}, side);
         newSide.players = (newSide.players || []).filter(p => p.id !== playerId);
 
@@ -68,8 +72,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         }
     }
 
-    async function onAddPlayer(player) {
-        const newSide = Object.assign({}, side);
+    async function onSelectPlayer(player, preventOnChange, sideOverride) {
+        const newSide = Object.assign({}, sideOverride || side);
         newSide.players = (newSide.players || []).concat({
             id: player.id,
             name: player.name,
@@ -81,9 +85,11 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
             newSide.name = newSide.players.sort(sortBy('name')).map(p => p.name).join(', ');
         }
 
-        if (onChange) {
+        if (onChange && !preventOnChange) {
             await onChange(newSide);
         }
+
+        return newSide;
     }
 
     async function updateTeamId(teamId) {
@@ -103,13 +109,13 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
 
     async function togglePlayer(player) {
         if (any(side.players || [], p => p.id === player.id)) {
-            await onRemovePlayer(player.id);
+            await onDeselectPlayer(player.id);
             return;
         }
 
         const otherSidePlayerSelectedIn = getOtherSidePlayerSelectedIn(player);
         if (!otherSidePlayerSelectedIn) {
-            await onAddPlayer(player);
+            await onSelectPlayer(player);
         }
     }
 
@@ -143,15 +149,47 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
         return player.name.toLowerCase().indexOf(playerFilter.toLowerCase()) !== -1;
     }
 
+    function renderCreatePlayerDialog(season) {
+        return (<Dialog title={`Add a player...`}>
+            <EditPlayerDetails
+                id={null}
+                player={newPlayerDetails}
+                seasonId={season.id}
+                divisionId={tournamentData.divisionId}
+                onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
+                onCancel={() => setAddPlayerDialogOpen(false)}
+                onSaved={reloadPlayers}
+            />
+        </Dialog>);
+    }
+    async function reloadPlayers(newTeam, newPlayers) {
+        await reloadTeams();
+        setAddPlayerDialogOpen(false);
+        setNewPlayerDetails({name: '', captain: false});
+
+        let newSide = side;
+        // select the new players
+        for (let playerIndex in newPlayers) {
+            const player = newPlayers[playerIndex];
+            newSide = await onSelectPlayer({
+                id: player.id,
+                name: player.name,
+                divisionId: tournamentData.divisionId,
+            }, true, newSide);
+        }
+
+        await onChange(newSide);
+    }
+
     try {
         const filteredPlayers = allPossiblePlayers.filter(matchesPlayerFilter);
 
         return (<Dialog title={side.id ? 'Edit side' : 'Add side'} slim={true}>
             <div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
-                    <span className="input-group-text">Name</span>
+                    <label htmlFor="name" className="input-group-text">Name</label>
                 </div>
-                <input className="form-control" value={side.name || ''} name="name"
+                <input className="form-control" value={side.name || ''} name="name" id="name"
                        onChange={valueChanged(side, onChange)}/>
             </div>
             <div className="form-check form-switch margin-right my-1">
@@ -170,8 +208,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
                 <div className="d-flex justify-content-between align-items-center p-2 pt-0">
                     <div>Who's playing</div>
                     <div>
-                        <span className="margin-right">Filter</span>
-                        <input name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter}/>
+                        <label htmlFor="playerFilter" className="margin-right">Filter</label>
+                        <input id="playerFilter" name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter}/>
                         {playerFilter
                             ? (<span className="margin-left">
                                 {filteredPlayers.length} of {allPossiblePlayers.length} player/s
@@ -203,11 +241,15 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
+                {canAddPlayers
+                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add player/s</button>)
+                    : null}
                 {side.id ? (<button className="btn btn-danger margin-right" onClick={onRemoveSide}>
                     Delete side
                 </button>) : null}
                 <button className="btn btn-primary" onClick={onSave}>Save</button>
             </div>
+            {addPlayerDialogOpen ? renderCreatePlayerDialog(season) : null}
         </Dialog>);
     } catch (e) {
         /* istanbul ignore next */

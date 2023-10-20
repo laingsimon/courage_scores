@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Division;
@@ -25,7 +26,7 @@ public class DivisionData
     /// <summary>
     /// A list of all known data errors
     /// </summary>
-    public HashSet<string> DataErrors { get; } = new();
+    public List<DataErrorDto> DataErrors { get; } = new();
 
     public class PlayerPlayScore
     {

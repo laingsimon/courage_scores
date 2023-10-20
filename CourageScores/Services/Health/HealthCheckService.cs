@@ -70,7 +70,7 @@ public class HealthCheckService : IHealthCheckService
         var seasonHealthDto = await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), token);
 
         var result = await Check(seasonHealthDto, token);
-        result.Errors.InsertRange(0, divisionalData.SelectMany(d => d.DataErrors));
+        result.Errors.InsertRange(0, divisionalData.SelectMany(d => d.DataErrors).Select(de => de.Message));
         result.Success = result.Success && result.Errors.Count == 0;
 
         return result;

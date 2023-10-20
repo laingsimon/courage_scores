@@ -379,7 +379,7 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
 
-        Assert.That(result.DataErrors, Has.Member($"Potential cross-division team found: {otherDivisionTeam.Id}"));
+        Assert.That(result.DataErrors.Select(de => de.Message), Has.Member($"Potential cross-division team found: {otherDivisionTeam.Id}"));
     }
 
     [Test]
@@ -1481,10 +1481,9 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
-        Assert.That(result.DataErrors, Is.EqualTo(new[]
-        {
-            $"{game.Id} (03 Feb 2001): Mismatching number of players: Home players (1): [A] vs Away players (2): [B, C]",
-        }));
+        var dataError = result.DataErrors.Single();
+        Assert.That(dataError.Message, Is.EqualTo("Mismatching number of players: Home players (1): [A] vs Away players (2): [B, C]"));
+        Assert.That(dataError.GameId, Is.EqualTo(game.Id));
     }
 
     [Test]
