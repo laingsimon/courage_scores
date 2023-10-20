@@ -471,7 +471,7 @@ describe('Tournament', () => {
                 expect(accoladesCountAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
                 expect(accoladesCountAndDivision.querySelector('input').checked).toEqual(true);
                 // division
-                expect(accoladesCountAndDivision.textContent).toContain('Division:');
+                expect(accoladesCountAndDivision.textContent).toContain('Division');
                 expect(accoladesCountAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
             });
 
@@ -531,13 +531,13 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const superLeagueOptions = context.container.querySelector('div[data-options-for="superleague"]');
+                const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
                 expect(superLeagueOptions).toBeTruthy();
                 expect(superLeagueOptions.querySelector(' input[name="host"]')).toBeTruthy();
                 expect(superLeagueOptions.querySelector(' input[name="host"]').value).toEqual('HOST');
                 expect(superLeagueOptions.querySelector(' input[name="opponent"]')).toBeTruthy();
                 expect(superLeagueOptions.querySelector(' input[name="opponent"]').value).toEqual('OPPONENT');
-                expect(superLeagueOptions.querySelector(' .dropdown-menu .active').textContent).toEqual('Men');
+                expect(superLeagueOptions.querySelector('div[datatype="superleague-gender"] .dropdown-menu .active').textContent).toEqual('Men');
             });
 
             it('no super league options when not single round', async () => {
@@ -707,10 +707,10 @@ describe('Tournament', () => {
             const notes = context.container.querySelector('.content-background > div:nth-child(4)');
             await doChange(notes, 'textarea', 'NEW NOTES', context.user);
             const accoladesCountAndDivision = context.container.querySelector('.content-background > div:nth-child(5)');
-            const superLeagueOptions = context.container.querySelector('div[data-options-for="superleague"]');
+            const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
             await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
-            await doSelectOption(accoladesCountAndDivision.querySelector('.dropdown-menu'), 'All divisions');
-            await doSelectOption(superLeagueOptions.querySelector('.dropdown-menu'), 'Women');
+            await doSelectOption(accoladesCountAndDivision.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
+            await doSelectOption(superLeagueOptions.querySelector('div[datatype="superleague-gender"] .dropdown-menu'), 'Women');
             await doChange(superLeagueOptions, 'input[name="host"]', 'HOST', context.user);
             await doChange(superLeagueOptions, 'input[name="opponent"]', 'OPPONENT', context.user);
 
