@@ -77,11 +77,7 @@ export function Tournament() {
                 return;
             }
 
-            setTournamentData(tournamentData);
-
-            const allPlayers = getAllPlayers(tournamentData);
-            allPlayers.sort(sortBy('name'));
-            setAllPlayers(allPlayers);
+            updateTournamentData(tournamentData);
 
             const tournamentPlayerMap = {};
             if (canManageTournaments) {
@@ -112,7 +108,7 @@ export function Tournament() {
             : [];
 
         if (any(selectedTournamentPlayers)) {
-            return selectedTournamentPlayers;
+            return selectedTournamentPlayers.sort(sortBy('name'));
         }
 
         const selectedTournamentTeams = tournamentData.sides
@@ -131,9 +127,8 @@ export function Tournament() {
             .flatMap(mapping => mapping.teamSeason.players.map(p => {
                 return Object.assign({}, p, {divisionId: mapping.divisionId});
             }));
-        players.sort(sortBy('name'));
 
-        return players;
+        return players.sort(sortBy('name'));
     }
 
     async function saveTournament(preventLoading) {
@@ -158,7 +153,7 @@ export function Tournament() {
             if (!response.success) {
                 setSaveError(response);
             } else {
-                setTournamentData(response.result);
+                updateTournamentData(response.result);
                 return response.result;
             }
         } finally {
@@ -182,7 +177,7 @@ export function Tournament() {
             if (!response.success) {
                 setSaveError(response);
             } else {
-                setTournamentData(response.result);
+                updateTournamentData(response.result);
             }
         } finally {
             setPatching(false);
@@ -262,6 +257,11 @@ export function Tournament() {
         }
 
         return null;
+    }
+
+    function updateTournamentData(newData) {
+        setTournamentData(newData);
+        setAllPlayers(getAllPlayers(newData));
     }
 
     if (loading !== 'ready') {
@@ -390,7 +390,7 @@ export function Tournament() {
                     : null}
                 <TournamentContainer
                     tournamentData={tournamentData}
-                    setTournamentData={setTournamentData}
+                    setTournamentData={updateTournamentData}
                     season={season}
                     division={division}
                     alreadyPlaying={alreadyPlaying}
