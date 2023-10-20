@@ -117,7 +117,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}) {
             on180={add180(tournamentData, setTournamentData)}
             patchData={applyPatch}
             allowNextRound={!tournamentData.singleRound}/>) : null}
-        {canShowResults ? (<table className="table">
+        {canShowResults && any(allPlayers) ? (<table className="table">
             <tbody>
             <tr>
                 <td colSpan="2" datatype="180s">
