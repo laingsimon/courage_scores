@@ -39,7 +39,7 @@ export function Tournament() {
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
     const genderOptions = [
-        {text: 'Undefined', value: ''},
+        {text: <>&nbsp;</>, value: null},
         {text: 'Men', value: 'men'},
         {text: 'Women',value: 'women'}
     ];
@@ -77,11 +77,7 @@ export function Tournament() {
                 return;
             }
 
-            setTournamentData(tournamentData);
-
-            const allPlayers = getAllPlayers(tournamentData);
-            allPlayers.sort(sortBy('name'));
-            setAllPlayers(allPlayers);
+            updateTournamentData(tournamentData);
 
             const tournamentPlayerMap = {};
             if (canManageTournaments) {
@@ -112,7 +108,7 @@ export function Tournament() {
             : [];
 
         if (any(selectedTournamentPlayers)) {
-            return selectedTournamentPlayers;
+            return selectedTournamentPlayers.sort(sortBy('name'));
         }
 
         const selectedTournamentTeams = tournamentData.sides
@@ -131,9 +127,8 @@ export function Tournament() {
             .flatMap(mapping => mapping.teamSeason.players.map(p => {
                 return Object.assign({}, p, {divisionId: mapping.divisionId});
             }));
-        players.sort(sortBy('name'));
 
-        return players;
+        return players.sort(sortBy('name'));
     }
 
     async function saveTournament(preventLoading) {
@@ -158,7 +153,7 @@ export function Tournament() {
             if (!response.success) {
                 setSaveError(response);
             } else {
-                setTournamentData(response.result);
+                updateTournamentData(response.result);
                 return response.result;
             }
         } finally {
@@ -182,7 +177,7 @@ export function Tournament() {
             if (!response.success) {
                 setSaveError(response);
             } else {
-                setTournamentData(response.result);
+                updateTournamentData(response.result);
             }
         } finally {
             setPatching(false);
@@ -264,6 +259,11 @@ export function Tournament() {
         return null;
     }
 
+    function updateTournamentData(newData) {
+        setTournamentData(newData);
+        setAllPlayers(getAllPlayers(newData));
+    }
+
     if (loading !== 'ready') {
         return (<Loading/>);
     }
@@ -292,33 +292,44 @@ export function Tournament() {
                 {canManageTournaments
                     ? (<div className="input-group mb-1 d-print-none">
                         <div className="input-group-prepend">
-                            <span className="input-group-text">Address</span>
+                            <label htmlFor="address" className="input-group-text width-75">Address</label>
                         </div>
-                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address}
-                               name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
+                        <input id="address" className="form-control" disabled={saving} type="text" value={tournamentData.address}
+                               name="address" onChange={valueChanged(tournamentData, setTournamentData)} />
                     </div>)
                     : null}
                 {canManageTournaments
                     ? (<div className="form-group input-group mb-1 d-print-none">
                         <div className="input-group-prepend">
-                            <span className="input-group-text">Type (optional)</span>
+                            <label htmlFor="type" className="input-group-text width-75">Type</label>
                         </div>
-                        <input id="type-text" className="form-control" disabled={saving}
+                        <input id="type" className="form-control" disabled={saving}
                                value={tournamentData.type || ''} name="type"
-                               onChange={valueChanged(tournamentData, setTournamentData)}/>
+                               onChange={valueChanged(tournamentData, setTournamentData)}
+                               placeholder="Optional type for the tournament" />
+
+                        <div className="form-check form-switch my-1 ms-2">
+                            <input disabled={saving} type="checkbox" className="form-check-input margin-left" name="singleRound"
+                                   id="singleRound"
+                                   checked={tournamentData.singleRound}
+                                   onChange={valueChanged(tournamentData, setTournamentData)} />
+                            <label className="form-check-label" htmlFor="singleRound">Super league</label>
+                        </div>
                     </div>)
                     : null}
                 {canManageTournaments
                     ? (<div className="form-group input-group mb-1 d-print-none">
-                        <label htmlFor="note-text" className="input-group-text">Notes</label>
+                        <label htmlFor="note-text" className="input-group-text width-75">Notes</label>
                         <textarea id="note-text" className="form-control" disabled={saving}
                                   value={tournamentData.notes || ''} name="notes"
-                                  onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
+                                  onChange={valueChanged(tournamentData, setTournamentData)}
+                                  placeholder="Notes for the tournament">
+                        </textarea>
                     </div>)
                     : null}
                 {canManageTournaments
-                    ? (<div className="form-group input-group mb-3 d-print-none">
-                        <label className="input-group-text">Options</label>
+                    ? (<div className="form-group input-group mb-3 d-print-none" datatype="tournament-options">
+                        <label className="input-group-text width-75">Options</label>
                         <div className="form-control">
                             <div className="form-check form-switch margin-right my-1">
                                 <input disabled={saving} type="checkbox" className="form-check-input"
@@ -329,68 +340,54 @@ export function Tournament() {
                                     in players table?</label>
                             </div>
 
-                            <div className="my-1">
-                                <span className="margin-right">Division:</span>
+                            <div className="input-group mb-1" datatype="tournament-division">
+                                <label className="input-group-text">Division</label>
                                 <BootstrapDropdown
                                     value={tournamentData.divisionId}
                                     onChange={propChanged(tournamentData, setTournamentData, 'divisionId')}
                                     options={[{value: null, text: 'All divisions'}].concat(divisions.map(d => {
                                         return {value: d.id, text: d.name}
                                     }))}
-                                    disabled={saving}/>
-                            </div>
+                                    disabled={saving} className="margin-right" />
 
-                            <div className="my-1">
-                                <span className="margin-right">Best of:</span>
+                                <label htmlFor="bestOf" className="input-group-text">Best of</label>
                                 <input disabled={saving} className="form-control no-spinner width-50 d-inline"
-                                       type="number" min="3" value={tournamentData.bestOf || ''} name="bestOf"
-                                       onChange={valueChanged(tournamentData, setTournamentData, '')}/>
-                                <span> (Number of legs)</span>
+                                       id="bestOf" type="number" min="3" value={tournamentData.bestOf || ''}
+                                       name="bestOf" onChange={valueChanged(tournamentData, setTournamentData, '')}
+                                       placeholder="Number of legs" />
                             </div>
 
-                            <div className="form-check form-switch my-1">
-                                <input disabled={saving} type="checkbox" className="form-check-input" name="singleRound"
-                                       id="singleRound"
-                                       checked={tournamentData.singleRound}
-                                       onChange={valueChanged(tournamentData, setTournamentData)}/>
-                                <label className="form-check-label" htmlFor="singleRound">Single round? (aka Super
-                                    league match?)</label>
-                            </div>
-                        </div>
-                    </div>)
-                    : null}
-                {canManageTournaments && tournamentData.singleRound
-                    ? (<div className="form-group input-group mb-3 d-print-none" data-options-for="superleague">
-                        <label className="input-group-text">Super league options</label>
-                        <div className="form-control">
-                            <div className="form-group input-group mb-1">
-                                <label htmlFor="host" className="input-group-text">Host</label>
-                                <input id="host" className="form-control" disabled={saving}
-                                       value={tournamentData.host || ''} name="host"
-                                       onChange={valueChanged(tournamentData, setTournamentData)}></input>
-                            </div>
+                            {tournamentData.singleRound
+                                ? (<>
+                                    <div className="input-group mb-1" datatype="superleague-host">
+                                        <label htmlFor="host" className="input-group-text">Host</label>
+                                        <input id="host" className="form-control margin-right" disabled={saving}
+                                               value={tournamentData.host || ''} name="host"
+                                               onChange={valueChanged(tournamentData, setTournamentData)}
+                                               placeholder="Host name" />
 
-                            <div className="form-group input-group mb-1">
-                                <label htmlFor="opponent" className="input-group-text">Opponent</label>
-                                <input id="opponent" className="form-control" disabled={saving}
-                                       value={tournamentData.opponent || ''} name="opponent"
-                                       onChange={valueChanged(tournamentData, setTournamentData)}></input>
-                            </div>
+                                        <label htmlFor="opponent" className="input-group-text">vs</label>
+                                        <input id="opponent" className="form-control" disabled={saving}
+                                               value={tournamentData.opponent || ''} name="opponent"
+                                               onChange={valueChanged(tournamentData, setTournamentData)}
+                                               placeholder="Opponent name" />
+                                    </div>
 
-                            <div className="form-group input-group mb-1">
-                                <label htmlFor="gender" className="input-group-text">Gender</label>
-                                <BootstrapDropdown
-                                    value={tournamentData.gender}
-                                    onChange={propChanged(tournamentData, setTournamentData, 'gender')}
-                                    options={genderOptions}
-                                    disabled={saving}/>
-                            </div>
+                                    <div className="input-group mb-1" datatype="superleague-gender">
+                                        <label htmlFor="gender" className="input-group-text width-75">Gender</label>
+                                        <BootstrapDropdown
+                                            value={tournamentData.gender}
+                                            onChange={propChanged(tournamentData, setTournamentData, 'gender')}
+                                            options={genderOptions}
+                                            disabled={saving}/>
+                                    </div></>)
+                                : null}
                         </div>
                     </div>)
                     : null}
                 <TournamentContainer
                     tournamentData={tournamentData}
-                    setTournamentData={setTournamentData}
+                    setTournamentData={updateTournamentData}
                     season={season}
                     division={division}
                     alreadyPlaying={alreadyPlaying}

@@ -70,12 +70,12 @@ export function DivisionReports() {
         <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly}/>
         <div className="input-group d-print-none">
             <div className="input-group-prepend">
-                <span className="input-group-text">Return top </span>
+                <label htmlFor="topCount" className="input-group-text">Return top </label>
             </div>
-            <input className="form-control" type="number" min="1" max="100" value={topCount}
+            <input className="form-control" type="number" min="1" max="100" value={topCount} id="topCount"
                    onChange={stateChanged(setTopCount)}/>
             <div className="input-group-prepend margin-right">
-                <span className="input-group-text">records</span>
+                <label htmlFor="topCount" className="input-group-text">records</label>
             </div>
             <button onClick={getReports} className="btn btn-primary">
                 {gettingData

@@ -189,10 +189,10 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         </div>
         {multiple ? null : (<div className="input-group mb-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Email address (optional)</span>
+                <label htmlFor="emailAddress" className="input-group-text">Email address (optional)</label>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="emailAddress" value={player.emailAddress || ''}
+                   name="emailAddress" value={player.emailAddress || ''} id="emailAddress"
                    placeholder="Email address hidden, enter address to update" onChange={handleChange(onChange)}/>
         </div>)}
         {multiple ? null : (<div className="input-group mb-3">
