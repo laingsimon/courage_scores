@@ -46,11 +46,11 @@ describe('Tournament', () => {
         },
         update: async (data, lastUpdated) => {
             updatedTournamentData.push({data, lastUpdated});
-            return apiResponse || {success: true};
+            return apiResponse || {success: true, result: data};
         },
         patch: async (id, data) => {
             patchedTournamentData.push({id, data});
-            return apiResponse || {success: true};
+            return apiResponse || {success: true, result: data};
         },
     };
     const playerApi = {
@@ -1246,6 +1246,7 @@ describe('Tournament', () => {
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
+                .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
             const sideA = sideBuilder('A').withPlayer(playerA).build();
@@ -1277,6 +1278,7 @@ describe('Tournament', () => {
             }, false);
             await doClick(findButton(context.container, '📊'));
             expect(reportedError).toBeNull();
+            apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
@@ -1339,6 +1341,7 @@ describe('Tournament', () => {
             }, false);
             await doClick(findButton(context.container, '📊'));
             expect(reportedError).toBeNull();
+            apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
@@ -1363,6 +1366,7 @@ describe('Tournament', () => {
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
+                .startingScore(501)
                 .addTo(saygDataLookup)
                 .build();
             const sideA = sideBuilder('A').withPlayer(playerA).build();
@@ -1394,6 +1398,7 @@ describe('Tournament', () => {
             }, false);
             await doClick(findButton(context.container, '📊'));
             expect(reportedError).toBeNull();
+            apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '100', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
@@ -1474,6 +1479,146 @@ describe('Tournament', () => {
             expect(patchedTournamentData).not.toBeNull();
             expect(context.container.textContent).toContain('Could not save tournament details');
             expect(context.container.textContent).toContain('SOME ERROR');
+        });
+
+        it('can add 180 for player in newly added side', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ playerA ])
+                .build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '➕')); // open add side dialog
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(dialog.querySelector('.list-group-item')); // click on a player
+            await doClick(findButton(dialog, 'Save')); // close the dialog
+            expect(reportedError).toBeNull();
+
+            const oneEightiesDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
+            const oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
+            expect(oneEightyPlayers.map(p => p.textContent)).toContain('PLAYER A');
+        });
+
+        it('can add hi-check for player in newly added side', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ playerA ])
+                .build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '➕')); // open add side dialog
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(dialog.querySelector('.list-group-item')); // click on a player
+            await doClick(findButton(dialog, 'Save')); // close the dialog
+            expect(reportedError).toBeNull();
+
+            const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
+            const hiCheckPlayers = Array.from(hiCheckDropdown.querySelectorAll('.dropdown-item'));
+            expect(hiCheckPlayers.map(p => p.textContent)).toContain('PLAYER A');
+        });
+
+        it('cannot add 180 for player in newly removed side', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .withSide(s => s.withPlayer(playerA))
+                .round(r => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ playerA ])
+                .build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+            window.confirm = () => true;
+
+            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(findButton(dialog, 'Delete side')); // delete the side
+            expect(reportedError).toBeNull();
+
+            const oneEightyDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
+            expect(oneEightyDropdown).toBeFalsy();
+        });
+
+        it('cannot add hi-check for player in newly removed side', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .withSide(s => s.withPlayer(playerA))
+                .round(r => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ playerA ])
+                .build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+            window.confirm = () => true;
+
+            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(findButton(dialog, 'Delete side')); // delete the side
+            expect(reportedError).toBeNull();
+
+            const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
+            expect(hiCheckDropdown).toBeFalsy();
         });
     });
 });

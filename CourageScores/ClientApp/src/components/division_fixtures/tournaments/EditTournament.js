@@ -120,7 +120,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}) {
         {canShowResults ? (<table className="table">
             <tbody>
             <tr>
-                <td colSpan="2">
+                <td colSpan="2" datatype="180s">
                     180s<br/>
                     <MultiPlayerSelection
                         disabled={disabled}
@@ -132,7 +132,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}) {
                         onRemovePlayer={remove180(tournamentData, setTournamentData)}
                         onAddPlayer={add180(tournamentData, setTournamentData)}/>
                 </td>
-                <td colSpan="2">
+                <td colSpan="2" datatype="hiChecks">
                     100+ c/o<br/>
                     <MultiPlayerSelection
                         disabled={disabled}
