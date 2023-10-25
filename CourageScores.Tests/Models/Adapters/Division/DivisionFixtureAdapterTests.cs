@@ -306,7 +306,7 @@ public class DivisionFixtureAdapterTests
     }
 
     [Test]
-    public async Task Adapt_WithNoPlayersInAnyKnockoutMatch_ReturnsScoresForFixture()
+    public async Task Adapt_WithNoPlayersInAnyKnockoutMatch_ReturnsNullScoresForFixture()
     {
         var game = new CosmosGame
         {
@@ -338,8 +338,8 @@ public class DivisionFixtureAdapterTests
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
-        Assert.That(result.HomeScore, Is.EqualTo(1));
-        Assert.That(result.AwayScore, Is.EqualTo(0));
+        Assert.That(result.HomeScore, Is.Null);
+        Assert.That(result.AwayScore, Is.Null);
     }
 
     [TestCase(true, true)]
