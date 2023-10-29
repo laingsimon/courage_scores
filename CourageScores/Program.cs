@@ -64,6 +64,7 @@ app.UseCors(cors =>
     cors.AllowCredentials();
 });
 
+app.UseWebSockets(); // must be before UseEndPoints - see https://stackoverflow.com/a/74285430
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(

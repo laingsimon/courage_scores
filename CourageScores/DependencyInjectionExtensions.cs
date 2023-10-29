@@ -72,6 +72,7 @@ public static class DependencyInjectionExtensions
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
         });
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
+        services.AddSingleton<IWebSocketCollection, WebSocketCollection>();
 
         AddServices(services);
         AddRepositories(services);
@@ -139,6 +140,8 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IReportFactory, ReportFactory>();
+
+        services.AddScoped<ISaygLiveService, SaygLiveService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
