@@ -137,10 +137,6 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                     home={sayg.yourName}
                     data={sayg}
                     singlePlayer={!sayg.opponentName}
-                    refreshAllowed={refreshAllowed}
-                    matchStatisticsOnly={matchStatisticsOnly}
-                    initialRefreshInterval={initialRefreshInterval}
-                    lastLegDisplayOptions={lastLegDisplayOptions}
                     onLegComplete={async (homeScore, awayScore) => {
                         const sayg = updateSayg({homeScore, awayScore});
                         if (autoSave) {
