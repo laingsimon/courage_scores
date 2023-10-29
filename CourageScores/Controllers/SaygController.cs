@@ -21,20 +21,20 @@ public class SaygController : Controller
         _saygStorageService = saygStorageService;
     }
 
-    [HttpPost("/api/Game/Sayg")]
+    [HttpPost("/api/Sayg")]
     public async Task<ActionResultDto<RecordedScoreAsYouGoDto>> StoreSaygData([FromBody] UpdateRecordedScoreAsYouGoDto data, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateSaygCommand>().WithData(data);
         return await _saygStorageService.Upsert(data.Id, command, token);
     }
 
-    [HttpGet("/api/Game/Sayg/{id}")]
+    [HttpGet("/api/Sayg/{id}")]
     public async Task<RecordedScoreAsYouGoDto?> GetSaygData(Guid id, CancellationToken token)
     {
         return await _saygStorageService.Get(id, token);
     }
 
-    [HttpDelete("/api/Game/Sayg/{id}")]
+    [HttpDelete("/api/Sayg/{id}")]
     public async Task<ActionResultDto<RecordedScoreAsYouGoDto>> DeleteSaygData(Guid id, CancellationToken token)
     {
         return await _saygStorageService.Delete(id, token);
