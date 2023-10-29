@@ -4,15 +4,15 @@ class SaygApi {
     }
 
     get(id) {
-        return this.http.get(`/api/Game/Sayg/${id}`);
+        return this.http.get(`/api/Sayg/${id}`);
     }
 
     upsert(data) {
-        return this.http.post(`/api/Game/Sayg`, data);
+        return this.http.post(`/api/Sayg`, data);
     }
 
     delete(id) {
-        return this.http.delete(`/api/Game/Sayg/${id}`);
+        return this.http.delete(`/api/Sayg/${id}`);
     }
 }
 
