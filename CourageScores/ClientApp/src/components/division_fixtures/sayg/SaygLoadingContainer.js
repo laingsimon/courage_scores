@@ -13,10 +13,12 @@ export function useSayg() {
 }
 
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
-                                         onLoadError, refreshAllowed, matchStatisticsOnly, initialRefreshInterval, lastLegDisplayOptions }) {
+                                         onLoadError, refreshAllowed, matchStatisticsOnly, lastLegDisplayOptions,
+                                     enableLive }) {
     const [sayg, setSayg] = useState(defaultData);
     const [saveError, setSaveError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [webSocket, setWebSocket] = useState(null);
     const {saygApi} = useDependencies();
     const {onError} = useApp();
 
@@ -49,6 +51,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             }
 
             sayg.lastUpdated = sayg.updated;
+            if (enableLive) {
+                await enableLiveUpdates(true, sayg);
+            }
             setSayg(sayg);
             return sayg;
         } catch (e) {
@@ -98,9 +103,75 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
+    function onWebSocketMessage(message) {
+        const socket = message.currentTarget;
+        if (message.type !== 'message') {
+            console.log(`Unhandled message: ${JSON.stringify(message)}`);
+            return;
+        }
+
+        const jsonData = JSON.parse(message.data);
+        switch (jsonData.type) {
+            case 'Update': {
+                setSayg(jsonData.data);
+                break;
+            }
+            case 'Marco': {
+                // send back polo
+                socket.send(JSON.stringify({
+                    type: 'polo',
+                }));
+                break;
+            }
+            case 'Polo': {
+                // nothing to do
+                break;
+            }
+            case 'Error': {
+                console.error(jsonData);
+                if (jsonData.message) {
+                    onError(jsonData.message);
+                }
+                break;
+            }
+            default: {
+                console.log(`Unhandled message: ${message.data}`);
+                // other message types might be: ping, alert, close, etc.
+                break;
+            }
+        }
+    }
+
+    async function enableLiveUpdates(enabled, overrideSayg) {
+        const saygData = overrideSayg || sayg;
+
+        if (enabled && !webSocket) {
+            const newSocket = await saygApi.createSocket(saygData.id);
+            newSocket.onmessage = onWebSocketMessage;
+            newSocket.onclose = () => {
+                console.error('Socket closed server-side');
+            };
+
+            newSocket.send(JSON.stringify({
+                type: 'marco',
+            }));
+
+            setWebSocket(newSocket);
+        } else if (!enabled && webSocket) {
+            webSocket.close();
+            setWebSocket(null);
+        }
+    }
+
     function updateSayg(newData) {
         const newSayg = Object.assign({}, sayg, newData);
         setSayg(newSayg);
+        if (webSocket) {
+            webSocket.send(JSON.stringify({
+                type: 'update',
+                data: newSayg,
+            }));
+        }
         return newSayg;
     }
 
@@ -115,8 +186,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         refresh: loadData,
         refreshAllowed,
         matchStatisticsOnly,
-        initialRefreshInterval,
-        lastLegDisplayOptions
+        lastLegDisplayOptions,
+        enableLiveUpdates,
+        liveUpdatesEnabled: !!webSocket,
     };
 
     try {

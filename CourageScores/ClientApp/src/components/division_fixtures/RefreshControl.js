@@ -18,7 +18,7 @@ export function RefreshControl({ refreshInterval, setRefreshInterval, refresh })
                 return;
             }
 
-            const handle = window.setInterval(refreshSaygData, refreshInterval);
+            const handle = window.setInterval(refreshData, refreshInterval);
 
             return () => {
                 window.clearInterval(handle);
@@ -27,7 +27,7 @@ export function RefreshControl({ refreshInterval, setRefreshInterval, refresh })
         // eslint-disable-next-line
         [refreshInterval]);
 
-    async function refreshSaygData() {
+    async function refreshData() {
         // call out to loading container to refresh the data
         setRefreshing(true);
         try {

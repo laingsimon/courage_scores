@@ -59,6 +59,7 @@ export function Practice() {
                         navigate(`/practice#${data.id}`);
                     }
                 }}
+                enableLive={true}
                 onLoadError={setDataError}>
                 <EditSaygPracticeOptions/>
             </SaygLoadingContainer>
