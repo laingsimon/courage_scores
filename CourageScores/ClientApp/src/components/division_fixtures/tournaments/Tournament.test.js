@@ -86,7 +86,13 @@ describe('Tournament', () => {
                 success: true,
                 result: data,
             };
-        }
+        },
+        createSocket: async () => {
+            return {
+                send: () => {
+                }
+            };
+        },
     };
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {

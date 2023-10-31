@@ -129,6 +129,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 on180={record180}
                 autoSave={true}
                 refreshAllowed={true}
+                enableLive={true}
                 onSaved={async (data) => {
                     await patchData({
                         match: {

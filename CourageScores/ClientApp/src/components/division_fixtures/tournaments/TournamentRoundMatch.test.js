@@ -64,7 +64,13 @@ describe('TournamentRoundMatch', () => {
                 success: true,
                 result: data,
             };
-        }
+        },
+        createSocket: async () => {
+            return {
+                send: () => {
+                }
+            };
+        },
     };
 
     afterEach(() => {

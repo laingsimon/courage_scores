@@ -11,6 +11,8 @@ describe('Practice', () => {
     let saygData;
     let shareData;
     let apiResultFunc;
+    let socketCreatedFor;
+    let sentData;
 
     const saygApi = {
         get: async (id) => {
@@ -28,6 +30,16 @@ describe('Practice', () => {
             return {
                 success: true,
             }
+        },
+        createSocket: async (id) => {
+            socketCreatedFor = id;
+
+            return {
+                close: () => {},
+                send: (data) => {
+                    sentData.push(data);
+                }
+            };
         }
     };
 
@@ -37,6 +49,8 @@ describe('Practice', () => {
 
     beforeEach(() => {
         saygData = {};
+        socketCreatedFor = null;
+        sentData = [];
     });
 
     async function renderComponent(account, hash, appLoading) {
