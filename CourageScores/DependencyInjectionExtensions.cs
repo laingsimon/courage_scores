@@ -43,6 +43,7 @@ using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace CourageScores;
 
@@ -68,6 +69,7 @@ public static class DependencyInjectionExtensions
             {
                 new StringEnumConverter(),
             },
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
         });
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
 
