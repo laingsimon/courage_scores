@@ -337,6 +337,56 @@ describe('LegStatistics', () => {
             expect(awayThrows.map(getCellContent)).toEqual([['50', '451', '50']]);
         });
 
+        it('2 player averages when only home player has thrown', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away(c => c.noOfDarts(0).score(0))
+                    .startingScore(501)
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: true,
+                },
+            });
+
+            const cells = Array.from(context.container.querySelectorAll('tr td > span'));
+            const cellText = cells.map(td => td.textContent);
+            expect(cellText).toEqual([
+                'Average: 100 (3 darts)Remaining: 401',
+                'Average: - (0 darts)Remaining: 501']);
+        });
+
+        it('2 player averages when only away player has thrown', async () => {
+            await renderComponent({
+                leg: legBuilder()
+                    .home(c => c.noOfDarts(0).score(0))
+                    .away(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .startingScore(501)
+                    .build(),
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                singlePlayer: false,
+                oneDartAverage: false,
+                legDisplayOptions: {
+                    showThrows: true,
+                    showAverage: true,
+                },
+            });
+
+            const cells = Array.from(context.container.querySelectorAll('tr td > span'));
+            const cellText = cells.map(td => td.textContent);
+            expect(cellText).toEqual([
+                'Average: - (0 darts)Remaining: 501',
+                'Average: 100 (3 darts)Remaining: 401']);
+        });
+
         it('no of darts', async () => {
             await renderComponent({
                 leg: legBuilder()
