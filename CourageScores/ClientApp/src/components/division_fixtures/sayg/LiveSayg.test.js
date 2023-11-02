@@ -19,6 +19,9 @@ describe('LiveSayg', () => {
     const liveApi = {
         createSocket: async () => {
             return {
+                onmessage: () => {
+                    // do nothing
+                },
                 send: () => {
                     // do nothing
                 }

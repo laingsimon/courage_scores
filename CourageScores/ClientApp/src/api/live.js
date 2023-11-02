@@ -1,3 +1,5 @@
+import {LiveWebSocket} from "../LiveWebSocket";
+
 class LiveApi {
     constructor(http) {
         this.http = http;
@@ -22,7 +24,7 @@ class LiveApi {
 
                 window.clearInterval(handle);
                 if (socket.readyState === 1) {
-                    resolve(socket); // connected
+                    resolve(new LiveWebSocket(socket));
                 } else {
                     reject('Socket did not connect');
                 }

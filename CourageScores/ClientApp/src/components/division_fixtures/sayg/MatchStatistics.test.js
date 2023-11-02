@@ -545,13 +545,7 @@ describe('MatchStatistics', () => {
         };
         expect(socket).toBeTruthy();
         await act(async () => {
-            await socket.onmessage({
-                type: 'message',
-                data: JSON.stringify({
-                    type: 'Update',
-                    data: newSaygData,
-                }),
-            });
+            await socket.updateHandler(newSaygData);
         });
 
         expect(reportedError).toBeNull();

@@ -41,7 +41,11 @@ describe('TournamentRound', () => {
     const liveApi = {
         createSocket: async () => {
             return {
+                onmessage: () => {
+                    // do nothing
+                },
                 send: () => {
+                    // do nothing
                 }
             };
         },

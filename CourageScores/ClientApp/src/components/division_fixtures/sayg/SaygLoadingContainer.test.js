@@ -487,136 +487,6 @@ describe('SaygLoadingContainer', () => {
             expect(sentData.map(JSON.parse)).toEqual([{type:'marco'}]);
         });
 
-        it('given non-message message type, does nothing', async () => {
-            let enableLiveUpdates;
-            const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
-                .addTo(saygDataMap)
-                .build();
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                defaultData: null,
-                autoSave: false,
-            });
-            const messages = [];
-
-            await act(async () => {
-                console.log = (msg) => {
-                    messages.push(msg);
-                };
-
-                await enableLiveUpdates(true);
-
-                webSocket.onmessage({
-                    type: 'unknown',
-                    data: 'some data',
-                });
-            });
-
-            expect(messages).toEqual(['Unhandled message: {"type":"unknown","data":"some data"}']);
-        });
-
-        it('given unknown live message type, does nothing', async () => {
-            let enableLiveUpdates;
-            const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
-                .addTo(saygDataMap)
-                .build();
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                defaultData: null,
-                autoSave: false,
-            });
-            const messages = [];
-
-            await act(async () => {
-                console.log = (msg) => {
-                    messages.push(msg);
-                };
-
-                await enableLiveUpdates(true);
-
-                webSocket.onmessage({
-                    type: 'message',
-                    data: JSON.stringify({
-                        type: 'UNKNOWN',
-                        data: saygData,
-                    }),
-                });
-            });
-
-            expect(messages.length).toEqual(1);
-            expect(messages[0]).toContain('Unhandled message: {"type":"UNKNOWN","data":{');
-        });
-
-        it('given polo live message type, does nothing', async () => {
-            let enableLiveUpdates;
-            const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
-                .addTo(saygDataMap)
-                .build();
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                defaultData: null,
-                autoSave: false,
-            });
-
-            await act(async () => {
-                await enableLiveUpdates(true);
-
-                webSocket.onmessage({
-                    type: 'message',
-                    data: JSON.stringify({
-                        type: 'Polo',
-                    }),
-                });
-            });
-
-            expect(sentData.map(JSON.parse)).toEqual([{type:'marco'}]);
-        });
-
-        it('given marco live message type, sends polo', async () => {
-            let enableLiveUpdates;
-            const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
-                .addTo(saygDataMap)
-                .build();
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                defaultData: null,
-                autoSave: false,
-            });
-
-            await act(async () => {
-                await enableLiveUpdates(true);
-
-                webSocket.onmessage({
-                    type: 'message',
-                    data: JSON.stringify({
-                        type: 'Marco',
-                    }),
-                    currentTarget: webSocket,
-                });
-            });
-
-            expect(sentData.map(JSON.parse)).toEqual([
-                {type:'marco'},
-                {type:'polo'},
-            ]);
-        });
-
         it('given error live message type, shows error', async () => {
             let enableLiveUpdates;
             const saygData = saygBuilder()
@@ -637,13 +507,7 @@ describe('SaygLoadingContainer', () => {
 
                 await enableLiveUpdates(true);
 
-                webSocket.onmessage({
-                    type: 'message',
-                    data: JSON.stringify({
-                        type: 'Error',
-                        message: 'Some error message',
-                    }),
-                });
+                webSocket.errorHandler('Some error message');
             });
 
             expect(reportedError).toEqual('Some error message');
@@ -673,13 +537,7 @@ describe('SaygLoadingContainer', () => {
             await act(async () => {
                 await enableLiveUpdates(true);
 
-                webSocket.onmessage({
-                    type: 'message',
-                    data: JSON.stringify({
-                        type: 'Update',
-                        data: newSaygData,
-                    }),
-                });
+                webSocket.updateHandler(newSaygData);
             });
 
             expect(reportedError).toBeNull();
@@ -734,33 +592,6 @@ describe('SaygLoadingContainer', () => {
 
             expect(webSocket).not.toBeNull();
             expect(webSocketClosed).toEqual(true);
-        });
-
-        it('given an open socket, handles server side closure', async () => {
-            let enableLiveUpdates;
-            const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
-                .addTo(saygDataMap)
-                .build();
-            await renderComponent({
-                children: (<TestComponent onLoaded={(data) => {
-                    enableLiveUpdates = data.enableLiveUpdates;
-                }} />),
-                id: saygData.id,
-                defaultData: null,
-                autoSave: false,
-            });
-            await act(async () => {
-                await enableLiveUpdates(true);
-            });
-
-            await act(async () => {
-                console.error = () => {};
-
-                webSocket.onclose();
-            });
-
-            // expect no error
         });
     });
 

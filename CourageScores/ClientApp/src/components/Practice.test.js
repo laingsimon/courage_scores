@@ -37,10 +37,15 @@ describe('Practice', () => {
             socketCreatedFor = id;
 
             return {
-                close: () => {},
+                onmessage: () => {
+                    // do nothing
+                },
+                close: () => {
+                    // do nothing
+                },
                 send: (data) => {
                     sentData.push(data);
-                }
+                },
             };
         },
     };

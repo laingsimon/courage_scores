@@ -91,8 +91,12 @@ describe('Tournament', () => {
     const liveApi = {
         createSocket: async () => {
             return {
+                onmessage: () => {
+                    // do nothing
+                },
                 send: () => {
-                }
+                    // do nothing
+                },
             };
         },
     };

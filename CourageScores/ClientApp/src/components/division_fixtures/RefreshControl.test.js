@@ -16,8 +16,11 @@ describe('RefreshControl', () => {
             socketCreated = true;
 
             return {
+                onmessage: () => {
+                    // do nothing
+                },
                 send: () => {
-
+                    // do nothing
                 },
             };
         },

@@ -38,6 +38,7 @@ export function Tournament() {
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
+    const [webSocket, setWebSocket] = useState(null);
     const genderOptions = [
         {text: <>&nbsp;</>, value: null},
         {text: 'Men', value: 'men'},
@@ -154,6 +155,7 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 updateTournamentData(response.result);
+                publishLiveUpdate(response.result);
                 return response.result;
             }
         } finally {
@@ -178,9 +180,19 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 updateTournamentData(response.result);
+                publishLiveUpdate(response.result);
             }
         } finally {
             setPatching(false);
+        }
+    }
+
+    function publishLiveUpdate(data) {
+        if (webSocket) {
+            webSocket.send(JSON.stringify({
+                type: 'update',
+                data: data,
+            }));
         }
     }
 
@@ -274,6 +286,8 @@ export function Tournament() {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');
         }
+
+        const publishUpdatesViaWebSocket = canSave;
 
         return (<div>
             <DivisionControls
@@ -395,7 +409,9 @@ export function Tournament() {
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
-                    refresh={loadFixtureData}>
+                    setWebSocket={setWebSocket}
+                    webSocket={webSocket}
+                    enableLive={publishUpdatesViaWebSocket}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
                                                 applyPatch={applyPatch}/>) : null}
                     {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division}/>) : null}
