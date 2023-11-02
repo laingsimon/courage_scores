@@ -34,6 +34,7 @@ using CourageScores.Services.Error;
 using CourageScores.Services.Game;
 using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
 using CourageScores.Services.Season.Creation;
@@ -72,14 +73,23 @@ public static class DependencyInjectionExtensions
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
         });
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
-        services.AddSingleton<IWebSocketCollection, WebSocketCollection>();
+        services.AddScoped<IWebSocketContractFactory, WebSocketContractFactory>();
 
         AddServices(services);
         AddRepositories(services);
         AddAdapters(services);
         AddCommands(services);
         AddComparers(services);
+        AddLive(services);
+
         services.AddSingleton(ApplicationMetrics.Create());
+    }
+
+    private static void AddLive(IServiceCollection services)
+    {
+        services.AddSingleton<IGroupedCollection<IWebSocketContract>, GroupedCollection<IWebSocketContract>>();
+        services.AddScoped<ILiveService, LiveService>();
+        services.AddScoped<IWebSocketMessageProcessor, PublishUpdatesProcessor>();
     }
 
     private static void AddComparers(IServiceCollection services)
@@ -140,8 +150,6 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IReportFactory, ReportFactory>();
-
-        services.AddScoped<ISaygLiveService, SaygLiveService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
