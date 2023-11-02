@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
 import {legBuilder} from "../../../helpers/builders";
@@ -30,6 +30,8 @@ describe('MatchStatistics', () => {
                 result: data,
             };
         },
+    };
+    const liveApi = {
         createSocket: async (id) => {
             socketCreatedFor = id;
             return (socket = {
@@ -39,7 +41,7 @@ describe('MatchStatistics', () => {
                 send: () => {},
             });
         },
-    }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -58,7 +60,7 @@ describe('MatchStatistics', () => {
         saygData = data;
         saygData.id = saygData.id || createTemporaryId();
         context = await renderApp(
-            {saygApi},
+            {saygApi, liveApi},
             {name: 'Courage Scores'},
             {
                 ...appProps,
@@ -69,8 +71,7 @@ describe('MatchStatistics', () => {
                     };
                 },
             },
-            <SaygLoadingContainer id={saygData.id} matchStatisticsOnly={true} {...containerProps} >
-            </SaygLoadingContainer>);
+            <SaygLoadingContainer id={saygData.id} matchStatisticsOnly={true} {...containerProps} />);
     }
 
     function assertHeaderText(expected, homeWinner, awayWinner) {
@@ -322,7 +323,7 @@ describe('MatchStatistics', () => {
             .build();
 
         await renderComponent({
-            refreshAllowed: false,
+            livePermitted: false,
             matchStatisticsOnly: true,
         }, {
             legs: {0: leg},
@@ -346,7 +347,7 @@ describe('MatchStatistics', () => {
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
+            livePermitted: true,
             enableLive: true,
             lastLegDisplayOptions: { showThrows: true },
         }, {
@@ -371,7 +372,7 @@ describe('MatchStatistics', () => {
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
+            livePermitted: true,
             enableLive: true,
             lastLegDisplayOptions: { showThrows: true },
         }, {
@@ -396,7 +397,7 @@ describe('MatchStatistics', () => {
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
+            livePermitted: true,
             enableLive: true,
             lastLegDisplayOptions: { showThrows: true },
         }, {
@@ -407,9 +408,9 @@ describe('MatchStatistics', () => {
             numberOfLegs: 3,
         });
 
-        const enabledCheckbox = context.container.querySelector('input[id="liveUpdatesEnabled"]');
-        expect(enabledCheckbox).toBeTruthy();
-        expect(enabledCheckbox.checked).toEqual(true);
+        const selectedOption = context.container.querySelector('h4 .dropdown-menu .active');
+        expect(selectedOption).toBeTruthy();
+        expect(selectedOption.textContent).toEqual('▶️ Live');
     });
 
     it('does not enable live updates by default', async () => {
@@ -422,7 +423,7 @@ describe('MatchStatistics', () => {
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
+            livePermitted: true,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             legs: {0: leg},
@@ -432,9 +433,9 @@ describe('MatchStatistics', () => {
             numberOfLegs: 3,
         });
 
-        const enabledCheckbox = context.container.querySelector('input[id="liveUpdatesEnabled"]');
-        expect(enabledCheckbox).toBeTruthy();
-        expect(enabledCheckbox.checked).toEqual(false);
+        const selectedOption = context.container.querySelector('h4 .dropdown-menu .active');
+        expect(selectedOption).toBeTruthy();
+        expect(selectedOption.textContent).toEqual('⏸️ Paused');
         expect(socketCreatedFor).toEqual(null);
     });
 
@@ -448,7 +449,7 @@ describe('MatchStatistics', () => {
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
+            livePermitted: true,
             enableLive: true,
             lastLegDisplayOptions: { showThrows: true, showAverage: true },
         }, {
@@ -485,7 +486,7 @@ describe('MatchStatistics', () => {
         const saygId = createTemporaryId();
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
+            livePermitted: true,
             enableLive: true,
             lastLegDisplayOptions: { showThrows: true },
         }, {
@@ -499,7 +500,7 @@ describe('MatchStatistics', () => {
         expect(socketCreatedFor).toEqual(saygId);
         expect(reportedError).toBeNull();
 
-        await doClick(context.container.querySelector('input[id="liveUpdatesEnabled"]'));
+        await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ Paused');
 
         expect(reportedError).toBeNull();
         expect(socketClosed).toEqual(true);
@@ -520,7 +521,7 @@ describe('MatchStatistics', () => {
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
         await renderComponent({
-            refreshAllowed: true,
+            livePermitted: true,
             enableLive: true,
             lastLegDisplayOptions: { showThrows: true, initial: true },
         }, {

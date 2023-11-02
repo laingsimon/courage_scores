@@ -15,6 +15,7 @@ import {SeasonApi} from "./api/season";
 import {SaygApi} from "./api/sayg";
 import {ParentHeight} from "./ParentHeight";
 import {TemplateApi} from "./api/template";
+import {LiveApi} from "./api/live";
 
 const DependenciesContext = createContext({});
 
@@ -42,6 +43,7 @@ export function IocContainer({children, ...services}) {
         saygApi: new SaygApi(http),
         templateApi: new TemplateApi(http),
         parentHeight: new ParentHeight(25),
+        liveApi: new LiveApi(http),
     };
 
     return (<DependenciesContext.Provider value={Object.assign({}, defaultServices, services)}>

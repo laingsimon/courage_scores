@@ -5,6 +5,7 @@ import {Loading} from "../../common/Loading";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
 import {isEmpty} from "../../../helpers/collections";
+import {LiveContainer} from "../LiveContainer";
 
 const SaygContext = createContext({});
 
@@ -13,14 +14,13 @@ export function useSayg() {
 }
 
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
-                                         onLoadError, refreshAllowed, matchStatisticsOnly, lastLegDisplayOptions,
-                                     enableLive }) {
+                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, enableLive, livePermitted }) {
     const [sayg, setSayg] = useState(defaultData);
     const [saveError, setSaveError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [webSocket, setWebSocket] = useState(null);
     const {saygApi} = useDependencies();
     const {onError} = useApp();
+    const [webSocket, setWebSocket] = useState(null);
 
     useEffect(() => {
             if (loading) {
@@ -51,9 +51,6 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             }
 
             sayg.lastUpdated = sayg.updated;
-            if (enableLive) {
-                await enableLiveUpdates(true, sayg);
-            }
             setSayg(sayg);
             return sayg;
         } catch (e) {
@@ -103,66 +100,6 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    function onWebSocketMessage(message) {
-        const socket = message.currentTarget;
-        if (message.type !== 'message') {
-            console.log(`Unhandled message: ${JSON.stringify(message)}`);
-            return;
-        }
-
-        const jsonData = JSON.parse(message.data);
-        switch (jsonData.type) {
-            case 'Update': {
-                setSayg(jsonData.data);
-                break;
-            }
-            case 'Marco': {
-                // send back polo
-                socket.send(JSON.stringify({
-                    type: 'polo',
-                }));
-                break;
-            }
-            case 'Polo': {
-                // nothing to do
-                break;
-            }
-            case 'Error': {
-                console.error(jsonData);
-                if (jsonData.message) {
-                    onError(jsonData.message);
-                }
-                break;
-            }
-            default: {
-                console.log(`Unhandled message: ${message.data}`);
-                // other message types might be: ping, alert, close, etc.
-                break;
-            }
-        }
-    }
-
-    async function enableLiveUpdates(enabled, overrideSayg) {
-        const saygData = overrideSayg || sayg;
-
-        if (enabled && !webSocket) {
-            const newSocket = await saygApi.createSocket(saygData.id);
-            newSocket.onmessage = onWebSocketMessage;
-            newSocket.onclose = () => {
-                console.error('Socket closed server-side');
-            };
-
-            newSocket.send(JSON.stringify({
-                type: 'marco',
-            }));
-
-            setWebSocket(newSocket);
-        } else if (!enabled && webSocket) {
-            webSocket.close();
-            setWebSocket(null);
-        }
-    }
-
     function updateSayg(newData) {
         const newSayg = Object.assign({}, sayg, newData);
         setSayg(newSayg);
@@ -181,45 +118,43 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
 
     const saygProps = {
         sayg,
-        setSayg,
+        setSayg: updateSayg,
         saveDataAndGetId,
-        refresh: loadData,
-        refreshAllowed,
         matchStatisticsOnly,
         lastLegDisplayOptions,
-        enableLiveUpdates,
-        liveUpdatesEnabled: !!webSocket,
     };
 
     try {
-        return (<SaygContext.Provider value={saygProps}>
-            {saveError ? (
-                <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
-            {sayg ? (<div>
-                {children}
-                <ScoreAsYouGo
-                    startingScore={Number.parseInt(sayg.startingScore)}
-                    numberOfLegs={Number.parseInt(sayg.numberOfLegs)}
-                    onHiCheck={onHiCheck}
-                    on180={on180}
-                    onChange={onChange}
-                    homeScore={sayg.homeScore}
-                    awayScore={sayg.awayScore}
-                    away={sayg.opponentName}
-                    home={sayg.yourName}
-                    data={sayg}
-                    singlePlayer={!sayg.opponentName}
-                    onLegComplete={async (homeScore, awayScore) => {
-                        const sayg = updateSayg({homeScore, awayScore});
-                        if (autoSave) {
-                            await saveDataAndGetId(sayg);
-                        }
-                        if (onScoreChange) {
-                            await onScoreChange(homeScore, awayScore);
-                        }
-                    }}/>
-            </div>) : null}
-        </SaygContext.Provider>);
+        return (<LiveContainer id={id} enabledAtStartup={enableLive && sayg && sayg.id} onDataUpdate={setSayg} webSocket={webSocket} setWebSocket={setWebSocket} permitted={livePermitted}>
+            <SaygContext.Provider value={saygProps}>
+                {saveError ? (
+                    <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
+                {sayg ? (<div>
+                    {children}
+                    <ScoreAsYouGo
+                        startingScore={Number.parseInt(sayg.startingScore)}
+                        numberOfLegs={Number.parseInt(sayg.numberOfLegs)}
+                        onHiCheck={onHiCheck}
+                        on180={on180}
+                        onChange={onChange}
+                        homeScore={sayg.homeScore}
+                        awayScore={sayg.awayScore}
+                        away={sayg.opponentName}
+                        home={sayg.yourName}
+                        data={sayg}
+                        singlePlayer={!sayg.opponentName}
+                        onLegComplete={async (homeScore, awayScore) => {
+                            const sayg = updateSayg({homeScore, awayScore});
+                            if (autoSave) {
+                                await saveDataAndGetId(sayg);
+                            }
+                            if (onScoreChange) {
+                                await onScoreChange(homeScore, awayScore);
+                            }
+                        }}/>
+                </div>) : null}
+            </SaygContext.Provider>
+        </LiveContainer>);
     } catch (e) {
         /* istanbul ignore next */
         onError(e);

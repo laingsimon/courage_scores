@@ -87,6 +87,8 @@ describe('Tournament', () => {
                 result: data,
             };
         },
+    };
+    const liveApi = {
         createSocket: async () => {
             return {
                 send: () => {
@@ -126,6 +128,7 @@ describe('Tournament', () => {
                 playerApi,
                 dataApi,
                 saygApi,
+                liveApi,
             },
             {name: 'Courage Scores'},
             {

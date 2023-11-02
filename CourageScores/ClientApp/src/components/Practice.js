@@ -52,7 +52,6 @@ export function Practice() {
                 onHiCheck={noop}
                 defaultData={defaultSaygData}
                 autoSave={false}
-                refreshAllowed={false}
                 onScoreChange={noop}
                 onSaved={(data) => {
                     if (location.hash !== `#${data.id}`) {

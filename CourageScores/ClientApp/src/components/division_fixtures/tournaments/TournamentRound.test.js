@@ -37,6 +37,8 @@ describe('TournamentRound', () => {
                 result: result,
             };
         },
+    };
+    const liveApi = {
         createSocket: async () => {
             return {
                 send: () => {
@@ -75,7 +77,7 @@ describe('TournamentRound', () => {
         warnBeforeSave = null;
         patchedData = null;
         context = await renderApp(
-            {tournamentApi, saygApi},
+            {tournamentApi, saygApi, liveApi},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {

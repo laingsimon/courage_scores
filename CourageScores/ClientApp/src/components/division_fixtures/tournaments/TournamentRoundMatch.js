@@ -128,7 +128,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 onHiCheck={recordHiCheck}
                 on180={record180}
                 autoSave={true}
-                refreshAllowed={true}
+                livePermitted={true /* is this right? */}
                 enableLive={true}
                 onSaved={async (data) => {
                     await patchData({

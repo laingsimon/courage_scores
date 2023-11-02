@@ -4,15 +4,16 @@ import {MatchAverage} from "./MatchAverage";
 import {LegStatistics} from "./LegStatistics";
 import {useState} from "react";
 import {useSayg} from "./SaygLoadingContainer";
-import {stateChanged} from "../../../helpers/events";
+import {RefreshControl} from "../RefreshControl";
+import {useLive} from "../LiveContainer";
 
 export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs }) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
-    const {refreshAllowed, lastLegDisplayOptions, liveUpdatesEnabled, enableLiveUpdates} = useSayg();
+    const {lastLegDisplayOptions} = useSayg();
+    const {isEnabled, permitted} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState(getLegDisplayOptions(legs));
     const finished = (homeScore >= numberOfLegs / 2.0) || (awayScore >= numberOfLegs / 2.0);
-    const canRefresh = refreshAllowed && !finished;
-    const legDisplayOptions = liveUpdatesEnabled && !finished
+    const legDisplayOptions = isEnabled && !finished
         ? getLegDisplayOptions(legs, true)
         : legDisplayOptionsState;
 
@@ -52,12 +53,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     return (<div>
         <h4 className="text-center">
             Match statistics
-            {canRefresh
-                ? (<span className="float-end extra-small">
-                    <input id="liveUpdatesEnabled" type="checkbox" checked={liveUpdatesEnabled} onChange={stateChanged(enableLiveUpdates)} className="visually-hidden" />
-                    <label htmlFor="liveUpdatesEnabled" className="btn btn-sm btn-outline-primary">{liveUpdatesEnabled ? '⏸‍ Pause' : '👁‍ Watch'}</label>
-                </span>)
-                : null}
+            {permitted && !finished ? <RefreshControl /> : null}
         </h4>
         <table className="table">
             <thead>
@@ -88,7 +84,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     singlePlayer={singlePlayer}
                     oneDartAverage={oneDartAverage}
                     legDisplayOptions={legDisplayOptions[legIndex] || getLegDisplayOptions(legs)[legIndex]}
-                    updateLegDisplayOptions={liveUpdatesEnabled && !finished ? null : (options) => updateLegDisplayOptions(legIndex, options)}
+                    updateLegDisplayOptions={isEnabled && !finished ? null : (options) => updateLegDisplayOptions(legIndex, options)}
                     onChangeLeg={legChanged ? ((newLeg) => legChanged(newLeg, legIndex)) : null}
                 />);
             })}

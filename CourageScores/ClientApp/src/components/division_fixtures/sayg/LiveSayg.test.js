@@ -14,15 +14,17 @@ describe('LiveSayg', () => {
         get: (id) => {
             requestedSaygId = id;
             return saygData;
-        },
-        createSocket: async (id) => {
+        }
+    };
+    const liveApi = {
+        createSocket: async () => {
             return {
                 send: () => {
                     // do nothing
                 }
             };
-        }
-    }
+        },
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -32,7 +34,7 @@ describe('LiveSayg', () => {
         requestedSaygId = null;
         reportedError = null;
         context = await renderApp(
-            {saygApi},
+            {saygApi, liveApi},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {

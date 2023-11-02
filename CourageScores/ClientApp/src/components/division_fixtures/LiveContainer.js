@@ -1,6 +1,6 @@
 import {createContext, useContext, useEffect} from "react";
-import {useDependencies} from "../IocContainer";
-import {useApp} from "../AppContainer";
+import {useDependencies} from "../../IocContainer";
+import {useApp} from "../../AppContainer";
 
 const LiveContext = createContext({});
 
@@ -19,7 +19,7 @@ export function LiveContainer({children, id, onDataUpdate, webSocket, setWebSock
         }
     },
     // eslint-disable-next-line
-    []);
+    [enabledAtStartup]);
 
     async function onWebSocketMessage(message) {
         const socket = message.currentTarget;

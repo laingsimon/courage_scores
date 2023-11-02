@@ -6,6 +6,7 @@ import React from "react";
 import {SaygLoadingContainer, useSayg} from "./SaygLoadingContainer";
 import {any} from "../../../helpers/collections";
 import {legBuilder, saygBuilder} from "../../../helpers/builders";
+import {useLive} from "../LiveContainer";
 
 describe('SaygLoadingContainer', () => {
     let context;
@@ -37,6 +38,8 @@ describe('SaygLoadingContainer', () => {
                 result: Object.assign({id: 'NEW_ID'}, data),
             };
         },
+    };
+    const liveApi = {
         createSocket: async (id) => {
             return (webSocket = {
                 socketCreatedFor: id,
@@ -91,7 +94,7 @@ describe('SaygLoadingContainer', () => {
         saved = null;
         loadError = null;
         context = await renderApp(
-            {saygApi},
+            {saygApi, liveApi},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -132,9 +135,10 @@ describe('SaygLoadingContainer', () => {
 
             expect(reportedError).toBeNull();
             expect(containerProps).toEqual({
+                isEnabled: false,
+                enableLiveUpdates: expect.any(Function),
                 sayg: saygDataMap[saygData.id],
                 saveDataAndGetId: expect.any(Function),
-                enableLiveUpdates: expect.any(Function),
                 setSayg: expect.any(Function),
             });
         });
@@ -156,6 +160,8 @@ describe('SaygLoadingContainer', () => {
 
             expect(reportedError).toBeNull();
             expect(containerProps).toEqual({
+                isEnabled: false,
+                enableLiveUpdates: expect.any(Function),
                 sayg: {
                     legs: {
                         '0': {
@@ -164,7 +170,6 @@ describe('SaygLoadingContainer', () => {
                     },
                 },
                 saveDataAndGetId: expect.any(Function),
-                enableLiveUpdates: expect.any(Function),
                 setSayg: expect.any(Function),
             });
         });
@@ -760,9 +765,10 @@ describe('SaygLoadingContainer', () => {
     });
 
     function TestComponent({onLoaded}) {
-        const {sayg, setSayg, saveDataAndGetId, enableLiveUpdates} = useSayg();
+        const {sayg, setSayg, saveDataAndGetId} = useSayg();
+        const {isEnabled, enableLiveUpdates, permitted} = useLive();
 
-        onLoaded({sayg, setSayg, saveDataAndGetId, enableLiveUpdates});
+        onLoaded({sayg, setSayg, saveDataAndGetId, enableLiveUpdates, isEnabled, permitted});
 
         return (<div>Loaded</div>)
     }
