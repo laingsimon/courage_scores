@@ -245,6 +245,38 @@ describe('SuperLeaguePrintout', () => {
 
                 expect(sockets.map(s => s.state)).toEqual([ 'closed', 'closed', 'closed' ]);
             });
+
+            it('can stop then restart live updates', async () => {
+                const saygData1 = saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build();
+                const saygData2 = saygBuilder()
+                    .withLeg('0', createLeg(false, true))
+                    .withLeg('1', createLeg(false, true))
+                    .build();
+                const tournamentData = tournamentBuilder()
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
+                            .sideA('A', 1)
+                            .sideB('B', 2))
+                        .withMatch(m => m.saygId(saygData2.id)
+                            .sideA('C', 3)
+                            .sideB('D', 4)))
+                    .build();
+                const division = divisionBuilder('DIVISION').build();
+                saygApiResponseMap = {};
+                saygApiResponseMap[saygData1.id] = saygData1;
+                saygApiResponseMap[saygData2.id] = saygData2;
+                await renderComponent(tournamentData, division);
+                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
+                await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
+                expect(sockets.map(s => s.state)).toEqual([ 'closed', 'closed', 'closed' ]);
+
+                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
+
+                expect(sockets.map(s => s.state)).toEqual([ 'closed', 'closed', 'closed', 'open', 'open', 'open' ]);
+            });
         });
     });
 

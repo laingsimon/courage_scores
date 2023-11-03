@@ -69,6 +69,7 @@ export function SuperLeaguePrintout({division}) {
             for (let key in saygSockets) {
                 const socket = saygSockets[key];
                 socket.close();
+                delete newSaygSockets[key];
             }
         }
         setSaygSockets(newSaygSockets);
