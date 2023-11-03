@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Status;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 using CourageScores.Services.Season;
 using CourageScores.Services.Status;
 using Microsoft.Extensions.Caching.Memory;
@@ -21,6 +22,7 @@ public class StatusServiceTests
     private IMemoryCache _memoryCache = null!;
     private ApplicationMetrics _applicationMetrics = null!;
     private UserDto? _user;
+    private Mock<IGroupedCollection<IWebSocketContract>> _sockets = null!;
 
     [SetUp]
     public void BeforeEachTest()
@@ -31,7 +33,8 @@ public class StatusServiceTests
         _userService = new Mock<IUserService>();
         _memoryCache = new MemoryCache(new MemoryCacheOptions());
         _applicationMetrics = ApplicationMetrics.Create();
-        _service = new StatusService(_seasonService.Object, _memoryCache, _applicationMetrics, _userService.Object);
+        _sockets = new Mock<IGroupedCollection<IWebSocketContract>>();
+        _service = new StatusService(_seasonService.Object, _memoryCache, _applicationMetrics, _userService.Object, _sockets.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
@@ -122,6 +125,17 @@ public class StatusServiceTests
     }
 
     [Test]
+    public async Task GetStatus_WhenCalled_ReturnsOpenSocketCount()
+    {
+        _sockets.Setup(s => s.Count).Returns(1);
+
+        var result = await _service.GetStatus(_token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result!.OpenSockets, Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task GetStatus_WhenCalled_ReturnsCacheSize()
     {
         var result = await _service.GetStatus(_token);
@@ -137,7 +151,8 @@ public class StatusServiceTests
             _seasonService.Object,
             new Mock<IMemoryCache>().Object, // not a MemoryCache instance
             _applicationMetrics,
-            _userService.Object);
+            _userService.Object,
+            _sockets.Object);
 
         var result = await _service.GetStatus(_token);
 
