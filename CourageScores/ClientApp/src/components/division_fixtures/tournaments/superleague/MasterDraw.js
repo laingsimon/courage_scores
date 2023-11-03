@@ -5,7 +5,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes}) {
     const {onError} = useApp();
 
     try {
-        return (<div className="page-break-after">
+        return (<div className="page-break-after" datatype="master-draw">
             <h2>Master draw</h2>
             <div className="d-flex flex-row">
                 <div>

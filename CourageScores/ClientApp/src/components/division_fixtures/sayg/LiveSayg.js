@@ -7,10 +7,10 @@ export function LiveSayg() {
     return (<div className="content-background p-3 pb-1">
         <SaygLoadingContainer
             id={id}
-            refreshAllowed={true}
             matchStatisticsOnly={true}
             autoSave={false}
             enableLive={true}
+            livePermitted={true}
             lastLegDisplayOptions={ { showThrows: true, showAverage: true } }
             />
     </div>);

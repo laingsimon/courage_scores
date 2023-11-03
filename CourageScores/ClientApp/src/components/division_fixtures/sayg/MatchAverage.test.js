@@ -79,6 +79,18 @@ describe('MatchAverage', () => {
         expect(awayAverage).toBeFalsy();
     });
 
+    it('renders away player average when no darts thrown', async () => {
+        await renderComponent({
+            homeAverage: 30.3333,
+            awayAverage: Number.NaN,
+            singlePlayer: false,
+            oneDartAverage: false
+        });
+
+        const awayAverage = context.container.querySelector('td:nth-child(3)');
+        expect(awayAverage.textContent).toEqual('-');
+    });
+
     it('renders home average as winner', async () => {
         await renderComponent({
             homeAverage: 30.3333,

@@ -87,10 +87,16 @@ describe('Tournament', () => {
                 result: data,
             };
         },
+    };
+    const liveApi = {
         createSocket: async () => {
             return {
+                onmessage: () => {
+                    // do nothing
+                },
                 send: () => {
-                }
+                    // do nothing
+                },
             };
         },
     };
@@ -126,6 +132,7 @@ describe('Tournament', () => {
                 playerApi,
                 dataApi,
                 saygApi,
+                liveApi,
             },
             {name: 'Courage Scores'},
             {

@@ -2,24 +2,28 @@ import {MasterDraw} from "./MasterDraw";
 import {MatchLog} from "./MatchLog";
 import {Summary} from "./Summary";
 import {MatchReport} from "./MatchReport";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {any, max} from "../../../../helpers/collections";
 import {useDependencies} from "../../../../IocContainer";
 import {useApp} from "../../../../AppContainer";
 import {useTournament} from "../TournamentContainer";
 import {useLocation} from "react-router-dom";
 import {getNoOfLegs, maxNoOfThrowsAllMatches} from "../../../../helpers/superleague";
+import {RefreshControl} from "../../RefreshControl";
+import {useLive} from "../../LiveContainer";
 
 export function SuperLeaguePrintout({division}) {
     const {onError} = useApp();
     const {tournamentData} = useTournament();
-    const {saygApi} = useDependencies();
+    const {saygApi, liveApi} = useDependencies();
     const location = useLocation();
+    const {isEnabled} = useLive();
     const [saygDataMap, setSaygDataMap] = useState({});
     const [loading, setLoading] = useState(false);
     const matches = (tournamentData.round || {}).matches || [];
     const unloadedIds = matches.map(m => m.saygId).filter(id => id && !any(Object.keys(saygDataMap), key => key === id));
     const showWinner = location.search.indexOf('winner') !== -1;
+    const [saygSockets, setSaygSockets] = useState({});
 
     useEffect(() => {
             if (loading) {
@@ -31,6 +35,45 @@ export function SuperLeaguePrintout({division}) {
         },
         // eslint-disable-next-line
         [loading, saygDataMap]);
+
+    useEffect(() => {
+            if (loading) {
+                return;
+            }
+
+            // noinspection JSIgnoredPromiseFromCall
+            processLiveStateChange(isEnabled);
+        },
+        // eslint-disable-next-line
+        [isEnabled, loading]);
+
+    async function processLiveStateChange(enabled) {
+        const newSaygSockets = Object.assign({}, saygSockets);
+        if (enabled) {
+            // foreach saygId, create a socket
+            for (let saygId in saygDataMap) {
+                if (newSaygSockets[saygId]) {
+                    continue; // socket already exists, don't recreate it
+                }
+                const socket = await liveApi.createSocket(saygId);
+                socket.updateHandler = (newSaygData) => {
+                    const newSaygDataMap = Object.assign({}, saygDataMap);
+                    newSaygDataMap[newSaygData.id] = newSaygData;
+                    setSaygDataMap(newSaygDataMap);
+                };
+                socket.errorHandler = onError;
+                newSaygSockets[saygId] = socket;
+            }
+        } else {
+            // foreach socket in saygSockets, close and remove it
+            for (let key in saygSockets) {
+                const socket = saygSockets[key];
+                socket.close();
+                delete newSaygSockets[key];
+            }
+        }
+        setSaygSockets(newSaygSockets);
+    }
 
     async function loadSaygData(ids) {
         if (!any(ids)) {
@@ -67,6 +110,9 @@ export function SuperLeaguePrintout({division}) {
 
     try {
         return (<div className="overflow-auto no-overflow-on-print">
+            <div className="float-end">
+                <RefreshControl />
+            </div>
             <MasterDraw
                 matches={matches}
                 host={tournamentData.host}

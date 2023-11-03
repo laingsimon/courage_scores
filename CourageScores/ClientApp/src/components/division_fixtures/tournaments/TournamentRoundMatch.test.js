@@ -65,10 +65,16 @@ describe('TournamentRoundMatch', () => {
                 result: data,
             };
         },
+    };
+    const liveApi = {
         createSocket: async () => {
             return {
+                onmessage: () => {
+                    // do nothing
+                },
                 send: () => {
-                }
+                    // do nothing
+                },
             };
         },
     };
@@ -107,7 +113,7 @@ describe('TournamentRoundMatch', () => {
         createdSaygSessions = [];
         deletedSayg = null;
         context = await renderApp(
-            {tournamentApi, saygApi},
+            {tournamentApi, saygApi, liveApi},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {

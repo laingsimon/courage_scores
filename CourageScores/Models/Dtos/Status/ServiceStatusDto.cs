@@ -35,4 +35,9 @@ public class ServiceStatusDto
     /// The duration the api service has been running for
     /// </summary>
     public TimeSpan UpTime { get; set; }
+
+    /// <summary>
+    /// The number of open web sockets
+    /// </summary>
+    public int OpenSockets { get; set; }
 }

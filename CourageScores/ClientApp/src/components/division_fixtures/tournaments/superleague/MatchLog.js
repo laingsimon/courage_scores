@@ -9,7 +9,7 @@ export function MatchLog({showWinner, noOfThrows, host, opponent, saygMatches}) 
     let awayTeamAverage = 0;
 
     try {
-        return (<div className="page-break-after">
+        return (<div className="page-break-after" datatype="match-log">
             <h2>Match log</h2>
             {saygMatches.map((matchDataMap, index) => {
                 if (!matchDataMap.saygData || !matchDataMap.saygData.legs) {
