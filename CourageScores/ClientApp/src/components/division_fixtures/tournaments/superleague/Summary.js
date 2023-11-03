@@ -39,7 +39,7 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
     }
 
     try {
-        return (<div className="page-break-after">
+        return (<div className="page-break-after" datatype="summary">
             <h2>Summary</h2>
             <table className="table">
                 <thead>

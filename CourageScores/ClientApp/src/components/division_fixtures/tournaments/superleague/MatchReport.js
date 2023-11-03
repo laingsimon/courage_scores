@@ -7,7 +7,7 @@ export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender,
     const {onError} = useApp();
 
     try {
-        return (<div className="page-break-after">
+        return (<div className="page-break-after" datatype="match-report">
             <h2 className="text-center">SOMERSET DARTS ORGANISATION</h2>
             <h3 className="text-center">{division.name} ({gender})</h3>
             <table className="table">

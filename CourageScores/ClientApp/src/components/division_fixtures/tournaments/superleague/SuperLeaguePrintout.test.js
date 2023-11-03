@@ -11,6 +11,8 @@ import {
     tournamentBuilder,
 } from "../../../../helpers/builders";
 import {useLive} from "../../LiveContainer";
+import {toDictionary} from "../../../../helpers/collections";
+import {act} from "@testing-library/react";
 
 describe('SuperLeaguePrintout', () => {
     let context;
@@ -170,6 +172,48 @@ describe('SuperLeaguePrintout', () => {
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
                 expect(sockets.map(s => s.createdFor)).toEqual([ tournamentData.id, saygData1.id, saygData2.id ]);
+            });
+
+            it('can handle live updates', async () => {
+                const saygData1 = saygBuilder()
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .build();
+                const saygData2 = saygBuilder()
+                    .withLeg('0', createLeg(false, true))
+                    .withLeg('1', createLeg(false, true))
+                    .build();
+                const tournamentData = tournamentBuilder()
+                    .round(r => r
+                        .withMatch(m => m.saygId(saygData1.id)
+                            .sideA('A', 1)
+                            .sideB('B', 2))
+                        .withMatch(m => m.saygId(saygData2.id)
+                            .sideA('C', 3)
+                            .sideB('D', 4)))
+                    .build();
+                const division = divisionBuilder('DIVISION').build();
+                saygApiResponseMap = {};
+                saygApiResponseMap[saygData1.id] = saygData1;
+                saygApiResponseMap[saygData2.id] = saygData2;
+                await renderComponent(tournamentData, division);
+                await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)').textContent).toEqual('Legs won: 2');
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)').textContent).toEqual('Legs won: 2');
+
+                //send through some data
+                const socketMap = toDictionary(sockets, s => s.createdFor);
+                const newSaygData = saygBuilder(saygData1.id)
+                    .withLeg('0', createLeg(true, false))
+                    .withLeg('1', createLeg(true, false))
+                    .withLeg('2', createLeg(false, true))
+                    .build();
+                await act(async () => {
+                    socketMap[saygData1.id].updateHandler(newSaygData);
+                });
+
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)').textContent).toEqual('Legs won: 2');
+                expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(2)').textContent).toEqual('Legs won: 3');
             });
 
             it('can stop live updates', async () => {
