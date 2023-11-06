@@ -9,6 +9,7 @@ public class WebSocketContract : IWebSocketContract
     private readonly IJsonSerializerService _serializerService;
     private readonly IWebSocketMessageProcessor _processor;
     private readonly WebSocket _socket;
+    private readonly HashSet<Guid> _subscribedIds = new HashSet<Guid>();
 
     public WebSocketContract(WebSocket socket, IJsonSerializerService serializerService, IWebSocketMessageProcessor processor)
     {
@@ -17,7 +18,10 @@ public class WebSocketContract : IWebSocketContract
         _processor = processor;
     }
 
-    public Guid DataId { get; init; }
+    public bool IsSubscribedTo(Guid id)
+    {
+        return _subscribedIds.Contains(id);
+    }
 
     public async Task Accept(CancellationToken token)
     {
@@ -53,7 +57,7 @@ public class WebSocketContract : IWebSocketContract
         {
             if (_socket.CloseStatus != null)
             {
-                _processor.Unregister(this);
+                _processor.Disconnected(this);
 
                 try
                 {
@@ -81,7 +85,7 @@ public class WebSocketContract : IWebSocketContract
         catch (WebSocketException)
         {
             // assume a disconnection
-            _processor.Unregister(this);
+            _processor.Disconnected(this);
         }
     }
 
@@ -101,18 +105,55 @@ public class WebSocketContract : IWebSocketContract
                 }, token);
                 break;
             case MessageType.Update:
-                if (dto.Data != null)
+                if (dto.Data != null && dto.Id != null)
                 {
-                    await _processor.PublishUpdate(this, dto.Data, token);
+                    await _processor.PublishUpdate(this, dto.Id.Value, dto.Data, token);
                     break;
                 }
                 // invalid
                 await Send(new LiveMessageDto
                 {
                     Type = MessageType.Error,
-                    Message = "No data supplied",
+                    Message = "Data and Id is required",
                 }, token);
 
+                break;
+            case MessageType.Subscribed:
+                if (dto.Id != null)
+                {
+                    _subscribedIds.Add(dto.Id.Value);
+                    break;
+                }
+
+                // invalid
+                await Send(new LiveMessageDto
+                {
+                    Type = MessageType.Error,
+                    Message = "Id is required",
+                }, token);
+
+                break;
+            case MessageType.Unsubscribed:
+                if (dto.Id != null)
+                {
+                    _subscribedIds.Remove(dto.Id.Value);
+                    break;
+                }
+
+                // invalid
+                await Send(new LiveMessageDto
+                {
+                    Type = MessageType.Error,
+                    Message = "Id is required",
+                }, token);
+
+                break;
+            default:
+                await Send(new LiveMessageDto
+                {
+                    Type = MessageType.Error,
+                    Message = $"Unsupported type: {dto.Type}",
+                }, token);
                 break;
         }
     }

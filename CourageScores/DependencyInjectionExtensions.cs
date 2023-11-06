@@ -87,7 +87,7 @@ public static class DependencyInjectionExtensions
 
     private static void AddLive(IServiceCollection services)
     {
-        services.AddSingleton<IGroupedCollection<IWebSocketContract>, GroupedCollection<IWebSocketContract>>();
+        services.AddSingleton<ICollection<IWebSocketContract>>(new List<IWebSocketContract>());
         services.AddScoped<ILiveService, LiveService>();
         services.AddScoped<IWebSocketMessageProcessor, PublishUpdatesProcessor>();
     }

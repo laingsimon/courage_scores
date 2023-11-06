@@ -5,26 +5,26 @@ namespace CourageScores.Services.Live;
 
 public class PublishUpdatesProcessor : IWebSocketMessageProcessor
 {
-    private readonly IGroupedCollection<IWebSocketContract> _sockets;
+    private readonly ICollection<IWebSocketContract> _sockets;
 
-    public PublishUpdatesProcessor(IGroupedCollection<IWebSocketContract> sockets)
+    public PublishUpdatesProcessor(ICollection<IWebSocketContract> sockets)
     {
         _sockets = sockets;
     }
 
-    public void Unregister(IWebSocketContract socket)
+    public void Disconnected(IWebSocketContract socket)
     {
-        _sockets.Remove(socket.DataId, socket);
+        _sockets.Remove(socket);
     }
 
-    public async Task PublishUpdate(IWebSocketContract source, object dto, CancellationToken token)
+    public async Task PublishUpdate(IWebSocketContract source, Guid id, object dto, CancellationToken token)
     {
-        var subscriptions = _sockets.GetItems(source.DataId);
-        var subscriptionsToUpdate = subscriptions.Except(new[] { source }).ToArray();
+        var subscriptionsToUpdate = _sockets.Where(s => s.IsSubscribedTo(id)).Except(new[] { source }).ToArray();
         var message = new LiveMessageDto
         {
             Type = MessageType.Update,
             Data = dto,
+            Id = id,
         };
 
         foreach (var subscription in subscriptionsToUpdate)

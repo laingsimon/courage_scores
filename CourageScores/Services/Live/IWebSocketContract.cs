@@ -4,7 +4,7 @@ namespace CourageScores.Services.Live;
 
 public interface IWebSocketContract
 {
-    Guid DataId { get; init; }
     Task Accept(CancellationToken token);
     Task Send(LiveMessageDto message, CancellationToken token);
+    bool IsSubscribedTo(Guid id);
 }

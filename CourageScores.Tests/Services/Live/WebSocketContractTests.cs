@@ -32,10 +32,7 @@ public class WebSocketContractTests
         _serializerService = new RecordingSerializerService();
         _processor = new Mock<IWebSocketMessageProcessor>();
         _key = Guid.NewGuid();
-        _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object)
-        {
-            DataId = _key,
-        };
+        _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object);
         _receiveResults = new Queue<ReceiveResultAndData>();
         _socket.Setup(s => s.CloseStatus).Returns(() => _socketStatus);
 
@@ -62,7 +59,7 @@ public class WebSocketContractTests
 
         await _contract.Accept(_token);
 
-        _processor.Verify(p => p.Unregister(_contract));
+        _processor.Verify(p => p.Disconnected(_contract));
         _socket.Verify(s => s.CloseAsync(WebSocketCloseStatus.NormalClosure, "", _token));
     }
 
@@ -195,24 +192,150 @@ public class WebSocketContractTests
         Assert.That(_serializerService.Serialised.Count, Is.EqualTo(1));
         var serialised = _serializerService.Serialised.Cast<LiveMessageDto>().Single();
         Assert.That(serialised.Type, Is.EqualTo(MessageType.Error));
-        Assert.That(serialised.Message, Is.EqualTo("No data supplied"));
+        Assert.That(serialised.Message, Is.EqualTo("Data and Id is required"));
     }
 
     [Test]
-    public async Task Accept_GivenUpdateAndSomeData_PublishesUpdate()
+    public async Task Accept_GivenUpdateAndNoId_SendsErrorBackToPublisherSocket()
     {
-        var data = new RecordedScoreAsYouGoDto();
         var messageDto = new LiveMessageDto
         {
             Type = MessageType.Update,
-            Data = data,
+            Data = new RecordedScoreAsYouGoDto(),
+            Id = null,
         };
         _receiveResults.Enqueue(CreateReceiveResult(dto: messageDto));
         _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
 
         await _contract.Accept(_token);
 
-       _processor.Verify(p => p.PublishUpdate(_contract, It.IsAny<JObject>(), _token));
+        _socket.Verify(s => s.SendAsync(It.IsAny<ArraySegment<byte>>(), WebSocketMessageType.Text, true, _token));
+        Assert.That(_serializerService.Serialised.Count, Is.EqualTo(1));
+        var serialised = _serializerService.Serialised.Cast<LiveMessageDto>().Single();
+        Assert.That(serialised.Type, Is.EqualTo(MessageType.Error));
+        Assert.That(serialised.Message, Is.EqualTo("Data and Id is required"));
+    }
+
+    [Test]
+    public async Task Accept_GivenUpdateAndSomeData_PublishesUpdate()
+    {
+        var data = new RecordedScoreAsYouGoDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var messageDto = new LiveMessageDto
+        {
+            Type = MessageType.Update,
+            Data = data,
+            Id = data.Id,
+        };
+        _receiveResults.Enqueue(CreateReceiveResult(dto: messageDto));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+
+        await _contract.Accept(_token);
+
+       _processor.Verify(p => p.PublishUpdate(_contract, data.Id, It.IsAny<JObject>(), _token));
+    }
+
+    [Test]
+    public async Task Accept_GivenSubscribedAndNoId_ReturnsAnError()
+    {
+        var messageDto = new LiveMessageDto
+        {
+            Type = MessageType.Subscribed,
+            Id = null,
+        };
+        _receiveResults.Enqueue(CreateReceiveResult(dto: messageDto));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+
+        await _contract.Accept(_token);
+
+        _socket.Verify(s => s.SendAsync(It.IsAny<ArraySegment<byte>>(), WebSocketMessageType.Text, true, _token));
+        Assert.That(_serializerService.Serialised.Count, Is.EqualTo(1));
+        var serialised = _serializerService.Serialised.Cast<LiveMessageDto>().Single();
+        Assert.That(serialised.Type, Is.EqualTo(MessageType.Error));
+        Assert.That(serialised.Message, Is.EqualTo("Id is required"));
+    }
+
+    [Test]
+    public async Task Accept_GivenSubscribedAndIdSupplied_UpdatesSubscriptions()
+    {
+        var messageDto = new LiveMessageDto
+        {
+            Type = MessageType.Subscribed,
+            Id = Guid.NewGuid(),
+        };
+        _receiveResults.Enqueue(CreateReceiveResult(dto: messageDto));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+
+        await _contract.Accept(_token);
+
+        Assert.That(_contract.IsSubscribedTo(messageDto.Id.Value), Is.True);
+    }
+
+    [Test]
+    public async Task Accept_GivenUnsubscribedAndNoId_ReturnsAnError()
+    {
+        var messageDto = new LiveMessageDto
+        {
+            Type = MessageType.Unsubscribed,
+            Id = null,
+        };
+        _receiveResults.Enqueue(CreateReceiveResult(dto: messageDto));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+
+        await _contract.Accept(_token);
+
+        _socket.Verify(s => s.SendAsync(It.IsAny<ArraySegment<byte>>(), WebSocketMessageType.Text, true, _token));
+        Assert.That(_serializerService.Serialised.Count, Is.EqualTo(1));
+        var serialised = _serializerService.Serialised.Cast<LiveMessageDto>().Single();
+        Assert.That(serialised.Type, Is.EqualTo(MessageType.Error));
+        Assert.That(serialised.Message, Is.EqualTo("Id is required"));
+    }
+
+    [Test]
+    public async Task Accept_GivenUnsubscribedAndIdSupplied_UpdatesSubscriptions()
+    {
+        var subscribeMessageDto = new LiveMessageDto
+        {
+            Type = MessageType.Subscribed,
+            Id = Guid.NewGuid(),
+        };
+        _receiveResults.Enqueue(CreateReceiveResult(dto: subscribeMessageDto));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+        await _contract.Accept(_token);
+        var unsubscribeMessageDto = new LiveMessageDto
+        {
+            Type = MessageType.Unsubscribed,
+            Id = subscribeMessageDto.Id,
+        };
+        _receiveResults.Enqueue(CreateReceiveResult(dto: unsubscribeMessageDto));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+        Assert.That(_contract.IsSubscribedTo(subscribeMessageDto.Id!.Value), Is.True);
+
+        await _contract.Accept(_token);
+
+        Assert.That(_contract.IsSubscribedTo(subscribeMessageDto.Id.Value), Is.False);
+    }
+
+    [Test]
+    public async Task Accept_GivenUnknownType_ReturnsAnError()
+    {
+        var messageDto = new LiveMessageDto
+        {
+            Type = MessageType.Unknown,
+            Id = null,
+        };
+        _receiveResults.Enqueue(CreateReceiveResult(dto: messageDto));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+
+        await _contract.Accept(_token);
+
+        _socket.Verify(s => s.SendAsync(It.IsAny<ArraySegment<byte>>(), WebSocketMessageType.Text, true, _token));
+        Assert.That(_serializerService.Serialised.Count, Is.EqualTo(1));
+        var serialised = _serializerService.Serialised.Cast<LiveMessageDto>().Single();
+        Assert.That(serialised.Type, Is.EqualTo(MessageType.Error));
+        Assert.That(serialised.Message, Is.EqualTo("Unsupported type: Unknown"));
     }
 
     [Test]
@@ -234,7 +357,7 @@ public class WebSocketContractTests
         await _contract.Send(messageDto, _token);
 
         _socket.Verify(s => s.SendAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<WebSocketMessageType>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()));
-        _processor.Verify(p => p.Unregister(_contract));
+        _processor.Verify(p => p.Disconnected(_contract));
     }
 
     private static ReceiveResultAndData CreateReceiveResult(

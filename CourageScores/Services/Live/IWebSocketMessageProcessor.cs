@@ -2,7 +2,7 @@ namespace CourageScores.Services.Live;
 
 public interface IWebSocketMessageProcessor
 {
-    void Unregister(IWebSocketContract socket);
+    void Disconnected(IWebSocketContract socket);
 
-    Task PublishUpdate(IWebSocketContract source, object dto, CancellationToken token);
+    Task PublishUpdate(IWebSocketContract source, Guid id, object dto, CancellationToken token);
 }
