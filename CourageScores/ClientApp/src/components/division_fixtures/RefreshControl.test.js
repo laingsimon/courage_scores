@@ -17,6 +17,7 @@ describe('RefreshControl', () => {
         unsubscribe: async (id) => {
             delete webSocket.subscriptions[id];
         },
+        socket: {},
     };
 
     beforeEach(() => {
@@ -48,6 +49,7 @@ describe('RefreshControl', () => {
     describe('renders', () => {
         it('options', async () => {
             const id = createTemporaryId();
+            webSocket.socket = {};
 
             await renderComponent(id, { id });
 
@@ -58,11 +60,23 @@ describe('RefreshControl', () => {
         it('selected option', async () => {
             const id = createTemporaryId();
             webSocket.subscriptions[id] = true;
+            webSocket.socket = {};
 
             await renderComponent(id, { id });
 
             const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
             expect(selectedItem.textContent).toEqual('▶️ Live');
+        });
+
+        it('paused when disconnected', async () => {
+            const id = createTemporaryId();
+            webSocket.subscriptions[id] = true;
+            webSocket.socket = null;
+
+            await renderComponent(id, { id });
+
+            const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
+            expect(selectedItem.textContent).toEqual('⏸️ Paused');
         });
     });
 

@@ -594,4 +594,35 @@ describe('LiveWebSocket', () => {
             expect(logged).toEqual('ERROR');
         });
     });
+
+    describe('handleClose', () => {
+        let webSocket;
+        let socket;
+        let newSocket;
+
+        beforeEach(() => {
+            webSocket = {
+                send: () => {},
+                readyState: 1,
+            };
+            socket = new LiveWebSocket({
+                socket: webSocket,
+                subscriptions: {},
+                setSubscriptions: () => {},
+                setSocket: (value) => {
+                    newSocket = value;
+                },
+            });
+        })
+
+        it('handles socket closure', () => {
+            let logged;
+            console.error = (msg) => { logged = msg };
+
+            webSocket.onclose();
+
+            expect(logged).toContain('Socket closed');
+            expect(newSocket).toEqual(null);
+        });
+    });
 });

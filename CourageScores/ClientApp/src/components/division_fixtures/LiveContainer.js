@@ -36,6 +36,7 @@ export function LiveContainer({children, id, onDataUpdate, liveOptions}) {
         enableLiveUpdates,
         liveOptions,
         subscriptions: webSocket.subscriptions,
+        connected: !!webSocket.socket,
     };
 
     return (<LiveContext.Provider value={props}>
