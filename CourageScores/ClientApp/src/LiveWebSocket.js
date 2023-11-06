@@ -19,6 +19,7 @@ export class LiveWebSocket {
         this.createSocket = createSocket;
         if (this.socket) {
             this.socket.onmessage = this.handleMessage.bind(this);
+            this.socket.onclose = this.handleClose.bind(this);
         }
     }
 
@@ -178,5 +179,10 @@ export class LiveWebSocket {
                 break;
             }
         }
+    }
+
+    async handleClose() {
+        console.error('Socket closed');
+        this.setSocket(null);
     }
 }
