@@ -54,6 +54,223 @@ describe('LiveWebSocket', () => {
             expect(closed).toEqual(true);
             expect(exception).toEqual('Socket did not connect');
         });
+
+        it('will wait for the socket to be ready', async () => {
+            class MockSocket {
+                _context;
+                constructor(context) {
+                    this._context = context;
+                }
+
+                get readyState() {
+                    this._context.readyStateRetrieved();
+                    return Math.max(this._context.readyState, 0);
+                }
+
+                send(data) {
+                    this._context.sent.push(data);
+                }
+
+                close() {
+                    this._context.closed = true;
+                }
+            }
+
+            const id = createTemporaryId();
+            const socketContext = {
+                readyState: 1,
+                sent: [],
+                closed: false,
+                readyStateRetrieved: () => {
+                    socketContext.readyState++;
+                    if (socketContext.readyState > 1) {
+                        socketContext.readyState = 1;
+                    }
+                },
+            }
+            const socket = new LiveWebSocket({
+                socket: new MockSocket(socketContext),
+                setSocket: () => {},
+                subscriptions: {},
+                setSubscriptions: () => {},
+            });
+            await socket.publish(id, 'first');
+            socketContext.readyState = -2;
+            let exception = null;
+            socketContext.sent = [];
+
+            try {
+                await socket.publish(id, 'second');
+            } catch (e) {
+                exception = e;
+            }
+
+            expect(exception).toBeNull();
+            expect(socketContext.sent.map(JSON.parse)).toEqual([{type:'update', id, data: 'second'}]);
+            expect(socketContext.closed).toEqual(false);
+        });
+
+        it('will close the socket when unready', async () => {
+            class MockSocket {
+                _context;
+                constructor(context) {
+                    this._context = context;
+                }
+
+                get readyState() {
+                    this._context.readyStateRetrieved();
+                    return this._context.readyState;
+                }
+
+                send(data) {
+                    this._context.sent.push(data);
+                }
+
+                close() {
+                    this._context.closed = true;
+                }
+            }
+
+            const id = createTemporaryId();
+            const socketContext = {
+                readyState: 1,
+                sent: [],
+                closed: false,
+                readyStateRetrieved: () => {
+
+                },
+            }
+            const socket = new LiveWebSocket({
+                socket: new MockSocket(socketContext),
+                setSocket: () => {},
+                subscriptions: {},
+                setSubscriptions: () => {},
+            });
+            await socket.publish(id, 'first');
+            socketContext.readyState = 2;
+            let exception = null;
+            socketContext.sent = [];
+
+            try {
+                await socket.publish(id, 'second');
+            } catch (e) {
+                exception = e;
+            }
+
+            expect(exception).toEqual('Socket did not connect');
+            expect(socketContext.sent).toEqual([]);
+            expect(socketContext.closed).toEqual(true);
+        });
+
+        it('will close the socket when unready after subscriptions', async () => {
+            class MockSocket {
+                _context;
+                constructor(context) {
+                    this._context = context;
+                }
+
+                get readyState() {
+                    this._context.readyStateRetrieved();
+                    return this._context.readyState;
+                }
+
+                send(data) {
+                    this._context.sent.push(data);
+                }
+
+                close() {
+                    this._context.closed = true;
+                }
+            }
+
+            const id = createTemporaryId();
+            const socketContext = {
+                readyState: 1,
+                sent: [],
+                closed: false,
+                readyStateRetrieved: () => {
+
+                },
+            }
+            const socket = new LiveWebSocket({
+                socket: new MockSocket(socketContext),
+                setSocket: () => {},
+                subscriptions: {
+                    anId: {}
+                },
+                setSubscriptions: () => {},
+            });
+            await socket.publish(id, 'first');
+            socketContext.readyState = 2;
+            let exception = null;
+            socketContext.sent = [];
+
+            try {
+                await socket.publish(id, 'second');
+            } catch (e) {
+                exception = e;
+            }
+
+            expect(exception).toEqual('Socket was closed');
+            expect(socketContext.sent).toEqual([]);
+            expect(socketContext.closed).toEqual(true);
+        });
+
+        it('will throw if socket does not become ready', async () => {
+            class MockSocket {
+                _context;
+                constructor(context) {
+                    this._context = context;
+                }
+
+                get readyState() {
+                    const readyState = this._context.readyStates.shift();
+                    if (readyState < 0) {
+                        throw new Error('ERROR');
+                    }
+                    return readyState;
+                }
+
+                send(data) {
+                    this._context.sent.push(data);
+                }
+
+                close() {
+                    this._context.closed = true;
+                }
+            }
+
+            const id = createTemporaryId();
+            const socketContext = {
+                sent: [],
+                closed: false,
+                readyStates: [
+                    1,
+                    0, -1
+                ]
+            }
+            const socket = new LiveWebSocket({
+                socket: new MockSocket(socketContext),
+                setSocket: () => {},
+                subscriptions: {
+                    anId: {}
+                },
+                setSubscriptions: () => {},
+            });
+            await socket.publish(id, 'first');
+            let exception = null;
+            socketContext.sent = [];
+            console.error = () => {};
+
+            try {
+                await socket.publish(id, 'second');
+            } catch (e) {
+                exception = e;
+            }
+
+            expect(exception).toEqual('ERROR');
+            expect(socketContext.sent).toEqual([]);
+        });
     });
 
     describe('unsubscribe', () => {
