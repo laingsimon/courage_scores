@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../../helpers/tests";
+import {cleanUp, noop, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {LiveSayg} from "./LiveSayg";
 import {saygBuilder} from "../../../helpers/builders";
@@ -16,17 +16,27 @@ describe('LiveSayg', () => {
             return saygData;
         }
     };
-    const liveApi = {
-        createSocket: async () => {
-            return {
-                onmessage: () => {
-                    // do nothing
-                },
-                send: () => {
-                    // do nothing
+    const webSocket = {
+        sent: [],
+        subscriptions: {},
+        socket: null,
+        socketFactory: () => {
+            const socket = {
+                close: () => {},
+                readyState: 1,
+                send: (data) => {
+                    const message = JSON.parse(data);
+                    if (message.type === 'subscribed') {
+                        webSocket.subscriptions[message.id] = true;
+                    } else if (message.type === 'unsubscribed') {
+                        delete webSocket.subscriptions[message.id];
+                    }
+                    webSocket.sent.push(message);
                 }
             };
-        },
+            webSocket.socket = socket;
+            return socket;
+        }
     };
 
     afterEach(() => {
@@ -36,8 +46,11 @@ describe('LiveSayg', () => {
     async function renderComponent(route, currentPath) {
         requestedSaygId = null;
         reportedError = null;
+        webSocket.socket = null;
+        webSocket.subscriptions = {};
+        webSocket.sent = [];
         context = await renderApp(
-            {saygApi, liveApi},
+            {saygApi, socketFactory: webSocket.socketFactory},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -55,6 +68,7 @@ describe('LiveSayg', () => {
     it('requests given id', async () => {
         saygData = saygBuilder()
             .build();
+        console.log = noop;
 
         await renderComponent('/live/match/:id', '/live/match/' + saygData.id);
 

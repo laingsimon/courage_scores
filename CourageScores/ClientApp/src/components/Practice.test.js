@@ -32,23 +32,6 @@ describe('Practice', () => {
             }
         },
     };
-    const liveApi = {
-        createSocket: async (id) => {
-            socketCreatedFor = id;
-
-            return {
-                onmessage: () => {
-                    // do nothing
-                },
-                close: () => {
-                    // do nothing
-                },
-                send: (data) => {
-                    sentData.push(data);
-                },
-            };
-        },
-    };
 
     afterEach(() => {
         cleanUp(context);
@@ -72,7 +55,7 @@ describe('Practice', () => {
         // noinspection JSValidateTypes
         navigator.share = (data) => shareData = data;
         context = await renderApp(
-            {saygApi, liveApi},
+            {saygApi},
             {name: 'Courage Scores'},
             {
                 account: account,

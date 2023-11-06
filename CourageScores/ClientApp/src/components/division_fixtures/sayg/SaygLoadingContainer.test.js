@@ -19,9 +19,6 @@ describe('SaygLoadingContainer', () => {
     let saygDataMap;
     let apiResponse;
     let upsertedData;
-    let webSocket;
-    let sentData;
-    let webSocketClosed;
 
     const saygApi = {
         get: async (id) => {
@@ -39,27 +36,36 @@ describe('SaygLoadingContainer', () => {
             };
         },
     };
-    const liveApi = {
-        createSocket: async (id) => {
-            return (webSocket = {
-                socketCreatedFor: id,
+    const webSocket = {
+        sent: [],
+        subscriptions: {},
+        socket: null,
+        socketFactory: () => {
+            const socket = {
+                close: () => {},
+                readyState: 1,
                 send: (data) => {
-                    sentData.push(data);
-                },
-                close: () => {
-                    webSocketClosed = true;
-                },
-            });
-        },
-    }
+                    const message = JSON.parse(data);
+                    if (message.type === 'subscribed') {
+                        webSocket.subscriptions[message.id] = true;
+                    } else if (message.type === 'unsubscribed') {
+                        delete webSocket.subscriptions[message.id];
+                    }
+                    webSocket.sent.push(message);
+                }
+            };
+            webSocket.socket = socket;
+            return socket;
+        }
+    };
 
     beforeEach(() => {
         saygDataMap = {};
         apiResponse = null;
         upsertedData = null;
-        webSocket = null;
-        webSocketClosed = false;
-        sentData = [];
+        webSocket.socket = null;
+        webSocket.subscriptions = {};
+        webSocket.sent = [];
     })
 
     afterEach(() => {
@@ -94,7 +100,7 @@ describe('SaygLoadingContainer', () => {
         saved = null;
         loadError = null;
         context = await renderApp(
-            {saygApi, liveApi},
+            {saygApi, socketFactory: webSocket.socketFactory},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -135,7 +141,7 @@ describe('SaygLoadingContainer', () => {
 
             expect(reportedError).toBeNull();
             expect(containerProps).toEqual({
-                isEnabled: false,
+                subscriptions: {},
                 enableLiveUpdates: expect.any(Function),
                 sayg: saygDataMap[saygData.id],
                 saveDataAndGetId: expect.any(Function),
@@ -160,7 +166,7 @@ describe('SaygLoadingContainer', () => {
 
             expect(reportedError).toBeNull();
             expect(containerProps).toEqual({
-                isEnabled: false,
+                subscriptions: {},
                 enableLiveUpdates: expect.any(Function),
                 sayg: {
                     legs: {
@@ -234,6 +240,7 @@ describe('SaygLoadingContainer', () => {
                     },
                 },
                 autoSave: false,
+                liveOptions: { },
             });
             expect(containerProps.sayg.isDefault).toEqual(true);
 
@@ -368,6 +375,7 @@ describe('SaygLoadingContainer', () => {
                     },
                 },
                 autoSave: true,
+                liveOptions: { },
             });
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
@@ -397,39 +405,13 @@ describe('SaygLoadingContainer', () => {
                     },
                 },
                 autoSave: true,
+                liveOptions: { },
             });
 
             await doClick(findButton(context.container, '🎯HOME'));
 
             expect(upsertedData).not.toBeNull();
             expect(saved).not.toBeNull();
-        });
-
-        it('should save data when player sequence changes and auto save enabled', async () => {
-            await renderComponent({
-                id: null,
-                defaultData: {
-                    homeScore: 0,
-                    awayScore: 0,
-                    startingScore: 501,
-                    numberOfLegs: 3,
-                    yourName: 'HOME',
-                    opponentName: 'AWAY',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home(c => c.score(0))
-                            .away(c => c.score(0))
-                            .build()
-                    },
-                },
-                autoSave: false,
-            });
-
-            await doClick(findButton(context.container, '🎯HOME'));
-
-            expect(upsertedData).toBeNull();
-            expect(saved).toBeNull();
         });
 
         it('should not save data when score changes and auto save disabled', async () => {
@@ -451,6 +433,7 @@ describe('SaygLoadingContainer', () => {
                     },
                 },
                 autoSave: false,
+                liveOptions: { },
             });
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
@@ -482,9 +465,8 @@ describe('SaygLoadingContainer', () => {
                 await enableLiveUpdates(true);
             });
 
-            expect(webSocket).not.toBeNull();
-            expect(webSocket.socketCreatedFor).toEqual(saygData.id);
-            expect(sentData.map(JSON.parse)).toEqual([{type:'marco'}]);
+            expect(webSocket.socket).not.toBeNull();
+            expect(Object.keys(webSocket.subscriptions)).toEqual([saygData.id]);
         });
 
         it('given error live message type, shows error', async () => {
@@ -503,11 +485,18 @@ describe('SaygLoadingContainer', () => {
             });
 
             await act(async () => {
+                await enableLiveUpdates(true);
+            });
+            await act(async () => {
                 console.error = () => {};
 
-                await enableLiveUpdates(true);
-
-                webSocket.errorHandler('Some error message');
+                webSocket.socket.onmessage({
+                    type: 'message',
+                    data: JSON.stringify({
+                        type: 'Error',
+                        message: 'Some error message'
+                    })
+                });
             });
 
             expect(reportedError).toEqual('Some error message');
@@ -536,12 +525,19 @@ describe('SaygLoadingContainer', () => {
 
             await act(async () => {
                 await enableLiveUpdates(true);
-
-                webSocket.updateHandler(newSaygData);
+            });
+            await act(async () => {
+                webSocket.socket.onmessage({
+                    type: 'message',
+                    data: JSON.stringify({
+                        type: 'Update',
+                        data: newSaygData,
+                        id: newSaygData.id,
+                    })
+                });
             });
 
             expect(reportedError).toBeNull();
-            expect(sentData.map(JSON.parse)).toEqual([{type:'marco'}]);
             expect(renderedData).toEqual(newSaygData);
         });
 
@@ -564,7 +560,7 @@ describe('SaygLoadingContainer', () => {
                 await enableLiveUpdates(false);
             });
 
-            expect(webSocket).toBeNull(); // no socket should be created
+            expect(webSocket.socket).toBeNull();
         });
 
         it('given an open socket, when disabling, closes socket', async () => {
@@ -590,16 +586,16 @@ describe('SaygLoadingContainer', () => {
                 await enableLiveUpdates(false);
             });
 
-            expect(webSocket).not.toBeNull();
-            expect(webSocketClosed).toEqual(true);
+            expect(webSocket.socket).not.toBeNull();
+            expect(webSocket.subscriptions).toEqual({});
         });
     });
 
     function TestComponent({onLoaded}) {
         const {sayg, setSayg, saveDataAndGetId} = useSayg();
-        const {isEnabled, enableLiveUpdates, permitted} = useLive();
+        const {subscriptions, enableLiveUpdates, liveOptions} = useLive();
 
-        onLoaded({sayg, setSayg, saveDataAndGetId, enableLiveUpdates, isEnabled, permitted});
+        onLoaded({sayg, setSayg, saveDataAndGetId, enableLiveUpdates, subscriptions, liveOptions});
 
         return (<div>Loaded</div>)
     }

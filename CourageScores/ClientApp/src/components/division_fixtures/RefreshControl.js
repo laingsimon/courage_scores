@@ -1,8 +1,8 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useLive} from "./LiveContainer";
 
-export function RefreshControl() {
-    const {enableLiveUpdates, isEnabled} = useLive();
+export function RefreshControl({ id }) {
+    const {enableLiveUpdates, subscriptions} = useLive();
 
     function getRefreshOptions() {
         return [
@@ -16,7 +16,7 @@ export function RefreshControl() {
             className="margin-left float-end"
             options={getRefreshOptions()}
             onChange={enableLiveUpdates}
-            value={isEnabled}
+            value={!!subscriptions[id]}
             slim={true} />
     </>);
 }

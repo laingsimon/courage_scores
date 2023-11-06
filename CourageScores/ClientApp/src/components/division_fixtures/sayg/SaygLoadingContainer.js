@@ -14,13 +14,12 @@ export function useSayg() {
 }
 
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
-                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, enableLive, livePermitted }) {
+                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions }) {
     const [sayg, setSayg] = useState(defaultData);
     const [saveError, setSaveError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const {saygApi} = useDependencies();
+    const {saygApi, webSocket} = useDependencies();
     const {onError} = useApp();
-    const [webSocket, setWebSocket] = useState(null);
 
     useEffect(() => {
             if (loading) {
@@ -85,7 +84,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     async function onChange(newData) {
-        const newSayg = updateSayg(newData);
+        const newSayg = await updateSayg(newData);
 
         if (!autoSave) {
             return;
@@ -100,14 +99,11 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    function updateSayg(newData) {
+    async function updateSayg(newData) {
         const newSayg = Object.assign({}, sayg, newData);
         setSayg(newSayg);
-        if (webSocket) {
-            webSocket.send(JSON.stringify({
-                type: 'update',
-                data: newSayg,
-            }));
+        if (liveOptions.publish) {
+            await webSocket.publish(id, newSayg);
         }
         return newSayg;
     }
@@ -125,7 +121,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     };
 
     try {
-        return (<LiveContainer id={id} enabledAtStartup={enableLive && sayg && sayg.id} onDataUpdate={setSayg} webSocket={webSocket} setWebSocket={setWebSocket} permitted={livePermitted}>
+        return (<LiveContainer id={id} liveOptions={liveOptions} onDataUpdate={setSayg}>
             <SaygContext.Provider value={saygProps}>
                 {saveError ? (
                     <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
@@ -144,7 +140,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                         data={sayg}
                         singlePlayer={!sayg.opponentName}
                         onLegComplete={async (homeScore, awayScore) => {
-                            const sayg = updateSayg({homeScore, awayScore});
+                            const sayg = await updateSayg({homeScore, awayScore});
                             if (autoSave) {
                                 await saveDataAndGetId(sayg);
                             }

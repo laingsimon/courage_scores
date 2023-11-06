@@ -9,32 +9,28 @@ import {createTemporaryId} from "../../helpers/projection";
 describe('RefreshControl', () => {
     let context;
     let reportedError;
-    let socketCreated;
-
-    const liveApi = {
-        createSocket: async () => {
-            socketCreated = true;
-
-            return {
-                onmessage: () => {
-                    // do nothing
-                },
-                send: () => {
-                    // do nothing
-                },
-            };
+    const webSocket = {
+        subscriptions: {},
+        subscribe: async (id) => {
+            webSocket.subscriptions[id] = true;
+        },
+        unsubscribe: async (id) => {
+            delete webSocket.subscriptions[id];
         },
     };
+
+    beforeEach(() => {
+        reportedError = null;
+        webSocket.subscriptions = {};
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(liveProps) {
-        reportedError = null;
-        socketCreated = false;
+    async function renderComponent(id, liveProps) {
         context = await renderApp(
-            {liveApi},
+            {webSocket},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -45,25 +41,25 @@ describe('RefreshControl', () => {
                 },
             },
             (<LiveContainer {...liveProps}>
-                <RefreshControl />
+                <RefreshControl id={id} />
             </LiveContainer>));
     }
 
     describe('renders', () => {
         it('options', async () => {
-            await renderComponent({}, {});
+            const id = createTemporaryId();
+
+            await renderComponent(id, { id });
 
             const items = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(items.map(li => li.textContent)).toEqual([ '⏸️ Paused', '▶️ Live' ]);
         });
 
         it('selected option', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                enabledAtStartup: true,
-                permitted: true,
-                webSocket: {},
-            });
+            const id = createTemporaryId();
+            webSocket.subscriptions[id] = true;
+
+            await renderComponent(id, { id });
 
             const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
             expect(selectedItem.textContent).toEqual('▶️ Live');
@@ -72,39 +68,24 @@ describe('RefreshControl', () => {
 
     describe('interactivity', () => {
         it('enables live', async () => {
-            let socket;
-            await renderComponent({
-                id: createTemporaryId(),
-                enabledAtStartup: true,
-                permitted: true,
-                setWebSocket: (s) => { socket = s; }
-            });
+            const id = createTemporaryId();
+
+            await renderComponent(id, { id });
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
-            expect(socketCreated).toEqual(true);
-            expect(socket).not.toBeNull();
+            expect(Object.keys(webSocket.subscriptions)).toEqual([id]);
         });
 
         it('disables live', async () => {
-            let socket;
-            let socketClosed;
-            await renderComponent({
-                id: createTemporaryId(),
-                enabledAtStartup: true,
-                permitted: true,
-                setWebSocket: (s) => { socket = s; },
-                webSocket: {
-                    close: () => {
-                        socketClosed = true;
-                    }
-                },
-            });
+            const id = createTemporaryId();
+            webSocket.subscriptions[id] = {};
+
+            await renderComponent(id, { id });
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
 
-            expect(socketClosed).toEqual(true);
-            expect(socket).toBeNull();
+            expect(webSocket.subscriptions).toEqual({});
         });
     })
 });

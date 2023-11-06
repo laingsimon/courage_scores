@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
 import {legBuilder} from "../../../helpers/builders";
@@ -14,9 +14,6 @@ describe('MatchStatistics', () => {
     let getCount;
     let saygData;
     let updatedSayg;
-    let socketClosed;
-    let socketCreatedFor;
-    let socket;
 
     const saygApi = {
         get: () => {
@@ -31,16 +28,27 @@ describe('MatchStatistics', () => {
             };
         },
     };
-    const liveApi = {
-        createSocket: async (id) => {
-            socketCreatedFor = id;
-            return (socket = {
-                close: () => {
-                    socketClosed = true;
-                },
-                send: () => {},
-            });
-        },
+    const webSocket = {
+        sent: [],
+        subscriptions: {},
+        socket: null,
+        socketFactory: () => {
+            const socket = {
+                close: () => {},
+                readyState: 1,
+                send: (data) => {
+                    const message = JSON.parse(data);
+                    if (message.type === 'subscribed') {
+                        webSocket.subscriptions[message.id] = true;
+                    } else if (message.type === 'unsubscribed') {
+                        delete webSocket.subscriptions[message.id];
+                    }
+                    webSocket.sent.push(message);
+                }
+            };
+            webSocket.socket = socket;
+            return socket;
+        }
     };
 
     afterEach(() => {
@@ -51,16 +59,17 @@ describe('MatchStatistics', () => {
         reportedError = null;
         updatedSayg = null;
         getCount = 0;
-        socketClosed = false;
-        socketCreatedFor = null;
-        socket = null;
+        webSocket.socket = null;
+        webSocket.subscriptions = {};
+        webSocket.sent = [];
     });
 
     async function renderComponent(containerProps, data, appProps) {
         saygData = data;
         saygData.id = saygData.id || createTemporaryId();
+        containerProps.liveOptions = containerProps.liveOptions || {};
         context = await renderApp(
-            {saygApi, liveApi},
+            {saygApi, socketFactory: webSocket.socketFactory},
             {name: 'Courage Scores'},
             {
                 ...appProps,
@@ -344,11 +353,15 @@ describe('MatchStatistics', () => {
             .away(c => c.noOfDarts(1))
             .winner('home')
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: true,
+        };
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            livePermitted: true,
-            enableLive: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             legs: {0: leg},
@@ -369,11 +382,15 @@ describe('MatchStatistics', () => {
             .away(c => c.noOfDarts(1))
             .winner('home')
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: true,
+        };
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            livePermitted: true,
-            enableLive: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             legs: {0: leg},
@@ -394,13 +411,19 @@ describe('MatchStatistics', () => {
             .home(c => c)
             .away(c => c)
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: true,
+        };
+        const id = createTemporaryId();
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            livePermitted: true,
-            enableLive: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
+            id,
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
@@ -408,9 +431,8 @@ describe('MatchStatistics', () => {
             numberOfLegs: 3,
         });
 
-        const selectedOption = context.container.querySelector('h4 .dropdown-menu .active');
-        expect(selectedOption).toBeTruthy();
-        expect(selectedOption.textContent).toEqual('▶️ Live');
+        expect(webSocket.socket).not.toBeNull();
+        expect(Object.keys(webSocket.subscriptions)).toEqual([ id ]);
     });
 
     it('does not enable live updates by default', async () => {
@@ -420,10 +442,14 @@ describe('MatchStatistics', () => {
             .home(c => c)
             .away(c => c)
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: false,
+        };
 
         await renderComponent({
             matchStatisticsOnly: true,
-            livePermitted: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             legs: {0: leg},
@@ -436,7 +462,7 @@ describe('MatchStatistics', () => {
         const selectedOption = context.container.querySelector('h4 .dropdown-menu .active');
         expect(selectedOption).toBeTruthy();
         expect(selectedOption.textContent).toEqual('⏸️ Paused');
-        expect(socketCreatedFor).toEqual(null);
+        expect(webSocket.socket).toBeNull();
     });
 
     it('shows throws on last leg when not finished', async () => {
@@ -446,13 +472,19 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: true,
+        };
+        const id = createTemporaryId();
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            livePermitted: true,
-            enableLive: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true, showAverage: true },
         }, {
+            id,
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
@@ -483,11 +515,15 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: true,
+        };
+        console.log = noop;
         const saygId = createTemporaryId();
         await renderComponent({
             matchStatisticsOnly: true,
-            livePermitted: true,
-            enableLive: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             id: saygId,
@@ -497,13 +533,13 @@ describe('MatchStatistics', () => {
             home: 'HOME',
             numberOfLegs: 3,
         });
-        expect(socketCreatedFor).toEqual(saygId);
+        expect(Object.keys(webSocket.subscriptions)).toEqual([saygId]);
         expect(reportedError).toBeNull();
 
         await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ Paused');
 
         expect(reportedError).toBeNull();
-        expect(socketClosed).toEqual(true);
+        expect(webSocket.subscriptions).toEqual({});
     });
 
     it('collapses all legs when final leg played', async () => {
@@ -520,9 +556,13 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(501, false, 3).score(501).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: true,
+        };
+        console.log = noop;
         await renderComponent({
-            livePermitted: true,
-            enableLive: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true, initial: true },
         }, {
             id,
@@ -543,9 +583,16 @@ describe('MatchStatistics', () => {
             opponentName: 'AWAY',
             numberOfLegs: 3,
         };
-        expect(socket).toBeTruthy();
+        expect(webSocket.socket).toBeTruthy();
         await act(async () => {
-            await socket.updateHandler(newSaygData);
+            webSocket.socket.onmessage({
+                type: 'message',
+                data: JSON.stringify({
+                    type: 'Update',
+                    data: newSaygData,
+                    id: newSaygData.id,
+                })
+            });
         });
 
         expect(reportedError).toBeNull();
