@@ -66,17 +66,9 @@ describe('TournamentRoundMatch', () => {
             };
         },
     };
-    const liveApi = {
-        createSocket: async () => {
-            return {
-                onmessage: () => {
-                    // do nothing
-                },
-                send: () => {
-                    // do nothing
-                },
-            };
-        },
+    const webSocket = {
+        subscriptions: {},
+        publish: async () => {},
     };
 
     afterEach(() => {
@@ -113,7 +105,7 @@ describe('TournamentRoundMatch', () => {
         createdSaygSessions = [];
         deletedSayg = null;
         context = await renderApp(
-            {tournamentApi, saygApi, liveApi},
+            {tournamentApi, saygApi, webSocket},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -371,7 +363,6 @@ describe('TournamentRoundMatch', () => {
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
                 }, account);
-                const cells = Array.from(context.container.querySelectorAll('tr td'));
 
                 const link = context.container.querySelector('a');
 

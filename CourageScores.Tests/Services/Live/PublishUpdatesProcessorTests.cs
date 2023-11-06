@@ -10,29 +10,26 @@ namespace CourageScores.Tests.Services.Live;
 public class PublishUpdatesProcessorTests
 {
     private readonly CancellationToken _token = new CancellationToken();
-    private Mock<IGroupedCollection<IWebSocketContract>> _sockets = null!;
+    private List<IWebSocketContract> _sockets = null!;
     private Mock<IWebSocketContract> _publisherSocket = null!;
     private Mock<IWebSocketContract> _subscriberSocket = null!;
     private PublishUpdatesProcessor _processor = null!;
-    private List<IWebSocketContract> _activeSockets = null!;
     private Guid _key;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _sockets = new Mock<IGroupedCollection<IWebSocketContract>>();
-        _processor = new PublishUpdatesProcessor(_sockets.Object);
         _publisherSocket = new Mock<IWebSocketContract>();
         _subscriberSocket = new Mock<IWebSocketContract>();
-        _activeSockets = new List<IWebSocketContract>(new[]
+        _sockets = new List<IWebSocketContract>(new[]
         {
             _publisherSocket.Object, _subscriberSocket.Object
         });
+        _processor = new PublishUpdatesProcessor(_sockets);
         _key = Guid.NewGuid();
 
-        _sockets.Setup(s => s.GetItems(_key)).Returns(() => _activeSockets.ToArray());
-        _publisherSocket.Setup(s => s.DataId).Returns(_key);
-        _subscriberSocket.Setup(s => s.DataId).Returns(_key);
+        _publisherSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
+        _subscriberSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
     }
 
     [Test]
@@ -43,7 +40,7 @@ public class PublishUpdatesProcessorTests
             Id = _key,
         };
 
-        await _processor.PublishUpdate(_publisherSocket.Object, data, _token);
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, data, _token);
 
         _publisherSocket.Verify(s => s.Send(It.IsAny<LiveMessageDto>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -57,7 +54,7 @@ public class PublishUpdatesProcessorTests
             YourName = "Your Name",
         };
 
-        await _processor.PublishUpdate(_publisherSocket.Object, data, _token);
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, data, _token);
 
         _subscriberSocket.Verify(s => s.Send(
             It.Is<LiveMessageDto>(dto => dto.Type == MessageType.Update && dto.Data == data),
@@ -73,10 +70,11 @@ public class PublishUpdatesProcessorTests
             Id = _key,
             YourName = "Your Name",
         };
-        _activeSockets.Insert(0, errorSocket.Object);
+        _sockets.Insert(0, errorSocket.Object);
         errorSocket.Setup(s => s.Send(It.IsAny<LiveMessageDto>(), _token)).Throws<InvalidOperationException>();
+        errorSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
 
-        await _processor.PublishUpdate(_publisherSocket.Object, data, _token);
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, data, _token);
 
         errorSocket.Verify(s => s.Send(
             It.IsAny<LiveMessageDto>(),
@@ -87,12 +85,10 @@ public class PublishUpdatesProcessorTests
     }
 
     [Test]
-    public void Unregister_WhenCalled_RemovesSocket()
+    public void Disconnected_WhenCalled_RemovesSocket()
     {
-        _publisherSocket.Setup(s => s.DataId).Returns(_key);
+        _processor.Disconnected(_publisherSocket.Object);
 
-        _processor.Unregister(_publisherSocket.Object);
-
-        _sockets.Verify(s => s.Remove(_key, _publisherSocket.Object));
+        Assert.That(_sockets, Is.EquivalentTo(new[] { _subscriberSocket.Object }));
     }
 }

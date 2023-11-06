@@ -19,4 +19,9 @@ public class LiveMessageDto
     /// Any message relevant to the given message
     /// </summary>
     public string? Message { get; set; }
+
+    /// <summary>
+    /// The id for the data, if applicable
+    /// </summary>
+    public Guid? Id { get; set; }
 }

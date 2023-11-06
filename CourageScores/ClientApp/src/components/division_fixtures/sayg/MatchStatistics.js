@@ -9,11 +9,12 @@ import {useLive} from "../LiveContainer";
 
 export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs }) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
-    const {lastLegDisplayOptions} = useSayg();
-    const {isEnabled, permitted} = useLive();
+    const {sayg, lastLegDisplayOptions} = useSayg();
+    const {subscriptions, liveOptions} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState(getLegDisplayOptions(legs));
     const finished = (homeScore >= numberOfLegs / 2.0) || (awayScore >= numberOfLegs / 2.0);
-    const legDisplayOptions = isEnabled && !finished
+    const isSubscribed = sayg && subscriptions[sayg.id];
+    const legDisplayOptions = isSubscribed && !finished
         ? getLegDisplayOptions(legs, true)
         : legDisplayOptionsState;
 
@@ -53,7 +54,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     return (<div>
         <h4 className="text-center">
             Match statistics
-            {permitted && !finished ? <RefreshControl /> : null}
+            {liveOptions.canSubscribe && !finished ? <RefreshControl /> : null}
         </h4>
         <table className="table">
             <thead>
@@ -84,7 +85,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     singlePlayer={singlePlayer}
                     oneDartAverage={oneDartAverage}
                     legDisplayOptions={legDisplayOptions[legIndex] || getLegDisplayOptions(legs)[legIndex]}
-                    updateLegDisplayOptions={isEnabled && !finished ? null : (options) => updateLegDisplayOptions(legIndex, options)}
+                    updateLegDisplayOptions={isSubscribed && !finished ? null : (options) => updateLegDisplayOptions(legIndex, options)}
                     onChangeLeg={legChanged ? ((newLeg) => legChanged(newLeg, legIndex)) : null}
                 />);
             })}

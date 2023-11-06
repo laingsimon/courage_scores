@@ -15,11 +15,8 @@ public class WebSocketContractFactory : IWebSocketContractFactory
         _processor = processor;
     }
 
-    public IWebSocketContract Create(WebSocket webSocket, Guid key)
+    public IWebSocketContract Create(WebSocket webSocket)
     {
-        return new WebSocketContract(webSocket, _serializerService, _processor)
-        {
-            DataId = key,
-        };
+        return new WebSocketContract(webSocket, _serializerService, _processor);
     }
 }

@@ -88,17 +88,9 @@ describe('Tournament', () => {
             };
         },
     };
-    const liveApi = {
-        createSocket: async () => {
-            return {
-                onmessage: () => {
-                    // do nothing
-                },
-                send: () => {
-                    // do nothing
-                },
-            };
-        },
+    const webSocket = {
+        subscriptions: {},
+        publish: async () => {},
     };
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {
@@ -132,7 +124,7 @@ describe('Tournament', () => {
                 playerApi,
                 dataApi,
                 saygApi,
-                liveApi,
+                webSocket,
             },
             {name: 'Courage Scores'},
             {

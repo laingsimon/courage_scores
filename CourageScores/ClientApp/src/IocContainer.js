@@ -1,4 +1,4 @@
-import {createContext, useContext} from "react";
+import {createContext, useContext, useState} from "react";
 import {Http} from "./api/http";
 import {Settings} from "./api/settings";
 import {TeamApi} from "./api/team";
@@ -15,7 +15,8 @@ import {SeasonApi} from "./api/season";
 import {SaygApi} from "./api/sayg";
 import {ParentHeight} from "./ParentHeight";
 import {TemplateApi} from "./api/template";
-import {LiveApi} from "./api/live";
+import socketFactory from "./api/socketFactory";
+import {LiveWebSocket} from "./LiveWebSocket";
 
 const DependenciesContext = createContext({});
 
@@ -25,6 +26,8 @@ export function useDependencies() {
 
 /* istanbul ignore next */
 export function IocContainer({children, ...services}) {
+    const [socket, setSocket] = useState(null);
+    const [subscriptions, setSubscriptions] = useState({});
     const settings = new Settings();
     const http = new Http(settings);
     const defaultServices = {
@@ -43,7 +46,13 @@ export function IocContainer({children, ...services}) {
         saygApi: new SaygApi(http),
         templateApi: new TemplateApi(http),
         parentHeight: new ParentHeight(25),
-        liveApi: new LiveApi(http),
+        webSocket: new LiveWebSocket({
+            socket,
+            subscriptions,
+            setSubscriptions,
+            setSocket,
+            createSocket: () => (services.socketFactory || socketFactory)(settings),
+        }),
     };
 
     return (<DependenciesContext.Provider value={Object.assign({}, defaultServices, services)}>

@@ -15,15 +15,14 @@ import {useLive} from "../../LiveContainer";
 export function SuperLeaguePrintout({division}) {
     const {onError} = useApp();
     const {tournamentData} = useTournament();
-    const {saygApi, liveApi} = useDependencies();
+    const {saygApi, webSocket} = useDependencies();
     const location = useLocation();
-    const {isEnabled} = useLive();
+    const {subscriptions} = useLive();
     const [saygDataMap, setSaygDataMap] = useState({});
     const [loading, setLoading] = useState(false);
     const matches = (tournamentData.round || {}).matches || [];
     const unloadedIds = matches.map(m => m.saygId).filter(id => id && !any(Object.keys(saygDataMap), key => key === id));
     const showWinner = location.search.indexOf('winner') !== -1;
-    const [saygSockets, setSaygSockets] = useState({});
 
     useEffect(() => {
             if (loading) {
@@ -41,38 +40,32 @@ export function SuperLeaguePrintout({division}) {
                 return;
             }
 
-            // noinspection JSIgnoredPromiseFromCall
-            processLiveStateChange(isEnabled);
+            processLiveStateChange(subscriptions[tournamentData.id]);
         },
         // eslint-disable-next-line
-        [isEnabled, loading]);
+        [subscriptions, loading]);
 
-    async function processLiveStateChange(enabled) {
-        const newSaygSockets = Object.assign({}, saygSockets);
+    function processLiveStateChange(enabled) {
         if (enabled) {
-            // foreach saygId, create a socket
             for (let saygId in saygDataMap) {
-                if (newSaygSockets[saygId]) {
-                    continue; // socket already exists, don't recreate it
+                if (!subscriptions[saygId]) {
+                    webSocket.subscribe(saygId, (newSaygData) => {
+                        const newSaygDataMap = Object.assign({}, saygDataMap);
+                        newSaygDataMap[newSaygData.id] = newSaygData;
+                        setSaygDataMap(newSaygDataMap);
+                    }, onError);
                 }
-                const socket = await liveApi.createSocket(saygId);
-                socket.updateHandler = (newSaygData) => {
-                    const newSaygDataMap = Object.assign({}, saygDataMap);
-                    newSaygDataMap[newSaygData.id] = newSaygData;
-                    setSaygDataMap(newSaygDataMap);
-                };
-                socket.errorHandler = onError;
-                newSaygSockets[saygId] = socket;
             }
-        } else {
-            // foreach socket in saygSockets, close and remove it
-            for (let key in saygSockets) {
-                const socket = saygSockets[key];
-                socket.close();
-                delete newSaygSockets[key];
+
+            return;
+        }
+
+        // foreach socket in saygSockets, close and remove it
+        for (let saygId in saygDataMap) {
+            if (subscriptions[saygId]) {
+                webSocket.unsubscribe(saygId);
             }
         }
-        setSaygSockets(newSaygSockets);
     }
 
     async function loadSaygData(ids) {
@@ -111,7 +104,7 @@ export function SuperLeaguePrintout({division}) {
     try {
         return (<div className="overflow-auto no-overflow-on-print">
             <div className="float-end">
-                <RefreshControl />
+                <RefreshControl id={tournamentData.id} />
             </div>
             <MasterDraw
                 matches={matches}

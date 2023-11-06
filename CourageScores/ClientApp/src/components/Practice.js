@@ -45,6 +45,12 @@ export function Practice() {
             </div>);
         }
 
+        const liveOptions = {
+            publish: false,
+            canSubscribe: false,
+            subscribeAtStartup: false,
+        }
+
         return (<div className="p-3 content-background">
             <SaygLoadingContainer
                 id={hasHash ? location.hash.substring(1) : null}
@@ -58,7 +64,7 @@ export function Practice() {
                         navigate(`/practice#${data.id}`);
                     }
                 }}
-                enableLive={true}
+                liveOptions={liveOptions}
                 onLoadError={setDataError}>
                 <EditSaygPracticeOptions/>
             </SaygLoadingContainer>

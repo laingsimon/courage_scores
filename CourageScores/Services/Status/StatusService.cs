@@ -11,7 +11,7 @@ public class StatusService : IStatusService
 {
     private readonly ApplicationMetrics _applicationMetrics;
     private readonly IUserService _userService;
-    private readonly IGroupedCollection<IWebSocketContract> _webSockets;
+    private readonly ICollection<IWebSocketContract> _webSockets;
     private readonly IMemoryCache _memoryCache;
     private readonly ISeasonService _seasonService;
 
@@ -20,7 +20,7 @@ public class StatusService : IStatusService
         IMemoryCache memoryCache,
         ApplicationMetrics applicationMetrics,
         IUserService userService,
-        IGroupedCollection<IWebSocketContract> webSockets)
+        ICollection<IWebSocketContract> webSockets)
     {
         _seasonService = seasonService;
         _memoryCache = memoryCache;

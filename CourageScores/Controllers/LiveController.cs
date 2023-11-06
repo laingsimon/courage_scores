@@ -16,8 +16,8 @@ public class LiveController : Controller
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
-    [Route("/api/Live/{id}")]
-    public async Task Subscribe(Guid id, CancellationToken token)
+    [Route("/api/Live")]
+    public async Task Subscribe(CancellationToken token)
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
@@ -27,6 +27,6 @@ public class LiveController : Controller
         }
 
         var socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-        await _liveService.Accept(socket, id, token);
+        await _liveService.Accept(socket, token);
     }
 }

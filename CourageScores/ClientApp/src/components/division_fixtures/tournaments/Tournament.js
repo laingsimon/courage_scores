@@ -22,7 +22,7 @@ import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 export function Tournament() {
     const {tournamentId} = useParams();
     const {appLoading, account, seasons, onError, teams, reloadTeams, divisions} = useApp();
-    const {divisionApi, tournamentApi} = useDependencies();
+    const {divisionApi, tournamentApi, webSocket} = useDependencies();
     const canManageTournaments = account && account.access && account.access.manageTournaments;
     const canManagePlayers = account && account.access && account.access.managePlayers;
     const [loading, setLoading] = useState('init');
@@ -38,7 +38,6 @@ export function Tournament() {
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
-    const [webSocket, setWebSocket] = useState(null);
     const genderOptions = [
         {text: <>&nbsp;</>, value: null},
         {text: 'Men', value: 'men'},
@@ -155,7 +154,7 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 updateTournamentData(response.result);
-                publishLiveUpdate(response.result);
+                await publishLiveUpdate(response.result);
                 return response.result;
             }
         } finally {
@@ -180,19 +179,16 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 updateTournamentData(response.result);
-                publishLiveUpdate(response.result);
+                await publishLiveUpdate(response.result);
             }
         } finally {
             setPatching(false);
         }
     }
 
-    function publishLiveUpdate(data) {
-        if (webSocket) {
-            webSocket.send(JSON.stringify({
-                type: 'update',
-                data: data,
-            }));
+    async function publishLiveUpdate(data) {
+        if (canSave) {
+            await webSocket.publish(tournamentId, data);
         }
     }
 
@@ -287,7 +283,11 @@ export function Tournament() {
             throw new Error('Could not find the season for this tournament');
         }
 
-        const publishUpdatesViaWebSocket = canSave;
+        const liveOptions = {
+            publish: canSave,
+            canSubscribe: false,
+            subscribeAtStartup: false,
+        };
 
         return (<div>
             <DivisionControls
@@ -409,9 +409,7 @@ export function Tournament() {
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
-                    setWebSocket={setWebSocket}
-                    webSocket={webSocket}
-                    enableLive={publishUpdatesViaWebSocket}>
+                    liveOptions={liveOptions}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
                                                 applyPatch={applyPatch}/>) : null}
                     {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division}/>) : null}

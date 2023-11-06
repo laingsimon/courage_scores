@@ -22,7 +22,7 @@ public class StatusServiceTests
     private IMemoryCache _memoryCache = null!;
     private ApplicationMetrics _applicationMetrics = null!;
     private UserDto? _user;
-    private Mock<IGroupedCollection<IWebSocketContract>> _sockets = null!;
+    private Mock<ICollection<IWebSocketContract>> _sockets = null!;
 
     [SetUp]
     public void BeforeEachTest()
@@ -33,7 +33,7 @@ public class StatusServiceTests
         _userService = new Mock<IUserService>();
         _memoryCache = new MemoryCache(new MemoryCacheOptions());
         _applicationMetrics = ApplicationMetrics.Create();
-        _sockets = new Mock<IGroupedCollection<IWebSocketContract>>();
+        _sockets = new Mock<ICollection<IWebSocketContract>>();
         _service = new StatusService(_seasonService.Object, _memoryCache, _applicationMetrics, _userService.Object, _sockets.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }

@@ -8,40 +8,35 @@ export function useLive() {
     return useContext(LiveContext);
 }
 
-export function LiveContainer({children, id, onDataUpdate, webSocket, setWebSocket, enabledAtStartup, permitted}) {
-    const {liveApi} = useDependencies();
+export function LiveContainer({children, id, onDataUpdate, liveOptions}) {
+    const {webSocket} = useDependencies();
     const {onError} = useApp();
 
     useEffect(() => {
-        if (enabledAtStartup) {
-            // noinspection JSIgnoredPromiseFromCall
+        if (liveOptions && liveOptions.subscribeAtStartup) {
             enableLiveUpdates(true);
         }
     },
     // eslint-disable-next-line
-    [enabledAtStartup]);
+    [liveOptions]);
 
-    async function enableLiveUpdates(enabled) {
-        if (enabled && !webSocket && id) {
-            const newSocket = await liveApi.createSocket(id);
-            newSocket.updateHandler = onDataUpdate;
-            newSocket.errorHandler = onError;
+    function enableLiveUpdates(enabled) {
+        if (!id) {
+            return;
+        }
 
-            newSocket.send(JSON.stringify({
-                type: 'marco',
-            }));
-
-            setWebSocket(newSocket);
-        } else if (!enabled && webSocket) {
-            webSocket.close();
-            setWebSocket(null);
+        if (enabled) {
+            webSocket.subscribe(id, onDataUpdate, onError);
+        } else if (!enabled) {
+            webSocket.unsubscribe(id);
         }
     }
 
     const props = {
-        isEnabled: !!webSocket,
         enableLiveUpdates,
-        permitted,
+        liveOptions,
+        subscriptions: webSocket.subscriptions,
+        connected: !!webSocket.socket,
     };
 
     return (<LiveContext.Provider value={props}>

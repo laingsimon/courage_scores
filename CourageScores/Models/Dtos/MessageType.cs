@@ -23,4 +23,12 @@ public enum MessageType
     /// An error was encountered when the message was processed
     /// </summary>
     Error,
+    /// <summary>
+    /// The client has subscribed to the given id
+    /// </summary>
+    Subscribed,
+    /// <summary>
+    /// The client has unsubscribed from the given id
+    /// </summary>
+    Unsubscribed,
 }

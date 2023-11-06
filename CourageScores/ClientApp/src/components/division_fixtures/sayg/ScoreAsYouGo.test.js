@@ -4,6 +4,7 @@ import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helper
 import React from "react";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
 import {legBuilder, saygBuilder} from "../../../helpers/builders";
+import {LiveContainer} from "../LiveContainer";
 
 describe('ScoreAsYouGo', () => {
     let context;
@@ -33,7 +34,7 @@ describe('ScoreAsYouGo', () => {
         completedLegs.push({homeScore, awayScore});
     }
 
-    async function renderComponent(props) {
+    async function renderComponent(props, liveProps) {
         oneEighties = [];
         hiChecks = [];
         changedLegs = [];
@@ -50,12 +51,14 @@ describe('ScoreAsYouGo', () => {
                     };
                 },
             },
-            <ScoreAsYouGo
-                {...props}
-                onChange={onChange}
-                onLegComplete={onLegComplete}
-                on180={on180}
-                onHiCheck={onHiCheck}/>);
+            <LiveContainer {...liveProps}>
+                <ScoreAsYouGo
+                    {...props}
+                    onChange={onChange}
+                    onLegComplete={onLegComplete}
+                    on180={on180}
+                    onHiCheck={onHiCheck}/>
+            </LiveContainer>);
     }
 
     it('renders match statistics for single player games', async () => {
@@ -68,7 +71,7 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 3,
             singlePlayer: true,
-        });
+        }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
     });
@@ -83,7 +86,7 @@ describe('ScoreAsYouGo', () => {
             awayScore: 2,
             homeScore: 3,
             singlePlayer: false,
-        });
+        }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
     });
@@ -98,7 +101,7 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 3,
             singlePlayer: false,
-        });
+        }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
     });
@@ -113,7 +116,7 @@ describe('ScoreAsYouGo', () => {
             awayScore: 3,
             homeScore: 0,
             singlePlayer: false,
-        });
+        }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
     });

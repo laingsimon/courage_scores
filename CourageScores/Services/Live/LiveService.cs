@@ -4,21 +4,21 @@ namespace CourageScores.Services.Live;
 
 public class LiveService : ILiveService
 {
-    private readonly IGroupedCollection<IWebSocketContract> _sockets;
+    private readonly ICollection<IWebSocketContract> _sockets;
     private readonly IWebSocketContractFactory _socketContractFactory;
 
     public LiveService(
-        IGroupedCollection<IWebSocketContract> sockets,
+        ICollection<IWebSocketContract> sockets,
         IWebSocketContractFactory socketContractFactory)
     {
         _sockets = sockets;
         _socketContractFactory = socketContractFactory;
     }
 
-    public async Task Accept(WebSocket webSocket, Guid key, CancellationToken token)
+    public async Task Accept(WebSocket webSocket, CancellationToken token)
     {
-        var contract = _socketContractFactory.Create(webSocket, key);
-        _sockets.Add(key, contract);
+        var contract = _socketContractFactory.Create(webSocket);
+        _sockets.Add(contract);
         await contract.Accept(token);
     }
 }

@@ -4,5 +4,5 @@ namespace CourageScores.Services.Live;
 
 public interface IWebSocketContractFactory
 {
-    IWebSocketContract Create(WebSocket webSocket, Guid key);
+    IWebSocketContract Create(WebSocket webSocket);
 }
