@@ -1,0 +1,25 @@
+name: Publish test results
+
+on:
+  workflow_run:
+    workflows: ['DEV']
+    types:
+      - completed
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dorny/test-reporter@v1
+        with:
+          artifact: NUnitTestResults
+          name: NUnit Tests
+          path: 'TestResults.trx'
+          reporter: dotnet-trx
+
+      - uses: dorny/test-reporter@v1
+        with:
+           artifact: JestTestResults
+           name: Jest Tests
+           path: '*.xml'
+           reporter: jest-junit
