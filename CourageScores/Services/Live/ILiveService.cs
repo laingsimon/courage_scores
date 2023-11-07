@@ -4,5 +4,5 @@ namespace CourageScores.Services.Live;
 
 public interface ILiveService
 {
-    Task Accept(WebSocket socket, CancellationToken token);
+    Task Accept(WebSocket socket, string originatingUrl, CancellationToken token);
 }

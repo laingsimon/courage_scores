@@ -15,9 +15,9 @@ public class LiveService : ILiveService
         _socketContractFactory = socketContractFactory;
     }
 
-    public async Task Accept(WebSocket webSocket, CancellationToken token)
+    public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
     {
-        var contract = _socketContractFactory.Create(webSocket);
+        var contract = await _socketContractFactory.Create(webSocket, originatingUrl, token);
         _sockets.Add(contract);
         await contract.Accept(token);
     }

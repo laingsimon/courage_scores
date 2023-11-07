@@ -22,7 +22,9 @@ public class LiveServiceTests
         _service = new LiveService(_sockets.Object, _contractFactory.Object);
         _contract = new Mock<IWebSocketContract>();
 
-        _contractFactory.Setup(f => f.Create(It.IsAny<WebSocket>())).Returns(_contract.Object);
+        _contractFactory
+            .Setup(f => f.Create(It.IsAny<WebSocket>(), It.IsAny<string>(), _token))
+            .ReturnsAsync(() => _contract.Object);
     }
 
     [Test]
@@ -30,7 +32,7 @@ public class LiveServiceTests
     {
         var socket = new Mock<WebSocket>();
 
-        await _service.Accept(socket.Object, _token);
+        await _service.Accept(socket.Object, "originatingUrl", _token);
 
         _sockets.Verify(s => s.Add(It.IsAny<IWebSocketContract>()));
     }
@@ -40,9 +42,9 @@ public class LiveServiceTests
     {
         var socket = new Mock<WebSocket>();
 
-        await _service.Accept(socket.Object, _token);
+        await _service.Accept(socket.Object, "originatingUrl", _token);
 
-        _contractFactory.Verify(f => f.Create(socket.Object));
+        _contractFactory.Verify(f => f.Create(socket.Object, "originatingUrl", _token));
         _contract.Verify(s => s.Accept(_token));
     }
 }

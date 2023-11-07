@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +29,10 @@ public class LiveController : Controller
         }
 
         var socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-        await _liveService.Accept(socket, token);
+        var query = HttpContext.Request.Query;
+        var originatingUrl = query.ContainsKey("referrer")
+            ? query["referrer"].ToString()
+            : null;
+        await _liveService.Accept(socket, originatingUrl ?? "unknown", token);
     }
 }

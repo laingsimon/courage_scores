@@ -1,5 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
+using CourageScores.Models.Dtos.Live;
+using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;
 
@@ -8,15 +11,32 @@ public class WebSocketContractFactory : IWebSocketContractFactory
 {
     private readonly IJsonSerializerService _serializerService;
     private readonly IWebSocketMessageProcessor _processor;
+    private readonly ISystemClock _systemClock;
+    private readonly IUserService _userService;
 
-    public WebSocketContractFactory(IJsonSerializerService serializerService, IWebSocketMessageProcessor processor)
+    public WebSocketContractFactory(
+        IJsonSerializerService serializerService,
+        IWebSocketMessageProcessor processor,
+        ISystemClock systemClock,
+        IUserService userService)
     {
         _serializerService = serializerService;
         _processor = processor;
+        _systemClock = systemClock;
+        _userService = userService;
     }
 
-    public IWebSocketContract Create(WebSocket webSocket)
+    public async Task<IWebSocketContract> Create(WebSocket webSocket, string originatingUrl, CancellationToken token)
     {
-        return new WebSocketContract(webSocket, _serializerService, _processor);
+        var user = await _userService.GetUser(token);
+
+        var dto = new WebSocketDto
+        {
+            Id = Guid.NewGuid(),
+            Connected = _systemClock.UtcNow,
+            UserName = user?.Name,
+            OriginatingUrl = originatingUrl,
+        };
+        return new WebSocketContract(webSocket, _serializerService, _processor, dto, _systemClock);
     }
 }
