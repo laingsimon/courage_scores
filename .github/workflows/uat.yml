@@ -33,19 +33,6 @@ jobs:
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
 
-  publish-coverage:
-    needs:
-      - publish
-      - build
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Complete coverage report
-        uses: coverallsapp/github-action@v2
-        with:
-          parallel-finished: true
-
   deploy:
     needs: 
       - build
@@ -56,3 +43,9 @@ jobs:
       app-name: 'CourageScores'
     secrets:
       publish-profile: ${{ secrets.PUBLISHPROFILE_UAT }}
+
+  report:
+    needs: 
+      - build
+      - publish
+    uses: ./.github/workflows/publish_coverage.yml
