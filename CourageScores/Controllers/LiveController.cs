@@ -35,4 +35,10 @@ public class LiveController : Controller
             : null;
         await _liveService.Accept(socket, originatingUrl ?? "unknown", token);
     }
+
+    [HttpGet("/api/Live/Sockets")]
+    public async Task<ActionResultDto<List<WebSocketDto>>> GetSockets(CancellationToken token)
+    {
+        return await _liveService.GetSockets(token);
+    }
 }
