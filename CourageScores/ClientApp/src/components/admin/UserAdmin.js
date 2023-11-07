@@ -166,6 +166,7 @@ export function UserAdmin() {
         {renderAccessOption('runHealthChecks', 'Run health checks')}
         {renderAccessOption('manageSeasonTemplates', 'Manage season templates')}
         {renderAccessOption('showDebugOptions', 'Show debug options')}
+        {renderAccessOption('manageSockets', 'Manage web sockets')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving
