@@ -78,6 +78,10 @@ public class WebSocketContract : IWebSocketContract
                         receiveResult.CloseStatusDescription,
                         token);
                 }
+                catch (WebSocketException)
+                {
+                    // do nothing
+                }
                 catch (TaskCanceledException)
                 {
                     // do nothing
