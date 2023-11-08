@@ -54,7 +54,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     return (<div>
         <h4 className="text-center">
             Match statistics
-            {liveOptions.canSubscribe && !finished ? <RefreshControl /> : null}
+            {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id} /> : null}
         </h4>
         <table className="table">
             <thead>

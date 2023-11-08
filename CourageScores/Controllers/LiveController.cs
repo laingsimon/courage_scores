@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +29,22 @@ public class LiveController : Controller
         }
 
         var socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-        await _liveService.Accept(socket, token);
+        var query = HttpContext.Request.Query;
+        var originatingUrl = query.ContainsKey("referrer")
+            ? query["referrer"].ToString()
+            : null;
+        await _liveService.Accept(socket, originatingUrl ?? "unknown", token);
+    }
+
+    [HttpGet("/api/Live/Sockets")]
+    public async Task<ActionResultDto<List<WebSocketDto>>> GetSockets(CancellationToken token)
+    {
+        return await _liveService.GetSockets(token);
+    }
+
+    [HttpDelete("/api/Live/Socket/{id}")]
+    public async Task<ActionResultDto<WebSocketDto>> CloseSocket(Guid id, CancellationToken token)
+    {
+        return await _liveService.CloseSocket(id, token);
     }
 }

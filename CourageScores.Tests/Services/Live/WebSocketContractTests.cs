@@ -3,8 +3,10 @@ using System.Net.WebSockets;
 using System.Text;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Services;
 using CourageScores.Services.Live;
+using Microsoft.AspNetCore.Authentication;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,11 +21,13 @@ public class WebSocketContractTests
     private Mock<WebSocket> _socket = null!;
     private RecordingSerializerService _serializerService = null!;
     private Mock<IWebSocketMessageProcessor> _processor = null!;
+    private Mock<ISystemClock> _clock = null!;
 
     private WebSocketContract _contract = null!;
     private Guid _key;
     private Queue<ReceiveResultAndData> _receiveResults = null!;
     private WebSocketCloseStatus? _socketStatus;
+    private WebSocketDto _dto = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -31,8 +35,10 @@ public class WebSocketContractTests
         _socket = new Mock<WebSocket>();
         _serializerService = new RecordingSerializerService();
         _processor = new Mock<IWebSocketMessageProcessor>();
+        _clock = new Mock<ISystemClock>();
+        _dto = new WebSocketDto();
         _key = Guid.NewGuid();
-        _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object);
+        _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object, _dto, _clock.Object);
         _receiveResults = new Queue<ReceiveResultAndData>();
         _socket.Setup(s => s.CloseStatus).Returns(() => _socketStatus);
 
@@ -138,6 +144,25 @@ public class WebSocketContractTests
         var serialised = _serializerService.Serialised.Cast<LiveMessageDto>().Single();
         Assert.That(serialised.Message, Is.Null);
         Assert.That(serialised.Type, Is.EqualTo(MessageType.Polo));
+    }
+
+    [Test]
+    public async Task Accept_WhenDataReceived_SetsReceipt()
+    {
+        var noopDto = new LiveMessageDto
+        {
+            Type = MessageType.Marco,
+            Message = "Some message",
+        };
+        var jsonData = JsonConvert.SerializeObject(noopDto);
+        _receiveResults.Enqueue(CreateReceiveResult(data: jsonData, endOfMessage: true));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+        var now = DateTimeOffset.UtcNow;
+        _clock.Setup(c => c.UtcNow).Returns(now);
+
+        await _contract.Accept(_token);
+
+        Assert.That(_dto.LastReceipt, Is.EqualTo(now));
     }
 
     [Test]
@@ -357,6 +382,42 @@ public class WebSocketContractTests
         await _contract.Send(messageDto, _token);
 
         _socket.Verify(s => s.SendAsync(It.IsAny<ArraySegment<byte>>(), It.IsAny<WebSocketMessageType>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()));
+        _processor.Verify(p => p.Disconnected(_contract));
+    }
+
+    [Test]
+    public async Task Send_WhenCalled_SetsSent()
+    {
+        var messageDto = new LiveMessageDto
+        {
+            Type = MessageType.Marco,
+        };
+        var now = DateTimeOffset.UtcNow;
+        _clock.Setup(c => c.UtcNow).Returns(now);
+
+        await _contract.Send(messageDto, _token);
+
+        Assert.That(_dto.LastSent, Is.EqualTo(now));
+    }
+
+    [Test]
+    public async Task Close_WhenCalled_ClosesSocket()
+    {
+        await _contract.Close(_token);
+
+        _socket.Verify(s => s.CloseAsync(WebSocketCloseStatus.NormalClosure, "Forced closure", _token));
+        _processor.Verify(p => p.Disconnected(_contract));
+    }
+
+    [Test]
+    public async Task Close_WhenSocketExceptionThrown_DisconnectsSocket()
+    {
+        _socket
+            .Setup(s => s.CloseAsync(WebSocketCloseStatus.NormalClosure, "Forced closure", _token))
+            .Throws<WebSocketException>();
+
+        await _contract.Close(_token);
+
         _processor.Verify(p => p.Disconnected(_contract));
     }
 

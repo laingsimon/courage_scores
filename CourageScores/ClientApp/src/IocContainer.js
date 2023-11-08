@@ -17,6 +17,7 @@ import {ParentHeight} from "./ParentHeight";
 import {TemplateApi} from "./api/template";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
+import {LiveApi} from "./api/live";
 
 const DependenciesContext = createContext({});
 
@@ -45,6 +46,7 @@ export function IocContainer({children, ...services}) {
         reportApi: new ReportApi(http),
         saygApi: new SaygApi(http),
         templateApi: new TemplateApi(http),
+        liveApi: new LiveApi(http),
         parentHeight: new ParentHeight(25),
         webSocket: new LiveWebSocket({
             socket,

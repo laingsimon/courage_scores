@@ -1,6 +1,8 @@
 using System.Net.WebSockets;
 using System.Text;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Live;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;
 
@@ -8,15 +10,25 @@ public class WebSocketContract : IWebSocketContract
 {
     private readonly IJsonSerializerService _serializerService;
     private readonly IWebSocketMessageProcessor _processor;
+    private readonly ISystemClock _systemClock;
     private readonly WebSocket _socket;
     private readonly HashSet<Guid> _subscribedIds = new HashSet<Guid>();
 
-    public WebSocketContract(WebSocket socket, IJsonSerializerService serializerService, IWebSocketMessageProcessor processor)
+    public WebSocketContract(
+        WebSocket socket,
+        IJsonSerializerService serializerService,
+        IWebSocketMessageProcessor processor,
+        WebSocketDto webSocketDto,
+        ISystemClock systemClock)
     {
+        WebSocketDto = webSocketDto;
         _socket = socket;
         _serializerService = serializerService;
         _processor = processor;
+        _systemClock = systemClock;
     }
+
+    public WebSocketDto WebSocketDto { get; }
 
     public bool IsSubscribedTo(Guid id)
     {
@@ -66,6 +78,10 @@ public class WebSocketContract : IWebSocketContract
                         receiveResult.CloseStatusDescription,
                         token);
                 }
+                catch (WebSocketException)
+                {
+                    // do nothing
+                }
                 catch (TaskCanceledException)
                 {
                     // do nothing
@@ -81,6 +97,7 @@ public class WebSocketContract : IWebSocketContract
         try
         {
             await _socket.SendAsync(segment, WebSocketMessageType.Text, true, token);
+            WebSocketDto.LastSent = _systemClock.UtcNow;
         }
         catch (WebSocketException)
         {
@@ -89,8 +106,26 @@ public class WebSocketContract : IWebSocketContract
         }
     }
 
+    public async Task Close(CancellationToken token)
+    {
+        try
+        {
+            await _socket.CloseAsync(
+                WebSocketCloseStatus.NormalClosure,
+                "Forced closure",
+                token);
+        }
+        catch (WebSocketException)
+        {
+            // do nothing
+        }
+
+        _processor.Disconnected(this);
+    }
+
     private async Task ProcessMessage(byte[] messageBytes, CancellationToken token)
     {
+        WebSocketDto.LastReceipt = _systemClock.UtcNow;
         var dto = _serializerService.DeserialiseTo<LiveMessageDto>(Encoding.UTF8.GetString(messageBytes));
         switch (dto.Type)
         {

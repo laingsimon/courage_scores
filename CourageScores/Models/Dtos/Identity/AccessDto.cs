@@ -23,4 +23,5 @@ public class AccessDto
     public bool RunHealthChecks { get; set; }
     public bool ManageSeasonTemplates { get; set; }
     public bool ShowDebugOptions { get; set; }
+    public bool ManageSockets { get; set; }
 }

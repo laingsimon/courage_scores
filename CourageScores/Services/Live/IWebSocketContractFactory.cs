@@ -4,5 +4,5 @@ namespace CourageScores.Services.Live;
 
 public interface IWebSocketContractFactory
 {
-    IWebSocketContract Create(WebSocket webSocket);
+    Task<IWebSocketContract> Create(WebSocket webSocket, string originatingUrl, CancellationToken token);
 }
