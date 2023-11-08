@@ -25,7 +25,7 @@ export function LiveContainer({children, id, onDataUpdate, liveOptions}) {
             return;
         }
 
-        if (enabled) {
+        if (enabled && !webSocket.subscriptions[id]) {
             webSocket.subscribe(id, onDataUpdate, onError);
         } else if (!enabled) {
             webSocket.unsubscribe(id);
