@@ -8,4 +8,5 @@ public interface ILiveService
 {
     Task Accept(WebSocket socket, string originatingUrl, CancellationToken token);
     Task<ActionResultDto<List<WebSocketDto>>> GetSockets(CancellationToken token);
+    Task<ActionResultDto<WebSocketDto>> CloseSocket(Guid socketId, CancellationToken token);
 }

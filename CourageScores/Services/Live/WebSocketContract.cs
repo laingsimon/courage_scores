@@ -106,6 +106,23 @@ public class WebSocketContract : IWebSocketContract
         }
     }
 
+    public async Task Close(CancellationToken token)
+    {
+        try
+        {
+            await _socket.CloseAsync(
+                WebSocketCloseStatus.NormalClosure,
+                "Forced closure",
+                token);
+        }
+        catch (WebSocketException)
+        {
+            // do nothing
+        }
+
+        _processor.Disconnected(this);
+    }
+
     private async Task ProcessMessage(byte[] messageBytes, CancellationToken token)
     {
         WebSocketDto.LastReceipt = _systemClock.UtcNow;

@@ -33,12 +33,12 @@ public class LiveService : ILiveService
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return Error("Not logged in");
+            return Error<List<WebSocketDto>>("Not logged in");
         }
 
         if (user.Access?.ManageSockets != true)
         {
-            return Error("Not permitted");
+            return Error<List<WebSocketDto>>("Not permitted");
         }
 
         return new ActionResultDto<List<WebSocketDto>>
@@ -48,9 +48,41 @@ public class LiveService : ILiveService
         };
     }
 
-    private static ActionResultDto<List<WebSocketDto>> Error(string message)
+    public async Task<ActionResultDto<WebSocketDto>> CloseSocket(Guid socketId, CancellationToken token)
     {
-        return new ActionResultDto<List<WebSocketDto>>
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            return Error<WebSocketDto>("Not logged in");
+        }
+
+        if (user.Access?.ManageSockets != true)
+        {
+            return Error<WebSocketDto>("Not permitted");
+        }
+
+        var socket = _sockets.SingleOrDefault(s => s.WebSocketDto.Id == socketId);
+        if (socket == null)
+        {
+            return Error<WebSocketDto>("Not found");
+        }
+
+        await socket.Close(token);
+
+        return new ActionResultDto<WebSocketDto>
+        {
+            Success = true,
+            Result = socket.WebSocketDto,
+            Messages =
+            {
+                "Socket closed",
+            },
+        };
+    }
+
+    private static ActionResultDto<T> Error<T>(string message)
+    {
+        return new ActionResultDto<T>
         {
             Errors =
             {

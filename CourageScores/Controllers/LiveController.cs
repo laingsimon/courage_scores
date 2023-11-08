@@ -41,4 +41,10 @@ public class LiveController : Controller
     {
         return await _liveService.GetSockets(token);
     }
+
+    [HttpDelete("/api/Live/Socket/{id}")]
+    public async Task<ActionResultDto<WebSocketDto>> CloseSocket(Guid id, CancellationToken token)
+    {
+        return await _liveService.CloseSocket(id, token);
+    }
 }

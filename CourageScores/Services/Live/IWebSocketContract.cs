@@ -10,4 +10,5 @@ public interface IWebSocketContract
     Task Accept(CancellationToken token);
     Task Send(LiveMessageDto message, CancellationToken token);
     bool IsSubscribedTo(Guid id);
+    Task Close(CancellationToken token);
 }

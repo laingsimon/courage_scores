@@ -102,4 +102,107 @@ public class LiveServiceTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EquivalentTo(new[] { socketDto }));
     }
+
+    [Test]
+    public async Task CloseSocket_WhenLoggedOut_ReturnsNotLoggedIn()
+    {
+        _user = null;
+        var socketDto = new WebSocketDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var socket = new Mock<IWebSocketContract>();
+        _sockets.Add(socket.Object);
+        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+
+        var result = await _service.CloseSocket(socketDto.Id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+    }
+
+    [Test]
+    public async Task CloseSocket_WhenNotPermitted_ReturnsNotPermitted()
+    {
+        _user = new UserDto
+        {
+            Access = new AccessDto(),
+        };
+        var socketDto = new WebSocketDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var socket = new Mock<IWebSocketContract>();
+        _sockets.Add(socket.Object);
+        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+
+        var result = await _service.CloseSocket(socketDto.Id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task CloseSocket_WhenPermittedAndSocketNotFound_ReturnsNotFound()
+    {
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageSockets = true,
+            },
+        };
+        var socketDto = new WebSocketDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var socket = new Mock<IWebSocketContract>();
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageSockets = true,
+            },
+        };
+        _sockets.Add(socket.Object);
+        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+
+        var result = await _service.CloseSocket(Guid.NewGuid(), _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not found" }));
+    }
+
+    [Test]
+    public async Task CloseSocket_WhenPermitted_ClosesSocket()
+    {
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageSockets = true,
+            },
+        };
+        var socketDto = new WebSocketDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var socket = new Mock<IWebSocketContract>();
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageSockets = true,
+            },
+        };
+        _sockets.Add(socket.Object);
+        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+
+        var result = await _service.CloseSocket(socketDto.Id, _token);
+
+        socket.Verify(s => s.Close(_token));
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Socket closed" }));
+        Assert.That(result.Result, Is.EqualTo(socketDto));
+    }
 }

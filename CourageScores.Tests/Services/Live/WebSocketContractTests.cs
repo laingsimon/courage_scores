@@ -400,6 +400,27 @@ public class WebSocketContractTests
         Assert.That(_dto.LastSent, Is.EqualTo(now));
     }
 
+    [Test]
+    public async Task Close_WhenCalled_ClosesSocket()
+    {
+        await _contract.Close(_token);
+
+        _socket.Verify(s => s.CloseAsync(WebSocketCloseStatus.NormalClosure, "Forced closure", _token));
+        _processor.Verify(p => p.Disconnected(_contract));
+    }
+
+    [Test]
+    public async Task Close_WhenSocketExceptionThrown_DisconnectsSocket()
+    {
+        _socket
+            .Setup(s => s.CloseAsync(WebSocketCloseStatus.NormalClosure, "Forced closure", _token))
+            .Throws<WebSocketException>();
+
+        await _contract.Close(_token);
+
+        _processor.Verify(p => p.Disconnected(_contract));
+    }
+
     private static ReceiveResultAndData CreateReceiveResult(
         bool endOfMessage = true,
         WebSocketCloseStatus? closeStatus = null,
