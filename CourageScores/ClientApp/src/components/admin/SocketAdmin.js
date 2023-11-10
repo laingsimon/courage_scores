@@ -76,8 +76,9 @@ export function SocketAdmin() {
                     <span>{socket.userName || 'Logged out user'}</span>
                     <span className="float-end">
                         <span className="margin-left" title={socket.connected}>▶ {renderTime(socket.connected)}</span>
-                        <span className="margin-left" title={socket.lastReceipt}>⬆ {renderTime(socket.lastReceipt) || 'never'}</span>
-                        <span className="margin-left" title={socket.lastSent}>⬇ {renderTime(socket.lastSent) || 'never'}</span>
+                        <br />
+                        <span className="margin-left" title={socket.lastReceipt}>⬆ {socket.receivedMessages}</span>
+                        <span className="margin-left" title={socket.lastSent}>⬇ {socket.sentMessages}</span>
                     </span>
                 </li>))}
             </div>)}
