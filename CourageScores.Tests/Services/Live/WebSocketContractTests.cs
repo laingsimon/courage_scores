@@ -166,6 +166,25 @@ public class WebSocketContractTests
     }
 
     [Test]
+    public async Task Accept_WhenDataReceived_IncrementsReceivedCount()
+    {
+        var noopDto = new LiveMessageDto
+        {
+            Type = MessageType.Marco,
+            Message = "Some message",
+        };
+        var jsonData = JsonConvert.SerializeObject(noopDto);
+        _receiveResults.Enqueue(CreateReceiveResult(data: jsonData, endOfMessage: true));
+        _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
+        var now = DateTimeOffset.UtcNow;
+        _clock.Setup(c => c.UtcNow).Returns(now);
+
+        await _contract.Accept(_token);
+
+        Assert.That(_dto.ReceivedMessages, Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task Accept_GivenPolo_SendsNothing()
     {
         var messageDto = new LiveMessageDto
@@ -296,6 +315,7 @@ public class WebSocketContractTests
         await _contract.Accept(_token);
 
         Assert.That(_contract.IsSubscribedTo(messageDto.Id.Value), Is.True);
+        Assert.That(_dto.Subscriptions, Is.EquivalentTo(new[] { messageDto.Id.Value }));
     }
 
     [Test]
@@ -341,6 +361,7 @@ public class WebSocketContractTests
         await _contract.Accept(_token);
 
         Assert.That(_contract.IsSubscribedTo(subscribeMessageDto.Id.Value), Is.False);
+        Assert.That(_dto.Subscriptions, Is.Empty);
     }
 
     [Test]
@@ -398,6 +419,21 @@ public class WebSocketContractTests
         await _contract.Send(messageDto, _token);
 
         Assert.That(_dto.LastSent, Is.EqualTo(now));
+    }
+
+    [Test]
+    public async Task Send_WhenCalled_IncrementsMessagesSent()
+    {
+        var messageDto = new LiveMessageDto
+        {
+            Type = MessageType.Marco,
+        };
+        var now = DateTimeOffset.UtcNow;
+        _clock.Setup(c => c.UtcNow).Returns(now);
+
+        await _contract.Send(messageDto, _token);
+
+        Assert.That(_dto.SentMessages, Is.EqualTo(1));
     }
 
     [Test]

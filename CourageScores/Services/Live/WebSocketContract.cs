@@ -97,6 +97,7 @@ public class WebSocketContract : IWebSocketContract
         try
         {
             await _socket.SendAsync(segment, WebSocketMessageType.Text, true, token);
+            WebSocketDto.SentMessages++;
             WebSocketDto.LastSent = _systemClock.UtcNow;
         }
         catch (WebSocketException)
@@ -126,6 +127,7 @@ public class WebSocketContract : IWebSocketContract
     private async Task ProcessMessage(byte[] messageBytes, CancellationToken token)
     {
         WebSocketDto.LastReceipt = _systemClock.UtcNow;
+        WebSocketDto.ReceivedMessages++;
         var dto = _serializerService.DeserialiseTo<LiveMessageDto>(Encoding.UTF8.GetString(messageBytes));
         switch (dto.Type)
         {
@@ -157,6 +159,7 @@ public class WebSocketContract : IWebSocketContract
                 if (dto.Id != null)
                 {
                     _subscribedIds.Add(dto.Id.Value);
+                    WebSocketDto.Subscriptions = _subscribedIds.ToList();
                     break;
                 }
 
@@ -172,6 +175,7 @@ public class WebSocketContract : IWebSocketContract
                 if (dto.Id != null)
                 {
                     _subscribedIds.Remove(dto.Id.Value);
+                    WebSocketDto.Subscriptions = _subscribedIds.ToList();
                     break;
                 }
 

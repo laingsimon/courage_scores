@@ -34,4 +34,19 @@ public class WebSocketDto
     /// Time the last message was sent from server -> client
     /// </summary>
     public DateTimeOffset? LastSent { get; set; }
+
+    /// <summary>
+    /// The ids of data points this socket is subscribed to
+    /// </summary>
+    public List<Guid> Subscriptions { get; set; } = new();
+
+    /// <summary>
+    /// The number of messages the server has received from the client
+    /// </summary>
+    public int ReceivedMessages { get; set; }
+
+    /// <summary>
+    /// The number of messages the server has sent to the client
+    /// </summary>
+    public int SentMessages { get; set; }
 }
