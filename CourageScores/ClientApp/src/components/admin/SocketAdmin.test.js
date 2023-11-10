@@ -73,6 +73,8 @@ describe('SocketAdmin', () => {
                 userName: null,
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
                 lastSent: null,
             };
             allSockets = [ socket ];
@@ -82,8 +84,8 @@ describe('SocketAdmin', () => {
             const socketItem = context.container.querySelector('li[title="' + socket.id + '"]');
             expect(socketItem.textContent).toContain('Logged out user');
             expect(socketItem.textContent).toContain('▶ 10:06:21');
-            expect(socketItem.textContent).toContain('⬆ 10:07:21');
-            expect(socketItem.textContent).toContain('⬇ never');
+            expect(socketItem.textContent).toContain('⬆ 1');
+            expect(socketItem.textContent).toContain('⬇ 2');
         });
 
         it('open socket for logged in user', async () => {
@@ -92,6 +94,8 @@ describe('SocketAdmin', () => {
                 userName: 'USER',
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 0,
                 lastSent: null,
             };
             allSockets = [ socket ];
@@ -109,13 +113,15 @@ describe('SocketAdmin', () => {
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
             };
             allSockets = [ socket ];
 
             await renderComponent();
 
             const socketItem = context.container.querySelector('li[title="' + socket.id + '"]');
-            expect(socketItem.textContent).toContain('⬇ 10:08:21');
+            expect(socketItem.textContent).toContain('⬇ 2');
         });
 
         it('open sockets in connected descending order', async () => {
@@ -125,6 +131,8 @@ describe('SocketAdmin', () => {
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: null,
+                receivedMessages: 1,
+                sentMessages: 0,
             };
             const socket2 = {
                 id: createTemporaryId(),
@@ -132,6 +140,8 @@ describe('SocketAdmin', () => {
                 connected: '2023-12-08T10:06:21+00:00',
                 lastReceipt: '2023-12-08T10:07:21+00:00',
                 lastSent: null,
+                receivedMessages: 1,
+                sentMessages: 0,
             };
             allSockets = [ socket1, socket2 ];
 
@@ -151,6 +161,8 @@ describe('SocketAdmin', () => {
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
             };
             allSockets = [ socket ];
             window.confirm = () => true;
@@ -168,6 +180,8 @@ describe('SocketAdmin', () => {
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
             };
             allSockets = [ socket ];
             window.confirm = () => false;
@@ -185,6 +199,8 @@ describe('SocketAdmin', () => {
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
             };
             const newSocket = {
                 id: createTemporaryId(),
@@ -192,6 +208,8 @@ describe('SocketAdmin', () => {
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
             };
             allSockets = [ socketToDelete ];
             window.confirm = () => true;
@@ -211,6 +229,8 @@ describe('SocketAdmin', () => {
                 connected: '2023-11-08T10:06:21+00:00',
                 lastReceipt: '2023-11-08T10:07:21+00:00',
                 lastSent: '2023-11-08T10:08:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
             };
             allSockets = [ socket ];
             window.confirm = () => true;
