@@ -8,6 +8,7 @@ on:
 
 jobs:
   report:
+    name: 'Test Results'
     runs-on: ubuntu-latest
     steps:
       - uses: dorny/test-reporter@v1
