@@ -360,7 +360,7 @@ export function PrintableSheet({printOnly}) {
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
             {winner ? null : (<div className="float-end">
-                <RefreshControl />
+                <RefreshControl id={tournamentData.id} />
             </div>)}
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center">
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
