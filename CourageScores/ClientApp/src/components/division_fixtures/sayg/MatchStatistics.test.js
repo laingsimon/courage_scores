@@ -355,7 +355,7 @@ describe('MatchStatistics', () => {
             .build();
         const liveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: true,
+            subscribeAtStartup: [createTemporaryId()],
         };
         console.log = noop;
 
@@ -384,7 +384,7 @@ describe('MatchStatistics', () => {
             .build();
         const liveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: true,
+            subscribeAtStartup: [createTemporaryId()],
         };
         console.log = noop;
 
@@ -411,11 +411,11 @@ describe('MatchStatistics', () => {
             .home(c => c)
             .away(c => c)
             .build();
+        const id = createTemporaryId();
         const liveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: true,
+            subscribeAtStartup: [id],
         };
-        const id = createTemporaryId();
         console.log = noop;
 
         await renderComponent({
@@ -444,7 +444,7 @@ describe('MatchStatistics', () => {
             .build();
         const liveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: false,
+            subscribeAtStartup: [],
         };
 
         await renderComponent({
@@ -472,11 +472,11 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
+        const id = createTemporaryId();
         const liveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: true,
+            subscribeAtStartup: [id],
         };
-        const id = createTemporaryId();
         console.log = noop;
 
         await renderComponent({
@@ -515,12 +515,12 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
+        const saygId = createTemporaryId();
         const liveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: true,
+            subscribeAtStartup: [saygId],
         };
         console.log = noop;
-        const saygId = createTemporaryId();
         await renderComponent({
             matchStatisticsOnly: true,
             liveOptions,
@@ -543,22 +543,22 @@ describe('MatchStatistics', () => {
     });
 
     it('collapses all legs when final leg played', async () => {
-        const id = createTemporaryId();
-        const leg = legBuilder(id)
+        const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
-        const finishedLeg = legBuilder(id)
+        const finishedLeg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home(c => c.withThrow(501, false, 3).score(501).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
+        const id = createTemporaryId();
         const liveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: true,
+            subscribeAtStartup: [id],
         };
         console.log = noop;
         await renderComponent({

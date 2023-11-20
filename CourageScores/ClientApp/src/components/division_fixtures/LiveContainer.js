@@ -14,7 +14,9 @@ export function LiveContainer({children, onDataUpdate, liveOptions}) {
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
-            enableLiveUpdates(true);
+            liveOptions.subscribeAtStartup.forEach(id => {
+                enableLiveUpdates(true, id);
+            });
         }
     },
     // eslint-disable-next-line
