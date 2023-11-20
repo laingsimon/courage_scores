@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
 import {legBuilder} from "../../../helpers/builders";
@@ -14,6 +14,7 @@ describe('MatchStatistics', () => {
     let getCount;
     let saygData;
     let updatedSayg;
+
     const saygApi = {
         get: () => {
             getCount++;
@@ -26,7 +27,29 @@ describe('MatchStatistics', () => {
                 result: data,
             };
         },
-    }
+    };
+    const webSocket = {
+        sent: [],
+        subscriptions: {},
+        socket: null,
+        socketFactory: () => {
+            const socket = {
+                close: () => {},
+                readyState: 1,
+                send: (data) => {
+                    const message = JSON.parse(data);
+                    if (message.type === 'subscribed') {
+                        webSocket.subscriptions[message.id] = true;
+                    } else if (message.type === 'unsubscribed') {
+                        delete webSocket.subscriptions[message.id];
+                    }
+                    webSocket.sent.push(message);
+                }
+            };
+            webSocket.socket = socket;
+            return socket;
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -36,13 +59,17 @@ describe('MatchStatistics', () => {
         reportedError = null;
         updatedSayg = null;
         getCount = 0;
+        webSocket.socket = null;
+        webSocket.subscriptions = {};
+        webSocket.sent = [];
     });
 
     async function renderComponent(containerProps, data, appProps) {
         saygData = data;
         saygData.id = saygData.id || createTemporaryId();
+        containerProps.liveOptions = containerProps.liveOptions || {};
         context = await renderApp(
-            {saygApi},
+            {saygApi, socketFactory: webSocket.socketFactory},
             {name: 'Courage Scores'},
             {
                 ...appProps,
@@ -53,8 +80,7 @@ describe('MatchStatistics', () => {
                     };
                 },
             },
-            <SaygLoadingContainer id={saygData.id} matchStatisticsOnly={true} {...containerProps} >
-            </SaygLoadingContainer>);
+            <SaygLoadingContainer id={saygData.id} matchStatisticsOnly={true} {...containerProps} />);
     }
 
     function assertHeaderText(expected, homeWinner, awayWinner) {
@@ -306,7 +332,7 @@ describe('MatchStatistics', () => {
             .build();
 
         await renderComponent({
-            refreshAllowed: false,
+            livePermitted: false,
             matchStatisticsOnly: true,
         }, {
             legs: {0: leg},
@@ -327,11 +353,15 @@ describe('MatchStatistics', () => {
             .away(c => c.noOfDarts(1))
             .winner('home')
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [createTemporaryId()],
+        };
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
-            initialRefreshInterval: 10000,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             legs: {0: leg},
@@ -352,11 +382,15 @@ describe('MatchStatistics', () => {
             .away(c => c.noOfDarts(1))
             .winner('home')
             .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [createTemporaryId()],
+        };
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
-            initialRefreshInterval: 10000,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             legs: {0: leg},
@@ -370,18 +404,52 @@ describe('MatchStatistics', () => {
         expect(context.container.querySelector('h4').textContent).not.toContain('⏸️');
     });
 
-    it('selects default refresh interval', async () => {
+    it('enables live updates by default', async () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home(c => c)
             .away(c => c)
             .build();
+        const id = createTemporaryId();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [id],
+        };
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
-            initialRefreshInterval: 10000,
+            liveOptions,
+            lastLegDisplayOptions: { showThrows: true },
+        }, {
+            id,
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 0,
+            yourName: 'HOME',
+            numberOfLegs: 3,
+        });
+
+        expect(webSocket.socket).not.toBeNull();
+        expect(Object.keys(webSocket.subscriptions)).toEqual([ id ]);
+    });
+
+    it('does not enable live updates by default', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c)
+            .away(c => c)
+            .build();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [],
+        };
+
+        await renderComponent({
+            matchStatisticsOnly: true,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
             legs: {0: leg},
@@ -391,8 +459,10 @@ describe('MatchStatistics', () => {
             numberOfLegs: 3,
         });
 
-        expect(context.container.querySelector('h4 .dropdown-menu')).toBeTruthy();
-        expect(context.container.querySelector('h4 .dropdown-item.active').textContent).toEqual('⏩ Live (Fast)');
+        const selectedOption = context.container.querySelector('h4 .dropdown-menu .active');
+        expect(selectedOption).toBeTruthy();
+        expect(selectedOption.textContent).toEqual('⏸️ Paused');
+        expect(webSocket.socket).toBeNull();
     });
 
     it('shows throws on last leg when not finished', async () => {
@@ -402,13 +472,19 @@ describe('MatchStatistics', () => {
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
+        const id = createTemporaryId();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [id],
+        };
+        console.log = noop;
 
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
-            initialRefreshInterval: 10000,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true, showAverage: true },
         }, {
+            id,
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
@@ -432,97 +508,61 @@ describe('MatchStatistics', () => {
             ]);
     });
 
-    it('repeatedly refreshes sayg data', async () => {
+    it('closes socket when live updates are canceled', async () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
-        let interval;
-        window.setInterval = (handler, delay) => {
-            interval = { handler, delay };
-            return 123;
+        const saygId = createTemporaryId();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [saygId],
         };
-
+        console.log = noop;
         await renderComponent({
             matchStatisticsOnly: true,
-            refreshAllowed: true,
-            initialRefreshInterval: 10000,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true },
         }, {
-            legs: {0: leg},
-            homeScore: 0,
-            awayScore: 0,
-            yourName: 'HOME',
-            numberOfLegs: 3,
-        });
-
-        expect(interval).toEqual({
-            handler: expect.any(Function),
-            delay: 10000,
-        });
-        expect(getCount).toEqual(1);
-        await act(async () => {
-            await interval.handler();
-        });
-        expect(getCount).toEqual(2);
-    });
-
-    it('cancels refresh of data when paused', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
-            .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
-            .build();
-        let clearedHandle;
-        window.setInterval = () => {
-            return 123;
-        };
-        window.clearInterval = (handle) => {
-            clearedHandle = handle;
-        }
-        await renderComponent({
-            matchStatisticsOnly: true,
-            refreshAllowed: true,
-            initialRefreshInterval: 10000,
-            lastLegDisplayOptions: { showThrows: true },
-        }, {
+            id: saygId,
             legs: {0: leg},
             homeScore: 0,
             awayScore: 0,
             home: 'HOME',
             numberOfLegs: 3,
         });
+        expect(Object.keys(webSocket.subscriptions)).toEqual([saygId]);
+        expect(reportedError).toBeNull();
 
         await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ Paused');
 
-        expect(clearedHandle).toEqual(123);
+        expect(reportedError).toBeNull();
+        expect(webSocket.subscriptions).toEqual({});
     });
 
     it('collapses all legs when final leg played', async () => {
-        const id = createTemporaryId();
-        const leg = legBuilder(id)
+        const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
-        const finishedLeg = legBuilder(id)
+        const finishedLeg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home(c => c.withThrow(501, false, 3).score(501).noOfDarts(3))
             .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
             .build();
-        let interval;
-        window.setInterval = (handler, delay) => {
-            interval = { handler, delay };
-            return 123;
+        const id = createTemporaryId();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [id],
         };
+        console.log = noop;
         await renderComponent({
-            refreshAllowed: true,
-            initialRefreshInterval: 10000,
+            liveOptions,
             lastLegDisplayOptions: { showThrows: true, initial: true },
         }, {
             id,
@@ -534,7 +574,7 @@ describe('MatchStatistics', () => {
             numberOfLegs: 3,
         });
 
-        saygData = {
+        const newSaygData = {
             id,
             legs: {0: finishedLeg, 1: finishedLeg, 2: finishedLeg},
             homeScore: 2,
@@ -543,10 +583,19 @@ describe('MatchStatistics', () => {
             opponentName: 'AWAY',
             numberOfLegs: 3,
         };
+        expect(webSocket.socket).toBeTruthy();
         await act(async () => {
-            await interval.handler();
+            webSocket.socket.onmessage({
+                type: 'message',
+                data: JSON.stringify({
+                    type: 'Update',
+                    data: newSaygData,
+                    id: newSaygData.id,
+                })
+            });
         });
 
+        expect(reportedError).toBeNull();
         const firstRow = context.container.querySelector('table tbody tr:first-child');
         const finishedHeadings = Array.from(firstRow.querySelectorAll('td'));
         expect(finishedHeadings.map(th => th.textContent)).toEqual(['Score', '2', '0']);

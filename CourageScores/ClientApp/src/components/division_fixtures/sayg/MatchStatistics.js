@@ -5,15 +5,16 @@ import {LegStatistics} from "./LegStatistics";
 import {useState} from "react";
 import {useSayg} from "./SaygLoadingContainer";
 import {RefreshControl} from "../RefreshControl";
+import {useLive} from "../LiveContainer";
 
 export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs }) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
-    const {refresh, refreshAllowed, initialRefreshInterval, lastLegDisplayOptions} = useSayg();
-    const [refreshInterval, setRefreshInterval] = useState(initialRefreshInterval || 0);
+    const {sayg, lastLegDisplayOptions} = useSayg();
+    const {subscriptions, liveOptions} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState(getLegDisplayOptions(legs));
     const finished = (homeScore >= numberOfLegs / 2.0) || (awayScore >= numberOfLegs / 2.0);
-    const canRefresh = refreshAllowed && !finished;
-    const legDisplayOptions = refreshInterval && !finished
+    const isSubscribed = sayg && subscriptions[sayg.id];
+    const legDisplayOptions = isSubscribed && !finished
         ? getLegDisplayOptions(legs, true)
         : legDisplayOptionsState;
 
@@ -46,14 +47,6 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
         setLegDisplayOptions(newLegDisplayOptions);
     }
 
-    async function refreshSaygData() {
-        const newSayg = await refresh();
-
-        if (Object.keys(newSayg.legs).length !== Object.keys(legs).length) {
-            setLegDisplayOptions(getLegDisplayOptions(newSayg.legs));
-        }
-    }
-
     function sumOf(player, prop) {
         return sum(Object.values(legs), leg => leg[player][prop]);
     }
@@ -61,12 +54,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     return (<div>
         <h4 className="text-center">
             Match statistics
-            {canRefresh
-                ? (<RefreshControl
-                    refreshInterval={refreshInterval}
-                    setRefreshInterval={setRefreshInterval}
-                    refresh={refreshSaygData} />)
-                : null}
+            {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id} /> : null}
         </h4>
         <table className="table">
             <thead>
@@ -96,8 +84,8 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     away={away}
                     singlePlayer={singlePlayer}
                     oneDartAverage={oneDartAverage}
-                    legDisplayOptions={legDisplayOptions[legIndex]}
-                    updateLegDisplayOptions={refreshInterval && !finished ? null : (options) => updateLegDisplayOptions(legIndex, options)}
+                    legDisplayOptions={legDisplayOptions[legIndex] || getLegDisplayOptions(legs)[legIndex]}
+                    updateLegDisplayOptions={isSubscribed && !finished ? null : (options) => updateLegDisplayOptions(legIndex, options)}
                     onChangeLeg={legChanged ? ((newLeg) => legChanged(newLeg, legIndex)) : null}
                 />);
             })}

@@ -1,4 +1,4 @@
-import {round2dp} from "../../../helpers/rendering";
+import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
 import React from "react";
 
@@ -17,10 +17,10 @@ export function MatchAverage({homeAverage, awayAverage, singlePlayer, oneDartAve
             </div>
         </td>
         <td className={`${homeAverage > awayAverage ? 'bg-winner' : ''} fw-bold`}>
-            {round2dp(homeAverage / (oneDartAverage ? 3 : 1))}
+            {ifNaN(round2dp(homeAverage / (oneDartAverage ? 3 : 1)), '-')}
         </td>
         {singlePlayer ? null : (<td className={`${homeAverage > awayAverage ? '' : 'bg-winner'} fw-bold`}>
-            {round2dp(awayAverage / (oneDartAverage ? 3 : 1))}
+            {ifNaN(round2dp(awayAverage / (oneDartAverage ? 3 : 1)), '-')}
         </td>)}
     </tr>);
 }

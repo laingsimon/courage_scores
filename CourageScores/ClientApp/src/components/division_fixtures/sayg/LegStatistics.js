@@ -1,5 +1,5 @@
 import {isEmpty, sum} from "../../../helpers/collections";
-import {round2dp} from "../../../helpers/rendering";
+import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {valueChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {EditThrow} from "./EditThrow";
@@ -90,7 +90,7 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
                 <td>{stats.remaining}</td>
                 <td>
                     {legDisplayOptions.showAverage
-                        ? (oneDartAverage ? round2dp(stats.oneDartRunningAverage) : round2dp(stats.threeDartRunningAverage))
+                        ? ifNaN((oneDartAverage ? round2dp(stats.oneDartRunningAverage) : round2dp(stats.threeDartRunningAverage)), '-')
                         : stats.thisNoOfDarts}
                 </td>
             </tr>)}
@@ -133,17 +133,18 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
                 : null}
         </td>
         <td className={(leg.winner === 'home' || leg.home.score === leg.startingScore) ? 'bg-winner' : ''}>
-            Average: <strong>{round2dp(homeStats.score / (homeStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({homeStats.noOfDarts} darts)<br/>
+            <span>Average: <strong>{ifNaN(round2dp(homeStats.score / (homeStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({homeStats.noOfDarts} darts)<br/>
             {leg.winner === 'home'
                 ? (<div>Checkout: <strong>{leg.home.throws[leg.home.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - homeStats.score}</strong></div>)}
+            </span>
             {legDisplayOptions.showThrows ? (renderThrows(leg.home.throws, 'home')) : null}
         </td>
         {singlePlayer ? null : (<td className={(leg.winner === 'away' || leg.away.score === leg.startingScore) ? 'bg-winner' : ''}>
-            Average: <strong>{round2dp(awayStats.score / (awayStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({awayStats.noOfDarts} darts)<br/>
+            <span>Average: <strong>{ifNaN(round2dp(awayStats.score / (awayStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1)), '-')}</strong> ({awayStats.noOfDarts} darts)<br/>
             {leg.winner === 'away'
                 ? (<div>Checkout: <strong>{leg.away.throws[leg.away.throws.length - 1].score}</strong></div>)
-                : (<div>Remaining: <strong>{leg.startingScore - awayStats.score}</strong></div>)}
+                : (<div>Remaining: <strong>{leg.startingScore - awayStats.score}</strong></div>)}</span>
             {legDisplayOptions.showThrows ? (renderThrows(leg.away.throws, 'away')) : null}
         </td>)}
     </tr>);

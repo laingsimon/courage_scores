@@ -34,6 +34,7 @@ using CourageScores.Services.Error;
 using CourageScores.Services.Game;
 using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
 using CourageScores.Services.Season.Creation;
@@ -43,6 +44,7 @@ using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace CourageScores;
 
@@ -68,15 +70,26 @@ public static class DependencyInjectionExtensions
             {
                 new StringEnumConverter(),
             },
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
         });
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
+        services.AddScoped<IWebSocketContractFactory, WebSocketContractFactory>();
 
         AddServices(services);
         AddRepositories(services);
         AddAdapters(services);
         AddCommands(services);
         AddComparers(services);
+        AddLive(services);
+
         services.AddSingleton(ApplicationMetrics.Create());
+    }
+
+    private static void AddLive(IServiceCollection services)
+    {
+        services.AddSingleton<ICollection<IWebSocketContract>>(new List<IWebSocketContract>());
+        services.AddScoped<ILiveService, LiveService>();
+        services.AddScoped<IWebSocketMessageProcessor, PublishUpdatesProcessor>();
     }
 
     private static void AddComparers(IServiceCollection services)

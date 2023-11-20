@@ -22,7 +22,7 @@ import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 export function Tournament() {
     const {tournamentId} = useParams();
     const {appLoading, account, seasons, onError, teams, reloadTeams, divisions} = useApp();
-    const {divisionApi, tournamentApi} = useDependencies();
+    const {divisionApi, tournamentApi, webSocket} = useDependencies();
     const canManageTournaments = account && account.access && account.access.manageTournaments;
     const canManagePlayers = account && account.access && account.access.managePlayers;
     const [loading, setLoading] = useState('init');
@@ -154,6 +154,7 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 updateTournamentData(response.result);
+                await publishLiveUpdate(response.result);
                 return response.result;
             }
         } finally {
@@ -178,9 +179,16 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 updateTournamentData(response.result);
+                await publishLiveUpdate(response.result);
             }
         } finally {
             setPatching(false);
+        }
+    }
+
+    async function publishLiveUpdate(data) {
+        if (canSave) {
+            await webSocket.publish(tournamentId, data);
         }
     }
 
@@ -274,6 +282,12 @@ export function Tournament() {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');
         }
+
+        const liveOptions = {
+            publish: canSave,
+            canSubscribe: false,
+            subscribeAtStartup: [],
+        };
 
         return (<div>
             <DivisionControls
@@ -395,7 +409,7 @@ export function Tournament() {
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
-                    refresh={loadFixtureData}>
+                    liveOptions={liveOptions}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
                                                 applyPatch={applyPatch}/>) : null}
                     {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division}/>) : null}

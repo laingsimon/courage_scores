@@ -45,6 +45,12 @@ export function Practice() {
             </div>);
         }
 
+        const liveOptions = {
+            publish: false,
+            canSubscribe: false,
+            subscribeAtStartup: [],
+        }
+
         return (<div className="p-3 content-background">
             <SaygLoadingContainer
                 id={hasHash ? location.hash.substring(1) : null}
@@ -52,13 +58,13 @@ export function Practice() {
                 onHiCheck={noop}
                 defaultData={defaultSaygData}
                 autoSave={false}
-                refreshAllowed={false}
                 onScoreChange={noop}
                 onSaved={(data) => {
                     if (location.hash !== `#${data.id}`) {
                         navigate(`/practice#${data.id}`);
                     }
                 }}
+                liveOptions={liveOptions}
                 onLoadError={setDataError}>
                 <EditSaygPracticeOptions/>
             </SaygLoadingContainer>

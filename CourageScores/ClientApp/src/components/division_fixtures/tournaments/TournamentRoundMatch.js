@@ -121,6 +121,9 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     function renderSaygDialog() {
         const numberOfLegs = matchOptions.numberOfLegs;
         const finished = (match.scoreA >= numberOfLegs / 2.0) || (match.scoreB >= numberOfLegs / 2.0);
+        const liveOptions = {
+            publish: true,
+        };
 
         return (<Dialog slim={true} className="text-start">
             <SaygLoadingContainer
@@ -128,7 +131,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 onHiCheck={recordHiCheck}
                 on180={record180}
                 autoSave={true}
-                refreshAllowed={true}
+                liveOptions={liveOptions}
                 onSaved={async (data) => {
                     await patchData({
                         match: {

@@ -2,19 +2,22 @@ import {MasterDraw} from "./MasterDraw";
 import {MatchLog} from "./MatchLog";
 import {Summary} from "./Summary";
 import {MatchReport} from "./MatchReport";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {any, max} from "../../../../helpers/collections";
 import {useDependencies} from "../../../../IocContainer";
 import {useApp} from "../../../../AppContainer";
 import {useTournament} from "../TournamentContainer";
 import {useLocation} from "react-router-dom";
 import {getNoOfLegs, maxNoOfThrowsAllMatches} from "../../../../helpers/superleague";
+import {RefreshControl} from "../../RefreshControl";
+import {useLive} from "../../LiveContainer";
 
 export function SuperLeaguePrintout({division}) {
     const {onError} = useApp();
     const {tournamentData} = useTournament();
-    const {saygApi} = useDependencies();
+    const {saygApi, webSocket} = useDependencies();
     const location = useLocation();
+    const {subscriptions} = useLive();
     const [saygDataMap, setSaygDataMap] = useState({});
     const [loading, setLoading] = useState(false);
     const matches = (tournamentData.round || {}).matches || [];
@@ -31,6 +34,39 @@ export function SuperLeaguePrintout({division}) {
         },
         // eslint-disable-next-line
         [loading, saygDataMap]);
+
+    useEffect(() => {
+            if (loading) {
+                return;
+            }
+
+            processLiveStateChange(subscriptions[tournamentData.id]);
+        },
+        // eslint-disable-next-line
+        [subscriptions, loading]);
+
+    function processLiveStateChange(enabled) {
+        if (enabled) {
+            for (let saygId in saygDataMap) {
+                if (!subscriptions[saygId]) {
+                    webSocket.subscribe(saygId, (newSaygData) => {
+                        const newSaygDataMap = Object.assign({}, saygDataMap);
+                        newSaygDataMap[newSaygData.id] = newSaygData;
+                        setSaygDataMap(newSaygDataMap);
+                    }, onError);
+                }
+            }
+
+            return;
+        }
+
+        // foreach socket in saygSockets, close and remove it
+        for (let saygId in saygDataMap) {
+            if (subscriptions[saygId]) {
+                webSocket.unsubscribe(saygId);
+            }
+        }
+    }
 
     async function loadSaygData(ids) {
         if (!any(ids)) {
@@ -67,6 +103,9 @@ export function SuperLeaguePrintout({division}) {
 
     try {
         return (<div className="overflow-auto no-overflow-on-print">
+            <div className="float-end">
+                <RefreshControl id={tournamentData.id} />
+            </div>
             <MasterDraw
                 matches={matches}
                 host={tournamentData.host}

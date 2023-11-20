@@ -36,7 +36,11 @@ describe('TournamentRound', () => {
                 success: true,
                 result: result,
             };
-        }
+        },
+    };
+    const webSocket = {
+        subscriptions: {},
+        publish: async () => {},
     };
 
     afterEach(() => {
@@ -69,7 +73,7 @@ describe('TournamentRound', () => {
         warnBeforeSave = null;
         patchedData = null;
         context = await renderApp(
-            {tournamentApi, saygApi},
+            {tournamentApi, saygApi, webSocket},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -925,6 +929,7 @@ describe('TournamentRound', () => {
                 await doChange(saygDialog, 'input[data-score-input="true"]', '51', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
+                expect(reportedError).toBeNull();
                 expect(patchedData).toEqual({
                     nestInRound: true,
                     patch: {
@@ -996,6 +1001,7 @@ describe('TournamentRound', () => {
                 await doChange(saygDialog, 'input[data-score-input="true"]', '41', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
+                expect(reportedError).toBeNull();
                 expect(patchedData).toEqual({
                     nestInRound: true,
                     patch: {

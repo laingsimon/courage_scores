@@ -3,24 +3,35 @@
 import {cleanUp, doSelectOption, renderApp} from "../../helpers/tests";
 import React from "react";
 import {RefreshControl} from "./RefreshControl";
-import {act} from "@testing-library/react";
+import {LiveContainer} from "./LiveContainer";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('RefreshControl', () => {
     let context;
     let reportedError;
+    const webSocket = {
+        subscriptions: {},
+        subscribe: async (id) => {
+            webSocket.subscriptions[id] = true;
+        },
+        unsubscribe: async (id) => {
+            delete webSocket.subscriptions[id];
+        },
+        socket: {},
+    };
+
+    beforeEach(() => {
+        reportedError = null;
+        webSocket.subscriptions = {};
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    beforeEach(() => {
-        jest.useFakeTimers();
-    });
-
-    async function renderComponent(props) {
-        reportedError = null;
+    async function renderComponent(id, liveProps) {
         context = await renderApp(
-            {},
+            {webSocket},
             {name: 'Courage Scores'},
             {
                 onError: (err) => {
@@ -30,72 +41,65 @@ describe('RefreshControl', () => {
                     };
                 },
             },
-            (<RefreshControl {...props} />));
+            (<LiveContainer {...liveProps}>
+                <RefreshControl id={id} />
+            </LiveContainer>));
     }
 
     describe('renders', () => {
         it('options', async () => {
-            await renderComponent({
-                refreshInterval: 0,
-                refresh: () => {},
-                setRefreshInterval: () => {},
-            });
+            const id = createTemporaryId();
+            webSocket.socket = {};
+
+            await renderComponent(id, { });
 
             const items = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(items.map(li => li.textContent)).toEqual([ '⏸️ Paused', '⏩ Live (Fast)', '▶️ Live' ]);
+            expect(items.map(li => li.textContent)).toEqual([ '⏸️ Paused', '▶️ Live' ]);
         });
 
         it('selected option', async () => {
-            await renderComponent({
-                refreshInterval: 10000,
-                refresh: () => {},
-                setRefreshInterval: () => {},
-            });
+            const id = createTemporaryId();
+            webSocket.subscriptions[id] = true;
+            webSocket.socket = {};
+
+            await renderComponent(id, { });
 
             const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
-            expect(selectedItem.textContent).toEqual('⏩ Live (Fast)');
+            expect(selectedItem.textContent).toEqual('▶️ Live');
+        });
+
+        it('paused when disconnected', async () => {
+            const id = createTemporaryId();
+            webSocket.subscriptions[id] = true;
+            webSocket.socket = null;
+
+            await renderComponent(id, { });
+
+            const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
+            expect(selectedItem.textContent).toEqual('⏸️ Paused');
         });
     });
 
     describe('interactivity', () => {
-        it('changes selected refresh speed', async () => {
-            let newInterval;
+        it('enables live', async () => {
+            const id = createTemporaryId();
 
-            await renderComponent({
-                refreshInterval: 10000,
-                refresh: () => {},
-                setRefreshInterval: (v) => { newInterval = v },
-            });
+            await renderComponent(id, { });
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
-            expect(newInterval).toEqual(60000);
+            expect(Object.keys(webSocket.subscriptions)).toEqual([id]);
         });
 
-        it('stops refreshing when paused', async () => {
-            let newInterval = 100; // an invalid speed, intentionally, to prevent delays in the tests
-            let refreshCount = 0;
-            let releaseLatch;
-            const latch = new Promise(r => {
-                releaseLatch = r;
-            });
-            await renderComponent({
-                refreshInterval: newInterval,
-                refresh: async () => {
-                    refreshCount++;
-                    await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
-                    releaseLatch();
-                },
-                setRefreshInterval: (v) => { newInterval = v },
-            });
+        it('disables live', async () => {
+            const id = createTemporaryId();
+            webSocket.subscriptions[id] = {};
 
-            await act(async () => {
-                jest.advanceTimersToNextTimer();
-                await latch;
-            });
+            await renderComponent(id, { });
 
-            expect(newInterval).toEqual(0);
-            expect(refreshCount).toEqual(1);
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
+
+            expect(webSocket.subscriptions).toEqual({});
         });
     })
 });

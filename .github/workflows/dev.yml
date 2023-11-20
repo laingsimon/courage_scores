@@ -33,19 +33,6 @@ jobs:
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
 
-  publish-coverage:
-    needs:
-      - publish
-      - build
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Complete coverage collection
-        uses: coverallsapp/github-action@v2
-        with:
-          parallel-finished: true
-
   publish:
     needs: 
      - branch-name
@@ -69,3 +56,9 @@ jobs:
       app-name: 'couragescoresdev'
     secrets:
       publish-profile: ${{ secrets.PUBLISHPROFILE_DEV }}
+
+  report:
+    needs: 
+      - build
+      - publish
+    uses: ./.github/workflows/publish_coverage.yml

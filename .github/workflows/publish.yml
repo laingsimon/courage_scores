@@ -48,3 +48,11 @@ jobs:
           name: .net-app
           path: ./CourageScores/myapp
           if-no-files-found: error
+
+      - name: Publish jest test results
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: JestTestResults
+          path: './CourageScores/ClientApp/junit.xml'
+          if-no-files-found: error

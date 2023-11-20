@@ -1,6 +1,7 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Status;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Live;
 using CourageScores.Services.Season;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -10,15 +11,22 @@ public class StatusService : IStatusService
 {
     private readonly ApplicationMetrics _applicationMetrics;
     private readonly IUserService _userService;
+    private readonly ICollection<IWebSocketContract> _webSockets;
     private readonly IMemoryCache _memoryCache;
     private readonly ISeasonService _seasonService;
 
-    public StatusService(ISeasonService seasonService, IMemoryCache memoryCache, ApplicationMetrics applicationMetrics, IUserService userService)
+    public StatusService(
+        ISeasonService seasonService,
+        IMemoryCache memoryCache,
+        ApplicationMetrics applicationMetrics,
+        IUserService userService,
+        ICollection<IWebSocketContract> webSockets)
     {
         _seasonService = seasonService;
         _memoryCache = memoryCache;
         _applicationMetrics = applicationMetrics;
         _userService = userService;
+        _webSockets = webSockets;
     }
 
     public async Task<ActionResultDto<ServiceStatusDto>> GetStatus(CancellationToken token)
@@ -52,6 +60,7 @@ public class StatusService : IStatusService
         status.CachedEntries = Try<int?>(result, () => _memoryCache.GetKeys().Count());
         status.StartTime = _applicationMetrics.Started;
         status.UpTime = _applicationMetrics.UpTime;
+        status.OpenSockets = _webSockets.Count;
 
         return result;
     }

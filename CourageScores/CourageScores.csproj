@@ -45,7 +45,7 @@
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm audit --omit=dev"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build"/>
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage" UseUtf8Encoding="Always"/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage --reporters=jest-junit" UseUtf8Encoding="Always"/>
 
         <!-- Include the newly-built files in the publish output -->
         <ItemGroup>

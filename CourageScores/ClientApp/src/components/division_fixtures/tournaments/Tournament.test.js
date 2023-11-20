@@ -86,7 +86,11 @@ describe('Tournament', () => {
                 success: true,
                 result: data,
             };
-        }
+        },
+    };
+    const webSocket = {
+        subscriptions: {},
+        publish: async () => {},
     };
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {
@@ -120,6 +124,7 @@ describe('Tournament', () => {
                 playerApi,
                 dataApi,
                 saygApi,
+                webSocket,
             },
             {name: 'Courage Scores'},
             {
