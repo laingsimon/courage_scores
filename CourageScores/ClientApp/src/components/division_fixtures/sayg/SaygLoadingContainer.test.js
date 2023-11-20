@@ -462,7 +462,7 @@ describe('SaygLoadingContainer', () => {
             });
 
             await act(async () => {
-                await enableLiveUpdates(true);
+                await enableLiveUpdates(true, saygData.id);
             });
 
             expect(webSocket.socket).not.toBeNull();
@@ -524,7 +524,7 @@ describe('SaygLoadingContainer', () => {
             expect(renderedData).toEqual(saygData);
 
             await act(async () => {
-                await enableLiveUpdates(true);
+                await enableLiveUpdates(true, saygData.id);
             });
             await act(async () => {
                 webSocket.socket.onmessage({
