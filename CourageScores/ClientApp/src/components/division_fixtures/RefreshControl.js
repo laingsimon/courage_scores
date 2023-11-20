@@ -15,7 +15,7 @@ export function RefreshControl({ id }) {
         <BootstrapDropdown
             className="margin-left float-end"
             options={getRefreshOptions()}
-            onChange={enableLiveUpdates}
+            onChange={v => enableLiveUpdates(v, id)}
             value={!!subscriptions[id] && connected}
             slim={true} />
     </>);

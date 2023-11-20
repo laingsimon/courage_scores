@@ -121,7 +121,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     };
 
     try {
-        return (<LiveContainer id={id} liveOptions={liveOptions} onDataUpdate={setSayg}>
+        return (<LiveContainer liveOptions={liveOptions} onDataUpdate={setSayg}>
             <SaygContext.Provider value={saygProps}>
                 {saveError ? (
                     <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}

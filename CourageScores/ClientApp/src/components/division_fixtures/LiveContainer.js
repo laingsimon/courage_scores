@@ -8,23 +8,21 @@ export function useLive() {
     return useContext(LiveContext);
 }
 
-export function LiveContainer({children, id, onDataUpdate, liveOptions}) {
+export function LiveContainer({children, onDataUpdate, liveOptions}) {
     const {webSocket} = useDependencies();
     const {onError} = useApp();
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
-            enableLiveUpdates(true);
+            liveOptions.subscribeAtStartup.forEach(id => {
+                enableLiveUpdates(true, id);
+            });
         }
     },
     // eslint-disable-next-line
     [liveOptions]);
 
-    function enableLiveUpdates(enabled) {
-        if (!id) {
-            return;
-        }
-
+    function enableLiveUpdates(enabled, id) {
         if (enabled && !webSocket.subscriptions[id]) {
             webSocket.subscribe(id, onDataUpdate, onError);
         } else if (!enabled) {

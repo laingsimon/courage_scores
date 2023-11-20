@@ -48,7 +48,7 @@ export function Practice() {
         const liveOptions = {
             publish: false,
             canSubscribe: false,
-            subscribeAtStartup: false,
+            subscribeAtStartup: [],
         }
 
         return (<div className="p-3 content-background">

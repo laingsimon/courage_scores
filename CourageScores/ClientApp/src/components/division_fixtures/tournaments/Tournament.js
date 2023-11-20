@@ -286,7 +286,7 @@ export function Tournament() {
         const liveOptions = {
             publish: canSave,
             canSubscribe: false,
-            subscribeAtStartup: false,
+            subscribeAtStartup: [],
         };
 
         return (<div>

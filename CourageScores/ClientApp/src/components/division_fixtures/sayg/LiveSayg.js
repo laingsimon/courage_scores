@@ -6,7 +6,7 @@ export function LiveSayg() {
     const liveOptions = {
         publish: false,
         canSubscribe: true,
-        subscribeAtStartup: true,
+        subscribeAtStartup: [id],
     };
 
     return (<div className="content-background p-3 pb-1">

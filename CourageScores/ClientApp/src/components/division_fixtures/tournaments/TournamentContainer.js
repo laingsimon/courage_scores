@@ -16,9 +16,7 @@ export function TournamentContainer({children, tournamentData, setTournamentData
         allPlayers, saveTournament, setWarnBeforeSave, matchOptionDefaults,
     };
 
-    return (<LiveContainer id={tournamentData ? tournamentData.id : null}
-                           liveOptions={liveOptions}
-                           onDataUpdate={setTournamentData}>
+    return (<LiveContainer liveOptions={liveOptions} onDataUpdate={setTournamentData}>
         <TournamentContext.Provider value={data}>
             {children}
         </TournamentContext.Provider>
