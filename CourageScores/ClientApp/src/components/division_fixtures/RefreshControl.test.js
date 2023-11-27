@@ -29,7 +29,7 @@ describe('RefreshControl', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(id, liveProps) {
+    async function renderComponent(id, account) {
         context = await renderApp(
             {webSocket},
             {name: 'Courage Scores'},
@@ -40,18 +40,45 @@ describe('RefreshControl', () => {
                         stack: err.stack
                     };
                 },
+                account,
             },
-            (<LiveContainer {...liveProps}>
+            (<LiveContainer>
                 <RefreshControl id={id} />
             </LiveContainer>));
     }
 
     describe('renders', () => {
+        const account = {
+            access: {
+                useWebSockets: true,
+            },
+        };
+
+        it('nothing when logged out', async () => {
+            const id = createTemporaryId();
+            webSocket.socket = {};
+
+            await renderComponent(id);
+
+            const menu = context.container.querySelector('.dropdown-menu');
+            expect(menu).toBeFalsy();
+        });
+
+        it('nothing when not permitted', async () => {
+            const id = createTemporaryId();
+            webSocket.socket = {};
+
+            await renderComponent(id, { access: {} });
+
+            const menu = context.container.querySelector('.dropdown-menu');
+            expect(menu).toBeFalsy();
+        });
+
         it('options', async () => {
             const id = createTemporaryId();
             webSocket.socket = {};
 
-            await renderComponent(id, { });
+            await renderComponent(id, account);
 
             const items = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(items.map(li => li.textContent)).toEqual([ '⏸️ Paused', '▶️ Live' ]);
@@ -62,7 +89,7 @@ describe('RefreshControl', () => {
             webSocket.subscriptions[id] = true;
             webSocket.socket = {};
 
-            await renderComponent(id, { });
+            await renderComponent(id, account);
 
             const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
             expect(selectedItem.textContent).toEqual('▶️ Live');
@@ -73,7 +100,7 @@ describe('RefreshControl', () => {
             webSocket.subscriptions[id] = true;
             webSocket.socket = null;
 
-            await renderComponent(id, { });
+            await renderComponent(id, account);
 
             const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
             expect(selectedItem.textContent).toEqual('⏸️ Paused');
@@ -81,10 +108,16 @@ describe('RefreshControl', () => {
     });
 
     describe('interactivity', () => {
+        const account = {
+            access: {
+                useWebSockets: true,
+            },
+        };
+
         it('enables live', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id, { });
+            await renderComponent(id, account);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
@@ -95,7 +128,7 @@ describe('RefreshControl', () => {
             const id = createTemporaryId();
             webSocket.subscriptions[id] = {};
 
-            await renderComponent(id, { });
+            await renderComponent(id, account);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
 

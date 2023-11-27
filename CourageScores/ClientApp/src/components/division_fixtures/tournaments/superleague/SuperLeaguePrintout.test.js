@@ -77,6 +77,11 @@ describe('SuperLeaguePrintout', () => {
                         reportedError = err;
                     }
                 },
+                account: {
+                    access: {
+                        useWebSockets: true,
+                    },
+                },
             },
             (<TournamentContainer tournamentData={tournamentData}>
                 <SuperLeaguePrintout division={division}/>

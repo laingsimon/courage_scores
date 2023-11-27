@@ -24,4 +24,5 @@ public class Access
     public bool ManageSeasonTemplates { get; set; }
     public bool ShowDebugOptions { get; set; }
     public bool ManageSockets { get; set; }
+    public bool UseWebSockets { get; set; }
 }

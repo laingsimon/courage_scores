@@ -167,6 +167,7 @@ export function UserAdmin() {
         {renderAccessOption('manageSeasonTemplates', 'Manage season templates')}
         {renderAccessOption('showDebugOptions', 'Show debug options')}
         {renderAccessOption('manageSockets', 'Manage web sockets')}
+        {renderAccessOption('useWebSockets', 'Show live results')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving

@@ -43,7 +43,17 @@ export function AdminHome() {
             loadTables();
         },
         // eslint-disable-next-line
-        [])
+        []);
+
+    function renderIfPermitted(component, permitted) {
+        if (!account) {
+            return null;
+        }
+
+        return permitted
+            ? component
+            : (<NotPermitted/>);
+    }
 
     try {
         return (<div>
@@ -76,12 +86,12 @@ export function AdminHome() {
             </ul>) : null}
             {!appLoading && adminLoading ? <Loading/> : (<AdminContainer tables={dataTables} accounts={accounts}>
                 {!account && !appLoading ? (<NotPermitted/>) : null}
-                {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin/>) : null}
-                {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData/>) : null}
-                {!appLoading && access.exportData && effectiveTab === 'export' ? (<ExportData/>) : null}
-                {!appLoading && access.viewExceptions && effectiveTab === 'errors' ? (<Errors/>) : null}
-                {!appLoading && access.manageSeasonTemplates && effectiveTab === 'templates' ? (<Templates/>) : null}
-                {!appLoading && access.manageSockets && effectiveTab === 'sockets' ? (<SocketAdmin/>) : null}
+                {!appLoading && effectiveTab === 'user' ? renderIfPermitted(<UserAdmin/>, access.manageAccess) : null}
+                {!appLoading && effectiveTab === 'import' ? renderIfPermitted(<ImportData/>, access.importData) : null}
+                {!appLoading && effectiveTab === 'export' ? renderIfPermitted(<ExportData/>, access.exportData) : null}
+                {!appLoading && effectiveTab === 'errors' ? renderIfPermitted(<Errors/>, access.viewExceptions) : null}
+                {!appLoading && effectiveTab === 'templates' ? renderIfPermitted(<Templates/>, access.manageSeasonTemplates) : null}
+                {!appLoading && effectiveTab === 'sockets' ? renderIfPermitted(<SocketAdmin/>, access.manageSockets) : null}
             </AdminContainer>)}
         </div>);
     } catch (e) {
