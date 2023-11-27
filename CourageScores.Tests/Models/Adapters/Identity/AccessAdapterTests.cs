@@ -35,6 +35,7 @@ public class AccessAdapterTests
             ManageSeasonTemplates = true,
             ShowDebugOptions = true,
             ManageSockets = true,
+            UseWebSockets = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -58,6 +59,7 @@ public class AccessAdapterTests
         Assert.That(result.ManageSeasonTemplates, Is.EqualTo(model.ManageSeasonTemplates));
         Assert.That(result.ShowDebugOptions, Is.EqualTo(model.ShowDebugOptions));
         Assert.That(result.ManageSockets, Is.EqualTo(model.ManageSockets));
+        Assert.That(result.UseWebSockets, Is.EqualTo(model.UseWebSockets));
     }
 
     [Test]
@@ -84,6 +86,7 @@ public class AccessAdapterTests
             ManageSeasonTemplates = true,
             ShowDebugOptions = true,
             ManageSockets = true,
+            UseWebSockets = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -106,5 +109,6 @@ public class AccessAdapterTests
         Assert.That(result.ManageSeasonTemplates, Is.EqualTo(dto.ManageSeasonTemplates));
         Assert.That(result.ShowDebugOptions, Is.EqualTo(dto.ShowDebugOptions));
         Assert.That(result.ManageSockets, Is.EqualTo(dto.ManageSockets));
+        Assert.That(result.UseWebSockets, Is.EqualTo(dto.UseWebSockets));
     }
 }

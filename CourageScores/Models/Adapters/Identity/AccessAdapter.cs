@@ -28,6 +28,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageSeasonTemplates = model.ManageSeasonTemplates,
             ShowDebugOptions = model.ShowDebugOptions,
             ManageSockets = model.ManageSockets,
+            UseWebSockets = model.UseWebSockets,
         });
     }
 
@@ -54,6 +55,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageSeasonTemplates = dto.ManageSeasonTemplates,
             ShowDebugOptions = dto.ShowDebugOptions,
             ManageSockets = dto.ManageSockets,
+            UseWebSockets = dto.UseWebSockets,
         });
     }
 }
