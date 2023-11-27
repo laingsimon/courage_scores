@@ -37,9 +37,41 @@ public class LiveServiceTests
     }
 
     [Test]
-    public async Task Accept_WhenCalled_AddsWebSocket()
+    public async Task Accept_WhenLoggedOut_DoesNotAddWebSocket()
     {
         var socket = new Mock<WebSocket>();
+        _user = null;
+
+        await _service.Accept(socket.Object, "originatingUrl", _token);
+
+        Assert.That(_sockets.Count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Accept_WhenNotPermitted_DoesNotAddWebSocket()
+    {
+        var socket = new Mock<WebSocket>();
+        _user = new UserDto
+        {
+            Access = new AccessDto(),
+        };
+
+        await _service.Accept(socket.Object, "originatingUrl", _token);
+
+        Assert.That(_sockets.Count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Accept_WhenPermitted_AddsWebSocket()
+    {
+        var socket = new Mock<WebSocket>();
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                UseWebSockets = true,
+            },
+        };
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 
@@ -47,9 +79,16 @@ public class LiveServiceTests
     }
 
     [Test]
-    public async Task Accept_WhenCalled_AcceptsTheContract()
+    public async Task Accept_WhenPermitted_AcceptsTheContract()
     {
         var socket = new Mock<WebSocket>();
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                UseWebSockets = true,
+            },
+        };
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 

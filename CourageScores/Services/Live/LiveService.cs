@@ -23,6 +23,12 @@ public class LiveService : ILiveService
 
     public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
     {
+        var user = await _userService.GetUser(token);
+        if (user?.Access?.UseWebSockets != true)
+        {
+            return;
+        }
+
         var contract = await _socketContractFactory.Create(webSocket, originatingUrl, token);
         _sockets.Add(contract);
         await contract.Accept(token);
