@@ -457,6 +457,12 @@ describe('MatchStatistics', () => {
             awayScore: 0,
             yourName: 'HOME',
             numberOfLegs: 3,
+        }, {
+            account: {
+                access: {
+                    useWebSockets: true,
+                },
+            },
         });
 
         const selectedOption = context.container.querySelector('h4 .dropdown-menu .active');
@@ -532,6 +538,12 @@ describe('MatchStatistics', () => {
             awayScore: 0,
             home: 'HOME',
             numberOfLegs: 3,
+        }, {
+            account: {
+                access: {
+                    useWebSockets: true
+                },
+            },
         });
         expect(Object.keys(webSocket.subscriptions)).toEqual([saygId]);
         expect(reportedError).toBeNull();
