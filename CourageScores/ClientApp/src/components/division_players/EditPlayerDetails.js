@@ -7,7 +7,7 @@ import {sortBy} from "../../helpers/collections";
 import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, newDivisionId, player }) {
+export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, player }) {
     const [saving, setSaving] = useState(false);
     const [multiple, setMultiple] = useState(false);
     const [saveError, setSaveError] = useState(null);
@@ -27,6 +27,10 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         }
         if (!player.name) {
             window.alert('Please enter a name');
+            return;
+        }
+        if (!(player.newDivisionId || divisionId)) {
+            window.alert('Please select a division');
             return;
         }
 
@@ -94,7 +98,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         let success = true;
         for(let index = 0; index < multiPlayerDetails.length; index++) {
             const playerDetails = multiPlayerDetails[index];
-            const response = await playerApi.create(divisionId, seasonId, player.teamId || team.id, playerDetails);
+            const response = await playerApi.create(player.newDivisionId || divisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);
             response.playerDetails = playerDetails;
             success = success && (response.success || false);
@@ -125,7 +129,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
             return false;
         }
 
-        return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== (newDivisionId || divisionId));
+        return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== (player.newDivisionId || divisionId));
     }
 
     function changeMultiple(multiple) {
@@ -144,6 +148,12 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                     onChange={value => onChange('teamId', value)}
                     value={player.teamId || (team ? team.id : '')}
                     options={[{value: '', text: 'Select team'}].concat(getTeamOptions())}/>
+                {divisionId ? null : (<BootstrapDropdown
+                    onChange={value => onChange('newDivisionId', value)}
+                    value={player.newDivisionId || divisionId}
+                    options={divisions.map(division => {
+                        return {value: division.id, text: division.name};
+                    })}/>)}
             </div>
         );
     }
@@ -160,7 +170,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
 
                 <BootstrapDropdown
                     onChange={value => onChange('newDivisionId', value)}
-                    value={newDivisionId || divisionId}
+                    value={player.newDivisionId || divisionId}
                     options={divisions.map(division => {
                         return {value: division.id, text: division.name};
                     })}/>
