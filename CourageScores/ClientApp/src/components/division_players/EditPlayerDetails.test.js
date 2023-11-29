@@ -117,7 +117,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team], [division]);
 
             expect(reportedError).toBeNull();
@@ -138,7 +137,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team], [division]);
 
             expect(reportedError).toBeNull();
@@ -148,6 +146,25 @@ describe('EditPlayerDetails', () => {
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
             expect(findNewDivisionDropdown()).toBeFalsy();
+        });
+
+        it('new player details with no division id', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: null,
+            }, [team], [division]);
+
+            expect(reportedError).toBeNull();
+            expect(findInput('name').value).toEqual('NAME');
+            expect(findInput('emailAddress').value).toEqual('EMAIL');
+            expect(findInput('captain').checked).toEqual(true);
+            expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
+            expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
+            expect(findNewDivisionDropdown()).toBeTruthy();
         });
 
         it('excludes teams where not selected for current season', async () => {
@@ -162,7 +179,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, differentSeasonTeam], [division]);
 
             const items = Array.from(findNewTeamDropdown().querySelectorAll('.dropdown-item'));
@@ -177,7 +193,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team], [division]);
             expect(reportedError).toBeNull();
 
@@ -193,7 +208,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team], [division]);
             expect(reportedError).toBeNull();
 
@@ -238,7 +252,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
@@ -258,7 +271,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
@@ -278,7 +290,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -298,7 +309,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             await doClick(context.container, 'input[name="multiple"]');
@@ -320,7 +330,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -339,7 +348,24 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
+            }, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError).toBeNull();
+
+            await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
+
+            expect(change).not.toBeNull();
+            expect(change.name).toEqual('newDivisionId');
+            expect(change.value).toEqual(otherDivision.id);
+        });
+
+        it('can change division for new player with no division id', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -358,7 +384,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -375,7 +400,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -392,7 +416,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -416,7 +439,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -441,7 +463,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             await doClick(context.container, 'input[name="multiple"]');
@@ -471,7 +492,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             await doClick(context.container, 'input[name="multiple"]');
@@ -504,7 +524,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -534,7 +553,6 @@ describe('EditPlayerDetails', () => {
                 gameId: gameId,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
@@ -562,7 +580,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             apiResponse = {success: false};
@@ -581,7 +598,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             apiResponse = {success: false};
@@ -601,7 +617,6 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-                newDivisionId: null,
             }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             apiResponse = {success: false};
