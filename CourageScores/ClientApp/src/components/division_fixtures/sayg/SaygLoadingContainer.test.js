@@ -92,7 +92,7 @@ describe('SaygLoadingContainer', () => {
         loadError = error;
     }
 
-    async function renderComponent(props) {
+    async function renderComponent(props, appProps) {
         reportedError = null;
         oneEighty = null;
         hiCheck = null;
@@ -115,6 +115,7 @@ describe('SaygLoadingContainer', () => {
                 },
                 reportClientSideException: () => {
                 },
+                ...appProps,
             },
             <SaygLoadingContainer
                 {...props}
@@ -452,6 +453,9 @@ describe('SaygLoadingContainer', () => {
                 .withLeg('0', l => l.startingScore(501))
                 .addTo(saygDataMap)
                 .build();
+            const account = {
+                access: { useWebSockets: true },
+            };
             await renderComponent({
                 children: (<TestComponent onLoaded={(data) => {
                     enableLiveUpdates = data.enableLiveUpdates;
@@ -459,7 +463,7 @@ describe('SaygLoadingContainer', () => {
                 id: saygData.id,
                 defaultData: null,
                 autoSave: false,
-            });
+            }, { account });
 
             await act(async () => {
                 await enableLiveUpdates(true, saygData.id);
@@ -475,6 +479,9 @@ describe('SaygLoadingContainer', () => {
                 .withLeg('0', l => l.startingScore(501))
                 .addTo(saygDataMap)
                 .build();
+            const account = {
+                access: { useWebSockets: true },
+            };
             await renderComponent({
                 children: (<TestComponent onLoaded={(data) => {
                     enableLiveUpdates = data.enableLiveUpdates;
@@ -482,7 +489,7 @@ describe('SaygLoadingContainer', () => {
                 id: saygData.id,
                 defaultData: null,
                 autoSave: false,
-            });
+            }, { account });
 
             await act(async () => {
                 await enableLiveUpdates(true);
@@ -512,6 +519,9 @@ describe('SaygLoadingContainer', () => {
             const newSaygData = saygBuilder(saygData.id)
                 .withLeg('0', l => l.startingScore(601))
                 .build();
+            const account = {
+                access: { useWebSockets: true },
+            };
             await renderComponent({
                 children: (<TestComponent onLoaded={(data) => {
                     enableLiveUpdates = data.enableLiveUpdates;
@@ -520,7 +530,7 @@ describe('SaygLoadingContainer', () => {
                 id: saygData.id,
                 defaultData: null,
                 autoSave: false,
-            });
+            }, { account });
             expect(renderedData).toEqual(saygData);
 
             await act(async () => {
@@ -569,6 +579,9 @@ describe('SaygLoadingContainer', () => {
                 .withLeg('0', l => l.startingScore(501))
                 .addTo(saygDataMap)
                 .build();
+            const account = {
+                access: { useWebSockets: true },
+            };
             await renderComponent({
                 children: (<TestComponent onLoaded={(data) => {
                     enableLiveUpdates = data.enableLiveUpdates;
@@ -576,7 +589,7 @@ describe('SaygLoadingContainer', () => {
                 id: saygData.id,
                 defaultData: null,
                 autoSave: false,
-            });
+            }, { account });
             await act(async () => {
                 await enableLiveUpdates(true);
             });

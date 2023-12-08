@@ -416,6 +416,9 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [id],
         };
+        const account = {
+            access: { useWebSockets: true },
+        };
         console.log = noop;
 
         await renderComponent({
@@ -429,7 +432,7 @@ describe('MatchStatistics', () => {
             awayScore: 0,
             yourName: 'HOME',
             numberOfLegs: 3,
-        });
+        }, { account });
 
         expect(webSocket.socket).not.toBeNull();
         expect(Object.keys(webSocket.subscriptions)).toEqual([ id ]);
@@ -483,6 +486,9 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [id],
         };
+        const account = {
+            access: { useWebSockets: true },
+        };
         console.log = noop;
 
         await renderComponent({
@@ -497,7 +503,7 @@ describe('MatchStatistics', () => {
             yourName: 'HOME',
             opponentName: 'AWAY',
             numberOfLegs: 3,
-        });
+        }, { account });
 
         assertLegRow(
             0,
@@ -572,6 +578,9 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [id],
         };
+        const account = {
+            access: { useWebSockets: true },
+        };
         console.log = noop;
         await renderComponent({
             liveOptions,
@@ -584,7 +593,7 @@ describe('MatchStatistics', () => {
             yourName: 'HOME',
             opponentName: 'AWAY',
             numberOfLegs: 3,
-        });
+        }, { account });
 
         const newSaygData = {
             id,
