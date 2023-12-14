@@ -7,7 +7,6 @@ using CourageScores.Services.Health;
 using CourageScores.Tests.Models.Adapters;
 using Moq;
 using NUnit.Framework;
-using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
 
 namespace CourageScores.Tests.Services.Command;
 
