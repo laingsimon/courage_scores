@@ -367,6 +367,9 @@ describe('Practice', () => {
     describe('logged in', () => {
         const account = {
             givenName: 'GIVEN NAME',
+            access: {
+                useWebSockets: false,
+            },
         };
 
         it('when no data loaded, sets your name to account givenName', async () => {

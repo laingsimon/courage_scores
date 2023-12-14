@@ -82,12 +82,16 @@ public class TournamentRoundTests
         var sideB = new TournamentSide();
         var final = new TournamentMatch
         {
-            ScoreA = 1,
-            ScoreB = 0,
+            ScoreA = 3,
+            ScoreB = 1,
             SideA = sideA,
             SideB = sideB,
         };
         _round.Matches.Add(final);
+        _round.MatchOptions.Add(new GameMatchOption
+        {
+            NumberOfLegs = 5,
+        });
         _round.Sides.AddRange(new[]
         {
             sideA, sideB,
@@ -106,11 +110,15 @@ public class TournamentRoundTests
         var sideB = new TournamentSide();
         var final = new TournamentMatch
         {
-            ScoreA = 0,
-            ScoreB = 1,
+            ScoreA = 1,
+            ScoreB = 3,
             SideA = sideA,
             SideB = sideB,
         };
+        _round.MatchOptions.Add(new GameMatchOption
+        {
+            NumberOfLegs = 5,
+        });
         _round.Matches.Add(final);
         _round.Sides.AddRange(new[]
         {
