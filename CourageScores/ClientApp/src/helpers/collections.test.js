@@ -1,6 +1,19 @@
 // noinspection JSUnresolvedReference
 
-import {all, any, count, distinct, elementAt, isEmpty, max, sortBy, sum, toDictionary, toMap} from "./collections.js";
+import {
+    all,
+    any,
+    count,
+    distinct,
+    elementAt,
+    isEmpty,
+    max,
+    reverse,
+    sortBy,
+    sum,
+    toDictionary,
+    toMap
+} from "./collections.js";
 
 describe('collections', () => {
     describe('toMap', () => {
@@ -385,6 +398,24 @@ describe('collections', () => {
 
             expect(error).not.toBeNull();
             expect(error.message).toEqual('Duplicate key found: NAME');
+        });
+    });
+
+    describe('reverse', () => {
+        it('reverses collection', () => {
+            const input = [1, 2, 3];
+
+            const result = reverse(input);
+
+            expect(result).toEqual([3, 2, 1]);
+        });
+
+        it('reverses empty collection', () => {
+            const input = [];
+
+            const result = reverse(input);
+
+            expect(result).toEqual([]);
         });
     });
 });
