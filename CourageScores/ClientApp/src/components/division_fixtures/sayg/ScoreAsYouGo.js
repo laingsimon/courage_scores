@@ -4,6 +4,7 @@ import {useApp} from "../../../AppContainer";
 import {useSayg} from "./SaygLoadingContainer";
 import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
 import {useLocation} from "react-router-dom";
+import {useState} from "react";
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
@@ -13,6 +14,7 @@ export function ScoreAsYouGo({
     const {saveDataAndGetId, matchStatisticsOnly} = useSayg();
     const canEditThrows = account && account.access && account.access.recordScoresAsYouGo;
     const location = useLocation();
+    const [useWidescreenStatistics, setUseWidescreenStatistics] = useState(shouldUseWidescreenStatistics(location));
 
     function shouldUseWidescreenStatistics() {
         return location.search.indexOf('widescreen=true') !== -1;
@@ -94,7 +96,7 @@ export function ScoreAsYouGo({
     const legIndex = (homeScore || 0) + (awayScore || 0);
     const hasFinished = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
     if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
-        if (shouldUseWidescreenStatistics()) {
+        if (useWidescreenStatistics) {
             return <WidescreenMatchStatistics
                 legs={data.legs}
                 awayScore={awayScore}
@@ -102,7 +104,8 @@ export function ScoreAsYouGo({
                 home={home}
                 away={away}
                 singlePlayer={singlePlayer}
-                numberOfLegs={data.numberOfLegs} />
+                numberOfLegs={data.numberOfLegs}
+                changeStatisticsView={setUseWidescreenStatistics} />
         }
 
         return <MatchStatistics
@@ -114,7 +117,7 @@ export function ScoreAsYouGo({
             singlePlayer={singlePlayer}
             numberOfLegs={data.numberOfLegs}
             legChanged={canEditThrows ? saveChangedLeg : null}
-        />
+            changeStatisticsView={setUseWidescreenStatistics} />
     }
 
     const leg = getLeg(legIndex);

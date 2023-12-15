@@ -1,7 +1,12 @@
 import {WidescreenSaygRecentThrow} from "./WidescreenSaygRecentThrow";
 import {reverse} from "../../../helpers/collections";
+import {useSayg} from "./SaygLoadingContainer";
+import {useLive} from "../LiveContainer";
+import {RefreshControl} from "../RefreshControl";
 
-export function WidescreenSaygPlayer({ legs, player, scoreFirst }) {
+export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, changeStatisticsView, showOptions }) {
+    const {sayg} = useSayg();
+    const {liveOptions} = useLive();
     const orderedLegKeys = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
     const lastLegKey = orderedLegKeys[orderedLegKeys.length - 1];
     const lastLeg = legs[lastLegKey];
@@ -24,5 +29,12 @@ export function WidescreenSaygPlayer({ legs, player, scoreFirst }) {
                 (<WidescreenSaygRecentThrow key={index} score={thr.score} bust={thr.bust} throwNumber={index + 1} />))}
         </div>
         {scoreFirst ? null : score}
+        {showOptions ? (<div className="position-absolute p-1">
+            {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id}/> : null}
+            {changeStatisticsView ?
+                <button className="btn btn-sm btn-outline-primary border-dark" onClick={() => changeStatisticsView(false)}>
+                    📊
+                </button> : null}
+        </div>) : null}
     </div>)
 }
