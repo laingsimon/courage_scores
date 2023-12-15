@@ -19,7 +19,7 @@ export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, chang
     }
 
     const score = (<div className="d-flex flex-row flex-grow-1 justify-content-center align-content-center flex-wrap">
-        <h1 style={{ fontSize: '15rem'}}>{lastLeg.startingScore - lastLeg[player].score}</h1>
+        <h1 style={{ fontSize: '15rem'}}>{lastLeg[player].score === lastLeg.startingScore ? '🎉' : lastLeg.startingScore - lastLeg[player].score}</h1>
     </div>);
 
     return (<div className="d-flex flex-row flex-grow-1 align-content-stretch">
