@@ -159,3 +159,15 @@ export function toDictionary(items, keySelector, valueSelector) {
 
     return dict;
 }
+
+/*
+* Reverse a collection of items
+* */
+export function reverse(items) {
+    const backwards = [];
+    for (let index = items.length -1; index >= 0; index--) {
+        backwards.push(items[index]);
+    }
+
+    return backwards;
+}

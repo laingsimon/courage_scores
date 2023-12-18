@@ -2,6 +2,9 @@ import {PlayLeg} from "./PlayLeg";
 import {MatchStatistics} from "./MatchStatistics";
 import {useApp} from "../../../AppContainer";
 import {useSayg} from "./SaygLoadingContainer";
+import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
+import {useLocation} from "react-router-dom";
+import {useState} from "react";
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
@@ -10,6 +13,12 @@ export function ScoreAsYouGo({
     const {onError, account} = useApp();
     const {saveDataAndGetId, matchStatisticsOnly} = useSayg();
     const canEditThrows = account && account.access && account.access.recordScoresAsYouGo;
+    const location = useLocation();
+    const [useWidescreenStatistics, setUseWidescreenStatistics] = useState(shouldUseWidescreenStatistics(location));
+
+    function shouldUseWidescreenStatistics() {
+        return location.search.indexOf('widescreen=true') !== -1;
+    }
 
     function getLeg(legIndex) {
         const leg = data.legs[legIndex];
@@ -87,6 +96,18 @@ export function ScoreAsYouGo({
     const legIndex = (homeScore || 0) + (awayScore || 0);
     const hasFinished = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
     if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
+        if (useWidescreenStatistics) {
+            return <WidescreenMatchStatistics
+                legs={data.legs}
+                awayScore={awayScore}
+                homeScore={homeScore}
+                home={home}
+                away={away}
+                singlePlayer={singlePlayer}
+                numberOfLegs={data.numberOfLegs}
+                changeStatisticsView={setUseWidescreenStatistics} />
+        }
+
         return <MatchStatistics
             legs={data.legs}
             awayScore={awayScore}
@@ -96,7 +117,7 @@ export function ScoreAsYouGo({
             singlePlayer={singlePlayer}
             numberOfLegs={data.numberOfLegs}
             legChanged={canEditThrows ? saveChangedLeg : null}
-        />
+            changeStatisticsView={setUseWidescreenStatistics} />
     }
 
     const leg = getLeg(legIndex);
