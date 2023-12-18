@@ -560,6 +560,46 @@ describe('MatchStatistics', () => {
         expect(webSocket.subscriptions).toEqual({});
     });
 
+    it('shows widescreen statistics', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
+            .away(c => c.withThrow(75, false, 2).score(75).noOfDarts(2))
+            .build();
+        const saygId = createTemporaryId();
+        const liveOptions = {
+            canSubscribe: true,
+            subscribeAtStartup: [saygId],
+        };
+        console.log = noop;
+        await renderComponent({
+            matchStatisticsOnly: true,
+            liveOptions,
+            lastLegDisplayOptions: { showThrows: true },
+        }, {
+            id: saygId,
+            legs: {0: leg},
+            homeScore: 0,
+            awayScore: 0,
+            home: 'HOME',
+            numberOfLegs: 3,
+        }, {
+            account: {
+                access: {
+                    useWebSockets: true
+                },
+            },
+        });
+        expect(Object.keys(webSocket.subscriptions)).toEqual([saygId]);
+        expect(reportedError).toBeNull();
+
+        await doClick(findButton(context.container.querySelector('h4'), '🖥'));
+
+        expect(reportedError).toBeNull();
+        expect(context.container.innerHTML).toContain('WidescreenMatchStatistics');
+    });
+
     it('collapses all legs when final leg played', async () => {
         const leg = legBuilder()
             .currentThrow('home')
