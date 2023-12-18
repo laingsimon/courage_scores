@@ -11,7 +11,7 @@ export function WidescreenSaygPlayerStatistic({legs, player, oneDartAverage, set
         return sum(Object.values(legs), leg => leg[player][prop]);
     }
 
-    return (<div className="d-flex flex-row justify-content-between text-center border-top border-secondary fs-3">
+    return (<div datatype="WidescreenSaygPlayerStatistic" className="d-flex flex-row justify-content-between text-center border-top border-secondary fs-3">
         <div>
             Darts<br />
             {lastLeg[player].noOfDarts}

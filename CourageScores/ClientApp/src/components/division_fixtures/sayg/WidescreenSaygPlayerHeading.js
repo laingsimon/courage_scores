@@ -3,7 +3,7 @@ export function WidescreenSaygPlayerHeading({ name, score, scoreFirst }) {
         {score}
     </h1>;
 
-    return (<div className="d-flex flex-row border-bottom border-dark">
+    return (<div datatype="WidescreenSaygPlayerHeading" className="d-flex flex-row border-bottom border-dark">
         {scoreFirst ? scoreElement : null}
         <h1 className="flex-grow-1 text-center text-dark">
             {name}

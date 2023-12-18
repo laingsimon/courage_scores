@@ -8,7 +8,7 @@ export function WidescreenMatchStatistics({legs, homeScore, awayScore, home, awa
     const [oneDartAverage, setOneDartAverage] = useState(false);
     const finished = (homeScore >= numberOfLegs / 2.0) || (awayScore >= numberOfLegs / 2.0);
 
-    return (<div className="d-flex flex-row position-absolute top-0 left-0 right-0 bottom-0 p-3 bg-white">
+    return (<div datatype="WidescreenMatchStatistics" className="d-flex flex-row position-absolute top-0 left-0 right-0 bottom-0 p-3 bg-white">
         <div datatype="home-column" className="d-flex flex-column flex-grow-1 flex-shrink-1 flex-basis-0 position-relative">
             <WidescreenSaygPlayerHeading name={home} score={homeScore} />
             <WidescreenSaygPlayer player="home" legs={legs} changeStatisticsView={changeStatisticsView} finished={finished} showOptions={true} />

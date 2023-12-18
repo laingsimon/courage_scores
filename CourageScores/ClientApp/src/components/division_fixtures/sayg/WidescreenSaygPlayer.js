@@ -22,7 +22,7 @@ export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, chang
         <h1 style={{ fontSize: '15rem'}}>{lastLeg[player].score === lastLeg.startingScore ? '🎉' : lastLeg.startingScore - lastLeg[player].score}</h1>
     </div>);
 
-    return (<div className="d-flex flex-row flex-grow-1 align-content-stretch">
+    return (<div datatype="WidescreenSaygPlayer" className="d-flex flex-row flex-grow-1 align-content-stretch">
         {scoreFirst ? score : null}
         <div className="d-flex flex-column flex-grow-0 justify-content-around bg-light">
             {throwsInLastLegFor(noOfThrowsMax, player).map((thr, index) =>
