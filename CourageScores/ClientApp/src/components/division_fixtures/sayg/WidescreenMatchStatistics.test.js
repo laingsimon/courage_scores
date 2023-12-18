@@ -291,7 +291,7 @@ describe('WidescreenMatchStatistics', () => {
             const sayg = saygBuilder()
                 .yourName('HOME')
                 .opponentName('AWAY')
-                .scores(1, 2)
+                .scores(3, 2)
                 .numberOfLegs(5)
                 .withLeg('0', l => l
                     .startingScore(501)
@@ -317,7 +317,7 @@ describe('WidescreenMatchStatistics', () => {
             const sayg = saygBuilder()
                 .yourName('HOME')
                 .opponentName('AWAY')
-                .scores(1, 2)
+                .scores(1, 3)
                 .numberOfLegs(5)
                 .withLeg('0', l => l
                     .startingScore(501)
