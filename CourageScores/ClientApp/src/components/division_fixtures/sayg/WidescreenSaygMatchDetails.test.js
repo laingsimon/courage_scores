@@ -3,6 +3,7 @@
 import {cleanUp, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {WidescreenSaygMatchDetails} from "./WidescreenSaygMatchDetails";
+import {saygBuilder} from "../../../helpers/builders";
 
 describe('WidescreenSaygMatchDetails', () => {
     let context;
@@ -33,17 +34,16 @@ describe('WidescreenSaygMatchDetails', () => {
     }
 
     describe('renders', () => {
+        const sayg = saygBuilder()
+            .numberOfLegs(3)
+            .withLeg('0', l => l.startingScore(301))
+            .withLeg('1', l => l.startingScore(501))
+            .build();
+
         it('best of', async () => {
             await renderComponent({
-                legs: {
-                    '0': {
-                        startingScore: 301,
-                    },
-                    '1': {
-                        startingScore: 501,
-                    },
-                },
-                numberOfLegs: 3,
+                legs: sayg.legs,
+                numberOfLegs: sayg.numberOfLegs,
             });
 
             expect(context.container.querySelector('span:nth-child(1)').textContent).toEqual('Best of 3');
@@ -51,15 +51,8 @@ describe('WidescreenSaygMatchDetails', () => {
 
         it('starting score', async () => {
             await renderComponent({
-                legs: {
-                    '0': {
-                        startingScore: 301,
-                    },
-                    '1': {
-                        startingScore: 501,
-                    },
-                },
-                numberOfLegs: 3,
+                legs: sayg.legs,
+                numberOfLegs: sayg.numberOfLegs,
             });
 
             expect(context.container.querySelector('span:nth-child(2)').textContent).toEqual('from 501');
@@ -67,15 +60,8 @@ describe('WidescreenSaygMatchDetails', () => {
 
         it('leg number', async () => {
             await renderComponent({
-                legs: {
-                    '0': {
-                        startingScore: 301,
-                    },
-                    '1': {
-                        startingScore: 501,
-                    },
-                },
-                numberOfLegs: 3,
+                legs: sayg.legs,
+                numberOfLegs: sayg.numberOfLegs,
             });
 
             expect(context.container.querySelector('span:nth-child(3)').textContent).toEqual('Leg 2');

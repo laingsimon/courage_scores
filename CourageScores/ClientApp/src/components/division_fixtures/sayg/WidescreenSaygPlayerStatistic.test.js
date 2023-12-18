@@ -3,6 +3,7 @@
 import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
 import React from "react";
 import {WidescreenSaygPlayerStatistic} from "./WidescreenSaygPlayerStatistic";
+import {saygBuilder} from "../../../helpers/builders";
 
 describe('WidescreenSaygPlayerStatistic', () => {
     let context;
@@ -42,28 +43,16 @@ describe('WidescreenSaygPlayerStatistic', () => {
         let legs;
 
         beforeEach(() => {
-            legs = {
-                '0': {
-                    home: {
-                        score: 100,
-                        noOfDarts: 3,
-                    },
-                    away: {
-                        score: 101,
-                        noOfDarts: 4,
-                    },
-                },
-                '1': {
-                    home: {
-                        score: 102,
-                        noOfDarts: 5,
-                    },
-                    away: {
-                        score: 103,
-                        noOfDarts: 6,
-                    },
-                },
-            };
+            const sayg = saygBuilder()
+                .withLeg('0', l => l
+                    .home(c => c.score(100).noOfDarts(3))
+                    .away(c => c.score(101).noOfDarts(4)))
+                .withLeg('1', l => l
+                    .home(c => c.score(102).noOfDarts(5))
+                    .away(c => c.score(103).noOfDarts(6)))
+                .build();
+
+            legs = sayg.legs;
         });
 
         it('No of darts', async () => {
@@ -146,32 +135,18 @@ describe('WidescreenSaygPlayerStatistic', () => {
     });
 
     describe('interactivity', () => {
-        const legs = {
-            '0': {
-                home: {
-                    score: 100,
-                    noOfDarts: 3,
-                },
-                away: {
-                    score: 101,
-                    noOfDarts: 4,
-                },
-            },
-            '1': {
-                home: {
-                    score: 102,
-                    noOfDarts: 5,
-                },
-                away: {
-                    score: 103,
-                    noOfDarts: 6,
-                },
-            },
-        };
+        const sayg = saygBuilder()
+            .withLeg('0', l => l
+                .home(c => c.score(100).noOfDarts(3))
+                .away(c => c.score(101).noOfDarts(4)))
+            .withLeg('1', l => l
+                .home(c => c.score(102).noOfDarts(5))
+                .away(c => c.score(103).noOfDarts(6)))
+            .build();
 
         it('can change to 1 dart average', async () => {
             await renderComponent({
-                legs,
+                legs: sayg.legs,
                 player: 'home',
                 oneDartAverage: false,
             });
@@ -184,7 +159,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
 
         it('can change to 3 dart average', async () => {
             await renderComponent({
-                legs,
+                legs: sayg.legs,
                 player: 'home',
                 oneDartAverage: true,
             });
