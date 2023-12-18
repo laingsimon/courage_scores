@@ -23,7 +23,7 @@ export function WidescreenSaygPlayerStatistic({legs, player, oneDartAverage, set
         </div>
         <div onClick={() => setOneDartAverage(!oneDartAverage)}>
             Match Avg<br />
-            {ifNaN(round2dp(sumOf(player, 'score') / (sumOf(player, 'noOfDarts') / 3) / dartAverageMultiplier, '-'))}
+            {ifNaN(round2dp(sumOf(player, 'score') / (sumOf(player, 'noOfDarts') / 3) / dartAverageMultiplier), '-')}
             <sup className="text-secondary-50">{oneDartAverage ? '1' : '3'}</sup>
         </div>
     </div>);
