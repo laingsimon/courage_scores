@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
+using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using Ionic.Zip;
 using Microsoft.Azure.Cosmos;
@@ -15,6 +16,7 @@ public class DataService : IDataService
     private readonly IUserService _userService;
     private readonly IZipBuilderFactory _zipBuilderFactory;
     private readonly IZipFileReaderFactory _zipFileReaderFactory;
+    private readonly IDataBrowserRepository<SingleDataResultDto> _dataBrowserRepository;
 
     public DataService(
         Database database,
@@ -23,7 +25,8 @@ public class DataService : IDataService
         IDataImporterFactory dataImporterFactory,
         ICosmosTableService cosmosTableService,
         IZipBuilderFactory zipBuilderFactory,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IDataBrowserRepository<SingleDataResultDto> dataBrowserRepository)
     {
         _database = database;
         _userService = userService;
@@ -32,6 +35,7 @@ public class DataService : IDataService
         _cosmosTableService = cosmosTableService;
         _zipBuilderFactory = zipBuilderFactory;
         _configuration = configuration;
+        _dataBrowserRepository = dataBrowserRepository;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
@@ -100,6 +104,74 @@ public class DataService : IDataService
         }
 
         return await DoImport(request, token);
+    }
+
+    public async Task<ActionResultDto<SingleDataResultDto>> Browse(string table, Guid id, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            return Unsuccessful<SingleDataResultDto>("Not logged in");
+        }
+
+        if (user.Access?.ExportData != true)
+        {
+            return Unsuccessful<SingleDataResultDto>("Not permitted");
+        }
+
+        if (string.IsNullOrEmpty(table))
+        {
+            return Unsuccessful<SingleDataResultDto>("Table not supplied");
+        }
+
+        var tableExists = await _dataBrowserRepository.TableExists(table);
+        if (!tableExists)
+        {
+            return Unsuccessful<SingleDataResultDto>($"Table not found: {table}");
+        }
+
+        var item = await _dataBrowserRepository.GetItem(table, id, token);
+        if (item == null)
+        {
+            return Unsuccessful<SingleDataResultDto>("Record not found");
+        }
+
+        return new ActionResultDto<SingleDataResultDto>
+        {
+            Result = item,
+            Success = true,
+        };
+    }
+
+    public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Not logged in");
+        }
+
+        if (user.Access?.ExportData != true)
+        {
+            return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Not permitted");
+        }
+
+        if (string.IsNullOrEmpty(table))
+        {
+            return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>("Table not supplied");
+        }
+
+        var tableExists = await _dataBrowserRepository.TableExists(table);
+        if (!tableExists)
+        {
+            return Unsuccessful<IReadOnlyCollection<SingleDataResultDto>>($"Table not found: {table}");
+        }
+
+        return new ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>
+        {
+            Result = await _dataBrowserRepository.GetAll(table, token).ToList(),
+            Success = true,
+        };
     }
 
     private static bool IsEqualOrLaterVersion(ExportMetaData metaData, string minVersion)

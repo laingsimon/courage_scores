@@ -53,4 +53,16 @@ public class DataController : Controller
     {
         return await _dataService.RestoreData(request, token);
     }
+
+    [HttpGet("/api/Data/Browse/{table}/")]
+    public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token)
+    {
+        return await _dataService.Browse(table, token);
+    }
+
+    [HttpGet("/api/Data/Browse/{table}/{id}")]
+    public async Task<ActionResultDto<SingleDataResultDto>> Browse(string table, Guid id, CancellationToken token)
+    {
+        return await _dataService.Browse(table, id, token);
+    }
 }
