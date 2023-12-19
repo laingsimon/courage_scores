@@ -24,7 +24,6 @@ public class ExportDataRequestDto
     public Dictionary<string, List<Guid>> Tables { get; set; } = new();
 
     [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
 #pragma warning disable CS0618
     public IDictionary<string, List<Guid>> CaseInsensitiveTables =>
         Tables.ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);

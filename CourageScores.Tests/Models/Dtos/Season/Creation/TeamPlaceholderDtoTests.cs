@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using CourageScores.Models.Dtos.Season.Creation;
+﻿using CourageScores.Models.Dtos.Season.Creation;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Dtos.Season.Creation;
@@ -10,12 +10,12 @@ public class TeamPlaceholderDtoTests
     [Test]
     public void GivenAString_CanConvertToDto()
     {
-        var json = JsonSerializer.Serialize(new StringModel
+        var json = JsonConvert.SerializeObject(new StringModel
         {
             Placeholder = "A",
         });
 
-        var model = JsonSerializer.Deserialize<TestModel>(json);
+        var model = JsonConvert.DeserializeObject<TestModel>(json);
 
         Assert.That(model, Is.Not.Null);
         Assert.That(model!.Placeholder, Is.EqualTo(new TeamPlaceholderDto("A")).Using(new TeamPlaceholderDtoEqualityComparer()));
@@ -29,9 +29,9 @@ public class TeamPlaceholderDtoTests
             Placeholder = new TeamPlaceholderDto("B"),
         };
 
-        var json = JsonSerializer.Serialize(model);
+        var json = JsonConvert.SerializeObject(model);
 
-        var stringModel = JsonSerializer.Deserialize<StringModel>(json);
+        var stringModel = JsonConvert.DeserializeObject<StringModel>(json);
         Assert.That(stringModel!.Placeholder, Is.EqualTo("B"));
     }
 
