@@ -30,7 +30,11 @@ export function DataBrowser() {
         const id = search.has('id') ? search.get('id') : '';
 
         const newRequest = {table, id: id ? id : null};
-        if (lastRequest && newRequest.table && lastRequest.table === newRequest.table && lastRequest.id === newRequest.id) {
+        if (!newRequest.table) {
+            return;
+        }
+
+        if (lastRequest && lastRequest.table === newRequest.table && lastRequest.id === newRequest.id) {
             // no change to request
             return;
         }
@@ -77,10 +81,21 @@ export function DataBrowser() {
         navigate(`/admin/browser/?table=${table}${idQuery}`);
     }
 
+    function renderValue(key, value) {
+        if (value && value.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+            return (<abbr title={value}>{renderDate(value)}</abbr>);
+        }
+
+        return value;
+    }
+
     function renderItem(data) {
         return (<table className="table table-sm">
             <tbody>
-            {Object.keys(data).map(key => (<tr key={key}><td>{key}</td><td>{data[key]}</td></tr>))}
+            {Object.keys(data).map(key => (<tr key={key}>
+                <td style={{ textTransform: 'capitalize' }}>{key}</td>
+                <td>{renderValue(key, data[key])}</td>
+            </tr>))}
             </tbody>
         </table>);
     }

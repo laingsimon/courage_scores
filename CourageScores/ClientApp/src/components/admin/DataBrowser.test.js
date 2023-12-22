@@ -132,7 +132,7 @@ describe('DataBrowser', () => {
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tr'));
             expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id', 'date', 'name']);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual([game.id, game.date, game.name]);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual([game.id, renderDate(game.date), game.name]);
         });
 
         it('error when fetching', async () => {
@@ -206,6 +206,14 @@ describe('DataBrowser', () => {
     });
 
     describe('interactivity', () => {
+        it('does not fetch if no table name on load', async () => {
+            await renderComponent({
+                account: {},
+            });
+
+            expect(requestedData).toBeNull();
+        });
+
         it('does not fetch if no table name', async () => {
             await renderComponent({
                 account: {},
