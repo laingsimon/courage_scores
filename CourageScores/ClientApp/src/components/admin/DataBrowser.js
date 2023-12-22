@@ -61,10 +61,6 @@ export function DataBrowser() {
     }
 
     function getPages() {
-        if (!response || !response.result) {
-            return [];
-        }
-
         const noOfItems = response.result.length;
         const noOfPages = Math.ceil(noOfItems / pageSize);
 
