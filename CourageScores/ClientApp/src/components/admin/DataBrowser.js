@@ -93,7 +93,7 @@ export function DataBrowser() {
         return (<table className="table table-sm">
             <tbody>
             {Object.keys(data).map(key => (<tr key={key}>
-                <td>{key}</td>
+                <td style={{ textTransform: 'capitalize' }}>{key}</td>
                 <td>{renderValue(key, data[key])}</td>
             </tr>))}
             </tbody>
