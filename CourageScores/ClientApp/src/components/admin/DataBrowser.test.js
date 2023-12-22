@@ -206,6 +206,14 @@ describe('DataBrowser', () => {
     });
 
     describe('interactivity', () => {
+        it('does not fetch if no table name on load', async () => {
+            await renderComponent({
+                account: {},
+            });
+
+            expect(requestedData).toBeNull();
+        });
+
         it('does not fetch if no table name', async () => {
             await renderComponent({
                 account: {},

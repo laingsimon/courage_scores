@@ -30,7 +30,11 @@ export function DataBrowser() {
         const id = search.has('id') ? search.get('id') : '';
 
         const newRequest = {table, id: id ? id : null};
-        if (lastRequest && newRequest.table && lastRequest.table === newRequest.table && lastRequest.id === newRequest.id) {
+        if (!newRequest.table) {
+            return;
+        }
+
+        if (lastRequest && lastRequest.table === newRequest.table && lastRequest.id === newRequest.id) {
             // no change to request
             return;
         }
