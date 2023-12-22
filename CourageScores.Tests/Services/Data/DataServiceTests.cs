@@ -611,7 +611,6 @@ public class DataServiceTests
     public async Task BrowseAllItems_WhenNotPermitted_ReturnsNotPermitted()
     {
         _user!.Access!.ExportData = false;
-        var id = Guid.NewGuid();
 
         var result = await _dataService.Browse("table", _token);
 
