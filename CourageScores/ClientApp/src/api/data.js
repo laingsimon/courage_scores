@@ -36,6 +36,10 @@ class DataApi {
 
         return await response.json();
     }
+
+    browse(table, id) {
+        return this.http.get(`/api/Data/Browse/${table}/${id}`, {});
+    }
 }
 
 export {DataApi};

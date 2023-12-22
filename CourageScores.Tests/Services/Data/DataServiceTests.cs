@@ -1,5 +1,6 @@
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Services.Data;
 using CourageScores.Services.Identity;
 using Ionic.Zip;
@@ -31,6 +32,7 @@ public class DataServiceTests
     private Mock<IDataImporter> _tableImporter = null!;
     private ExportMetaData _importMetaData = null!;
     private Mock<IConfiguration> _configuration = null!;
+    private Mock<IDataBrowserRepository<SingleDataResultDto>> _dataBrowserRepository = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -45,6 +47,7 @@ public class DataServiceTests
         _importZip = new Mock<IZipFileReader>();
         _tableImporter = new Mock<IDataImporter>();
         _configuration = new Mock<IConfiguration>();
+        _dataBrowserRepository = new Mock<IDataBrowserRepository<SingleDataResultDto>>();
         _exportRequest = new ExportDataRequestDto();
         _importRequest = new ImportDataRequestDto
         {
@@ -88,7 +91,8 @@ public class DataServiceTests
             _dataImporterFactory.Object,
             _cosmosTableService.Object,
             _zipBuilderFactory.Object,
-            _configuration.Object);
+            _configuration.Object,
+            _dataBrowserRepository.Object);
     }
 
     [Test]
@@ -515,5 +519,137 @@ public class DataServiceTests
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task BrowseForId_WhenLoggedOut_ReturnsNotLoggedIn()
+    {
+        _user = null;
+        var id = Guid.NewGuid();
+
+        var result = await _dataService.Browse("table", id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Not logged in"));
+    }
+
+    [Test]
+    public async Task BrowseForId_WhenNotPermitted_ReturnsNotPermitted()
+    {
+        _user!.Access!.ExportData = false;
+        var id = Guid.NewGuid();
+
+        var result = await _dataService.Browse("table", id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Not permitted"));
+    }
+
+    [Test]
+    public async Task BrowseForId_WhenTableEmpty_ReturnsTableMissing()
+    {
+        var id = Guid.NewGuid();
+
+        var result = await _dataService.Browse("", id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Table not supplied"));
+    }
+
+    [Test]
+    public async Task BrowseForId_WhenTableNotFound_ReturnsTableNotFound()
+    {
+        var id = Guid.NewGuid();
+        _dataBrowserRepository.Setup(r => r.TableExists("table")).ReturnsAsync(false);
+
+        var result = await _dataService.Browse("table", id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Table not found: table"));
+    }
+
+    [Test]
+    public async Task BrowseForId_WhenRecordNotFound_ReturnsRecordNotFound()
+    {
+        var id = Guid.NewGuid();
+        _dataBrowserRepository.Setup(r => r.TableExists("table")).ReturnsAsync(true);
+        _dataBrowserRepository.Setup(r => r.GetItem("table", id, _token)).ReturnsAsync(() => null);
+
+        var result = await _dataService.Browse("table", id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Record not found"));
+    }
+
+    [Test]
+    public async Task BrowseForId_WhenItemFound_ReturnsData()
+    {
+        var id = Guid.NewGuid();
+        var item = new SingleDataResultDto();
+        _dataBrowserRepository.Setup(r => r.TableExists("table")).ReturnsAsync(true);
+        _dataBrowserRepository.Setup(r => r.GetItem("table", id, _token)).ReturnsAsync(item);
+
+        var result = await _dataService.Browse("table", id, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Errors, Is.Empty);
+        Assert.That(result.Result, Is.SameAs(item));
+    }
+
+    [Test]
+    public async Task BrowseAllItems_WhenLoggedOut_ReturnsNotLoggedIn()
+    {
+        _user = null;
+
+        var result = await _dataService.Browse("table", _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Not logged in"));
+    }
+
+    [Test]
+    public async Task BrowseAllItems_WhenNotPermitted_ReturnsNotPermitted()
+    {
+        _user!.Access!.ExportData = false;
+        var id = Guid.NewGuid();
+
+        var result = await _dataService.Browse("table", _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Not permitted"));
+    }
+
+    [Test]
+    public async Task BrowseAllItems_WhenTableEmpty_ReturnsTableMissing()
+    {
+        var result = await _dataService.Browse("", _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Table not supplied"));
+    }
+
+    [Test]
+    public async Task BrowseAllItems_WhenTableNotFound_ReturnsTableNotFound()
+    {
+        _dataBrowserRepository.Setup(r => r.TableExists("table")).ReturnsAsync(false);
+
+        var result = await _dataService.Browse("table", _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Table not found: table"));
+    }
+
+    [Test]
+    public async Task BrowseAllItems_WhenCalled_ReturnsAllItems()
+    {
+        var item = new SingleDataResultDto();
+        _dataBrowserRepository.Setup(r => r.TableExists("table")).ReturnsAsync(true);
+        _dataBrowserRepository.Setup(r => r.GetAll("table", _token)).Returns(TestUtilities.AsyncEnumerable(item));
+
+        var result = await _dataService.Browse("table", _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Errors, Is.Empty);
+        Assert.That(result.Result, Is.EquivalentTo(new[] { item }));
     }
 }

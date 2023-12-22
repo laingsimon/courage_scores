@@ -11,7 +11,7 @@ public class CosmosTableNameResolverTests
     private static readonly string? NullString = null;
 
     [Test]
-    public void GetTableName_GivenSuffix_ShouldAddSuffix()
+    public void GetTableNameGeneric_GivenSuffix_ShouldAddSuffix()
     {
         var config = new Mock<IConfiguration>();
         config.Setup(c => c["TableNameSuffix"]).Returns("_suffix");
@@ -23,13 +23,51 @@ public class CosmosTableNameResolverTests
     }
 
     [Test]
-    public void GetTableName_GivenEmptySuffix_ShouldNotAddSuffix()
+    public void GetTableNameGeneric_GivenEmptySuffix_ShouldNotAddSuffix()
     {
         var config = new Mock<IConfiguration>();
         config.Setup(c => c["TableNameSuffix"]).Returns("");
         var resolver = new CosmosTableNameResolver(config.Object);
 
         var result = resolver.GetTableName<object>();
+
+        Assert.That(result, Is.EqualTo("object"));
+    }
+
+    [Test]
+    public void GetTableNameGeneric_GivenNoSuffix_ShouldNotAddSuffix()
+    {
+        var config = new Mock<IConfiguration>();
+#pragma warning disable CS8604
+        config.Setup(c => c["TableNameSuffix"]).Returns(NullString);
+#pragma warning restore CS8604
+        var resolver = new CosmosTableNameResolver(config.Object);
+
+        var result = resolver.GetTableName<object>();
+
+        Assert.That(result, Is.EqualTo("object"));
+    }
+
+    [Test]
+    public void GetTableName_GivenSuffix_ShouldAddSuffix()
+    {
+        var config = new Mock<IConfiguration>();
+        config.Setup(c => c["TableNameSuffix"]).Returns("_suffix");
+        var resolver = new CosmosTableNameResolver(config.Object);
+
+        var result = resolver.GetTableName("OBJECT");
+
+        Assert.That(result, Is.EqualTo("object_suffix"));
+    }
+
+    [Test]
+    public void GetTableName_GivenEmptySuffix_ShouldNotAddSuffix()
+    {
+        var config = new Mock<IConfiguration>();
+        config.Setup(c => c["TableNameSuffix"]).Returns("");
+        var resolver = new CosmosTableNameResolver(config.Object);
+
+        var result = resolver.GetTableName("OBJECT");
 
         Assert.That(result, Is.EqualTo("object"));
     }
@@ -43,7 +81,7 @@ public class CosmosTableNameResolverTests
 #pragma warning restore CS8604
         var resolver = new CosmosTableNameResolver(config.Object);
 
-        var result = resolver.GetTableName<object>();
+        var result = resolver.GetTableName("OBJECT");
 
         Assert.That(result, Is.EqualTo("object"));
     }

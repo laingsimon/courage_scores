@@ -198,6 +198,6 @@ public class TableAccessorTests
         var stringBuilder = new StringBuilder();
         Serializer.Serialize(new StringWriter(stringBuilder), row);
 
-        return Serializer.Deserialize<JObject>(new JsonTextReader(new StringReader(stringBuilder.ToString())));
+        return Serializer.Deserialize<JObject>(new JsonTextReader(new StringReader(stringBuilder.ToString())))!;
     }
 }

@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Text.Json.Serialization;
 using CourageScores;
 using CourageScores.Filters;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -23,7 +23,10 @@ builder.Services
 // Add services to the container.
 builder.Services
     .AddControllersWithViews(options => { options.Filters.Add<CacheManagementFilter>(); })
-    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+    });
 
 builder.Services.AddSwaggerGen(options =>
 {

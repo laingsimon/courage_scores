@@ -149,7 +149,6 @@ public class ZipBuilderFactoryTests
         content.Seek(0, SeekOrigin.Begin);
 
         var json = await new StreamReader(content).ReadToEndAsync();
-        var metaData = JsonConvert.DeserializeObject<ExportMetaData>(json);
-        return metaData;
+        return JsonConvert.DeserializeObject<ExportMetaData>(json)!;
     }
 }

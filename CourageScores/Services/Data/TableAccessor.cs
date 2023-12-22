@@ -37,7 +37,7 @@ public class TableAccessor : ITableAccessor
                     break;
                 }
 
-                var id = row.Value<string>(_table.PartitionKey.TrimStart('/'));
+                var id = row.Value<string>(_table.PartitionKey.TrimStart('/'))!;
 
                 if (!idsToReturn.Any() || idsToReturn.Contains(id))
                 {

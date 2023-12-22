@@ -22,6 +22,5 @@ public class User
     public Access? Access { get; set; }
 
     [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
     public Guid? TeamId { get; set; }
 }

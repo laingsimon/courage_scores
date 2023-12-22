@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace CourageScores.Models.Dtos.Season.Creation;
 
@@ -21,16 +20,17 @@ public class TeamPlaceholderDto
     /// </summary>
     public string Key { get; }
 
-    public class Converter : JsonConverter<TeamPlaceholderDto>
+    private class Converter : JsonConverter<TeamPlaceholderDto>
     {
-        public override TeamPlaceholderDto Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override void WriteJson(JsonWriter writer, TeamPlaceholderDto? value, JsonSerializer serializer)
         {
-            return new TeamPlaceholderDto(reader.GetString()!);
+            writer.WriteValue(value?.Key);
         }
 
-        public override void Write(Utf8JsonWriter writer, TeamPlaceholderDto value, JsonSerializerOptions options)
+        public override TeamPlaceholderDto? ReadJson(JsonReader reader, Type objectType, TeamPlaceholderDto? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            writer.WriteStringValue(value.Key);
+            var value = reader.Value as string;
+            return value == null ? null : new TeamPlaceholderDto(value);
         }
     }
 }

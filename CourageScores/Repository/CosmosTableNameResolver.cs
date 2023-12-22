@@ -11,7 +11,12 @@ public class CosmosTableNameResolver : ICosmosTableNameResolver
 
     public string GetTableName<T>()
     {
-        return typeof(T).Name.ToLower() + _suffix;
+        return GetTableName(typeof(T).Name);
+    }
+
+    public string GetTableName(string tableName)
+    {
+        return tableName.ToLower() + _suffix;
     }
 
     public string GetTableTypeName(string tableName)

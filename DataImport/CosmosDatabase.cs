@@ -83,7 +83,7 @@ public class CosmosDatabase
                     break;
                 }
 
-                yield return row.ToObject<T>();
+                yield return row.ToObject<T>()!;
             }
         }
     }
