@@ -613,7 +613,7 @@ public class DataServiceTests
         _user!.Access!.ExportData = false;
         var id = Guid.NewGuid();
 
-        var result = await _dataService.Browse("table", id, _token);
+        var result = await _dataService.Browse("table", _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Errors, Has.Member("Not permitted"));
