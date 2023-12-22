@@ -235,6 +235,28 @@ describe('AdminHome', () => {
         });
     });
 
+    describe('data browser', () => {
+        it('shows export if permitted', async () => {
+            await assertTab({
+                exportData: true
+            }, '/admin/browser', true);
+        });
+
+        it('excludes export if not permitted', async () => {
+            await assertTab({
+                exportData: false
+            }, '/admin/browser', false);
+        });
+
+        it('renders the export data content', async () => {
+            await assertContent({
+                    exportData: true
+                },
+                '/admin/browser',
+                'Data Browser');
+        });
+    });
+
     it('shows loading when appLoading', async () => {
         context = await renderApp(
             {dataApi, accountApi, templateApi, liveApi},
