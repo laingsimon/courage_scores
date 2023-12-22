@@ -7,7 +7,7 @@ import {useSayg} from "./SaygLoadingContainer";
 import {RefreshControl} from "../RefreshControl";
 import {useLive} from "../LiveContainer";
 
-export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs }) {
+export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, changeStatisticsView }) {
     const [oneDartAverage, setOneDartAverage] = useState(false);
     const {sayg, lastLegDisplayOptions} = useSayg();
     const {subscriptions, liveOptions} = useLive();
@@ -55,6 +55,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
         <h4 className="text-center">
             Match statistics
             {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id} /> : null}
+            {liveOptions.canSubscribe && !finished ? <button className="btn btn-sm btn-outline-primary border-dark float-end" onClick={() => changeStatisticsView(true)}>🖥</button> : null}
         </h4>
         <table className="table">
             <thead>

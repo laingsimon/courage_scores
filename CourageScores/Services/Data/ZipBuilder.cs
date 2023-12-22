@@ -26,7 +26,7 @@ public class ZipBuilder : IZipBuilder
     public async Task AddFile(string tableName, string id, JObject record)
     {
         var fileName = $"{tableName}/{id}.json";
-        await AddFile(fileName, record.ToString()!);
+        await AddFile(fileName, record.ToString());
     }
 
     public Task AddFile(string fileName, string content)

@@ -126,9 +126,15 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.WinningSide, Is.EqualTo(null));
     }
 
-    [TestCase(2, 1, "A")]
-    [TestCase(1, 2, "B")]
-    public async Task Adapt_GivenWinningRound_SetsPropertiesCorrectly(int scoreA, int scoreB, string winnerName)
+    [TestCase(3, 2, 1, "A")]
+    [TestCase(3, 1, 2, "B")]
+    [TestCase(5, 2, 1, null)]
+    [TestCase(5, 1, 2, null)]
+    [TestCase(null, 2, 1, null)]
+    [TestCase(null, 1, 2, null)]
+    [TestCase(null, 3, 1, "A")]
+    [TestCase(null, 1, 3, "B")]
+    public async Task Adapt_GivenWinningRound_SetsPropertiesCorrectly(int? bestOf, int scoreA, int scoreB, string? winnerName)
     {
         var sideA = new TournamentSide
         {
@@ -160,6 +166,13 @@ public class DivisionTournamentFixtureDetailsAdapterTests
                             ScoreB = scoreB,
                         },
                     },
+                    MatchOptions =
+                    {
+                        new GameMatchOption
+                        {
+                            NumberOfLegs = bestOf,
+                        },
+                    },
                 },
             },
         };
@@ -176,8 +189,15 @@ public class DivisionTournamentFixtureDetailsAdapterTests
 
         var result = await _adapter.Adapt(game, _token);
 
-        Assert.That(result.WinningSide, Is.Not.Null);
-        Assert.That(result.WinningSide!.Name, Is.EqualTo(winnerName));
+        if (winnerName == null)
+        {
+            Assert.That(result.WinningSide, Is.Null);
+        }
+        else
+        {
+            Assert.That(result.WinningSide, Is.Not.Null);
+            Assert.That(result.WinningSide!.Name, Is.EqualTo(winnerName));
+        }
     }
 
     [Test]

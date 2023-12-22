@@ -12,6 +12,7 @@ import {useDependencies} from "../../IocContainer";
 import {AdminContainer} from "./AdminContainer";
 import {Templates} from "./Templates";
 import {SocketAdmin} from "./SocketAdmin";
+import {DataBrowser} from "./DataBrowser";
 
 export function AdminHome() {
     const {mode} = useParams();
@@ -83,6 +84,10 @@ export function AdminHome() {
                     <NavLink tag={Link} className={effectiveTab === 'sockets' ? '  active' : ''}
                              to={`/admin/sockets`}>Sockets</NavLink>
                 </li>) : null}
+                {access.exportData ? (<li className="nav-item">
+                    <NavLink tag={Link} className={effectiveTab === 'browser' ? '  active' : ''}
+                             to={`/admin/browser`}>Data Browser</NavLink>
+                </li>) : null}
             </ul>) : null}
             {!appLoading && adminLoading ? <Loading/> : (<AdminContainer tables={dataTables} accounts={accounts}>
                 {!account && !appLoading ? (<NotPermitted/>) : null}
@@ -92,6 +97,7 @@ export function AdminHome() {
                 {!appLoading && effectiveTab === 'errors' ? renderIfPermitted(<Errors/>, access.viewExceptions) : null}
                 {!appLoading && effectiveTab === 'templates' ? renderIfPermitted(<Templates/>, access.manageSeasonTemplates) : null}
                 {!appLoading && effectiveTab === 'sockets' ? renderIfPermitted(<SocketAdmin/>, access.manageSockets) : null}
+                {!appLoading && effectiveTab === 'browser' ? renderIfPermitted(<DataBrowser />, access.exportData) : null}
             </AdminContainer>)}
         </div>);
     } catch (e) {

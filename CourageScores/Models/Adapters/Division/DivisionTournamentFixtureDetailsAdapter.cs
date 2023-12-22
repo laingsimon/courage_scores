@@ -89,12 +89,13 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
                 var match = round.Matches.Single();
                 if (match.ScoreA != null && match.ScoreB != null)
                 {
-                    if (match.ScoreA > match.ScoreB)
+                    var numberOfLegs = round.MatchOptions.FirstOrDefault()?.NumberOfLegs ?? tournamentGame.BestOf ?? 5;
+
+                    if (match.ScoreA > (numberOfLegs / 2.0))
                     {
                         return match.SideA;
                     }
-
-                    if (match.ScoreB > match.ScoreA)
+                    if (match.ScoreB > (numberOfLegs / 2.0))
                     {
                         return match.SideB;
                     }

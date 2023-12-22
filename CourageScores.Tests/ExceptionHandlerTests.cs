@@ -97,7 +97,7 @@ public class ExceptionHandlerTests
         _context.Response.Body.Seek(0, SeekOrigin.Begin);
         var content = await new StreamReader(_context.Response.Body).ReadToEndAsync();
         var details = JsonConvert.DeserializeObject<ExceptionHandler.ErrorDetails>(content);
-        Assert.That(details.Exception, Is.Not.Null);
+        Assert.That(details!.Exception, Is.Not.Null);
         Assert.That(details.Exception!.Type, Is.EqualTo("InvalidOperationException"));
         Assert.That(details.Exception!.Message, Is.EqualTo(Exception.Message));
         Assert.That(details.Exception!.StackTrace, Is.Not.Null);
@@ -121,7 +121,7 @@ public class ExceptionHandlerTests
         _context.Response.Body.Seek(0, SeekOrigin.Begin);
         var content = await new StreamReader(_context.Response.Body).ReadToEndAsync();
         var details = JsonConvert.DeserializeObject<ExceptionHandler.ErrorDetails>(content);
-        Assert.That(details.Exception, Is.Not.Null);
+        Assert.That(details!.Exception, Is.Not.Null);
         Assert.That(details.Exception!.Type, Is.EqualTo("InvalidOperationException"));
         Assert.That(details.Exception!.Message, Is.Null);
         Assert.That(details.Exception!.StackTrace, Is.Null);
@@ -138,7 +138,7 @@ public class ExceptionHandlerTests
         _context.Response.Body.Seek(0, SeekOrigin.Begin);
         var content = await new StreamReader(_context.Response.Body).ReadToEndAsync();
         var details = JsonConvert.DeserializeObject<ExceptionHandler.ErrorDetails>(content);
-        Assert.That(details.Exception, Is.Not.Null);
+        Assert.That(details!.Exception, Is.Not.Null);
         Assert.That(details.Exception!.Type, Is.EqualTo("InvalidOperationException"));
         Assert.That(details.Exception!.Message, Is.Null);
         Assert.That(details.Exception!.StackTrace, Is.Null);
@@ -155,7 +155,7 @@ public class ExceptionHandlerTests
         _context.Response.Body.Seek(0, SeekOrigin.Begin);
         var content = await new StreamReader(_context.Response.Body).ReadToEndAsync();
         var details = JsonConvert.DeserializeObject<ExceptionHandler.ErrorDetails>(content);
-        Assert.That(details.Exception, Is.Not.Null);
+        Assert.That(details!.Exception, Is.Not.Null);
         Assert.That(details.Exception!.Type, Is.EqualTo("InvalidOperationException"));
         Assert.That(details.Exception!.Message, Is.Null);
         Assert.That(details.Exception!.StackTrace, Is.Null);
@@ -172,7 +172,7 @@ public class ExceptionHandlerTests
         _context.Response.Body.Seek(0, SeekOrigin.Begin);
         var content = await new StreamReader(_context.Response.Body).ReadToEndAsync();
         var details = JsonConvert.DeserializeObject<ExceptionHandler.ErrorDetails>(content);
-        Assert.That(details.Exception, Is.Not.Null);
+        Assert.That(details!.Exception, Is.Not.Null);
         Assert.That(details.Exception!.Type, Is.EqualTo("InvalidOperationException"));
         Assert.That(details.Exception!.Message, Is.Null);
         Assert.That(details.Exception!.StackTrace, Is.Null);
@@ -190,7 +190,7 @@ public class ExceptionHandlerTests
         _context.Response.Body.Seek(0, SeekOrigin.Begin);
         var content = await new StreamReader(_context.Response.Body).ReadToEndAsync();
         var details = JsonConvert.DeserializeObject<ExceptionHandler.ErrorDetails>(content);
-        Assert.That(details.Exception, Is.Not.Null);
+        Assert.That(details!.Exception, Is.Not.Null);
         Assert.That(details.Exception!.Type, Is.EqualTo("InvalidOperationException"));
         Assert.That(details.Exception!.Message, Is.EqualTo(Exception.Message));
         Assert.That(details.Exception!.StackTrace, Is.Not.Null);

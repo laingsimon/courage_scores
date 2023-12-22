@@ -9,4 +9,6 @@ public interface IDataService
     Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token);
     Task<ActionResultDto<ExportDataResultDto>> BackupData(BackupDataRequestDto request, CancellationToken token);
     Task<ActionResultDto<ImportDataResultDto>> RestoreData(RestoreDataRequestDto request, CancellationToken token);
+    Task<ActionResultDto<SingleDataResultDto>> Browse(string table, Guid id, CancellationToken token);
+    Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token);
 }

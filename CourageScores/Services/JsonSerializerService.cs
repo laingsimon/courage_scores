@@ -29,7 +29,7 @@ public class JsonSerializerService : IJsonSerializerService
     {
         using (var reader = new JsonTextReader(new StreamReader(stream)))
         {
-            return _serializer.Deserialize<T>(reader);
+            return _serializer.Deserialize<T>(reader)!;
         }
     }
 
@@ -37,7 +37,7 @@ public class JsonSerializerService : IJsonSerializerService
     {
         using (var reader = new JsonTextReader(new StringReader(json)))
         {
-            return _serializer.Deserialize<T>(reader);
+            return _serializer.Deserialize<T>(reader)!;
         }
     }
 }

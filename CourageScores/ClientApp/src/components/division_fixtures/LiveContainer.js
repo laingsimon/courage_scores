@@ -10,7 +10,8 @@ export function useLive() {
 
 export function LiveContainer({children, onDataUpdate, liveOptions}) {
     const {webSocket} = useDependencies();
-    const {onError} = useApp();
+    const {onError, account} = useApp();
+    const canConnect = account && account.access.useWebSockets;
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
@@ -23,7 +24,7 @@ export function LiveContainer({children, onDataUpdate, liveOptions}) {
     [liveOptions]);
 
     function enableLiveUpdates(enabled, id) {
-        if (enabled && !webSocket.subscriptions[id]) {
+        if (enabled && !webSocket.subscriptions[id] && canConnect) {
             webSocket.subscribe(id, onDataUpdate, onError);
         } else if (!enabled) {
             webSocket.unsubscribe(id);

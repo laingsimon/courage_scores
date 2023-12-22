@@ -8,7 +8,7 @@ public class NameComparer : INameComparer
 
     public NameComparer()
     {
-        _mapping = JsonConvert.DeserializeObject<Dictionary<string, NameMapping>>(File.ReadAllText("players.json"));
+        _mapping = JsonConvert.DeserializeObject<Dictionary<string, NameMapping>>(File.ReadAllText("players.json"))!;
     }
 
     public bool PlayerNameEquals(string cosmosName, string accessName, string teamName)
