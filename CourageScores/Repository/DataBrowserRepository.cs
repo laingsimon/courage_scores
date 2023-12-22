@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Repository;
 
+[ExcludeFromCodeCoverage]
 public class DataBrowserRepository<T> : IDataBrowserRepository<T>
 {
     private readonly Database _database;
@@ -15,7 +16,6 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
         _tableNameResolver = tableNameResolver;
     }
 
-    [ExcludeFromCodeCoverage]
     public async IAsyncEnumerable<T> GetAll(string tableName, [EnumeratorCancellation] CancellationToken token)
     {
         await foreach (var item in Query(tableName, "", token))
@@ -24,7 +24,6 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
         }
     }
 
-    [ExcludeFromCodeCoverage]
     public async Task<T?> GetItem(string tableName, Guid id, CancellationToken token)
     {
         await foreach (var item in Query(tableName, $"where t.id = '{id}'", token))
@@ -42,7 +41,6 @@ public class DataBrowserRepository<T> : IDataBrowserRepository<T>
         return Task.FromResult(container != null);
     }
 
-    [ExcludeFromCodeCoverage]
     private async IAsyncEnumerable<T> Query(string tableName, string? whereClause, [EnumeratorCancellation] CancellationToken token)
     {
         var actualTableName = _tableNameResolver.GetTableName(tableName);
