@@ -13,7 +13,7 @@ import {
     sum,
     toDictionary,
     toMap
-} from "./collections.js";
+} from "./collections";
 
 describe('collections', () => {
     describe('toMap', () => {
