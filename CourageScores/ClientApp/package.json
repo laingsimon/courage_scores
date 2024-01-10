@@ -73,6 +73,7 @@
   },
   "scripts": {
     "start": "vite",
+    "compile-ts": "tsc",
     "build": "tsc && vite build",
     "preview": "vite preview",
 
