@@ -72,11 +72,12 @@
     ]
   },
   "scripts": {
-    "start": "rimraf ./build && react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "lint": "eslint ./src/",
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+
+    "test": "jest --env=jsdom",
+
     "postpublish": "node ./src/whitelabel-publish.js"
   },
   "eslintConfig": {
