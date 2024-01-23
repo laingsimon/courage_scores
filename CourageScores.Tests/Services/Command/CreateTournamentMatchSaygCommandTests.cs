@@ -36,7 +36,7 @@ public class CreateTournamentMatchSaygCommandTests
         _request = new CreateTournamentSaygDto
         {
             MatchId = Guid.NewGuid(),
-            MatchOptions = new GameMatchOption
+            MatchOptions = new GameMatchOptionDto
             {
                 StartingScore = 601,
                 NumberOfLegs = 7,
