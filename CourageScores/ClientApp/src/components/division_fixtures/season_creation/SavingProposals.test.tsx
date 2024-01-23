@@ -1,33 +1,19 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {SavingProposals} from "./SavingProposals";
+import {ISavingProposalsProps, SavingProposals} from "./SavingProposals";
 
 describe('SavingProposals', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    beforeEach(() => {
-        reportedError = null;
-    });
-
-    async function renderComponent(props) {
+    async function renderComponent(props: ISavingProposalsProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
+            iocProps(),
+            brandingProps(),
+            appProps(),
             (<SavingProposals {...props} />));
     }
 
@@ -98,7 +84,7 @@ describe('SavingProposals', () => {
             });
 
             const progressStatement = context.container.querySelector('div > div:nth-child(2)');
-            const progressBar = context.container.querySelector('.progress .progress-bar');
+            const progressBar = context.container.querySelector('.progress .progress-bar') as HTMLElement;
             expect(progressStatement.textContent).toEqual('1 fixtures of 3 saved');
             expect(progressBar.style.width).toEqual('33.33%');
         });

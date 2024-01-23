@@ -1,27 +1,39 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doSelectOption, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {
+    cleanUp,
+    doSelectOption,
+    renderApp,
+    doClick,
+    findButton,
+    iocProps,
+    brandingProps,
+    appProps, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {ReviewProposalsFloatingDialog} from "./ReviewProposalsFloatingDialog";
-import {divisionBuilder, teamBuilder} from "../../../helpers/builders";
+import {IReviewProposalsFloatingDialogProps, ReviewProposalsFloatingDialog} from "./ReviewProposalsFloatingDialog";
 import {toDictionary} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";
+import {IAppContainerProps} from "../../../AppContainer";
+import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {IProposalResultDto} from "../../../interfaces/serverSide/Season/Creation/IProposalResultDto";
+import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
+import {divisionBuilder} from "../../../helpers/builders/divisions";
+import {teamBuilder} from "../../../helpers/builders/teams";
 
 describe('ReviewProposalsFloatingDialog', () => {
-    let context;
-    let reportedError;
-    let next;
-    let previous;
-    let visibleDivision;
+    let context: TestContext;
+    let next: boolean;
+    let previous: boolean;
+    let visibleDivision: string;
 
-    function onPrevious() {
+    async function onPrevious() {
         previous = true;
     }
-    function onNext() {
+    async function onNext() {
         next = true;
     }
-    function changeVisibleDivision(division) {
-        visibleDivision = division;
+    async function changeVisibleDivision(id: string) {
+        visibleDivision = id;
     }
 
     afterEach(() => {
@@ -34,31 +46,20 @@ describe('ReviewProposalsFloatingDialog', () => {
         visibleDivision = null;
     });
 
-    async function renderComponent(appProps, props) {
+    async function renderComponent(appContainerProps: IAppContainerProps, props: IReviewProposalsFloatingDialogProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                ...appProps
-            },
-            (<ReviewProposalsFloatingDialog
-                {...props}
-                onPrevious={onPrevious}
-                onNext={onNext}
-                changeVisibleDivision={changeVisibleDivision} />));
+            iocProps(),
+            brandingProps(),
+            appContainerProps,
+            (<ReviewProposalsFloatingDialog {...props} />));
     }
 
-    function getProposalResult(divisions) {
+    function getProposalResult(divisions: IDivisionDto[]): IProposalResultDto {
         return {
-            divisions: divisions.map(d => {
+            divisions: divisions.map((d: IDivisionDto): IDivisionDataDto => {
                 return {
-                    id: d.id
+                    id: d.id,
+                    name: d.name,
                 };
             }),
             template: {
@@ -77,20 +78,23 @@ describe('ReviewProposalsFloatingDialog', () => {
     }
 
     describe('renders', () => {
-        const division1 = divisionBuilder('DIVISION 1').build();
-        const division2 = divisionBuilder('DIVISION 2').build();
-        const division3 = divisionBuilder('DIVISION 3').build();
-        const teamA = teamBuilder('TEAM A').build();
-        const teamB = teamBuilder('TEAM B').build();
-        const teamC = teamBuilder('TEAM C').build();
-        const teamD = teamBuilder('TEAM D').build();
+        const division1: IDivisionDto = divisionBuilder('DIVISION 1').build();
+        const division2: IDivisionDto = divisionBuilder('DIVISION 2').build();
+        const division3: IDivisionDto = divisionBuilder('DIVISION 3').build();
+        const teamA: ITeamDto = teamBuilder('TEAM A').build();
+        const teamB: ITeamDto = teamBuilder('TEAM B').build();
+        const teamC: ITeamDto = teamBuilder('TEAM C').build();
+        const teamD: ITeamDto = teamBuilder('TEAM D').build();
 
         it('all proposed divisions in dropdown in order', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                 divisions: [ division1, division2, division3 ],
-            }, {
+            }), {
                 proposalResult: getProposalResult([division2, division1]),
-                selectedDivisionId: division1.id
+                selectedDivisionId: division1.id,
+                changeVisibleDivision,
+                onNext,
+                onPrevious,
             });
 
             const divisionDropdown = context.container.querySelector('.dropdown-menu');
@@ -116,11 +120,14 @@ describe('ReviewProposalsFloatingDialog', () => {
                 'D': teamD,
             };
 
-            await renderComponent({
+            await renderComponent(appProps({
                 divisions: [ division1, division2 ],
-            }, {
+            }), {
                 proposalResult,
-                selectedDivisionId: division1.id
+                selectedDivisionId: division1.id,
+                changeVisibleDivision,
+                onNext,
+                onPrevious,
             });
 
             const placeholderItems = toDictionary(
@@ -142,14 +149,17 @@ describe('ReviewProposalsFloatingDialog', () => {
             const proposalResult = getProposalResult([division1]);
             const templateId = proposalResult.template.id;
 
-            await renderComponent({
+            await renderComponent(appProps({
                 divisions: [ division1 ],
-            }, {
+            }), {
                 proposalResult,
-                selectedDivisionId: division1.id
+                selectedDivisionId: division1.id,
+                changeVisibleDivision,
+                onNext,
+                onPrevious,
             });
 
-            const linkToTemplate = context.container.querySelector('p a');
+            const linkToTemplate = context.container.querySelector('p a') as HTMLAnchorElement;
             expect(linkToTemplate.textContent).toEqual('TEMPLATE');
             expect(linkToTemplate.href).toEqual('http://localhost/admin/templates/?select=' + templateId);
         });
@@ -160,11 +170,14 @@ describe('ReviewProposalsFloatingDialog', () => {
         const division2 = divisionBuilder('DIVISION 2').build();
 
         it('can change division', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                 divisions: [ division1, division2 ],
-            }, {
+            }), {
                 proposalResult: getProposalResult([division2, division1]),
-                selectedDivisionId: division1.id
+                selectedDivisionId: division1.id,
+                changeVisibleDivision,
+                onNext,
+                onPrevious,
             });
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'DIVISION 2');
@@ -173,11 +186,14 @@ describe('ReviewProposalsFloatingDialog', () => {
         });
 
         it('can navigate back', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                 divisions: [ division1, division2 ],
-            }, {
+            }), {
                 proposalResult: getProposalResult([division2, division1]),
-                selectedDivisionId: division1.id
+                selectedDivisionId: division1.id,
+                changeVisibleDivision,
+                onNext,
+                onPrevious,
             });
 
             await doClick(findButton(context.container, 'Back'));
@@ -186,11 +202,14 @@ describe('ReviewProposalsFloatingDialog', () => {
         });
 
         it('can navigate forward', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                 divisions: [ division1, division2 ],
-            }, {
+            }), {
                 proposalResult: getProposalResult([division2, division1]),
-                selectedDivisionId: division1.id
+                selectedDivisionId: division1.id,
+                changeVisibleDivision,
+                onNext,
+                onPrevious,
             });
 
             await doClick(findButton(context.container, 'Save all fixtures'));

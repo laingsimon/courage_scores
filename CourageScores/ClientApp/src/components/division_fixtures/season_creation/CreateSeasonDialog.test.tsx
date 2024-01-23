@@ -1,43 +1,77 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps, noop,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import {toMap} from "../../../helpers/collections";
 import {repeat, createTemporaryId} from "../../../helpers/projection";
 import React from "react";
-import {CreateSeasonDialog} from "./CreateSeasonDialog";
-import {DivisionDataContainer} from "../../DivisionDataContainer";
-import {divisionBuilder, fixtureDateBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
+import {CreateSeasonDialog, ICreateSeasonDialogProps} from "./CreateSeasonDialog";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../../DivisionDataContainer";
+import {ITemplateApi} from "../../../api/template";
+import {IGameApi} from "../../../api/game";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {IActionResultDto} from "../../../interfaces/serverSide/IActionResultDto";
+import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IProposalResultDto} from "../../../interfaces/serverSide/Season/Creation/IProposalResultDto";
+import {IProposalRequestDto} from "../../../interfaces/serverSide/Season/Creation/IProposalRequestDto";
+import {IEditGameDto} from "../../../interfaces/serverSide/Game/IEditGameDto";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IAppContainerProps} from "../../../AppContainer";
+import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {IDivisionTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IDivisionTemplateDto";
+import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
+import {teamBuilder} from "../../../helpers/builders/teams";
+import {divisionBuilder, fixtureDateBuilder, IDivisionFixtureBuilder} from "../../../helpers/builders/divisions";
+import {seasonBuilder} from "../../../helpers/builders/seasons";
 
 describe('CreateSeasonDialog', () => {
-    let context;
-    let reportedError;
-    let closed;
-    let compatibilityResponses;
-    let allDataReloaded;
-    let apiResponse;
-    let proposalRequest;
-    let updatedFixtures;
-    let updateFixtureApiResponse;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let closed: boolean;
+    let compatibilityResponses: { [ seasonId: string]: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> };
+    let allDataReloaded: boolean;
+    let apiResponse: IClientActionResultDto<IProposalResultDto>;
+    let proposalRequest: IProposalRequestDto;
+    let updatedFixtures: IEditGameDto[];
+    let updateFixtureApiResponse: (fixture: IEditGameDto) => Promise<IClientActionResultDto<IGameDto>>;
+    let divisionReloaded: boolean;
 
-    const templateApi = {
-        getCompatibility: (seasonId) => {
+    const templateApi = api<ITemplateApi>({
+        getCompatibility: (seasonId: string) => {
             return compatibilityResponses[seasonId] || {success: false};
         },
-        propose: (request) => {
+        propose: (request: IProposalRequestDto) => {
             proposalRequest = request;
             return apiResponse || {success: false, errors: [], warnings: [], messages: []};
         },
-    };
-    const gameApi = {
-        update: async (fixture) => {
+    });
+    const gameApi = api<IGameApi>({
+        update: async (fixture: IEditGameDto, _?: string) => {
             updatedFixtures.push(fixture);
             return updateFixtureApiResponse
                 ? await updateFixtureApiResponse(fixture)
                 : {success: true};
         }
-    };
+    });
 
-    function onClose() {
+    async function reloadAll() {
+        allDataReloaded = true;
+    }
+
+    async function onReloadDivision() {
+        divisionReloaded = true;
+        return null;
+    }
+
+    async function onClose() {
         closed = true;
     }
 
@@ -47,51 +81,41 @@ describe('CreateSeasonDialog', () => {
 
     beforeEach(() => {
         updatedFixtures = [];
+        divisionReloaded = false;
         updateFixtureApiResponse = null;
         proposalRequest = null;
         apiResponse = null;
         allDataReloaded = false;
-        reportedError = null;
+        reportedError = new ErrorState();
         compatibilityResponses = {};
         closed = false;
     });
 
-    async function renderComponent(appProps, divisionDataProps, props) {
+    async function renderComponent(appContainerProps: IAppContainerProps, divisionDataProps: IDivisionDataContainerProps | null, props: ICreateSeasonDialogProps) {
         context = await renderApp(
-            {templateApi, gameApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                reloadAll: () => {
-                    allDataReloaded = true;
-                },
-                ...appProps
-            },
+            iocProps({templateApi, gameApi}),
+            brandingProps(),
+            appContainerProps,
             (<DivisionDataContainer {...divisionDataProps}>
-                <CreateSeasonDialog {...props} onClose={onClose}/>
+                <CreateSeasonDialog {...props} />
             </DivisionDataContainer>));
     }
 
-    function addCompatibleResponse(seasonId, templateId) {
-        const response = getCompatibleResponse(seasonId, templateId);
+    function addCompatibleResponse(seasonId: string, templateId: string): IClientActionResultDto<IActionResultDto<ITemplateDto>[]> {
+        const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = getCompatibleResponse(seasonId, templateId);
         compatibilityResponses[seasonId] = response;
         return response;
     }
 
-    function addIncompatibleResponse(seasonId, templateId) {
-        const response = getCompatibleResponse(seasonId, templateId);
+    function addIncompatibleResponse(seasonId: string, templateId: string): IClientActionResultDto<IActionResultDto<ITemplateDto>[]> {
+        const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = getCompatibleResponse(seasonId, templateId);
         response.result[0].success = false;
         compatibilityResponses[seasonId] = response;
         return response;
     }
 
-    function getCompatibleResponse(seasonId, templateId) {
-        const template = Object.assign(
+    function getCompatibleResponse(_: string, templateId: string): IClientActionResultDto<IActionResultDto<ITemplateDto>[]> {
+        const template: ITemplateDto = Object.assign(
             getEmptyTemplate(templateId, 2),
             {
                 name: 'TEMPLATE',
@@ -115,7 +139,7 @@ describe('CreateSeasonDialog', () => {
         };
     }
 
-    function setApiResponse(success, resultProps) {
+    function setApiResponse(success: boolean, resultProps?: any) {
         apiResponse = {
             success: success,
             errors: ['ERROR'],
@@ -132,8 +156,9 @@ describe('CreateSeasonDialog', () => {
         };
     }
 
-    function getEmptyTemplate(templateId, noOfDivisions) {
+    function getEmptyTemplate(templateId: string, noOfDivisions: number): ITemplateDto {
         return {
+            name: 'EMPTY',
             id: templateId,
             sharedAddresses: [],
             divisions: repeat(noOfDivisions, () => {
@@ -145,7 +170,7 @@ describe('CreateSeasonDialog', () => {
         };
     }
 
-    function getSeason(seasonId, divisionId, anotherDivisionId) {
+    function getSeason(seasonId?: string, divisionId?: string, anotherDivisionId?: string) {
         let builder = seasonBuilder('SEASON', seasonId);
 
         if (divisionId) {
@@ -171,19 +196,16 @@ describe('CreateSeasonDialog', () => {
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
             const anotherDivisionId = createTemporaryId();
-            const team1 = teamBuilder('TEAM 1')
+            const team1: ITeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2 = teamBuilder('TEAM 2')
+            const team2: ITeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
-            let divisionDataSetTo;
 
             it('prompt before starting save', async () => {
-                divisionDataSetTo = null;
-
                 addCompatibleResponse(seasonId, templateId);
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
                         divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
@@ -192,32 +214,34 @@ describe('CreateSeasonDialog', () => {
                         getSeason(seasonId, divisionId, anotherDivisionId)
                     ]),
                     teams: toMap([team1, team2]),
-                }, {
-                    id: divisionId, setDivisionData: (d) => {
-                        divisionDataSetTo = d;
-                    }
-                }, {
+                    reloadAll,
+                }, reportedError), {
+                    id: divisionId,
+                    name: '',
+                    setDivisionData: noop,
+                    onReloadDivision}, {
                     seasonId: seasonId,
+                    onClose,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 setApiResponse(true, {
                     divisions: [{
                         id: divisionId,
                         name: 'PROPOSED DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture(f => f.proposal().playing('home', 'away'), '1.1')
-                                .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('home', 'away'), '1.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.playing('home', 'away'), '1.2') // excluded as not a proposal
                                 .build()]
                     }, {
                         id: anotherDivisionId,
                         name: 'ANOTHER DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture(f => f.proposal().playing('home', 'away'), '2.1')
-                                .withFixture(f => f.proposal().bye('anywhere')) // excluded as awayTeam == undefined
-                                .withFixture(f => f.proposal().playing('home', 'away'), '2.3')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('home', 'away'), '2.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().bye('anywhere')) // excluded as awayTeam == undefined
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('home', 'away'), '2.3')
                                 .build()]
                     }],
                     placeholderMappings: {},
@@ -226,7 +250,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next')); // (1) pick -> (2) assign placeholders
                 await doClick(findButton(context.container, 'Next')); // (2) assign placeholders -> (3) review
                 await doClick(findButton(context.container, 'Next')); // (3) review -> (4) review-proposals
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
 
                 await doClick(findButton(context.container.querySelector('div'), 'Save all fixtures')); // (4) review-proposals -> (5) confirm-save
 
@@ -240,31 +264,33 @@ describe('CreateSeasonDialog', () => {
     describe('interactivity', () => {
         describe('1- pick', () => {
             const seasonId = createTemporaryId();
-            const division = divisionBuilder('DIVISION 1').build();
-            const team1 = teamBuilder('TEAM 1')
+            const division: IDivisionDto = divisionBuilder('DIVISION 1').build();
+            const team1: ITeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, division)
                 .build();
-            const team2 = teamBuilder('TEAM 2')
+            const team2: ITeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, createTemporaryId())
                 .build();
 
             it('prevents proposal of fixtures for incompatible template', async () => {
                 addIncompatibleResponse(seasonId, createTemporaryId());
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [],
                     seasons: toMap([getSeason(seasonId)]),
                     teams: toMap([team1, team2]),
-                }, null, {
+                    reloadAll,
+                }, reportedError), null, {
                     seasonId: seasonId,
+                    onClose,
                 });
-                let alert;
+                let alert: string;
                 window.alert = (msg) => alert = msg;
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '🚫 TEMPLATE');
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(alert).toEqual('This template is not compatible with this season, pick another template');
                 expect(proposalRequest).toBeNull();
             });
@@ -273,10 +299,13 @@ describe('CreateSeasonDialog', () => {
                 const templateId = createTemporaryId();
                 setApiResponse(true, { id: templateId });
 
-                await renderComponent({
-                    divisions: [], seasons: toMap([])
-                }, null, {
+                await renderComponent(appProps({
+                    divisions: [],
+                    seasons: toMap([]),
+                    reloadAll,
+                }, reportedError), null, {
                     seasonId: createTemporaryId(),
+                    onClose,
                 });
 
                 const back = findButton(context.container, 'Back');
@@ -286,20 +315,22 @@ describe('CreateSeasonDialog', () => {
             it('moves to (2) assign-placeholders', async () => {
                 const templateId = createTemporaryId();
                 addCompatibleResponse(seasonId, templateId);
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [division],
                     seasons: toMap([getSeason(seasonId, division.id)]),
                     teams: toMap([team1, team2]),
-                }, null, {
+                    reloadAll,
+                }, reportedError), null, {
                     seasonId: seasonId,
+                    onClose,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 setApiResponse(true);
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
                 expect(placeholderLists.length).toEqual(1);
             });
@@ -308,30 +339,30 @@ describe('CreateSeasonDialog', () => {
         describe('2- assign placeholders', () => {
             const seasonId = createTemporaryId();
             const templateId = createTemporaryId();
-            const division = divisionBuilder('DIVISION 1').build();
-            const anotherDivision = divisionBuilder('ANOTHER DIVISION').build();
-            const team1 = teamBuilder('TEAM 1')
+            const division: IDivisionDto = divisionBuilder('DIVISION 1').build();
+            const anotherDivision: IDivisionDto = divisionBuilder('ANOTHER DIVISION').build();
+            const team1: ITeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, division)
                 .address('TEAM 1')
                 .build();
-            const team2 = teamBuilder('TEAM 2')
+            const team2: ITeamDto = teamBuilder('TEAM 2')
                 .address('SHARED')
                 .forSeason(seasonId, anotherDivision)
                 .build();
-            const team3 = teamBuilder('TEAM 3')
+            const team3: ITeamDto = teamBuilder('TEAM 3')
                 .address('SHARED')
                 .forSeason(seasonId, anotherDivision)
                 .build();
-            const team4 = teamBuilder('TEAM 4')
+            const team4: ITeamDto = teamBuilder('TEAM 4')
                 .address('TEAM 4')
                 .forSeason(seasonId, division)
                 .build();
 
             beforeEach(async () => {
-                const response = addCompatibleResponse(seasonId, templateId);
-                const template = response.result[0].result;
-                const anotherDivisionTemplate = template.divisions[0];
-                const division1Template = template.divisions[1];
+                const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = addCompatibleResponse(seasonId, templateId);
+                const template: ITemplateDto = response.result[0].result;
+                const anotherDivisionTemplate: IDivisionTemplateDto = template.divisions[0];
+                const division1Template: IDivisionTemplateDto = template.divisions[1];
                 template.sharedAddresses = [ [ 'A', 'B' ] ];
                 anotherDivisionTemplate.sharedAddresses = [ [ 'A', 'C' ] ];
                 anotherDivisionTemplate.dates = [
@@ -348,15 +379,17 @@ describe('CreateSeasonDialog', () => {
                         ] }
                 ];
 
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [
                         division,
                         anotherDivision
                     ],
                     seasons: toMap([getSeason(seasonId, division.id, anotherDivision.id)]),
                     teams: toMap([team1, team2, team3, team4]),
-                }, null, {
+                    reloadAll,
+                }), null, {
                     seasonId: seasonId,
+                    onClose,
                 });
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
@@ -388,32 +421,37 @@ describe('CreateSeasonDialog', () => {
             const seasonId = createTemporaryId();
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
-            const team1 = teamBuilder('TEAM 1')
+            const team1: ITeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2 = teamBuilder('TEAM 2')
+            const team2: ITeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, divisionId)
                 .build();
-            let divisionDataSetTo;
+            let divisionDataSetTo: IDivisionDataDto;
 
             beforeEach(async () => {
                 divisionDataSetTo = null;
 
                 addCompatibleResponse(seasonId, templateId);
 
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [divisionBuilder('DIVISION', divisionId).build()],
                     seasons: toMap([getSeason(seasonId, divisionId)]),
                     teams: toMap([team1, team2]),
-                }, {
-                    id: divisionId, setDivisionData: (d) => {
+                    reloadAll,
+                }), {
+                    id: divisionId,
+                    name: '',
+                    setDivisionData: async (d) => {
                         divisionDataSetTo = d;
-                    }
+                    },
+                    onReloadDivision,
                 }, {
                     seasonId: seasonId,
+                    onClose,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
 
                 setApiResponse(true, {
                     divisions: [{
@@ -432,13 +470,13 @@ describe('CreateSeasonDialog', () => {
             it('can navigate back to (2) assign placeholders', async () => {
                 await doClick(findButton(context.container, 'Back'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
             });
 
             it('can navigate to (4) review-proposals', async () => {
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(divisionDataSetTo).toEqual({
                     id: divisionId,
                     name: 'PROPOSED DIVISION',
@@ -453,21 +491,16 @@ describe('CreateSeasonDialog', () => {
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
             const anotherDivisionId = createTemporaryId();
-            const team1 = teamBuilder('TEAM 1')
+            const team1: ITeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2 = teamBuilder('TEAM 2')
+            const team2: ITeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
-            let divisionDataSetTo;
-            let divisionReloaded;
 
             beforeEach(async () => {
-                divisionDataSetTo = null;
-                divisionReloaded = null;
-
                 addCompatibleResponse(seasonId, templateId);
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
                         divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
@@ -476,28 +509,27 @@ describe('CreateSeasonDialog', () => {
                         getSeason(seasonId, divisionId, anotherDivisionId)
                     ]),
                     teams: toMap([team1, team2]),
-                }, {
+                    reloadAll,
+                }), {
                     id: divisionId,
-                    setDivisionData: (d) => {
-                        divisionDataSetTo = d;
-                    },
-                    onReloadDivision: () => {
-                        divisionReloaded = true;
-                    },
+                    name: '',
+                    setDivisionData: noop,
+                    onReloadDivision,
                 }, {
                     seasonId: seasonId,
+                    onClose,
                 });
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 setApiResponse(true, {
                     divisions: [{
                         id: divisionId,
                         name: 'PROPOSED DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.playing('home', 'away'), '1.2') // excluded as not a proposal
                                 .build()
                         ]
                     }, {
@@ -505,9 +537,9 @@ describe('CreateSeasonDialog', () => {
                         name: 'ANOTHER DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
-                                .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
-                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal()) // excluded as awayTeam == undefined
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
                                 .build()
                         ]
                     }],
@@ -518,7 +550,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
             });
 
             it('can navigate back to (3) review', async () => {
@@ -543,21 +575,19 @@ describe('CreateSeasonDialog', () => {
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
             const anotherDivisionId = createTemporaryId();
-            const team1 = teamBuilder('TEAM 1')
+            const team1: ITeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2 = teamBuilder('TEAM 2')
+            const team2: ITeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
-            let divisionDataSetTo;
-            let divisionReloaded;
+            let divisionDataSetTo: IDivisionDataDto;
 
             beforeEach(async () => {
                 divisionDataSetTo = null;
-                divisionReloaded = null;
 
                 addCompatibleResponse(seasonId, templateId);
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [
                         divisionBuilder('DIVISION 1', divisionId).build(),
                         divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
@@ -566,28 +596,29 @@ describe('CreateSeasonDialog', () => {
                         getSeason(seasonId, divisionId, anotherDivisionId)
                     ]),
                     teams: toMap([team1, team2]),
-                }, {
+                    reloadAll,
+                }), {
                     id: divisionId,
-                    setDivisionData: (d) => {
+                    name: '',
+                    setDivisionData: async (d) => {
                         divisionDataSetTo = d;
                     },
-                    onReloadDivision: () => {
-                        divisionReloaded = true;
-                    },
+                    onReloadDivision,
                 }, {
                     seasonId: seasonId,
+                    onClose,
                 });
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 setApiResponse(true, {
                     divisions: [{
                         id: divisionId,
                         name: 'PROPOSED DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
-                                .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.playing('home', 'away'), '1.2') // excluded as not a proposal
                                 .build()
                         ]
                     }, {
@@ -595,9 +626,9 @@ describe('CreateSeasonDialog', () => {
                         name: 'ANOTHER DIVISION',
                         fixtures: [
                             fixtureDateBuilder('2023-01-01')
-                                .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
-                                .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
-                                .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal()) // excluded as awayTeam == undefined
+                                .withFixture((f: IDivisionFixtureBuilder) => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
                                 .build()
                         ]
                     }],
@@ -608,7 +639,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 await doClick(findButton(context.container.querySelector('div'), 'Save all fixtures'));
             });
 
@@ -622,7 +653,7 @@ describe('CreateSeasonDialog', () => {
             it('reloads division after all fixtures saved and closes dialog', async () => {
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -631,7 +662,7 @@ describe('CreateSeasonDialog', () => {
             });
 
             it('reports any errors during save and does not close dialog', async () => {
-                updateFixtureApiResponse = () => {
+                updateFixtureApiResponse = async () => {
                     return {
                         success: false,
                         errors: ['SOME ERROR'],
@@ -642,7 +673,7 @@ describe('CreateSeasonDialog', () => {
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -658,7 +689,7 @@ describe('CreateSeasonDialog', () => {
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -668,15 +699,17 @@ describe('CreateSeasonDialog', () => {
             });
 
             it('can abort part way through a save', async () => {
-                updateFixtureApiResponse = () => {
+                updateFixtureApiResponse = async () => {
                     // abort after first fixture
+                    // must not be awaited as otherwise the call completes after the act() has completed
+                    // noinspection ES6MissingAwait
                     doClick(findButton(context.container, 'Back'));
                     return {success: true};
                 };
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedFixtures.length).toEqual(1);
                 expect(divisionReloaded).toBeFalsy();
                 expect(divisionDataSetTo).toBeFalsy();
@@ -687,21 +720,23 @@ describe('CreateSeasonDialog', () => {
 
             it('can resume after an abort', async () => {
                 let abort = true;
-                updateFixtureApiResponse = () => {
+                updateFixtureApiResponse = async () => {
                     // abort after first fixture
                     if (abort) {
+                        // must not be awaited as otherwise the call completes after the act() has completed
+                        // noinspection ES6MissingAwait
                         doClick(findButton(context.container, 'Back'));
                     }
                     return {success: true};
                 };
                 await doClick(findButton(context.container, 'Next'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
 
                 // resume
                 abort = false;
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -714,24 +749,29 @@ describe('CreateSeasonDialog', () => {
             it('can close the dialog', async () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
-                let divisionDataResetTo;
+                let divisionDataResetTo: IDivisionDataDto;
                 addCompatibleResponse(seasonId, templateId);
-                await renderComponent({
+                await renderComponent(appProps({
                     divisions: [],
                     seasons: toMap([]),
                     teams: toMap([]),
-                }, {
-                    setDivisionData: (d) => {
+                    reloadAll,
+                }), {
+                    id: null,
+                    name: '',
+                    onReloadDivision,
+                    setDivisionData: async (d) => {
                         divisionDataResetTo = d;
                     }
                 }, {
                     seasonId: seasonId,
+                    onClose,
                 });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
 
                 await doClick(findButton(context.container, 'Close'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(divisionDataResetTo).toEqual(null);
                 expect(closed).toEqual(true);
             });

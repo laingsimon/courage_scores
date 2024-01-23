@@ -1,16 +1,25 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doSelectOption, renderApp} from "../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doSelectOption,
+    ErrorState,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {PickTemplate} from "./PickTemplate";
+import {IPickTemplateProps, PickTemplate} from "./PickTemplate";
 import {createTemporaryId} from "../../../helpers/projection";
+import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {IActionResultDto} from "../../../interfaces/serverSide/IActionResultDto";
 
 describe('PickTemplate', () => {
-    let context;
-    let reportedError;
-    let selectedTemplate;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let selectedTemplate: IActionResultDto<ITemplateDto>;
 
-    function setSelectedTemplate(template) {
+    async function setSelectedTemplate(template: IActionResultDto<ITemplateDto>) {
         selectedTemplate = template;
     }
 
@@ -20,28 +29,19 @@ describe('PickTemplate', () => {
 
     beforeEach(() => {
         selectedTemplate = null;
-        reportedError = null;
+        reportedError = new ErrorState();
     });
 
-    async function renderComponent(props) {
+    async function renderComponent(props: IPickTemplateProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<PickTemplate
-                {...props}
-                setSelectedTemplate={setSelectedTemplate}/>));
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<PickTemplate {...props} />));
     }
 
     describe('renders', () => {
-        const compatibleTemplate = {
+        const compatibleTemplate: IClientActionResultDto<ITemplateDto> = {
             success: true,
             errors: ['ERROR'],
             warnings: ['WARNING'],
@@ -58,7 +58,7 @@ describe('PickTemplate', () => {
                 },
             },
         };
-        const incompatibleTemplate = {
+        const incompatibleTemplate: IClientActionResultDto<ITemplateDto> = {
             success: false,
             errors: ['ERROR'],
             warnings: ['WARNING'],
@@ -80,10 +80,11 @@ describe('PickTemplate', () => {
             await renderComponent({
                 selectedTemplate: null,
                 loading: true,
-                templates: null
+                templates: null,
+                setSelectedTemplate,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.innerHTML).toContain('spinner-border spinner-border-sm');
         });
 
@@ -93,10 +94,11 @@ describe('PickTemplate', () => {
                 loading: false,
                 templates: {
                     result: [compatibleTemplate, incompatibleTemplate]
-                }
+                },
+                setSelectedTemplate,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dropdown = context.container.querySelector('.dropdown-menu');
             expect(dropdown).toBeTruthy();
             expect(dropdown.querySelector('.active')).toBeFalsy();
@@ -108,10 +110,11 @@ describe('PickTemplate', () => {
                 loading: false,
                 templates: {
                     result: [compatibleTemplate, incompatibleTemplate]
-                }
+                },
+                setSelectedTemplate,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dropdown = context.container.querySelector('.dropdown-menu');
             expect(dropdown).toBeTruthy();
             expect(dropdown.querySelector('.active').textContent).toEqual('COMPATIBLECOMPATIBLE DESCRIPTION');
@@ -123,10 +126,11 @@ describe('PickTemplate', () => {
                 loading: false,
                 templates: {
                     result: [compatibleTemplate, incompatibleTemplate]
-                }
+                },
+                setSelectedTemplate,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const alert = context.container.querySelector('.alert');
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
@@ -143,10 +147,11 @@ describe('PickTemplate', () => {
                 loading: false,
                 templates: {
                     result: [compatibleTemplate, incompatibleTemplate]
-                }
+                },
+                setSelectedTemplate,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const alert = context.container.querySelector('.alert');
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-warning');
@@ -158,7 +163,7 @@ describe('PickTemplate', () => {
         });
 
         it('when selected template has no errors, warnings or messages', async () => {
-            const quietTemplate = {
+            const quietTemplate: IClientActionResultDto<ITemplateDto> = {
                 success: true,
                 errors: [],
                 warnings: [],
@@ -181,10 +186,11 @@ describe('PickTemplate', () => {
                 loading: false,
                 templates: {
                     result: [compatibleTemplate, incompatibleTemplate]
-                }
+                },
+                setSelectedTemplate,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const alert = context.container.querySelector('.alert');
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
@@ -193,7 +199,7 @@ describe('PickTemplate', () => {
     });
 
     describe('interactivity', () => {
-        const compatibleTemplate = {
+        const compatibleTemplate: IClientActionResultDto<ITemplateDto> = {
             success: true,
             errors: ['ERROR'],
             warnings: ['WARNING'],
@@ -210,7 +216,7 @@ describe('PickTemplate', () => {
                 },
             },
         };
-        const incompatibleTemplate = {
+        const incompatibleTemplate: IClientActionResultDto<ITemplateDto> = {
             success: false,
             errors: ['ERROR'],
             warnings: ['WARNING'],
@@ -234,14 +240,15 @@ describe('PickTemplate', () => {
                 loading: false,
                 templates: {
                     result: [compatibleTemplate, incompatibleTemplate]
-                }
+                },
+                setSelectedTemplate,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dropdown = context.container.querySelector('.dropdown-menu');
             await doSelectOption(dropdown, '🚫 INCOMPATIBLE');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(selectedTemplate).toEqual(incompatibleTemplate);
         });
     });

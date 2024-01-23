@@ -11,24 +11,43 @@ import {PickTemplate} from "./PickTemplate";
 import {SavingProposals} from "./SavingProposals";
 import {ReviewProposalHealth} from "./ReviewProposalHealth";
 import {ConfirmSave} from "./ConfirmSave";
-import {AssignPlaceholders} from "./AssignPlaceholders";
+import {AssignPlaceholders, IPlaceholderMappings} from "./AssignPlaceholders";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IActionResultDto} from "../../../interfaces/serverSide/IActionResultDto";
+import {IProposalResultDto} from "../../../interfaces/serverSide/Season/Creation/IProposalResultDto";
+import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IDivisionFixtureDto} from "../../../interfaces/serverSide/Division/IDivisionFixtureDto";
+import {IDivisionFixtureDateDto} from "../../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
 
-export function CreateSeasonDialog({seasonId, onClose}) {
+export interface ICreateSeasonDialogProps {
+    seasonId: string;
+    onClose: () => Promise<any>;
+}
+
+export interface IFixtureToSave {
+    fixture: IDivisionFixtureDto;
+    date: IDivisionFixtureDateDto;
+    division: IDivisionDataDto;
+}
+
+export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps) {
     const {templateApi, gameApi} = useDependencies();
     const {onError, divisions, reloadAll} = useApp();
     const {id, setDivisionData, onReloadDivision} = useDivisionData();
-    const [loading, setLoading] = useState(false);
-    const [templates, setTemplates] = useState(null);
-    const [selectedTemplate, setSelectedTemplate] = useState(null);
-    const [proposing, setProposing] = useState(false);
-    const [stage, setStage] = useState('1-pick');
-    const [response, setResponse] = useState(null);
-    const [selectedDivisionId, setSelectedDivisionId] = useState(id);
-    const [saveMessage, setSaveMessage] = useState(null);
-    const [fixturesToSave, setFixturesToSave] = useState([]);
-    const [savingProposal, setSavingProposal] = useState(false);
-    const [saveResults, setSaveResults] = useState([]);
-    const [placeholderMappings, setPlaceholderMappings] = useState(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [templates, setTemplates] = useState<IClientActionResultDto<IActionResultDto<ITemplateDto>[]> | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<IActionResultDto<ITemplateDto> | null>(null);
+    const [proposing, setProposing] = useState<boolean>(false);
+    const [stage, setStage] = useState<string>('1-pick');
+    const [response, setResponse] = useState<IClientActionResultDto<IProposalResultDto> | null>(null);
+    const [selectedDivisionId, setSelectedDivisionId] = useState<string>(id);
+    const [saveMessage, setSaveMessage] = useState<string | null>(null);
+    const [fixturesToSave, setFixturesToSave] = useState<IFixtureToSave[]>([]);
+    const [savingProposal, setSavingProposal] = useState<boolean>(false);
+    const [saveResults, setSaveResults] = useState<IClientActionResultDto<IGameDto>[]>([]);
+    const [placeholderMappings, setPlaceholderMappings] = useState<IPlaceholderMappings | null>(null);
 
     async function loadTemplateCompatibility() {
         /* istanbul ignore next */
@@ -39,7 +58,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
 
         setLoading(true);
         try {
-            const response = await templateApi.getCompatibility(seasonId);
+            const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = await templateApi.getCompatibility(seasonId);
             setTemplates(response);
         } catch (e) {
             /* istanbul ignore next */
@@ -57,7 +76,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 setStage('1-pick');
                 break;
             case '3-review':
-                setDivisionData(null);
+                await setDivisionData(null);
                 setStage('2-assign-placeholders');
                 return;
             case '4-review-proposals':
@@ -86,15 +105,15 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 await onPropose();
                 return;
             case '3-review':
-                changeVisibleDivision(selectedDivisionId);
+                await changeVisibleDivision(selectedDivisionId);
                 setStage('4-review-proposals');
                 return;
             case '4-review-proposals':
-                const toSave = response.result.divisions
-                    .flatMap(d => d.fixtures.flatMap(fd => fd.fixtures.map(f => {
+                const toSave: IFixtureToSave[] = response.result.divisions
+                    .flatMap((d: IDivisionDataDto) => d.fixtures.flatMap((fd: IDivisionFixtureDateDto) => fd.fixtures.map((f: IDivisionFixtureDto) => {
                         return {fixture: f, date: fd, division: d}
                     })))
-                    .filter(f => f.fixture.proposal && f.fixture.awayTeam);
+                    .filter((f: IFixtureToSave) => f.fixture.proposal && f.fixture.awayTeam);
 
                 setFixturesToSave(toSave);
                 setStage('5-confirm-save');
@@ -102,7 +121,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
             case '5-confirm-save':
                 setSaveMessage(`Starting save...`);
                 setStage('6-saving');
-                setDivisionData(null);
+                await setDivisionData(null);
                 return;
             case 'aborted':
                 setSaveMessage(`Resuming save...`);
@@ -123,7 +142,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
 
         setProposing(true);
         try {
-            const response = await templateApi.propose({
+            const response: IClientActionResultDto<IProposalResultDto> = await templateApi.propose({
                 templateId: selectedTemplate.result.id,
                 seasonId: seasonId,
                 placeholderMappings: placeholderMappings || {},
@@ -138,10 +157,10 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         }
     }
 
-    function changeVisibleDivision(id) {
+    async function changeVisibleDivision(id: string) {
         setSelectedDivisionId(id);
-        const newDivision = response.result.divisions.filter(d => d.id === id)[0];
-        setDivisionData(newDivision);
+        const newDivision: IDivisionDataDto = response.result.divisions.filter((d: IDivisionDataDto) => d.id === id)[0];
+        await setDivisionData(newDivision);
     }
 
     useEffect(() => {
@@ -166,7 +185,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
         setSaveMessage('Reloading division data...');
         await reloadAll();
         await onReloadDivision();
-        setDivisionData(null);
+        await setDivisionData(null);
         setStage('saved');
 
         const errors = saveResults.filter(r => !r.success);
@@ -175,7 +194,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
             return;
         }
 
-        onClose();
+        await onClose();
     }
 
     async function saveNextProposal() {
@@ -193,7 +212,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
             const division = fixtureToSave.division;
 
             setSaveMessage(`Saving - ${division.name}: ${renderDate(date.date)}, ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`);
-            const result = await gameApi.update({
+            const result: IClientActionResultDto<IGameDto> = await gameApi.update({
                 id: undefined,
                 address: fixture.homeTeam.address,
                 divisionId: division.id,
@@ -206,13 +225,14 @@ export function CreateSeasonDialog({seasonId, onClose}) {
             }, null);
             setSaveResults(saveResults.concat(result));
         } catch (e) {
+            const error: Error = e as Error;
             setSaveResults(saveResults.concat({
                 success: false,
-                errors: ['Error saving proposal: ' + e.message],
+                errors: ['Error saving proposal: ' + error.message],
                 warnings: [],
                 messages: [],
             }));
-            setSaveMessage('Error saving proposal: ' + e.message);
+            setSaveMessage('Error saving proposal: ' + error.message);
         } finally {
             setSavingProposal(false);
         }
@@ -234,7 +254,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
             selectedDivisionId={selectedDivisionId} />);
     }
 
-    function changeTemplate(selectedTemplate) {
+    async function changeTemplate(selectedTemplate: IActionResultDto<ITemplateDto>) {
         setSelectedTemplate(selectedTemplate);
         setPlaceholderMappings(null);
     }
@@ -250,7 +270,7 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 seasonId={seasonId}
                 selectedTemplate={selectedTemplate}
                 placeholderMappings={placeholderMappings || {}}
-                setPlaceholderMappings={setPlaceholderMappings} />) : null}
+                setPlaceholderMappings={async (mappings: IPlaceholderMappings) => setPlaceholderMappings(mappings)} />) : null}
             {stage === '3-review' ? (<ReviewProposalHealth response={response} />) : null}
             {stage === '5-confirm-save'
                 ? (<ConfirmSave noOfFixturesToSave={fixturesToSave.length} noOfDivisions={divisions.length} />)
@@ -264,9 +284,9 @@ export function CreateSeasonDialog({seasonId, onClose}) {
                 : null}
             <div className="modal-footer px-0 mt-3 pb-0">
                 <div className="left-aligned">
-                    <button className="btn btn-secondary" onClick={() => {
-                        setDivisionData(null);
-                        onClose();
+                    <button className="btn btn-secondary" onClick={async () => {
+                        await setDivisionData(null);
+                        await onClose();
                     }} disabled={stage === '6-saving'}>
                         Close
                     </button>

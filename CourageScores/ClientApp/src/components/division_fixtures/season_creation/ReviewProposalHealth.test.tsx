@@ -1,33 +1,19 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {ReviewProposalHealth} from "./ReviewProposalHealth";
+import {IReviewProposalHealthProps, ReviewProposalHealth} from "./ReviewProposalHealth";
 
 describe('ReviewProposalHealth', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    beforeEach(() => {
-        reportedError = null;
-    });
-
-    async function renderComponent(props) {
+    async function renderComponent(props: IReviewProposalHealthProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
+            iocProps(),
+            brandingProps(),
+            appProps(),
             (<ReviewProposalHealth {...props} />));
     }
 

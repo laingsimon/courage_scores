@@ -2,14 +2,24 @@ import {any} from "../../../helpers/collections";
 import {ViewHealthCheck} from "../../division_health/ViewHealthCheck";
 import React from "react";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
-import {BootstrapDropdown} from "../../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {IActionResultDto} from "../../../interfaces/serverSide/IActionResultDto";
+import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
 
-export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, templates }) {
-    const templateOptions = templates && templates.result
+export interface IPickTemplateProps {
+    selectedTemplate: IActionResultDto<ITemplateDto> | null;
+    loading: boolean;
+    setSelectedTemplate: (template: IActionResultDto<ITemplateDto>) => Promise<any>;
+    templates: IClientActionResultDto<IActionResultDto<ITemplateDto>[]>;
+}
+
+export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, templates }: IPickTemplateProps) {
+    const templateOptions: IBootstrapDropdownItem[] = templates && templates.result
         ? templates.result.map(getTemplateOption)
         : [];
 
-    function getTemplateOption(compatibility) {
+    function getTemplateOption(compatibility: IActionResultDto<ITemplateDto>): IBootstrapDropdownItem {
         let text = compatibility.success
             ? <div>{compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
             : <div>🚫 {compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
@@ -20,15 +30,15 @@ export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, t
         };
     }
 
-    function renderError(e, i) {
+    function renderError(e: string, i: number) {
         return (<li className="text-danger" key={i}>{e}</li>);
     }
 
-    function renderWarning(w, i) {
+    function renderWarning(w: string, i: number) {
         return (<li key={i}>{w}</li>);
     }
 
-    function renderMessage(m, i) {
+    function renderMessage(m: string, i: number) {
         return (<li className="text-secondary" key={i}>{m}</li>);
     }
 
@@ -39,7 +49,7 @@ export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, t
                 ? (<LoadingSpinnerSmall/>)
                 : (<BootstrapDropdown options={templateOptions}
                                       value={selectedTemplate ? selectedTemplate.result.id : null}
-                                      onChange={value => setSelectedTemplate(templates.result.filter(t => t.result.id === value)[0])}/>)}
+                                      onChange={value => setSelectedTemplate(templates.result.filter((t: IActionResultDto<ITemplateDto>) => t.result.id === value)[0])}/>)}
         </div>
         {selectedTemplate ? (<div className={`alert mt-3 ${selectedTemplate.success ? 'alert-success' : 'alert-warning'}`}>
             {selectedTemplate.success ? (<h4>✔ Compatible with this season</h4>) : (

@@ -1,17 +1,23 @@
 import {any} from "../../../helpers/collections";
 import {ViewHealthCheck} from "../../division_health/ViewHealthCheck";
 import React from "react";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {IProposalResultDto} from "../../../interfaces/serverSide/Season/Creation/IProposalResultDto";
 
-export function ReviewProposalHealth({ response }) {
-    function renderError(e, i) {
+export interface IReviewProposalHealthProps {
+    response: IClientActionResultDto<IProposalResultDto>;
+}
+
+export function ReviewProposalHealth({ response }: IReviewProposalHealthProps) {
+    function renderError(e: string, i: number) {
         return (<li className="text-danger" key={i}>{e}</li>);
     }
 
-    function renderWarning(w, i) {
+    function renderWarning(w: string, i: number) {
         return (<li key={i}>{w}</li>);
     }
 
-    function renderMessage(m, i) {
+    function renderMessage(m: string, i: number) {
         return (<li className="text-secondary" key={i}>{m}</li>);
     }
 

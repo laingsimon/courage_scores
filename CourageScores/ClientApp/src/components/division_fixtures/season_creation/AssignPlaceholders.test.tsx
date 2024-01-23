@@ -1,17 +1,29 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doSelectOption, renderApp} from "../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doSelectOption,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../helpers/tests";
 import {toMap} from "../../../helpers/collections";
 import React from "react";
-import {AssignPlaceholders} from "./AssignPlaceholders";
-import {divisionBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
+import {AssignPlaceholders, IAssignPlaceholdersProps, IPlaceholderMappings} from "./AssignPlaceholders";
+import {IAppContainerProps} from "../../../AppContainer";
+import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
+import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {divisionBuilder} from "../../../helpers/builders/divisions";
+import {seasonBuilder} from "../../../helpers/builders/seasons";
+import {teamBuilder} from "../../../helpers/builders/teams";
 
 describe('AssignPlaceholders', () => {
-    let context;
-    let reportedError;
-    let placeholderMappings;
+    let context: TestContext;
+    let placeholderMappings: IPlaceholderMappings;
 
-    function setPlaceholderMappings(value) {
+    async function setPlaceholderMappings(value: IPlaceholderMappings) {
         placeholderMappings = value;
     }
 
@@ -21,49 +33,41 @@ describe('AssignPlaceholders', () => {
 
     beforeEach(() => {
         placeholderMappings = null;
-        reportedError = null;
     });
 
-    async function renderComponent(appProps, props) {
+    async function renderComponent(appContainerProps: IAppContainerProps, props: IAssignPlaceholdersProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                ...appProps,
-            },
-            (<AssignPlaceholders {...props} setPlaceholderMappings={setPlaceholderMappings} />));
+            iocProps(),
+            brandingProps(),
+            appContainerProps,
+            (<AssignPlaceholders {...props} />));
     }
 
     describe('renders', () => {
-        const division1 = divisionBuilder('DIVISION 1').build();
-        const division2 = divisionBuilder('DIVISION 2').build();
-        const season = seasonBuilder('SEASON')
+        const division1: IDivisionDto = divisionBuilder('DIVISION 1').build();
+        const division2: IDivisionDto = divisionBuilder('DIVISION 2').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .withDivision(division2)
             .withDivision(division1)
             .build();
-        const teamA = teamBuilder('TEAM A')
+        const teamA: ITeamDto = teamBuilder('TEAM A')
             .address('ADDRESS A')
             .forSeason(season, division1, [])
             .build();
-        const teamAA = teamBuilder('TEAM AA')
+        const teamAA: ITeamDto = teamBuilder('TEAM AA')
             .address('ADDRESS A')
             .forSeason(season, division1, [])
             .build();
-        const teamB = teamBuilder('TEAM B')
+        const teamB: ITeamDto = teamBuilder('TEAM B')
             .address('ADDRESS B')
             .forSeason(season, division2, [])
             .build();
-        const teamC = teamBuilder('TEAM C')
+        const teamC: ITeamDto = teamBuilder('TEAM C')
             .address('ADDRESS C')
             .forSeason(season, division1, [])
             .build();
-        const template = {
+        const template: ITemplateDto = {
+            name: 'TEMPLATE 1',
             sharedAddresses: [],
             divisions: [{
                 sharedAddresses: [],
@@ -84,15 +88,16 @@ describe('AssignPlaceholders', () => {
         };
 
         it('divisions in order', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamA, teamB]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: template },
                     placeholderMappings: {},
+                    setPlaceholderMappings,
                 });
 
             const divisions = Array.from(context.container.querySelectorAll('h6'));
@@ -100,15 +105,16 @@ describe('AssignPlaceholders', () => {
         });
 
         it('placeholders appropriate to each division in order', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamA, teamB]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: template },
                     placeholderMappings: {},
+                    setPlaceholderMappings,
                 });
 
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
@@ -120,7 +126,8 @@ describe('AssignPlaceholders', () => {
         });
 
         it('template shared address placeholders', async () => {
-            const templateWithSharedAddresses = {
+            const templateWithSharedAddresses: ITemplateDto = {
+                name: 'TEMPLATE 2',
                 sharedAddresses: [ [ 'A', 'D' ] ],
                 divisions: [{
                     sharedAddresses: [],
@@ -139,15 +146,16 @@ describe('AssignPlaceholders', () => {
                     }],
                 }],
             };
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamA, teamB]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: templateWithSharedAddresses },
                     placeholderMappings: {},
+                    setPlaceholderMappings,
                 });
 
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
@@ -158,7 +166,8 @@ describe('AssignPlaceholders', () => {
         });
 
         it('division shared address placeholders', async () => {
-            const templateWithSharedAddresses = {
+            const templateWithSharedAddresses: ITemplateDto = {
+                name: 'TEMPLATE 3',
                 sharedAddresses: [],
                 divisions: [{
                     sharedAddresses: [ [ 'B', 'C' ] ],
@@ -177,15 +186,16 @@ describe('AssignPlaceholders', () => {
                     }],
                 }],
             };
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamA, teamB]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: templateWithSharedAddresses },
                     placeholderMappings: {},
+                    setPlaceholderMappings,
                 });
 
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
@@ -196,15 +206,16 @@ describe('AssignPlaceholders', () => {
         });
 
         it('teams appropriate to each division in order', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamC, teamA, teamB]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: template },
                     placeholderMappings: {},
+                    setPlaceholderMappings,
                 });
 
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
@@ -215,15 +226,16 @@ describe('AssignPlaceholders', () => {
         });
 
         it('teams with shared addresses in dropdown', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamA, teamAA]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: template },
                     placeholderMappings: {},
+                    setPlaceholderMappings,
                 });
 
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
@@ -235,21 +247,22 @@ describe('AssignPlaceholders', () => {
     });
 
     describe('interactivity', () => {
-        const division1 = divisionBuilder('DIVISION 1').build();
-        const division2 = divisionBuilder('DIVISION 2').build();
-        const season = seasonBuilder('SEASON')
+        const division1: IDivisionDto = divisionBuilder('DIVISION 1').build();
+        const division2: IDivisionDto = divisionBuilder('DIVISION 2').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .withDivision(division2)
             .withDivision(division1)
             .build();
-        const teamA = teamBuilder('TEAM A')
+        const teamA: ITeamDto = teamBuilder('TEAM A')
             .address('ADDRESS A')
             .forSeason(season, division1, [])
             .build();
-        const teamC = teamBuilder('TEAM C')
+        const teamC: ITeamDto = teamBuilder('TEAM C')
             .address('ADDRESS C')
             .forSeason(season, division1, [])
             .build();
-        const template = {
+        const template: ITemplateDto = {
+            name: 'TEMPLATE 3',
             sharedAddresses: [],
             divisions: [{
                 sharedAddresses: [],
@@ -270,15 +283,16 @@ describe('AssignPlaceholders', () => {
         };
 
         it('can assign team for placeholder', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamA, teamC]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: template },
                     placeholderMappings: {},
+                    setPlaceholderMappings,
                 });
 
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
@@ -293,17 +307,18 @@ describe('AssignPlaceholders', () => {
         });
 
         it('can unassign team for placeholder', async () => {
-            await renderComponent({
+            await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: toMap([season]),
                     teams: toMap([teamA, teamC]),
-                },
+                }),
                 {
                     seasonId: season.id,
                     selectedTemplate: { result: template },
                     placeholderMappings: {
                         'A': teamA.id
                     },
+                    setPlaceholderMappings,
                 });
 
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
