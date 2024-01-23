@@ -1,38 +1,32 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {NavMenu} from "./NavMenu";
-import {divisionBuilder, seasonBuilder} from "../../helpers/builders";
+import {ISettings} from "../../api/settings";
+import {IAppProps} from "../../App";
+import {IBrandingContainerProps} from "../../BrandingContainer";
+import {divisionBuilder} from "../../helpers/builders/divisions";
+import {seasonBuilder} from "../../helpers/builders/seasons";
 
 describe('NavMenu', () => {
-    let context;
-    let reportedError;
-    let errorCleared;
+    let context: TestContext;
+    let errorCleared: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(settings, appProps, branding, route, currentPath) {
-        reportedError = null;
+    async function renderComponent(settings: ISettings, appContainerProps: IAppProps, branding?: IBrandingContainerProps, route?: string, currentPath?: string) {
         errorCleared = false;
 
-        branding = branding || {menu: {beforeDivisions: [], afterDivisions: []}};
+        branding = branding || {name: '', menu: {beforeDivisions: [], afterDivisions: []}};
 
         context = await renderApp(
-            {settings},
-            branding,
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({settings}),
+            branding ?? brandingProps(),
+            appProps({
                 clearError: () => errorCleared = true,
-                ...appProps,
-            },
+                ...appContainerProps,
+            }),
             (<NavMenu/>),
             route || '/practice',
             currentPath || '/practice');
@@ -64,8 +58,9 @@ describe('NavMenu', () => {
         const otherSeason = seasonBuilder('OTHER SEASON')
             .withDivision(division)
             .build();
-        const settings = {
+        const settings: ISettings = {
             apiHost: 'https://localhost',
+            invalidateCacheOnNextRequest: false,
         }
         const seasons = [currentSeason, otherSeason];
         const divisions = [division];
@@ -76,8 +71,8 @@ describe('NavMenu', () => {
                 account,
                 divisions,
                 seasons,
-                appLoading: true
-            });
+                appLoading: true,
+            } as any);
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
@@ -91,9 +86,10 @@ describe('NavMenu', () => {
                     account,
                     divisions,
                     seasons,
-                    appLoading: false
-                },
+                    appLoading: false,
+                } as any,
                 {
+                    name: '',
                     menu: {
                         beforeDivisions: [
                             {text: 'BEFORE 1', url: 'https://localhost/BEFORE1'},
@@ -124,8 +120,8 @@ describe('NavMenu', () => {
                     divisions,
                     seasons,
                     appLoading: false
-                },
-                {menu: {beforeDivisions: [], afterDivisions: []}});
+                } as any,
+                {name: '', menu: {beforeDivisions: [], afterDivisions: []}});
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const items = getDivisionItems();
@@ -139,7 +135,7 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            });
+            } as any);
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
@@ -154,7 +150,7 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            });
+            } as any);
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
             const items = Array.from(menu.querySelectorAll('li'));
@@ -171,7 +167,8 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            }, {
+            } as any, {
+                name: '',
                 menu: {
                     beforeDivisions: [{
                         text: 'Practice',
@@ -199,7 +196,7 @@ describe('NavMenu', () => {
                 divisions: [null],
                 seasons,
                 appLoading: false
-            });
+            } as any);
 
             expect(context.container.textContent).toContain('ERROR:');
         });
@@ -210,7 +207,8 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            }, {
+            } as any, {
+                name: '',
                 menu: {
                     beforeDivisions: [{
                         text: 'Practice',
@@ -240,7 +238,7 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            });
+            } as any);
             expect(context.container.textContent).not.toContain('ERROR:');
             await doClick(context.container.querySelector('.navbar-brand'));
             expect(isExpanded()).toEqual(true);
@@ -258,7 +256,7 @@ describe('NavMenu', () => {
                     divisions,
                     seasons,
                     appLoading: false
-                },
+                } as any,
                 null,
                 '/division/:id',
                 '/division/' + division.name);
@@ -278,7 +276,8 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            }, {
+            } as any, {
+                name: '',
                 menu: {
                     beforeDivisions: [{
                         text: 'Practice',
@@ -317,7 +316,7 @@ describe('NavMenu', () => {
                     divisions: [division1, division2],
                     seasons: [onlyDivision1SeasonCurrent, bothDivisionsSeasonsNotCurrent],
                     appLoading: false
-                },
+                } as any,
                 null,
                 '/division/:divisionId/:mode/:seasonId',
                 `/division/${division1.id}/teams/${onlyDivision1SeasonCurrent.id}`);
@@ -343,7 +342,7 @@ describe('NavMenu', () => {
                     divisions: [division1, division2],
                     seasons: [bothDivisionsSeasonsNotCurrent],
                     appLoading: false
-                },
+                } as any,
                 null,
                 '/divisions/:divisionId/teams/:seasonId',
                 `/divisions/${division1.id}/teams/${bothDivisionsSeasonsNotCurrent.id}`);
@@ -361,8 +360,9 @@ describe('NavMenu', () => {
             .withDivision(division)
             .isCurrent()
             .build();
-        const settings = {
+        const settings: ISettings = {
             apiHost: 'https://localhost',
+            invalidateCacheOnNextRequest: false,
         }
         const seasons = [
             currentSeason,
@@ -385,7 +385,7 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            });
+            } as any);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');
@@ -400,7 +400,7 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            });
+            } as any);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');
@@ -415,7 +415,7 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            });
+            } as any);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');
@@ -430,7 +430,7 @@ describe('NavMenu', () => {
                 divisions,
                 seasons,
                 appLoading: false
-            });
+            } as any);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');

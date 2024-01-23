@@ -7,14 +7,19 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {IMenuItem} from "../../interfaces/IMenuItem";
+import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IAccessDto} from "../../interfaces/serverSide/Identity/IAccessDto";
+import {IError} from "../../interfaces/IError";
 
 export function NavMenu() {
     const {settings} = useDependencies();
     const {menu} = useBranding();
     const {account, clearError, divisions, appLoading, seasons} = useApp();
-    const [collapsed, setCollapsed] = useState(true);
-    const [navMenuError, setNavMenuError] = useState(null);
-    const [currentLink, setCurrentLink] = useState(document.location.href);
+    const [collapsed, setCollapsed] = useState<boolean>(true);
+    const [navMenuError, setNavMenuError] = useState<IError | null>(null);
+    const [currentLink, setCurrentLink] = useState<string>(document.location.href);
     const location = useLocation();
 
     useEffect(() => {
@@ -22,15 +27,15 @@ export function NavMenu() {
         setCollapsed(true);
     }, [location]);
 
-    function isActive(toRegex) {
+    function isActive(toRegex: string) {
         return decodeURI(currentLink).match(toRegex);
     }
 
-    function getClassName(to) {
+    function getClassName(to: string) {
         return isActive(to) ? 'nav-item-active' : '';
     }
 
-    function navigate(event) {
+    function navigate(event: any) {
         setCurrentLink(event.target.href);
         setCollapsed(true);
         if (clearError) {
@@ -38,29 +43,29 @@ export function NavMenu() {
         }
     }
 
-    function getAccountUrl(action) {
+    function getAccountUrl(action: string) {
         return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
 
-    function shouldShowDivision(division) {
-        const currentSeasons = (seasons || []).filter(s => s.isCurrent === true);
-        const currentDivisions = currentSeasons.flatMap(s => s.divisions || []);
+    function shouldShowDivision(division: IDivisionDto) {
+        const currentSeasons = (seasons || []).filter((s: ISeasonDto) => s.isCurrent === true);
+        const currentDivisions = currentSeasons.flatMap((s: ISeasonDto) => s.divisions || []);
 
         if (isEmpty(currentDivisions)) {
             return true;
         }
 
-        return any(currentDivisions, d => d.id === division.id);
+        return any(currentDivisions, (d: IDivisionDto) => d.id === division.id);
     }
 
-    function hasAdminAccess(access) {
+    function hasAdminAccess(access: IAccessDto) {
         return access.manageAccess
             || access.viewExceptions
             || access.importData
             || access.exportData;
     }
 
-    function renderMenuItem(menuItem, index, location) {
+    function renderMenuItem(menuItem: IMenuItem, index: number, location: string) {
         if (menuItem.url.startsWith('/')) {
             return (<li key={location + '_' + index} className="nav-item">
                 <NavLink tag={Link} className={getClassName(menuItem.url)} onClick={navigate} to={menuItem.url}>
@@ -74,21 +79,21 @@ export function NavMenu() {
         </li>);
     }
 
-    function renderItems(location) {
+    function renderItems(location: string) {
         if (!menu) {
             return null;
         }
 
         const items = menu[location] || [];
-        return items.map((menuItem, index) => {
+        return items.map((menuItem: IMenuItem, index: number) => {
             return renderMenuItem(menuItem, index, location);
         });
     }
 
-    function getDivisionAddress(division) {
+    function getDivisionAddress(division: IDivisionDto) {
         const currentSeasons = seasons
-            .filter(s => s.isCurrent)
-            .filter(s => any(s.divisions, d => d.id === division.id));
+            .filter((s: ISeasonDto) => s.isCurrent)
+            .filter((s: ISeasonDto) => any(s.divisions, (d: IDivisionDto) => d.id === division.id));
 
         if (currentSeasons.length !== 1) {
             return `/division/${division.name}`;
@@ -114,7 +119,7 @@ export function NavMenu() {
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
                         {renderItems('beforeDivisions')}
-                        {!appLoading && divisions.filter(shouldShowDivision).map(division => (
+                        {!appLoading && divisions.filter(shouldShowDivision).map((division: IDivisionDto) => (
                             <li className="nav-item" key={division.id}>
                                 <NavLink tag={Link} onClick={navigate}
                                          className={getClassName(`/division/${ division.name}`)}
@@ -143,9 +148,11 @@ export function NavMenu() {
             </Navbar>
         </header>);
     } catch (e) {
+        const error: Error = e as Error;
+
         setNavMenuError({
-            message: e.message,
-            stack: e.stack
+            message: error.message,
+            stack: error.stack
         });
     }
 }

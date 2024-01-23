@@ -1,34 +1,23 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, noop, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {Layout} from "./Layout";
 
 describe('Layout', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(error, embed) {
-        reportedError = null;
+    async function renderComponent(error: any, embed: boolean) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps(),
+            brandingProps(),
+            appProps({
                 error,
                 embed,
                 divisions: [],
-                reportClientSideException: noop
-            },
+            }),
             (<Layout/>));
     }
 

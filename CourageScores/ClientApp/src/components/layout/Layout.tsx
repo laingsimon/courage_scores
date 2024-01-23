@@ -6,7 +6,11 @@ import {PageError} from "../common/PageError";
 import {useApp} from "../../AppContainer";
 import {Footer} from "./Footer";
 
-export function Layout({children}) {
+export interface ILayoutProps {
+    children?: React.ReactNode;
+}
+
+export function Layout({children}: ILayoutProps) {
     const {error, onError, embed} = useApp();
 
     function renderError() {
