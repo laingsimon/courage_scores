@@ -1,61 +1,76 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
-import {DivisionPlayer} from "./DivisionPlayer";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionPlayer, IDivisionPlayerProps} from "./DivisionPlayer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
-import {divisionBuilder, seasonBuilder} from "../../helpers/builders";
+import {IEditTeamPlayerDto} from "../../interfaces/serverSide/Team/IEditTeamPlayerDto";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IPlayerApi} from "../../api/player";
+import {divisionBuilder} from "../../helpers/builders/divisions";
+import {seasonBuilder} from "../../helpers/builders/seasons";
 
 describe('DivisionPlayer', () => {
-    let context;
-    let reportedError;
-    let teamsReloaded;
-    let divisionReloaded;
-    let deletedPlayer;
-    let updatedPlayer;
-    let apiResponse;
-    const playerApi = {
-        delete: async (seasonId, teamId, playerId) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let teamsReloaded: boolean;
+    let divisionReloaded: boolean;
+    let deletedPlayer: { seasonId: string, teamId: string, playerId: string };
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string};
+    let apiResponse: IClientActionResultDto<ITeamDto>;
+    const playerApi = api<IPlayerApi>({
+        delete: async (seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<ITeamDto>> => {
             deletedPlayer = {seasonId, teamId, playerId};
-            return apiResponse || {success: true};
+            return apiResponse || {success: true} as any;
         },
-        update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
+        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string): Promise<IClientActionResultDto<ITeamDto>> => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
-            return apiResponse || {success: true};
+            return apiResponse || {success: true} as any;
         }
-    }
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, divisionData, account) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         teamsReloaded = false;
         divisionReloaded = false;
         deletedPlayer = null;
         updatedPlayer = null;
         apiResponse = null;
+    });
+
+    async function renderComponent(props: IDivisionPlayerProps, divisionData: IDivisionDataContainerProps, account?: IUserDto) {
         context = await renderApp(
-            {
-                playerApi
-            },
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({playerApi}),
+            brandingProps(),
+            appProps({
                 account,
-                reloadTeams: () => teamsReloaded = true,
+                reloadTeams: async () => teamsReloaded = true,
                 teams: [],
                 divisions: [],
-                reportClientSideException: () => {},
-            },
-            (<DivisionDataContainer {...divisionData} onReloadDivision={() => divisionReloaded = true}>
+            }, reportedError),
+            (<DivisionDataContainer {...divisionData} onReloadDivision={async () => {
+                divisionReloaded = true;
+                return null;
+            }}>
                 <DivisionPlayer {...props} />
             </DivisionDataContainer>),
             null,
@@ -64,12 +79,12 @@ describe('DivisionPlayer', () => {
     }
 
     describe('when logged out', () => {
-        const account = null;
-        const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
+        const account: IUserDto = null;
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const player = {
+        const player: IDivisionPlayerDto = {
             id: createTemporaryId(),
             rank: 1,
             name: 'NAME',
@@ -92,10 +107,10 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 expect(cells.length).toEqual(10);
                 expect(cells.map(c => c.textContent)).toEqual([
@@ -118,10 +133,10 @@ describe('DivisionPlayer', () => {
                         player: captain,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 expect(cells.length).toEqual(10);
                 const nameCell = cells[1];
@@ -133,10 +148,10 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: true
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 expect(cells.length).toEqual(9);
                 expect(cells.map(c => c.textContent)).toEqual([
@@ -156,10 +171,10 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const playerLinkCell = cells[1];
                 expect(playerLinkCell.querySelector('button')).toBeFalsy();
@@ -170,10 +185,10 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const playerLinkCell = cells[1];
                 const link = playerLinkCell.querySelector('a');
@@ -186,10 +201,10 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const teamLinkCell = cells[2];
                 const link = teamLinkCell.querySelector('a');
@@ -204,10 +219,10 @@ describe('DivisionPlayer', () => {
                         player: noTeamPlayer,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const teamLinkCell = cells[2];
                 const link = teamLinkCell.querySelector('a');
@@ -218,16 +233,19 @@ describe('DivisionPlayer', () => {
     });
 
     describe('when logged in', () => {
-        const account = {
+        const account: IUserDto = {
+            name: '',
+            givenName: '',
+            emailAddress: '',
             access: {
                 managePlayers: true,
             }
         };
-        const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const player = {
+        const player: IDivisionPlayerDto = {
             id: createTemporaryId(),
             rank: 1,
             name: 'NAME',
@@ -243,8 +261,8 @@ describe('DivisionPlayer', () => {
             oneEighties: 7,
             over100Checkouts: 8,
         };
-        let confirm;
-        let response = false;
+        let confirm: string;
+        let response: boolean = false;
         window.confirm = (message) => {
             confirm = message;
             return response
@@ -260,7 +278,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 expect(nameCell.textContent).toContain('NAME');
@@ -277,7 +295,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -293,7 +311,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = false;
@@ -311,7 +329,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
@@ -329,11 +347,11 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
-                apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+                apiResponse = { success: false, errors: [ 'SOME ERROR' ] } as any;
 
                 await doClick(findButton(nameCell, '🗑️'));
 
@@ -349,11 +367,11 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
-                apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+                apiResponse = { success: false, errors: [ 'SOME ERROR' ] } as any;
                 await doClick(findButton(nameCell, '🗑️'));
                 expect(context.container.textContent).toContain('Could not delete player');
 
@@ -367,7 +385,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -376,7 +394,7 @@ describe('DivisionPlayer', () => {
 
                 await doClick(findButton(dialog, 'Save player'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedPlayer).not.toBeNull();
                 expect(updatedPlayer.playerDetails.name).toEqual('NEW NAME');
                 expect(divisionReloaded).toEqual(true);
@@ -388,17 +406,17 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name},
+                    {id: division.id, season, name: division.name} as any,
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
                 const dialog = nameCell.querySelector('.modal-dialog');
                 await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
-                apiResponse = {success: false};
+                apiResponse = {success: false} as any;
 
                 await doClick(findButton(dialog, 'Save player'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedPlayer).not.toBeNull();
                 expect(nameCell.textContent).toContain('Could not save player details');
                 expect(divisionReloaded).toEqual(false);

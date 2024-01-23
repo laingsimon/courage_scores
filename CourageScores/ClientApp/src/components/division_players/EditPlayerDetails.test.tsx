@@ -1,27 +1,44 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, doSelectOption, findButton, renderApp, doChange} from "../../helpers/tests";
+import {
+    cleanUp,
+    doClick,
+    doSelectOption,
+    findButton,
+    renderApp,
+    doChange,
+    TestContext,
+    iocProps, brandingProps, appProps, ErrorState, api
+} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
-import {EditPlayerDetails} from "./EditPlayerDetails";
-import {divisionBuilder, playerBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
+import {EditPlayerDetails, IEditPlayerDetailsProps} from "./EditPlayerDetails";
+import {IEditTeamPlayerDto} from "../../interfaces/serverSide/Team/IEditTeamPlayerDto";
+import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IPlayerApi} from "../../api/player";
+import {divisionBuilder} from "../../helpers/builders/divisions";
+import {seasonBuilder} from "../../helpers/builders/seasons";
+import {teamBuilder} from "../../helpers/builders/teams";
+import {playerBuilder} from "../../helpers/builders/players";
 
 describe('EditPlayerDetails', () => {
-    let context;
-    let reportedError;
-    let createdPlayers;
-    let updatedPlayer;
-    let saved;
-    let change;
-    let canceled;
-    let apiResponse;
-    let cumulativeCreatedPlayers;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let createdPlayers: {divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto}[];
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string};
+    let saved: {result: ITeamDto, newPlayers: ITeamPlayerDto[] | null};
+    let change: {name: string, value: string};
+    let canceled: boolean;
+    let apiResponse: IClientActionResultDto<ITeamDto>;
+    let cumulativeCreatedPlayers: IEditTeamPlayerDto[];
 
-    const playerApi = {
-        create: async (divisionId, seasonId, teamId, playerDetails) => {
+    const playerApi = api<IPlayerApi>({
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto) => {
             createdPlayers.push({divisionId, seasonId, teamId, playerDetails});
             cumulativeCreatedPlayers.push(playerDetails);
-            playerDetails.id = createTemporaryId();
+            (playerDetails as any).id = createTemporaryId();
 
             return apiResponse || {
                 success: true,
@@ -34,17 +51,17 @@ describe('EditPlayerDetails', () => {
                 }
             };
         },
-        update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
+        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string) => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
             return apiResponse || {success: true};
         }
-    }
+    });
 
-    async function onSaved(result, newPlayers) {
+    async function onSaved(result: ITeamDto, newPlayers: ITeamPlayerDto[] | null) {
         saved = { result, newPlayers };
     }
 
-    async function onChange(name, value) {
+    async function onChange(name: string, value: string) {
         change = {name, value};
     }
 
@@ -56,8 +73,8 @@ describe('EditPlayerDetails', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, teams, divisions) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedPlayer = null;
         createdPlayers = [];
         apiResponse = null;
@@ -65,26 +82,21 @@ describe('EditPlayerDetails', () => {
         change = null;
         canceled = false;
         cumulativeCreatedPlayers = [];
+    });
+
+    async function renderComponent(props: IEditPlayerDetailsProps, teams: ITeamDto[], divisions: IDivisionDto[]) {
         context = await renderApp(
-            {
-                playerApi
-            },
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({playerApi}),
+            brandingProps(),
+            appProps({
                 teams: teams || [],
                 divisions: divisions || []
-            },
+            }, reportedError),
             (<EditPlayerDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel}/>));
     }
 
-    function findInput(name) {
-        const input = context.container.querySelector(`input[name="${name}"]`);
+    function findInput(name: string): HTMLInputElement {
+        const input = context.container.querySelector(`input[name="${name}"]`) as HTMLInputElement;
         expect(input).toBeTruthy();
         return input;
     }
@@ -101,11 +113,11 @@ describe('EditPlayerDetails', () => {
     }
 
     describe('renders', () => {
-        const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const team = teamBuilder('TEAM')
+        const team: ITeamDto = teamBuilder('TEAM')
             .forSeason(season, division)
             .build();
 
@@ -117,9 +129,9 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team], [division]);
+            } as any, [team], [division]);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
@@ -137,9 +149,9 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team], [division]);
+            } as any, [team], [division]);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
@@ -156,9 +168,9 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: null,
-            }, [team], [division]);
+            } as any, [team], [division]);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
@@ -179,7 +191,7 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, differentSeasonTeam], [division]);
+            } as any, [team, differentSeasonTeam], [division]);
 
             const items = Array.from(findNewTeamDropdown().querySelectorAll('.dropdown-item'));
             expect(items.map(i => i.textContent)).toEqual([ 'Select team', 'TEAM' ]);
@@ -193,8 +205,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team], [division]);
-            expect(reportedError).toBeNull();
+            } as any, [team], [division]);
+            expect(reportedError.hasError()).toEqual(false);
 
             const multiAdd = context.container.querySelector('input[name="multiple"]');
             expect(multiAdd).toBeTruthy();
@@ -208,8 +220,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team], [division]);
-            expect(reportedError).toBeNull();
+            } as any, [team], [division]);
+            expect(reportedError.hasError()).toEqual(false);
 
             const multiAdd = context.container.querySelector('input[name="multiple"]');
             expect(multiAdd).toBeFalsy();
@@ -217,22 +229,20 @@ describe('EditPlayerDetails', () => {
     });
 
     describe('interactivity', () => {
-        const division = divisionBuilder('DIVISION').build();
-        const otherDivision = divisionBuilder('OTHER DIVISION').build();
-        const season = seasonBuilder('SEASON')
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const otherDivision: IDivisionDto = divisionBuilder('OTHER DIVISION').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const team = teamBuilder('TEAM')
+        const team: ITeamDto = teamBuilder('TEAM')
             .forSeason(season, division)
             .build();
-        const otherTeam = teamBuilder('OTHER TEAM')
+        const otherTeam: ITeamDto = teamBuilder('OTHER TEAM')
             .forSeason(season, division)
             .build();
-        let confirm;
-        let alert;
+        let alert: string;
         let response = false;
-        window.confirm = (message) => {
-            confirm = message;
+        window.confirm = () => {
             return response
         };
         window.alert = (message) => {
@@ -240,7 +250,6 @@ describe('EditPlayerDetails', () => {
         };
 
         beforeEach(() => {
-            confirm = null;
             alert = null;
         });
 
@@ -252,8 +261,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
             await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
@@ -271,8 +280,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
             await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
@@ -290,8 +299,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(context.container, 'input[name="multiple"]');
 
@@ -309,8 +318,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
             await doClick(context.container, 'input[name="multiple"]');
             await doChange(context.container, 'textarea', 'NAME 1\nNAME 2', context.user);
 
@@ -330,8 +339,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findInput('captain'));
 
@@ -348,8 +357,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
@@ -366,8 +375,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: null,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
@@ -384,8 +393,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Add player'));
 
@@ -400,8 +409,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Add player'));
 
@@ -416,8 +425,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Add player'));
 
@@ -439,12 +448,12 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Add player'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(saved).not.toBeNull();
             expect(saved.newPlayers).toEqual([{
                 name: 'NAME',
@@ -463,8 +472,8 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
             await doClick(context.container, 'input[name="multiple"]');
 
             await doClick(findButton(context.container, 'Add players'));
@@ -492,13 +501,13 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: null,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
             await doClick(context.container, 'input[name="multiple"]');
 
             await doClick(findButton(context.container, 'Add players'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(saved).not.toBeNull();
             expect(saved.newPlayers).toEqual([{
                 id: expect.any(String),
@@ -524,17 +533,17 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Save player'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedPlayer).not.toBeNull();
             expect(updatedPlayer.playerId).toEqual(playerId);
             expect(updatedPlayer.seasonId).toEqual(season.id);
             expect(updatedPlayer.teamId).toEqual(team.id);
-            expect(updatedPlayer.playerDetails.gameId).toBeUndefined();
+            expect(updatedPlayer.playerDetails.gameId).toBeFalsy();
             expect(updatedPlayer.playerDetails.name).toEqual('NAME');
             expect(updatedPlayer.playerDetails.emailAddress).toEqual('EMAIL');
             expect(updatedPlayer.playerDetails.captain).toEqual(true);
@@ -553,12 +562,12 @@ describe('EditPlayerDetails', () => {
                 gameId: gameId,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Save player'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedPlayer).not.toBeNull();
             expect(updatedPlayer.playerId).toEqual(playerId);
             expect(updatedPlayer.seasonId).toEqual(season.id);
@@ -580,9 +589,9 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
-            apiResponse = {success: false};
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
+            apiResponse = {success: false} as any;
 
             await doClick(findButton(context.container, 'Save player'));
 
@@ -598,9 +607,9 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
-            apiResponse = {success: false};
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
+            apiResponse = {success: false} as any;
             await doClick(findButton(context.container, 'Save player'));
             expect(context.container.textContent).toContain('Could not save player details');
 
@@ -617,9 +626,9 @@ describe('EditPlayerDetails', () => {
                 gameId: null,
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
-            }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError).toBeNull();
-            apiResponse = {success: false};
+            } as any, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError.hasError()).toEqual(false);
+            apiResponse = {success: false} as any;
 
             await doClick(findButton(context.container, 'Cancel'));
 

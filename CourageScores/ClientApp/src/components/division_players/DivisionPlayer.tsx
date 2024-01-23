@@ -9,18 +9,27 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {EMPTY_ID} from "../../helpers/projection";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
-export function DivisionPlayer({player, hideVenue}) {
+export interface IDivisionPlayerProps {
+    player: IDivisionPlayerDto;
+    hideVenue: boolean;
+}
+
+export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
     const {account, reloadTeams} = useApp();
     const {id: divisionId, season, onReloadDivision, name: divisionName} = useDivisionData();
     const [playerDetails, setPlayerDetails] = useState(Object.assign({}, player));
-    const [editPlayer, setEditPlayer] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [saveError, setSaveError] = useState(null);
-    const isAdmin = account && account.access && account.access.managePlayers;
-    const team = {
+    const [editPlayer, setEditPlayer] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<ITeamDto> | null>(null);
+    const isAdmin: boolean = account && account.access && account.access.managePlayers;
+    const team: ITeamDto = {
         id: player.teamId,
-        name: player.team
+        name: player.team,
+        address: '',
     };
     const {playerApi} = useDependencies();
 
@@ -39,10 +48,10 @@ export function DivisionPlayer({player, hideVenue}) {
             <EditPlayerDetails
                 gameId={null}
                 player={playerDetails}
-                team={team}
+                team={team as ({ id: string })}
                 seasonId={season.id}
                 divisionId={divisionId}
-                onCancel={() => setEditPlayer(false)}
+                onCancel={async () => setEditPlayer(false)}
                 onChange={propChanged(playerDetails, setPlayerDetails)}
                 onSaved={playerDetailSaved}
             />
@@ -62,7 +71,7 @@ export function DivisionPlayer({player, hideVenue}) {
 
         setDeleting(true);
         try {
-            const response = await playerApi.delete(season.id, player.teamId, player.id);
+            const response: IClientActionResultDto<ITeamDto> = await playerApi.delete(season.id, player.teamId, player.id);
             if (response.success) {
                 await onReloadDivision();
                 await reloadTeams();
@@ -94,7 +103,7 @@ export function DivisionPlayer({player, hideVenue}) {
                     {player.name}
                 </EmbedAwareLink>)}
             {editPlayer && isAdmin ? renderEditPlayer() : null}
-            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+            {saveError ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)}
                                         title="Could not delete player"/>) : null}
         </td>
         {hideVenue
@@ -102,8 +111,7 @@ export function DivisionPlayer({player, hideVenue}) {
             : (<td>
                 {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
-                    : (<EmbedAwareLink disabled={deleting}
-                                       to={`/division/${divisionName}/team:${team.name}/${season.name}`}
+                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}
                                        className="margin-right">
                         {deleting ? (<s>{player.team}</s>) : player.team}
                     </EmbedAwareLink>)}

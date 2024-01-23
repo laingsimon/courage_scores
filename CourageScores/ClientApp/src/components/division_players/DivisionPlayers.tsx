@@ -4,10 +4,17 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
+import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
 
-export function DivisionPlayers({hideVenue, hideHeading, players}) {
+export interface IDivisionPlayersProps {
+    hideVenue?: boolean;
+    hideHeading?: boolean;
+    players?: IDivisionPlayerDto[];
+}
+
+export function DivisionPlayers({hideVenue, hideHeading, players}: IDivisionPlayersProps) {
     const {account} = useApp();
-    const isAdmin = account && account.access && account.access.managePlayers;
+    const isAdmin: boolean = account && account.access && account.access.managePlayers;
     const {players: divisionDataPlayers} = useDivisionData();
     const playersToShow = players || divisionDataPlayers;
 

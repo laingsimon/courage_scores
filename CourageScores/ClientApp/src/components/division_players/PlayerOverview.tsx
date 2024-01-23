@@ -6,18 +6,27 @@ import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
+import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
+import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {IDivisionFixtureDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDto";
+import {IDivisionTournamentFixtureDetailsDto} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
 
-export function PlayerOverview({playerId}) {
+export interface IPlayerOverviewProps {
+    playerId: string;
+}
+
+export function PlayerOverview({playerId}: IPlayerOverviewProps) {
     const {name} = useBranding();
     const {players, teams, fixtures: divisionDataFixtures, season, name: divisionName} = useDivisionData();
-    const player = players.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}};
-    const team = teams.filter(t => t.id === player.teamId)[0] || {id: null, name: 'Unknown'};
+    const player: IDivisionPlayerDto = players.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}, teamId: null, team: 'Unknown'};
+    const team: IDivisionTeamDto = teams.filter(t => t.id === player.teamId)[0] || {id: null, name: 'Unknown', address: ''};
     const fixtures = divisionDataFixtures.map(fixtureDate => {
-        const fixtureId = player.fixtures[fixtureDate.date];
-        const tournamentFixtures = fixtureDate.tournamentFixtures
-            .filter(tournament => !tournament.proposed)
-            .filter(tournament => {
-                return any(tournament.players, id => id === playerId);
+        const fixtureId: string = player.fixtures[fixtureDate.date];
+        const tournamentFixtures: IDivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
+            .filter((tournament: IDivisionTournamentFixtureDetailsDto) => !tournament.proposed)
+            .filter((tournament: IDivisionTournamentFixtureDetailsDto) => {
+                return any(tournament.players, (id: string) => id === playerId);
             });
 
         return {
@@ -27,7 +36,7 @@ export function PlayerOverview({playerId}) {
         };
     }).filter(d => any(d.fixtures) || any(d.tournamentFixtures));
 
-    function renderScore(score, postponed) {
+    function renderScore(score: number, postponed: boolean) {
         if (postponed) {
             return 'P';
         }
@@ -39,16 +48,16 @@ export function PlayerOverview({playerId}) {
         return score;
     }
 
-    function renderFixtureAndDate(fixtureDate) {
-        const fixture = fixtureDate.fixtures[0];
-        const tournamentFixture = fixtureDate.tournamentFixtures[0];
+    function renderFixtureAndDate(fixtureDate: IDivisionFixtureDateDto) {
+        const fixture: IDivisionFixtureDto = fixtureDate.fixtures[0];
+        const tournamentFixture: IDivisionTournamentFixtureDetailsDto = fixtureDate.tournamentFixtures[0];
 
         return fixture
             ? renderLeagueFixture(fixture, fixtureDate.date)
             : renderTournamentFixture(tournamentFixture, fixtureDate.date);
     }
 
-    function renderLeagueFixture(fixture, date) {
+    function renderLeagueFixture(fixture: IDivisionFixtureDto, date: string) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
@@ -77,21 +86,21 @@ export function PlayerOverview({playerId}) {
         </tr>);
     }
 
-    function renderTournamentFixture(tournament, date) {
+    function renderTournamentFixture(tournament: IDivisionTournamentFixtureDetailsDto, date: string) {
         return (<tr key={tournament.id}>
             <td>
                 <div className="position-absolute">
                     <EmbedAwareLink to={`/tournament/${tournament.id}`}>{renderDate(date)}</EmbedAwareLink>
                 </div>
             </td>
-            <td className="text-end" colSpan="3">
+            <td className="text-end" colSpan={3}>
                 <div className="mt-4">
                     <EmbedAwareLink to={`/tournament/${tournament.id}`} className="text-nowrap">
                         {tournament.type} at <strong>{tournament.address}</strong>
                     </EmbedAwareLink>
                 </div>
             </td>
-            <td colSpan="2">
+            <td colSpan={2}>
                 {tournament.winningSide ? (<div className="mt-4">
                     {tournament.winningSide
                         ? (<span className="margin-left">Winner: <strong
@@ -139,7 +148,7 @@ export function PlayerOverview({playerId}) {
         </div>
 
         <div className="overflow-x-auto">
-            <DivisionPlayers hideHeading={true} hideVenue={true} players={[player]} onPlayerSaved={null}/>
+            <DivisionPlayers hideHeading={true} hideVenue={true} players={[player]} />
         </div>
     </div>)
 }

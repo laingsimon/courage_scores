@@ -1,52 +1,54 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {PlayerOverview} from "./PlayerOverview";
+import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {teamBuilder} from "../../helpers/builders/teams";
+import {seasonBuilder} from "../../helpers/builders/seasons";
 import {
-    divisionBuilder, divisionDataBuilder,
+    divisionBuilder,
+    divisionDataBuilder,
     fixtureDateBuilder,
-    seasonBuilder,
-    teamBuilder
-} from "../../helpers/builders";
+    IDivisionFixtureBuilder
+} from "../../helpers/builders/divisions";
+import {ITournamentBuilder} from "../../helpers/builders/tournaments";
 
 describe('PlayerOverview', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(playerId, divisionData) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(playerId: string, divisionData: IDivisionDataContainerProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <PlayerOverview playerId={playerId}/>
             </DivisionDataContainer>));
     }
 
     describe('renders', () => {
-        const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const team = teamBuilder('TEAM').build();
+        const team: ITeamDto = teamBuilder('TEAM').build();
 
-        const player = {
+        const player: IDivisionPlayerDto = {
             id: createTemporaryId(),
             rank: 1,
             name: 'NAME',
@@ -73,7 +75,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('h3');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(player.name);
@@ -92,7 +94,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('⚠ Player could not be found');
         });
 
@@ -105,7 +107,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const headings = Array.from(table.querySelectorAll('thead tr th')).map(th => th.textContent);
@@ -114,8 +116,8 @@ describe('PlayerOverview', () => {
 
         it('league fixture', async () => {
             const fixtureId = createTemporaryId();
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(teamBuilder('HOME'), team).scores(3, 1), fixtureId)
+            const fixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME'), team).scores(3, 1), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
@@ -128,7 +130,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -154,8 +156,8 @@ describe('PlayerOverview', () => {
 
         it('league fixture with no scores', async () => {
             const fixtureId = createTemporaryId();
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(teamBuilder('HOME'), team).scores(null, null), fixtureId)
+            const fixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(teamBuilder('HOME'), team).scores(null, null), fixtureId)
                 .build();
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
@@ -168,7 +170,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -194,8 +196,8 @@ describe('PlayerOverview', () => {
 
         it('league knockout fixture', async () => {
             const fixtureId = createTemporaryId();
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(team, teamBuilder('AWAY'))
+            const fixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY'))
                     .knockout()
                     .scores(3, 1), fixtureId)
                 .build();
@@ -210,7 +212,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -236,8 +238,8 @@ describe('PlayerOverview', () => {
 
         it('postponed league fixture', async () => {
             const fixtureId = createTemporaryId();
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withFixture(f => f.playing(team, teamBuilder('AWAY'))
+            const fixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, teamBuilder('AWAY'))
                     .scores(3, 1)
                     .postponed(), fixtureId)
                 .build();
@@ -252,7 +254,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -278,8 +280,8 @@ describe('PlayerOverview', () => {
 
         it('unplayed tournament fixture', async () => {
             const tournamentId = createTemporaryId();
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t.withPlayer(player)
+            const fixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withTournament((t: ITournamentBuilder) => t.withPlayer(player)
                     .type('TYPE')
                     .address('ADDRESS'), tournamentId)
                 .build();
@@ -292,7 +294,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -310,8 +312,8 @@ describe('PlayerOverview', () => {
 
         it('tournament fixture with winner', async () => {
             const tournamentId = createTemporaryId();
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t.withPlayer(player)
+            const fixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withTournament((t: ITournamentBuilder) => t.withPlayer(player)
                     .type('TYPE')
                     .address('ADDRESS')
                     .winner('WINNER'), tournamentId)
@@ -325,7 +327,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -342,8 +344,8 @@ describe('PlayerOverview', () => {
         });
 
         it('excludes proposed tournament fixtures', async () => {
-            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
-                .withTournament(t => t.withPlayer(player)
+            const fixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withTournament((t: ITournamentBuilder) => t.withPlayer(player)
                     .type('TYPE')
                     .address('ADDRESS')
                     .winner('WINNER')
@@ -358,7 +360,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));

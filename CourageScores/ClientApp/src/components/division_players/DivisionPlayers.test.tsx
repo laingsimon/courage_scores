@@ -1,51 +1,48 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
-import {DivisionDataContainer} from "../DivisionDataContainer";
-import {DivisionPlayers} from "./DivisionPlayers";
-import {seasonBuilder} from "../../helpers/builders";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionPlayers, IDivisionPlayersProps} from "./DivisionPlayers";
+import {seasonBuilder} from "../../helpers/builders/seasons";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionDataDto} from "../../interfaces/serverSide/Division/IDivisionDataDto";
 
 describe('DivisionPlayers', () => {
-    let context;
-    let reportedError;
-    let divisionReloaded = false;
-    let account;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let account: IUserDto;
     const playerApi = {};
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData, props) {
-        reportedError = null;
-        divisionReloaded = false;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(divisionData: IDivisionDataContainerProps, props: IDivisionPlayersProps) {
         context = await renderApp(
-            {playerApi},
-            {name: 'Courage Scores'},
-            {
+            iocProps({playerApi}),
+            brandingProps(),
+            appProps({
                 account: account,
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
                 error: null,
-            },
+            }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <DivisionPlayers {...props} />
             </DivisionDataContainer>));
     }
 
-    function createDivisionData(divisionId) {
-        const season = seasonBuilder('A season')
+    function createDivisionData(divisionId: string): IDivisionDataDto {
+        const season: ISeasonDto = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .build();
         return {
             id: divisionId,
+            name: '',
             players: [{
                 id: createTemporaryId(),
                 name: 'A captain',
@@ -83,11 +80,11 @@ describe('DivisionPlayers', () => {
         };
     }
 
-    async function onReloadDivision() {
-        divisionReloaded = true;
+    async function onReloadDivision(): Promise<IDivisionDataDto | null> {
+        return null;
     }
 
-    function assertPlayer(tr, values) {
+    function assertPlayer(tr: HTMLTableRowElement, values: string[]) {
         expect(Array.from(tr.querySelectorAll('td')).map(td => td.textContent)).toEqual(values);
     }
 
@@ -101,11 +98,11 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
             assertPlayer(playersRows[1], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
@@ -123,11 +120,11 @@ describe('DivisionPlayers', () => {
             captain.singles.matchesLost = 0;
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(playersRows.length).toEqual(1);
             assertPlayer(playersRows[0], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
         });
@@ -137,11 +134,11 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: undefined, hideHeading: true});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeFalsy();
@@ -152,11 +149,11 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: true, hideHeading: undefined});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '🤴 A captain', '6', '7', '8', '2', '3', '4', '5']);
             assertPlayer(playersRows[1], ['11', 'A player', '16', '17', '18', '12', '13', '14', '15']);
@@ -167,7 +164,14 @@ describe('DivisionPlayers', () => {
 
     describe('when logged in', () => {
         beforeEach(() => {
-            account = {access: {managePlayers: true}};
+            account = {
+                name: '',
+                emailAddress: '',
+                givenName: '',
+                access: {
+                    managePlayers: true,
+                },
+            };
         });
 
         it('renders players with heading and venue', async () => {
@@ -175,11 +179,11 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
             assertPlayer(playersRows[1], ['11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
@@ -197,11 +201,11 @@ describe('DivisionPlayers', () => {
             captain.singles.matchesLost = 0;
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', 'A team', '0', '0', '0', '2', '3', '4', '5']);
             assertPlayer(playersRows[1], ['11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
@@ -212,11 +216,11 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: undefined, hideHeading: true});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeFalsy();
@@ -227,11 +231,11 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision},
+                {...divisionData, onReloadDivision: onReloadDivision} as any,
                 {hideVenue: true, hideHeading: undefined});
 
-            expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
+            expect(reportedError.hasError()).toEqual(false);
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', '6', '7', '8', '2', '3', '4', '5']);
             assertPlayer(playersRows[1], ['11', '✏️🗑️A player', '16', '17', '18', '12', '13', '14', '15']);

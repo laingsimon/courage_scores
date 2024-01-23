@@ -1,16 +1,52 @@
 import React, {useState} from 'react';
-import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {sortBy} from "../../helpers/collections";
 import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {ITeamSeasonDto} from "../../interfaces/serverSide/Team/ITeamSeasonDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
-export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, player }) {
-    const [saving, setSaving] = useState(false);
-    const [multiple, setMultiple] = useState(false);
-    const [saveError, setSaveError] = useState(null);
+export interface IEditPlayerDetailsProps {
+    onSaved: (team: ITeamDto, newPlayers: ITeamPlayerDto[] | null) => Promise<any>;
+    onChange: (name: string, value: string) => Promise<any>;
+    onCancel: () => Promise<any>;
+    seasonId: string;
+    team?: { id: string };
+    gameId?: string;
+    newTeamId?: string;
+    divisionId: string;
+    player: IEditPlayerDetailsPlayer;
+}
+
+export interface IEditPlayerDetailsPlayer {
+    teamId?: string;
+    newTeamId?: string;
+    name: string;
+    newDivisionId?: string;
+    captain?: boolean;
+    emailAddress?: string;
+    id?: string;
+    gameId?: string;
+    updated?: string;
+}
+
+interface ICreatedPlayerResponse extends IClientActionResultDto<ITeamDto> {
+    playerDetails?: IEditPlayerDetailsPlayer;
+}
+
+interface IMultiPlayerCreationResult extends IClientActionResultDto<ITeamDto> {
+    playerDetails: IEditPlayerDetailsPlayer[];
+}
+
+export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, player }: IEditPlayerDetailsProps) {
+    const [saving, setSaving] = useState<boolean>(false);
+    const [multiple, setMultiple] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<ITeamDto> | null>(null);
     const {playerApi} = useDependencies();
     const {teams, divisions, onError} = useApp();
 
@@ -37,24 +73,29 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         setSaving(true);
 
         try {
-            const playerDetails = {
+            const playerDetails: IEditPlayerDetailsPlayer = {
                 name: player.name,
                 captain: player.captain,
                 emailAddress: player.emailAddress,
-                newTeamId: newTeamId
+                newTeamId: newTeamId,
+                gameId: null,
             };
 
             if (player.id && gameId) {
                 playerDetails.gameId = gameId;
             }
 
-            const response = player.id
+            const response: IClientActionResultDto<ITeamDto> = player.id
                 ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails, player.updated)
                 : await createMultiple();
 
             if (response.success) {
                 if (onSaved) {
-                    await onSaved(response.result, player.id ? null : getNewPlayers(response));
+                    await onSaved(
+                        response.result,
+                        player.id
+                            ? null
+                            : getNewPlayers(response));
                 }
             } else {
                 setSaveError(response);
@@ -67,25 +108,31 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         }
     }
 
-    function getNewPlayers(response) {
+    function getNewPlayers(response: IClientActionResultDto<ITeamDto> | IMultiPlayerCreationResult): ITeamPlayerDto[] {
+
         try {
-            const teamSeason = response.result.seasons.filter(ts => ts.seasonId === seasonId)[0];
-            const newPlayerDetails = response.playerDetails;
-            const newPlayers = newPlayerDetails.map(request => {
-                return teamSeason.players.filter(p => p.name === request.name)[0];
+            const multiCreationResponse: IMultiPlayerCreationResult = response as IMultiPlayerCreationResult;
+            if (!multiCreationResponse.playerDetails) {
+                // TODO: return the details of the single created player
+                return [];
+            }
+
+            const teamSeason: ITeamSeasonDto = response.result.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === seasonId)[0];
+            const newPlayers: ITeamPlayerDto[] = multiCreationResponse.playerDetails.map((request: IEditPlayerDetailsPlayer) => {
+                return teamSeason.players.filter((p: ITeamPlayerDto) => p.name === request.name)[0];
             });
 
-            return newPlayers.filter(p => p); // filter out any players that could not be found
+            return newPlayers.filter((p: ITeamPlayerDto) => p); // filter out any players that could not be found
         } catch (e) {
             onError(e);
             return [];
         }
     }
 
-    async function createMultiple() {
+    async function createMultiple(): Promise<IMultiPlayerCreationResult> {
         const multiPlayerDetails = player.name.split('\n')
-            .filter(name => name && name.trim()) // filter out any empty lines
-            .map(name => {
+            .filter((name: string) => name && name.trim()) // filter out any empty lines
+            .map((name: string): IEditPlayerDetailsPlayer => {
                 return {
                     name: name,
                     emailAddress: multiple ? null : player.emailAddress,
@@ -94,11 +141,11 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 };
             });
 
-        const results = [];
-        let success = true;
+        const results: ICreatedPlayerResponse[] = [];
+        let success: boolean = true;
         for(let index = 0; index < multiPlayerDetails.length; index++) {
             const playerDetails = multiPlayerDetails[index];
-            const response = await playerApi.create(player.newDivisionId || divisionId, seasonId, player.teamId || team.id, playerDetails);
+            const response: ICreatedPlayerResponse = await playerApi.create(player.newDivisionId || divisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);
             response.playerDetails = playerDetails;
             success = success && (response.success || false);
@@ -110,20 +157,21 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
             errors: results.flatMap(r => r.errors),
             warnings: results.flatMap(r => r.warnings),
             messages: results.flatMap(r => r.messages),
+            trace: results.flatMap(r => r.trace),
             playerDetails: results.map(r => r.playerDetails),
         };
     }
 
-    function getTeamOptions() {
+    function getTeamOptions(): IBootstrapDropdownItem[] {
         return teams
             .filter(teamSeasonForSameDivision)
             .sort(sortBy('name'))
-            .map(t => {
+            .map((t: ITeamDto): IBootstrapDropdownItem => {
                 return {value: t.id, text: t.name}
             });
     }
 
-    function teamSeasonForSameDivision(team) {
+    function teamSeasonForSameDivision(team: ITeamDto): boolean {
         const teamSeason = team.seasons.filter(ts => ts.seasonId === seasonId)[0];
         if (!teamSeason) {
             return false;
@@ -132,24 +180,27 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== (player.newDivisionId || divisionId));
     }
 
-    function changeMultiple(multiple) {
+    function changeMultiple(multiple: boolean) {
         setMultiple(multiple);
         if (!multiple) {
+            // noinspection JSIgnoredPromiseFromCall
             onChange('name', '');
         }
     }
 
     function renderSelectTeamForNewPlayer() {
+        const selectTeamOption: IBootstrapDropdownItem = {value: '', text: 'Select team'};
+
         return (<div className="input-group mb-3">
                 <div className="input-group-prepend">
                     <span className="input-group-text">Team</span>
                 </div>
                 <BootstrapDropdown
-                    onChange={value => onChange('teamId', value)}
+                    onChange={(value: string) => onChange('teamId', value)}
                     value={player.teamId || (team ? team.id : '')}
-                    options={[{value: '', text: 'Select team'}].concat(getTeamOptions())}/>
+                    options={[selectTeamOption].concat(getTeamOptions())}/>
                 {divisionId ? null : (<BootstrapDropdown
-                    onChange={value => onChange('newDivisionId', value)}
+                    onChange={(value: string) => onChange('newDivisionId', value)}
                     value={player.newDivisionId || divisionId}
                     options={divisions.map(division => {
                         return {value: division.id, text: division.name};
@@ -164,12 +215,12 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                     <span className="input-group-text">New Team</span>
                 </div>
                 <BootstrapDropdown
-                    onChange={value => onChange('newTeamId', value)}
+                    onChange={(value: string) => onChange('newTeamId', value)}
                     value={newTeamId || team.id}
                     options={getTeamOptions()}/>
 
                 <BootstrapDropdown
-                    onChange={value => onChange('newDivisionId', value)}
+                    onChange={(value: string) => onChange('newDivisionId', value)}
                     value={player.newDivisionId || divisionId}
                     options={divisions.map(division => {
                         return {value: division.id, text: division.name};
@@ -224,7 +275,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 {player.id ? 'Save player' : `Add player${multiple ? 's' : ''}`}
             </button>
         </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+        {saveError ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)}
                                     title="Could not save player details"/>) : null}
     </div>)
 }
