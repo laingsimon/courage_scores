@@ -1,11 +1,20 @@
 import React, {useState} from "react";
 import {stateChanged} from "../../helpers/events";
+import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IDateTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
+import {IFixtureTemplateDto} from "../../interfaces/serverSide/Season/Creation/IFixtureTemplateDto";
 
-export function TemplateTextEditor({ template, setValid, onUpdate }) {
-    const [ editing, setEditing ] = useState(formatTemplateAsSingleLine(template));
-    const [fixtureToFormat, setFixtureToFormat] = useState('');
+export interface ITemplateTextEditorProps {
+    template: ITemplateDto;
+    setValid: (valid: boolean) => Promise<any>;
+    onUpdate: (update: ITemplateDto) => Promise<any>;
+}
 
-    function formatTemplateAsSingleLine(t) {
+export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTextEditorProps) {
+    const [ editing, setEditing ] = useState<string>(formatTemplateAsSingleLine(template));
+    const [fixtureToFormat, setFixtureToFormat] = useState<string>('');
+
+    function formatTemplateAsSingleLine(t: ITemplateDto): string {
         let jsonString = JSON.stringify(t, excludePropertiesFromEdit, '  ');
 
         // fixture inlining
@@ -27,7 +36,7 @@ export function TemplateTextEditor({ template, setValid, onUpdate }) {
         return jsonString;
     }
 
-    function excludePropertiesFromEdit(key, value) {
+    function excludePropertiesFromEdit(key: string, value: any) {
         switch (key) {
             case 'id':
             case 'created':
@@ -45,38 +54,40 @@ export function TemplateTextEditor({ template, setValid, onUpdate }) {
         }
     }
 
-    function updateTemplate(json) {
+    async function updateTemplateEvent(e: React.ChangeEvent<HTMLTextAreaElement>) {
+        const json: string = e.target.value;
+
         setEditing(json);
         try {
             const updatedTemplate = JSON.parse(json);
-            setValid(true);
-            onUpdate(Object.assign({}, template, updatedTemplate));
+            await setValid(true);
+            await onUpdate(Object.assign({}, template, updatedTemplate));
         } catch (e) {
-            setValid(false);
+            await setValid(false);
         }
     }
 
-    function formatFixtureInput() {
-        const lines = fixtureToFormat.split('\n');
-        return lines.filter(l => l.trim() !== '').map(formatFixtureLine).join(', ');
+    function formatFixtureInput(): string {
+        const lines: string[] = fixtureToFormat.split('\n');
+        return lines.filter((l: string) => l.trim() !== '').map(formatFixtureLine).join(', ');
     }
 
-    function formatFixtureLine(excelLine) {
-        const fixtures = excelLine.split(/\s+/);
+    function formatFixtureLine(excelLine: string): string {
+        const fixtures: string[] = excelLine.split(/\s+/);
 
-        const toFormat = {
+        const toFormat: IDateTemplateDto = {
             fixtures: []
         };
-        let fixtureBatch = [];
+        let fixtureBatch: string[] = [];
         while (fixtures.length > 0) {
-            const fixture = fixtures.shift();
+            const fixture: string = fixtures.shift();
             if (!fixture) {
                 continue;
             }
 
             fixtureBatch.push(fixture);
             if (fixtureBatch.length === 2) {
-                const fixture = {
+                const fixture: IFixtureTemplateDto = {
                     home: fixtureBatch[0],
                 };
                 if (fixtureBatch[1] !== '-') {
@@ -93,9 +104,9 @@ export function TemplateTextEditor({ template, setValid, onUpdate }) {
 
     return (<>
         <textarea className="width-100 min-height-100"
-          rows="15"
+          rows={15}
           value={editing}
-          onChange={e => updateTemplate(e.target.value)}>
+          onChange={updateTemplateEvent}>
         </textarea>
         <div className="mt-3 text-secondary">
             <div>Authoring tools: Copy fixture template from excel (per division)</div>

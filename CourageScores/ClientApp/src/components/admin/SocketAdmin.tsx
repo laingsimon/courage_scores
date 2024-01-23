@@ -3,12 +3,14 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {any, sortBy} from "../../helpers/collections";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IWebSocketDto} from "../../interfaces/serverSide/Live/IWebSocketDto";
 
 export function SocketAdmin() {
     const {liveApi} = useDependencies();
     const {onError} = useApp();
-    const [sockets, setSockets] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [sockets, setSockets] = useState<IWebSocketDto[] | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (!sockets) {
@@ -29,7 +31,7 @@ export function SocketAdmin() {
         setLoading(true);
 
         try {
-            const response = await liveApi.getAll();
+            const response: IClientActionResultDto<IWebSocketDto[]> = await liveApi.getAll();
             if (response.success) {
                 setSockets(response.result);
             } else {
@@ -40,13 +42,13 @@ export function SocketAdmin() {
         }
     }
 
-    async function closeSocket(id) {
+    async function closeSocket(id: string) {
         if (!window.confirm('Are you sure you want to close this socket')) {
             return;
         }
 
         try {
-            const response = await liveApi.close(id);
+            const response: IClientActionResultDto<IWebSocketDto> = await liveApi.close(id);
             if (response.success) {
                 await loadSockets();
             } else {
@@ -57,7 +59,7 @@ export function SocketAdmin() {
         }
     }
 
-    function renderTime(time) {
+    function renderTime(time?: string) {
         if (!time) {
             return time;
         }

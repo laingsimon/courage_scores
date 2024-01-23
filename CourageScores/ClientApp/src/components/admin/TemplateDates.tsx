@@ -1,25 +1,33 @@
 import {TemplateDate} from "./TemplateDate";
 import {renderDate} from "../../helpers/rendering";
+import {IDateTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
 
-export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templateSharedAddresses }) {
-    function updateDate(update, updateIndex) {
-        onUpdate(dates.map((a, index) => index === updateIndex ? update : a));
+export interface ITemplateDatesProps {
+    dates: IDateTemplateDto[];
+    onUpdate: (newDates: IDateTemplateDto[]) => Promise<any>;
+    divisionSharedAddresses: string[];
+    templateSharedAddresses: string[];
+}
+
+export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templateSharedAddresses }: ITemplateDatesProps) {
+    async function updateDate(update: IDateTemplateDto, updateIndex: number) {
+        await onUpdate(dates.map((a: IDateTemplateDto, index: number) => index === updateIndex ? update : a));
     }
 
-    function addDate() {
-        const newDate = {
+    async function addDate() {
+        const newDate: IDateTemplateDto = {
             fixtures: [],
         };
-        onUpdate(dates.concat([ newDate ]));
+        await onUpdate(dates.concat([ newDate ]));
     }
 
-    function deleteDate(index) {
-        onUpdate(dates.filter((a, i) => index !== i));
+    async function deleteDate(index: number) {
+        await onUpdate(dates.filter((_: IDateTemplateDto, i: number) => index !== i));
     }
 
-    function moveDate(index, movement) {
+    async function moveDate(index: number, movement: number) {
         const date = dates[index];
-        const newDates = dates.flatMap((d, i) => {
+        const newDates = dates.flatMap((d: IDateTemplateDto, i: number) => {
             if (i === index + movement) {
                 return movement > 0
                     ? [ d, date ]
@@ -31,13 +39,13 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
 
             return [d];
         });
-        onUpdate(newDates);
+        await onUpdate(newDates);
     }
 
-    function getDisplayDate(startDate, index) {
+    function getDisplayDate(startDate: Date, index: number): string {
         const date = new Date(startDate.valueOf());
         date.setDate(date.getDate() + (index * 7));
-        return date;
+        return date.toDateString();
     }
 
     const startDate = new Date(2000, 0, 1);

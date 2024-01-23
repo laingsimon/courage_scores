@@ -1,49 +1,63 @@
-﻿// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, renderApp} from "../../helpers/tests";
+﻿import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
-import {TableSelection} from "./TableSelection";
+import {ITableSelectionProps, TableSelection} from "./TableSelection";
+import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
 
 describe('TableSelection', () => {
-    let context;
-    let reportedError;
-    let tableChanged;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let tableChanged: string[];
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         tableChanged = null;
-        context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<TableSelection {...props} onTableChange={(value) => tableChanged = value}/>));
+    });
+
+    async function onTableChange(value: string[]) {
+        tableChanged = value;
     }
 
-    const tableA = {
+    async function renderComponent(props: ITableSelectionProps) {
+        context = await renderApp(
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<TableSelection {...props} />));
+    }
+
+    const tableA: ITableDto = {
         name: 'A',
         canImport: true,
         canExport: true,
+        environmentalName: '',
+        partitionKey: '',
     };
-    const tableB = {
+    const tableB: ITableDto = {
         name: 'B',
         canImport: true,
         canExport: true,
+        environmentalName: '',
+        partitionKey: '',
     };
-    const tableC = {
+    const tableC: ITableDto = {
         name: 'C',
         canImport: false,
         canExport: false,
+        environmentalName: '',
+        partitionKey: '',
     };
 
     it('sorts table by name', async () => {
@@ -52,6 +66,7 @@ describe('TableSelection', () => {
             selected: [tableA.name],
             requireCanExport: false,
             requireCanImport: false,
+            onTableChange,
         });
 
         const items = Array.from(context.container.querySelectorAll('li'));
@@ -65,6 +80,7 @@ describe('TableSelection', () => {
             selected: [tableA.name],
             requireCanExport: false,
             requireCanImport: false,
+            onTableChange,
         });
 
         const items = Array.from(context.container.querySelectorAll('li'));
@@ -77,6 +93,7 @@ describe('TableSelection', () => {
             selected: [],
             requireCanExport: false,
             requireCanImport: false,
+            onTableChange,
         });
 
         const items = Array.from(context.container.querySelectorAll('li'));
@@ -89,6 +106,7 @@ describe('TableSelection', () => {
             selected: [],
             requireCanExport: false,
             requireCanImport: false,
+            onTableChange,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 
@@ -103,6 +121,7 @@ describe('TableSelection', () => {
             selected: [tableA.name, tableB.name],
             requireCanExport: false,
             requireCanImport: false,
+            onTableChange,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 
@@ -117,6 +136,7 @@ describe('TableSelection', () => {
             selected: [],
             requireCanExport: false,
             requireCanImport: true,
+            onTableChange,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 
@@ -131,6 +151,7 @@ describe('TableSelection', () => {
             selected: [],
             requireCanExport: true,
             requireCanImport: false,
+            onTableChange,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 

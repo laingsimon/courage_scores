@@ -4,12 +4,13 @@ import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {IErrorDetailDto} from "../../interfaces/serverSide/IErrorDetailDto";
 
 export function Errors() {
-    const [since, setSince] = useState(new Date().toISOString().substring(0, 10));
-    const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState([]);
-    const [focusedError, setFocusedError] = useState(null);
+    const [since, setSince] = useState<string>(new Date().toISOString().substring(0, 10));
+    const [loading, setLoading] = useState<boolean>(false);
+    const [errors, setErrors] = useState<IErrorDetailDto[]>([]);
+    const [focusedError, setFocusedError] = useState<string | null>(null);
     const {errorApi} = useDependencies();
     const {onError} = useApp();
 
@@ -77,7 +78,7 @@ export function Errors() {
             {errorToShow.url ? (<p>Url: <a href={errorToShow.url}>{errorToShow.url}</a></p>) : null}
             {errorToShow.type ? (<p>Type: {errorToShow.type}</p>) : null}
             {errorToShow.stack ? (<ol>
-                {errorToShow.stack.map((frame, index) => <li key={index} className="no-wrap">{frame}</li>)}
+                {errorToShow.stack.map((frame: string, index: number) => <li key={index} className="no-wrap">{frame}</li>)}
             </ol>) : null}
         </div>) : null}
     </div>);

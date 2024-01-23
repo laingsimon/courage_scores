@@ -6,26 +6,30 @@ import {propChanged, valueChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {IImportDataRequestDto} from "../../interfaces/serverSide/Data/IImportDataRequestDto";
+import {IImportDataResultDto} from "../../interfaces/serverSide/Data/IImportDataResultDto";
+import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function ImportData() {
     const {dataApi} = useDependencies();
     const {tables} = useAdmin();
-    const [importing, setImporting] = useState(false);
-    const [importRequest, setImportRequest] = useState({
+    const [importing, setImporting] = useState<boolean>(false);
+    const [importRequest, setImportRequest] = useState<IImportDataRequestDto>({
         password: '',
         dryRun: true,
         purgeData: false,
         tables: []
     });
-    const [response, setResponse] = useState(null);
-    const [saveError, setSaveError] = useState(null);
+    const [response, setResponse] = useState<IClientActionResultDto<IImportDataResultDto>>(null);
+    const [saveError, setSaveError] = useState<any>(null);
 
     useEffect(() => {
             if (!tables) {
                 return;
             }
 
-            const selected = tables.filter(t => t.canImport).map(t => t.name);
+            const selected: string[] = tables.filter((t: ITableDto) => t.canImport).map((t: ITableDto) => t.name);
             setImportRequest(Object.assign({}, importRequest, {
                 tables: selected
             }));
@@ -40,7 +44,7 @@ export function ImportData() {
             return;
         }
 
-        const input = document.querySelector('input[type="file"]');
+        const input = document.querySelector('input[type="file"]') as HTMLInputElement;
         if (input.files.length === 0) {
             window.alert(`Select a file first`);
             return;
@@ -54,7 +58,7 @@ export function ImportData() {
         setImporting(true);
         setResponse(null);
         try {
-            const response = await dataApi.import(importRequest, input.files[0]);
+            const response: IClientActionResultDto<IImportDataResultDto> = await dataApi.import(importRequest, input.files[0]);
 
             if (response.success) {
                 setResponse(response);

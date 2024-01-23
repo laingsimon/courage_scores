@@ -7,24 +7,28 @@ import {useAdmin} from "./AdminContainer";
 import {any, toDictionary} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {IExportDataRequestDto} from "../../interfaces/serverSide/Data/IExportDataRequestDto";
+import {IExportDataResultDto} from "../../interfaces/serverSide/Data/IExportDataResultDto";
+import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function ExportData() {
     const {dataApi} = useDependencies();
     const {tables} = useAdmin();
     const {onError} = useApp();
-    const [exporting, setExporting] = useState(false);
-    const [exportRequest, setExportRequest] = useState({
+    const [exporting, setExporting] = useState<boolean>(false);
+    const [exportRequest, setExportRequest] = useState<IExportDataRequestDto>({
         includeDeletedEntries: true,
         password: '',
         tables: {}
     });
-    const [zipContent, setZipContent] = useState(null);
-    const [saveError, setSaveError] = useState(null);
+    const [zipContent, setZipContent] = useState<string | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<IExportDataResultDto> | null>(null);
 
     useEffect(() => {
-            const selected = tables.filter(t => t.canExport);
-            const newExportRequest = Object.assign({}, exportRequest);
-            newExportRequest.tables = toDictionary(selected, t => t.name, _ => []);
+            const selected: ITableDto[] = tables.filter((t: ITableDto) => t.canExport);
+            const newExportRequest: IExportDataRequestDto = Object.assign({}, exportRequest);
+            newExportRequest.tables = toDictionary(selected, (t: ITableDto) => t.name, (_: ITableDto) => []);
             setExportRequest(newExportRequest);
         },
         // eslint-disable-next-line
@@ -45,7 +49,7 @@ export function ExportData() {
         setZipContent(null);
         setExporting(true);
         try {
-            const response = await dataApi.export(exportRequest);
+            const response: IClientActionResultDto<IExportDataResultDto> = await dataApi.export(exportRequest);
             if (response.success) {
                 setZipContent(response.result.zip);
             } else {
@@ -59,9 +63,9 @@ export function ExportData() {
         }
     }
 
-    async function tableChanged(newTables) {
-        const newExportRequest = Object.assign({}, exportRequest);
-        newExportRequest.tables = toDictionary(newTables, t => t, _ => []);
+    async function tableChanged(newTables: string[]) {
+        const newExportRequest: IExportDataRequestDto = Object.assign({}, exportRequest);
+        newExportRequest.tables = toDictionary(newTables, (t: string) => t, (_: string) => []);
         setExportRequest(newExportRequest);
     }
 
@@ -97,7 +101,7 @@ export function ExportData() {
                 </a>) : null}
         </div>
         {saveError
-            ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not export data"/>)
+            ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not export data"/>)
             : null}
     </div>);
 }

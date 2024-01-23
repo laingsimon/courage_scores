@@ -1,36 +1,47 @@
-﻿// noinspection JSUnresolvedFunction
-
-import {AdminContainer} from "./AdminContainer";
+﻿import {AdminContainer} from "./AdminContainer";
 import React from "react";
 import {Templates} from "./Templates";
-import {cleanUp, doChange, doClick, findButton, noop, renderApp} from "../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
+import {ITemplateApi} from "../../api/template";
+import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {IEditTemplateDto} from "../../interfaces/serverSide/Season/Creation/IEditTemplateDto";
 
 describe('Templates', () => {
-    let context;
-    let reportedError;
-    let templates;
-    let apiResponse;
-    let deleted;
-    let updated;
-    let healthRequestFor;
-    const templateApi = {
-        getAll: async () => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let templates: ITemplateDto[];
+    let apiResponse: IClientActionResultDto<any>;
+    let deleted: string;
+    let updated: IEditTemplateDto;
+    const templateApi = api<ITemplateApi>({
+        getAll: async (): Promise<ITemplateDto[]> => {
             return templates;
         },
-        delete: async (id) => {
+        delete: async (id: string): Promise<IClientActionResultDto<ITemplateDto>> => {
             deleted = id;
-            return apiResponse || {success: true};
+            return apiResponse || {success: true} as any;
         },
-        update: async (data) => {
+        update: async (data: IEditTemplateDto): Promise<IClientActionResultDto<ITemplateDto>> => {
             updated = data;
-            return apiResponse || {success: true};
+            return apiResponse || {success: true} as any;
         },
-        health: async (template) => {
-            healthRequestFor = template;
-            return apiResponse || {success: true, result: { checks: {}, errors: [], warnings: [], messages: [] } };
+        health: async (): Promise<IClientActionResultDto<ISeasonHealthCheckResultDto>> => {
+            return apiResponse || {success: true, result: { checks: {}, errors: [], warnings: [], messages: [] } } as any;
         },
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -41,26 +52,17 @@ describe('Templates', () => {
         updated = null;
         deleted = null;
         apiResponse = null;
-        healthRequestFor = null;
+        reportedError = new ErrorState();
     })
 
-    async function renderComponent(search) {
-        reportedError = null;
+    async function renderComponent(search?: string) {
         context = await renderApp(
-            {templateApi},
-            {name: 'Courage Scores'},
-            {
+            iocProps({templateApi}),
+            brandingProps(),
+            appProps({
                 account: {},
-                appLoading: false,
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                reportClientSideException: noop,
-            },
-            (<AdminContainer>
+            }, reportedError),
+            (<AdminContainer accounts={[]} tables={[]}>
                 <Templates/>
             </AdminContainer>),
             '/admin/templates/',
@@ -69,7 +71,7 @@ describe('Templates', () => {
 
     describe('renders', () => {
         it('renders templates', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 description: 'DESCRIPTION',
@@ -78,7 +80,7 @@ describe('Templates', () => {
 
             await renderComponent();
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => li.querySelector('small').textContent)).toEqual(['DESCRIPTION']);
@@ -88,7 +90,7 @@ describe('Templates', () => {
         });
 
         it('renders selected template by id', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 description: 'DESCRIPTION',
@@ -99,13 +101,13 @@ describe('Templates', () => {
 
             await renderComponent('?select=' + template.id);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
             expect(templateItems.map(li => li.className.indexOf('active') !== -1)).toEqual([true]);
         });
 
         it('renders selected template by name', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 description: 'DESCRIPTION',
@@ -116,13 +118,13 @@ describe('Templates', () => {
 
             await renderComponent('?select=' + template.name);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
             expect(templateItems.map(li => li.className.indexOf('active') !== -1)).toEqual([true]);
         });
 
         it('renders templates without description', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
             };
@@ -130,7 +132,7 @@ describe('Templates', () => {
 
             await renderComponent();
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => li.querySelector('small'))).toEqual([null]);
@@ -140,7 +142,7 @@ describe('Templates', () => {
         });
 
         it('template with some errors', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -152,7 +154,7 @@ describe('Templates', () => {
 
             await renderComponent();
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([['1']]);
@@ -161,7 +163,7 @@ describe('Templates', () => {
         });
 
         it('template with some check errors', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -179,7 +181,7 @@ describe('Templates', () => {
 
             await renderComponent();
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([['1']]);
@@ -188,7 +190,7 @@ describe('Templates', () => {
         });
 
         it('template with an unsuccessful check', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -206,7 +208,7 @@ describe('Templates', () => {
 
             await renderComponent();
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
@@ -215,7 +217,7 @@ describe('Templates', () => {
         });
 
         it('template with an successful check', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -233,7 +235,7 @@ describe('Templates', () => {
 
             await renderComponent();
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
@@ -244,7 +246,7 @@ describe('Templates', () => {
 
     describe('interactivity', () => {
         it('can select template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -252,18 +254,18 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(context.container, '.list-group .list-group-item:first-child');
             await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('ul[datatype="templates"] .list-group-item'));
             expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column active']);
         });
 
         it('can deselect template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -271,19 +273,19 @@ describe('Templates', () => {
             };
             templates = [template];
             await renderComponent();
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(context.container, '.list-group .list-group-item:first-child');
             await doClick(context.container, '.list-group .list-group-item:first-child');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column']);
             expect(context.container.querySelector('textarea')).toBeFalsy();
         });
 
         it('can save template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -296,7 +298,7 @@ describe('Templates', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updated).toEqual({
                 divisions: [],
                 sharedAddresses: [],
@@ -308,7 +310,7 @@ describe('Templates', () => {
         });
 
         it('can update template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -322,11 +324,11 @@ describe('Templates', () => {
 
             await doChange(context.container, 'textarea', '{}', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
         });
 
         it('updates health as template changes', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -337,7 +339,7 @@ describe('Templates', () => {
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
             await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
-            const health = {
+            const health: ISeasonHealthCheckResultDto = {
                 checks: {},
                 errors: [],
                 warnings: [],
@@ -346,17 +348,17 @@ describe('Templates', () => {
             apiResponse = {
                 success: true,
                 result: health,
-            };
+            } as any;
 
             await doChange(context.container, 'textarea', '{}', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const healthCheck = context.container.querySelector('div[datatype="view-health-check"]');
             expect(healthCheck.textContent).toContain('UPDATED HEALTH');
         });
 
         it('prevents saving an invalid template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -370,12 +372,12 @@ describe('Templates', () => {
 
             await doChange(context.container, 'textarea', 'invalid json', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(findButton(context.container, 'Save').disabled).toEqual(true);
         });
 
         it('does not delete template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -388,11 +390,11 @@ describe('Templates', () => {
 
             await doClick(findButton(context.container, 'Delete'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
         });
 
         it('can delete template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -401,7 +403,7 @@ describe('Templates', () => {
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            let confirm;
+            let confirm: string;
             window.confirm = (msg) => {
                 confirm = msg;
                 return true;
@@ -409,13 +411,13 @@ describe('Templates', () => {
 
             await doClick(findButton(context.container, 'Delete'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(confirm).toEqual('Are you sure you want to delete this template?');
             expect(deleted).toEqual(template.id);
         });
 
         it('can add template', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -427,7 +429,7 @@ describe('Templates', () => {
             await doClick(findButton(context.container, 'Add'));
             await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(JSON.parse(context.container.querySelector('textarea').value)).toEqual({ sharedAddresses: [], divisions: [] });
             expect(context.container.querySelector('button.bg-danger')).toBeFalsy();
         });
@@ -438,8 +440,9 @@ describe('Templates', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updated).toEqual({
+                name: '',
                 divisions: [],
                 sharedAddresses: [],
                 lastUpdated: undefined,
@@ -447,7 +450,7 @@ describe('Templates', () => {
         });
 
         it('an empty template does not exit editing', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -460,24 +463,24 @@ describe('Templates', () => {
 
             await doChange(context.container, 'textarea', '', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(findButton(context.container, 'Save')).toBeTruthy();
         });
 
         it('handles error during save', async () => {
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
-            apiResponse = {success: false, errors: ['ERROR ']};
+            apiResponse = {success: false, errors: ['ERROR ']} as any;
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('Could not save template');
             expect(context.container.textContent).toContain('ERROR');
         });
 
         it('handles error during delete', async () => {
-            const template = {
+            const template: ITemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -486,17 +489,15 @@ describe('Templates', () => {
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            let confirm;
-            window.confirm = (msg) => {
-                confirm = msg;
+            window.confirm = () => {
                 return true;
             };
-            apiResponse = {success: false, errors: ['ERROR ']};
+            apiResponse = {success: false, errors: ['ERROR ']} as any;
 
             await doClick(findButton(context.container, 'Delete'));
 
             expect(deleted).toEqual(template.id);
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('Could not save template');
             expect(context.container.textContent).toContain('ERROR');
         });
@@ -504,7 +505,7 @@ describe('Templates', () => {
         it('can close error dialog after save failure', async () => {
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
-            apiResponse = {success: false, errors: ['ERROR ']};
+            apiResponse = {success: false, errors: ['ERROR ']} as any;
             await doClick(findButton(context.container, 'Save'));
             expect(context.container.textContent).toContain('Could not save template');
 

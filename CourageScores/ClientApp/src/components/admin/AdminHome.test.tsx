@@ -1,61 +1,65 @@
-﻿// noinspection JSUnresolvedFunction
-
-import React from "react";
+﻿import React from "react";
 import {AdminHome} from "./AdminHome";
 import {AdminContainer} from "./AdminContainer";
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
+import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IWebSocketDto} from "../../interfaces/serverSide/Live/IWebSocketDto";
+import {IAccessDto} from "../../interfaces/serverSide/Identity/IAccessDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IDataApi} from "../../api/data";
+import {IAccountApi} from "../../api/account";
+import {ITemplateApi} from "../../api/template";
+import {ILiveApi} from "../../api/live";
 
 describe('AdminHome', () => {
-    let context;
-    let reportedError;
-    const dataApi = {
-        tables: async () => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    const dataApi = api<IDataApi>({
+        tables: async (): Promise<ITableDto[]> => {
             return [];
         }
-    };
-    const accountApi = {
-        getAll: async () => {
+    });
+    const accountApi = api<IAccountApi>({
+        getAll: async (): Promise<IUserDto[]> => {
             return [];
         }
-    };
-    const templateApi = {
-        getAll: async () => {
+    });
+    const templateApi = api<ITemplateApi>({
+        getAll: async (): Promise<ITemplateDto[]> => {
             return [];
         }
-    };
-    const liveApi = {
-        getAll: async () => {
+    });
+    const liveApi = api<ILiveApi>({
+        getAll: async (): Promise<IClientActionResultDto<IWebSocketDto[]>> => {
             return {
                 success: true,
                 result: [],
             };
         }
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function assertTab(access, href, exists) {
-        const account = {
-            access: access
-        };
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
 
+    async function assertTab(access: IAccessDto, href: string, exists: boolean) {
+        const account: IUserDto = {
+            access: access,
+            name: '',
+            givenName: '',
+            emailAddress: '',
+        };
         context = await renderApp(
-            {dataApi, accountApi, templateApi, liveApi},
-            {name: 'Courage Scores'},
-            {
-                account,
-                appLoading: false,
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
+            iocProps({dataApi, accountApi, templateApi, liveApi}),
+            brandingProps(),
+            appProps({account}, reportedError),
+            (<AdminContainer tables={[]} accounts={[]}>
                 <AdminHome/>
             </AdminContainer>),
             '/admin/:mode',
@@ -63,7 +67,7 @@ describe('AdminHome', () => {
 
         const tab = context.container.querySelector(`.nav-tabs .nav-item a[href="${href}"]`);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         if (exists) {
             expect(tab).not.toBeNull();
         } else {
@@ -71,33 +75,28 @@ describe('AdminHome', () => {
         }
     }
 
-    async function assertContent(access, address, expectContent) {
-        const account = {
-            access: access
+    async function assertContent(access: IAccessDto, address: string, expectContent: string) {
+        const account: IUserDto = {
+            access: access,
+            name: '',
+            emailAddress: '',
+            givenName: '',
         };
-        reportedError = null;
-
         context = await renderApp(
-            {dataApi, accountApi, templateApi, liveApi},
-            {name: 'Courage Scores'},
-            {
+            iocProps({dataApi, accountApi, templateApi, liveApi}),
+            brandingProps(),
+            appProps({
                 appLoading: false,
                 account: account,
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
+            }, reportedError),
+            (<AdminContainer tables={[]} accounts={[]}>
                 <AdminHome/>
             </AdminContainer>),
             '/admin/:mode',
             address
         );
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         const content = context.container.querySelector(`div.content-background`);
         expect(content).not.toBeNull();
         expect(content.innerHTML).toContain(expectContent);
@@ -259,10 +258,10 @@ describe('AdminHome', () => {
 
     it('shows loading when appLoading', async () => {
         context = await renderApp(
-            {dataApi, accountApi, templateApi, liveApi},
-            {name: 'Courage Scores'},
-            {appLoading: true},
-            (<AdminContainer>
+            iocProps({dataApi, accountApi, templateApi, liveApi}),
+            brandingProps(),
+            appProps({appLoading: true}),
+            (<AdminContainer tables={[]} accounts={[]}>
                 <AdminHome/>
             </AdminContainer>));
 
@@ -272,10 +271,10 @@ describe('AdminHome', () => {
 
     it('shows not permitted when finished loading', async () => {
         context = await renderApp(
-            {dataApi, accountApi, templateApi, liveApi},
-            {name: 'Courage Scores'},
-            {account: null, appLoading: false},
-            (<AdminContainer>
+            iocProps({dataApi, accountApi, templateApi, liveApi}),
+            brandingProps(),
+            appProps({account: null, appLoading: false}),
+            (<AdminContainer tables={[]} accounts={[]}>
                 <AdminHome/>
             </AdminContainer>));
 

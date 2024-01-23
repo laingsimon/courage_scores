@@ -1,22 +1,31 @@
 import React from 'react';
 import {any, sortBy} from "../../helpers/collections";
+import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
 
-export function TableSelection({allTables, selected, onTableChange, requireCanExport, requireCanImport}) {
-    async function toggleTable(table) {
+export interface ITableSelectionProps {
+    allTables?: ITableDto[];
+    selected: string[];
+    onTableChange?: (tables: string[]) => Promise<any>;
+    requireCanExport?: boolean;
+    requireCanImport?: boolean;
+}
+
+export function TableSelection({allTables, selected, onTableChange, requireCanExport, requireCanImport}: ITableSelectionProps) {
+    async function toggleTable(table: ITableDto) {
         if (!onTableChange) {
             return;
         }
 
-        const isSelected = any(selected, tableName => tableName === table.name);
+        const isSelected = any(selected, (tableName: string) => tableName === table.name);
         if (isSelected) {
-            await onTableChange(selected.filter(tableName => tableName !== table.name));
+            await onTableChange(selected.filter((tableName: string) => tableName !== table.name));
         } else {
-            const withSelection = selected.concat(table.name);
+            const withSelection: string[] = selected.concat(table.name);
             await onTableChange(withSelection);
         }
     }
 
-    function renderTable(table) {
+    function renderTable(table: ITableDto) {
         if ((requireCanExport && !table.canExport) || (requireCanImport && !table.canImport)) {
             return (<li key={table.name} className="list-group-item disabled">
                 {table.name}

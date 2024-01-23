@@ -1,45 +1,49 @@
-// noinspection JSUnresolvedFunction
-
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
-import {TemplateDate} from "./TemplateDate";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
+import {ITemplateDateProps, TemplateDate} from "./TemplateDate";
+import {IDateTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
 
 describe('TemplateDate', () => {
-    let context;
-    let reportedError;
-    let update;
-    let deleted;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let update: IDateTemplateDto;
+    let deleted: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onUpdate(value) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        update = null;
+        deleted = null;
+    });
+
+    async function onUpdate(value: IDateTemplateDto) {
         update = value;
     }
 
-    function onDelete() {
+    async function onDelete() {
         deleted = true;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
-        update = null;
-        deleted = null;
+    async function renderComponent(props: ITemplateDateProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
-                <TemplateDate {...props} onUpdate={onUpdate} onDelete={onDelete} />
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<AdminContainer tables={[]} accounts={[]}>
+                <TemplateDate {...props} />
             </AdminContainer>));
     }
 
@@ -51,6 +55,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -68,6 +74,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -85,6 +93,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -102,6 +112,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: ['A', 'B'],
+                onUpdate,
+                onDelete,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -120,6 +132,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: ['A', 'B'],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -138,6 +152,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: ['A', 'B'],
                 templateSharedAddresses: ['A', 'B'],
+                onUpdate,
+                onDelete,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -154,6 +170,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -175,6 +193,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -196,8 +216,10 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -216,8 +238,10 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -236,6 +260,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -259,6 +285,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, 'A - B ×'));
@@ -278,6 +306,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, 'A ×'));
@@ -297,6 +327,8 @@ describe('TemplateDate', () => {
                 },
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, '🗑️'));

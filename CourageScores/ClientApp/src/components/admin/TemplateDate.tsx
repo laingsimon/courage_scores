@@ -1,43 +1,55 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import {any} from "../../helpers/collections";
 import {valueChanged} from "../../helpers/events";
+import {IDateTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
+import {IFixtureTemplateDto} from "../../interfaces/serverSide/Season/Creation/IFixtureTemplateDto";
 
-export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }) {
-    const [ newFixture, setNewFixture ] = useState({
+export interface ITemplateDateProps {
+    date: IDateTemplateDto;
+    onUpdate: (newDate: IDateTemplateDto) => Promise<any>;
+    onDelete: () => Promise<any>;
+    divisionSharedAddresses: string[];
+    templateSharedAddresses: string[];
+    moveEarlier?: () => Promise<any>;
+    moveLater?: () => Promise<any>;
+}
+
+export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }: ITemplateDateProps) {
+    const [ newFixture, setNewFixture ] = useState<IFixtureTemplateDto>({
         home: null,
         away: null,
     });
 
-    function updateFixtures(update) {
-        const newDate = Object.assign({}, date);
+    async function updateFixtures(update: IFixtureTemplateDto[]) {
+        const newDate: IDateTemplateDto = Object.assign({}, date);
         newDate.fixtures = update;
-        onUpdate(newDate);
+        await onUpdate(newDate);
     }
 
-    function deleteFixture(index) {
-        updateFixtures(date.fixtures.filter((a, i) => i !== index));
+    async function deleteFixture(index: number) {
+        await updateFixtures(date.fixtures.filter((_: IFixtureTemplateDto, i: number) => i !== index));
     }
 
-    function addFixture() {
+    async function addFixture() {
         if (!newFixture.home) {
             window.alert('Enter at least a home team');
             return;
         }
 
-        updateFixtures(date.fixtures.concat([ newFixture ]));
+        await updateFixtures(date.fixtures.concat([ newFixture ]));
         setNewFixture({
             home: null,
             away: null,
         });
     }
 
-    function onKeyUp(event) {
+    async function onKeyUp(event: React.KeyboardEvent) {
         if (event.key === 'Enter') {
-            addFixture();
+            await addFixture();
         }
     }
 
-    function sharedAddressClassName(address) {
+    function sharedAddressClassName(address: string): string {
         if (any(divisionSharedAddresses, a => a === address)) {
             return ' bg-secondary text-light';
         }
@@ -50,7 +62,7 @@ export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses
     }
 
     return (<div className="position-relative">
-        {date.fixtures.map((f, index) => (<button
+        {date.fixtures.map((f, index: number) => (<button
             key={index}
             onClick={() => deleteFixture(index)}
             className={`btn btn-sm margin-right px-1 badge ${f.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>

@@ -1,21 +1,25 @@
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IUpdateAccessDto} from "../../interfaces/serverSide/Identity/IUpdateAccessDto";
+import {IAccessDto} from "../../interfaces/serverSide/Identity/IAccessDto";
 
 export function UserAdmin() {
     const {account, onError, reloadAccount} = useApp();
     const {accountApi} = useDependencies();
     const {accounts} = useAdmin();
-    const [saving, setSaving] = useState(false);
-    const [userAccount, setUserAccount] = useState(null);
-    const [emailAddress, setEmailAddress] = useState(account.emailAddress);
-    const [loading, setLoading] = useState(true);
-    const [saveError, setSaveError] = useState(null);
-    const [showEmailAddress, setShowEmailAddress] = useState(false);
+    const [saving, setSaving] = useState<boolean>(false);
+    const [userAccount, setUserAccount] = useState<IUserDto | null>(null);
+    const [emailAddress, setEmailAddress] = useState<string>(account.emailAddress);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<IUserDto> | null>(null);
+    const [showEmailAddress, setShowEmailAddress] = useState<boolean>(false);
 
     useEffect(() => {
             try {
@@ -36,17 +40,17 @@ export function UserAdmin() {
         // eslint-disable-next-line
         [accounts]);
 
-    function valueChanged(event) {
+    function valueChanged(event: React.ChangeEvent<HTMLInputElement>) {
         try {
-            const currentAccount = Object.assign({}, userAccount);
-            const value = event.target.type === 'checkbox'
+            const currentAccount: IUserDto = Object.assign({}, userAccount);
+            const value: string | boolean = event.target.type === 'checkbox'
                 ? event.target.checked
                 : event.target.value;
 
-            let name = event.target.name;
-            let dataObject = currentAccount;
+            let name: string = event.target.name;
+            let dataObject: { [key: string]: any } = currentAccount;
             while (name.indexOf('.') !== -1) {
-                const prefix = name.substring(0, name.indexOf('.'));
+                const prefix: string = name.substring(0, name.indexOf('.'));
                 name = name.substring(prefix.length + 1);
                 if (!dataObject[prefix]) {
                     dataObject[prefix] = {};
@@ -71,11 +75,11 @@ export function UserAdmin() {
 
         setSaving(true);
         try {
-            const update = {
+            const update: IUpdateAccessDto = {
                 emailAddress: emailAddress,
                 access: userAccount.access,
             };
-            const result = await accountApi.update(update);
+            const result: IClientActionResultDto<IUserDto> = await accountApi.update(update);
             if (!result.success) {
                 setSaveError(result);
             } else if (account.emailAddress === update.emailAddress) {
@@ -89,19 +93,19 @@ export function UserAdmin() {
         }
     }
 
-    function changeAccount(emailAddress) {
+    async function changeAccount(emailAddress: string) {
         setEmailAddress(emailAddress);
 
         showAccess(accounts, emailAddress);
     }
 
-    function showAccess(accounts, emailAddress) {
-        const userAccount = accounts.filter(a => a.emailAddress === emailAddress)[0];
+    function showAccess(accounts: IUserDto[], emailAddress: string) {
+        const userAccount: IUserDto = accounts.filter(a => a.emailAddress === emailAddress)[0];
         setUserAccount(userAccount);
     }
 
-    function renderAccessOption(name, description) {
-        const access = (userAccount ? userAccount : {}).access || {};
+    function renderAccessOption(name: string, description: string) {
+        const access: IAccessDto = (userAccount ? userAccount : {}).access || {};
 
         return (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
@@ -112,11 +116,11 @@ export function UserAdmin() {
         </div>);
     }
 
-    function toOption(acc) {
-        const name = acc.emailAddress === account.emailAddress
+    function toOption(acc: IUserDto): IBootstrapDropdownItem {
+        const name: string = acc.emailAddress === account.emailAddress
             ? `You`
             : acc.name;
-        const className = acc.emailAddress === account.emailAddress
+        const className: string = acc.emailAddress === account.emailAddress
             ? 'fw-bold'
             : undefined;
 
@@ -177,7 +181,7 @@ export function UserAdmin() {
             </button>
         </div>
         {saveError
-            ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save access"/>)
+            ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save access"/>)
             : null}
     </div>);
 }

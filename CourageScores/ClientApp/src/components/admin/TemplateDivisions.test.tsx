@@ -1,39 +1,43 @@
-// noinspection JSUnresolvedFunction
-
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
-import {TemplateDivisions} from "./TemplateDivisions";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
+import {ITemplateDivisionsProps, TemplateDivisions} from "./TemplateDivisions";
+import {IDivisionTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDivisionTemplateDto";
 
 describe('TemplateDivisions', () => {
-    let context;
-    let reportedError;
-    let update;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let update: IDivisionTemplateDto[];
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onUpdate(value) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        update = null;
+    });
+
+    async function onUpdate(value: IDivisionTemplateDto[]) {
         update = value;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
-        update = null;
+    async function renderComponent(props: ITemplateDivisionsProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
-                <TemplateDivisions {...props} onUpdate={onUpdate} />
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<AdminContainer accounts={[]} tables={[]}>
+                <TemplateDivisions {...props} />
             </AdminContainer>));
     }
 
@@ -42,6 +46,7 @@ describe('TemplateDivisions', () => {
             await renderComponent({
                 divisions: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -52,6 +57,7 @@ describe('TemplateDivisions', () => {
             await renderComponent({
                 divisions: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             const divisionElements = Array.from(context.container.querySelectorAll('ul li'));
@@ -65,6 +71,7 @@ describe('TemplateDivisions', () => {
                     sharedAddresses: [],
                 }],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             const divisionElement = context.container.querySelector('ul li:nth-child(2)');
@@ -77,6 +84,7 @@ describe('TemplateDivisions', () => {
             await renderComponent({
                 divisions: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             await doClick(findButton(context.container, '➕ Add another division'));
@@ -94,6 +102,7 @@ describe('TemplateDivisions', () => {
                     sharedAddresses: [],
                 }],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove division'));
@@ -111,6 +120,7 @@ describe('TemplateDivisions', () => {
                     sharedAddresses: [ [ 'B' ] ],
                 }],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             await doClick(findButton(context.container.querySelector('ul>li:nth-child(2)'), '➕ Add a week'));

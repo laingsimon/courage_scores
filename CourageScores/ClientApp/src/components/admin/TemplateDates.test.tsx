@@ -1,39 +1,43 @@
-// noinspection JSUnresolvedFunction
-
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
-import {TemplateDates} from "./TemplateDates";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
+import {ITemplateDatesProps, TemplateDates} from "./TemplateDates";
+import {IDateTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
 
 describe('TemplateDates', () => {
-    let context;
-    let reportedError;
-    let update;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let update: IDateTemplateDto[];
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onUpdate(value) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        update = null;
+    });
+
+    async function onUpdate(value: IDateTemplateDto[]) {
         update = value;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
-        update = null;
+    async function renderComponent(props: ITemplateDatesProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
-                <TemplateDates {...props} onUpdate={onUpdate} />
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<AdminContainer accounts={[]} tables={[]}>
+                <TemplateDates {...props} />
             </AdminContainer>));
     }
 
@@ -45,6 +49,7 @@ describe('TemplateDates', () => {
                 }],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -56,9 +61,10 @@ describe('TemplateDates', () => {
                 dates: [],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
-            const dateElements = Array.from(context.container.querySelectorAll('ul li'));
+            const dateElements = Array.from(context.container.querySelectorAll('ul li')) as HTMLElement[];
             expect(dateElements.length).toEqual(1); // heading
         });
 
@@ -72,6 +78,7 @@ describe('TemplateDates', () => {
                 }],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             const dateElement = context.container.querySelector('ul li:nth-child(2)');
@@ -85,6 +92,7 @@ describe('TemplateDates', () => {
                 dates: [],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -104,6 +112,7 @@ describe('TemplateDates', () => {
                 }],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             await doClick(findButton(context.container, '🗑️'));
@@ -126,6 +135,7 @@ describe('TemplateDates', () => {
                 }],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
             const secondDate = context.container.querySelector('.list-group-item:nth-child(3)');
 
@@ -159,6 +169,7 @@ describe('TemplateDates', () => {
                 }],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
             const firstDate = context.container.querySelector('.list-group-item:nth-child(2)');
 
@@ -192,6 +203,7 @@ describe('TemplateDates', () => {
                 }],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
+                onUpdate,
             });
 
             await doClick(findButton(context.container, 'A - B ×'));

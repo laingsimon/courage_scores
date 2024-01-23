@@ -13,6 +13,8 @@ import {AdminContainer} from "./AdminContainer";
 import {Templates} from "./Templates";
 import {SocketAdmin} from "./SocketAdmin";
 import {DataBrowser} from "./DataBrowser";
+import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
 
 export function AdminHome() {
     const {mode} = useParams();
@@ -20,9 +22,9 @@ export function AdminHome() {
     const {account, appLoading, onError} = useApp();
     const effectiveTab = mode || 'user';
     const access = (account ? account.access : null) || {};
-    const [dataTables, setDataTables] = useState(null);
-    const [accounts, setAccounts] = useState(null);
-    const [adminLoading, setAdminLoading] = useState(true);
+    const [dataTables, setDataTables] = useState<ITableDto[] | null>(null);
+    const [accounts, setAccounts] = useState<IUserDto[] | null>(null);
+    const [adminLoading, setAdminLoading] = useState<boolean>(true);
 
     async function loadTables() {
         try {
@@ -46,7 +48,7 @@ export function AdminHome() {
         // eslint-disable-next-line
         []);
 
-    function renderIfPermitted(component, permitted) {
+    function renderIfPermitted(component: React.ReactNode, permitted: boolean) {
         if (!account) {
             return null;
         }

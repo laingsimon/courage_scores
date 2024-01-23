@@ -1,75 +1,85 @@
-﻿// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, doSelectOption, findButton, noop, renderApp} from "../../helpers/tests";
+﻿import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
 import React from "react";
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";
+import {IAccountApi} from "../../api/account";
+import {IUpdateAccessDto} from "../../interfaces/serverSide/Identity/IUpdateAccessDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
 
 describe('UserAdmin', () => {
-    let context;
-    let reportedError;
-    let accountReloaded;
-    let updatedAccess;
-    let apiResponse;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let accountReloaded: boolean;
+    let updatedAccess: IUpdateAccessDto;
+    let apiResponse: IClientActionResultDto<IUserDto>;
 
-    const accountApi = {
-        update: (update) => {
+    const accountApi = api<IAccountApi>({
+        update: (update: IUpdateAccessDto) => {
             updatedAccess = update;
             return apiResponse || {success: true};
         }
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(accounts, account) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         accountReloaded = false;
         updatedAccess = null;
         apiResponse = null;
+    });
+
+    async function renderComponent(accounts: IUserDto[], account: IUserDto) {
         context = await renderApp(
-            {accountApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({accountApi}),
+            brandingProps(),
+            appProps({
                 account,
                 reloadAccount: () => {
                     accountReloaded = true;
                 },
-                reportClientSideException: noop,
-            },
-            (<AdminContainer accounts={accounts}>
+            }, reportedError),
+            (<AdminContainer accounts={accounts} tables={[]}>
                 <UserAdmin/>
             </AdminContainer>));
     }
 
-    function getAccess(name) {
-        const item = context.container.querySelector(`input[id="${name}"]`);
+    function getAccess(name: string): HTMLInputElement {
+        const item = context.container.querySelector(`input[id="${name}"]`) as HTMLInputElement;
         expect(item).toBeTruthy();
         return item;
     }
 
     it('renders when no user selected', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
 
         await renderComponent([account], account);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(context.container.textContent).toContain('Manage access');
         expect(getAccess('manageAccess').checked).toEqual(false);
     });
 
     it('renders user email addresses', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
@@ -77,19 +87,21 @@ describe('UserAdmin', () => {
 
         await doClick(context.container, 'input[id="showEmailAddress"]');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(context.container.textContent).toContain('You a@b.com');
     });
 
     it('renders user with no access', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
             access: {
                 manageAccess: true,
             }
         };
-        const otherAccount = {
+        const otherAccount: IUserDto = {
+            givenName: '',
             emailAddress: 'c@d.com',
             name: 'Test 1',
         };
@@ -97,20 +109,22 @@ describe('UserAdmin', () => {
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Test 1');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(context.container.textContent).toContain('Manage access');
         expect(getAccess('manageAccess').checked).toEqual(false);
     });
 
     it('renders user with access', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
             access: {
                 manageAccess: true,
             }
         };
-        const otherAccount = {
+        const otherAccount: IUserDto = {
+            givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
             access: {
@@ -121,20 +135,22 @@ describe('UserAdmin', () => {
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(context.container.textContent).toContain('Manage access');
         expect(getAccess('manageAccess').checked).toEqual(true);
     });
 
     it('can save change to access', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
             access: {
                 manageAccess: true,
             }
         };
-        const otherAccount = {
+        const otherAccount: IUserDto = {
+            givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
             access: {
@@ -147,7 +163,7 @@ describe('UserAdmin', () => {
 
         await doClick(findButton(context.container, 'Set access'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedAccess).toEqual({
             access: {
                 manageAccess: true,
@@ -158,14 +174,16 @@ describe('UserAdmin', () => {
     });
 
     it('handles error during save', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
             access: {
                 manageAccess: true,
             }
         };
-        const otherAccount = {
+        const otherAccount: IUserDto = {
+            givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
             access: {
@@ -179,20 +197,22 @@ describe('UserAdmin', () => {
 
         await doClick(findButton(context.container, 'Set access'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(context.container.textContent).toContain('SOME ERROR');
         expect(context.container.textContent).toContain('Could not save access');
     });
 
     it('can close error dialog after save failure', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
             access: {
                 manageAccess: true,
             }
         };
-        const otherAccount = {
+        const otherAccount: IUserDto = {
+            givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
             access: {
@@ -212,14 +232,16 @@ describe('UserAdmin', () => {
     });
 
     it('can change access for self', async () => {
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
             access: {
                 manageAccess: true,
             }
         };
-        const otherAccount = {
+        const otherAccount: IUserDto = {
+            givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
             access: {
@@ -231,7 +253,7 @@ describe('UserAdmin', () => {
 
         await doClick(findButton(context.container, 'Set access'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedAccess).not.toBeNull();
         expect(accountReloaded).toEqual(true);
     });

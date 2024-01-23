@@ -1,39 +1,40 @@
-// noinspection JSUnresolvedFunction
-
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
-import {SharedAddresses} from "./SharedAddresses";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
+import {ISharedAddressesProps, SharedAddresses} from "./SharedAddresses";
 
 describe('SharedAddresses', () => {
-    let context;
-    let reportedError;
-    let updatedAddresses;
+    let context: TestContext;
+    let updatedAddresses: string[][];
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onUpdate(addresses) {
+    beforeEach(() => {
+        updatedAddresses = null;
+    });
+
+    async function onUpdate(addresses: string[][]) {
         updatedAddresses = addresses;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
-        updatedAddresses = null;
+    async function renderComponent(props: ISharedAddressesProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
-                <SharedAddresses {...props} onUpdate={onUpdate} />
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            (<AdminContainer tables={[]} accounts={[]}>
+                <SharedAddresses {...props} />
             </AdminContainer>));
     }
 
@@ -42,6 +43,7 @@ describe('SharedAddresses', () => {
             await renderComponent({
                 addresses: [],
                 className: 'bg-warning',
+                onUpdate,
             });
 
             const heading = context.container.querySelector('ul li.list-group-item:first-child');
@@ -52,9 +54,10 @@ describe('SharedAddresses', () => {
             await renderComponent({
                 addresses: [],
                 className: 'bg-warning',
+                onUpdate,
             });
 
-            const items = Array.from(context.container.querySelectorAll('ul li.list-group-item'));
+            const items = Array.from(context.container.querySelectorAll('ul li.list-group-item')) as HTMLElement[];
             expect(items.length).toEqual(1); // heading only
         });
 
@@ -62,9 +65,10 @@ describe('SharedAddresses', () => {
             await renderComponent({
                 addresses: [ [ 'A' ] ],
                 className: 'bg-warning',
+                onUpdate,
             });
 
-            const items = Array.from(context.container.querySelectorAll('ul li.list-group-item'));
+            const items = Array.from(context.container.querySelectorAll('ul li.list-group-item')) as HTMLElement[];
             items.shift(); // exclude the heading
             expect(items[0].textContent).toContain('A ×');
         });
@@ -75,6 +79,7 @@ describe('SharedAddresses', () => {
             await renderComponent({
                 addresses: [],
                 className: 'bg-warning',
+                onUpdate,
             });
             const addButton = findButton(context.container, '➕ Add shared address');
             expect(addButton).toBeTruthy();
@@ -88,6 +93,7 @@ describe('SharedAddresses', () => {
             await renderComponent({
                 addresses: [ [] ],
                 className: 'bg-warning',
+                onUpdate,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove'));
@@ -99,6 +105,7 @@ describe('SharedAddresses', () => {
             await renderComponent({
                 addresses: [ [ 'A', 'B' ], [ 'C', 'D' ] ],
                 className: 'bg-warning',
+                onUpdate,
             });
 
             await doClick(findButton(context.container, 'B ×'));

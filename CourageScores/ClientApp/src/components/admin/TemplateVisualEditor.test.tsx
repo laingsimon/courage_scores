@@ -1,39 +1,43 @@
-﻿// noinspection JSUnresolvedFunction
-
-import {AdminContainer} from "./AdminContainer";
+﻿import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
-import {TemplateVisualEditor} from "./TemplateVisualEditor";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
+import {ITemplateVisualEditorProps, TemplateVisualEditor} from "./TemplateVisualEditor";
+import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
 
 describe('TemplateVisualEditor', () => {
-    let context;
-    let reportedError;
-    let update;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let update: ITemplateDto;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onUpdate(value) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        update = null;
+    });
+
+    async function onUpdate(value: ITemplateDto) {
         update = value;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
-        update = null;
+    async function renderComponent(props: ITemplateVisualEditorProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
-                <TemplateVisualEditor {...props} onUpdate={onUpdate} />
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<AdminContainer accounts={[]} tables={[]}>
+                <TemplateVisualEditor {...props} />
             </AdminContainer>));
     }
 
@@ -41,9 +45,11 @@ describe('TemplateVisualEditor', () => {
         it('empty template', async () => {
             await renderComponent({
                 template: {
+                    name: '',
                     sharedAddresses: [],
                     divisions: [],
                 },
+                onUpdate,
             });
 
             const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)');
@@ -55,9 +61,11 @@ describe('TemplateVisualEditor', () => {
         it('template shared addresses', async () => {
             await renderComponent({
                 template: {
+                    name: '',
                     sharedAddresses: [ [ 'A' ] ],
                     divisions: [],
                 },
+                onUpdate,
             });
 
             const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)');
@@ -67,12 +75,14 @@ describe('TemplateVisualEditor', () => {
         it('template divisions', async () => {
             await renderComponent({
                 template: {
+                    name: '',
                     sharedAddresses: [],
                     divisions: [{
                         sharedAddresses: [ [ 'B' ] ],
                         dates: [],
                     }],
                 },
+                onUpdate,
             });
 
             const divisions = context.container.querySelector('div > ul:nth-child(2)');
@@ -84,15 +94,18 @@ describe('TemplateVisualEditor', () => {
         it('can update template shared addresses', async () => {
             await renderComponent({
                 template: {
+                    name: '',
                     sharedAddresses: [],
                     divisions: [],
                 },
+                onUpdate,
             });
             const sharedAddresses = context.container.querySelector('div > ul:nth-child(1)');
 
             await doClick(findButton(sharedAddresses, '➕ Add shared address'));
 
             expect(update).toEqual({
+                name: '',
                 sharedAddresses: [ [] ],
                 divisions: [],
             });
@@ -101,9 +114,11 @@ describe('TemplateVisualEditor', () => {
         it('can update divisions', async () => {
             await renderComponent({
                 template: {
+                    name: '',
                     sharedAddresses: [],
                     divisions: [],
                 },
+                onUpdate,
             });
             const divisions = context.container.querySelector('div > ul:nth-child(2)');
 
@@ -111,6 +126,7 @@ describe('TemplateVisualEditor', () => {
 
             expect(update).toEqual({
                 sharedAddresses: [],
+                name: '',
                 divisions: [{
                     dates: [],
                     sharedAddresses: [],

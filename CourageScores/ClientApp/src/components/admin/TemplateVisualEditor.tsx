@@ -1,17 +1,24 @@
 import {SharedAddresses} from "./SharedAddresses";
 import {TemplateDivisions} from "./TemplateDivisions";
+import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IDivisionTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDivisionTemplateDto";
 
-export function TemplateVisualEditor({ template, onUpdate }) {
-    function updateTemplateSharedAddress(updatedAddresses) {
-        const newTemplate = Object.assign({}, template);
+export interface ITemplateVisualEditorProps {
+    template: ITemplateDto;
+    onUpdate: (template: ITemplateDto) => Promise<any>;
+}
+
+export function TemplateVisualEditor({ template, onUpdate }: ITemplateVisualEditorProps) {
+    async function updateTemplateSharedAddress(updatedAddresses: string[][]) {
+        const newTemplate: ITemplateDto = Object.assign({}, template);
         newTemplate.sharedAddresses = updatedAddresses;
-        onUpdate(newTemplate);
+        await onUpdate(newTemplate);
     }
 
-    function updateDivisions(updatedDivisions) {
-        const newTemplate = Object.assign({}, template);
+    async function updateDivisions(updatedDivisions: IDivisionTemplateDto[]) {
+        const newTemplate: ITemplateDto = Object.assign({}, template);
         newTemplate.divisions = updatedDivisions;
-        onUpdate(newTemplate);
+        await onUpdate(newTemplate);
     }
 
     return (<div>
@@ -22,6 +29,6 @@ export function TemplateVisualEditor({ template, onUpdate }) {
         <TemplateDivisions
             onUpdate={updateDivisions}
             divisions={template.divisions}
-            templateSharedAddresses={template.sharedAddresses.flatMap(a => a)} />
+            templateSharedAddresses={template.sharedAddresses.flatMap((a: string[]) => a)} />
     </div>);
 }

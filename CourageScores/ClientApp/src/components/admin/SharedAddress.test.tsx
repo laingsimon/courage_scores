@@ -1,45 +1,47 @@
-// noinspection JSUnresolvedFunction
-
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
-import {SharedAddress} from "./SharedAddress";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
+import {ISharedAddressProps, SharedAddress} from "./SharedAddress";
 
 describe('SharedAddress', () => {
-    let context;
-    let reportedError;
-    let updatedAddresses;
-    let deleted;
+    let context: TestContext;
+    let updatedAddresses: string[];
+    let deleted: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onUpdate(addresses) {
+    async function onUpdate(addresses: string[]) {
         updatedAddresses = addresses;
     }
 
-    function onDelete() {
+    async function onDelete() {
         deleted = true;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
         updatedAddresses = null;
-        deleted = null;
+        deleted = false;
+    });
+
+    async function renderComponent(props: ISharedAddressProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
-                <SharedAddress {...props} onUpdate={onUpdate} onDelete={onDelete} />
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            (<AdminContainer tables={[]} accounts={[]}>
+                <SharedAddress {...props} />
             </AdminContainer>));
     }
 
@@ -48,9 +50,11 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge'));
+            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
             expect(addressBadges).toEqual([]);
             const newAddressBadge = context.container.querySelector('span.badge');
             expect(newAddressBadge).toBeTruthy();
@@ -60,9 +64,11 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge'));
+            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
             expect(addressBadges.map(b => b.textContent)).toEqual([ 'A ×' ]);
             const newAddressBadge = context.container.querySelector('span.badge');
             expect(newAddressBadge).toBeTruthy();
@@ -72,9 +78,11 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A', 'B' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge'));
+            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
             expect(addressBadges.map(b => b.textContent)).toEqual([ 'A ×', 'B ×' ]);
         });
 
@@ -82,9 +90,11 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
-            const addressBadges = Array.from(context.container.querySelectorAll('button.badge'));
+            const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
             expect(addressBadges.map(b => b.className.indexOf(' bg-warning') !== -1)).toEqual([ true ]);
             const newAddressBadge = context.container.querySelector('span.badge');
             expect(newAddressBadge.className).toContain(' bg-warning');
@@ -96,6 +106,8 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
             await doChange(context.container, 'input', 'B', context.user);
@@ -108,6 +120,8 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
             await doChange(context.container, 'input', 'B', context.user);
@@ -120,6 +134,8 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
             await doChange(context.container, 'input', 'B', context.user);
@@ -132,8 +148,10 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
 
             await doChange(context.container, 'input', '', context.user);
@@ -146,8 +164,10 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
 
             await doChange(context.container, 'input', '', context.user);
@@ -160,6 +180,8 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A', 'B' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, 'B ×'));
@@ -171,6 +193,8 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, 'A ×'));
@@ -182,6 +206,8 @@ describe('SharedAddress', () => {
             await renderComponent({
                 address: [ 'A' ],
                 className: 'bg-warning',
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove'));

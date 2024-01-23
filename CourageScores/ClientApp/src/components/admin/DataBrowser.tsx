@@ -5,18 +5,20 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useDependencies} from "../../IocContainer";
 import {renderDate} from "../../helpers/rendering";
 import {repeat} from "../../helpers/projection";
+import {ISingleDataResultDto} from "../../interfaces/serverSide/Data/ISingleDataResultDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function DataBrowser() {
     const {dataApi} = useDependencies();
     const location = useLocation();
     const navigate = useNavigate();
     const search = new URLSearchParams(location.search);
-    const [table, setTable] = useState(search.has('table') ? search.get('table') : '');
-    const [id, setId] = useState(search.has('id') ? search.get('id') : '');
-    const [loading, setLoading] = useState(false);
-    const [response, setResponse] = useState(null);
+    const [table, setTable] = useState<string>(search.has('table') ? search.get('table') : '');
+    const [id, setId] = useState<string>(search.has('id') ? search.get('id') : '');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [response, setResponse] = useState<IClientActionResultDto<ISingleDataResultDto[]> | IClientActionResultDto<ISingleDataResultDto> | null>(null);
     const pageSize = 10;
-    const [lastRequest, setLastRequest] = useState(null);
+    const [lastRequest, setLastRequest] = useState<{ table: string, id: string } | null>(null);
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
@@ -56,7 +58,7 @@ export function DataBrowser() {
         }
         catch (e) {
             setResponse({
-                 errors: [e.message]
+                 errors: [(e as Error).message]
             });
         }
         finally {
@@ -65,13 +67,13 @@ export function DataBrowser() {
     }
 
     function getPages() {
-        const noOfItems = response.result.length;
+        const noOfItems = (response as IClientActionResultDto<ISingleDataResultDto[]>).result.length;
         const noOfPages = Math.ceil(noOfItems / pageSize);
 
         return repeat(noOfPages);
     }
 
-    async function updateSearch(newId) {
+    async function updateSearch(newId: string) {
         if (!table) {
             window.alert('Enter a table name (and optionally an id) first');
             return;
@@ -81,7 +83,7 @@ export function DataBrowser() {
         navigate(`/admin/browser/?table=${table}${idQuery}`);
     }
 
-    function renderValue(key, value) {
+    function renderValue(_: string, value: string) {
         if (value && value.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
             return (<abbr title={value}>{renderDate(value)}</abbr>);
         }
@@ -89,7 +91,7 @@ export function DataBrowser() {
         return value;
     }
 
-    function renderItem(data) {
+    function renderItem(data: ISingleDataResultDto) {
         return (<table className="table table-sm">
             <tbody>
             {Object.keys(data).map(key => (<tr key={key}>
@@ -101,17 +103,18 @@ export function DataBrowser() {
     }
 
     function renderResponse() {
-        if (response.result.id) {
-            return renderItem(response.result);
+        if ((response as IClientActionResultDto<ISingleDataResultDto>).result.id) {
+            return renderItem((response as IClientActionResultDto<ISingleDataResultDto>).result);
         }
 
         const pageIndex = search.has('page') ? Number.parseInt(search.get('page')) : 0;
         const minIndexInclusive = pageIndex * pageSize;
         const maxIndexExclusive = minIndexInclusive + pageSize;
+        const allItems = response as IClientActionResultDto<ISingleDataResultDto[]>;
 
         return (<>
             <ul className="list-group">
-                {response.result.map((item, index) => index >= minIndexInclusive && index < maxIndexExclusive ? (<Link to={`/admin/browser?table=${table}&id=${item.id}`} key={item.id} className="list-group-item d-flex justify-content-between" onClick={() => updateSearch(id)}>
+                {allItems.result.map((item: ISingleDataResultDto, index: number) => index >= minIndexInclusive && index < maxIndexExclusive ? (<Link to={`/admin/browser?table=${table}&id=${item.id}`} key={item.id} className="list-group-item d-flex justify-content-between" onClick={() => updateSearch(id)}>
                     <span>{item.id}</span>
                     {item.name ? (<span>{item.name}</span>) : null}
                     {item.date ? (<span>{renderDate(item.date)}</span>) : null}
@@ -149,8 +152,8 @@ export function DataBrowser() {
         {loading || !response ? null : (<div>
             {response.success ? renderResponse() : null}
             {response.errors && response.errors.length ? (<ol>{response.errors.map((msg, index) => (<li key={index}>{msg}</li>))}</ol>) : null}
-            {response.errors && response.status ? (<div className="text-danger">
-                Status: {response.status}
+            {response.errors && (response as any).status ? (<div className="text-danger">
+                Status: {(response as any).status}
                 {Object.keys(response.errors).map(key => (<li key={key}>{key}: {response.errors[key]}</li>))}
             </div>) : null}
         </div>)}

@@ -1,45 +1,49 @@
-// noinspection JSUnresolvedFunction
-
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
-import {TemplateDivision} from "./TemplateDivision";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
+import {ITemplateDivisionProps, TemplateDivision} from "./TemplateDivision";
+import {IDivisionTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDivisionTemplateDto";
 
 describe('TemplateDivision', () => {
-    let context;
-    let reportedError;
-    let update;
-    let deleted;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let update: IDivisionTemplateDto;
+    let deleted: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onUpdate(value) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        update = null;
+        deleted = null;
+    });
+
+    async function onUpdate(value: IDivisionTemplateDto) {
         update = value;
     }
 
-    function onDelete() {
+    async function onDelete() {
         deleted = true;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
-        update = null;
-        deleted = null;
+    async function renderComponent(props: ITemplateDivisionProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<AdminContainer>
-                <TemplateDivision {...props} onUpdate={onUpdate} onDelete={onDelete} />
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<AdminContainer accounts={[]} tables={[]}>
+                <TemplateDivision {...props} />
             </AdminContainer>));
     }
 
@@ -52,6 +56,8 @@ describe('TemplateDivision', () => {
                     dates: [],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             const heading = context.container.querySelector('h6');
@@ -66,6 +72,8 @@ describe('TemplateDivision', () => {
                     dates: [],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             const divisionSharedAddresses = context.container.querySelector('div > ul:nth-child(2)');
@@ -85,6 +93,8 @@ describe('TemplateDivision', () => {
                     }],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             const dates = context.container.querySelector('div > ul:nth-child(3)');
@@ -101,6 +111,8 @@ describe('TemplateDivision', () => {
                     dates: [],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
             const heading = context.container.querySelector('h6');
 
@@ -117,6 +129,8 @@ describe('TemplateDivision', () => {
                     dates: [],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
             const heading = context.container.querySelector('h6');
 
@@ -134,6 +148,8 @@ describe('TemplateDivision', () => {
                     dates: [],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, '➕ Add shared address'));
@@ -152,6 +168,8 @@ describe('TemplateDivision', () => {
                     dates: [],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -172,6 +190,8 @@ describe('TemplateDivision', () => {
                     dates: [],
                 },
                 templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove division'));

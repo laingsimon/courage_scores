@@ -1,37 +1,48 @@
-// noinspection JSUnresolvedFunction
-
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import {SocketAdmin} from "./SocketAdmin";
 import {createTemporaryId} from "../../helpers/projection";
+import {IWebSocketDto} from "../../interfaces/serverSide/Live/IWebSocketDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {ILiveApi} from "../../api/live";
 
 describe('SocketAdmin', () => {
-    let context;
-    let reportedError;
-    let allSockets;
-    let closedSocket;
-    let apiResult;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let allSockets: IWebSocketDto[];
+    let closedSocket: string;
+    let apiResult: IClientActionResultDto<IWebSocketDto>;
 
-    const liveApi = {
+    const liveApi = api<ILiveApi>({
         getAll: async () => {
             return {
                 success: true,
                 result: allSockets,
             };
         },
-        close: async (id) => {
+        close: async (id: string) => {
             closedSocket = id;
             return apiResult || { success: true };
         },
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
     beforeEach(() => {
-        reportedError = null;
+        reportedError = new ErrorState();
         allSockets = [];
         closedSocket = null;
         apiResult = null;
@@ -39,23 +50,13 @@ describe('SocketAdmin', () => {
 
     async function renderComponent() {
         context = await renderApp(
-            {liveApi},
-            {name: 'Courage Scores'},
-            {
+            iocProps({liveApi}),
+            brandingProps(),
+            appProps({
                 account: {},
                 appLoading: false,
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                }
-            },
-            (<AdminContainer>
+            }, reportedError),
+            (<AdminContainer tables={[]} accounts={[]}>
                 <SocketAdmin/>
             </AdminContainer>));
     }
@@ -237,13 +238,13 @@ describe('SocketAdmin', () => {
             apiResult = {
                 success: false,
                 errors: [ 'ERROR' ],
-            };
+            } as any;
             await renderComponent();
 
             await doClick(findButton(context.container, '🗑'));
 
             expect(closedSocket).toEqual(socket.id);
-            expect(reportedError).toEqual('ERROR');
+            expect(reportedError.error).toEqual('ERROR');
         });
     });
 });

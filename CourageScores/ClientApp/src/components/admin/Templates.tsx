@@ -8,36 +8,40 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
 import {useLocation} from "react-router-dom";
+import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
 
 export function Templates() {
-    const EMPTY_TEMPLATE = {
+    const EMPTY_TEMPLATE: ITemplateDto = {
+        name: '',
         sharedAddresses: [],
         divisions: [],
     };
 
     const {templateApi} = useDependencies();
     const {onError} = useApp();
-    const [templates, setTemplates] = useState(null);
-    const [loading, setLoading] = useState(null);
-    const [selected, setSelected] = useState(null);
-    const [saving, setSaving] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [valid, setValid] = useState(null);
-    const [saveError, setSaveError] = useState(null);
-    const [editorFormat, setEditorFormat] = useState('visual');
-    const [shouldRefreshHealth, setShouldRefreshHealth] = useState(false);
+    const [templates, setTemplates] = useState<ITemplateDto[] | null>(null);
+    const [loading, setLoading] = useState<boolean | null>(null);
+    const [selected, setSelected] = useState<ITemplateDto | null>(null);
+    const [saving, setSaving] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
+    const [valid, setValid] = useState<boolean | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<ITemplateDto> | null>(null);
+    const [editorFormat, setEditorFormat] = useState<string>('visual');
+    const [shouldRefreshHealth, setShouldRefreshHealth] = useState<boolean>(false);
     const location = useLocation();
 
     async function loadTemplates() {
         try {
-            const templates = await templateApi.getAll();
+            const templates: ITemplateDto[] = await templateApi.getAll();
             setTemplates(templates);
             setLoading(false);
 
             const search = new URLSearchParams(location.search);
-            const idish = search.has('select') ? search.get('select') : null;
+            const idish: string | null = search.has('select') ? search.get('select') : null;
             if (!selected && idish) {
-                const templateToSelect = templates.filter(t => t.id === idish || t.name === idish)[0];
+                const templateToSelect: ITemplateDto = templates.filter(t => t.id === idish || t.name === idish)[0];
                 if (templateToSelect) {
                     setSelected(templateToSelect);
                 }
@@ -75,7 +79,7 @@ export function Templates() {
 
     async function refreshHealth() {
         setShouldRefreshHealth(false);
-        const response = await templateApi.health(selected);
+        const response: IClientActionResultDto<ISeasonHealthCheckResultDto> = await templateApi.health(selected);
 
         if (selected && response && response.result) {
             const newTemplate = Object.assign({}, selected);
@@ -84,7 +88,7 @@ export function Templates() {
         }
     }
 
-    function toggleSelected(t) {
+    function toggleSelected(t: ITemplateDto) {
         return () => {
             if (isSelected(t)) {
                 setSelected(null);
@@ -96,12 +100,12 @@ export function Templates() {
         }
     }
 
-    function setEditingTemplate(t) {
+    function setEditingTemplate(t: ITemplateDto) {
         setValid(true);
         setSelected(Object.assign({}, t));
     }
 
-    function isSelected(t) {
+    function isSelected(t: ITemplateDto) {
         if (!selected) {
             return false;
         }
@@ -123,14 +127,14 @@ export function Templates() {
         </ul>);
     }
 
-    function renderBadge(templateHealth) {
+    function renderBadge(templateHealth?: ISeasonHealthCheckResultDto) {
         if (!templateHealth) {
             return null;
         }
 
-        const success = Object.values(templateHealth.checks).filter(c => c.success).length;
-        const fail = Object.values(templateHealth.checks).filter(c => !c.success && c.errors.length === 0).length;
-        const error = Object.values(templateHealth.checks).filter(c => c.errors.length > 0).length + templateHealth.errors.length;
+        const success: number = Object.values(templateHealth.checks).filter(c => c.success).length;
+        const fail: number = Object.values(templateHealth.checks).filter(c => !c.success && c.errors.length === 0).length;
+        const error: number = Object.values(templateHealth.checks).filter(c => c.errors.length > 0).length + templateHealth.errors.length;
 
         return (<span>
             {success ? (<span className="badge rounded-pill bg-success margin-left">{success}</span>) : null}
@@ -149,9 +153,9 @@ export function Templates() {
         setSaving(true);
 
         try {
-            const template = Object.assign({}, selected);
-            template.lastUpdated = selected.updated;
-            const result = await templateApi.update(template);
+            const template: ITemplateDto = Object.assign({}, selected);
+            (template as any).lastUpdated = selected.updated;
+            const result: IClientActionResultDto<ITemplateDto> = await templateApi.update(template);
             if (result.success) {
                 setSelected(null);
                 await loadTemplates();
@@ -194,7 +198,7 @@ export function Templates() {
         }
     }
 
-    function updateTemplate(newTemplate) {
+    async function updateTemplate(newTemplate: ITemplateDto) {
         setSelected(newTemplate);
         setShouldRefreshHealth(true);
     }
@@ -226,8 +230,8 @@ export function Templates() {
                            onChange={event => setEditorFormat(event.target.checked ? 'visual' : 'text')}/>
                     <label className="form-check-label" htmlFor="editorFormat">Visual editor</label>
                 </div>
-                {editorFormat === 'text' ? (<TemplateTextEditor template={selected} setValid={setValid} onUpdate={updateTemplate} />) : null}
-                {editorFormat === 'visual' ? (<TemplateVisualEditor template={selected} setValid={setValid} onUpdate={updateTemplate} />) : null}
+                {editorFormat === 'text' ? (<TemplateTextEditor template={selected} setValid={async (valid: boolean) => setValid(valid)} onUpdate={updateTemplate} />) : null}
+                {editorFormat === 'visual' ? (<TemplateVisualEditor template={selected} onUpdate={updateTemplate} />) : null}
                 <div>
                     <button className="btn btn-primary margin-right" onClick={saveTemplate} disabled={!valid}>
                         {saving
@@ -252,7 +256,7 @@ export function Templates() {
                 </button>
             </div>)}
             {saveError
-                ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save template"/>)
+                ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save template"/>)
                 : null}
         </div>);
     } catch (e) {
