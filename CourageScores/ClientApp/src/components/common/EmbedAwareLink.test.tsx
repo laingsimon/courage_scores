@@ -1,36 +1,24 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {EmbedAwareLink} from "./EmbedAwareLink";
 
 describe('EmbedAwareLink', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(embed, to, children) {
-        reportedError = null;
+    async function renderComponent(embed: boolean, to: string, children: React.ReactNode) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                embed,
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({embed}),
             (<EmbedAwareLink to={to}>{children}</EmbedAwareLink>));
     }
 
     describe('when embedded', () => {
-        const embed = true;
+        const embed: boolean = true;
 
         it('adds target and rel attributes', async () => {
             await renderComponent(embed, '/somewhere', (<span>Hello</span>));
@@ -53,7 +41,7 @@ describe('EmbedAwareLink', () => {
     });
 
     describe('when not embedded', () => {
-        const embed = false;
+        const embed: boolean = false;
 
         it('does not add target or rel attributes', async () => {
             await renderComponent(embed, '/somewhere', (<span>Hello</span>));

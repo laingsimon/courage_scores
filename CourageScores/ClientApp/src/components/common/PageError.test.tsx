@@ -1,14 +1,22 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
 import {PageError} from "./PageError";
+import {IError} from "../../interfaces/IError";
 
 describe('PageError', () => {
-    let context;
-    let reportedError;
-    let appError;
-    let reportedClientSideException;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let appError: IError;
+    let reportedClientSideException: IError[];
 
     afterEach(() => {
         cleanUp(context);
@@ -18,36 +26,30 @@ describe('PageError', () => {
         appError = null;
     }
 
-    async function reportClientSideException(error) {
+    async function reportClientSideException(error: IError) {
         reportedClientSideException.push(error);
     }
 
-    async function renderComponent(error) {
-        reportedError = null;
+    async function renderComponent(error: IError) {
+        reportedError = new ErrorState();
         reportedClientSideException = [];
         appError = error;
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps(),
+            brandingProps(),
+            appProps({
                 error: appError,
                 reportClientSideException,
-                clearError
-            },
+                clearError,
+            }, reportedError),
             (<PageError error={appError}/>));
 
         // don't allow onError to be called - would call infinite-loop/recursion
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
     }
 
     describe('with error details', () => {
-        let error;
+        let error: IError;
 
         beforeEach(() => {
             error = {
@@ -126,10 +128,10 @@ describe('PageError', () => {
     });
 
     describe('error message', () => {
-        const error = 'MESSAGE';
+        const error: string = 'MESSAGE';
 
         it('shows error details', async () => {
-            await renderComponent(error);
+            await renderComponent(error as any);
 
             const message = context.container.querySelector('div.content-background > p > span:first-child');
             expect(message).toBeTruthy();
@@ -137,14 +139,14 @@ describe('PageError', () => {
         });
 
         it('does not show stack toggle', async () => {
-            await renderComponent(error);
+            await renderComponent(error as any);
 
             const toggle = context.container.querySelector('div.content-background > p > span.form-switch');
             expect(toggle).toBeFalsy();
         });
 
         it('clears app error', async () => {
-            await renderComponent(error);
+            await renderComponent(error as any);
 
             await doClick(findButton(context.container, 'Clear error'));
 
@@ -152,7 +154,7 @@ describe('PageError', () => {
         });
 
         it('reports client-side exception', async () => {
-            await renderComponent(error);
+            await renderComponent(error as any);
 
             expect(reportedClientSideException).toEqual([error]);
         });

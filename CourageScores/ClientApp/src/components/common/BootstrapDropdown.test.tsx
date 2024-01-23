@@ -1,28 +1,26 @@
-// noinspection JSUnresolvedFunction
-
 import React from "react";
-import {cleanUp, doClick, renderApp} from "../../helpers/tests";
-import {BootstrapDropdown} from "./BootstrapDropdown";
+import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
+import {BootstrapDropdown, IBootstrapDropdownItem, IBootstrapDropdownProps} from "./BootstrapDropdown";
 import {toDictionary} from "../../helpers/collections";
 
 describe('BootstrapDropdown', () => {
-    let context;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    async function renderComponent(props: IBootstrapDropdownProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            { },
+            iocProps(),
+            brandingProps(),
+            appProps(),
             (<BootstrapDropdown {...props} />));
     }
 
     describe('renders', () => {
-        const option1 = { text: 'TEXT 1', value: 'VALUE 1' };
-        const option2 = { text: 'TEXT 2', value: 'VALUE 2' };
+        const option1: IBootstrapDropdownItem = { text: 'TEXT 1', value: 'VALUE 1' };
+        const option2: IBootstrapDropdownItem = { text: 'TEXT 2', value: 'VALUE 2' };
 
         it('when disabled and nothing selected', async () => {
             await renderComponent({
@@ -50,7 +48,7 @@ describe('BootstrapDropdown', () => {
         });
 
         it('when disabled and something selected with collapsed text', async () => {
-            const option3_collapsedText = {
+            const option3_collapsedText: IBootstrapDropdownItem = {
                 value: 'VALUE 3',
                 text: 'TEXT 3',
                 collapsedText: '3',
@@ -147,7 +145,7 @@ describe('BootstrapDropdown', () => {
         });
 
         it('when item selected has no text', async () => {
-            const option3_noText = {
+            const option3_noText: IBootstrapDropdownItem = {
                 value: 'VALUE 3',
             };
             await renderComponent({
@@ -197,7 +195,7 @@ describe('BootstrapDropdown', () => {
         });
 
         it('with collapsed text', async () => {
-            const option3_collapsedText = {
+            const option3_collapsedText: IBootstrapDropdownItem = {
                 value: 'VALUE 3',
                 text: 'TEXT 3',
                 collapsedText: '3',
@@ -218,8 +216,8 @@ describe('BootstrapDropdown', () => {
     });
 
     describe('interactivity', () => {
-        const option1 = { text: 'TEXT 1', value: 'VALUE 1' };
-        const option2 = { text: 'TEXT 2', value: 'VALUE 2' };
+        const option1: IBootstrapDropdownItem = { text: 'TEXT 1', value: 'VALUE 1' };
+        const option2: IBootstrapDropdownItem = { text: 'TEXT 2', value: 'VALUE 2' };
 
         it('when read only cannot open drop down', async () => {
             await renderComponent({
@@ -257,10 +255,10 @@ describe('BootstrapDropdown', () => {
         });
 
         it('can select an item', async () => {
-            let selected;
+            let selected: string;
             await renderComponent({
                 options: [ option1, option2 ],
-                onChange: value => selected = value,
+                onChange: async (value: string) => selected = value,
             });
 
             await doClick(context.container, '.dropdown-toggle');
@@ -276,7 +274,7 @@ describe('BootstrapDropdown', () => {
             await renderComponent({
                 value: selected,
                 options: [ option1, option2 ],
-                onChange: value => selected = value,
+                onChange: async (value: string) => selected = value,
             });
 
             await doClick(context.container, '.dropdown-toggle');
@@ -304,7 +302,7 @@ describe('BootstrapDropdown', () => {
             let callbacks = [];
             await renderComponent({
                 options: [ option1, option2 ],
-                onOpen: (willBeOpen) => callbacks.push(willBeOpen),
+                onOpen: async (willBeOpen: boolean) => callbacks.push(willBeOpen),
             });
 
             await doClick(context.container, '.dropdown-toggle');
@@ -316,7 +314,7 @@ describe('BootstrapDropdown', () => {
             let callbacks = [];
             await renderComponent({
                 options: [ option1, option2 ],
-                onOpen: (willBeOpen) => callbacks.push(willBeOpen),
+                onOpen: async (willBeOpen: boolean) => callbacks.push(willBeOpen),
             });
             await doClick(context.container, '.dropdown-toggle');
             expect(callbacks).toEqual([true]);

@@ -3,20 +3,27 @@ import React, {useState} from "react";
 import {useBranding} from "../../BrandingContainer";
 import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 
-export function ShareButton({title, text, getHash, buttonText}) {
+export interface IShareButtonProps {
+    title?: string;
+    text?: string;
+    getHash?: () => Promise<string | null>;
+    buttonText?: string;
+}
+
+export function ShareButton({title, text, getHash, buttonText}: IShareButtonProps) {
     const location = useLocation();
     const {name} = useBranding();
-    const [gettingShareLink, setGettingShareLink] = useState(false);
+    const [gettingShareLink, setGettingShareLink] = useState<boolean>(false);
 
     async function share() {
         try {
             setGettingShareLink(true);
-            const hash = getHash ? await getHash() : location.hash;
+            const hash: string | null = getHash ? await getHash() : location.hash;
             if (hash === null && getHash) {
                 return;
             }
 
-            const shareData = {
+            const shareData: ShareData = {
                 text: text || name,
                 title: title || name,
                 url: location.pathname + location.search + hash

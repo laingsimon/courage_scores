@@ -2,11 +2,15 @@ import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
 import React, {useState} from "react";
 import {useApp} from "../../AppContainer";
 
-export function DebugOptions({ children }) {
-    const [open, setOpen] = useState(false);
+export interface IDebugOptionsProps {
+    children: React.ReactNode;
+}
+
+export function DebugOptions({ children }: IDebugOptionsProps) {
+    const [open, setOpen] = useState<boolean>(false);
     const {account} = useApp();
 
-    const canDisplay = account && account.access && account.access.showDebugOptions;
+    const canDisplay: boolean = account && account.access && account.access.showDebugOptions;
     if (!canDisplay) {
         return null;
     }

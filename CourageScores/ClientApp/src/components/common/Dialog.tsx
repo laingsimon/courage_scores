@@ -1,6 +1,15 @@
 import React from 'react';
 
-export function Dialog({children, onClose, title, slim, className, contentWidth}) {
+export interface IDialogProps {
+    children: React.ReactNode;
+    onClose?: () => Promise<any>;
+    title?: string;
+    slim?: boolean;
+    className?: string;
+    contentWidth?: boolean
+}
+
+export function Dialog({children, onClose, title, slim, className, contentWidth}: IDialogProps) {
     return (<div className="text-start">
         <div className={`modal fade show text-black ${className || ''}`} role="dialog" style={{display: 'block'}}>
             <div className={`modal-dialog modal-dialog-centered${slim ? '' : ' modal-dialog-larger-max-width'}${contentWidth ? ' modal-sm' : ''}`}>

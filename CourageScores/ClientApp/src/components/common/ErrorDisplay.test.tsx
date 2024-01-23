@@ -1,16 +1,22 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {ErrorDisplay, IErrorDisplayProps} from "./ErrorDisplay";
 
 describe('ErrorDisplay', () => {
-    let context;
-    let reportedError;
-    let closed;
-    let reportedClientSideException;
+    let context: TestContext;
+    let closed: boolean;
+    let reportedClientSideException: Error;
 
-    function onClose() {
+    async function onClose() {
         closed = true;
     }
 
@@ -18,25 +24,18 @@ describe('ErrorDisplay', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    async function renderComponent(props: IErrorDisplayProps) {
         closed = false;
         reportedClientSideException = null;
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                reportClientSideException: (err) => {
+            iocProps(),
+            brandingProps(),
+            appProps({
+                reportClientSideException: (err: Error) => {
                     reportedClientSideException = err;
                 }
-            },
-            (<ErrorDisplay {...props} onClose={onClose}/>));
+            }),
+            (<ErrorDisplay {...props} />));
     }
 
     describe('with client side exception', () => {
@@ -46,7 +45,8 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             expect(reportedClientSideException).not.toBeNull();
@@ -58,7 +58,8 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             await doClick(findButton(context.container, 'Close'));
@@ -71,7 +72,8 @@ describe('ErrorDisplay', () => {
                 messages: ['message1'],
                 warnings: ['warning1'],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -85,7 +87,8 @@ describe('ErrorDisplay', () => {
                 messages: ['message1'],
                 errors: ['error1'],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -99,7 +102,8 @@ describe('ErrorDisplay', () => {
                 errors: ['error1'],
                 warnings: ['warning1'],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -122,7 +126,8 @@ describe('ErrorDisplay', () => {
                     Type: 'dotnet type',
                     StackTrace: ['dotnet', 'stack', 'trace'],
                     Message: 'dotnet message'
-                }
+                },
+                onClose,
             });
 
             expect(reportedClientSideException).not.toBeNull();
@@ -140,7 +145,8 @@ describe('ErrorDisplay', () => {
                     Type: 'dotnet type',
                     StackTrace: ['dotnet', 'stack', 'trace'],
                     Message: 'dotnet message'
-                }
+                },
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -161,7 +167,8 @@ describe('ErrorDisplay', () => {
                 Exception: {
                     Type: 'dotnet type',
                     Message: 'dotnet message'
-                }
+                },
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -180,7 +187,8 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -199,7 +207,8 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -213,7 +222,8 @@ describe('ErrorDisplay', () => {
                 messages: [],
                 warnings: [],
                 title: '',
-                Exception: null
+                Exception: null,
+                onClose,
             });
 
             const dialog = context.container.querySelector('div.modal-dialog');

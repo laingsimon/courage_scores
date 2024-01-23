@@ -1,45 +1,55 @@
 // noinspection JSUnresolvedReference
 
-import {add180, addHiCheck, remove180, removeHiCheck} from "./Accolades";
-import {playerBuilder} from "../../helpers/builders";
+import {add180, addHiCheck, IAccoladeFixtureData, remove180, removeHiCheck} from "./Accolades";
+import {playerBuilder} from "../../helpers/builders/players";
+import {IGamePlayerDto} from "../../interfaces/serverSide/Game/IGamePlayerDto";
 
 describe('Accolades', () => {
-    const player1 = playerBuilder('PLAYER 1').build();
-    const player2 = playerBuilder('PLAYER 2').build();
-    const player3 = playerBuilder('PLAYER 3').build();
+    const player1: IGamePlayerDto = playerBuilder('PLAYER 1').build();
+    const player2: IGamePlayerDto = playerBuilder('PLAYER 2').build();
+    const player3: IGamePlayerDto = playerBuilder('PLAYER 3').build();
 
     describe('add180', () => {
         it('will add player to a null set', async () => {
-            let updated;
+            let updated: IAccoladeFixtureData;
             const sut = add180({
+                over100Checkouts: null,
                 oneEighties: null,
-            }, u => updated = u);
+            }, (u: IAccoladeFixtureData) => updated = u);
 
-            sut(player1);
+            await sut(player1);
 
-            expect(updated.oneEighties).toEqual([player1]);
+            expect(updated.oneEighties).toEqual([{
+                id: player1.id,
+                name: player1.name,
+            }]);
         });
 
         it('will add player to an empty set', async () => {
-            let updated;
+            let updated: IAccoladeFixtureData;
             const sut = add180({
+                over100Checkouts: null,
                 oneEighties: [],
-            }, u => updated = u);
+            }, (u: IAccoladeFixtureData) => updated = u);
 
-            sut(player1);
+            await sut(player1);
 
-            expect(updated.oneEighties).toEqual([player1]);
+            expect(updated.oneEighties).toEqual([{
+                id: player1.id,
+                name: player1.name,
+            }]);
         });
     });
 
     describe('remove180', () => {
         it('will remove player at index', async () => {
-            let updated;
+            let updated: IAccoladeFixtureData;
             const sut = remove180({
+                over100Checkouts: null,
                 oneEighties: [player1, player2, player3],
             }, u => updated = u);
 
-            sut(player2.id, 1);
+            await sut(player2.id, 1);
 
             expect(updated.oneEighties).toEqual([player1, player3]);
         });
@@ -47,12 +57,13 @@ describe('Accolades', () => {
 
     describe('addHiCheck', () => {
         it('will add player to a null set', async () => {
-            let updated;
+            let updated: IAccoladeFixtureData;
             const sut = addHiCheck({
+                oneEighties: null,
                 over100Checkouts: null,
-            }, u => updated = u);
+            }, (u: IAccoladeFixtureData) => updated = u);
 
-            sut(player1, '140');
+            await sut(player1, '140');
 
             expect(updated.over100Checkouts).toEqual([{
                 id: player1.id,
@@ -62,12 +73,13 @@ describe('Accolades', () => {
         });
 
         it('will add player to an empty set', async () => {
-            let updated;
+            let updated: IAccoladeFixtureData;
             const sut = addHiCheck({
+                oneEighties: null,
                 over100Checkouts: [],
-            }, u => updated = u);
+            }, (u: IAccoladeFixtureData) => updated = u);
 
-            sut(player1, '140');
+            await sut(player1, '140');
 
             expect(updated.over100Checkouts).toEqual([{
                 id: player1.id,
@@ -79,12 +91,13 @@ describe('Accolades', () => {
 
     describe('removeHiCheck', () => {
         it('will remove player at index', async () => {
-            let updated;
+            let updated: IAccoladeFixtureData;
             const sut = removeHiCheck({
+                oneEighties: null,
                 over100Checkouts: [player1, player2, player3],
-            }, u => updated = u);
+            }, (u: IAccoladeFixtureData) => updated = u);
 
-            sut(player2.id, 1);
+            await sut(player2.id, 1);
 
             expect(updated.over100Checkouts).toEqual([player1, player3]);
         });

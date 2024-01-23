@@ -1,47 +1,40 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, noop, renderApp} from "../../helpers/tests";
+import {api, appProps, cleanUp, doClick, iocProps, noop, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
-import {ExportDataButton} from "./ExportDataButton";
+import {ExportDataButton, IExportDataButtonProps} from "./ExportDataButton";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IExportDataRequestDto} from "../../interfaces/serverSide/Data/IExportDataRequestDto";
+import {IExportDataResultDto} from "../../interfaces/serverSide/Data/IExportDataResultDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IDataApi} from "../../api/data";
 
 describe('ExportDataButton', () => {
-    let context;
-    let reportedError;
-    let exportRequest;
-    let apiResult;
+    let context: TestContext;
+    let exportRequest: IExportDataRequestDto;
+    let apiResult: IClientActionResultDto<IExportDataResultDto>;
 
-    const dataApi = {
-        export: (request) => {
+    const dataApi = api<IDataApi>({
+        export: async (request: IExportDataRequestDto): Promise<IClientActionResultDto<IExportDataResultDto>> => {
             exportRequest = request;
-            return apiResult || {success: false};
+            return apiResult || {success: false} as any;
         },
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, account) {
-        reportedError = null;
+    async function renderComponent(props: IExportDataButtonProps, account: IUserDto) {
         exportRequest = null;
         apiResult = null;
         context = await renderApp(
-            {dataApi},
+            iocProps({dataApi}),
             null,
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                account,
-            },
+            appProps({account}),
             (<ExportDataButton {...props} />));
     }
 
     describe('when logged out', () => {
-        const account = null;
+        const account: IUserDto = null;
 
         it('renders nothing', async () => {
             await renderComponent({}, account);
@@ -51,8 +44,13 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, not permitted to export', () => {
-        const account = {
-            access: {exportData: false},
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
+            access: {
+                exportData: false
+            },
         };
 
         it('renders nothing', async () => {
@@ -63,8 +61,13 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, permitted to export', () => {
-        const account = {
-            access: {exportData: true},
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
+            access: {
+                exportData: true
+            },
         };
 
         it('when nothing to export, does not render button', async () => {
@@ -116,7 +119,7 @@ describe('ExportDataButton', () => {
                 }
             }, account);
             const button = context.container.querySelector('button');
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
 
             await doClick(button);
@@ -138,9 +141,9 @@ describe('ExportDataButton', () => {
                 result: {
                     zip: 'ZIP CONTENT'
                 },
-            };
-            let openedWindow;
-            window.open = (url) => {
+            } as any;
+            let openedWindow: string;
+            (window as any).open = (url: string) => {
                 openedWindow = url;
             }
 

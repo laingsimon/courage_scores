@@ -1,34 +1,32 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
-import {ShareButton} from "./ShareButton";
+import {IShareButtonProps, ShareButton} from "./ShareButton";
 
 describe('ShareButton', () => {
-    let context;
-    let reportedError;
-    let shareData;
+    let context: TestContext;
+    let shareData: ShareData;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, name, currentPath) {
+    async function renderComponent(props: IShareButtonProps, name?: string, currentPath?: string) {
         // noinspection JSValidateTypes
-        navigator.share = (data) => shareData = data;
-        reportedError = null;
+        (navigator as any).share = async (data: ShareData) => shareData = data;
         shareData = null;
         context = await renderApp(
-            {},
-            {name},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
+            iocProps(),
+            brandingProps({name}),
+            appProps(),
             (<ShareButton {...props} />),
             null,
             currentPath);
@@ -39,7 +37,7 @@ describe('ShareButton', () => {
             await renderComponent({
                 title: 'TITLE',
                 text: 'TEXT',
-                getHash: () => '#HASH'
+                getHash: async () => '#HASH',
             }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));
@@ -53,7 +51,7 @@ describe('ShareButton', () => {
 
         it('shares page with default title and text', async () => {
             await renderComponent({
-                getHash: () => '#HASH'
+                getHash: async () => '#HASH'
             }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));
@@ -67,7 +65,7 @@ describe('ShareButton', () => {
 
         it('shares page without any hash', async () => {
             await renderComponent({
-                getHash: () => ''
+                getHash: async () => '',
             }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));
@@ -80,7 +78,7 @@ describe('ShareButton', () => {
 
         it('does not share page with null hash', async () => {
             await renderComponent({
-                getHash: () => null
+                getHash: async () => null,
             });
 
             await doClick(findButton(context.container, '🔗'));
@@ -119,7 +117,7 @@ describe('ShareButton', () => {
 
         it('shares page without any hash', async () => {
             await renderComponent({
-                getHash: () => ''
+                getHash: async () => '',
             }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));

@@ -1,21 +1,20 @@
-// noinspection JSUnresolvedFunction
-
 import React from "react";
-import {cleanUp, doClick, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {DebugOptions} from "./DebugOptions";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
 
 describe('DebugOptions', () => {
-    let context;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(account, children) {
+    async function renderComponent(account: IUserDto | null, children: React.ReactNode) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {account},
+            iocProps(),
+            brandingProps(),
+            appProps({account}),
             (<DebugOptions>{children}</DebugOptions>));
     }
 
@@ -29,7 +28,12 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when no access', async () => {
-        const account = { };
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
+            access: {},
+        };
 
         await renderComponent(account, (<span>item</span>));
 
@@ -38,7 +42,10 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when not permitted', async () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 showDebugOptions: false,
             }
@@ -51,7 +58,10 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when permitted', async () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 showDebugOptions: true,
             }
@@ -64,7 +74,10 @@ describe('DebugOptions', () => {
     });
 
     it('can expand dropdown', async () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 showDebugOptions: true,
             }
@@ -77,7 +90,10 @@ describe('DebugOptions', () => {
     });
 
     it('can collapse dropdown', async () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 showDebugOptions: true,
             }

@@ -1,7 +1,14 @@
 import {Link} from "react-router-dom";
 import {useApp} from "../../AppContainer";
+import React from "react";
 
-export function EmbedAwareLink({children, className, to}) {
+export interface IEmbedAwareLinkProps {
+    children: React.ReactNode;
+    className?: string;
+    to: string;
+}
+
+export function EmbedAwareLink({children, className, to}: IEmbedAwareLinkProps) {
     const {embed} = useApp();
     const props = embed ? getEmbeddedLinkProps() : {};
 

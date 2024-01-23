@@ -1,6 +1,16 @@
-export function add180(fixtureData, setFixtureData) {
-    return (player) => {
-        const newFixtureData = Object.assign({}, fixtureData);
+import {IGamePlayerDto} from "../../interfaces/serverSide/Game/IGamePlayerDto";
+import {ITournamentPlayerDto} from "../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {INotablePlayerDto} from "../../interfaces/serverSide/Game/INotablePlayerDto";
+import {INotableTournamentPlayerDto} from "../../interfaces/serverSide/Game/INotableTournamentPlayerDto";
+
+export interface IAccoladeFixtureData {
+    oneEighties?: (IGamePlayerDto | ITournamentPlayerDto)[];
+    over100Checkouts?: (INotablePlayerDto | INotableTournamentPlayerDto)[];
+}
+
+export function add180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: INotablePlayerDto | INotableTournamentPlayerDto) => Promise<any> {
+    return async (player: IGamePlayerDto | ITournamentPlayerDto) => {
+        const newFixtureData: T = Object.assign({}, fixtureData);
 
         if (!newFixtureData.oneEighties) {
             newFixtureData.oneEighties = [];
@@ -8,16 +18,16 @@ export function add180(fixtureData, setFixtureData) {
 
         newFixtureData.oneEighties.push({
             id: player.id,
-            name: player.name
+            name: player.name,
         });
 
         setFixtureData(newFixtureData);
     }
 }
 
-export function remove180(fixtureData, setFixtureData) {
-    return (playerId, index) => {
-        const newFixtureData = Object.assign({}, fixtureData);
+export function remove180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (playerId: string, index: number) => Promise<any> {
+    return async (_: string, index: number) => {
+        const newFixtureData: T = Object.assign({}, fixtureData);
 
         newFixtureData.oneEighties.splice(index, 1);
 
@@ -25,9 +35,9 @@ export function remove180(fixtureData, setFixtureData) {
     }
 }
 
-export function addHiCheck(fixtureData, setFixtureData) {
-    return (player, notes) => {
-        const newFixtureData = Object.assign({}, fixtureData);
+export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: INotablePlayerDto | INotableTournamentPlayerDto, notes: string) => Promise<any> {
+    return async (player: INotablePlayerDto | INotableTournamentPlayerDto, notes: string) => {
+        const newFixtureData: T = Object.assign({}, fixtureData);
 
         if (!newFixtureData.over100Checkouts) {
             newFixtureData.over100Checkouts = [];
@@ -36,16 +46,16 @@ export function addHiCheck(fixtureData, setFixtureData) {
         newFixtureData.over100Checkouts.push({
             id: player.id,
             name: player.name,
-            notes: notes
+            notes: notes,
         });
 
         setFixtureData(newFixtureData);
     }
 }
 
-export function removeHiCheck(fixtureData, setFixtureData) {
-    return (playerId, index) => {
-        const newFixtureData = Object.assign({}, fixtureData);
+export function removeHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (playerId: string, index: number) => Promise<any> {
+    return async (_: string, index: number) => {
+        const newFixtureData: T = Object.assign({}, fixtureData);
 
         newFixtureData.over100Checkouts.splice(index, 1);
 

@@ -2,19 +2,42 @@ import React, {useState} from 'react';
 import {Dialog} from "./Dialog";
 import {useApp} from "../../AppContainer";
 
-export function ErrorDisplay({errors, messages, warnings, onClose, title, Exception}) {
-    const [errorReported, setErrorReported] = useState(false);
+export interface IErrorDisplayProps {
+    errors?: any;
+    messages?: string[];
+    warnings?: string[];
+    onClose: () => Promise<any>;
+    title?: string;
+    Exception?: IServerSideException;
+}
+
+export interface IServerSideError {
+    Exception?: IServerSideException;
+}
+
+export interface IServerSideValidationErrors {
+    [ key: string ]: string[];
+}
+
+export interface IServerSideException {
+    Type: string;
+    StackTrace?: string[];
+    Message: string;
+}
+
+export function ErrorDisplay({errors, messages, warnings, onClose, title, Exception}: IErrorDisplayProps) {
+    const [errorReported, setErrorReported] = useState<boolean>(false);
     const {reportClientSideException} = useApp();
 
-    function renderValidationErrors(errors, key) {
+    function renderValidationErrors(errors: IServerSideValidationErrors, key?: number) {
         return (<ol className="text-danger" key={key}>
-            {Object.keys(errors).map(key => {
-                return (<li key={key}>{key} {errors[key].map((e, index) => (<p key={index}>{e}</p>))}</li>)
+            {Object.keys(errors).map((key: string) => {
+                return (<li key={key}>{key} {errors[key].map(((e: string, index: number) => (<p key={index}>{e}</p>)))}</li>)
             })}
         </ol>)
     }
 
-    function renderServerSideException(exc, key) {
+    function renderServerSideException(exc: IServerSideException, key?: number) {
         const type = exc.Type;
         const stack = exc.StackTrace;
         const message = exc.Message;
@@ -27,20 +50,22 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
         </div>);
     }
 
-    function renderError(e, key) {
+    function renderError(e: string | null | IServerSideException | IServerSideValidationErrors | IServerSideError, key: number) {
         if (!e) {
             return null;
         }
 
         if ((typeof e) === "string") {
-            return (<p key={key + '_error'} className="text-danger">{e}</p>);
+            const message: string = e as string;
+            return (<p key={key + '_error'} className="text-danger">{message}</p>);
         }
 
-        if (e.Exception) {
-            return renderServerSideException(e.Exception, key);
+        const serverSideException: IServerSideError = e as IServerSideError;
+        if (serverSideException.Exception) {
+            return renderServerSideException(serverSideException.Exception, key);
         }
 
-        return renderValidationErrors(e, key);
+        return renderValidationErrors(e as IServerSideValidationErrors, key);
     }
 
     if (errors && !errorReported) {
@@ -63,12 +88,12 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
         <div>
             {Exception ? renderServerSideException(Exception) : null}
             {errors && errors.length !== undefined
-                ? errors.map((e, index) => {
+                ? errors.map((e: string, index: number) => {
                     return renderError(e, index);
                 })
                 : null}
             {errors && errors.length === undefined
-                ? (renderValidationErrors(errors))
+                ? (renderValidationErrors(errors as IServerSideValidationErrors))
                 : null}
             {warnings
                 ? warnings.map((w, index) => (<p key={index + '_warning'} className="text-warning">{w}</p>))
