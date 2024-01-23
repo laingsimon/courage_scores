@@ -1,51 +1,66 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionTeam} from "./DivisionTeam";
-import {DivisionDataContainer} from "../DivisionDataContainer";
-import {divisionBuilder, seasonBuilder} from "../../helpers/builders";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
+import {IDivisionDataDto} from "../../interfaces/serverSide/Division/IDivisionDataDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {ITeamApi} from "../../api/team";
+import {seasonBuilder} from "../../helpers/builders/seasons";
+import {divisionBuilder} from "../../helpers/builders/divisions";
 
 describe('DivisionTeam', () => {
-    let context;
-    let reportedError;
-    let divisionReloaded;
-    let updatedTeam;
-    let apiResponse;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let updatedTeam: {team: IEditTeamDto, lastUpdated?: string};
+    let apiResponse: IClientActionResultDto<ITeamDto>;
 
-    const teamApi = {
-        update: async (team, lastUpdated) => {
+    const teamApi = api<ITeamApi>({
+        update: async (team: IEditTeamDto, lastUpdated?: string) => {
             updatedTeam = {team, lastUpdated};
             return apiResponse || {success: true, result: team};
         }
-    };
+    });
 
-    async function onReloadDivision() {
-        divisionReloaded = true;
+    async function onReloadDivision(): Promise<IDivisionDataDto | null> {
+        return null;
     }
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(team, account, divisionData, teams) {
-        reportedError = null;
-        divisionReloaded = false;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedTeam = null;
+    });
+
+    async function renderComponent(team: IDivisionTeamDto, account: IUserDto, divisionData: IDivisionDataContainerProps, teams?: ITeamDto[]) {
         context = await renderApp(
-            {teamApi},
-            {name: 'Courage Scores'},
-            {
+            iocProps({teamApi}),
+            brandingProps(),
+            appProps({
                 account,
-                onError: (err) => {
-                    reportedError = err;
-                },
                 divisions: [],
                 teams: teams || [],
                 seasons: []
-            },
-            (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
+            }, reportedError),
+            (<DivisionDataContainer {...divisionData} >
                 <DivisionTeam team={team}/>
             </DivisionDataContainer>),
             null,
@@ -60,7 +75,7 @@ describe('DivisionTeam', () => {
             .build();
 
         it('renders team details', async () => {
-            const team = {
+            const team: IDivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -68,11 +83,12 @@ describe('DivisionTeam', () => {
                 fixturesWon: 3,
                 fixturesLost: 4,
                 fixturesDrawn: 5,
-                difference: 6
+                difference: 6,
+                address: '',
             };
 
-            await renderComponent(team, account, {id: division.id, season});
-            expect(reportedError).toBeNull();
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            expect(reportedError.hasError()).toEqual(false);
 
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(c => c.textContent);
@@ -88,7 +104,7 @@ describe('DivisionTeam', () => {
         });
 
         it('does not render editing controls', async () => {
-            const team = {
+            const team: IDivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -96,11 +112,12 @@ describe('DivisionTeam', () => {
                 fixturesWon: 3,
                 fixturesLost: 4,
                 fixturesDrawn: 5,
-                difference: 6
+                difference: 6,
+                address: '',
             };
 
-            await renderComponent(team, account, {id: division.id, season});
-            expect(reportedError).toBeNull();
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            expect(reportedError.hasError()).toEqual(false);
 
             const firstCell = context.container.querySelector('td:first-child');
             expect(firstCell.textContent).toEqual('TEAM');
@@ -109,7 +126,10 @@ describe('DivisionTeam', () => {
     });
 
     describe('when logged in', () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 manageTeams: true,
             }
@@ -120,7 +140,7 @@ describe('DivisionTeam', () => {
             .build();
 
         it('can edit team', async () => {
-            const team = {
+            const team: IDivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -128,22 +148,23 @@ describe('DivisionTeam', () => {
                 fixturesWon: 3,
                 fixturesLost: 4,
                 fixturesDrawn: 5,
-                difference: 6
+                difference: 6,
+                address: '',
             };
-            await renderComponent(team, account, {id: division.id, season});
-            expect(reportedError).toBeNull();
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            expect(reportedError.hasError()).toEqual(false);
             const firstCell = context.container.querySelector('td:first-child');
 
             await doClick(findButton(firstCell, '✏️'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Edit team: TEAM');
         });
 
         it('can change team details', async () => {
-            const team = {
+            const team: IDivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -153,9 +174,10 @@ describe('DivisionTeam', () => {
                 fixturesDrawn: 5,
                 difference: 6,
                 updated: '2023-07-01T00:00:00',
+                address: '',
             };
-            await renderComponent(team, account, {id: division.id, season});
-            expect(reportedError).toBeNull();
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            expect(reportedError.hasError()).toEqual(false);
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
@@ -163,36 +185,14 @@ describe('DivisionTeam', () => {
             await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);
             await doClick(findButton(dialog, 'Save team'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedTeam).not.toBeNull();
             expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(updatedTeam.team.name).toEqual('NEW TEAM');
         });
 
         it('can close edit dialog', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                played: 1,
-                points: 2,
-                fixturesWon: 3,
-                fixturesLost: 4,
-                fixturesDrawn: 5,
-                difference: 6
-            };
-            await renderComponent(team, account, {id: division.id, season});
-            expect(reportedError).toBeNull();
-            const firstCell = context.container.querySelector('td:first-child');
-            await doClick(findButton(firstCell, '✏️'));
-
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
-
-            expect(reportedError).toBeNull();
-            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
-        });
-
-        it('can show add to season dialog', async () => {
-            const team = {
+            const team: IDivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -201,22 +201,46 @@ describe('DivisionTeam', () => {
                 fixturesLost: 4,
                 fixturesDrawn: 5,
                 difference: 6,
-                seasons: []
+                address: '',
             };
-            await renderComponent(team, account, {id: division.id, season}, [team]);
-            expect(reportedError).toBeNull();
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
+            expect(reportedError.hasError()).toEqual(false);
+            const firstCell = context.container.querySelector('td:first-child');
+            await doClick(findButton(firstCell, '✏️'));
+
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
+
+            expect(reportedError.hasError()).toEqual(false);
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can show add to season dialog', async () => {
+            const team: IDivisionTeamDto & ITeamDto = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                played: 1,
+                points: 2,
+                fixturesWon: 3,
+                fixturesLost: 4,
+                fixturesDrawn: 5,
+                difference: 6,
+                address: '',
+                seasons: [],
+            };
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null}, [team]);
+            expect(reportedError.hasError()).toEqual(false);
             const firstCell = context.container.querySelector('td:first-child');
 
             await doClick(findButton(firstCell, '➕'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Assign seasons');
         });
 
         it('can close add to season dialog', async () => {
-            const team = {
+            const team: IDivisionTeamDto & ITeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -225,10 +249,11 @@ describe('DivisionTeam', () => {
                 fixturesLost: 4,
                 fixturesDrawn: 5,
                 difference: 6,
-                seasons: []
+                address: '',
+                seasons: [],
             };
-            await renderComponent(team, account, {id: division.id, season}, [team]);
-            expect(reportedError).toBeNull();
+            await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null}, [team]);
+            expect(reportedError.hasError()).toEqual(false);
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '➕'));
             const dialog = context.container.querySelector('.modal-dialog');

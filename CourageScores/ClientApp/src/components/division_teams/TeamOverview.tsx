@@ -7,8 +7,13 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
+import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
 
-export function TeamOverview({teamId}) {
+export interface ITeamOverviewProps {
+    teamId: string;
+}
+
+export function TeamOverview({teamId}: ITeamOverviewProps) {
     const {name} = useBranding();
     const {
         fixtures: divisionDataFixtures,
@@ -26,7 +31,7 @@ export function TeamOverview({teamId}) {
     }).filter(fixtureDate => any(fixtureDate.fixtures));
     const players = divisionDataPlayers.filter(p => p.teamId === teamId);
 
-    function renderScore(score, postponed) {
+    function renderScore(score: number | null, postponed: boolean) {
         if (postponed) {
             return 'P';
         }
@@ -38,7 +43,7 @@ export function TeamOverview({teamId}) {
         return score;
     }
 
-    function renderFixtureAndDate(fixtureDate) {
+    function renderFixtureAndDate(fixtureDate: IDivisionFixtureDateDto) {
         const fixture = fixtureDate.fixtures[0];
 
         return (<tr key={fixture.id}>

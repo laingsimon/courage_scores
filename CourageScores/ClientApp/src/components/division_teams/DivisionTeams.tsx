@@ -6,20 +6,21 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
+import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
 
 export function DivisionTeams() {
     const {id: divisionId, season, teams, onReloadDivision} = useDivisionData();
     const {account} = useApp();
     const isAdmin = account && account.access && account.access.manageTeams;
-    const [newTeam, setNewTeam] = useState(false);
-    const [teamDetails, setTeamDetails] = useState({
+    const [newTeam, setNewTeam] = useState<boolean>(false);
+    const [teamDetails, setTeamDetails] = useState<IEditTeamDto>({
         name: '',
         address: '',
         newDivisionId: divisionId
     });
 
-    function onChange(name, value) {
-        const newTeamDetails = Object.assign({}, teamDetails);
+    async function onChange(name: string, value: string) {
+        const newTeamDetails: IEditTeamDto = Object.assign({}, teamDetails);
         newTeamDetails[name] = value;
         setTeamDetails(newTeamDetails);
     }
@@ -36,7 +37,7 @@ export function DivisionTeams() {
                 divisionId={divisionId}
                 seasonId={season.id}
                 team={teamDetails}
-                onCancel={() => setNewTeam(false)}
+                onCancel={async () => setNewTeam(false)}
                 onSaved={onTeamCreated}
                 onChange={onChange}/>
         </Dialog>);

@@ -1,17 +1,30 @@
 import React, {useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {handleChange} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
-export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, seasonId, team}) {
+export interface IEditTeamDetailsProps {
+    divisionId: string;
+    onSaved: (team: ITeamDto) => Promise<any>;
+    onChange?: (name: string, value: string) => Promise<any>;
+    onCancel: () => Promise<any>;
+    seasonId: string;
+    team: IEditTeamDto & ITeamDto;
+}
+
+export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, seasonId, team}: IEditTeamDetailsProps) {
     const {divisions, onError} = useApp();
     const {teamApi} = useDependencies();
-    const [saving, setSaving] = useState(false);
-    const [saveError, setSaveError] = useState(null);
-    const divisionOptions = divisions.map(division => {
+    const [saving, setSaving] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<any>(null);
+    const divisionOptions: IBootstrapDropdownItem[] = divisions.map((division: IDivisionDto) => {
         return {value: division.id, text: division.name};
     });
 
@@ -30,7 +43,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
         setSaving(true);
 
         try {
-            const response = await teamApi.update({
+            const response: IClientActionResultDto<ITeamDto> = await teamApi.update({
                 id: team.id || undefined,
                 name: team.name,
                 address: team.address,

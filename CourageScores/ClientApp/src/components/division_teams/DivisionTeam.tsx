@@ -6,8 +6,13 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
+import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
 
-export function DivisionTeam({team}) {
+export interface IDivisionTeamProps {
+    team: IDivisionTeamDto;
+}
+
+export function DivisionTeam({team}: IDivisionTeamProps) {
     const {id: divisionId, season, onReloadDivision, name: divisionName} = useDivisionData();
     const {account, onError} = useApp();
     const [teamDetails, setTeamDetails] = useState(Object.assign({newDivisionId: divisionId}, team));
@@ -26,10 +31,9 @@ export function DivisionTeam({team}) {
             return (<Dialog title={`Edit team: ${team.name}`}>
                 <EditTeamDetails
                     divisionId={divisionId}
-                    newDivisionId={teamDetails.newDivisionId}
                     seasonId={season.id}
                     team={teamDetails}
-                    onCancel={() => setEditTeam(false)}
+                    onCancel={async () => setEditTeam(false)}
                     onChange={propChanged(teamDetails, setTeamDetails)}
                     onSaved={teamDetailSaved}
                 />
@@ -43,7 +47,7 @@ export function DivisionTeam({team}) {
     function renderAddTeamToSeason() {
         try {
             return (<Dialog title="Assign seasons">
-                <AssignTeamToSeasons teamOverview={team} onClose={() => setAddTeamToSeason(false)}/>
+                <AssignTeamToSeasons teamOverview={team} onClose={async () => setAddTeamToSeason(false)}/>
             </Dialog>);
         } catch (e) {
             /* istanbul ignore next */

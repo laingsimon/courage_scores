@@ -5,14 +5,23 @@ import {stateChanged} from "../../helpers/events";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useDependencies} from "../../IocContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
-export function AssignTeamToSeasons({teamOverview, onClose}) {
+export interface IAssignTeamToSeasonsProps {
+    teamOverview: IDivisionTeamDto;
+    onClose: () => Promise<any>;
+}
+
+export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeasonsProps) {
     const {season: currentSeason, onReloadDivision} = useDivisionData();
     const {seasons, teams, onError, reloadAll} = useApp();
     const {teamApi} = useDependencies();
-    const team = teams.filter(t => t.id === teamOverview.id)[0];
-    const initialSeasonIds = team ? team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId) : [];
-    const [selectedSeasonIds, setSelectedSeasonIds] = useState(initialSeasonIds);
+    const team: ITeamDto = teams.filter((t: ITeamDto) => t.id === teamOverview.id)[0];
+    const initialSeasonIds: string[] = team ? team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId) : [];
+    const [selectedSeasonIds, setSelectedSeasonIds]: [string[], (value: (((prevState: string[]) => string[]) | string[])) => void] = useState(initialSeasonIds);
     const [saving, setSaving] = useState(false);
     const [copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason] = useState(true);
     const changes = getChanges(initialSeasonIds, selectedSeasonIds);
@@ -20,12 +29,13 @@ export function AssignTeamToSeasons({teamOverview, onClose}) {
     async function saveChanges() {
         /* istanbul ignore next */
         if (saving || !changes.changed) {
+            /* istanbul ignore next */
             return;
         }
 
         setSaving(true);
         try {
-            const results = [];
+            const results: IClientActionResultDto<ITeamDto>[] = [];
             for (let index = 0; index < changes.removed.length; index++) {
                 const seasonId = changes.removed[index];
                 const result = await teamApi.delete(team.id, seasonId);
@@ -42,7 +52,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}) {
             if (allSuccess) {
                 await reloadAll();
                 await onReloadDivision();
-                onClose();
+                await onClose();
                 return;
             }
 
@@ -57,9 +67,9 @@ export function AssignTeamToSeasons({teamOverview, onClose}) {
         }
     }
 
-    function getChanges(initialIds, selectedIds) {
-        const added = [];
-        const removed = [];
+    function getChanges(initialIds: string[], selectedIds: string[]): { added: string[], removed: string[], changed: boolean } {
+        const added: string[] = [];
+        const removed: string[] = [];
 
         for (let index = 0; index < initialIds.length; index++) {
             const initialId = initialIds[index];
@@ -84,7 +94,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}) {
         };
     }
 
-    function toggleSeason(seasonId) {
+    function toggleSeason(seasonId: string) {
         const seasonSelected = any(selectedSeasonIds.filter(id => id === seasonId));
         if (seasonSelected) {
             // remove
@@ -95,7 +105,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}) {
         }
     }
 
-    function renderSeason(season) {
+    function renderSeason(season: ISeasonDto) {
         let className = '';
         if (any(changes.added, id => id === season.id)) {
             className = ' bg-success';

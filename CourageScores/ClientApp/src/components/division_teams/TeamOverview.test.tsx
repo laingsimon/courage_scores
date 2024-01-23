@@ -1,43 +1,46 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {TeamOverview} from "./TeamOverview";
-import {divisionDataBuilder, fixtureDateBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {divisionDataBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
+import {seasonBuilder} from "../../helpers/builders/seasons";
+import {teamBuilder} from "../../helpers/builders/teams";
+import {IFixtureBuilder} from "../../helpers/builders/games";
 
 describe('TeamOverview', () => {
-    let context;
-    let reportedError;
-    let divisionReloaded = false;
-    let account;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let account: IUserDto;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData, teams, teamId) {
-        reportedError = null;
-        divisionReloaded = false;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(divisionData: IDivisionDataContainerProps, teams: ITeamDto[], teamId: string) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
+            iocProps(),
+            brandingProps(),
+            appProps({
                 account: account,
                 teams: teams,
-                onError: (err) => {
-                    reportedError = err;
-                },
-                error: null,
-            },
+            }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <TeamOverview teamId={teamId}/>
             </DivisionDataContainer>));
     }
 
-    function createDivisionData(divisionId) {
-        const season = seasonBuilder('A season')
+    function createDivisionData(divisionId: string): IDivisionDataContainerProps {
+        const season: ISeasonDto = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .build();
@@ -47,16 +50,17 @@ describe('TeamOverview', () => {
             .build();
     }
 
-    function createTeam(teamId) {
+    function createTeam(teamId: string): ITeamDto {
         return teamBuilder('A team', teamId)
             .address('An address')
             .build();
     }
 
-    function createPlayer(team) {
+    function createPlayer(team: ITeamDto): IDivisionPlayerDto {
         return {
             id: createTemporaryId(),
             teamId: team.id,
+            team: team.name,
             name: 'A player',
             singles: {
                 matchesPlayed: 1,
@@ -70,23 +74,23 @@ describe('TeamOverview', () => {
         }
     }
 
-    function createHomeAndAwayFixtureDates(team) {
-        const homeFixtureDate = fixtureDateBuilder('2001-02-03T04:05:06.000Z')
-            .withFixture(f => f.playing(team, teamBuilder('Another team')))
+    function createHomeAndAwayFixtureDates(team: ITeamDto) {
+        const homeFixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2001-02-03T04:05:06.000Z')
+            .withFixture((f: IFixtureBuilder) => f.playing(team, teamBuilder('Another team')))
             .build();
 
-        const byeFixtureDate = fixtureDateBuilder('2001-02-04T04:05:06.000Z')
-            .withFixture(f => f.bye(team))
+        const byeFixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2001-02-04T04:05:06.000Z')
+            .withFixture((f: IFixtureBuilder) => f.bye(team.address))
             .build();
 
-        const awayFixtureDate = fixtureDateBuilder('2001-02-05T04:05:06.000Z')
-            .withFixture(f => f.playing(teamBuilder('Another team'), team))
+        const awayFixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2001-02-05T04:05:06.000Z')
+            .withFixture((f: IFixtureBuilder) => f.playing(teamBuilder('Another team'), team))
             .build();
 
         return [homeFixtureDate, awayFixtureDate, byeFixtureDate];
     }
 
-    function assertFixtureRow(tr, date, homeTeamName, awayTeamName) {
+    function assertFixtureRow(tr: HTMLTableRowElement, date: string, homeTeamName: string, awayTeamName: string) {
         const cells = tr.querySelectorAll('td');
         expect(cells.length).toEqual(6);
         expect(cells[0].textContent).toEqual(date);
@@ -94,7 +98,7 @@ describe('TeamOverview', () => {
         expect(cells[5].textContent).toEqual(awayTeamName);
     }
 
-    function assertPlayerRow(tr, name) {
+    function assertPlayerRow(tr: HTMLTableRowElement, name: string) {
         const cells = tr.querySelectorAll('td');
         expect(cells.length).toEqual(9);
         expect(cells[1].textContent).toEqual(name);
@@ -109,7 +113,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, teams, teamId);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('.content-background > h3');
             const address = context.container.querySelector('.content-background > p');
             expect(heading).toBeTruthy();
@@ -126,7 +130,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, teams, createTemporaryId());
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('Team could not be found');
         });
 
@@ -138,11 +142,11 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
-            const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
+            const fixtureRows = Array.from(fixturesSection.querySelectorAll('table tbody tr')) as HTMLTableRowElement[];
             expect(fixtureRows.length).toEqual(2);
             assertFixtureRow(fixtureRows[0], '3 Feb', team.name, 'Another team');
             assertFixtureRow(fixtureRows[1], '5 Feb', 'Another team', team.name);
@@ -157,8 +161,8 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
+            expect(reportedError.hasError()).toEqual(false);
+            const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
             const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
@@ -178,8 +182,8 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
+            expect(reportedError.hasError()).toEqual(false);
+            const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
             const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
@@ -198,11 +202,11 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
+            expect(reportedError.hasError()).toEqual(false);
+            const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const playersSection = tableSections[1];
-            const playerRows = playersSection.querySelectorAll('table tbody tr');
+            const playerRows = Array.from(playersSection.querySelectorAll('table tbody tr')) as HTMLTableRowElement[];
             expect(playerRows.length).toEqual(1);
             assertPlayerRow(playerRows[0], player.name);
         });
@@ -217,7 +221,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, teams, teamId);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('.content-background > h3');
             const address = context.container.querySelector('.content-background > p');
             expect(heading).toBeTruthy();
@@ -233,11 +237,11 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
+            expect(reportedError.hasError()).toEqual(false);
+            const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
-            const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
+            const fixtureRows = Array.from(fixturesSection.querySelectorAll('table tbody tr')) as HTMLTableRowElement[];
             expect(fixtureRows.length).toEqual(0);
         });
 
@@ -248,11 +252,11 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
+            expect(reportedError.hasError()).toEqual(false);
+            const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const playersSection = tableSections[1];
-            const playerRows = playersSection.querySelectorAll('table tbody tr');
+            const playerRows = Array.from(playersSection.querySelectorAll('table tbody tr')) as HTMLTableRowElement[];
             expect(playerRows.length).toEqual(0);
         });
     });
