@@ -9,13 +9,15 @@ import {ReportGenerationMessages} from "./ReportGenerationMessages";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useApp} from "../../AppContainer";
+import {IReportCollectionDto} from "../../interfaces/serverSide/Report/IReportCollectionDto";
+import {IReportDto} from "../../interfaces/serverSide/Report/IReportDto";
 
 export function DivisionReports() {
     const {id: divisionId, season} = useDivisionData();
-    const [reportData, setReportData] = useState(null);
-    const [gettingData, setGettingData] = useState(false);
-    const [topCount, setTopCount] = useState(15);
-    const [activeReport, setActiveReport] = useState(null);
+    const [reportData, setReportData] = useState<IReportCollectionDto | null>(null);
+    const [gettingData, setGettingData] = useState<boolean>(false);
+    const [topCount, setTopCount] = useState<number>(15);
+    const [activeReport, setActiveReport] = useState<string | null>(null);
     const {reportApi} = useDependencies();
     const {onError} = useApp();
 
@@ -35,8 +37,8 @@ export function DivisionReports() {
                 if (!selectedReportExists) {
                     setActiveReport(result.reports[0].name);
                 }
-            } else if (result.Exception) {
-                onError(result.Exception.Message);
+            } else if ((result as any).Exception) {
+                onError((result as any).Exception.Message);
             } else {
                 setActiveReport(null);
             }
@@ -56,7 +58,7 @@ export function DivisionReports() {
         return (<div className="d-print-none">
             <span className="margin-right">Show:</span>
             <BootstrapDropdown
-                onChange={setActiveReport}
+                onChange={async (v: string) => setActiveReport(v)}
                 options={reportData.reports.sort(sortBy('name')).map(report => {
                     return {value: report.name, text: report.description}
                 })}
@@ -65,7 +67,7 @@ export function DivisionReports() {
         </div>);
     }
 
-    const report = activeReport ? reportData.reports.filter(r => r.name === activeReport)[0] : null;
+    const report: IReportDto | null = activeReport ? reportData.reports.filter(r => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
         <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly}/>
         <div className="input-group d-print-none">

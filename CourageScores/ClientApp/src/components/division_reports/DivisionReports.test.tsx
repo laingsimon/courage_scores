@@ -1,56 +1,57 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
-import {seasonBuilder} from "../../helpers/builders";
+import {seasonBuilder} from "../../helpers/builders/seasons";
+import {IReportDto} from "../../interfaces/serverSide/Report/IReportDto";
+import {IReportCollectionDto} from "../../interfaces/serverSide/Report/IReportCollectionDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IReportApi} from "../../api/report";
 
 describe('DivisionReports', () => {
-    let context;
-    let reportedError;
-    let divisionReloaded = false;
-    let requestedReports;
-    let returnReport;
-    const reportApi = {
-        getReport: async (req) => {
-            requestedReports.push(req);
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let returnReport: IReportCollectionDto;
+    // noinspection JSUnusedGlobalSymbols
+    const reportApi = api<IReportApi>({
+        getReport: async () => {
             return returnReport;
         }
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(account, divisionData) {
-        reportedError = null;
-        divisionReloaded = false;
-        requestedReports = [];
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(account: IUserDto, divisionData: IDivisionDataContainerProps) {
         context = await renderApp(
-            {reportApi},
-            {name: 'Courage Scores'},
-            {
+            iocProps({reportApi}),
+            brandingProps(),
+            appProps({
                 account: account,
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-                error: null,
-            },
+            }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <DivisionReports/>
             </DivisionDataContainer>));
     }
 
-    function createDivisionData(divisionId) {
+    function createDivisionData(divisionId: string): IDivisionDataContainerProps {
         return {
             id: divisionId,
             name: 'DIVISION',
@@ -59,16 +60,26 @@ describe('DivisionReports', () => {
             season: seasonBuilder('A season')
                 .starting('2022-02-03T00:00:00')
                 .ending('2022-08-25T00:00:00')
-                .build()
+                .build(),
+            onReloadDivision: async () => null,
+            setDivisionData: async () => null,
+            children: null,
         };
     }
 
-    function assertReportRow(tr, values) {
+    function assertReportRow(tr: HTMLTableRowElement, values: string[]) {
         expect(Array.from(tr.querySelectorAll('td')).map(td => td.textContent)).toEqual(values);
     }
 
     describe('when logged in', () => {
-        const account = {access: {runReports: true}};
+        const account: IUserDto = {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+            access: {
+                runReports: true
+            },
+        };
 
         it('renders component', async () => {
             const divisionId = createTemporaryId();
@@ -76,7 +87,7 @@ describe('DivisionReports', () => {
 
             await renderComponent(account, divisionData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const input = context.container.querySelectorAll('.content-background input');
             expect(input).toBeTruthy();
         });
@@ -97,7 +108,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
         });
 
         it('handles api exception when fetching reports', async () => {
@@ -108,21 +119,21 @@ describe('DivisionReports', () => {
                 Exception: {
                     Message: 'Some server side error',
                 },
-            };
+            } as any;
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError).toEqual('Some server side error');
+            expect(reportedError.error).toEqual('Some server side error');
         });
 
         it('remembers selected report after subsequent fetch', async () => {
-            const report1 = {
+            const report1: IReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
                 valueHeading: 'Value',
                 rows: []
             };
-            const report2 = {
+            const report2: IReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
                 valueHeading: 'Value',
@@ -145,13 +156,13 @@ describe('DivisionReports', () => {
         });
 
         it('selects first report if selected report not available on subsequent fetch', async () => {
-            const report1 = {
+            const report1: IReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
                 valueHeading: 'Value',
                 rows: []
             };
-            const report2 = {
+            const report2: IReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
                 valueHeading: 'Value',
@@ -178,13 +189,13 @@ describe('DivisionReports', () => {
         });
 
         it('selects no report if no reports returned on subsequent fetch', async () => {
-            const report1 = {
+            const report1: IReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
                 valueHeading: 'Value',
                 rows: []
             };
-            const report2 = {
+            const report2: IReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
                 valueHeading: 'Value',
@@ -226,9 +237,9 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError).toBeNull();
-            const messages = context.container.querySelectorAll('.content-background ul > li');
-            expect(Array.from(messages).map(li => li.textContent)).toEqual(['A message']);
+            expect(reportedError.hasError()).toEqual(false);
+            const messages = Array.from(context.container.querySelectorAll('.content-background ul > li')) as HTMLElement[];
+            expect(messages.map(li => li.textContent)).toEqual(['A message']);
         });
 
         it('renders report options', async () => {
@@ -252,9 +263,9 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError).toBeNull();
-            const reportOptions = context.container.querySelectorAll('.content-background div.btn-group > div[role="menu"] > button');
-            expect(Array.from(reportOptions).map(li => li.textContent)).toEqual(['A report description', 'Another report description']);
+            expect(reportedError.hasError()).toEqual(false);
+            const reportOptions = Array.from(context.container.querySelectorAll('.content-background div.btn-group > div[role="menu"] > button')) as HTMLButtonElement[];
+            expect(reportOptions.map(li => li.textContent)).toEqual(['A report description', 'Another report description']);
         });
 
         it('renders report rows', async () => {
@@ -281,12 +292,12 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const reportTable = context.container.querySelector('.content-background table');
             expect(reportTable).toBeTruthy();
-            const reportHeadings = reportTable.querySelectorAll('thead tr th');
+            const reportHeadings = Array.from(reportTable.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
             expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual(['', 'Player', 'Team', 'A value heading']);
-            const reportRows = reportTable.querySelectorAll('tbody tr');
+            const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(2);
             assertReportRow(reportRows[0], ['1', 'A player', 'A team', '1']);
             assertReportRow(reportRows[1], ['2', 'Another player', 'Another team', '2']);
@@ -317,7 +328,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('div[datatype="print-division-heading"]');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('DIVISION, A season');
@@ -348,7 +359,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('div[datatype="print-division-heading"]');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('A season');
