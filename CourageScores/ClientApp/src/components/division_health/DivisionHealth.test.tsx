@@ -1,51 +1,52 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {DivisionHealth} from "./DivisionHealth";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {IError} from "../../interfaces/IError";
+import {ISeasonApi} from "../../api/season";
 
 describe('DivisionHealth', () => {
-    let context;
-    let reportedError;
-    let apiResponse;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let apiResponse: (id: string) => ISeasonHealthCheckResultDto;
 
-    const seasonApi = {
-        getHealth: async (id) => {
+    const seasonApi = api<ISeasonApi>({
+        getHealth: async (id: string): Promise<ISeasonHealthCheckResultDto> => {
             return apiResponse(id);
         }
-    }
+    });
 
     beforeEach(() => {
-        apiResponse = (id) => {
-            return {id: id, checks: {}, success: true, errors: [], warnings: [], messages: []}
+        apiResponse = (id: string): ISeasonHealthCheckResultDto => {
+            return {
+                id: id,
+                checks: {},
+                success: true,
+                errors: [],
+                warnings: [],
+                messages: []
+            } as any;
         };
+        reportedError = new ErrorState();
     });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionDataProps) {
-        reportedError = null;
+    async function renderComponent(divisionDataProps: IDivisionDataContainerProps) {
         context = await renderApp(
-            {seasonApi},
-            {},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
+            iocProps({seasonApi}),
+            brandingProps(),
+            appProps({}, reportedError),
             (<DivisionDataContainer {...divisionDataProps}>
                 <DivisionHealth/>
             </DivisionDataContainer>));
     }
 
-    function assertHeading(text, className) {
+    function assertHeading(text: string, className: string) {
         const heading = context.container.querySelector('h3');
         expect(heading.textContent).toEqual(text);
         expect(heading.className).toContain(className);
@@ -57,26 +58,28 @@ describe('DivisionHealth', () => {
         };
         await renderComponent({
             season: {
+                name: '',
                 id: createTemporaryId()
             }
-        });
+        } as any);
 
-        expect(reportedError).not.toBeNull();
+        expect(reportedError.hasError()).toEqual(true);
     });
 
     it('shows health-check results', async () => {
         await renderComponent({
             season: {
+                name: '',
                 id: createTemporaryId()
             }
-        });
+        } as any);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
     });
 
     it('when success and no errors or warnings should show healthy', async () => {
-        apiResponse = () => {
+        apiResponse = (): ISeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: [],
@@ -88,16 +91,17 @@ describe('DivisionHealth', () => {
 
         await renderComponent({
             season: {
+                name: '',
                 id: createTemporaryId()
             }
-        });
+        } as any);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Healthy', 'text-success');
     });
 
     it('when success and some errors should show unhealthy', async () => {
-        apiResponse = () => {
+        apiResponse = (): ISeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: ['some error'],
@@ -109,16 +113,17 @@ describe('DivisionHealth', () => {
 
         await renderComponent({
             season: {
+                name: '',
                 id: createTemporaryId()
             }
-        });
+        } as any);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Unhealthy', 'text-warning');
     });
 
     it('when success and some warnings should show unhealthy', async () => {
-        apiResponse = () => {
+        apiResponse = (): ISeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: [],
@@ -130,16 +135,17 @@ describe('DivisionHealth', () => {
 
         await renderComponent({
             season: {
+                name: '',
                 id: createTemporaryId()
             }
-        });
+        } as any);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Unhealthy', 'text-warning');
     });
 
     it('when success and some messages should show healthy', async () => {
-        apiResponse = () => {
+        apiResponse = (): ISeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: [],
@@ -151,16 +157,17 @@ describe('DivisionHealth', () => {
 
         await renderComponent({
             season: {
+                name: '',
                 id: createTemporaryId()
             }
-        });
+        } as any);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Healthy', 'text-success');
     });
 
     it('when unsuccess and no errors, warnings or messages should show unhealthy', async () => {
-        apiResponse = () => {
+        apiResponse = (): ISeasonHealthCheckResultDto => {
             return {
                 success: false,
                 errors: [],
@@ -172,11 +179,12 @@ describe('DivisionHealth', () => {
 
         await renderComponent({
             season: {
+                name: '',
                 id: createTemporaryId()
             }
-        });
+        } as any);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Unhealthy', 'text-warning');
     });
 });

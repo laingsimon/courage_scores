@@ -5,14 +5,15 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {Loading} from "../common/Loading";
 import {ViewHealthCheck} from "./ViewHealthCheck";
 import {isEmpty} from "../../helpers/collections";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
 
 export function DivisionHealth() {
-    const [result, setResult] = useState(null);
+    const [result, setResult] = useState<ISeasonHealthCheckResultDto | null>(null);
     const [loading, setLoading] = useState(false);
     const {onError} = useApp();
     const {seasonApi} = useDependencies();
     const {season} = useDivisionData();
-    const healthy = result && result.success && isEmpty(result.errors) && isEmpty(result.warnings);
+    const healthy: boolean = result && result.success && isEmpty(result.errors) && isEmpty(result.warnings);
 
     async function loadHealthCheck() {
         /* istanbul ignore next */
@@ -24,7 +25,7 @@ export function DivisionHealth() {
         try {
             setLoading(true);
 
-            const result = await seasonApi.getHealth(season.id);
+            const result: ISeasonHealthCheckResultDto = await seasonApi.getHealth(season.id);
             setResult(result);
         } catch (e) {
             onError(e);

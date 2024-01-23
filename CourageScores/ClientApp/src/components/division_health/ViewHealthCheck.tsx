@@ -1,17 +1,22 @@
 import {useApp} from "../../AppContainer";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
 
-export function ViewHealthCheck({result}) {
+export interface IViewHealthCheckProps {
+    result: ISeasonHealthCheckResultDto
+}
+
+export function ViewHealthCheck({result}: IViewHealthCheckProps) {
     const {onError} = useApp();
 
-    function renderError(error, index) {
+    function renderError(error: string, index: number) {
         return (<div key={index} className="text-secondary-50 text-nowrap">❌ {error}</div>);
     }
 
-    function renderWarning(warning, index) {
+    function renderWarning(warning: string, index: number) {
         return (<div key={index} className="text-secondary-50 text-nowrap">⚠ {warning}</div>);
     }
 
-    function renderMessage(message, index) {
+    function renderMessage(message: string, index: number) {
         return (<div key={index} className="text-secondary-50 text-nowrap">{message}</div>);
     }
 

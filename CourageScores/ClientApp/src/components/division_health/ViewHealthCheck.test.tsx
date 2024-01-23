@@ -1,31 +1,25 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
-import {DivisionHealth} from "./DivisionHealth";
 import {ViewHealthCheck} from "./ViewHealthCheck";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
 
 describe('DivisionHealth', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(result) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(result: ISeasonHealthCheckResultDto) {
         context = await renderApp(
-            {},
-            {},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<ViewHealthCheck result={result}/>));
     }
 
@@ -45,7 +39,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('✔ some description');
@@ -67,7 +61,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('❌ some description');
@@ -89,7 +83,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some error');
@@ -111,7 +105,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some warning');
@@ -133,7 +127,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some message');
