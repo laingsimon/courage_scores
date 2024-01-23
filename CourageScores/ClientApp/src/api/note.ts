@@ -1,17 +1,30 @@
-class NoteApi {
-    constructor(http) {
+import {IHttp} from "./http";
+import {IFixtureDateNoteDto} from "../interfaces/serverSide/IFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../interfaces/serverSide/IEditFixtureDateNoteDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+
+export interface INoteApi {
+    get(seasonId: string): Promise<IFixtureDateNoteDto[]>;
+    create(note: IEditFixtureDateNoteDto): Promise<IClientActionResultDto<IFixtureDateNoteDto>>;
+    upsert(id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string): Promise<IClientActionResultDto<IFixtureDateNoteDto>>;
+    delete(id: string): Promise<IClientActionResultDto<IFixtureDateNoteDto>>;
+}
+
+class NoteApi implements INoteApi {
+    private http: IHttp;
+    constructor(http: IHttp) {
         this.http = http;
     }
 
-    get(seasonId) {
-        return this.http.get(`/api/Note/${seasonId}`, {});
+    get(seasonId: string): Promise<IFixtureDateNoteDto[]> {
+        return this.http.get(`/api/Note/${seasonId}`);
     }
 
-    create(note) {
+    create(note: IEditFixtureDateNoteDto): Promise<IClientActionResultDto<IFixtureDateNoteDto>> {
         return this.http.post(`/api/Note`, note);
     }
 
-    upsert(id, note, lastUpdated) {
+    upsert(id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string): Promise<IClientActionResultDto<IFixtureDateNoteDto>> {
         if (!lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
@@ -19,8 +32,8 @@ class NoteApi {
         return this.http.put(`/api/Note/${id}`, Object.assign({lastUpdated}, note));
     }
 
-    delete(id) {
-        return this.http.delete(`/api/Note/${id}`, {});
+    delete(id: string): Promise<IClientActionResultDto<IFixtureDateNoteDto>> {
+        return this.http.delete(`/api/Note/${id}`);
     }
 }
 

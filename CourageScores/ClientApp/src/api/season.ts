@@ -1,9 +1,23 @@
-class SeasonApi {
-    constructor(http) {
+import {IHttp} from "./http";
+import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
+import {ISeasonHealthCheckResultDto} from "../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+
+export interface ISeasonApi {
+    update(season: IEditSeasonDto, lastUpdated?: string): Promise<IClientActionResultDto<ISeasonDto>>;
+    delete(id: string): Promise<IClientActionResultDto<ISeasonDto>>;
+    getAll(): Promise<ISeasonDto[]>;
+    getHealth(id: string): Promise<ISeasonHealthCheckResultDto>;
+}
+
+class SeasonApi implements ISeasonApi {
+    private http: IHttp;
+    constructor(http: IHttp) {
         this.http = http;
     }
 
-    update(season, lastUpdated) {
+    update(season: IEditSeasonDto, lastUpdated?: string): Promise<IClientActionResultDto<ISeasonDto>> {
         if (season.id && !lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
@@ -11,16 +25,16 @@ class SeasonApi {
         return this.http.put(`/api/Season`, Object.assign({lastUpdated}, season));
     }
 
-    delete(id) {
+    delete(id: string): Promise<IClientActionResultDto<ISeasonDto>> {
         return this.http.delete(`/api/Season/${id}`);
     }
 
-    getAll() {
-        return this.http.get(`/api/Season`, {});
+    getAll(): Promise<ISeasonDto[]> {
+        return this.http.get(`/api/Season`);
     }
 
-    getHealth(id) {
-        return this.http.get(`/api/Season/${id}/health`, {});
+    getHealth(id: string): Promise<ISeasonHealthCheckResultDto> {
+        return this.http.get(`/api/Season/${id}/health`);
     }
 }
 

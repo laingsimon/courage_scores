@@ -1,9 +1,14 @@
-class Settings {
-    _invalidCacheOnNextRequest;
+export interface ISettings {
+    get apiHost(): string;
+    get invalidateCacheOnNextRequest(): boolean;
+    set invalidateCacheOnNextRequest(value: boolean);
+}
 
-    _apiHost;
+export class Settings implements ISettings {
+    _invalidCacheOnNextRequest?: boolean;
+    _apiHost?: string;
 
-    get apiHost() {
+    get apiHost(): string {
         if (!this._apiHost) {
             this._apiHost = document.location.hostname === 'localhost'
                 ? 'https://localhost:7247'
@@ -13,7 +18,7 @@ class Settings {
         return this._apiHost;
     }
 
-    get invalidateCacheOnNextRequest() {
+    get invalidateCacheOnNextRequest(): boolean {
         if (this._invalidCacheOnNextRequest) {
             this._invalidCacheOnNextRequest = false;
             return true;
@@ -22,9 +27,7 @@ class Settings {
         return false;
     }
 
-    set invalidateCacheOnNextRequest(value) {
+    set invalidateCacheOnNextRequest(value: boolean) {
         this._invalidCacheOnNextRequest = value;
     }
 }
-
-export {Settings};

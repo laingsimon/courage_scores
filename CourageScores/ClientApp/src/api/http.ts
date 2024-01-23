@@ -1,30 +1,41 @@
-class Http {
-    constructor(settings) {
+import {ISettings} from "./settings";
+
+export interface IHttp {
+    get(relativeUrl: string): any;
+    post(relativeUrl: string, content: any): any;
+    patch(relativeUrl: string, content: any): any;
+    delete(relativeUrl: string, content?: any): any;
+    put(relativeUrl: string, content: any): any;
+}
+
+class Http implements IHttp {
+    private settings: ISettings;
+    constructor(settings: ISettings) {
         this.settings = settings;
     }
 
-    get(relativeUrl) {
+    get(relativeUrl: string) {
         return this.send('GET', relativeUrl, null);
     }
 
-    post(relativeUrl, content) {
+    post(relativeUrl: string, content: any) {
         return this.send('POST', relativeUrl, content);
     }
 
-    patch(relativeUrl, content) {
+    patch(relativeUrl: string, content: any) {
         return this.send('PATCH', relativeUrl, content);
     }
 
-    delete(relativeUrl, content) {
+    delete(relativeUrl: string, content?: any) {
         return this.send('DELETE', relativeUrl, content ? content : null);
     }
 
-    put(relativeUrl, content) {
+    put(relativeUrl: string, content: any) {
         return this.send('PUT', relativeUrl, content);
     }
 
     getPostHeaders() {
-        const defaultHeaders = {
+        const defaultHeaders: any = {
             'Content-Type': 'application/json'
         };
 
@@ -36,7 +47,7 @@ class Http {
     }
 
     getGetHeaders() {
-        const defaultHeaders = {};
+        const defaultHeaders: any = {};
 
         if (this.settings.invalidateCacheOnNextRequest) {
             defaultHeaders['Cache-Control'] = 'no-cache';
@@ -45,7 +56,7 @@ class Http {
         return defaultHeaders;
     }
 
-    async send(httpMethod, relativeUrl, content) {
+    async send(httpMethod: string, relativeUrl: string, content?: any) {
         if (relativeUrl.indexOf('/') !== 0) {
             relativeUrl = '/' + relativeUrl;
         }

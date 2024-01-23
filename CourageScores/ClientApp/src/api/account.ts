@@ -1,21 +1,34 @@
-class AccountApi {
-    constructor(http) {
+import {IHttp} from "./http";
+import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
+import {IUpdateAccessDto} from "../interfaces/serverSide/Identity/IUpdateAccessDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+
+export interface IAccountApi {
+    get(emailAddress: string): Promise<IUserDto | null>;
+    getAll(): Promise<IUserDto[]>;
+    account(): Promise<IUserDto | null>;
+    update(account: IUpdateAccessDto): Promise<IClientActionResultDto<IUserDto>>;
+}
+
+class AccountApi implements IAccountApi {
+    private http: IHttp;
+    constructor(http: IHttp) {
         this.http = http;
     }
 
-    get(emailAddress) {
-        return this.http.get(`/api/Account/${emailAddress}`, {});
+    get(emailAddress: string): Promise<IUserDto | null> {
+        return this.http.get(`/api/Account/${emailAddress}`);
     }
 
-    getAll() {
-        return this.http.get(`/api/Account/All`, {});
+    getAll(): Promise<IUserDto[]> {
+        return this.http.get(`/api/Account/All`);
     }
 
-    account() {
-        return this.http.get(`/api/Account`, {});
+    account(): Promise<IUserDto | null> {
+        return this.http.get(`/api/Account`);
     }
 
-    update(account) {
+    update(account: IUpdateAccessDto): Promise<IClientActionResultDto<IUserDto>> {
         return this.http.post(`/api/Account/Access`, account);
     }
 }

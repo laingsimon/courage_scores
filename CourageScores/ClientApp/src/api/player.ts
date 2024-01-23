@@ -1,17 +1,29 @@
-class PlayerApi {
-    constructor(http) {
+import {IHttp} from "./http";
+import {ITeamDto} from "../interfaces/serverSide/Team/ITeamDto";
+import {IEditTeamPlayerDto} from "../interfaces/serverSide/Team/IEditTeamPlayerDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+
+export interface IPlayerApi {
+    create(divisionId: string, seasonId: string, teamId: string, player: IEditTeamPlayerDto): Promise<IClientActionResultDto<ITeamDto>>;
+    delete(seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<ITeamDto>>;
+    update(seasonId: string, teamId: string, playerId: string, player: IEditTeamPlayerDto, lastUpdated?: string): Promise<IClientActionResultDto<ITeamDto>>;
+}
+
+class PlayerApi implements IPlayerApi {
+    private http: IHttp;
+    constructor(http: IHttp) {
         this.http = http;
     }
 
-    create(divisionId, seasonId, teamId, player) {
+    create(divisionId: string, seasonId: string, teamId: string, player: IEditTeamPlayerDto): Promise<IClientActionResultDto<ITeamDto>> {
         return this.http.post(`/api/Player/${divisionId}/${seasonId}/${teamId}`, player);
     }
 
-    delete(seasonId, teamId, playerId) {
-        return this.http.delete(`/api/Player/${seasonId}/${teamId}/${playerId}`, {});
+    delete(seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<ITeamDto>> {
+        return this.http.delete(`/api/Player/${seasonId}/${teamId}/${playerId}`);
     }
 
-    update(seasonId, teamId, playerId, player, lastUpdated) {
+    update(seasonId: string, teamId: string, playerId: string, player: IEditTeamPlayerDto, lastUpdated?: string): Promise<IClientActionResultDto<ITeamDto>> {
         if (!lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }

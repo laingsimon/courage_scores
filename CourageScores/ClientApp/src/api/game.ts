@@ -1,30 +1,46 @@
-class GameApi {
-    constructor(http) {
+import {IHttp} from "./http";
+import {IGameDto} from "../interfaces/serverSide/Game/IGameDto";
+import {IRecordScoresDto} from "../interfaces/serverSide/Game/IRecordScoresDto";
+import {IEditGameDto} from "../interfaces/serverSide/Game/IEditGameDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+
+export interface IGameApi {
+    get(id: string): Promise<IGameDto | null>;
+    updateScores(id: string, scores: IRecordScoresDto, lastUpdated?: string): Promise<IClientActionResultDto<IGameDto>>;
+    update(game: IEditGameDto, lastUpdated?: string): Promise<IClientActionResultDto<IGameDto>>;
+    delete(id: string): Promise<IClientActionResultDto<IGameDto>>;
+}
+
+class GameApi implements IGameApi {
+    private http: IHttp;
+    constructor(http: IHttp) {
         this.http = http;
     }
 
-    get(id) {
-        return this.http.get(`/api/Game/${id}`, {});
+    get(id: string): Promise<IGameDto | null> {
+        return this.http.get(`/api/Game/${id}`);
     }
 
-    updateScores(id, scores, lastUpdated) {
+    updateScores(id: string, scores: IRecordScoresDto, lastUpdated?: string): Promise<IClientActionResultDto<IGameDto>> {
         if (!lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Scores/${id}`, Object.assign({lastUpdated}, scores));
+        const content: IRecordScoresDto = Object.assign({lastUpdated}, scores);
+        return this.http.put(`/api/Scores/${id}`, content);
     }
 
-    update(game, lastUpdated) {
+    update(game: IEditGameDto, lastUpdated?: string): Promise<IClientActionResultDto<IGameDto>> {
         if (game.id && !lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Game`, Object.assign({lastUpdated}, game));
+        const content: IEditGameDto = Object.assign({lastUpdated}, game);
+        return this.http.put(`/api/Game`, content);
     }
 
-    delete(id) {
-        return this.http.delete(`/api/Game/${id}`, {});
+    delete(id: string): Promise<IClientActionResultDto<IGameDto>> {
+        return this.http.delete(`/api/Game/${id}`);
     }
 }
 
