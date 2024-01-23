@@ -1,53 +1,54 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../../helpers/tests";
 import React from "react";
-import {SummaryDataRow} from "./SummaryDataRow";
+import {ISummaryDataRowProps, SummaryDataRow} from "./SummaryDataRow";
+import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegThrowDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
+import {IScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
 
 describe('SummaryDataRow', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(props: ISummaryDataRowProps) {
         context = await renderApp(
-            {},
-            null,
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<SummaryDataRow {...props} />),
             null,
             null,
             'tbody');
     }
 
-    function getRowContent(row, tagName) {
+    function getRowContent(row: HTMLTableRowElement, tagName: string): string[] {
         return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent);
     }
 
-    function createLeg(homeWinner, awayWinner) {
-        const winningThrows = [
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): ILegDto {
+        const winningThrows: ILegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 100, bust: false, noOfDarts: 3},
             {score: 110, bust: false, noOfDarts: 3},
             {score: 120, bust: false, noOfDarts: 3},
             {score: 81, bust: false, noOfDarts: 3},
         ];
-        const notWinningThrows = [
+        const notWinningThrows: ILegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
@@ -68,7 +69,7 @@ describe('SummaryDataRow', () => {
 
     describe('renders', () => {
         it('match data', async () => {
-            const saygData = {
+            const saygData: IScoreAsYouGoDto = {
                 legs: {
                     '0': createLeg(true, false),
                     '1': createLeg(true, false),
@@ -85,7 +86,7 @@ describe('SummaryDataRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const row = context.container.querySelector('tr');
             expect(getRowContent(row, 'td')).toEqual([
                 '1', 'HOST', '2', '6', '6', '0', '0', '33.4',
@@ -94,7 +95,7 @@ describe('SummaryDataRow', () => {
         });
 
         it('host winner', async () => {
-            const saygData = {
+            const saygData: IScoreAsYouGoDto = {
                 legs: {
                     '0': createLeg(true, false),
                     '1': createLeg(true, false),
@@ -111,7 +112,7 @@ describe('SummaryDataRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const row = context.container.querySelector('tr');
             const cells = Array.from(row.querySelectorAll('td'));
             expect(cells[1].className).toEqual('bg-winner');
@@ -119,7 +120,7 @@ describe('SummaryDataRow', () => {
         });
 
         it('opponent winner', async () => {
-            const saygData = {
+            const saygData: IScoreAsYouGoDto = {
                 legs: {
                     '0': createLeg(false, true),
                     '1': createLeg(false, true),
@@ -136,7 +137,7 @@ describe('SummaryDataRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const row = context.container.querySelector('tr');
             const cells = Array.from(row.querySelectorAll('td'));
             expect(cells[1].className).toEqual('');

@@ -1,35 +1,34 @@
-﻿// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../../helpers/tests";
+﻿import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../../helpers/tests";
 import React from "react";
-import {MatchLogRow} from "./MatchLogRow";
-import {legBuilder} from "../../../../helpers/builders";
+import {IMatchLogRowProps, MatchLogRow} from "./MatchLogRow";
+import {ILegCompetitorScoreBuilder, legBuilder} from "../../../../helpers/builders/sayg";
+import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
 
 describe('MatchLogRow', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(props: IMatchLogRowProps) {
         context = await renderApp(
-            {},
-            null,
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<MatchLogRow {...props} />),
             null,
             null,
@@ -37,21 +36,24 @@ describe('MatchLogRow', () => {
     }
 
     describe('renders', () => {
-        const homeWinningLeg = legBuilder()
-            .home(c => c
+        const homeWinningLeg: ILegDto = legBuilder()
+            .home((c: ILegCompetitorScoreBuilder) => c
                 .withThrow(140, false, 3)
                 .withThrow(60, false, 3)
                 .withThrow(180, false, 3)
                 .withThrow(20, false, 3)
                 .withThrow(101, false, 2)
                 .noOfDarts(14))
-            .away(c => c.noOfDarts(1))
+            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(1))
             .startingScore(501)
             .build();
 
         it('null when no darts thrown', async () => {
             await renderComponent({
-                leg: legBuilder().home(c => c.noOfDarts(0)).away(c => c.noOfDarts(0)).build(),
+                leg: legBuilder()
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                    .build(),
                 legNo: 1,
                 accumulatorName: 'home',
                 player: 'PLAYER',
@@ -62,7 +64,7 @@ describe('MatchLogRow', () => {
                 teamAverage: 23.45,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.querySelector('tr')).toBeFalsy();
         });
 
@@ -79,7 +81,7 @@ describe('MatchLogRow', () => {
                 teamAverage: 23.45,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells.map(td => td.textContent)).toEqual(['PLAYER', '1', '14', '101', '', '1', '1', '1', '4', '12.34', '23.45', '2', '140', '60', '180', '20', '101', '']);
             expect(context.container.querySelector('tr').className).toEqual('bg-winner');
@@ -98,7 +100,7 @@ describe('MatchLogRow', () => {
                 teamAverage: 23.45,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells.map(td => td.textContent)).toEqual(['2', '14', '101', '', '1', '1', '1', '4', '2', '140', '60', '180', '20', '101', '']);
             expect(context.container.querySelector('tr').className).toEqual('');
@@ -117,7 +119,7 @@ describe('MatchLogRow', () => {
                 teamAverage: 23.45,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells.map(td => td.textContent)).toEqual(['PLAYER', '1', '0', '', '', '0', '0', '0', '0', '12.34', '23.45', '', '', '', '', '', '', '']);
             expect(context.container.querySelector('tr').className).toEqual('');
@@ -136,7 +138,7 @@ describe('MatchLogRow', () => {
                 teamAverage: 23.45,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells.map(td => td.textContent)).toEqual(['2', '0', '', '', '0', '0', '0', '0', '', '', '', '', '', '', '']);
             expect(context.container.querySelector('tr').className).toEqual('');

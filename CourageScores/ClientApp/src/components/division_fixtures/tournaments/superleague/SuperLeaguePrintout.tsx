@@ -11,18 +11,31 @@ import {useLocation} from "react-router-dom";
 import {getNoOfLegs, maxNoOfThrowsAllMatches} from "../../../../helpers/superleague";
 import {RefreshControl} from "../../RefreshControl";
 import {useLive} from "../../LiveContainer";
+import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
+import {IDivisionDto} from "../../../../interfaces/serverSide/IDivisionDto";
+import {ITournamentMatchDto} from "../../../../interfaces/serverSide/Game/ITournamentMatchDto";
+import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {ISubscription} from "../../../../interfaces/ISubscription";
 
-export function SuperLeaguePrintout({division}) {
+export interface ISuperLeaguePrintoutProps {
+    division: IDivisionDto;
+}
+
+interface ISaygDataMap {
+    [saygId: string]: IRecordedScoreAsYouGoDto;
+}
+
+export function SuperLeaguePrintout({division}: ISuperLeaguePrintoutProps) {
     const {onError} = useApp();
     const {tournamentData} = useTournament();
     const {saygApi, webSocket} = useDependencies();
     const location = useLocation();
     const {subscriptions} = useLive();
-    const [saygDataMap, setSaygDataMap] = useState({});
-    const [loading, setLoading] = useState(false);
-    const matches = (tournamentData.round || {}).matches || [];
-    const unloadedIds = matches.map(m => m.saygId).filter(id => id && !any(Object.keys(saygDataMap), key => key === id));
-    const showWinner = location.search.indexOf('winner') !== -1;
+    const [saygDataMap, setSaygDataMap] = useState<ISaygDataMap>({});
+    const [loading, setLoading] = useState<boolean>(false);
+    const matches: ITournamentMatchDto[] = (tournamentData.round || {}).matches || [];
+    const unloadedIds: string[] = matches.map((m: ITournamentMatchDto) => m.saygId).filter((id: string) => id && !any(Object.keys(saygDataMap), (key: string) => key === id));
+    const showWinner: boolean = location.search.indexOf('winner') !== -1;
 
     useEffect(() => {
             if (loading) {
@@ -45,12 +58,13 @@ export function SuperLeaguePrintout({division}) {
         // eslint-disable-next-line
         [subscriptions, loading]);
 
-    function processLiveStateChange(enabled) {
+    function processLiveStateChange(enabled: ISubscription) {
         if (enabled) {
             for (let saygId in saygDataMap) {
                 if (!subscriptions[saygId]) {
+                    // noinspection JSIgnoredPromiseFromCall
                     webSocket.subscribe(saygId, (newSaygData) => {
-                        const newSaygDataMap = Object.assign({}, saygDataMap);
+                        const newSaygDataMap: ISaygDataMap = Object.assign({}, saygDataMap);
                         newSaygDataMap[newSaygData.id] = newSaygData;
                         setSaygDataMap(newSaygDataMap);
                     }, onError);
@@ -63,12 +77,13 @@ export function SuperLeaguePrintout({division}) {
         // foreach socket in saygSockets, close and remove it
         for (let saygId in saygDataMap) {
             if (subscriptions[saygId]) {
+                // noinspection JSIgnoredPromiseFromCall
                 webSocket.unsubscribe(saygId);
             }
         }
     }
 
-    async function loadSaygData(ids) {
+    async function loadSaygData(ids: string[]) {
         if (!any(ids)) {
             setLoading(false);
             return;
@@ -76,9 +91,9 @@ export function SuperLeaguePrintout({division}) {
 
         try {
             setLoading(true);
-            const firstId = ids[0];
-            const result = await saygApi.get(firstId);
-            const newSaygDataMap = Object.assign({}, saygDataMap);
+            const firstId: string = ids[0];
+            const result: IRecordedScoreAsYouGoDto = await saygApi.get(firstId);
+            const newSaygDataMap: ISaygDataMap = Object.assign({}, saygDataMap);
             newSaygDataMap[firstId] = result;
             setSaygDataMap(newSaygDataMap);
             setLoading(false);
@@ -92,14 +107,14 @@ export function SuperLeaguePrintout({division}) {
         return (<div>Loading...</div>);
     }
 
-    const saygMatches = matches.map(m => {
+    const saygMatches: ISuperleagueSaygMatchMapping[] = matches.map((m: ITournamentMatchDto) => {
         return {
             match: m,
             saygData: saygDataMap[m.saygId],
-        };
+        } as ISuperleagueSaygMatchMapping;
     });
-    const noOfThrows = maxNoOfThrowsAllMatches(saygMatches);
-    const noOfLegs = tournamentData.bestOf || max(saygMatches, map => getNoOfLegs(map.saygData));
+    const noOfThrows: number = maxNoOfThrowsAllMatches(saygMatches);
+    const noOfLegs: number = tournamentData.bestOf || max(saygMatches, (map: ISuperleagueSaygMatchMapping) => getNoOfLegs(map.saygData) || 0);
 
     try {
         return (<div className="overflow-auto no-overflow-on-print">
@@ -118,7 +133,6 @@ export function SuperLeaguePrintout({division}) {
                 opponent={tournamentData.opponent}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                noOfLegs={noOfLegs}
                 saygMatches={saygMatches}/>
             <Summary
                 showWinner={showWinner}

@@ -2,8 +2,17 @@ import {MatchLogRow} from "./MatchLogRow";
 import {MatchLogTableHeading} from "./MatchLogTableHeading";
 import {useApp} from "../../../../AppContainer";
 import {getNoOfLegs, playerOverallAverage} from "../../../../helpers/superleague";
+import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
 
-export function MatchLog({showWinner, noOfThrows, host, opponent, saygMatches}) {
+export interface IMatchLogProps {
+    showWinner?: boolean;
+    noOfThrows: number;
+    host: string;
+    opponent: string;
+    saygMatches: ISuperleagueSaygMatchMapping[];
+}
+
+export function MatchLog({showWinner, noOfThrows, host, opponent, saygMatches}: IMatchLogProps) {
     const {onError} = useApp();
     let homeTeamAverage = 0;
     let awayTeamAverage = 0;
@@ -42,7 +51,6 @@ export function MatchLog({showWinner, noOfThrows, host, opponent, saygMatches}) 
                         <MatchLogTableHeading team={opponent} noOfThrows={noOfThrows}/>
                         {Object.keys(matchDataMap.saygData.legs).map(legIndex => <MatchLogRow
                             key={legIndex}
-                            team={opponent}
                             accumulatorName="away"
                             leg={matchDataMap.saygData.legs[legIndex]}
                             noOfThrows={noOfThrows}

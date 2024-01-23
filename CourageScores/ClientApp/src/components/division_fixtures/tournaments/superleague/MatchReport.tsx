@@ -2,8 +2,21 @@ import {useApp} from "../../../../AppContainer";
 import {legsWon} from "../../../../helpers/superleague";
 import {repeat} from "../../../../helpers/projection";
 import {MatchReportRow} from "./MatchReportRow";
+import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
+import {IDivisionDto} from "../../../../interfaces/serverSide/IDivisionDto";
 
-export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender, host, opponent, saygMatches}) {
+export interface IMatchReportProps {
+    division: IDivisionDto;
+    showWinner: boolean;
+    noOfThrows: number;
+    noOfLegs: number;
+    gender: string;
+    host: string;
+    opponent: string;
+    saygMatches: ISuperleagueSaygMatchMapping[];
+}
+
+export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender, host, opponent, saygMatches}: IMatchReportProps) {
     const {onError} = useApp();
 
     try {
@@ -20,12 +33,12 @@ export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender,
                     </th>
                 </tr>
                 <tr>
-                    <th colSpan="4"></th>
+                    <th colSpan={4}></th>
                     <th colSpan={noOfThrows + 1}>Scores</th>
-                    <th colSpan="4"></th>
-                    <th colSpan="2"></th>
+                    <th colSpan={4}></th>
+                    <th colSpan={2}></th>
                     <th colSpan={noOfThrows + 1}>Scores</th>
-                    <th colSpan="4"></th>
+                    <th colSpan={4}></th>
                 </tr>
                 <tr>
                     <th>Set</th>
@@ -47,7 +60,7 @@ export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender,
                 </tr>
                 </thead>
                 <tbody>
-                {saygMatches.map((map, matchIndex) => {
+                {saygMatches.map((map: ISuperleagueSaygMatchMapping, matchIndex: number) => {
                     return (<MatchReportRow
                         key={matchIndex}
                         showWinner={showWinner}
@@ -55,8 +68,8 @@ export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender,
                         noOfLegs={noOfLegs}
                         saygData={map.saygData}
                         noOfThrows={noOfThrows}
-                        hostPlayerName={map.match.sideA.name}
-                        opponentPlayerName={map.match.sideB.name}/>);
+                        hostPlayerName={map.match.sideA!.name}
+                        opponentPlayerName={map.match.sideB!.name}/>);
                 })}
                 </tbody>
             </table>

@@ -1,36 +1,34 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../../helpers/tests";
 import React from "react";
-import {MasterDraw} from "./MasterDraw";
+import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../../helpers/rendering";
-import {tournamentMatchBuilder} from "../../../../helpers/builders";
+import {tournamentMatchBuilder} from "../../../../helpers/builders/tournaments";
 
 describe('MasterDraw', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(props: IMasterDrawProps) {
         context = await renderApp(
-            {},
-            null,
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<MasterDraw {...props} />));
     }
 
@@ -49,7 +47,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
@@ -67,7 +65,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).toContain('Date: ' + renderDate('2023-05-06'));
@@ -84,7 +82,7 @@ describe('MasterDraw', () => {
                 notes: '',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).not.toContain('Notes:');

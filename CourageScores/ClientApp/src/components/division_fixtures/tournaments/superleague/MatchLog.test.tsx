@@ -1,53 +1,54 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../../helpers/tests";
 import React from "react";
-import {MatchLog} from "./MatchLog";
-import {legBuilder, saygBuilder, tournamentMatchBuilder} from "../../../../helpers/builders";
+import {IMatchLogProps, MatchLog} from "./MatchLog";
+import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
+import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
+import {tournamentMatchBuilder} from "../../../../helpers/builders/tournaments";
 
 describe('MatchLog', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(props: IMatchLogProps) {
         context = await renderApp(
-            {},
-            null,
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<MatchLog {...props} />));
     }
 
-    function createLeg(homeScore, awayScore) {
+    function createLeg(homeScore: number, awayScore: number): ILegDto {
         return legBuilder()
-            .home(c => c.withThrow(homeScore, false, 3).noOfDarts(3))
-            .away(c => c.withThrow(awayScore, false, 3).noOfDarts(3))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore, false, 3).noOfDarts(3))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore, false, 3).noOfDarts(3))
             .startingScore(501)
             .build();
     }
 
-    function rowContent(row, tagName) {
+    function rowContent(row: HTMLTableRowElement, tagName: string): string[] {
         return Array.from(row.querySelectorAll(tagName)).map(cell => cell.textContent);
     }
 
-    function after(iterable, afterText) {
-        let collect = false;
-        const items = [];
+    function after(iterable: string[], afterText: string): string[] {
+        let collect: boolean = false;
+        const items: string[] = [];
 
         for (let index = 0; index < iterable.length; index++) {
             const item = iterable[index];
@@ -66,7 +67,7 @@ describe('MatchLog', () => {
 
     describe('renders', () => {
         it('when no sayg data', async () => {
-            const saygMatch = {
+            const saygMatch: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: null,
             };
@@ -79,12 +80,12 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('⚠ No data available for the match between A and B');
         });
 
         it('when no sayg legs', async () => {
-            const saygMatch = {
+            const saygMatch: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: {legs: null},
             };
@@ -97,15 +98,15 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('⚠ No data available for the match between A and B');
         });
 
         it('correct number of throw columns', async () => {
-            const saygMatch = {
+            const saygMatch: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(100, 50))
+                    .withLeg(0, createLeg(100, 50))
                     .build(),
             };
 
@@ -117,9 +118,9 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = Array.from(context.container.querySelectorAll('table.table'))[0];
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
             const hostHeadings = rowContent(rows[1], 'th');
             expect(after(hostHeadings, 'GD')).toEqual(['1', '2', '3', '4', '5', '6']);
@@ -128,12 +129,12 @@ describe('MatchLog', () => {
         });
 
         it('first match content for host', async () => {
-            const saygMatch = {
+            const saygMatch: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(100, 50))
-                    .withLeg('1', createLeg(100, 50))
-                    .withLeg('2', createLeg(100, 50))
+                    .withLeg(0, createLeg(100, 50))
+                    .withLeg(1, createLeg(100, 50))
+                    .withLeg(2, createLeg(100, 50))
                     .build(),
             };
 
@@ -145,9 +146,9 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = Array.from(context.container.querySelectorAll('table.table'))[0];
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
             expect(rowContent(rows[0], 'th')).toEqual(['HOST', 'Dart average', '', '']);
@@ -158,12 +159,12 @@ describe('MatchLog', () => {
         });
 
         it('first match content for opponent', async () => {
-            const saygMatch = {
+            const saygMatch: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(100, 50))
-                    .withLeg('1', createLeg(100, 50))
-                    .withLeg('2', createLeg(100, 50))
+                    .withLeg(0, createLeg(100, 50))
+                    .withLeg(1, createLeg(100, 50))
+                    .withLeg(2, createLeg(100, 50))
                     .build(),
             };
 
@@ -175,9 +176,9 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const table = context.container.querySelector('table.table');
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
             expect(rowContent(rows[5], 'th')).toEqual(['OPPONENT', 'Dart average', '', '']);
@@ -188,16 +189,16 @@ describe('MatchLog', () => {
         });
 
         it('second match content for host', async () => {
-            const saygMatch1 = {
+            const saygMatch1: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(50, 25))
+                    .withLeg(0, createLeg(50, 25))
                     .build(),
             };
-            const saygMatch2 = {
+            const saygMatch2: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('C').sideB('D').build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(100, 50))
+                    .withLeg(0, createLeg(100, 50))
                     .build(),
             };
 
@@ -209,11 +210,11 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch1, saygMatch2]
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const firstMatchTable = Array.from(context.container.querySelectorAll('table.table'))[0];
             const secondMatchTable = Array.from(context.container.querySelectorAll('table.table'))[1];
-            const firstMatchRows = Array.from(firstMatchTable.querySelectorAll('tbody tr'));
-            const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr'));
+            const firstMatchRows = Array.from(firstMatchTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
             expect(rowContent(secondMatchRows[0], 'th')).toEqual(['HOST', 'Dart average', '', '']);
@@ -226,16 +227,16 @@ describe('MatchLog', () => {
         });
 
         it('second match content for opponent', async () => {
-            const saygMatch1 = {
+            const saygMatch1: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(50, 25))
+                    .withLeg(0, createLeg(50, 25))
                     .build(),
             };
-            const saygMatch2 = {
+            const saygMatch2: ISuperleagueSaygMatchMapping = {
                 match: tournamentMatchBuilder().sideA('C').sideB('D').build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(100, 50))
+                    .withLeg(0, createLeg(100, 50))
                     .build(),
             };
 
@@ -247,11 +248,11 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch1, saygMatch2]
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const firstMatchTable = Array.from(context.container.querySelectorAll('table.table'))[0];
             const secondMatchTable = Array.from(context.container.querySelectorAll('table.table'))[1];
-            const firstMatchRows = Array.from(firstMatchTable.querySelectorAll('tbody tr'));
-            const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr'));
+            const firstMatchRows = Array.from(firstMatchTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
             expect(rowContent(secondMatchRows[3], 'th')).toEqual(['OPPONENT', 'Dart average', '', '']);

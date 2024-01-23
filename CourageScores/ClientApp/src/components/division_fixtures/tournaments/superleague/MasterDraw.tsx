@@ -1,7 +1,17 @@
 import {useApp} from "../../../../AppContainer";
 import {renderDate} from "../../../../helpers/rendering";
+import {ITournamentMatchDto} from "../../../../interfaces/serverSide/Game/ITournamentMatchDto";
 
-export function MasterDraw({matches, host, opponent, gender, date, notes}) {
+export interface IMasterDrawProps {
+    matches: ITournamentMatchDto[];
+    host: string;
+    opponent: string;
+    gender: string;
+    date: string;
+    notes: string;
+}
+
+export function MasterDraw({matches, host, opponent, gender, date, notes}: IMasterDrawProps) {
     const {onError} = useApp();
 
     try {
@@ -19,7 +29,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes}) {
                         </tr>
                         </thead>
                         <tbody>
-                        {matches.map((m, index) => {
+                        {matches.map((m: ITournamentMatchDto, index: number) => {
                             return (<tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{m.sideA.name}</td>

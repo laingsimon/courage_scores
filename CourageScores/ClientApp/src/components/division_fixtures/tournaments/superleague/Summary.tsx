@@ -10,21 +10,30 @@ import {
     sumOverThrows
 } from "../../../../helpers/superleague";
 import {ifNaN, round2dp} from "../../../../helpers/rendering";
+import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
 
-export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
+export interface ISummaryProps {
+    showWinner: boolean;
+    saygMatches: ISuperleagueSaygMatchMapping[];
+    noOfLegs: number;
+    host: string;
+    opponent: string;
+}
+
+export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}: ISummaryProps) {
     const {onError} = useApp();
 
-    function renderDartsForWindowsAverage(side) {
-        const sumOfScores = sum(saygMatches, s => sumOverThrows(s.saygData, side, 'score'));
-        const sumOfDarts = sum(saygMatches, s => sumOverThrows(s.saygData, side, 'noOfDarts', true));
+    function renderDartsForWindowsAverage(side: string) {
+        const sumOfScores = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'score'));
+        const sumOfDarts = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'noOfDarts', true));
 
         return (<td title={round2dp(sumOfScores) + ' / ' + round2dp(sumOfDarts)}>
             {ifNaN(round2dp(sumOfScores / sumOfDarts), '-')}
         </td>);
     }
 
-    function renderPlayerAverage(side) {
-        const average = sum(saygMatches, map => playerOverallAverage(map.saygData, side));
+    function renderPlayerAverage(side: string) {
+        const average = sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, side));
 
         return (<td title={round2dp(average) + ' / ' + noOfLegs}>
             {ifNaN(round2dp(average / noOfLegs), '-')}
@@ -62,7 +71,7 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
                 </tr>
                 </thead>
                 <tbody>
-                {saygMatches.map((map, index) => (<SummaryDataRow
+                {saygMatches.map((map: ISuperleagueSaygMatchMapping, index: number) => (<SummaryDataRow
                     key={index}
                     saygData={map.saygData}
                     matchNo={index + 1}
@@ -74,36 +83,36 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}) {
                 <tr className="fw-bold">
                     <td></td>
                     <td>Total</td>
-                    <td>{ifNaN(sum(saygMatches, map => map.match.scoreA), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => matchTons(saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => countMatch100(saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => countMatch140(saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => countMatch180(saygData, 'home')), '-')}</td>
-                    <td>{ifNaN(round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'home'))), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => map.match.scoreA), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => matchTons(map.saygData, 'home')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch100(map.saygData, 'home')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch140(map.saygData, 'home')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch180(map.saygData, 'home')), '-')}</td>
+                    <td>{ifNaN(round2dp(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, 'home'))), '-')}</td>
                     <td>Total</td>
-                    <td>{ifNaN(sum(saygMatches, map => map.match.scoreB), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => matchTons(saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => countMatch100(saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => countMatch140(saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(sum(saygMatches, saygData => countMatch180(saygData, 'away')), '-')}</td>
-                    <td>{ifNaN(round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'away'))), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => map.match.scoreB), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => matchTons(map.saygData, 'away')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch100(map.saygData, 'away')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch140(map.saygData, 'away')), '-')}</td>
+                    <td>{ifNaN(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => countMatch180(map.saygData, 'away')), '-')}</td>
+                    <td>{ifNaN(round2dp(sum(saygMatches, (map: ISuperleagueSaygMatchMapping) => playerOverallAverage(map.saygData, 'away'))), '-')}</td>
                 </tr>
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td colSpan="2"></td>
-                    <td colSpan="5" className="text-end">Rounded average</td>
+                    <td colSpan={2}></td>
+                    <td colSpan={5} className="text-end">Rounded average</td>
                     {renderPlayerAverage('home')}
-                    <td colSpan="1"></td>
-                    <td colSpan="5" className="text-end">Rounded average</td>
+                    <td colSpan={1}></td>
+                    <td colSpan={5} className="text-end">Rounded average</td>
                     {renderPlayerAverage('away')}
                 </tr>
                 <tr>
-                    <td colSpan="2"></td>
-                    <td colSpan="5" className="text-end">Darts for windows average</td>
+                    <td colSpan={2}></td>
+                    <td colSpan={5} className="text-end">Darts for windows average</td>
                     {renderDartsForWindowsAverage('home')}
-                    <td colSpan="1"></td>
-                    <td colSpan="5" className="text-end">Darts for windows average</td>
+                    <td colSpan={1}></td>
+                    <td colSpan={5} className="text-end">Darts for windows average</td>
                     {renderDartsForWindowsAverage('away')}
                 </tr>
                 </tfoot>

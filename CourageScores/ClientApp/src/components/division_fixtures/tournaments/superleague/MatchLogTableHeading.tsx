@@ -1,10 +1,15 @@
 import {repeat} from "../../../../helpers/projection";
 
-export function MatchLogTableHeading({team, noOfThrows}) {
+export interface IMatchLogTableHeadingProps {
+    team: string;
+    noOfThrows: number;
+}
+
+export function MatchLogTableHeading({team, noOfThrows}: IMatchLogTableHeadingProps) {
     return (<>
         <tr>
-            <th colSpan="9">{team}</th>
-            <th colSpan="2">Dart average</th>
+            <th colSpan={9}>{team}</th>
+            <th colSpan={2}>Dart average</th>
             <th></th>
             <th colSpan={noOfThrows + 1}></th>
         </tr>

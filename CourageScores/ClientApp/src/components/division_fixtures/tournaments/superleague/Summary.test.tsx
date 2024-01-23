@@ -1,44 +1,44 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../../helpers/tests";
 import React from "react";
-import {Summary} from "./Summary";
-import {legBuilder, saygBuilder, tournamentMatchBuilder} from "../../../../helpers/builders";
+import {ISummaryProps, Summary} from "./Summary";
+import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
+import {tournamentMatchBuilder} from "../../../../helpers/builders/tournaments";
 
 describe('Summary', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(props: ISummaryProps) {
         context = await renderApp(
-            {},
-            null,
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<Summary {...props} />));
     }
 
-    function getRowContent(row, tagName) {
+    function getRowContent(row: HTMLTableRowElement, tagName: string): string[] {
         return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent);
     }
 
-    function createLeg(homeWinner, awayWinner) {
-        function winningThrows(c) {
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): ILegDto {
+        function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90, false, 3)
                 .withThrow(100, false, 3)
@@ -47,7 +47,7 @@ describe('Summary', () => {
                 .withThrow(81, false, 3);
         }
 
-        function notWinningThrows(c) {
+        function notWinningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90, false, 3)
                 .withThrow(90, false, 3)
@@ -57,8 +57,8 @@ describe('Summary', () => {
         }
 
         return legBuilder()
-            .home(c => homeWinner ? winningThrows(c) : notWinningThrows(c))
-            .away(c => awayWinner ? winningThrows(c) : notWinningThrows(c))
+            .home((c: ILegCompetitorScoreBuilder) => homeWinner ? winningThrows(c) : notWinningThrows(c))
+            .away((c: ILegCompetitorScoreBuilder) => awayWinner ? winningThrows(c) : notWinningThrows(c))
             .startingScore(501)
             .build();
     }
@@ -73,7 +73,7 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('No matches');
         });
 
@@ -81,8 +81,8 @@ describe('Summary', () => {
             const saygMatch = {
                 match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(true, false))
-                    .withLeg('1', createLeg(true, false))
+                    .withLeg(0, createLeg(true, false))
+                    .withLeg(1, createLeg(true, false))
                     .build()
             }
 
@@ -94,8 +94,8 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
-            const rows = Array.from(context.container.querySelectorAll('table thead tr'));
+            expect(reportedError.hasError()).toEqual(false);
+            const rows = Array.from(context.container.querySelectorAll('table thead tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(1);
             expect(getRowContent(rows[0], 'th')).toEqual([
                 'Match no',
@@ -108,8 +108,8 @@ describe('Summary', () => {
             const saygMatch = {
                 match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(true, false))
-                    .withLeg('1', createLeg(true, false))
+                    .withLeg(0, createLeg(true, false))
+                    .withLeg(1, createLeg(true, false))
                     .build()
             }
 
@@ -121,8 +121,8 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
-            const rows = Array.from(context.container.querySelectorAll('table.table tbody tr'));
+            expect(reportedError.hasError()).toEqual(false);
+            const rows = Array.from(context.container.querySelectorAll('table.table tbody tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(1 + 1);
             expect(getRowContent(rows[0], 'td')).toEqual([
                 '1', 'A', '1', '6', '6', '0', '0', '33.4',
@@ -134,8 +134,8 @@ describe('Summary', () => {
             const saygMatch = {
                 match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(true, false))
-                    .withLeg('1', createLeg(true, false))
+                    .withLeg(0, createLeg(true, false))
+                    .withLeg(1, createLeg(true, false))
                     .build()
             }
 
@@ -147,12 +147,12 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
-            const rows = Array.from(context.container.querySelectorAll('table.table tbody tr'));
+            expect(reportedError.hasError()).toEqual(false);
+            const rows = Array.from(context.container.querySelectorAll('table.table tbody tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(1 + 1);
             expect(getRowContent(rows[1], 'td')).toEqual([
                 '',
-                'Total', '1', '0', '0', '0', '0', '33.4',
+                'Total', '1', '6', '6', '0', '0', '33.4',
                 'Total', '2', '0', '0', '0', '0', '30',
             ]);
         });
@@ -161,8 +161,8 @@ describe('Summary', () => {
             const saygMatch = {
                 match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(true, false))
-                    .withLeg('1', createLeg(true, false))
+                    .withLeg(0, createLeg(true, false))
+                    .withLeg(1, createLeg(true, false))
                     .build()
             }
 
@@ -174,8 +174,8 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
-            const rows = Array.from(context.container.querySelectorAll('table.table tfoot tr'));
+            expect(reportedError.hasError()).toEqual(false);
+            const rows = Array.from(context.container.querySelectorAll('table.table tfoot tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[0], 'td')).toEqual([
                 '',
@@ -189,9 +189,9 @@ describe('Summary', () => {
             const saygMatch = {
                 match: tournamentMatchBuilder().sideA('A', 1).sideB('B', 2).build(),
                 saygData: saygBuilder()
-                    .withLeg('0', createLeg(true, false))
-                    .withLeg('1', createLeg(false, true))
-                    .withLeg('2', createLeg(true, false))
+                    .withLeg(0, createLeg(true, false))
+                    .withLeg(1, createLeg(false, true))
+                    .withLeg(2, createLeg(true, false))
                     .build()
             }
 
@@ -203,8 +203,8 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
-            const rows = Array.from(context.container.querySelectorAll('table.table tfoot tr'));
+            expect(reportedError.hasError()).toEqual(false);
+            const rows = Array.from(context.container.querySelectorAll('table.table tfoot tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[1], 'td')).toEqual([
                 '',

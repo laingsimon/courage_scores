@@ -7,16 +7,19 @@ import {
     matchTons,
     playerOverallAverage
 } from "../../../../helpers/superleague";
+import {IScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
 
-export function SummaryDataRow({
-                                   matchNo,
-                                   saygData,
-                                   showWinner,
-                                   hostScore,
-                                   opponentScore,
-                                   hostPlayerName,
-                                   opponentPlayerName
-                               }) {
+export interface ISummaryDataRowProps {
+    matchNo: number;
+    saygData: IScoreAsYouGoDto;
+    showWinner: boolean;
+    hostScore: number;
+    opponentScore: number;
+    hostPlayerName: string;
+    opponentPlayerName: string;
+}
+
+export function SummaryDataRow({matchNo, saygData, showWinner, hostScore, opponentScore, hostPlayerName, opponentPlayerName}: ISummaryDataRowProps) {
     const {onError} = useApp();
 
     try {

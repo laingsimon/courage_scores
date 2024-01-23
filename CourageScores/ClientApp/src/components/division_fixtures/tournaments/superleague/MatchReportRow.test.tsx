@@ -1,53 +1,54 @@
-﻿// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../../helpers/tests";
+﻿import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../../helpers/tests";
 import React from "react";
-import {MatchReportRow} from "./MatchReportRow";
+import {IMatchReportRowProps, MatchReportRow} from "./MatchReportRow";
+import {ILegThrowDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
+import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
 
 describe('MatchReportRow', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
+    });
+
+    async function renderComponent(props: IMatchReportRowProps) {
         context = await renderApp(
-            {},
-            null,
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             (<MatchReportRow {...props} />),
             null,
             null,
             'tbody');
     }
 
-    function getRowContent(row) {
+    function getRowContent(row: HTMLTableRowElement): string[] {
         return Array.from(row.querySelectorAll('td')).map(th => th.textContent);
     }
 
-    function createLeg(homeWinner, awayWinner) {
-        const winningThrows = [
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): ILegDto {
+        const winningThrows: ILegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 100, bust: false, noOfDarts: 3},
             {score: 110, bust: false, noOfDarts: 3},
             {score: 120, bust: false, noOfDarts: 3},
             {score: 81, bust: false, noOfDarts: 3},
         ];
-        const notWinningThrows = [
+        const notWinningThrows: ILegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
@@ -78,7 +79,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(rows.length).toEqual(0);
         });
@@ -94,13 +95,14 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(rows.length).toEqual(0);
         });
 
         it('for the given number of legs', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(),
                     '1': createLeg(),
@@ -118,13 +120,14 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(rows.length).toEqual(3);
         });
 
         it('first leg', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(true, false),
                 }
@@ -140,7 +143,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
@@ -150,7 +153,8 @@ describe('MatchReportRow', () => {
         });
 
         it('second leg', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(false, true),
                     '1': createLeg(false, true),
@@ -167,7 +171,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[1])).toEqual([
                 '2', '90', '90', '90', '90', '15', '', '51', '0',
@@ -176,7 +180,8 @@ describe('MatchReportRow', () => {
         });
 
         it('ignores bust scores', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(true, false),
                 }
@@ -194,7 +199,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
@@ -204,7 +209,8 @@ describe('MatchReportRow', () => {
         });
 
         it('highlights 100+ scores', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(true, false),
                 }
@@ -222,16 +228,17 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 4 && index < 8);
-            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 14 && index < 18);
+            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 4 && index < 8);
+            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 14 && index < 18);
             expect(hostScoreCells.map(td => td.className.trim())).toEqual(['text-danger', 'text-danger', 'text-danger', 'text-danger']);
             expect(opponentScoreCells.map(td => td.className.trim())).toEqual(['', '', '', '']);
         });
 
         it('highlights 180 scores', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(true, false),
                 }
@@ -249,16 +256,17 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
-            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 4 && index < 8);
-            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 14 && index < 18);
+            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 4 && index < 8);
+            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 14 && index < 18);
             expect(hostScoreCells.map(td => td.className.trim())).toEqual(['text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold']);
             expect(opponentScoreCells.map(td => td.className.trim())).toEqual(['text-danger', 'text-danger', 'text-danger', 'text-danger']);
         });
 
         it('shows non-180-tons correctly', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(true, false),
                 }
@@ -276,7 +284,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
             const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];
@@ -285,7 +293,8 @@ describe('MatchReportRow', () => {
         });
 
         it('shows 180-tons correctly', async () => {
-            const saygData = {
+            const saygData: IRecordedScoreAsYouGoDto = {
+                yourName: '',
                 legs: {
                     '0': createLeg(true, false),
                 }
@@ -303,7 +312,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
             const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];

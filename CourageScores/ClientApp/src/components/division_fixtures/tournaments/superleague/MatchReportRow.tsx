@@ -9,16 +9,19 @@ import {
     playerOverallAverage
 } from "../../../../helpers/superleague";
 import {ifNaN, round2dp} from "../../../../helpers/rendering";
+import {IScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
 
-export function MatchReportRow({
-                                   matchIndex,
-                                   saygData,
-                                   noOfThrows,
-                                   noOfLegs,
-                                   showWinner,
-                                   hostPlayerName,
-                                   opponentPlayerName
-                               }) {
+export interface IMatchReportRowProps {
+    matchIndex: number;
+    saygData: IScoreAsYouGoDto;
+    noOfThrows: number;
+    noOfLegs: number;
+    showWinner: boolean;
+    hostPlayerName: string;
+    opponentPlayerName: string;
+}
+
+export function MatchReportRow({matchIndex, saygData, noOfThrows, noOfLegs, showWinner, hostPlayerName, opponentPlayerName}: IMatchReportRowProps) {
     const {onError} = useApp();
 
     try {
