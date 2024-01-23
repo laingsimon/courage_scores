@@ -1,169 +1,197 @@
-// noinspection JSUnresolvedFunction
-
 import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
-import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
-import {playerBuilder} from "../../../helpers/builders";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
+import {IMergeManOfTheMatchProps, MergeManOfTheMatch} from "./MergeManOfTheMatch";
+import {playerBuilder} from "../../../helpers/builders/players";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
 
 describe('MergeManOfTheMatch', () => {
-    let context;
-    let reportedError;
-    let updatedData;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let updatedData: IGameDto;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(data, allPlayers) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedData = null;
+    });
+
+    async function setData(data: IGameDto) {
+        updatedData = data;
+    }
+
+    async function renderComponent(props: IMergeManOfTheMatchProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
-            (<MergeManOfTheMatch
-                data={data}
-                allPlayers={allPlayers}
-                setData={(data) => updatedData = data}/>),
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<MergeManOfTheMatch {...props} />),
             null,
             null,
             'tbody');
     }
 
     describe('renders', () => {
-        const player = playerBuilder('MOM').build();
-        const allPlayers = [player];
+        const player: ITeamPlayerDto = playerBuilder('MOM').build();
+        const allPlayers: ITeamPlayerDto[] = [player];
 
         it('when home merged', async () => {
-            const data = {
+            const data: IGameDto = {
                 home: {
+                    name: 'HOME',
                     manOfTheMatch: player.id,
                 },
-                away: {},
+                away: {name: 'AWAY'},
                 homeSubmission: {
-                    home: {},
-                    away: {},
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
-                    away: {},
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
+                address: '',
             };
 
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             const homeMOM = context.container.querySelector('td:nth-child(1)');
             expect(homeMOM.textContent).toEqual('Merged');
         });
 
         it('when away merged', async () => {
-            const data = {
-                home: {},
+            const data: IGameDto = {
+                home: { name: 'HOME' },
                 away: {
+                    name: 'AWAY',
                     manOfTheMatch: player.id,
                 },
                 homeSubmission: {
-                    home: {},
-                    away: {},
+                    home: { name: 'HOME' },
+                    away: { name: 'AWAY '},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
-                    away: {},
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
+                address: '',
             };
 
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             const awayMOM = context.container.querySelector('td:nth-child(3)');
             expect(awayMOM.textContent).toEqual('Merged');
         });
 
         it('when nothing to merge for home', async () => {
-            const data = {
-                home: {},
-                away: {},
+            const data: IGameDto = {
+                home: {name: 'HOME'},
+                away: {name: 'AWAY'},
                 homeSubmission: {
-                    home: {},
-                    away: {},
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
-                    away: {}
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
+                address: '',
             };
 
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             const homeMOM = context.container.querySelector('td:nth-child(1)');
             expect(homeMOM.textContent).toEqual('Nothing to merge');
         });
 
         it('when nothing to merge for away', async () => {
-            const data = {
-                home: {},
-                away: {},
+            const data: IGameDto = {
+                home: {name: 'HOME'},
+                away: {name: 'AWAY'},
                 homeSubmission: {
-                    home: {},
-                    away: {},
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
-                    away: {}
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
+                address: '',
             };
 
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             const awayMOM = context.container.querySelector('td:nth-child(3)');
             expect(awayMOM.textContent).toEqual('Nothing to merge');
         });
 
         it('when home unmerged', async () => {
-            const data = {
-                home: {},
-                away: {},
+            const data: IGameDto = {
+                home: {name: 'HOME'},
+                away: {name: 'AWAY'},
                 homeSubmission: {
                     home: {
+                        name: 'HOME',
                         manOfTheMatch: player.id
                     },
-                    away: {},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
-                    away: {}
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
+                address: '',
             };
 
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             const homeMOM = context.container.querySelector('td:nth-child(1)');
             expect(homeMOM.textContent).toEqual('Use MOM');
         });
 
         it('when away unmerged', async () => {
-            const data = {
-                home: {},
-                away: {},
+            const data: IGameDto = {
+                home: {name: 'HOME'},
+                away: {name: 'AWAY'},
                 homeSubmission: {
-                    home: {},
-                    away: {},
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
+                    home: {name: 'HOME'},
                     away: {
+                        name: 'AWAY',
                         manOfTheMatch: player.id
-                    }
+                    },
+                    address: '',
                 },
+                address: '',
             };
 
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             const awayMOM = context.container.querySelector('td:nth-child(3)');
             expect(awayMOM.textContent).toEqual('Use MOM');
@@ -175,49 +203,57 @@ describe('MergeManOfTheMatch', () => {
         const allPlayers = [player];
 
         it('can change home man of match', async () => {
-            const data = {
-                home: {},
-                away: {},
+            const data: IGameDto = {
+                home: {name: 'HOME'},
+                away: {name: 'AWAY'},
                 homeSubmission: {
                     home: {
+                        name: 'HOME',
                         manOfTheMatch: player.id
                     },
-                    away: {},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
-                    away: {}
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
+                address: '',
             };
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             await doClick(findButton(context.container.querySelector('td:nth-child(1)'), 'Use MOM'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData).not.toBeNull();
             expect(updatedData.home.manOfTheMatch).toEqual(player.id);
         });
 
         it('can change away man of match', async () => {
-            const data = {
-                home: {},
-                away: {},
+            const data: IGameDto = {
+                home: {name: 'HOME'},
+                away: {name: 'AWAY'},
                 homeSubmission: {
-                    home: {},
-                    away: {},
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    address: '',
                 },
                 awaySubmission: {
-                    home: {},
+                    home: {name: 'HOME'},
                     away: {
+                        name: 'AWAY',
                         manOfTheMatch: player.id
-                    }
+                    },
+                    address: '',
                 },
+                address: '',
             };
-            await renderComponent(data, allPlayers);
+            await renderComponent({ data, allPlayers, setData });
 
             await doClick(findButton(context.container.querySelector('td:nth-child(3)'), 'Use MOM'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData).not.toBeNull();
             expect(updatedData.away.manOfTheMatch).toEqual(player.id);
         });

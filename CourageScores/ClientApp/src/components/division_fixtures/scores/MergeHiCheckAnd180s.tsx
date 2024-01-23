@@ -1,12 +1,19 @@
 import React from "react";
 import {any, isEmpty} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
 
-export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
+export interface IMergeHiCheckAnd180sProps {
+    fixtureData: IGameDto;
+    data: IGameDto;
+    setFixtureData: (data: IGameDto) => Promise<any>;
+}
+
+export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeHiCheckAnd180sProps) {
     const {onError} = useApp();
 
-    function getRecordsToMerge(team, record) {
-        const submission = data[team + 'Submission'];
+    function getRecordsToMerge(team: string, record: string): any[] {
+        const submission: IGameDto = data[team + 'Submission'];
         if (!submission) {
             return [];
         }
@@ -14,14 +21,14 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
         return submission[record];
     }
 
-    function mergeRecords(team, record) {
+    async function mergeRecords(team: string, record: string) {
         try {
-            const newFixtureData = Object.assign({}, fixtureData);
-            const submission = data[team + 'Submission'];
+            const newFixtureData: IGameDto = Object.assign({}, fixtureData);
+            const submission: IGameDto = data[team + 'Submission'];
 
             newFixtureData[record] = submission[record];
 
-            setFixtureData(newFixtureData);
+            await setFixtureData(newFixtureData);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -33,16 +40,16 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
         {isEmpty(fixtureData.oneEighties || []) && (any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('away', 'oneEighties')))
             ? (<>
                 <tr>
-                    <td colSpan="5" className="text-center">
+                    <td colSpan={5} className="text-center">
                         <h6>Merge 180s</h6>
                     </td>
                 </tr>
                 <tr datatype="merge-180s">
-                    <td colSpan="2" className="text-end">
+                    <td colSpan={2} className="text-end">
                         {isEmpty(fixtureData.oneEighties || []) && any(getRecordsToMerge('home', 'oneEighties')) ? (<div datatype="home-180s">
                             <h6>
                                 <button className="btn btn-sm btn-success margin-left"
-                                        onClick={() => mergeRecords('home', 'oneEighties')}>Merge
+                                        onClick={async () => await mergeRecords('home', 'oneEighties')}>Merge
                                 </button>
                             </h6>
                             <ol className="d-inline-block">
@@ -57,11 +64,11 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                             <span className="text-nowrap" style={{marginLeft: '-60px'}}>Merge &rarr;</span>
                         </div>
                     </td>
-                    <td colSpan="2">
+                    <td colSpan={2}>
                         {isEmpty(fixtureData.oneEighties || []) && any(getRecordsToMerge('away', 'oneEighties')) ? (<div datatype="away-180s">
                             <h6>
                                 <button className="btn btn-sm btn-success margin-left"
-                                        onClick={() => mergeRecords('away', 'oneEighties')}>Merge
+                                        onClick={async () => await mergeRecords('away', 'oneEighties')}>Merge
                                 </button>
                             </h6>
                             <ol className="d-inline-block">
@@ -75,16 +82,16 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
             {isEmpty(fixtureData.over100Checkouts || []) && (any(getRecordsToMerge('home', 'over100Checkouts')) || any(getRecordsToMerge('away', 'over100Checkouts')))
                 ? (<>
                     <tr>
-                        <td colSpan="5" className="text-center">
+                        <td colSpan={5} className="text-center">
                             <h6>Merge Hi-checks</h6>
                         </td>
                     </tr>
                     <tr datatype="merge-hichecks">
-                        <td colSpan="2" className="text-end">
+                        <td colSpan={2} className="text-end">
                             {isEmpty(fixtureData.over100Checkouts || []) && any(getRecordsToMerge('home', 'over100Checkouts')) ? (<div datatype="home-hichecks">
                                 <h6>
                                     <button className="btn btn-sm btn-success margin-left"
-                                            onClick={() => mergeRecords('home', 'over100Checkouts')}>Merge
+                                            onClick={async () => await mergeRecords('home', 'over100Checkouts')}>Merge
                                     </button>
                                 </h6>
                                 <ol className="d-inline-block">
@@ -99,11 +106,11 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}) {
                                 <span className="text-nowrap" style={{marginLeft: '-60px'}}>Merge &rarr;</span>
                             </div>
                         </td>
-                        <td colSpan="2">
+                        <td colSpan={2}>
                             {isEmpty(fixtureData.over100Checkouts || []) && any(getRecordsToMerge('away', 'over100Checkouts')) ? (<div datatype="away-hichecks">
                                 <h6>
                                     <button className="btn btn-sm btn-success margin-left"
-                                            onClick={() => mergeRecords('away', 'over100Checkouts')}>Merge
+                                            onClick={async () => await mergeRecords('away', 'over100Checkouts')}>Merge
                                     </button>
                                 </h6>
                                 <ol className="d-inline-block">

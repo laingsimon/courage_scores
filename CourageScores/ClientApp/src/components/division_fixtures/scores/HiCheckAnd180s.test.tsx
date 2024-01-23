@@ -1,15 +1,27 @@
-// noinspection JSUnresolvedFunction
-
 import React from "react";
-import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
-import {HiCheckAnd180s} from "./HiCheckAnd180s";
-import {divisionBuilder, fixtureBuilder, playerBuilder, seasonBuilder} from "../../../helpers/builders";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
+import {HiCheckAnd180s, IHiCheckAnd180sProps} from "./HiCheckAnd180s";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {divisionBuilder} from "../../../helpers/builders/divisions";
+import {seasonBuilder} from "../../../helpers/builders/seasons";
+import {fixtureBuilder, IMatchBuilder} from "../../../helpers/builders/games";
+import {playerBuilder} from "../../../helpers/builders/players";
 
 describe('HiCheckAnd180s', () => {
-    let context;
-    let reportedError;
-    let updatedFixtureData;
-    const setFixtureData = (newFixtureData) => {
+    let context: TestContext;
+    let updatedFixtureData: IGameDto;
+
+    async function setFixtureData(newFixtureData: IGameDto) {
         updatedFixtureData = newFixtureData;
     }
 
@@ -17,25 +29,16 @@ describe('HiCheckAnd180s', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(saving, access, fixtureData) {
-        reportedError = null;
+    beforeEach(() => {
         updatedFixtureData = null;
+    });
+
+    async function renderComponent(props: IHiCheckAnd180sProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<HiCheckAnd180s
-                saving={saving}
-                access={access}
-                fixtureData={fixtureData}
-                setFixtureData={setFixtureData}/>),
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            (<HiCheckAnd180s {...props} />),
             null,
             null,
             'tbody');
@@ -51,7 +54,12 @@ describe('HiCheckAnd180s', () => {
                 .forSeason(season)
                 .build();
 
-            await renderComponent(false, 'readonly', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: 'readonly',
+                fixtureData,
+                setFixtureData,
+            });
 
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(1);
@@ -63,10 +71,15 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m)
+                .withMatch((m: IMatchBuilder) => m)
                 .build();
 
-            await renderComponent(false, 'readonly', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: 'readonly',
+                fixtureData,
+                setFixtureData,
+            });
 
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(1);
@@ -78,10 +91,15 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome().withAway())
+                .withMatch((m: IMatchBuilder) => m.withHome().withAway())
                 .build();
 
-            await renderComponent(false, 'readonly', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: 'readonly',
+                fixtureData,
+                setFixtureData,
+            });
 
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(1);
@@ -95,10 +113,15 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
-            await renderComponent(false, 'readonly', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: 'readonly',
+                fixtureData,
+                setFixtureData,
+            });
 
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(3);
@@ -113,11 +136,16 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .with180(homePlayer)
                 .build();
 
-            await renderComponent(false, 'readonly', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: 'readonly',
+                fixtureData,
+                setFixtureData,
+            });
 
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(3);
@@ -134,11 +162,16 @@ describe('HiCheckAnd180s', () => {
             const fixtureData = fixtureBuilder()
                 .forDivision(division)
                 .forSeason(season)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .withHiCheck(homePlayer, '100')
                 .build();
 
-            await renderComponent(false, 'readonly', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: 'readonly',
+                fixtureData,
+                setFixtureData,
+            });
 
             const cells = context.container.querySelectorAll('td');
             expect(cells.length).toEqual(3);
@@ -161,7 +194,12 @@ describe('HiCheckAnd180s', () => {
                     .forSeason(season)
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(1);
@@ -173,10 +211,15 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome().withAway())
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway())
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(1);
@@ -190,10 +233,15 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
@@ -214,11 +262,16 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
@@ -234,11 +287,16 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, '100')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
@@ -256,11 +314,16 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 const td180s = context.container.querySelectorAll('td')[0];
                 const addPlayerContainer = td180s.querySelector('ol li:last-child');
                 await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu'), 'AWAY player');
@@ -268,7 +331,7 @@ describe('HiCheckAnd180s', () => {
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.oneEighties).toEqual([
-                    {id: homePlayer.id, name: homePlayer.name},
+                    {id: homePlayer.id, name: homePlayer.name, team: null},
                     {id: awayPlayer.id, name: awayPlayer.name}
                 ]);
             });
@@ -279,11 +342,16 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 const td180s = context.container.querySelectorAll('td')[0];
                 expect(td180s).toBeTruthy();
                 await doClick(findButton(td180s, 'HOME player 🗑'));
@@ -298,11 +366,16 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, '100')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 const tdHiChecks = context.container.querySelectorAll('td')[2];
                 const addPlayerContainer = tdHiChecks.querySelector('ol li:last-child');
                 await doChange(addPlayerContainer, 'input', '140', context.user);
@@ -311,7 +384,7 @@ describe('HiCheckAnd180s', () => {
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.over100Checkouts).toEqual([
-                    {id: homePlayer.id, name: homePlayer.name, notes: '100'},
+                    {id: homePlayer.id, name: homePlayer.name, notes: '100', team: null},
                     {id: awayPlayer.id, name: awayPlayer.name, notes: '140'}
                 ]);
             });
@@ -322,11 +395,16 @@ describe('HiCheckAnd180s', () => {
                 const fixtureData = fixtureBuilder()
                     .forDivision(division)
                     .forSeason(season)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, '100')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 const tdHiChecks = context.container.querySelectorAll('td')[2];
                 expect(tdHiChecks).toBeTruthy();
                 await doClick(findButton(tdHiChecks, 'HOME player (100) 🗑'));

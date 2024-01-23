@@ -1,34 +1,43 @@
-﻿// noinspection JSUnresolvedFunction
-
-import React from "react";
-import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
-import {MergeMatch} from "./MergeMatch";
-import {fixtureBuilder, matchBuilder, playerBuilder} from "../../../helpers/builders";
+﻿import React from "react";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
+import {IMergeMatchProps, MergeMatch} from "./MergeMatch";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, matchBuilder} from "../../../helpers/builders/games";
+import {playerBuilder} from "../../../helpers/builders/players";
 
 describe('MergeMatch', () => {
-    let context;
-    let reportedError;
-    let updatedData;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let updatedData: IGameDto;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedData = null;
+    });
+
+    async function setFixtureData(data: IGameDto) {
+        updatedData = data;
+    }
+
+    async function renderComponent(props: IMergeMatchProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
-            (<MergeMatch {...props} setFixtureData={(data) => updatedData = data}/>),
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<MergeMatch {...props} />),
             null,
             null,
             'tbody');
@@ -46,24 +55,25 @@ describe('MergeMatch', () => {
                 readOnly: false,
                 matches: [match],
                 matchIndex: 0,
-                homeSubmission: {},
-                awaySubmission: {},
-                fixtureData: {}
+                homeSubmission: fixtureBuilder().build(),
+                awaySubmission: fixtureBuilder().build(),
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.innerHTML).toEqual('');
         });
 
         it('when home and away submissions match', async () => {
             const match = {};
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -71,10 +81,11 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const td = context.container.querySelector('td');
             expect(td.colSpan).toEqual(5);
             expect(td.querySelector('button')).toBeTruthy();
@@ -84,12 +95,12 @@ describe('MergeMatch', () => {
         it('when home and away submissions match and readonly', async () => {
             const match = {};
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: true,
@@ -97,10 +108,11 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const td = context.container.querySelector('td');
             expect(td.colSpan).toEqual(5);
             expect(td.querySelector('button')).toBeTruthy();
@@ -111,10 +123,10 @@ describe('MergeMatch', () => {
         it('when home but no away submission match', async () => {
             const match = {};
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY'))
                 .build();
             await renderComponent({
@@ -123,19 +135,20 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
-            const td = context.container.querySelector('td:nth-child(3)');
+            expect(reportedError.hasError()).toEqual(false);
+            const td = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement;
             expect(td.colSpan).toEqual(2);
             expect(td.querySelector('span').textContent).toEqual('No match');
         });
 
         it('when nothing to merge for either home or away', async () => {
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s.author('HOME CAPTAIN').playing('HOME', 'AWAY'))
-                .awaySubmission(s => s.author('AWAY CAPTAIN').playing('HOME', 'AWAY'))
+                .homeSubmission((s: IFixtureBuilder) => s.author('HOME CAPTAIN').playing('HOME', 'AWAY'))
+                .awaySubmission((s: IFixtureBuilder) => s.author('AWAY CAPTAIN').playing('HOME', 'AWAY'))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -143,10 +156,11 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -154,14 +168,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch(m => m.withHome().withAway()))
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -169,11 +183,12 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
-            const homeSubmission = context.container.querySelector('td:nth-child(1)');
+            expect(reportedError.hasError()).toEqual(false);
+            const homeSubmission = context.container.querySelector('td:nth-child(1)') as HTMLTableCellElement;
             expect(homeSubmission.colSpan).toEqual(2);
             expect(homeSubmission.textContent).toContain('from HOME CAPTAIN');
             expect(homeSubmission.textContent).toContain('HOME: 1 - AWAY: 2');
@@ -184,14 +199,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch(m => m.withHome().withAway()))
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
                 .build();
             await renderComponent({
                 readOnly: true,
@@ -199,11 +214,12 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
-            const homeSubmission = context.container.querySelector('td:nth-child(1)');
+            expect(reportedError.hasError()).toEqual(false);
+            const homeSubmission = context.container.querySelector('td:nth-child(1)') as HTMLTableCellElement
             expect(homeSubmission.colSpan).toEqual(2);
             expect(homeSubmission.querySelector('button').disabled).toEqual(true);
         });
@@ -212,14 +228,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch(m => m.withHome().withAway()))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -227,11 +243,12 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
-            const awaySubmission = context.container.querySelector('td:nth-child(3)');
+            expect(reportedError.hasError()).toEqual(false);
+            const awaySubmission = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement
             expect(awaySubmission.colSpan).toEqual(2);
             expect(awaySubmission.textContent).toContain('from AWAY CAPTAIN');
             expect(awaySubmission.textContent).toContain('HOME: 1 - AWAY: 2');
@@ -242,14 +259,14 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch(m => m.withHome().withAway()))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
                 .build();
             await renderComponent({
                 readOnly: true,
@@ -257,11 +274,12 @@ describe('MergeMatch', () => {
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {}
+                fixtureData: fixtureBuilder().build(),
+                setFixtureData,
             });
 
-            expect(reportedError).toBeNull();
-            const awaySubmission = context.container.querySelector('td:nth-child(3)');
+            expect(reportedError.hasError()).toEqual(false);
+            const awaySubmission = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement;
             expect(awaySubmission.colSpan).toEqual(2);
             expect(awaySubmission.querySelector('button').disabled).toEqual(true);
         });
@@ -272,15 +290,15 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch(m => m.withHome().withAway()))
-                .withMatch(m => m)
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
+                .withMatch((m: IMatchBuilder) => m)
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -289,14 +307,18 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: {
-                    matches: [{}]
-                }
+                    matches: [{}],
+                    home: { name: 'HOME' },
+                    away: { name: 'AWAY' },
+                    address: '',
+                },
+                setFixtureData,
             });
             const homeSubmission = context.container.querySelector('td:nth-child(1)');
 
             await doClick(findButton(homeSubmission, 'Accept'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.matches[0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],
@@ -309,15 +331,15 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch(m => m.withHome().withAway()))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway()))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .withMatch(m => m)
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch((m: IMatchBuilder) => m)
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -326,14 +348,18 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: {
-                    matches: [{}]
-                }
+                    matches: [{}],
+                    home: { name: 'HOME' },
+                    away: { name: 'AWAY' },
+                    address: '',
+                },
+                setFixtureData,
             });
             const awaySubmission = context.container.querySelector('td:nth-child(3)');
 
             await doClick(findButton(awaySubmission, 'Accept'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.matches[0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],
@@ -346,15 +372,15 @@ describe('MergeMatch', () => {
             const homePlayer = playerBuilder('HOME PLAYER').build();
             const awayPlayer = playerBuilder('AWAY PLAYER').build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
-                .homeSubmission(s => s
+                .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('HOME CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .awaySubmission(s => s
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
                     .author('AWAY CAPTAIN')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
-                .withMatch(m => m)
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch((m: IMatchBuilder) => m)
                 .build();
             await renderComponent({
                 readOnly: false,
@@ -363,14 +389,18 @@ describe('MergeMatch', () => {
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
                 fixtureData: {
-                    matches: [{}]
-                }
+                    matches: [{}],
+                    home: { name: 'HOME' },
+                    away: { name: 'AWAY' },
+                    address: '',
+                },
+                setFixtureData,
             });
             const homeSubmission = context.container.querySelector('td:nth-child(1)');
 
             await doClick(findButton(homeSubmission, 'Accept'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.matches[0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],

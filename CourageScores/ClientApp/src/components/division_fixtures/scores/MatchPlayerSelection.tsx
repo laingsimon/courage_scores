@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {PlayerSelection} from "../../division_players/PlayerSelection";
+import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {any, distinct} from "../../../helpers/collections";
 import {repeat} from "../../../helpers/projection";
@@ -10,28 +10,41 @@ import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {useMatchType} from "./MatchTypeContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
+import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
+import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IGameTeamDto} from "../../../interfaces/serverSide/Game/IGameTeamDto";
+import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
 
-export const NEW_PLAYER = 'NEW_PLAYER';
+export const NEW_PLAYER: string = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}) {
+export interface IMatchPlayerSelectionProps {
+    match: IGameMatchDto;
+    onMatchChanged?: (newMatch: IGameMatchDto) => Promise<any>;
+    onMatchOptionsChanged: (newOptions: IGameMatchOptionDto) => Promise<any>;
+    on180: (player: IGamePlayerDto) => Promise<any>;
+    onHiCheck: (player: IGamePlayerDto, score: string) => Promise<any>;
+}
+
+export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}: IMatchPlayerSelectionProps) {
     const {account, onError} = useApp();
     const {homePlayers, awayPlayers, readOnly, disabled, division, season, home, away} = useLeagueFixture();
     const {matchOptions, otherMatches, setCreatePlayerFor} = useMatchType();
-    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState(false);
-    const [saygOpen, setSaygOpen] = useState(false);
+    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState<boolean>(false);
+    const [saygOpen, setSaygOpen] = useState<boolean>(false);
 
-    function player(index, side) {
-        const matchPlayers = match[side + 'Players'];
+    function player(index: number, side: 'home' | 'away'): IGamePlayerDto {
+        const matchPlayers: IGamePlayerDto[] = match[side + 'Players'];
 
         if (!matchPlayers || index >= matchPlayers.length) {
-            return {};
+            return {name: null};
         }
 
-        return matchPlayers[index] || {};
+        return matchPlayers[index] || {name: null};
     }
 
-    function linkToPlayer(index, side, team) {
-        const playerData = player(index, side);
+    function linkToPlayer(index: number, side: 'home' | 'away', team: IGameTeamDto) {
+        const playerData: IGamePlayerDto = player(index, side);
 
         return (<EmbedAwareLink
             to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
@@ -39,20 +52,20 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         </EmbedAwareLink>);
     }
 
-    async function playerChanged(index, player, side) {
+    async function playerChanged(index: number, player: ISelectablePlayer, side: 'home' | 'away') {
         try {
             if (readOnly || disabled) {
                 return;
             }
 
             if (player && player.id === NEW_PLAYER) {
-                setCreatePlayerFor({index, side});
+                await setCreatePlayerFor({index, side});
                 return;
             }
 
-            const emptyMatch = {};
+            const emptyMatch: IGameMatchDto = {};
             emptyMatch[side + 'Players'] = [];
-            const newMatch = Object.assign(emptyMatch, match);
+            const newMatch: IGameMatchDto = Object.assign(emptyMatch, match);
             const players = newMatch[side + 'Players'];
             const existingPlayer = players[index];
             if (player) {
@@ -72,7 +85,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         }
     }
 
-    async function scoreChanged(newScore, side) {
+    async function scoreChanged(newScore: string, side: 'home' | 'away') {
         try {
             if (readOnly || disabled) {
                 return;
@@ -80,9 +93,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
 
             const oppositeSide = side === 'home' ? 'away' : 'home';
             const oppositeScore = match[oppositeSide + 'Score'];
-            const newMatch = Object.assign({}, match);
-            const numberOfLegs = matchOptions.numberOfLegs;
-            const intScore = newScore ? Math.min(Number.parseInt(newScore), numberOfLegs) : null;
+            const newMatch: IGameMatchDto = Object.assign({}, match);
+            const numberOfLegs: number = matchOptions.numberOfLegs;
+            const intScore: number = newScore ? Math.min(Number.parseInt(newScore), numberOfLegs) : null;
 
             newMatch[side + 'Score'] = intScore;
 
@@ -99,44 +112,49 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         }
     }
 
-    function exceptPlayers(playerIndex, side) {
-        const propertyName = side + 'Players';
-        const selectedPlayer = player(playerIndex, side);
-        const exceptPlayerIds = distinct((otherMatches || [])
-            .flatMap(otherMatch => {
-                return (otherMatch[propertyName] || []).filter(p => p || false).map(player => player ? player.id : null);
+    function exceptPlayers(playerIndex: number, side: 'home' | 'away'): string[] {
+        const propertyName: string = side + 'Players';
+        const selectedPlayer: IGamePlayerDto = player(playerIndex, side);
+        const exceptPlayerIds: string[] = distinct((otherMatches || [])
+            .flatMap((otherMatch: IGameMatchDto) => {
+                return (otherMatch[propertyName] || [])
+                    .filter((p?: IGamePlayerDto) => p || false)
+                    .map((player: IGamePlayerDto) => player ? player.id : null);
             }))
             .filter(id => id !== selectedPlayer.id); // dont exclude the currently selected player
 
-        const playerList = match[propertyName];
+        const playerList: IGamePlayerDto[] = match[propertyName];
         if (!playerList) {
             return exceptPlayerIds;
         }
 
-        const additionalPlayers = playerList.filter((_, index) => index !== playerIndex).map(player => player.id);
+        const additionalPlayers: string[] = playerList
+            .filter((_: IGamePlayerDto, index: number) => index !== playerIndex)
+            .map((player: IGamePlayerDto) => player.id);
+
         return exceptPlayerIds
             .concat(additionalPlayers)
-            .filter(id => id !== selectedPlayer.id); // dont exclude the currently selected player;
+            .filter((id: string) => id !== selectedPlayer.id); // dont exclude the currently selected player;
     }
 
     function renderMatchSettingsDialog() {
-        return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
+        return (<Dialog title="Edit match options" slim={true} onClose={async () => setMatchOptionsDialogOpen(false)}>
             <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged}/>
         </Dialog>);
     }
 
-    async function add180(sideName) {
-        const players = match[sideName + 'Players'];
+    async function add180(sideName: 'home' | 'away') {
+        const players: IGamePlayerDto[] = match[sideName + 'Players'];
         await on180(players[0]);
     }
 
-    async function addHiCheck(sideName, score) {
-        const players = match[sideName + 'Players'];
+    async function addHiCheck(sideName: 'home' | 'away', score: number) {
+        const players: IGamePlayerDto[] = match[sideName + 'Players'];
         await onHiCheck(players[0], score.toString());
     }
 
-    async function updateMatchScore(homeScore, awayScore) {
-        const newMatch = Object.assign({}, match);
+    async function updateMatchScore(homeScore: number, awayScore: number) {
+        const newMatch: IGameMatchDto = Object.assign({}, match);
         newMatch.homeScore = homeScore;
         newMatch.awayScore = awayScore;
 
@@ -146,14 +164,15 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     }
 
     function renderSaygDialog() {
-        const home = match.homePlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
-        const away = match.awayPlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
-        const singlePlayerMatch = match.homePlayers.length === 1 && match.awayPlayers.length === 1;
+        const home: string = match.homePlayers.reduce((current: string, next: IGamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
+        const away: string = match.awayPlayers.reduce((current: string, next: IGamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
+        const singlePlayerMatch: boolean = match.homePlayers.length === 1 && match.awayPlayers.length === 1;
+        const defaultSaygData: IRecordedScoreAsYouGoDto = {legs: {}, yourName: ''};
 
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
-                        onClose={() => setSaygOpen(false)} className="text-start">
+                        onClose={async () => setSaygOpen(false)} className="text-start">
             <ScoreAsYouGo
-                data={match.sayg || {legs: {}}}
+                data={(match.sayg as IRecordedScoreAsYouGoDto) || defaultSaygData}
                 home={home}
                 away={away}
                 onChange={propChanged(match, onMatchChanged, 'sayg')}
@@ -167,16 +186,16 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         </Dialog>)
     }
 
-    function canOpenSayg() {
+    function canOpenSayg(): boolean {
         return any(match.homePlayers || [])
             && any(match.awayPlayers || [])
-            && (match.sayg || (account || {access: {}}).access.recordScoresAsYouGo);
+            && (!!match.sayg || (account || {access: {}}).access.recordScoresAsYouGo);
     }
 
     try {
         return (<tr>
             <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner ' : ''}text-end width-50-pc position-relative`}>
-                {canOpenSayg() ? (<button tabIndex="-1" className="btn btn-sm position-absolute left-0"
+                {canOpenSayg() ? (<button tabIndex={-1} className="btn btn-sm position-absolute left-0"
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
                 {repeat(matchOptions.playerCount).map(index => disabled
@@ -185,9 +204,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         disabled={disabled}
                         readOnly={readOnly}
                         players={homePlayers}
-                        selected={player(index, 'home')}
+                        selected={player(index, 'home') as { id: string }}
                         except={exceptPlayers(index, 'home')}
-                        onChange={(elem, player) => playerChanged(index, player, 'home')}/></div>))}
+                        onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'home')}/></div>))}
             </td>
             <td className={`narrow-column align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
                 {disabled
@@ -198,7 +217,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                         type="number" max="5" min="0"
                         value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
-                        onChange={stateChanged(async newScore => await scoreChanged(newScore, 'home'))}/>)}
+                        onChange={stateChanged(async (newScore: string) => await scoreChanged(newScore, 'home'))}/>)}
             </td>
             <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
             <td className={`narrow-column align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
@@ -210,12 +229,12 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                         type="number" max="5" min="0"
                         value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
-                        onChange={stateChanged(async newScore => scoreChanged(newScore, 'away'))}/>)}
+                        onChange={stateChanged(async (newScore: string) => scoreChanged(newScore, 'away'))}/>)}
             </td>
             <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner ' : ''}width-50-pc position-relative`}>
                 {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
                 {readOnly ? null : (
-                    <button tabIndex="-1" title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
+                    <button tabIndex={-1} title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
                             className="btn btn-sm right-0 position-absolute"
                             onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
                 {repeat(matchOptions.playerCount).map(index => disabled
@@ -225,9 +244,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                             disabled={disabled}
                             readOnly={readOnly}
                             players={awayPlayers}
-                            selected={player(index, 'away')}
+                            selected={player(index, 'away') as { id: string }}
                             except={exceptPlayers(index, 'away')}
-                            onChange={(elem, player) => playerChanged(index, player, 'away')}/>
+                            onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'away')}/>
                     </div>))}
             </td>
         </tr>);

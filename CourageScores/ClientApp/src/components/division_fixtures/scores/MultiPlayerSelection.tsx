@@ -1,15 +1,37 @@
 import React, {useState} from 'react';
-import {PlayerSelection} from "../../division_players/PlayerSelection";
+import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerSelection";
 import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
+import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {INotablePlayerDto} from "../../../interfaces/serverSide/Game/INotablePlayerDto";
+import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {ITeamSeasonDto} from "../../../interfaces/serverSide/Team/ITeamSeasonDto";
+import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
+import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+
+export interface IMultiPlayerSelectionProps {
+    onAddPlayer?: (player: ISelectablePlayer, notes: string) => Promise<any>;
+    players?: INotablePlayerDto[] | ITeamPlayerDto[] | IGamePlayerDto[];
+    disabled?: boolean;
+    allPlayers: ISelectablePlayer[];
+    onRemovePlayer?: (playerId: string, playerIndex: number) => Promise<any>;
+    readOnly?: boolean;
+    showNotes?: boolean;
+    notesClassName?: string;
+    dropdownClassName?: string;
+    placeholder?: string;
+    season?: ISeasonDto;
+    division?: IDivisionDto;
+}
 
 export function MultiPlayerSelection({
                                          onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly,
                                          showNotes, notesClassName, dropdownClassName, placeholder, season, division
-                                     }) {
-    const [player, setPlayer] = useState(null);
-    const [notes, setNotes] = useState('');
+                                     }: IMultiPlayerSelectionProps) {
+    const [player, setPlayer] = useState<ISelectablePlayer | null>(null);
+    const [notes, setNotes] = useState<string>('');
     const {onError, teams} = useApp();
 
     async function addPlayer() {
@@ -35,9 +57,9 @@ export function MultiPlayerSelection({
         }
     }
 
-    function playerName(player) {
-        const notes = player.notes;
-        player = allPlayers.filter(p => p.id === player.id)[0] || player
+    function playerName(player: INotablePlayerDto) {
+        const notes: string = player.notes;
+        player = allPlayers.filter((p: INotablePlayerDto) => p.id === player.id)[0] || player
 
         if (showNotes) {
             return `${player.name} (${notes})`;
@@ -46,10 +68,10 @@ export function MultiPlayerSelection({
         return player.name;
     }
 
-    function renderLinkToPlayer(p) {
+    function renderLinkToPlayer(p: INotablePlayerDto) {
         if (division && season) {
-            const teamName = getTeamName(p.id);
-            const playerLink = teamName ? `${p.name}@${teamName}` : p.id;
+            const teamName: string = getTeamName(p.id);
+            const playerLink: string = teamName ? `${p.name}@${teamName}` : p.id;
 
             return (<EmbedAwareLink
                 to={`/division/${division.name}/player:${playerLink}/${season.name}`}>{playerName(p)}</EmbedAwareLink>);
@@ -58,14 +80,14 @@ export function MultiPlayerSelection({
         return playerName(p);
     }
 
-    function getTeamName(playerId) {
-        const team = teams.filter(t => {
-            const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
+    function getTeamName(playerId: string): string {
+        const team: ITeamDto = teams.filter(t => {
+            const teamSeason: ITeamSeasonDto = t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === season.id)[0];
             if (!teamSeason) {
                 return null;
             }
 
-            return any(teamSeason.players, p => p.id === playerId);
+            return any(teamSeason.players, (p: ITeamPlayerDto) => p.id === playerId);
         })[0];
 
         return team ? team.name : null;
@@ -74,7 +96,7 @@ export function MultiPlayerSelection({
     try {
         return (<div>
             <ol className="no-list-indent mb-0">
-                {(players || []).map((p, playerIndex) => {
+                {(players || []).map((p: INotablePlayerDto, playerIndex: number) => {
                     return (<li key={playerIndex}>{disabled ? renderLinkToPlayer(p) : (<button
                         disabled={disabled || readOnly}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
@@ -97,7 +119,7 @@ export function MultiPlayerSelection({
                         readOnly={readOnly}
                         players={allPlayers}
                         selected={player}
-                        onChange={(elem, p) => setPlayer(p)}
+                        onChange={async (_, p: ISelectablePlayer) => setPlayer(p)}
                         className={dropdownClassName}
                         placeholder={placeholder}/>) : null}
                     {any(allPlayers) ? (<button disabled={disabled || readOnly} onClick={addPlayer}

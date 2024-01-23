@@ -2,7 +2,8 @@
 
 import {matchEquals} from "./MatchComparer";
 import {createTemporaryId} from "../../../helpers/projection";
-import {matchBuilder, playerBuilder} from "../../../helpers/builders";
+import {matchBuilder} from "../../../helpers/builders/games";
+import {playerBuilder} from "../../../helpers/builders/players";
 
 describe('MatchComparer', () => {
     describe('matchEquals', () => {

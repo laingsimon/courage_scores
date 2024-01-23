@@ -4,20 +4,31 @@ import {any, distinct, sortBy} from "../../../helpers/collections";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
+import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
+import {ISelectablePlayer} from "../../division_players/PlayerSelection";
 
-export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}) {
+export interface IHiCheckAnd180sProps {
+    access: string;
+    saving: boolean;
+    fixtureData: IGameDto;
+    setFixtureData: (newData: IGameDto) => Promise<any>;
+}
+
+export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IHiCheckAnd180sProps) {
     const {onError} = useApp();
     const {division, season} = useLeagueFixture();
 
-    function getApplicablePlayers() {
-        const players = fixtureData.matches.flatMap((match) => {
-            const matchPlayers = [];
+    function getApplicablePlayers(): ISelectablePlayer[] {
+        const players: IGamePlayerDto[] = fixtureData.matches.flatMap((match: IGameMatchDto) => {
+            const matchPlayers: IGamePlayerDto[] = [];
 
-            (match.homePlayers || []).forEach(player => {
+            (match.homePlayers || []).forEach((player: IGamePlayerDto) => {
                 matchPlayers.push(player);
             });
 
-            (match.awayPlayers || []).forEach(player => {
+            (match.awayPlayers || []).forEach((player: IGamePlayerDto) => {
                 matchPlayers.push(player);
             });
 
@@ -28,18 +39,18 @@ export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}) {
     }
 
     try {
-        const applicablePlayers = getApplicablePlayers();
+        const applicablePlayers: ISelectablePlayer[] = getApplicablePlayers();
 
         if (!any(applicablePlayers)) {
             return (<tr>
-                <td colSpan="5" className="text-center">
+                <td colSpan={5} className="text-center">
                     Select some player/s to add 180s and hi-checks
                 </td>
             </tr>)
         }
 
         return (<tr>
-            <td colSpan="2" className="text-end">
+            <td colSpan={2} className="text-end">
                 180s<br/>
                 <MultiPlayerSelection
                     disabled={access === 'readonly'}
@@ -52,7 +63,7 @@ export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}) {
                     season={season}/>
             </td>
             <td className="width-1 p-0"></td>
-            <td colSpan="2">
+            <td colSpan={2}>
                 100+ c/o<br/>
                 <MultiPlayerSelection
                     disabled={access === 'readonly'}

@@ -2,8 +2,16 @@ import React from "react";
 import {ShareButton} from "../../common/ShareButton";
 import {valueChanged} from "../../../helpers/events";
 import {useBranding} from "../../../BrandingContainer";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
 
-export function GameDetails({saving, access, fixtureData, setFixtureData}) {
+export interface IGameDetailsProps {
+    saving: boolean;
+    access: string;
+    fixtureData: IGameDto;
+    setFixtureData: (newData: IGameDto) => Promise<any>;
+}
+
+export function GameDetails({saving, access, fixtureData, setFixtureData}: IGameDetailsProps) {
     const {name} = useBranding();
 
     if (access !== 'admin') {

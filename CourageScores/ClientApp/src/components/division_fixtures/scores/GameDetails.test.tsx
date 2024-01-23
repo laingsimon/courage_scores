@@ -1,15 +1,24 @@
-// noinspection JSUnresolvedFunction
-
 import React from "react";
-import {cleanUp, doChange, doClick, renderApp} from "../../../helpers/tests";
-import {GameDetails} from "./GameDetails";
-import {fixtureBuilder} from "../../../helpers/builders";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    ErrorState,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
+import {GameDetails, IGameDetailsProps} from "./GameDetails";
+import {fixtureBuilder} from "../../../helpers/builders/games";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
 
 describe('GameDetails', () => {
-    let context;
-    let reportedError;
-    let updatedFixtureData;
-    const setFixtureData = (newFixtureData) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let updatedFixtureData: IGameDto;
+
+    async function setFixtureData(newFixtureData: IGameDto) {
         updatedFixtureData = newFixtureData;
     }
 
@@ -17,94 +26,110 @@ describe('GameDetails', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(saving, access, fixtureData) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedFixtureData = null;
+    });
+
+    async function renderComponent(props: IGameDetailsProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-                error: null
-            },
-            (<GameDetails
-                saving={saving}
-                access={access}
-                fixtureData={fixtureData}
-                setFixtureData={setFixtureData}/>));
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<GameDetails {...props} />));
     }
 
     describe('when not logged in', () => {
         it('when postponed = false and isKnockout=true', async () => {
-            const fixtureData = fixtureBuilder()
+            const fixtureData: IGameDto = fixtureBuilder()
                 .knockout()
                 .address('ADDRESS')
                 .playing('HOME', 'AWAY')
                 .build();
 
-            await renderComponent(false, '', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: '',
+                fixtureData,
+                setFixtureData,
+            });
 
             const component = context.container;
             expect(component.textContent).toContain('at: ADDRESS');
         });
 
         it('when postponed=true and isKnockout=false', async () => {
-            const fixtureData = fixtureBuilder()
+            const fixtureData: IGameDto = fixtureBuilder()
                 .postponed()
                 .address('ADDRESS')
                 .playing('HOME', 'AWAY')
                 .build();
 
-            await renderComponent(false, '', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: '',
+                fixtureData,
+                setFixtureData,
+            });
 
             const component = context.container;
             expect(component.textContent).toContain('Playing at: ADDRESSPostponed');
         });
 
         it('when postponed=true and isKnockout=true', async () => {
-            const fixtureData = fixtureBuilder()
+            const fixtureData: IGameDto = fixtureBuilder()
                 .knockout()
                 .postponed()
                 .address('ADDRESS')
                 .playing('HOME', 'AWAY')
                 .build();
 
-            await renderComponent(false, '', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: '',
+                fixtureData,
+                setFixtureData,
+            });
 
             const component = context.container;
             expect(component.textContent).toContain('at: ADDRESSPostponed');
         });
 
         it('when away is unset', async () => {
-            const fixtureData = fixtureBuilder()
+            const fixtureData: IGameDto = fixtureBuilder()
                 .knockout()
                 .postponed()
                 .address('ADDRESS')
                 .bye('HOME')
                 .build();
 
-            await renderComponent(false, '', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: '',
+                fixtureData,
+                setFixtureData,
+            });
 
             const shareButton = context.container.querySelectorAll('button')[0];
             expect(shareButton).toBeFalsy();
         });
 
         it('when home and away are set', async () => {
-            const fixtureData = fixtureBuilder()
+            const fixtureData: IGameDto = fixtureBuilder()
                 .knockout()
                 .postponed()
                 .address('ADDRESS')
                 .playing('HOME', 'AWAY')
                 .build();
 
-            await renderComponent(false, '', fixtureData);
+            await renderComponent({
+                saving: false,
+                access: '',
+                fixtureData,
+                setFixtureData,
+            });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const shareButton = context.container.querySelectorAll('button')[0];
             expect(shareButton).toBeTruthy();
             expect(shareButton.textContent).toEqual('🔗');
@@ -114,70 +139,95 @@ describe('GameDetails', () => {
     describe('when an admin', () => {
         describe('renders', () => {
             it('date', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
-                const input = context.container.querySelector('input[name="date"]');
+                const input = context.container.querySelector('input[name="date"]') as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.value).toEqual('2023-04-01');
             });
 
             it('address', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
-                const input = context.container.querySelector('input[name="address"]');
+                const input = context.container.querySelector('input[name="address"]') as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.value).toEqual('ADDRESS');
             });
 
             it('postponed', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .postponed()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
-                const input = context.container.querySelector('input[name="postponed"]');
+                const input = context.container.querySelector('input[name="postponed"]') as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.checked).toEqual(true);
             });
 
             it('isKnockout', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .knockout()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
-                const input = context.container.querySelector('input[name="isKnockout"]');
+                const input = context.container.querySelector('input[name="isKnockout"]') as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.checked).toEqual(true);
             });
 
             it('accoladesCount', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .postponed()
                     .accoladesCount()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
 
-                const input = context.container.querySelector('input[name="accoladesCount"]');
+                const input = context.container.querySelector('input[name="accoladesCount"]') as HTMLInputElement;
                 expect(input).toBeTruthy();
                 expect(input.checked).toEqual(true);
             });
@@ -185,12 +235,17 @@ describe('GameDetails', () => {
 
         describe('changes', () => {
             it('date', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 await doChange(context.container, 'input[name="date"]', '2023-05-01', context.user);
 
                 expect(updatedFixtureData).toBeTruthy();
@@ -198,12 +253,17 @@ describe('GameDetails', () => {
             });
 
             it('address', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 await doChange(context.container, 'input[name="address"]', 'NEW ADDRESS', context.user);
 
                 expect(updatedFixtureData).toBeTruthy();
@@ -211,13 +271,18 @@ describe('GameDetails', () => {
             });
 
             it('postponed', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .postponed()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 await doClick(context.container, 'input[name="postponed"]');
 
                 expect(updatedFixtureData).toBeTruthy();
@@ -225,13 +290,18 @@ describe('GameDetails', () => {
             });
 
             it('isKnockout', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .knockout()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 await doClick(context.container, 'input[name="isKnockout"]');
 
                 expect(updatedFixtureData).toBeTruthy();
@@ -239,13 +309,18 @@ describe('GameDetails', () => {
             });
 
             it('accoladesCount', async () => {
-                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .accoladesCount()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, 'admin', fixtureData);
+                await renderComponent({
+                    saving: false,
+                    access: 'admin',
+                    fixtureData,
+                    setFixtureData,
+                });
                 await doClick(context.container, 'input[name="accoladesCount"]');
 
                 expect(updatedFixtureData).toBeTruthy();

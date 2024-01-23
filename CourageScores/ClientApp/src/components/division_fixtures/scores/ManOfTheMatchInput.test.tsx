@@ -1,15 +1,25 @@
-// noinspection JSUnresolvedFunction
-
 import React from "react";
-import {cleanUp, doSelectOption, renderApp} from "../../../helpers/tests";
-import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
-import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doSelectOption,
+    ErrorState,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
+import {IManOfTheMatchInputProps, ManOfTheMatchInput} from "./ManOfTheMatchInput";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
+import {fixtureBuilder, IMatchBuilder} from "../../../helpers/builders/games";
+import {playerBuilder} from "../../../helpers/builders/players";
 
 describe('ManOfTheMatchInput', () => {
-    let context;
-    let reportedError;
-    let updatedFixtureData;
-    const setFixtureData = (newFixtureData) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let updatedFixtureData: IGameDto;
+
+    async function setFixtureData(newFixtureData: IGameDto) {
         updatedFixtureData = newFixtureData;
     }
 
@@ -17,39 +27,31 @@ describe('ManOfTheMatchInput', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(saving, account, fixtureData, access, disabled) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedFixtureData = null;
+    });
+
+    async function renderComponent(account: IUserDto, props: IManOfTheMatchInputProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps(),
+            brandingProps(),
+            appProps({
                 account: account,
-            },
-            (<ManOfTheMatchInput
-                saving={saving}
-                access={access}
-                fixtureData={fixtureData}
-                setFixtureData={setFixtureData}
-                disabled={disabled} />),
+            }, reportedError),
+            (<ManOfTheMatchInput {...props} />),
             null,
             null,
             'tbody');
     }
 
-    function assertPlayers(container, names, displayed, selected) {
+    function assertPlayers(container: Element, names: string[], displayed: string, selected?: string) {
         names.unshift(' ');
 
-        const players = container.querySelectorAll('div.btn-group div[role="menu"] button[role="menuitem"]');
+        const players = Array.from(container.querySelectorAll('div.btn-group div[role="menu"] button[role="menuitem"]')) as HTMLButtonElement[];
         const displayedPlayer = container.querySelector('div.btn-group > button > span');
         const selectedPlayer = container.querySelector('div.btn-group div[role="menu"] button[role="menuitem"].active');
-        expect(Array.from(players).map(span => span.textContent)).toEqual(names);
+        expect(players.map(span => span.textContent)).toEqual(names);
         expect(displayedPlayer.textContent).toEqual(displayed);
         if (selected) {
             expect(selectedPlayer).toBeTruthy();
@@ -71,7 +73,7 @@ describe('ManOfTheMatchInput', () => {
                 .playing('HOME', 'AWAY')
                 .build();
 
-            await renderComponent(saving, account, fixtureData, access);
+            await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
             expect(context.container.innerHTML).toEqual('');
         });
@@ -79,12 +81,12 @@ describe('ManOfTheMatchInput', () => {
         it('when no selected players', async () => {
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .withMatch(m => m.withHome().withAway())
+                .withMatch((m: IMatchBuilder) => m.withHome().withAway())
                 .build();
 
-            await renderComponent(saving, account, fixtureData, access);
+            await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError).toBeFalsy();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -93,12 +95,12 @@ describe('ManOfTheMatchInput', () => {
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
-            await renderComponent(saving, account, fixtureData, access);
+            await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError).toBeFalsy();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -108,12 +110,12 @@ describe('ManOfTheMatchInput', () => {
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .manOfTheMatch(homePlayer, null)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
-            await renderComponent(saving, account, fixtureData, access);
+            await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError).toBeFalsy();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -123,18 +125,22 @@ describe('ManOfTheMatchInput', () => {
             const fixtureData = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .manOfTheMatch(null, awayPlayer)
-                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
-            await renderComponent(saving, account, fixtureData, access);
+            await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError).toBeFalsy();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.innerHTML).toEqual('');
         });
     });
 
     describe('when logged in', () => {
-        let account = {};
+        let account: IUserDto = {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+        };
 
         describe('renders', () => {
             it('when no matches', async () => {
@@ -142,9 +148,9 @@ describe('ManOfTheMatchInput', () => {
                     .playing('HOME', 'AWAY')
                     .build();
 
-                await renderComponent(false, account, fixtureData, 'admin');
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError).toBeFalsy();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], [], ' ', null);
@@ -157,12 +163,12 @@ describe('ManOfTheMatchInput', () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
                     .manOfTheMatch(awayPlayer, homePlayer)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                await renderComponent(false, account, fixtureData, 'admin', true);
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData, disabled: true });
 
-                expect(reportedError).toBeFalsy();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 expect(cells[0].querySelector('.dropdown-toggle').textContent).toEqual('AWAY player');
@@ -172,12 +178,12 @@ describe('ManOfTheMatchInput', () => {
             it('when no selected players', async () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome().withAway())
+                    .withMatch((m: IMatchBuilder) => m.withHome().withAway())
                     .build();
 
-                await renderComponent(false, account, fixtureData, 'admin');
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError).toBeFalsy();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], [], ' ', null);
@@ -189,12 +195,12 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                await renderComponent(false, account, fixtureData, 'admin');
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError).toBeFalsy();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], ['AWAY player'], ' ', null);
@@ -207,12 +213,12 @@ describe('ManOfTheMatchInput', () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
                     .manOfTheMatch(awayPlayer, null)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                await renderComponent(false, account, fixtureData, 'admin');
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError).toBeFalsy();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], ['AWAY player'], 'AWAY player', 'AWAY player');
@@ -224,12 +230,12 @@ describe('ManOfTheMatchInput', () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
                     .manOfTheMatch(null, homePlayer)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                await renderComponent(false, account, fixtureData, 'admin');
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError).toBeFalsy();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[2], ['HOME player'], 'HOME player', 'HOME player');
@@ -242,10 +248,10 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
-                expect(reportedError).toBeFalsy();
-                await renderComponent(false, account, fixtureData, 'admin');
+                expect(reportedError.hasError()).toEqual(false);
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const homeMOM = context.container.querySelectorAll('td')[0];
 
                 await doSelectOption(homeMOM.querySelector('.dropdown-menu'), 'AWAY player')
@@ -260,11 +266,11 @@ describe('ManOfTheMatchInput', () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
                     .manOfTheMatch(homePlayer, null)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                expect(reportedError).toBeFalsy();
-                await renderComponent(false, account, fixtureData, 'admin');
+                expect(reportedError.hasError()).toEqual(false);
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const homeMOM = context.container.querySelectorAll('td')[0];
 
                 await doSelectOption(homeMOM.querySelector('.dropdown-menu'), ' ');
@@ -278,11 +284,11 @@ describe('ManOfTheMatchInput', () => {
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                expect(reportedError).toBeFalsy();
-                await renderComponent(false, account, fixtureData, 'admin');
+                expect(reportedError.hasError()).toEqual(false);
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const awayMOM = context.container.querySelectorAll('td')[2];
 
                 await doSelectOption(awayMOM.querySelector('.dropdown-menu'), 'HOME player');
@@ -297,11 +303,11 @@ describe('ManOfTheMatchInput', () => {
                 const fixtureData = fixtureBuilder()
                     .playing('HOME', 'AWAY')
                     .manOfTheMatch(null, awayPlayer)
-                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                expect(reportedError).toBeFalsy();
-                await renderComponent(false, account, fixtureData, 'admin');
+                expect(reportedError.hasError()).toEqual(false);
+                await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const awayMOM = context.container.querySelectorAll('td')[2];
 
                 await doSelectOption(awayMOM.querySelector('.dropdown-menu'), ' ');

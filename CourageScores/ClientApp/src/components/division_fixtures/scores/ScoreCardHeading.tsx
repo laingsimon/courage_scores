@@ -4,14 +4,25 @@ import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {renderDate} from "../../../helpers/rendering";
 import {count} from "../../../helpers/collections";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
 
-export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}) {
+export interface IScoreCardHeadingProps {
+    data: IGameDto;
+    access: string;
+    submission?: string;
+    setSubmission: (submissionToShow: string) => Promise<any>;
+    setFixtureData: (data: IGameDto) => Promise<any>;
+}
+
+export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {
     const {account, onError, teams} = useApp();
     const {division, season} = useLeagueFixture();
     const submissionTeam = account && access === 'clerk' && account.teamId ? teams[account.teamId] : null;
     const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
     const homeScore = getScore(data, 'home');
     const awayScore = getScore(data, 'away');
+    //TODO: this should check if the homeScore > 0.5*numberOfLegs
     const winner = homeScore > awayScore
         ? 'home'
         : awayScore > homeScore
@@ -19,33 +30,35 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
             : 'draw';
     const submissionData = data[submission + 'Submission'];
 
-    function toggleSubmission(submissionToShow) {
+    async function toggleSubmission(submissionToShow: string) {
         try {
             if (submissionToShow === submission) {
-                setSubmission(null);
-                setFixtureData(data);
+                await setSubmission(null);
+                await setFixtureData(data);
                 return;
             }
 
-            setSubmission(submissionToShow);
-            setFixtureData(data[submissionToShow + 'Submission']);
+            await setSubmission(submissionToShow);
+            await setFixtureData(data[submissionToShow + 'Submission']);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
         }
     }
 
-    function canShowSubmissionToggle(submission) {
+    function canShowSubmissionToggle(submission: IGameDto) {
         return submission
             && (access === 'admin' || (account && submission && account.teamId === submission.id && access === 'clerk'));
     }
 
-    function getScore(data, side) {
-        function sideWonMatch(match) {
+    function getScore(data: IGameDto, side: string) {
+        function sideWonMatch(match: IGameMatchDto) {
             switch (side) {
                 case 'home':
+                    //TODO: this should check if the homeScore > 0.5*numberOfLegs
                     return match.homeScore > match.awayScore;
                 case 'away':
+                    //TODO: this should check if the homeScore > 0.5*numberOfLegs
                     return match.awayScore > match.homeScore;
                 default:
                     return false;
@@ -57,18 +70,18 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
 
     return (<thead>
     <tr>
-        <td colSpan="2" className={`text-end fw-bold width-50-pc ${winner === 'home' ? 'bg-winner' : ''}${submission === 'home' ? ' bg-warning' : ''}`}>
+        <td colSpan={2} className={`text-end fw-bold width-50-pc ${winner === 'home' ? 'bg-winner' : ''}${submission === 'home' ? ' bg-warning' : ''}`}>
             {canShowSubmissionToggle(data.homeSubmission)
-                ? (<span onClick={() => toggleSubmission('home')}
+                ? (<span onClick={async () => await toggleSubmission('home')}
                          className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`}
                          title="See home submission">📬 {data.home.name} ({getScore(data.homeSubmission, 'home')}-{getScore(data.homeSubmission, 'away')})</span>)
                 : <EmbedAwareLink to={`/division/${division.name}/team:${data.home.name}/${season.name}`}
                                   className="margin-right">{data.home.name} - {homeScore}</EmbedAwareLink>}
         </td>
         <td className="text-center width-1 middle-vertical-line p-0"></td>
-        <td colSpan="2" className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}${submission === 'away' ? ' bg-warning' : ''}`}>
+        <td colSpan={2} className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}${submission === 'away' ? ' bg-warning' : ''}`}>
             {canShowSubmissionToggle(data.awaySubmission)
-                ? (<span onClick={() => toggleSubmission('away')}
+                ? (<span onClick={async () => await toggleSubmission('away')}
                          className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`}
                          title="See away submission">📬 {data.away.name} ({getScore(data.awaySubmission, 'home')}-{getScore(data.awaySubmission, 'away')})</span>)
                 : <EmbedAwareLink to={`/division/${division.name}/team:${data.away.name}/${season.name}`}
@@ -76,7 +89,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
         </td>
     </tr>
     {access === 'clerk' && !data.resultsPublished ? (<tr>
-        <th colSpan="5">
+        <th colSpan={5}>
             <div className="alert alert-warning fw-normal">
                 ⚠ You are editing {submissionTeam ? <>the submission from <strong>{submissionTeam.name}</strong></> : 'your submission'}, they are not visible on the website.<br />
                 <br />
@@ -85,7 +98,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
         </th>
     </tr>) : null}
     {access === 'admin' && submission ? (<tr>
-        <th colSpan="5">
+        <th colSpan={5}>
             <div className="alert alert-warning fw-normal">
                 You are viewing the submission from <strong>{data[submission].name}</strong>, created by <strong>{submissionData.editor}</strong> as of <strong title={submissionData.updated}>{renderDate(submissionData.updated)}</strong>
             </div>

@@ -1,37 +1,67 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    noop,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
 import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {Score} from "./Score";
-import {
-    divisionBuilder,
-    fixtureBuilder,
-    matchBuilder,
-    playerBuilder,
-    seasonBuilder,
-    teamBuilder
-} from "../../../helpers/builders";
+import {IGameApi} from "../../../api/game";
+import {IPlayerApi} from "../../../api/player";
+import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IRecordScoresDto} from "../../../interfaces/serverSide/Game/IRecordScoresDto";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {IEditTeamPlayerDto} from "../../../interfaces/serverSide/Team/IEditTeamPlayerDto";
+import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {IAppContainerProps} from "../../../AppContainer";
+import {IDatedDivisionFixtureDto} from "../../../interfaces/IDatedDivisionFixtureDto";
+import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
+import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
+import {ITeamSeasonDto} from "../../../interfaces/serverSide/Team/ITeamSeasonDto";
+import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
+import {playerBuilder} from "../../../helpers/builders/players";
+import {divisionBuilder} from "../../../helpers/builders/divisions";
+import {seasonBuilder} from "../../../helpers/builders/seasons";
+import {teamBuilder} from "../../../helpers/builders/teams";
+import {fixtureBuilder, matchBuilder} from "../../../helpers/builders/games";
+
+interface ICreatedPlayer {
+    divisionId: string;
+    seasonId: string;
+    teamId: string;
+    playerDetails: IEditTeamPlayerDto;
+    newPlayer: ITeamPlayerDto;
+}
 
 describe('Score', () => {
-    let context;
-    let reportedError;
-    let fixtureDataMap = {};
-    let updatedFixtures;
-    let createdPlayer;
-    let teamsReloaded;
-    let newPlayerApiResult;
-    let saveGameApiResult;
-    const gameApi = {
-        get: async (fixtureId) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let fixtureDataMap: { [fixtureId: string]: IDatedDivisionFixtureDto & IGameDto } = {};
+    let updatedFixtures: { [fixtureId: string]: IRecordScoresDto };
+    let createdPlayer: ICreatedPlayer;
+    let teamsReloaded: boolean;
+    let newPlayerApiResult: (createdPlayer: ICreatedPlayer) => IClientActionResultDto<ITeamDto>;
+    let saveGameApiResult: IClientActionResultDto<IGameDto>;
+    const gameApi = api<IGameApi>({
+        get: async (fixtureId: string) => {
             if (any(Object.keys(fixtureDataMap), key => key === fixtureId)) {
                 return fixtureDataMap[fixtureId];
             }
 
             throw new Error('Unexpected request for fixture data');
         },
-        updateScores: async (fixtureId, fixtureData) => {
+        updateScores: async (fixtureId: string, fixtureData: IRecordScoresDto) => {
             updatedFixtures[fixtureId] = fixtureData;
             return saveGameApiResult || {
                 success: true,
@@ -39,9 +69,9 @@ describe('Score', () => {
                 result: fixtureData,
             }
         }
-    };
-    const playerApi = {
-        create: (divisionId, seasonId, teamId, playerDetails) => {
+    });
+    const playerApi = api<IPlayerApi>({
+        create: (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto) => {
             const newPlayer = Object.assign(playerBuilder().build(), playerDetails);
             createdPlayer = {divisionId, seasonId, teamId, playerDetails, newPlayer};
             if (!newPlayerApiResult) {
@@ -49,11 +79,21 @@ describe('Score', () => {
             }
             return newPlayerApiResult(createdPlayer);
         },
-    };
+    });
     const originalConsoleLog = console.log;
+
+    async function reloadTeams() {
+        teamsReloaded = true;
+    }
 
     beforeEach(() => {
         console.log = noop;
+        reportedError = new ErrorState();
+        updatedFixtures = {};
+        createdPlayer = null;
+        teamsReloaded = false;
+        newPlayerApiResult = null;
+        saveGameApiResult = null;
     });
 
     afterEach(() => {
@@ -61,64 +101,42 @@ describe('Score', () => {
         console.log = originalConsoleLog;
     });
 
-    async function renderComponent(id, appData, account) {
-        reportedError = null;
-        updatedFixtures = {};
-        createdPlayer = null;
-        teamsReloaded = false;
-        newPlayerApiResult = null;
-        saveGameApiResult = null;
+    async function renderComponent(id: string, appContainerProps: IAppContainerProps) {
         context = await renderApp(
-            {gameApi, playerApi},
-            {name: 'Courage Scores'},
-            {
-                account,
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-                error: null,
-                reportClientSideException: noop,
-                reloadTeams: () => {
-                    teamsReloaded = true;
-                },
-                ...appData
-            },
+            iocProps({gameApi, playerApi}),
+            brandingProps(),
+            appContainerProps,
             (<Score/>),
             '/:fixtureId',
             '/' + id);
     }
 
-    function getDefaultAppData() {
-        const division = divisionBuilder('A division').build();
-        const season = seasonBuilder('A season')
+    function getDefaultAppData(account?: IUserDto): IAppContainerProps {
+        const division: IDivisionDto = divisionBuilder('A division').build();
+        const season: ISeasonDto = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .withDivision(division)
             .build();
-        const homePlayer = playerBuilder('Home player').build();
-        const awayPlayer = playerBuilder('Away player').build();
-        const homeTeam = teamBuilder('Home team')
+        const homePlayer: ITeamPlayerDto = playerBuilder('Home player').build();
+        const awayPlayer: ITeamPlayerDto = playerBuilder('Away player').build();
+        const homeTeam: ITeamDto = teamBuilder('Home team', account?.teamId)
             .forSeason(season, division, [ homePlayer ])
             .build();
-        const awayTeam = teamBuilder('Away team')
+        const awayTeam: ITeamDto = teamBuilder('Away team')
             .forSeason(season, division, [ awayPlayer ])
             .build();
 
-        return {
+        return appProps({
             divisions: toMap([division]),
             seasons: toMap([season]),
-            teams: toMap([homeTeam, awayTeam])
-        };
+            teams: toMap([homeTeam, awayTeam]),
+            account,
+            reloadTeams,
+        }, reportedError);
     }
 
-    function getUnplayedFixtureData(appData) {
+    function getUnplayedFixtureData(appData: IAppContainerProps) {
         const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
@@ -130,24 +148,24 @@ describe('Score', () => {
             .build();
     }
 
-    function getPlayedFixtureData(appData) {
-        const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
-        const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
+    function getPlayedFixtureData(appData: IAppContainerProps) {
+        const homeTeam: ITeamDto = appData.teams.filter((t: ITeamDto) => t.name === 'Home team')[0];
+        const awayTeam: ITeamDto = appData.teams.filter((t: ITeamDto) => t.name === 'Away team')[0];
 
-        const firstDivision = appData.divisions.filter(_ => true)[0];
-        const firstSeason = appData.seasons.filter(_ => true)[0];
+        const firstDivision: IDivisionDto = appData.divisions.filter((_: IDivisionDto) => true)[0];
+        const firstSeason: ISeasonDto = appData.seasons.filter((_: ISeasonDto) => true)[0];
 
-        function findPlayer(team, name) {
+        function findPlayer(team: ITeamDto, name: string): ITeamPlayerDto {
             if (!firstSeason || !team || !team.seasons) {
-                return name;
+                return { name, id: createTemporaryId() };
             }
 
-            const teamSeason = team.seasons.filter(s => s.seasonId === firstSeason.id)[0];
-            const player = teamSeason.players.filter(p => p.name === name)[0];
-            return player || (name + ' Not found');
+            const teamSeason: ITeamSeasonDto = team.seasons.filter((s: ITeamSeasonDto) => s.seasonId === firstSeason.id)[0];
+            const player: ITeamPlayerDto = teamSeason.players.filter((p: ITeamPlayerDto) => p.name === name)[0];
+            return player || { name: name + ' Not found', id: createTemporaryId() };
         }
 
-        function createMatch(homeScore, awayScore) {
+        function createMatch(homeScore: number, awayScore: number): IGameMatchDto {
             return matchBuilder()
                 .withHome(findPlayer(homeTeam, 'Home player'))
                 .withAway(findPlayer(awayTeam, 'Away player'))
@@ -182,7 +200,7 @@ describe('Score', () => {
             .build();
     }
 
-    function assertMatchRow(tr, ...expectedCellText) {
+    function assertMatchRow(tr: HTMLTableRowElement, ...expectedCellText: string[]) {
         const cellText = Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim());
 
         expect(cellText.length).toEqual(expectedCellText.length);
@@ -200,41 +218,41 @@ describe('Score', () => {
 
         it('renders when fixture not found', async () => {
             const fixture = fixtureBuilder().build();
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             fixtureDataMap[fixture.id] = null;
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('Game could not be found');
+            expect(reportedError.error).toEqual('Game could not be found');
         });
 
         it('renders when fixture data not returned successfully', async () => {
             const fixture = fixtureBuilder().build();
-            const appData = getDefaultAppData();
-            fixtureDataMap[fixture.id] = {status: 400, errors: {'key': 'Some error'}};
+            const appData = getDefaultAppData(account);
+            fixtureDataMap[fixture.id] = {status: 400, errors: {'key': 'Some error'}} as any;
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('Error accessing fixture: Code: 400 -- key: Some error');
+            expect(reportedError.error).toEqual('Error accessing fixture: Code: 400 -- key: Some error');
         });
 
         it('renders when home or away are not defined', async () => {
             const fixture = fixtureBuilder().build();
-            const appData = getDefaultAppData();
-            fixtureDataMap[fixture.id] = {};
+            const appData = getDefaultAppData(account);
+            fixtureDataMap[fixture.id] = {} as IGameDto & IDatedDivisionFixtureDto;
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('Either home or away team are undefined for this game');
+            expect(reportedError.error).toEqual('Either home or away team are undefined for this game');
         });
 
         it('renders score card with no results', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getUnplayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -245,12 +263,12 @@ describe('Score', () => {
         });
 
         it('renders score card with results', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -272,46 +290,53 @@ describe('Score', () => {
         });
 
         it('renders when no divisions', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             appData.divisions = [];
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('App has finished loading, no divisions are available');
+            expect(reportedError.error).toEqual('App has finished loading, no divisions are available');
         });
 
         it('renders when no seasons', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             appData.seasons = [];
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('App has finished loading, no seasons are available');
+            expect(reportedError.error).toEqual('App has finished loading, no seasons are available');
         });
 
         it('renders when no teams', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             appData.teams = [];
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('App has finished loading, no teams are available');
+            expect(reportedError.error).toEqual('App has finished loading, no teams are available');
         });
     });
 
     describe('when logged in', () => {
-        const account = {access: {manageScores: true}};
+        const account: IUserDto = {
+            name: '',
+            emailAddress: '',
+            givenName: '',
+            access: {
+                manageScores: true
+            },
+        };
 
         it('renders score card without results', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getUnplayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -335,12 +360,12 @@ describe('Score', () => {
         });
 
         it('renders score card with results', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -364,37 +389,37 @@ describe('Score', () => {
         });
 
         it('renders when no divisions', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             appData.divisions = [];
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('App has finished loading, no divisions are available');
+            expect(reportedError.error).toEqual('App has finished loading, no divisions are available');
         });
 
         it('renders when no seasons', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             appData.seasons = [];
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('App has finished loading, no seasons are available');
+            expect(reportedError.error).toEqual('App has finished loading, no seasons are available');
         });
 
         it('renders when no teams', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             appData.teams = [];
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('App has finished loading, no teams are available');
+            expect(reportedError.error).toEqual('App has finished loading, no teams are available');
         });
 
         it('renders when team has no seasons', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             appData.teams = toMap(appData.teams.map(t => {
                 if (t.name === 'Home team') {
@@ -403,38 +428,38 @@ describe('Score', () => {
                 return t;
             }));
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toEqual('home team has no seasons');
+            expect(reportedError.error).toEqual('home team has no seasons');
         });
 
         it('renders when team is not registered to season', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            appData.teams = toMap(appData.teams.map(t => {
+            appData.teams = toMap(appData.teams.map((t: ITeamDto) => {
                 if (t.name === 'Home team') {
                     t.seasons = [];
                 }
                 return t;
             }));
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toContain('home team has not registered for this season: ');
+            expect(reportedError.error).toContain('home team has not registered for this season: ');
         });
 
         it('renders when team not found', async () => {
-            const appData = getDefaultAppData();
-            appData.teams = toMap(appData.teams.filter(t => t.name !== 'Home team'));
+            const appData = getDefaultAppData(account);
+            appData.teams = toMap(appData.teams.filter((t: ITeamDto) => t.name !== 'Home team'));
             const fixture = getPlayedFixtureData(appData);
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toContain('home team could not be found - ');
+            expect(reportedError.error).toContain('home team could not be found - ');
         });
 
         it('renders previously renamed players', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
             const newHomeTeamPlayer = playerBuilder('New name').captain().build();
@@ -444,9 +469,9 @@ describe('Score', () => {
                 {},
                 newHomeTeamPlayer,
                 {name: 'Old name'});
-            firstSinglesMatch.sut = true;
+            // firstSinglesMatch.sut = true;
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
@@ -458,12 +483,12 @@ describe('Score', () => {
         });
 
         it('can add a player to home team', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
-                existingTeam.seasons = existingTeam.seasons.map(ts => {
+                existingTeam.seasons = existingTeam.seasons.map((ts: ITeamSeasonDto) => {
                     const newTeamSeason = Object.assign({}, ts);
 
                     if (ts.seasonId === createdPlayer.seasonId) {
@@ -481,7 +506,7 @@ describe('Score', () => {
                 };
             };
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -492,19 +517,19 @@ describe('Score', () => {
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
         it('can handle missing team season during add new player', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
-                existingTeam.seasons = existingTeam.seasons.filter(_ => false); // return no team seasons
+                existingTeam.seasons = existingTeam.seasons.filter((_: ITeamSeasonDto) => false); // return no team seasons
 
                 return {
                     success: true,
@@ -512,7 +537,7 @@ describe('Score', () => {
                 };
             };
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -523,19 +548,19 @@ describe('Score', () => {
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
-            expect(reportedError).toEqual('Could not find updated teamSeason');
+            expect(reportedError.error).toEqual('Could not find updated teamSeason');
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
         it('can handle new player not found after creating new player', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
-                existingTeam.seasons = existingTeam.seasons.map(ts => {
+                existingTeam.seasons = existingTeam.seasons.map((ts: ITeamSeasonDto) => {
                     return Object.assign({}, ts);
                 });
 
@@ -545,7 +570,7 @@ describe('Score', () => {
                 };
             };
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -556,18 +581,18 @@ describe('Score', () => {
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
-            expect(reportedError).toEqual('Could not find new player in updated season, looking for player with name: "NEW PLAYER"');
+            expect(reportedError.error).toEqual('Could not find new player in updated season, looking for player with name: "NEW PLAYER"');
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
         it('can add a player to away team', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
@@ -579,10 +604,10 @@ describe('Score', () => {
         });
 
         it('can close add player dialog', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
-            expect(reportedError).toBeNull();
+            await renderComponent(fixture.id, appData);
+            expect(reportedError.hasError()).toEqual(false);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
@@ -595,20 +620,20 @@ describe('Score', () => {
         });
 
         it('can save scores', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedFixtures[fixture.id]).not.toBeNull();
         });
 
         it('renders error if save fails', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
             saveGameApiResult = {
                 success: false,
             };
@@ -619,12 +644,12 @@ describe('Score', () => {
         });
 
         it('can change player', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
             const anotherHomePlayer = playerBuilder('Another player').build();
             homeTeam.seasons[0].players.push(anotherHomePlayer);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -632,15 +657,15 @@ describe('Score', () => {
             await doClick(findButton(playerSelection, 'Another player'));
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedFixtures[fixture.id]).not.toBeNull();
             expect(updatedFixtures[fixture.id].matches[0].homePlayers).toEqual([anotherHomePlayer]);
         });
 
         it('can change match options', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
@@ -652,25 +677,25 @@ describe('Score', () => {
             await doClick(findButton(dialog, 'Close'));
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedFixtures[fixture.id]).not.toBeNull();
             expect(updatedFixtures[fixture.id].matchOptions[0].numberOfLegs).toEqual(30);
         });
 
         it('can unpublish unselected submission', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
-            await renderComponent(fixtureData.id, appData, account);
-            expect(reportedError).toBeNull();
-            let alert;
+            await renderComponent(fixtureData.id, appData);
+            expect(reportedError.hasError()).toEqual(false);
+            let alert: string;
             window.alert = (msg) => alert = msg;
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
@@ -679,7 +704,7 @@ describe('Score', () => {
             });
             expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '')); // 16 = 8 matches * 2 sides
             const manOfTheMatchHeadingRow = Array.from(context.container.querySelectorAll('td')).filter(td => td.textContent === 'Man of the match')[0];
-            const manOfTheMatchDataRow = manOfTheMatchHeadingRow.parentElement.nextSibling;
+            const manOfTheMatchDataRow = manOfTheMatchHeadingRow.parentElement.nextSibling as HTMLTableRowElement;
             expect(manOfTheMatchDataRow.querySelector('td:nth-child(1) .dropdown-toggle').textContent).toEqual(' ');
             expect(manOfTheMatchDataRow.querySelector('td:nth-child(3) .dropdown-toggle').textContent).toEqual(' ');
             const oneEightiesRow = context.container.querySelector('tr[datatype="merge-180s"] td:nth-child(1)');
@@ -689,7 +714,7 @@ describe('Score', () => {
         });
 
         it('can unpublish home submission', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
@@ -698,16 +723,16 @@ describe('Score', () => {
                 match.homeScore = 1;
                 match.awayScore = 1;
             });
-            await renderComponent(fixtureData.id, appData, account);
-            expect(reportedError).toBeNull();
-            let alert;
+            await renderComponent(fixtureData.id, appData);
+            expect(reportedError.hasError()).toEqual(false);
+            let alert: string;
             window.alert = (msg) => alert = msg;
             await doClick(context.container, 'span[title="See home submission"]');
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
@@ -718,7 +743,7 @@ describe('Score', () => {
         });
 
         it('can unpublish away submission', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
@@ -727,16 +752,16 @@ describe('Score', () => {
                 match.homeScore = 2;
                 match.awayScore = 2;
             });
-            await renderComponent(fixtureData.id, appData, account);
-            expect(reportedError).toBeNull();
-            let alert;
+            await renderComponent(fixtureData.id, appData);
+            expect(reportedError.hasError()).toEqual(false);
+            let alert: string;
             window.alert = (msg) => alert = msg;
             await doClick(context.container, 'span[title="See away submission"]');
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
@@ -747,7 +772,7 @@ describe('Score', () => {
         });
 
         it('can show when only home submission present', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
@@ -760,13 +785,13 @@ describe('Score', () => {
             fixtureData.home.manOfTheMatch = null;
             fixtureData.away.manOfTheMatch = null;
 
-            await renderComponent(fixtureData.id, appData, account);
+            await renderComponent(fixtureData.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
         });
 
         it('can show when only away submission present', async () => {
-            const appData = getDefaultAppData();
+            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = null;
@@ -779,27 +804,30 @@ describe('Score', () => {
             fixtureData.home.manOfTheMatch = null;
             fixtureData.away.manOfTheMatch = null;
 
-            await renderComponent(fixtureData.id, appData, account);
+            await renderComponent(fixtureData.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
         });
     });
 
     describe('when logged in as a home clerk', () => {
-        const appData = getDefaultAppData();
-        const fixture = getUnplayedFixtureData(appData);
-        const account = {
+        const account: IUserDto = {
+            name: '',
+            givenName: '',
+            emailAddress: '',
             access: {
                 manageScores: false,
                 inputResults: true,
             },
-            teamId: fixture.home.id,
+            teamId: createTemporaryId(),
         };
+        const appData = getDefaultAppData(account);
+        const fixture = getUnplayedFixtureData(appData);
 
         it('renders score card without results', async () => {
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -825,9 +853,9 @@ describe('Score', () => {
         it('renders published score card', async () => {
             fixture.resultsPublished = true;
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -850,20 +878,23 @@ describe('Score', () => {
     });
 
     describe('when logged in as an away clerk', () => {
-        const appData = getDefaultAppData();
-        const fixture = getUnplayedFixtureData(appData);
-        const account = {
+        const account: IUserDto = {
+            name: '',
+            emailAddress: '',
+            givenName: '',
             access: {
                 manageScores: false,
                 inputResults: true,
             },
-            teamId: fixture.away.id,
+            teamId: createTemporaryId(),
         };
+        const appData = getDefaultAppData(account);
+        const fixture = getUnplayedFixtureData(appData);
 
         it('renders score card without results', async () => {
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -889,9 +920,9 @@ describe('Score', () => {
         it('renders published score card', async () => {
             fixture.resultsPublished = true;
 
-            await renderComponent(fixture.id, appData, account);
+            await renderComponent(fixture.id, appData);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
