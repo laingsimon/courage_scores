@@ -1,55 +1,65 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, noop} from "./helpers/tests";
+import {api, cleanUp, doClick, findButton, noop, TestContext} from "./helpers/tests";
 import React from "react";
 import {App} from "./App";
 import {act} from "@testing-library/react";
 import {MemoryRouter, Route} from "react-router-dom";
-import {IocContainer} from "./IocContainer";
+import {IocContainer, IIocContainerProps} from "./IocContainer";
 import ReactDOM from "react-dom/client";
 import {useApp} from "./AppContainer";
 import {BrandingContainer} from "./BrandingContainer";
-import {divisionBuilder} from "./helpers/builders";
+import {IUserDto} from "./interfaces/serverSide/Identity/IUserDto";
+import {ISeasonDto} from "./interfaces/serverSide/Season/ISeasonDto";
+import {ITeamDto} from "./interfaces/serverSide/Team/ITeamDto";
+import {IErrorDetailDto} from "./interfaces/serverSide/IErrorDetailDto";
+import {IDivisionDto} from "./interfaces/serverSide/IDivisionDto";
+import {IBuild} from "./interfaces/IBuild";
+import {IClientActionResultDto} from "./interfaces/IClientActionResultDto";
+import {IDivisionApi} from "./api/division";
+import {IAccountApi} from "./api/account";
+import {ISeasonApi} from "./api/season";
+import {IErrorApi} from "./api/error";
+import {ITeamApi} from "./api/team";
+import {divisionBuilder} from "./helpers/builders/divisions";
 
 describe('App', () => {
-    let context;
-    let allDivisions = [];
-    let account = null;
-    let allSeasons = [];
-    let allTeams = [];
-    let reportedError;
-    let settings;
+    let context: TestContext;
+    let allDivisions: any = [];
+    let account: IUserDto | null = null;
+    let allSeasons: ISeasonDto[] = [];
+    let allTeams: ITeamDto[] = [];
+    let reportedError: IErrorDetailDto | null;
+    let settings: any;
 
-    const divisionApi = {
-        getAll: async () => {
+    const divisionApi = api<IDivisionApi>({
+        getAll: async (): Promise<IDivisionDto[]> => {
             if (allDivisions.length || allDivisions.length === 0) {
                 return allDivisions;
             }
 
-            // noinspection ES6RedundantAwait
             return await allDivisions;
         }
-    };
-    const accountApi = {
-        account: async () => account
-    };
-    const seasonApi = {
-        getAll: async () => allSeasons
-    };
-    const teamApi = {
-        getAll: async () => allTeams
-    };
-    const errorApi = {
-        add: async (error) => {
+    });
+    const accountApi = api<IAccountApi>({
+        account: async (): Promise<IUserDto | null> => account
+    });
+    const seasonApi = api<ISeasonApi>({
+        getAll: async (): Promise<ISeasonDto[]> => allSeasons
+    });
+    const teamApi = api<ITeamApi>({
+        getAll: async (): Promise<ITeamDto[]> => allTeams
+    });
+    const errorApi = api<IErrorApi>({
+        add: async (error: IErrorDetailDto): Promise<IClientActionResultDto<IErrorDetailDto>> => {
             reportedError = error;
+            return { success: true } as any;
         }
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(build, embed, testRoute) {
+    async function renderComponent(build?: IBuild, embed?: boolean, testRoute?: React.ReactNode) {
         if (build) {
             createBuildElements(build);
         }
@@ -64,14 +74,14 @@ describe('App', () => {
                 teamApi,
                 errorApi,
                 settings,
-            },
+            } as any,
             (<BrandingContainer name='COURAGE LEAGUE'>
-                <App embed={embed} testRoute={testRoute}/>
+                <App controls={true} embed={embed} testRoute={testRoute}/>
             </BrandingContainer>),
             testRoute ? '/test' : null);
     }
 
-    async function renderApp(iocProps, content, currentPath) {
+    async function renderApp(iocProps: IIocContainerProps, content: React.ReactNode, currentPath: string): Promise<TestContext> {
         const container = document.createElement('div');
         document.body.appendChild(container);
 
@@ -88,24 +98,25 @@ describe('App', () => {
                 if (container) {
                     document.body.removeChild(container);
                 }
-            }
+            },
+            user: null,
         };
     }
 
-    function createBuildElements(build) {
+    function createBuildElements(build: IBuild) {
         createBuildElement('build:branch', build.branch);
         createBuildElement('build:sha', build.version);
         createBuildElement('build:date', build.date);
     }
 
-    function createBuildElement(name, value) {
+    function createBuildElement(name: string, value: string) {
         const meta = document.createElement('meta');
         meta.setAttribute('name', name);
         meta.setAttribute('content', value);
         document.head.appendChild(meta);
     }
 
-    function isForDomain(a, domain) {
+    function isForDomain(a: HTMLAnchorElement, domain: string) {
         const href = a.getAttribute('href');
         const url = new URL(href);
 
@@ -113,7 +124,7 @@ describe('App', () => {
     }
 
     function assertSocialLinks() {
-        const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
+        const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]')) as HTMLAnchorElement[];
         expect(socialLinks.length).toEqual(3);
         const email = socialLinks.filter(a => a.getAttribute('href').indexOf('mailto:') !== -1)[0];
         const facebook = socialLinks.filter(a => isForDomain(a, 'www.facebook.com'))[0];
@@ -129,12 +140,12 @@ describe('App', () => {
         expect(heading.textContent).toEqual('COURAGE LEAGUE');
     }
 
-    function assertMenu(loading) {
+    function assertMenu(loading?: boolean) {
         const header = context.container.querySelector('header');
         expect(header).toBeTruthy();
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
         const menuItemText = menuItems.map(li => li.textContent);
-        const divisionMenuItems = loading ? [] : allDivisions.map(d => d.name);
+        const divisionMenuItems = loading ? [] : allDivisions.map((d: IDivisionDto) => d.name);
         const expectedMenuItemsAfterDivisions = [];
 
         if (!loading) {
@@ -198,7 +209,8 @@ describe('App', () => {
         it('when logged in', async () => {
             account = {
                 name: 'Simon Laing',
-                givenName: 'Simon'
+                givenName: 'Simon',
+                emailAddress: '',
             };
 
             await renderComponent(null);
@@ -222,12 +234,7 @@ describe('App', () => {
         });
 
         it('when still loading', async () => {
-            let resolve;
-            let reject;
-            allDivisions = new Promise((res, rej) => {
-                resolve = res;
-                reject = rej;
-            });
+            allDivisions = new Promise<IDivisionDto[]>(() => {});
 
             await renderComponent();
 

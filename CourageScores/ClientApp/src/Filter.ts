@@ -1,9 +1,10 @@
 import {all, any} from "./helpers/collections";
+import {IFilter} from "./interfaces/IFilter";
 
-export class Filter {
-    _expression;
+export class Filter implements IFilter {
+    _expression: (item: any) => boolean | undefined;
 
-    constructor(expression) {
+    constructor(expression: (item: any) => boolean) {
         if (!expression) {
             throw new Error('Expression not supplied');
         }
@@ -11,30 +12,30 @@ export class Filter {
         this._expression = expression;
     }
 
-    apply(item) {
+    apply(item: any) {
         return !!this._expression(item);
     }
 }
 
-export class AndFilter {
-    _filters;
+export class AndFilter implements IFilter {
+    _filters: IFilter[];
 
-    constructor(filters) {
+    constructor(filters: IFilter[]) {
         if (!filters) {
             throw new Error('Filters not supplied');
         }
         this._filters = filters;
     }
 
-    apply(item) {
+    apply(item: any) {
         return all(this._filters, filter => filter.apply(item));
     }
 }
 
-export class OrFilter {
-    _filters;
+export class OrFilter implements IFilter {
+    _filters: IFilter[];
 
-    constructor(filters) {
+    constructor(filters: IFilter[]) {
         if (!filters) {
             throw new Error('Filters not supplied');
         }
@@ -42,15 +43,15 @@ export class OrFilter {
         this._filters = filters;
     }
 
-    apply(item) {
+    apply(item: any) {
         return any(this._filters, filter => filter.apply(item));
     }
 }
 
-export class NotFilter {
-    _filter;
+export class NotFilter implements IFilter {
+    _filter: IFilter;
 
-    constructor(filter) {
+    constructor(filter: IFilter) {
         if (!filter) {
             throw new Error('Filter not supplied');
         }
@@ -58,13 +59,13 @@ export class NotFilter {
         this._filter = filter;
     }
 
-    apply(item) {
+    apply(item: any) {
         return !this._filter.apply(item);
     }
 }
 
-export class NullFilter {
-    apply() {
+export class NullFilter implements IFilter {
+    apply(_?: any) {
         return true;
     }
 }

@@ -1,6 +1,6 @@
-import {createContext, useContext, useState} from "react";
-import {Http} from "./api/http";
-import {Settings} from "./api/settings";
+import React, {createContext, useContext, useState} from "react";
+import {Http, IHttp} from "./api/http";
+import {ISettings, Settings} from "./api/settings";
 import {TeamApi} from "./api/team";
 import {TournamentApi} from "./api/tournament";
 import {ErrorApi} from "./api/error";
@@ -18,20 +18,27 @@ import {TemplateApi} from "./api/template";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
 import {LiveApi} from "./api/live";
+import {IDependencies} from "./interfaces/IDependencies";
+import {ISubscriptions} from "./interfaces/ISubscriptions";
 
 const DependenciesContext = createContext({});
 
-export function useDependencies() {
-    return useContext(DependenciesContext);
+export function useDependencies(): IDependencies {
+    return useContext(DependenciesContext) as IDependencies;
+}
+
+export interface IIocContainerProps extends IDependencies {
+    children?: React.ReactNode,
+    socketFactory?: (setts: ISettings) => WebSocket,
 }
 
 /* istanbul ignore next */
-export function IocContainer({children, ...services}) {
-    const [socket, setSocket] = useState(null);
-    const [subscriptions, setSubscriptions] = useState({});
-    const settings = new Settings();
-    const http = new Http(settings);
-    const defaultServices = {
+export function IocContainer({children, ...services} : IIocContainerProps) {
+    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [subscriptions, setSubscriptions] = useState<ISubscriptions>({});
+    const settings: ISettings = new Settings();
+    const http: IHttp = new Http(settings);
+    const defaultServices: IDependencies = {
         settings: settings,
         divisionApi: new DivisionApi(http),
         seasonApi: new SeasonApi(http),
@@ -51,8 +58,8 @@ export function IocContainer({children, ...services}) {
         webSocket: new LiveWebSocket({
             socket,
             subscriptions,
-            setSubscriptions,
-            setSocket,
+            setSubscriptions: async (subs: ISubscriptions) => setSubscriptions(subs),
+            setSocket: async (socket: WebSocket) => setSocket(socket),
             createSocket: () => (services.socketFactory || socketFactory)(settings),
         }),
     };

@@ -1,6 +1,6 @@
 import {useDependencies} from "./IocContainer";
 import React, {useEffect, useState} from "react";
-import {toMap} from "./helpers/collections";
+import {DataMap, toMap} from "./helpers/collections";
 import {Layout} from "./components/layout/Layout";
 import {Route, Routes} from "react-router-dom";
 import {Home} from "./components/Home";
@@ -14,15 +14,26 @@ import {About} from "./components/About";
 import {mapError, mapForLogging} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 import {LiveSayg} from "./components/division_fixtures/sayg/LiveSayg";
+import {IApp} from "./interfaces/IApp";
+import {IDivisionDto} from "./interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "./interfaces/serverSide/Season/ISeasonDto";
+import {ITeamDto} from "./interfaces/serverSide/Team/ITeamDto";
+import {IUserDto} from "./interfaces/serverSide/Identity/IUserDto";
 
-export function App({embed, controls, testRoute}) {
+export interface IAppProps {
+    embed: boolean;
+    controls: boolean;
+    testRoute?: React.ReactNode;
+}
+
+export function App({embed, controls, testRoute}: IAppProps) {
     const {divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight} = useDependencies();
-    const [account, setAccount] = useState(null);
-    const [divisions, setDivisions] = useState(toMap([]));
-    const [seasons, setSeasons] = useState(toMap([]));
-    const [teams, setTeams] = useState(toMap([]));
-    const [appLoading, setAppLoading] = useState(null);
-    const [error, setError] = useState(null);
+    const [account, setAccount] = useState<IUserDto | null>(null);
+    const [divisions, setDivisions] = useState<DataMap<IDivisionDto>>(toMap([]));
+    const [seasons, setSeasons] = useState<DataMap<ISeasonDto>>(toMap([]));
+    const [teams, setTeams] = useState<DataMap<ITeamDto>>(toMap([]));
+    const [appLoading, setAppLoading] = useState<boolean | null>(null);
+    const [error, setError] = useState<any | null>(null);
 
     useEffect(() => {
             // should only fire on componentDidMount
@@ -39,18 +50,18 @@ export function App({embed, controls, testRoute}) {
         parentHeight.setupInterval();
     });
 
-    function onError(error) {
+    function onError(error: any) {
         console.error(error);
         setError(mapError(error));
     }
 
-    function clearError() {
+    async function clearError() {
         setError(null);
     }
 
-    function invalidateCacheAndTryAgain() {
+    async function invalidateCacheAndTryAgain() {
         settings.invalidateCacheOnNextRequest = true;
-        clearError();
+        await clearError();
     }
 
     async function reloadAll() {
@@ -88,12 +99,12 @@ export function App({embed, controls, testRoute}) {
         setAccount(account);
     }
 
-    async function reportClientSideException(error) {
+    async function reportClientSideException(error: any) {
         await errorApi.add(mapForLogging(error, account));
     }
 
     // noinspection JSUnusedGlobalSymbols
-    const appData = {
+    const appData: IApp = {
         divisions,
         seasons,
         teams,
@@ -118,7 +129,7 @@ export function App({embed, controls, testRoute}) {
         return (<AppContainer {...appData}>
             <Layout>
                 <Routes>
-                    <Route exact path='/' element={<Home/>}/>
+                    <Route path='/' element={<Home/>}/>
                     <Route path='/division/:divisionId' element={<Division/>}/>
                     <Route path='/division/:divisionId/:mode' element={<Division/>}/>
                     <Route path='/division/:divisionId/:mode/:seasonId' element={<Division/>}/>
@@ -136,5 +147,8 @@ export function App({embed, controls, testRoute}) {
     } catch (e) {
         /* istanbul ignore next */
         onError(e);
+        return (<AppContainer {...appData}>
+            <span>Error</span>
+        </AppContainer>);
     }
 }

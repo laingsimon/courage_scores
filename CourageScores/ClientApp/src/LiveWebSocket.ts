@@ -1,17 +1,35 @@
 import {any} from "./helpers/collections";
+import {ISubscription} from "./interfaces/ISubscription";
+import {ISubscriptions} from "./interfaces/ISubscriptions";
 
-export class LiveWebSocket {
-    socket;
-    subscriptions;
-    setSubscriptions;
-    setSocket;
-    createSocket;
+interface ILiveWebSocketProps {
+    socket: WebSocket | null;
+    subscriptions: ISubscriptions;
+    setSubscriptions: (subscriptions: ISubscriptions) => Promise<any>;
+    setSocket: (socket: WebSocket) => Promise<any>;
+    createSocket: () => WebSocket;
+}
+
+export interface ILiveWebSocket {
+    subscriptions: ISubscriptions;
+    publish(id: string, data: any): Promise<void>;
+    unsubscribe(id: string): Promise<void>;
+    subscribe(id: string, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void): Promise<void>;
+    isConnected: () => boolean;
+}
+
+export class LiveWebSocket implements ILiveWebSocket {
+    socket: WebSocket | null;
+    subscriptions: ISubscriptions;
+    setSubscriptions: (subscriptions: ISubscriptions) => Promise<any>;
+    setSocket: (socket: WebSocket) => Promise<any>;
+    createSocket: () => WebSocket;
 
     constructor({socket,
                 subscriptions,
                 setSubscriptions,
                 setSocket,
-                createSocket}) {
+                createSocket}: ILiveWebSocketProps) {
         this.socket = socket;
         this.subscriptions = subscriptions;
         this.setSubscriptions = setSubscriptions;
@@ -23,21 +41,25 @@ export class LiveWebSocket {
         }
     }
 
+    isConnected(): boolean {
+        return !!this.socket;
+    }
+
     async awaitStateChange() {
-        if (this.socket.readyState === 1) {
+        if (!this.socket || this.socket.readyState === 1) {
             return;
         }
 
         return new Promise((resolve, reject) => {
             const handle = window.setInterval(() => {
                 try {
-                    if (this.socket.readyState === 0) {
+                    if (this.socket && this.socket.readyState === 0) {
                         // connecting...
                         return;
                     }
 
                     window.clearInterval(handle);
-                    if (this.socket.readyState === 1) {
+                    if (this.socket && this.socket.readyState === 1) {
                         resolve(this);
                     } else {
                         const errorMessage = any(Object.keys(this.subscriptions))
@@ -46,7 +68,7 @@ export class LiveWebSocket {
                         this.closeSocket();
                         reject(errorMessage);
                     }
-                } catch (e) {
+                } catch (e: any) {
                     console.error(e);
                     window.clearInterval(handle);
                     reject(e.message || 'Error waiting for socket to be ready');
@@ -55,25 +77,25 @@ export class LiveWebSocket {
         });
     }
 
-    closeSocket() {
+    async closeSocket() {
         if (this.socket) {
             this.socket.close();
-            this.setSocket(null);
-            this.setSubscriptions({});
+            await this.setSocket(null);
+            await this.setSubscriptions({});
         }
     }
 
-    async __send(data) {
+    async __send(data: object) {
         if (!this.socket) {
             this.socket = this.createSocket();
-            this.setSocket(this.socket);
+            await this.setSocket(this.socket);
         }
 
         await this.awaitStateChange();
         this.socket.send(JSON.stringify(data));
     }
 
-    async publish(id, data) {
+    async publish(id: string, data: any) {
         await this.__send({
             type: 'update',
             id: id,
@@ -81,16 +103,16 @@ export class LiveWebSocket {
         });
     }
 
-    unsubscribe(id) {
+    async unsubscribe(id: string) {
         if (!this.socket) {
             return;
         }
 
-        const newSubscriptions = Object.assign({}, this.subscriptions);
+        const newSubscriptions: { [key: string]: any } = Object.assign({}, this.subscriptions);
         delete newSubscriptions[id];
-        this.setSubscriptions(newSubscriptions);
+        await this.setSubscriptions(newSubscriptions);
 
-        return this.__send({
+        await this.__send({
             type: 'unsubscribed',
             id: id,
         }).then(() => {
@@ -101,7 +123,7 @@ export class LiveWebSocket {
         });
     }
 
-    subscribe(id, dataHandler, errorHandler) {
+    async subscribe(id: string, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void) {
         if (this.subscriptions[id]) {
             console.log('WARN: Subscription is being replaced');
         }
@@ -109,27 +131,26 @@ export class LiveWebSocket {
         const newSubscriptions = Object.assign({}, this.subscriptions);
         newSubscriptions[id] = {
             id,
-            updateHandler: dataHandler || ((msg) => console.log(msg)),
-            errorHandler: errorHandler || ((err) => console.error(err)),
+            updateHandler: dataHandler || ((msg: any) => console.log(msg)),
+            errorHandler: errorHandler || ((err: any) => console.error(err)),
         };
-        this.setSubscriptions(newSubscriptions);
+        await this.setSubscriptions(newSubscriptions);
 
-        // noinspection JSIgnoredPromiseFromCall
-        this.__send({
+        await this.__send({
             type: 'subscribed',
             id: id,
         });
     }
 
-    publishToSubscribers(id, data) {
-        this.forEachSubscription(id, sub => sub.updateHandler(data));
+    publishToSubscribers(id: string, data: any) {
+        this.forEachSubscription(id, (sub: ISubscription) => sub.updateHandler(data));
     }
 
-    alertSubscribers(id, error) {
-        this.forEachSubscription(id, sub => sub.errorHandler(error));
+    alertSubscribers(id: string, error: any) {
+        this.forEachSubscription(id, (sub: ISubscription) => sub.errorHandler(error));
     }
 
-    forEachSubscription(id, handler) {
+    forEachSubscription(id: string, handler: (sub: ISubscription) => void) {
         if (id) {
             const subscription = this.subscriptions[id];
             if (subscription) {
@@ -144,7 +165,7 @@ export class LiveWebSocket {
         }
     }
 
-    async handleMessage(messageEvent) {
+    async handleMessage(messageEvent: any) {
         if (messageEvent.type !== 'message') {
             console.log(`Unhandled message: ${JSON.stringify(messageEvent)}`);
             return;
@@ -183,6 +204,6 @@ export class LiveWebSocket {
 
     async handleClose() {
         console.error('Socket closed');
-        this.setSocket(null);
+        await this.setSocket(null);
     }
 }

@@ -2,24 +2,30 @@
 
 import {LiveWebSocket} from "./LiveWebSocket";
 import {createTemporaryId} from "./helpers/projection";
+import {ISubscriptions} from "./interfaces/ISubscriptions";
 
 describe('LiveWebSocket', () => {
     describe('publish', () => {
         it('will send data to socket', async () => {
             const id = createTemporaryId();
-            let sent;
+            let sent: string;
             const socket = new LiveWebSocket({
                 socket: {
-                    send: (data) => {
+                    send: (data: string) => {
                         sent = data;
                     },
                     readyState: 1,
-                },
+                } as any,
+                subscriptions: {},
+                createSocket: () => new WebSocket(''),
+                setSocket: async () => {},
+                setSubscriptions: async () => {},
             });
 
             await socket.publish(id, 'data');
 
-            expect(JSON.parse(sent)).toEqual({
+            expect(sent!).toBeTruthy();
+            expect(JSON.parse(sent!)).toEqual({
                 type: 'update',
                 id: id,
                 data: 'data',
@@ -32,17 +38,18 @@ describe('LiveWebSocket', () => {
             let closed = true;
             const socket = new LiveWebSocket({
                 socket: {
-                    send: (data) => {
+                    send: (data: any) => {
                         sent = data;
                     },
                     readyState: 2,
                     close: () => { closed = true },
-                },
-                setSocket: () => {},
+                } as any,
+                setSocket: async () => {},
                 subscriptions: {},
-                setSubscriptions: () => {},
+                setSubscriptions: async () => {},
+                createSocket: () => new WebSocket(''),
             });
-            let exception;
+            let exception: any;
 
             try {
                 await socket.publish(id, 'data');
@@ -57,8 +64,8 @@ describe('LiveWebSocket', () => {
 
         it('will wait for the socket to be ready', async () => {
             class MockSocket {
-                _context;
-                constructor(context) {
+                _context: any;
+                constructor(context: any) {
                     this._context = context;
                 }
 
@@ -67,7 +74,7 @@ describe('LiveWebSocket', () => {
                     return Math.max(this._context.readyState, 0);
                 }
 
-                send(data) {
+                send(data: any) {
                     this._context.sent.push(data);
                 }
 
@@ -77,9 +84,11 @@ describe('LiveWebSocket', () => {
             }
 
             const id = createTemporaryId();
+            const emptyStringArray: string[] = [];
+            // noinspection JSUnusedGlobalSymbols
             const socketContext = {
                 readyState: 1,
-                sent: [],
+                sent: emptyStringArray,
                 closed: false,
                 readyStateRetrieved: () => {
                     socketContext.readyState++;
@@ -89,10 +98,11 @@ describe('LiveWebSocket', () => {
                 },
             }
             const socket = new LiveWebSocket({
-                socket: new MockSocket(socketContext),
-                setSocket: () => {},
+                socket: new MockSocket(socketContext) as any,
+                setSocket: async () => {},
                 subscriptions: {},
-                setSubscriptions: () => {},
+                setSubscriptions: async () => {},
+                createSocket: () => new WebSocket(''),
             });
             await socket.publish(id, 'first');
             socketContext.readyState = -2;
@@ -106,14 +116,14 @@ describe('LiveWebSocket', () => {
             }
 
             expect(exception).toBeNull();
-            expect(socketContext.sent.map(JSON.parse)).toEqual([{type:'update', id, data: 'second'}]);
+            expect(socketContext.sent.map((sent) => JSON.parse(sent))).toEqual([{type:'update', id, data: 'second'}]);
             expect(socketContext.closed).toEqual(false);
         });
 
         it('will close the socket when unready', async () => {
             class MockSocket {
-                _context;
-                constructor(context) {
+                _context: any;
+                constructor(context: any) {
                     this._context = context;
                 }
 
@@ -122,7 +132,7 @@ describe('LiveWebSocket', () => {
                     return this._context.readyState;
                 }
 
-                send(data) {
+                send(data: any) {
                     this._context.sent.push(data);
                 }
 
@@ -132,19 +142,19 @@ describe('LiveWebSocket', () => {
             }
 
             const id = createTemporaryId();
+            // noinspection JSUnusedGlobalSymbols
             const socketContext = {
                 readyState: 1,
                 sent: [],
                 closed: false,
-                readyStateRetrieved: () => {
-
-                },
-            }
+                readyStateRetrieved: () => {},
+            };
             const socket = new LiveWebSocket({
-                socket: new MockSocket(socketContext),
-                setSocket: () => {},
+                socket: new MockSocket(socketContext) as any,
+                setSocket: async () => {},
                 subscriptions: {},
-                setSubscriptions: () => {},
+                setSubscriptions: async () => {},
+                createSocket: () => new WebSocket(''),
             });
             await socket.publish(id, 'first');
             socketContext.readyState = 2;
@@ -164,8 +174,8 @@ describe('LiveWebSocket', () => {
 
         it('will close the socket when unready after subscriptions', async () => {
             class MockSocket {
-                _context;
-                constructor(context) {
+                _context: any;
+                constructor(context: any) {
                     this._context = context;
                 }
 
@@ -174,7 +184,7 @@ describe('LiveWebSocket', () => {
                     return this._context.readyState;
                 }
 
-                send(data) {
+                send(data: any) {
                     this._context.sent.push(data);
                 }
 
@@ -183,22 +193,22 @@ describe('LiveWebSocket', () => {
                 }
             }
 
-            const id = createTemporaryId();
+            const id: string = createTemporaryId();
+            // noinspection JSUnusedGlobalSymbols
             const socketContext = {
                 readyState: 1,
                 sent: [],
                 closed: false,
-                readyStateRetrieved: () => {
-
-                },
+                readyStateRetrieved: () => {},
             }
             const socket = new LiveWebSocket({
-                socket: new MockSocket(socketContext),
-                setSocket: () => {},
+                socket: new MockSocket(socketContext) as any,
+                setSocket: async () => {},
                 subscriptions: {
-                    anId: {}
+                    anId: { id: 'anId', errorHandler: () => {}, updateHandler: () => {} },
                 },
-                setSubscriptions: () => {},
+                setSubscriptions: async () => {},
+                createSocket: () => new WebSocket(''),
             });
             await socket.publish(id, 'first');
             socketContext.readyState = 2;
@@ -218,8 +228,8 @@ describe('LiveWebSocket', () => {
 
         it('will throw if socket does not become ready', async () => {
             class MockSocket {
-                _context;
-                constructor(context) {
+                _context: any;
+                constructor(context: any) {
                     this._context = context;
                 }
 
@@ -231,7 +241,7 @@ describe('LiveWebSocket', () => {
                     return readyState;
                 }
 
-                send(data) {
+                send(data: any) {
                     this._context.sent.push(data);
                 }
 
@@ -250,12 +260,13 @@ describe('LiveWebSocket', () => {
                 ]
             }
             const socket = new LiveWebSocket({
-                socket: new MockSocket(socketContext),
-                setSocket: () => {},
+                socket: new MockSocket(socketContext) as any,
+                setSocket: async () => {},
                 subscriptions: {
-                    anId: {}
+                    anId: { id, updateHandler: () => {}, errorHandler: () => {} },
                 },
-                setSubscriptions: () => {},
+                setSubscriptions: async () => {},
+                createSocket: () => new WebSocket(''),
             });
             await socket.publish(id, 'first');
             let exception = null;
@@ -276,26 +287,27 @@ describe('LiveWebSocket', () => {
     describe('unsubscribe', () => {
         it('will send unsubscribed', async () => {
             const id = createTemporaryId();
-            let sent;
-            const subscriptions = {};
-            subscriptions[id] = {};
+            let sent: string;
+            const subscriptions: ISubscriptions = {};
+            subscriptions[id] = { id, updateHandler: () => {}, errorHandler: () => {} };
             const socket = new LiveWebSocket({
                 socket: {
-                    send: (value) => {
+                    send: (value: string) => {
                         sent = value;
                     },
                     readyState: 1,
                     close: () => { },
-                },
+                } as WebSocket,
                 subscriptions,
-                setSubscriptions: () => {},
-                setSocket: () => {},
+                setSubscriptions: async () => {},
+                setSocket: async () => {},
+                createSocket: () => new WebSocket(''),
             });
 
             await socket.unsubscribe(id);
 
-            expect(sent).toBeTruthy();
-            expect(JSON.parse(sent)).toEqual({
+            expect(sent!).toBeTruthy();
+            expect(JSON.parse(sent!)).toEqual({
                 type: 'unsubscribed',
                 id,
             });
@@ -304,20 +316,18 @@ describe('LiveWebSocket', () => {
         it('will close the socket if no subscriptions left', async () => {
             const id = createTemporaryId();
             let closed = false;
-            let sent;
             const socket = new LiveWebSocket({
                 socket: {
-                    send: (value) => {
-                        sent = value;
-                    },
+                    send: () => {},
                     readyState: 1,
                     close: () => { closed = true },
-                },
+                } as any,
                 subscriptions: {},
-                setSubscriptions: () => {},
-                setSocket: () => {},
+                setSubscriptions: async () => {},
+                setSocket: async () => {},
+                createSocket: () => new WebSocket(''),
             });
-            socket.subscribe(id);
+            await socket.subscribe(id);
 
             await socket.unsubscribe(id);
 
@@ -328,18 +338,15 @@ describe('LiveWebSocket', () => {
             const id1 = createTemporaryId();
             const id2 = createTemporaryId();
             let closed = false;
-            let sent;
-            let subscriptions = {};
+            let subscriptions: ISubscriptions = {};
             const socket = new LiveWebSocket({
                 socket: {
-                    send: (value) => {
-                        sent = value;
-                    },
+                    send: (_: string) => {},
                     readyState: 1,
                     close: () => { closed = true },
-                },
+                } as WebSocket,
                 subscriptions,
-                setSubscriptions: (value) => {
+                setSubscriptions: async (value) => {
                     // mutate the instance to save the need for a new LiveWebSocket to be created.
 
                     for (const key in subscriptions) {
@@ -349,7 +356,8 @@ describe('LiveWebSocket', () => {
                         subscriptions[key] = value[key];
                     }
                 },
-                setSocket: () => {},
+                setSocket: async () => {},
+                createSocket: () => new WebSocket(''),
             });
             await socket.subscribe(id1);
             await socket.subscribe(id2);
@@ -363,28 +371,24 @@ describe('LiveWebSocket', () => {
     describe('subscribe', () => {
         it('will send subscribed', async () => {
             const id = createTemporaryId();
-            let sent;
-            const api = {
-                subscriptions: {},
-            };
-            api.setSubscriptions = (value) => {
-                api.subscriptions = value;
-            };
+            let sent: string;
             const socket = new LiveWebSocket({
                 socket: {
-                    send: (value) => {
+                    send: (value: string) => {
                         sent = value;
                     },
                     readyState: 1,
-                },
+                } as WebSocket,
                 subscriptions: {},
-                setSubscriptions: () => {},
-                setSocket: () => {},
+                setSubscriptions: async () => {},
+                setSocket: async () => {},
+                createSocket: () => new WebSocket(''),
             });
 
             await socket.subscribe(id);
 
-            expect(JSON.parse(sent)).toEqual({
+            expect(sent!).toBeTruthy();
+            expect(JSON.parse(sent!)).toEqual({
                 type: 'subscribed',
                 id,
             });
@@ -397,12 +401,12 @@ describe('LiveWebSocket', () => {
             const webSocket = {
                 send: () => { },
                 readyState: 1,
-            };
-            let subscriptions = {};
+            } as any;
+            let subscriptions: ISubscriptions = {};
             const socket = new LiveWebSocket({
                 socket: webSocket,
                 subscriptions,
-                setSubscriptions: (value) => {
+                setSubscriptions: async (value) => {
                     // mutate the instance to save the need for a new LiveWebSocket to be created.
 
                     for (const key in subscriptions) {
@@ -412,51 +416,52 @@ describe('LiveWebSocket', () => {
                         subscriptions[key] = value[key];
                     }
                 },
-                setSocket: () => {},
+                setSocket: async () => {},
+                createSocket: () => new WebSocket(''),
             });
             await socket.subscribe(id, () => mutable++);
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Update',
                     id,
                 }),
-            });
+            } as MessageEvent);
             expect(mutable).toEqual(1);
 
             await socket.subscribe(id, () => mutable--);
 
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Update',
                     id,
                 }),
-            });
+            } as MessageEvent);
             expect(mutable).toEqual(0);
         });
     });
 
     describe('handleMessage', () => {
         const id = createTemporaryId();
-        let webSocket;
-        let socket;
-        let sent;
-        let subscriptions;
+        let webSocket: WebSocket;
+        let socket: LiveWebSocket;
+        let sent: any[];
+        let subscriptions: ISubscriptions;
 
         beforeEach(() => {
             sent = [];
             webSocket = {
-                send: (data) => {
+                send: (data: any) => {
                     sent.push(data);
                 },
                 readyState: 1,
-            };
+            } as WebSocket;
             subscriptions = {};
             socket = new LiveWebSocket({
                 socket: webSocket,
                 subscriptions,
-                setSubscriptions: (value) => {
+                setSubscriptions: async (value) => {
                     // mutate the instance to save the need for a new LiveWebSocket to be created.
 
                     for (const key in subscriptions) {
@@ -466,41 +471,42 @@ describe('LiveWebSocket', () => {
                         subscriptions[key] = value[key];
                     }
                 },
-                setSocket: () => {},
+                setSocket: async () => {},
+                createSocket: () => new WebSocket(''),
             });
         })
 
         it('handles unknown transport message type', () => {
-            let logged;
-            console.log = (msg) => { logged = msg };
+            let logged: string;
+            console.log = (msg: string) => { logged = msg };
 
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'unknown',
                 data: '',
-            });
+            } as MessageEvent);
 
             expect(logged).toContain('Unhandled message: ');
         });
 
         it('handles unknown live message type', () => {
-            let logged;
-            console.log = (msg) => { logged = msg };
+            let logged: string;
+            console.log = (msg: string) => { logged = msg };
 
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({ type: 'unknown' }),
-            });
+            } as MessageEvent);
 
             expect(logged).toContain('Unhandled live message: ');
         });
 
         it('handles update live message type', () => {
-            let received;
-            socket.subscribe(id, (data) => {
+            let received: object;
+            socket.subscribe(id, (data: object) => {
                 received = data;
             });
 
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Update',
@@ -509,19 +515,19 @@ describe('LiveWebSocket', () => {
                         age: 10,
                     },
                 }),
-            });
+            } as MessageEvent);
 
-            expect(received).toEqual({
+            expect(received!).toEqual({
                 age: 10,
             });
         });
 
         it('handles update live message type when no handler set', () => {
-            let logged;
-            console.log = (msg) => { logged = msg };
+            let logged: string;
+            console.log = (msg: string) => { logged = msg };
             socket.subscribe(id);
 
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Update',
@@ -529,7 +535,7 @@ describe('LiveWebSocket', () => {
                         age: 10,
                     },
                 }),
-            });
+            } as MessageEvent);
 
             expect(logged).toEqual({
                 age: 10,
@@ -537,92 +543,91 @@ describe('LiveWebSocket', () => {
         });
 
         it('handles marco live message type', async () => {
-            await webSocket.onmessage({
+            await webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Marco'
                 }),
-            });
+            } as MessageEvent);
 
-            expect(JSON.parse(sent)).toEqual({
+            expect(JSON.parse(sent[0])).toEqual({
                 type: 'polo',
             });
         });
 
         it('handles polo live message type', () => {
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Polo'
                 }),
-            });
+            } as MessageEvent);
 
             expect(sent).toEqual([]);
         });
 
         it('handles error live message type', () => {
             console.error = () => { };
-            let error;
-            socket.subscribe(id, null, (err) => {
+            let error: string;
+            socket.subscribe(id, () => {}, (err: string) => {
                 error = err;
             });
 
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Error',
                     message: 'ERROR'
                 }),
-            });
+            } as MessageEvent);
 
-            expect(error).toEqual('ERROR');
+            expect(error!).toEqual('ERROR');
         });
 
         it('handles error live message type when no handler set', () => {
-            let logged;
-            console.error = (err) => { logged = err };
+            let logged: string;
+            console.error = (err: string) => { logged = err };
             socket.subscribe(id);
 
-            webSocket.onmessage({
+            webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
                     type: 'Error',
                     message: 'ERROR'
                 }),
-            });
+            } as MessageEvent);
 
-            expect(logged).toEqual('ERROR');
+            expect(logged!).toEqual('ERROR');
         });
     });
 
     describe('handleClose', () => {
-        let webSocket;
-        let socket;
-        let newSocket;
+        let webSocket: WebSocket;
+        let newSocket: WebSocket | null;
 
         beforeEach(() => {
             webSocket = {
                 send: () => {},
                 readyState: 1,
-            };
-            socket = new LiveWebSocket({
+            } as any;
+            newSocket = null;
+            new LiveWebSocket({
                 socket: webSocket,
                 subscriptions: {},
-                setSubscriptions: () => {},
-                setSocket: (value) => {
-                    newSocket = value;
-                },
+                setSubscriptions: async () => {},
+                setSocket: async (value) => newSocket = value,
+                createSocket: () => new WebSocket(''),
             });
         })
 
         it('handles socket closure', () => {
-            let logged;
-            console.error = (msg) => { logged = msg };
+            let logged: string;
+            console.error = (msg: string) => { logged = msg };
 
-            webSocket.onclose();
+            webSocket.onclose!(<CloseEvent>{});
 
             expect(logged).toContain('Socket closed');
-            expect(newSocket).toEqual(null);
+            expect(newSocket).toBeNull();
         });
     });
 });

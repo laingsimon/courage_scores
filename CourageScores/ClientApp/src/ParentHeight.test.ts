@@ -1,25 +1,25 @@
 // noinspection JSUnresolvedReference
 
-import {ParentHeight} from "./ParentHeight";
+import {IWindow, ParentHeight} from "./ParentHeight";
 
 describe('ParentHeight', () => {
-    let intervalCreated;
-    let intervalCleared;
-    let postedMessage;
-    let nextHandle = 1;
+    let intervalCreated : any | undefined;
+    let intervalCleared : number | undefined;
+    let postedMessage : {message: any, targetOrigin: any, transfer: any} | null;
+    let nextHandle: number = 1;
 
-    window.setInterval = (func, freq) => {
-        const handle = nextHandle++;
-        intervalCreated = {func, freq, handle};
+    (window as any).setInterval = (handler: TimerHandler, timeout?: number | undefined) => {
+        const handle: number = nextHandle++;
+        intervalCreated = {func: handler, freq: timeout, handle};
         return handle;
     };
 
-    window.clearInterval = (handle) => {
-        intervalCleared = handle;
+    (window as any).clearInterval = (id?: number) => {
+        intervalCleared = id;
     };
 
-    const parentMock = {
-        postMessage: (message, targetOrigin, transfer) => {
+    const parentMock: IWindow = {
+        postMessage: (message: any, targetOrigin: string, transfer?: any) => {
             postedMessage = {message, targetOrigin, transfer};
         }
     };
@@ -89,8 +89,8 @@ describe('ParentHeight', () => {
             intervalCreated.func(); // publishContentHeight()
 
             expect(postedMessage).not.toBeNull();
-            expect(postedMessage.targetOrigin).toEqual('*');
-            expect(postedMessage.message).toEqual({
+            expect(postedMessage!.targetOrigin).toEqual('*');
+            expect(postedMessage!.message).toEqual({
                 height: 100 + 123,
             });
         });
@@ -105,8 +105,8 @@ describe('ParentHeight', () => {
             intervalCreated.func(); // publishContentHeight()
 
             expect(postedMessage).not.toBeNull();
-            expect(postedMessage.targetOrigin).toEqual('*');
-            expect(postedMessage.message).toEqual({
+            expect(postedMessage!.targetOrigin).toEqual('*');
+            expect(postedMessage!.message).toEqual({
                 height: 100 + 456,
             });
         });
