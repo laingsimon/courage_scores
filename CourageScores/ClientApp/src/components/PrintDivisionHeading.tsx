@@ -1,7 +1,11 @@
 import React from "react";
 import {useDivisionData} from "./DivisionDataContainer";
 
-export function PrintDivisionHeading({hideDivision}) {
+export interface IPrintDivisionHeadingProps {
+    hideDivision?: boolean;
+}
+
+export function PrintDivisionHeading({hideDivision}: IPrintDivisionHeadingProps) {
     const {season, name} = useDivisionData();
 
     if (!season) {

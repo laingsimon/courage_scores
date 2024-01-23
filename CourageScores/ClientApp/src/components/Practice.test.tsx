@@ -1,37 +1,49 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../helpers/tests";
 import React from "react";
 import {Practice} from "./Practice";
 import {createTemporaryId} from "../helpers/projection";
+import {IRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+import {ISaygApi} from "../api/sayg";
 
 describe('Practice', () => {
-    let context;
-    let reportedError;
-    let saygData;
-    let shareData;
-    let apiResultFunc;
-    let socketCreatedFor;
-    let sentData;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let saygData: { [key: string]: IRecordedScoreAsYouGoDto };
+    let shareData: ShareData | null;
+    let apiResultFunc: ((data: IUpdateRecordedScoreAsYouGoDto) => IClientActionResultDto<IRecordedScoreAsYouGoDto>);
 
-    const saygApi = {
-        get: async (id) => {
+    const saygApi = api<ISaygApi>({
+        get: async (id: string): Promise<IRecordedScoreAsYouGoDto | null> => {
             return saygData[id];
         },
-        upsert: (data) => {
+        upsert: async (data: IUpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
             if (!data.id) {
                 data.id = createTemporaryId();
             }
             saygData[data.id] = data;
             return apiResultFunc(data);
         },
-        delete: (id) => {
+        delete: async (id: string): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
             delete saygData[id];
             return {
                 success: true,
-            }
+            } as any;
         },
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -39,58 +51,50 @@ describe('Practice', () => {
 
     beforeEach(() => {
         saygData = {};
-        socketCreatedFor = null;
-        sentData = [];
-    });
-
-    async function renderComponent(account, hash, appLoading) {
-        apiResultFunc = (data) => {
+        reportedError = new ErrorState();
+        apiResultFunc = (data: IUpdateRecordedScoreAsYouGoDto) => {
             return {
                 result: data,
                 success: true,
-            }
+            } as IClientActionResultDto<IRecordedScoreAsYouGoDto>
         };
-        reportedError = null;
         shareData = null;
         // noinspection JSValidateTypes
-        navigator.share = (data) => shareData = data;
+        (navigator as any).share = (data: ShareData) => shareData = data;
+    });
+
+    async function renderComponent(account: IUserDto, hash?: string, appLoading?: boolean) {
         context = await renderApp(
-            {saygApi},
-            {name: 'Courage Scores'},
-            {
+            iocProps({saygApi}),
+            brandingProps(),
+            appProps({
                 account: account,
                 appLoading: appLoading || false,
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
+            }, reportedError),
             (<Practice/>),
             '/practice',
             '/practice' + hash);
     }
 
     function assertNoDataError() {
-        const dataError = context.container.querySelector('div[data-name="data-error"]');
+        const dataError = context.container.querySelector('div[data-name="data-error"]') as HTMLElement;
         expect(dataError).toBeFalsy();
     }
 
-    function assertDataError(error) {
-        const dataError = context.container.querySelector('div[data-name="data-error"]');
+    function assertDataError(error: string) {
+        const dataError = context.container.querySelector('div[data-name="data-error"]') as HTMLElement;
         expect(dataError).toBeTruthy();
         expect(dataError.textContent).toContain(error);
     }
 
-    function assertInputValue(name, value) {
-        const input = context.container.querySelector(`input[name="${name}"]`);
+    function assertInputValue(name: string, value: string) {
+        const input = context.container.querySelector(`input[name="${name}"]`) as HTMLInputElement;
         expect(input).toBeTruthy();
         expect(input.value).toEqual(value);
     }
 
     function assertScoreInputVisible() {
-        const scoreInput = context.container.querySelector('input[data-score-input="true"]');
+        const scoreInput = context.container.querySelector('input[data-score-input="true"]') as HTMLInputElement;
         expect(scoreInput).toBeTruthy();
     }
 
@@ -100,7 +104,7 @@ describe('Practice', () => {
         it('renders when app is loading', async () => {
             await renderComponent(account, '', true);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             expect(context.container.querySelector('.loading-background')).not.toBeNull();
         });
@@ -108,7 +112,7 @@ describe('Practice', () => {
         it('renders given no saved data', async () => {
             await renderComponent(account, '');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '501');
@@ -120,7 +124,7 @@ describe('Practice', () => {
         it('renders given empty saved data', async () => {
             await renderComponent(account, '#');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '501');
@@ -134,14 +138,14 @@ describe('Practice', () => {
 
             await renderComponent(account, data);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertDataError('Data not found');
         });
 
         it('can close data error', async () => {
             const data = '#not-found';
             await renderComponent(account, data);
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertDataError('Data not found');
 
             await doClick(findButton(context.container.querySelector('div[data-name="data-error"]'), 'Clear'));
@@ -150,11 +154,14 @@ describe('Practice', () => {
         });
 
         it('renders given valid unfinished json data', async () => {
-            const jsonData = {
+            const jsonData: IRecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 2,
                 legs: {
-                    '0': {}
+                    '0': {
+                        away: null,
+                        home: null,
+                    }
                 },
                 homeScore: 1,
                 yourName: 'Simon',
@@ -165,7 +172,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             assertInputValue('yourName', 'Simon');
             assertInputValue('startingScore', '123');
@@ -175,7 +182,7 @@ describe('Practice', () => {
         });
 
         it('renders given valid finished json data', async () => {
-            const jsonData = {
+            const jsonData: IRecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},
@@ -189,7 +196,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '123');
@@ -201,11 +208,14 @@ describe('Practice', () => {
         });
 
         it('can save unfinished practice data', async () => {
-            const jsonData = {
+            const jsonData: IRecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 2,
                 legs: {
-                    '0': {}
+                    '0': {
+                        away: null,
+                        home: null,
+                    }
                 },
                 homeScore: 1,
                 yourName: 'Simon',
@@ -214,7 +224,7 @@ describe('Practice', () => {
             };
             saygData[jsonData.id] = jsonData;
             await renderComponent(account, '#' + jsonData.id);
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
 
             delete saygData[jsonData.id];
@@ -229,7 +239,7 @@ describe('Practice', () => {
         });
 
         it('can save finished practice data', async () => {
-            const jsonData = {
+            const jsonData: IRecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},
@@ -241,7 +251,7 @@ describe('Practice', () => {
             };
             saygData[jsonData.id] = jsonData;
             await renderComponent(account, '#' + jsonData.id);
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
 
             delete saygData[jsonData.id];
@@ -257,7 +267,7 @@ describe('Practice', () => {
 
         it('can change your name', async () => {
             await renderComponent(account, '');
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
 
             await doChange(context.container, 'input[name="yourName"]', 'YOU', context.user);
@@ -269,7 +279,7 @@ describe('Practice', () => {
 
         it('can clear opponent name', async () => {
             await renderComponent(account, '');
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             await doChange(context.container, 'input[name="opponentName"]', 'THEM', context.user);
             await doClick(findButton(context.container, 'Save '));
@@ -284,7 +294,7 @@ describe('Practice', () => {
 
         it('handles save error correctly', async () => {
             await renderComponent(account, '');
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             apiResultFunc = () => {
                 throw new Error('some error');
@@ -292,11 +302,11 @@ describe('Practice', () => {
 
             await doClick(findButton(context.container, 'Save '));
 
-            expect(reportedError).not.toBeNull();
+            expect(reportedError.hasError()).toEqual(true);
         });
 
         it('can restart practice', async () => {
-            const jsonData = {
+            const jsonData: IRecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},
@@ -308,7 +318,7 @@ describe('Practice', () => {
             };
             saygData[jsonData.id] = jsonData;
             await renderComponent(account, '#' + jsonData.id);
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
 
             await doClick(findButton(context.container, 'Restart...'));
@@ -325,7 +335,7 @@ describe('Practice', () => {
 
         it('can record scores as they are entered', async () => {
             await renderComponent(account, '');
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
@@ -347,7 +357,7 @@ describe('Practice', () => {
 
         it('can complete a leg', async () => {
             await renderComponent(account, '');
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             await doChange(context.container, 'input[name="startingScore"]', '501', context.user);
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
@@ -365,8 +375,10 @@ describe('Practice', () => {
     });
 
     describe('logged in', () => {
-        const account = {
+        const account: IUserDto = {
             givenName: 'GIVEN NAME',
+            name: 'NAME',
+            emailAddress: '',
             access: {
                 useWebSockets: false,
             },
@@ -375,17 +387,20 @@ describe('Practice', () => {
         it('when no data loaded, sets your name to account givenName', async () => {
             await renderComponent(account, '');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertInputValue('yourName', 'GIVEN NAME');
             assertScoreInputVisible();
         });
 
         it('renders given valid unfinished json data', async () => {
-            const jsonData = {
+            const jsonData: IRecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 2,
                 legs: {
-                    '0': {}
+                    '0': {
+                        away: null,
+                        home: null,
+                    }
                 },
                 homeScore: 1,
                 yourName: 'Simon',
@@ -396,7 +411,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             assertInputValue('yourName', 'Simon');
             assertInputValue('startingScore', '123');
@@ -406,7 +421,7 @@ describe('Practice', () => {
         });
 
         it('renders given valid completed json data', async () => {
-            const jsonData = {
+            const jsonData: IRecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},
@@ -420,7 +435,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '123');

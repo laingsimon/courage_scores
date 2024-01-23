@@ -1,10 +1,28 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../helpers/tests";
 import React from "react";
-import {DivisionControls} from "./DivisionControls";
+import {DivisionControls, IDivisionControlsProps} from "./DivisionControls";
 import {renderDate} from "../helpers/rendering";
-import {divisionBuilder, seasonBuilder} from "../helpers/builders";
+import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
+import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
+import {IEditDivisionDto} from "../interfaces/serverSide/IEditDivisionDto";
+import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+import {ISeasonApi} from "../api/season";
+import {IDivisionApi} from "../api/division";
+import {divisionBuilder} from "../helpers/builders/divisions";
+import {seasonBuilder} from "../helpers/builders/seasons";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -14,79 +32,76 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('DivisionControls', () => {
-    let context;
-    let reportedError;
-    let changedDivisionOrSeason;
-    let reloadSeasonsCalled;
-    let reloadDivisionsCalled;
-    let updatedSeason;
-    let updatedDivision;
-    const seasonApi = {
-        update: (data, lastUpdated) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let changedDivisionOrSeason: boolean;
+    let reloadSeasonsCalled: boolean;
+    let reloadDivisionsCalled: boolean;
+    let updatedSeason: {data: IEditSeasonDto, lastUpdated?: string};
+    let updatedDivision: {data: IEditDivisionDto, lastUpdated?: string};
+    const seasonApi = api<ISeasonApi>({
+        update: (data: IEditSeasonDto, lastUpdated?: string): Promise<IClientActionResultDto<ISeasonDto>> => {
             updatedSeason = {data, lastUpdated};
             return {
-                success: true
-            }
+                success: true,
+            } as any;
         }
-    };
-    const divisionApi = {
-        update: (data, lastUpdated) => {
+    });
+    const divisionApi = api<IDivisionApi>({
+        update: (data: IEditDivisionDto, lastUpdated?: string): Promise<IClientActionResultDto<IDivisionDto>> => {
             updatedDivision = {data, lastUpdated};
             return {
                 success: true
-            }
+            } as any;
         }
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function divisionOrSeasonChanged(x) {
-        changedDivisionOrSeason = x;
-    }
-
-    async function renderComponent(props, account, seasons, divisions, route, currentPath) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         changedDivisionOrSeason = null;
         reloadDivisionsCalled = false;
         reloadSeasonsCalled = false;
         updatedSeason = null;
         updatedDivision = null;
+    });
+
+    async function divisionOrSeasonChanged(x?: boolean) {
+        changedDivisionOrSeason = x;
+    }
+
+    async function renderComponent(props: IDivisionControlsProps, account: IUserDto, seasons: ISeasonDto[], divisions: IDivisionDto[], route?: string, currentPath?: string) {
         context = await renderApp(
-            {seasonApi, divisionApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({seasonApi, divisionApi}),
+            brandingProps(),
+            appProps({
                 account,
                 divisions,
                 seasons,
-                reloadSeasons: () => {
+                reloadSeasons: async () => {
                     reloadSeasonsCalled = true;
                     return seasons;
                 },
-                reloadDivisions: () => {
+                reloadDivisions: async () => {
                     reloadDivisionsCalled = true;
                     return divisions;
                 }
-            },
+            }, reportedError),
             (<DivisionControls {...props} onDivisionOrSeasonChanged={divisionOrSeasonChanged}/>),
             route,
             currentPath);
     }
 
-    function getOptions(group) {
-        const items = Array.from(group.querySelectorAll('div.dropdown-menu .dropdown-item'));
+    function getOptions(group: Element) {
+        const items = Array.from(group.querySelectorAll('div.dropdown-menu .dropdown-item')) as HTMLElement[];
         return items.map(i => i.textContent);
     }
 
-    function getOption(group, containingText) {
-        const items = Array.from(group.querySelectorAll('div.dropdown-menu .dropdown-item'));
+    function getOption(group: Element, containingText: string) {
+        const items = Array.from(group.querySelectorAll('div.dropdown-menu .dropdown-item')) as HTMLAnchorElement[];
         const item = items.filter(i => i.textContent.indexOf(containingText) !== -1)[0];
         expect(item).toBeTruthy();
         return item;
@@ -100,27 +115,27 @@ describe('DivisionControls', () => {
         return context.container.querySelector('div.btn-group > div.btn-group:nth-child(2)');
     }
 
-    function getDate(monthOffset) {
+    function getDate(monthOffset: number) {
         let date = new Date();
         date.setMonth(date.getMonth() + (monthOffset || 0))
         return date.toISOString();
     }
 
-    function seasonDates(season) {
+    function seasonDates(season: ISeasonDto) {
         return `(${renderDate(season.startDate)} - ${renderDate(season.endDate)})`;
     }
 
-    function getShownData(group) {
-        const buttons = Array.from(group.querySelectorAll('button'));
+    function getShownData(group: Element) {
+        const buttons = Array.from(group.querySelectorAll('button')) as HTMLButtonElement[];
         expect(buttons.length).toBeGreaterThanOrEqual(1);
         return buttons[0];
     }
 
-    async function toggleDropdown(group) {
+    async function toggleDropdown(group: Element) {
         await doClick(group.querySelector('.dropdown-toggle'));
     }
 
-    function assertDropdownOpen(group, expectOpen) {
+    function assertDropdownOpen(group: Element, expectOpen: boolean) {
         const menu = group.querySelector('.dropdown-menu');
         expect(menu).toBeTruthy();
         if (expectOpen) {
@@ -132,15 +147,15 @@ describe('DivisionControls', () => {
 
     describe('when logged out', () => {
         const account = null;
-        const division1 = divisionBuilder('Division 1').build();
-        const division2 = divisionBuilder('Division 2').build();
-        const season1 = seasonBuilder('Season 1')
+        const division1: IDivisionDto = divisionBuilder('Division 1').build();
+        const division2: IDivisionDto = divisionBuilder('Division 2').build();
+        const season1: ISeasonDto = seasonBuilder('Season 1')
             .starting(getDate(-1))
             .ending(getDate(2))
             .withDivision(division1)
             .withDivision(division2)
             .build();
-        const season2 = seasonBuilder('Season 2')
+        const season2: ISeasonDto = seasonBuilder('Season 2')
             .starting(getDate(2))
             .ending(getDate(4))
             .withDivision(division1)
@@ -154,9 +169,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season1,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toContain('Season 1');
                 expect(seasonButton.textContent).toContain(seasonDates(season1));
@@ -167,9 +182,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season1,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
                     'Season 1 ' + seasonDates(season1)]);
@@ -180,9 +195,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season1,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('Division 1');
             });
@@ -192,9 +207,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season1,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 1',
                     'Division 2']);
@@ -207,9 +222,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toEqual('Select a season');
                 assertDropdownOpen(getSeasonButtonGroup(), true);
@@ -220,9 +235,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
                     'Season 1 ' + seasonDates(season1)]);
@@ -233,9 +248,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('All divisions');
             });
@@ -245,30 +260,33 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division1,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
     });
 
     describe('when logged in', () => {
-        const account = {
+        const account: IUserDto = {
+            name: '',
+            givenName: '',
+            emailAddress: '',
             access: {
                 manageDivisions: true,
                 manageSeasons: true,
             }
         };
-        const division3 = divisionBuilder('Division 3').build();
-        const division4 = divisionBuilder('Division 4').build();
-        const season3 = seasonBuilder('Season 3')
+        const division3: IDivisionDto = divisionBuilder('Division 3').build();
+        const division4: IDivisionDto = divisionBuilder('Division 4').build();
+        const season3: ISeasonDto = seasonBuilder('Season 3')
             .starting(getDate(-1))
             .ending(getDate(2))
             .withDivision(division3)
             .withDivision(division4)
             .build();
-        const season4 = seasonBuilder('Season 4')
+        const season4: ISeasonDto = seasonBuilder('Season 4')
             .starting(getDate(2))
             .ending(getDate(4))
             .withDivision(division3)
@@ -282,9 +300,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season3,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toContain('Season 3');
                 expect(seasonButton.textContent).toContain(seasonDates(season3));
@@ -296,9 +314,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season3,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
@@ -310,9 +328,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season3,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('Division 3✏');
             });
@@ -322,9 +340,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: season3,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 3',
                     'Division 4',
@@ -338,9 +356,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toEqual('Select a season');
                 assertDropdownOpen(getSeasonButtonGroup(), true);
@@ -351,9 +369,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
@@ -365,9 +383,9 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('All divisions');
             });
@@ -377,24 +395,24 @@ describe('DivisionControls', () => {
                     originalSeasonData: null,
                     originalDivisionData: division3,
                     overrideMode: null,
-                }, account, seasons, divisions);
+                } as any, account, seasons, divisions);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
     });
 
     describe('interactivity', () => {
-        const division5 = divisionBuilder('Division 5').build();
-        const division6 = divisionBuilder('Division 6').build();
-        const season5 = seasonBuilder('Season 5')
+        const division5: IDivisionDto = divisionBuilder('Division 5').build();
+        const division6: IDivisionDto = divisionBuilder('Division 6').build();
+        const season5: ISeasonDto = seasonBuilder('Season 5')
             .starting(getDate(-1))
             .ending(getDate(2))
             .withDivision(division5)
             .withDivision(division6)
             .build();
-        const season6 = seasonBuilder('Season 6')
+        const season6: ISeasonDto = seasonBuilder('Season 6')
             .starting(getDate(2))
             .ending(getDate(4))
             .withDivision(division5)
@@ -410,8 +428,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
                 const group = getSeasonButtonGroup();
                 assertDropdownOpen(group, false);
 
@@ -425,8 +443,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
                 const group = getDivisionButtonGroup();
                 assertDropdownOpen(group, false);
 
@@ -440,8 +458,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
                 const group = getSeasonButtonGroup();
                 assertDropdownOpen(group, false);
 
@@ -459,10 +477,10 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: 'OVERRIDE',
-                }, account, seasons, divisions, route, currentPath);
+                } as any, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/OVERRIDE/${encodeURI(season6.name)}`);
 
@@ -479,10 +497,10 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions, route, currentPath);
+                } as any, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/team:TEAM_ID/${encodeURI(season6.name)}`);
 
@@ -499,10 +517,10 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions, route, currentPath);
+                } as any, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/player:PLAYER_ID/${encodeURI(season6.name)}`);
 
@@ -519,10 +537,10 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division6,
                     overrideMode: null,
-                }, account, seasons, divisions, route, currentPath);
+                } as any, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}`); // highlighting that division5 will be selected
                 expect(option.href).toContain(`/${encodeURI(season6.name)}`);
@@ -530,7 +548,10 @@ describe('DivisionControls', () => {
         });
 
         describe('when logged in', () => {
-            const account = {
+            const account: IUserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
                 access: {
                     manageDivisions: true,
                     manageSeasons: true,
@@ -542,8 +563,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
 
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
@@ -557,8 +578,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
 
                 await doSelectOption(getSeasonButtonGroup().querySelector('.dropdown-menu'), '➕ New season');
 
@@ -572,16 +593,16 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
                 await doClick(findButton(context.container, 'Update season'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();
-                expect(changedDivisionOrSeason).toEqual('season');
+                expect(changedDivisionOrSeason).toEqual(true);
                 expect(reloadSeasonsCalled).toEqual(true);
                 expect(updatedSeason).not.toBeNull();
             });
@@ -591,8 +612,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
                 await doClick(findButton(context.container, 'Close'));
@@ -606,8 +627,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
 
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
@@ -621,8 +642,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
 
                 await doSelectOption(getDivisionButtonGroup().querySelector('.dropdown-menu'), '➕ New division');
 
@@ -636,16 +657,16 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
                 await doClick(findButton(context.container, 'Update division'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();
-                expect(changedDivisionOrSeason).toEqual('division');
+                expect(changedDivisionOrSeason).toEqual(true);
                 expect(reloadDivisionsCalled).toEqual(true);
                 expect(updatedDivision).not.toBeNull();
             });
@@ -655,8 +676,8 @@ describe('DivisionControls', () => {
                     originalSeasonData: season5,
                     originalDivisionData: division5,
                     overrideMode: null,
-                }, account, seasons, divisions);
-                expect(reportedError).toBeNull();
+                } as any, account, seasons, divisions);
+                expect(reportedError.hasError()).toEqual(false);
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
                 await doClick(findButton(context.container, 'Close'));

@@ -6,8 +6,18 @@ import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
+import {IDivisionDataSeasonDto} from "../interfaces/serverSide/Division/IDivisionDataSeasonDto";
+import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
 
-export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}) {
+export interface IEditSeasonProps {
+    onClose: () => Promise<any>;
+    onSave: () => Promise<any>;
+    setSaveError: (error: any) => Promise<any>;
+    data: IEditSeasonDto & IDivisionDataSeasonDto;
+    onUpdateData: (season: IEditSeasonDto) => Promise<any>;
+}
+
+export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: IEditSeasonProps) {
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const {seasonApi} = useDependencies();
@@ -33,7 +43,7 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}) 
             if (result.success) {
                 await onSave();
             } else {
-                setSaveError(result);
+                await setSaveError(result);
             }
         } catch (e) {
             /* istanbul ignore next */
@@ -61,18 +71,18 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}) 
             if (result.success) {
                 navigate(`https://${document.location.host}`);
             } else {
-                setSaveError(result);
+                await setSaveError(result);
             }
         } finally {
             setDeleting(false);
         }
     }
 
-    async function toggleDivision(divisionId) {
+    async function toggleDivision(divisionId: string) {
         const newData = Object.assign({}, data);
 
         if (isDivisionSelected(divisionId)) {
-            newData.divisionIds = newData.divisionIds.filter(id => id !== divisionId)
+            newData.divisionIds = newData.divisionIds.filter(id => id !== divisionId);
         } else {
             newData.divisionIds = (newData.divisionIds || []).concat(divisionId);
         }
@@ -80,8 +90,8 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}) 
         await onUpdateData(newData);
     }
 
-    function isDivisionSelected(divisionId) {
-        return any((data.divisionIds || []), id => id === divisionId);
+    function isDivisionSelected(divisionId: string): boolean {
+        return any(data.divisionIds || [], id => id === divisionId);
     }
 
     return (<div>

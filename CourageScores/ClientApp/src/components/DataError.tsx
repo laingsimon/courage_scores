@@ -1,7 +1,12 @@
 import {Link} from "react-router-dom";
 import {useDivisionData} from "./DivisionDataContainer";
+import {IDataErrorDto} from "../interfaces/serverSide/Division/IDataErrorDto";
 
-export function DataError({ dataError }) {
+export interface IDataErrorProps {
+    dataError: IDataErrorDto
+}
+
+export function DataError({ dataError }: IDataErrorProps) {
     const {id: divisionId} = useDivisionData();
     const root = `/division/${divisionId}`;
 

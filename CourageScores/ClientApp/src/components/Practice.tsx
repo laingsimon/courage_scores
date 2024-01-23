@@ -4,10 +4,16 @@ import {useApp} from "../AppContainer";
 import {SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContainer";
 import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";
 import {Loading} from "./common/Loading";
+import {IRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {ILiveOptions} from "../interfaces/ILiveOptions";
+
+interface IPracticeScoreAsYouGoDto extends IRecordedScoreAsYouGoDto {
+    loaded: boolean;
+}
 
 export function Practice() {
     const {onError, account, appLoading} = useApp();
-    const [dataError, setDataError] = useState(null);
+    const [dataError, setDataError] = useState<string | null>(null);
     const location = useLocation();
     const navigate = useNavigate();
     const hasHash = location.hash && location.hash !== '#';
@@ -16,7 +22,7 @@ export function Practice() {
         return (<Loading/>);
     }
 
-    const defaultSaygData = {
+    const defaultSaygData: IPracticeScoreAsYouGoDto = {
         yourName: account ? account.givenName : 'you',
         opponentName: null,
         homeScore: 0,
@@ -45,7 +51,7 @@ export function Practice() {
             </div>);
         }
 
-        const liveOptions = {
+        const liveOptions: ILiveOptions = {
             publish: false,
             canSubscribe: false,
             subscribeAtStartup: [],
@@ -58,14 +64,13 @@ export function Practice() {
                 onHiCheck={noop}
                 defaultData={defaultSaygData}
                 autoSave={false}
-                onScoreChange={noop}
-                onSaved={(data) => {
+                onSaved={async (data) => {
                     if (location.hash !== `#${data.id}`) {
                         navigate(`/practice#${data.id}`);
                     }
                 }}
                 liveOptions={liveOptions}
-                onLoadError={setDataError}>
+                onLoadError={async (error: string) => setDataError(error)}>
                 <EditSaygPracticeOptions/>
             </SaygLoadingContainer>
         </div>);

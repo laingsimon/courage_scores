@@ -4,8 +4,19 @@ import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
+import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
 
-export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}) {
+export interface IEditDivisionProps {
+    onClose: () => Promise<any>;
+    onSave: () => Promise<any>;
+    setSaveError: (error: IClientActionResultDto<IDivisionDto>) => Promise<any>;
+    data: IDivisionDataDto;
+    onUpdateData: (data: IDivisionDataDto) => Promise<any>;
+}
+
+export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}: IEditDivisionProps) {
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const {divisionApi} = useDependencies();
@@ -26,12 +37,12 @@ export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}
 
         try {
             setSaving(true);
-            const result = await divisionApi.update(data, data.updated);
+            const result: IClientActionResultDto<IDivisionDto> = await divisionApi.update(data, data.updated);
 
             if (result.success) {
                 await onSave();
             } else {
-                setSaveError(result);
+                await setSaveError(result);
             }
         } catch (e) {
             /* istanbul ignore next */
@@ -59,7 +70,7 @@ export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}
             if (result.success) {
                 navigate(`https://${document.location.host}`);
             } else {
-                setSaveError(result);
+                await setSaveError(result);
             }
         } finally {
             setDeleting(false);

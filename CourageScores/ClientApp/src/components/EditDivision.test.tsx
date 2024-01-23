@@ -1,9 +1,23 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../helpers/tests";
 import React from "react";
-import {EditDivision} from "./EditDivision";
-import {divisionBuilder} from "../helpers/builders";
+import {EditDivision, IEditDivisionProps} from "./EditDivision";
+import {divisionBuilder} from "../helpers/builders/divisions";
+import {IEditDivisionDto} from "../interfaces/serverSide/IEditDivisionDto";
+import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
+import {IDivisionApi} from "../api/division";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -13,33 +27,34 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('EditDivision', () => {
-    let context;
-    let reportedError;
-    let closed;
-    let saved;
-    let saveError;
-    let updatedDivision;
-    let alert;
-    let confirm;
-    let confirmResponse;
-    let apiResponse;
-    let deletedId;
-    const divisionApi = {
-        update: (data, lastUpdated) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let saved: boolean;
+    let saveError: IClientActionResultDto<IDivisionDto>;
+    let updatedDivision: {data: IEditDivisionDto, lastUpdated?: string};
+    let alert: string;
+    let confirm: string;
+    let confirmResponse: boolean;
+    let apiResponse: IClientActionResultDto<IDivisionDto>;
+    let deletedId: string;
+    let updatedData: IDivisionDataDto;
+    const divisionApi = api<IDivisionApi>({
+        update: (data: IEditDivisionDto, lastUpdated?: string) => {
             updatedDivision = {data, lastUpdated};
             return apiResponse;
         },
-        delete: (id) => {
+        delete: (id: string) => {
             deletedId = id;
             return apiResponse;
         }
-    }
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
         window.alert = (message) => {
             alert = message
         };
@@ -49,49 +64,55 @@ describe('EditDivision', () => {
         };
         alert = null;
         confirm = null;
-        reportedError = null;
-        closed = false;
         saved = false;
         confirmResponse = false;
         saveError = null;
         updatedDivision = null;
         deletedId = null;
+        updatedData = null;
         apiResponse = {
             success: true,
         };
+    });
+
+    async function onClose() {
+        closed = true;
+    }
+
+    async function onSave() {
+        saved = true;
+    }
+
+    async function setSaveError(err: IClientActionResultDto<IDivisionDto>) {
+        saveError = err;
+    }
+
+    async function onUpdateData(update: IDivisionDataDto) {
+        updatedData = update;
+    }
+
+    async function renderComponent(props: IEditDivisionProps) {
         context = await renderApp(
-            {divisionApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
-            (<EditDivision
-                {...props}
-                onClose={() => closed = true}
-                onSave={() => saved = true}
-                setSaveError={(err) => saveError = err}
-            />));
+            iocProps({divisionApi}),
+            brandingProps(),
+            appProps({}, reportedError),
+            (<EditDivision {...props} />));
     }
 
     it('updates division name', async () => {
         const division = divisionBuilder('DIVISION').build();
-        let updatedData;
         await renderComponent({
             data: division,
-            onUpdateData: (update) => {
-                updatedData = update;
-            }
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
 
         await doChange(context.container, 'input[name="name"]', 'NEW DIVISION NAME', context.user);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedData.id).toEqual(division.id);
         expect(updatedData.name).toEqual('NEW DIVISION NAME');
     });
@@ -100,6 +121,10 @@ describe('EditDivision', () => {
         const division = divisionBuilder('').build();
         await renderComponent({
             data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
 
         await doClick(findButton(context.container, 'Update division'));
@@ -112,12 +137,16 @@ describe('EditDivision', () => {
         const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
 
         await doClick(findButton(context.container, 'Update division'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(alert).toBeNull();
         expect(saved).toEqual(true);
         expect(updatedDivision).not.toBeNull();
@@ -127,15 +156,19 @@ describe('EditDivision', () => {
         const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         apiResponse = {
             success: false
-        }
+        };
 
         await doClick(findButton(context.container, 'Update division'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(saveError).toEqual(apiResponse);
     });
 
@@ -143,8 +176,12 @@ describe('EditDivision', () => {
         const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
 
         await doClick(findButton(context.container, 'Delete division'));
 
@@ -156,13 +193,17 @@ describe('EditDivision', () => {
         const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete division'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(deletedId).toEqual(division.id);
     });
 
@@ -170,8 +211,12 @@ describe('EditDivision', () => {
         const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         confirmResponse = true;
         apiResponse = {
             success: false
@@ -179,7 +224,7 @@ describe('EditDivision', () => {
 
         await doClick(findButton(context.container, 'Delete division'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(deletedId).toEqual(division.id);
         expect(saveError).toEqual(apiResponse);
     });
@@ -188,8 +233,12 @@ describe('EditDivision', () => {
         const division = divisionBuilder('DIVISION').build();
         await renderComponent({
             data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
         });
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete division'));

@@ -1,32 +1,21 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../helpers/tests";
 import React from "react";
-import {PrintDivisionHeading} from "./PrintDivisionHeading";
-import {DivisionDataContainer} from "./DivisionDataContainer";
-import {seasonBuilder} from "../helpers/builders";
+import {IPrintDivisionHeadingProps, PrintDivisionHeading} from "./PrintDivisionHeading";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
+import {seasonBuilder} from "../helpers/builders/seasons";
 
 describe('PrintDivisionHeading', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, divisionData) {
-        reportedError = null;
+    async function renderComponent(props: IPrintDivisionHeadingProps, divisionData : IDivisionDataContainerProps) {
         context = await renderApp(
-            {},
-            {},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                }
-            },
+            iocProps(),
+            brandingProps(),
+            appProps(),
             <DivisionDataContainer {...divisionData}>
                 <PrintDivisionHeading {...props} />
             </DivisionDataContainer>);
@@ -36,7 +25,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no season', async () => {
             await renderComponent({
                 hideDivision: false
-            }, {season: null, name: 'DIVISION'});
+            }, {season: null, name: 'DIVISION'} as any);
 
             expect(context.container.textContent).toEqual('');
         });
@@ -45,7 +34,7 @@ describe('PrintDivisionHeading', () => {
             const season = seasonBuilder('SEASON').build();
             await renderComponent({
                 hideDivision: false
-            }, {season: season, name: null});
+            }, {season: season, name: null} as any);
 
             expect(context.container.textContent).toEqual('');
         });
@@ -54,7 +43,7 @@ describe('PrintDivisionHeading', () => {
             const season = seasonBuilder('SEASON').build();
             await renderComponent({
                 hideDivision: true
-            }, {season: season, name: null});
+            }, {season: season, name: null} as any);
 
             expect(context.container.textContent).toEqual('SEASON');
         });
@@ -62,7 +51,7 @@ describe('PrintDivisionHeading', () => {
 
     describe('when season and division present', () => {
         const season = seasonBuilder('SEASON').build();
-        const divisionData = {season: season, name: 'DIVISION'};
+        const divisionData: IDivisionDataContainerProps = {season: season, name: 'DIVISION'} as any;
 
         it('shows division name', async () => {
             await renderComponent({

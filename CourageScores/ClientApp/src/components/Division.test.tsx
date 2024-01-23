@@ -1,24 +1,44 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, doSelectOption, findButton, renderApp, noop} from "../helpers/tests";
-import {Division} from "./Division";
+import {
+    cleanUp,
+    doClick,
+    doSelectOption,
+    findButton,
+    renderApp,
+    noop,
+    TestContext,
+    iocProps,
+    brandingProps, appProps, ErrorState, api
+} from "../helpers/tests";
+import {Division, IRequestedDivisionDataDto} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
 import {renderDate} from "../helpers/rendering";
-import {
-    divisionBuilder, divisionDataBuilder, playerBuilder,
-    seasonBuilder,
-    teamBuilder
-} from "../helpers/builders";
+import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
+import {ISeasonHealthCheckResultDto} from "../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {IGameDto} from "../interfaces/serverSide/Game/IGameDto";
+import {IDivisionApi} from "../api/division";
+import {ISeasonApi} from "../api/season";
+import {IGameApi} from "../api/game";
+import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
+import {ITeamDto} from "../interfaces/serverSide/Team/ITeamDto";
+import {ITeamPlayerDto} from "../interfaces/serverSide/Team/ITeamPlayerDto";
+import {IApp} from "../interfaces/IApp";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+import {seasonBuilder} from "../helpers/builders/seasons";
+import {divisionBuilder, divisionDataBuilder, IDivisionFixtureDateBuilder} from "../helpers/builders/divisions";
+import {teamBuilder} from "../helpers/builders/teams";
+import {IPlayerPerformanceBuilder, playerBuilder} from "../helpers/builders/players";
+import {IFixtureBuilder} from "../helpers/builders/games";
 
 describe('Division', () => {
-    let context;
-    let reportedError;
-    let divisionDataMap;
-    let dataRequested;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let divisionDataMap: { [key: string]: IRequestedDivisionDataDto };
+    let dataRequested: {divisionId: string, seasonId?: string}[];
 
-    const divisionApi = {
-        data: async (divisionId, seasonId) => {
+    const divisionApi = api<IDivisionApi>({
+        data: async (divisionId: string, seasonId?: string): Promise<IDivisionDataDto> => {
             const key = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
 
             if (!any(Object.keys(divisionDataMap), k => k === key)) {
@@ -28,20 +48,20 @@ describe('Division', () => {
             dataRequested.push({divisionId, seasonId});
             return divisionDataMap[key];
         },
-    };
-    const seasonApi = {
-        getHealth: async () => {
+    });
+    const seasonApi = api<ISeasonApi>({
+        getHealth: async (): Promise<ISeasonHealthCheckResultDto> => {
             return {success: true, checks: {}, messages: [], warnings: [], errors: []};
         },
-    };
-    const gameApi = {
-        update: async () => {
-            return {success: true};
+    });
+    const gameApi = api<IGameApi>({
+        update: async (): Promise<IClientActionResultDto<IGameDto>> => {
+            return ({success: true} as any);
         },
-        delete: async () => {
-            return {success: true};
+        delete: async (): Promise<IClientActionResultDto<IGameDto>> => {
+            return ({success: true} as any);
         }
-    }
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -50,26 +70,14 @@ describe('Division', () => {
     beforeEach(() => {
         dataRequested = [];
         divisionDataMap = {};
-    })
+        reportedError = new ErrorState();
+    });
 
-    async function renderComponent(appProps, route, address) {
-        reportedError = null;
+    async function renderComponent(appContainerProps: IApp, route: string, address: string) {
         context = await renderApp(
-            {divisionApi, seasonApi, gameApi},
-            {name: 'Courage Scores'},
-            {
-                ...appProps,
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps({divisionApi, seasonApi, gameApi}),
+            brandingProps(),
+            appProps(appContainerProps, reportedError),
             (<Division/>),
             route,
             address);
@@ -88,11 +96,11 @@ describe('Division', () => {
                 divisions: [],
                 seasons: [seasonBuilder('SEASON').build()],
                 controls: true,
-            }, '/division/:divisionId', `/division/${divisionId}`);
+            } as any, '/division/:divisionId', `/division/${divisionId}`);
 
-            expect(reportedError).toBeNull();
-            const seasonSelection = context.container.querySelector('.btn-group .btn-group:nth-child(1)');
-            const divisionSelection = context.container.querySelector('.btn-group .btn-group:nth-child(2)');
+            expect(reportedError.hasError()).toEqual(false);
+            const seasonSelection = context.container.querySelector('.btn-group .btn-group:nth-child(1)') as HTMLElement;
+            const divisionSelection = context.container.querySelector('.btn-group .btn-group:nth-child(2)') as HTMLElement;
             expect(seasonSelection.textContent).toContain('Select a season');
             expect(seasonSelection.className).toContain('show');
             expect(divisionSelection.textContent).toContain('All divisions');
@@ -103,11 +111,11 @@ describe('Division', () => {
                 divisions: [],
                 seasons: [seasonBuilder('SEASON').build()],
                 controls: false,
-            }, '/division/:divisionId', `/division/${divisionId}`);
+            } as any, '/division/:divisionId', `/division/${divisionId}`);
 
-            expect(reportedError).toBeNull();
-            const seasonSelection = context.container.querySelector('.btn-group .btn-group:nth-child(1)');
-            const divisionSelection = context.container.querySelector('.btn-group .btn-group:nth-child(2)');
+            expect(reportedError.hasError()).toEqual(false);
+            const seasonSelection = context.container.querySelector('.btn-group .btn-group:nth-child(1)') as HTMLElement;
+            const divisionSelection = context.container.querySelector('.btn-group .btn-group:nth-child(2)') as HTMLElement;
             expect(seasonSelection.textContent).toContain('Select a season');
             expect(seasonSelection.className).toContain('show');
             expect(divisionSelection.textContent).toContain('All divisions');
@@ -115,16 +123,16 @@ describe('Division', () => {
     });
 
     describe('when in season', () => {
-        const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .starting('2023-01-01')
             .ending('2023-06-01')
             .withDivision(division)
             .build();
-        const team = teamBuilder('TEAM_NAME').build();
-        const player = playerBuilder('PLAYER_NAME')
+        const team: ITeamDto = teamBuilder('TEAM_NAME').build();
+        const player: ITeamPlayerDto = playerBuilder('PLAYER_NAME')
             .team(team)
-            .singles(a => a.matchesPlayed(1))
+            .singles((a: IPlayerPerformanceBuilder) => a.matchesPlayed(1))
             .build();
 
         beforeEach(() => {
@@ -143,11 +151,11 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
-                const headings = Array.from(table.querySelectorAll('thead tr th'));
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
+                const headings = Array.from(table.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
                 expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
 
@@ -155,11 +163,11 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/teams`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
-                const headings = Array.from(table.querySelectorAll('thead tr th'));
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
+                const headings = Array.from(table.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
                 expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
 
@@ -167,11 +175,11 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/teams/${season.name}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/teams/${season.name}`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
-                const headings = Array.from(table.querySelectorAll('thead tr th'));
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
+                const headings = Array.from(table.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
                 expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
 
@@ -179,11 +187,11 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
-                const headings = Array.from(table.querySelectorAll('thead tr th'));
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
+                const headings = Array.from(table.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
                 expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
         });
@@ -194,10 +202,10 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     teams: toMap([team]),
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/team:${team.id}/${season.id}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/team:${team.id}/${season.id}`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h3');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
                 expect(heading.textContent).toEqual('TEAM_NAME 🔗');
             });
 
@@ -206,10 +214,10 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     teams: toMap([team]),
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:${team.name}/${season.name}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:${team.name}/${season.name}`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h3');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
                 expect(heading.textContent).toEqual('TEAM_NAME 🔗');
             });
 
@@ -218,10 +226,10 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     teams: toMap([team]),
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:/${season.name}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:/${season.name}`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toContain('⚠ Team could not be found');
             });
 
@@ -230,10 +238,10 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     teams: toMap([team]),
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:UNKNOWN_TEAM/${season.name}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:UNKNOWN_TEAM/${season.name}`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toContain('⚠ Team could not be found');
             });
         });
@@ -243,10 +251,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toContain('No fixtures, yet');
             });
 
@@ -254,10 +262,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/fixtures`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/fixtures`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toContain('No fixtures, yet');
             });
 
@@ -265,10 +273,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/fixtures/${season.name}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/fixtures/${season.name}`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toContain('No fixtures, yet');
             });
 
@@ -276,10 +284,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/fixtures/${season.id}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/fixtures/${season.id}`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toContain('No fixtures, yet');
             });
         });
@@ -289,10 +297,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/players`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/players`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
                 expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
@@ -301,10 +309,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/players`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/players`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
                 expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
@@ -313,10 +321,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.name}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.name}`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
                 expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
@@ -325,10 +333,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.id}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.id}`);
 
-                expect(reportedError).toBeNull();
-                const table = context.container.querySelector('.content-background table.table');
+                expect(reportedError.hasError()).toEqual(false);
+                const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
                 expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
@@ -339,10 +347,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/player:${player.id}`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/player:${player.id}`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h3');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
                 expect(heading.textContent).toContain('PLAYER_NAME');
             });
 
@@ -350,10 +358,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@${team.name}`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@${team.name}`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h3');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
                 expect(heading.textContent).toContain('PLAYER_NAME');
             });
 
@@ -361,10 +369,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@UNKNOWN_TEAM`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@UNKNOWN_TEAM`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h5');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
                 expect(heading.textContent).toContain('⚠ Player could not be found');
             });
 
@@ -372,10 +380,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/player:UNKNOWN_PLAYER@${team.name}`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/player:UNKNOWN_PLAYER@${team.name}`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h5');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
                 expect(heading.textContent).toContain('⚠ Player could not be found');
             });
 
@@ -383,10 +391,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/player:`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/player:`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h5');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
                 expect(heading.textContent).toContain('⚠ Player could not be found');
             });
 
@@ -394,10 +402,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/player:foo`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/player:foo`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background h5');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
                 expect(heading.textContent).toContain('⚠ Player could not be found');
             });
         });
@@ -407,10 +415,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
-                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(reportedError.hasError()).toEqual(false);
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item')) as HTMLElement[];
                 expect(tabs.map(t => t.textContent)).not.toContain('Reports');
             });
 
@@ -423,10 +431,10 @@ describe('Division', () => {
                             runReports: false,
                         }
                     }
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
-                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(reportedError.hasError()).toEqual(false);
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item')) as HTMLElement[];
                 expect(tabs.map(t => t.textContent)).not.toContain('Reports');
             });
 
@@ -440,9 +448,9 @@ describe('Division', () => {
                         }
                     },
                     controls: true,
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
                 expect(tabs.map(t => t.textContent)).toContain('Reports');
             });
@@ -456,10 +464,10 @@ describe('Division', () => {
                             runReports: false,
                         }
                     }
-                }, '/division/:divisionId/:mode', `/division/${division.id}/reports`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/reports`);
 
-                expect(reportedError).toBeNull();
-                const button = context.container.querySelector('.btn.btn-primary');
+                expect(reportedError.hasError()).toEqual(false);
+                const button = context.container.querySelector('.btn.btn-primary') as HTMLButtonElement;
                 expect(button).toBeFalsy();
             });
 
@@ -472,10 +480,10 @@ describe('Division', () => {
                             runReports: true,
                         }
                     }
-                }, '/division/:divisionId/:mode', `/division/${division.id}/reports`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/reports`);
 
-                expect(reportedError).toBeNull();
-                const button = context.container.querySelector('.btn.btn-primary');
+                expect(reportedError.hasError()).toEqual(false);
+                const button = context.container.querySelector('.btn.btn-primary') as HTMLButtonElement;
                 expect(button.textContent).toEqual('📊 Get reports...');
             });
         });
@@ -485,9 +493,9 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
                 expect(tabs.map(t => t.textContent)).not.toContain('Health');
             });
@@ -501,9 +509,9 @@ describe('Division', () => {
                             runHealthChecks: false,
                         }
                     }
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
                 expect(tabs.map(t => t.textContent)).not.toContain('Health');
             });
@@ -518,9 +526,9 @@ describe('Division', () => {
                         }
                     },
                     controls: true,
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
                 expect(tabs.map(t => t.textContent)).toContain('Health');
             });
@@ -534,9 +542,9 @@ describe('Division', () => {
                             runHealthChecks: false,
                         }
                     }
-                }, '/division/:divisionId/:mode', `/division/${division.id}/health`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/health`);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const button = context.container.querySelector('.btn.btn-primary');
                 expect(button).toBeFalsy();
             });
@@ -550,25 +558,25 @@ describe('Division', () => {
                             runHealthChecks: true,
                         }
                     }
-                }, '/division/:divisionId/:mode', `/division/${division.id}/health`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/health`);
 
-                expect(reportedError).toBeNull();
-                const component = context.container.querySelector('div[datatype="health"]');
+                expect(reportedError.hasError()).toEqual(false);
+                const component = context.container.querySelector('div[datatype="health"]') as HTMLElement;
                 expect(component).toBeTruthy();
             });
         });
 
         describe('data errors', () => {
             beforeEach(() => {
-                divisionDataMap[division.id] = {
+                divisionDataMap[division.id] = ({
                     season: season,
                     id: division.id,
                     name: division.name,
                     teams: [],
                     dataErrors: [
-                        'Some error'
+                        'Some error' as any
                     ],
-                };
+                } as any);
             });
 
             it('renders data errors when permitted', async () => {
@@ -576,10 +584,10 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     account: {},
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('h3');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('h3') as HTMLHeadingElement;
                 expect(heading.textContent).toEqual('⚠ Errors in division data');
             });
 
@@ -588,8 +596,8 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     account: {},
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
-                const heading = context.container.querySelector('h3');
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                const heading = context.container.querySelector('h3') as HTMLHeadingElement;
                 expect(heading.textContent).toEqual('⚠ Errors in division data');
 
                 await doClick(findButton(context.container, 'Hide errors'));
@@ -601,10 +609,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('h3');
+                expect(reportedError.hasError()).toEqual(false);
+                const heading = context.container.querySelector('h3') as HTMLHeadingElement;
                 expect(heading).toBeFalsy();
             });
         });
@@ -621,44 +629,44 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     account: {},
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toEqual(`Data for a different division returned, requested: ${division.id}`);
+                expect(reportedError.error).toEqual(`Data for a different division returned, requested: ${division.id}`);
             });
 
             it('when a different season id is returned to requested', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
+                divisionDataMap[division.id + ':' + season.id] = ({
                     season: seasonBuilder('ANOTHER SEASON').build(),
                     id: division.id, // different id to requested
                     name: division.name,
                     teams: [],
-                };
+                } as any);
                 console.log = noop;
 
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
                     account: {},
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
 
-                expect(reportedError).toEqual(`Data for a different season returned, requested: ${season.id}`);
+                expect(reportedError.error).toEqual(`Data for a different season returned, requested: ${season.id}`);
             });
 
             it('renders no data for invalid division name', async () => {
-                divisionDataMap[division.id] = {
+                divisionDataMap[division.id] = ({
                     season: season,
                     id: division.id,
                     name: division.name,
                     teams: []
-                };
+                } as any);
 
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/unknown/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/unknown/teams`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toEqual('No data found');
             });
 
@@ -666,10 +674,10 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/UNKNOWN`);
+                } as any, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/UNKNOWN`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toEqual('No data found');
             });
 
@@ -677,43 +685,43 @@ describe('Division', () => {
                 await renderComponent({
                     divisions: [],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.name}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.name}/teams`);
 
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
+                expect(reportedError.hasError()).toEqual(false);
+                const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.className).toContain('loading-background');
             });
 
             it('renders error when data returns with a status code with errors', async () => {
-                divisionDataMap[division.id] = {
+                divisionDataMap[division.id] = ({
                     status: 500,
                     errors: {
                         key1: 'some error1',
                         key2: 'some error2',
                     },
-                };
+                } as any);
                 console.log = noop;
 
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toEqual('Error accessing division: Code: 500 -- key1: some error1, key2: some error2');
+                expect(reportedError.error).toEqual('Error accessing division: Code: 500 -- key1: some error1, key2: some error2');
             });
 
             it('renders error when data returns with a status code without errors', async () => {
-                divisionDataMap[division.id] = {
+                divisionDataMap[division.id] = ({
                     status: 500,
-                };
+                } as any);
                 console.log = noop;
 
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-                expect(reportedError).toEqual('Error accessing division: Code: 500');
+                expect(reportedError.error).toEqual('Error accessing division: Code: 500');
             });
 
             it('reloads division data when fixture created', async () => {
@@ -725,7 +733,7 @@ describe('Division', () => {
                     .build();
                 divisionDataMap[division.id] = divisionDataBuilder(division)
                     .season(season)
-                    .withFixtureDate(d => d.withFixture(f => f.bye(homeTeam).knockout()), '2023-07-01')
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IFixtureBuilder) => f.bye(homeTeam.address).knockout()), '2023-07-01')
                     .build();
                 await renderComponent({
                     divisions: [division],
@@ -736,17 +744,17 @@ describe('Division', () => {
                         }
                     },
                     teams: [homeTeam, awayTeam],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
                 expect(dataRequested).toEqual([
                     {divisionId: division.id, seasonId: null},
                 ]); // data loaded once
-                expect(reportedError).toBeNull();
-                const fixtureContainer = context.container.querySelector('div[data-fixture-date="2023-07-01"]').parentElement;
+                expect(reportedError.hasError()).toEqual(false);
+                const fixtureContainer = (context.container.querySelector('div[data-fixture-date="2023-07-01"]') as HTMLElement).parentElement as HTMLElement;
 
                 await doSelectOption(fixtureContainer.querySelector('.dropdown-menu'), 'AWAY');
                 await doClick(findButton(fixtureContainer, '💾'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(dataRequested).toEqual([
                     {divisionId: division.id, seasonId: null},
                     {divisionId: division.id, seasonId: null},
@@ -762,7 +770,7 @@ describe('Division', () => {
                     .build();
                 divisionDataMap[division.id] = divisionDataBuilder(division)
                     .season(season)
-                    .withFixtureDate(d => d.withFixture(f => f.playing(homeTeam, awayTeam).knockout()), '2023-07-01')
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture((f: IFixtureBuilder) => f.playing(homeTeam, awayTeam).knockout()), '2023-07-01')
                     .build();
                 await renderComponent({
                     divisions: [division],
@@ -773,17 +781,17 @@ describe('Division', () => {
                         }
                     },
                     teams: [homeTeam, awayTeam],
-                }, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
+                } as any, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
                 expect(dataRequested).toEqual([
                     {divisionId: division.id, seasonId: null},
                 ]); // data loaded once
-                expect(reportedError).toBeNull();
-                const fixtureContainer = context.container.querySelector('div[data-fixture-date="2023-07-01"]').parentElement;
+                expect(reportedError.hasError()).toEqual(false);
+                const fixtureContainer = (context.container.querySelector('div[data-fixture-date="2023-07-01"]') as HTMLElement).parentElement as HTMLElement;
                 window.confirm = () => true;
 
                 await doClick(findButton(fixtureContainer, '🗑'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(dataRequested).toEqual([
                     {divisionId: division.id, seasonId: null},
                     {divisionId: division.id, seasonId: null},
@@ -793,20 +801,20 @@ describe('Division', () => {
     });
 
     describe('rendering options', () => {
-        const division = divisionBuilder('DIVISION').build();
-        const season = seasonBuilder('SEASON')
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const season: ISeasonDto = seasonBuilder('SEASON')
             .starting('2023-01-01')
             .ending('2023-06-01')
             .withDivision(division)
             .build();
 
         beforeEach(() => {
-            divisionDataMap[division.id] = {
+            divisionDataMap[division.id] = ({
                 season: season,
                 id: division.id,
                 name: division.name,
                 teams: []
-            };
+            } as any);
         });
 
         it('does show division controls when not denied', async () => {
@@ -814,9 +822,9 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: true,
-            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+            } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.querySelector('.btn-group')).toBeTruthy();
             expect(context.container.innerHTML).toContain(`${season.name} (${renderDate(season.startDate)} - ${renderDate(season.endDate)})`);
             expect(context.container.innerHTML).toContain(division.name);
@@ -827,9 +835,9 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: true,
-            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+            } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.querySelector('.nav-tabs')).toBeTruthy();
             expect(context.container.innerHTML).toContain('Teams');
             expect(context.container.innerHTML).toContain('Fixtures');
@@ -841,9 +849,9 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: false,
-            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+            } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.querySelector('.btn-group')).toBeFalsy();
         });
 
@@ -852,9 +860,9 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: false,
-            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+            } as any, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.querySelector('.nav-tabs')).toBeFalsy();
         });
     })

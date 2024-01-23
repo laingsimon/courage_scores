@@ -37,7 +37,7 @@ export function About() {
         <table className="table">
             <thead>
             <tr>
-                <th colSpan="2">Version Information</th>
+                <th colSpan={2}>Version Information</th>
             </tr>
             </thead>
             <tbody>
@@ -56,7 +56,7 @@ export function About() {
             </tr>
             <tr>
                 <th>Date</th>
-                <td title={build.date}>{renderDate(build.date)} {new Date(build.date).toLocaleTimeString()}</td>
+                <td title={build.date!}>{renderDate(build.date!)} {new Date(build.date!).toLocaleTimeString()}</td>
             </tr>
             </tbody>
         </table>

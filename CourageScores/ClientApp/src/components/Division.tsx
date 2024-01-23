@@ -18,35 +18,47 @@ import {isGuid} from "../helpers/projection";
 import {EmbedAwareLink} from "./common/EmbedAwareLink";
 import {DivisionHealth} from "./division_health/DivisionHealth";
 import {DataError} from "./DataError";
+import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
+import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionTeamDto} from "../interfaces/serverSide/Division/IDivisionTeamDto";
+import {IDivisionPlayerDto} from "../interfaces/serverSide/Division/IDivisionPlayerDto";
+import {IDataErrorDto} from "../interfaces/serverSide/Division/IDataErrorDto";
+
+export interface IRequestedDivisionDataDto extends IDivisionDataDto {
+    requested?: { divisionId: string, seasonId: string };
+    status?: number;
+    errors?: { [key: string]: string };
+}
 
 export function Division() {
     const INVALID = 'INVALID';
     const {divisionApi} = useDependencies();
     const {account, onError, error, divisions, seasons, controls} = useApp();
     const {divisionId: divisionIdish, mode, seasonId: seasonIdish} = useParams();
-    const [divisionData, setDivisionData] = useState(null);
-    const [overrideDivisionData, setOverrideDivisionData] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [divisionData, setDivisionData] = useState<IRequestedDivisionDataDto | null>(null);
+    const [overrideDivisionData, setOverrideDivisionData] = useState<IDivisionDataDto | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
     const [dataRequested, setDataRequested] = useState(false);
     const effectiveTab = mode || 'teams';
-    const [dataErrors, setDataErrors] = useState(null);
+    const [dataErrors, setDataErrors] = useState<IDataErrorDto[] | null>(null);
     const divisionId = getDivisionId(divisionIdish);
     const seasonId = getSeasonId(seasonIdish);
 
-    function getDivisionId(idish) {
+    function getDivisionId(idish?: string) {
         if (isGuid(idish)) {
             return idish;
         }
 
-        if (!divisions || !any(divisions)) {
+        if (!divisions || !any(divisions) || !idish) {
             return null;
         }
 
-        const division = divisions.filter(d => d.name.toLowerCase() === idish.toLowerCase())[0];
+        const division = divisions.filter((d: IDivisionDto) => d.name.toLowerCase() === idish.toLowerCase())[0];
         return division ? division.id : INVALID;
     }
 
-    function getSeasonId(idish) {
+    function getSeasonId(idish?: string) {
         if (isGuid(idish)) {
             return idish;
         }
@@ -55,11 +67,11 @@ export function Division() {
             return null;
         }
 
-        const season = seasons.filter(d => d.name.toLowerCase() === idish.toLowerCase())[0];
+        const season = seasons.filter((s: ISeasonDto) => s.name.toLowerCase() === idish.toLowerCase())[0];
         return season ? season.id : INVALID;
     }
 
-    function getPlayerId(idish) {
+    function getPlayerId(idish?: string) {
         if (isGuid(idish)) {
             return idish;
         }
@@ -77,17 +89,17 @@ export function Division() {
         const playerName = match[1];
         const teamName = match[2];
 
-        const team = divisionData.teams.filter(t => t.name.toLowerCase() === teamName.toLowerCase())[0];
+        const team = divisionData.teams.filter((t: IDivisionTeamDto) => t.name.toLowerCase() === teamName.toLowerCase())[0];
         if (!team) {
             // team not found
             return idish;
         }
 
-        const teamPlayer = divisionData.players.filter(p => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
+        const teamPlayer = divisionData.players.filter((p: IDivisionPlayerDto) => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
         return teamPlayer ? teamPlayer.id : INVALID;
     }
 
-    function getTeamId(idish) {
+    function getTeamId(idish?: string) {
         if (isGuid(idish)) {
             return idish;
         }
@@ -96,11 +108,11 @@ export function Division() {
             return null;
         }
 
-        const team = divisionData.teams.filter(t => t.name.toLowerCase() === idish.toLowerCase())[0];
+        const team = divisionData.teams.filter((t: IDivisionTeamDto) => t.name.toLowerCase() === idish.toLowerCase())[0];
         return team ? team.id : INVALID;
     }
 
-    async function reloadDivisionData(preventReloadIfIdsAreTheSame) {
+    async function reloadDivisionData(preventReloadIfIdsAreTheSame?: boolean) {
         try {
             if (divisionData && divisionData.requested && divisionData.requested.divisionId === divisionId && divisionData.requested.seasonId === seasonId) {
                 // repeated call... don't request the data
@@ -109,7 +121,7 @@ export function Division() {
                 }
             }
 
-            const newDivisionData = await divisionApi.data(divisionId, seasonId);
+            const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(divisionId, seasonId);
             newDivisionData.requested = {
                 divisionId,
                 seasonId,
@@ -118,7 +130,7 @@ export function Division() {
             if (newDivisionData.status) {
                 /* istanbul ignore next */
                 console.log(newDivisionData);
-                const suffix = newDivisionData.errors ? ' -- ' + Object.keys(newDivisionData.errors).map(key => `${key}: ${newDivisionData.errors[key]}`).join(', ') : '';
+                const suffix = newDivisionData.errors ? ' -- ' + Object.keys(newDivisionData.errors).map(key => `${key}: ${newDivisionData.errors![key]}`).join(', ') : '';
                 onError(`Error accessing division: Code: ${newDivisionData.status}${suffix}`);
             } else if (newDivisionData.id !== divisionId) {
                 /* istanbul ignore next */
@@ -257,7 +269,7 @@ export function Division() {
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
             </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData}
-                                              setDivisionData={setOverrideDivisionData}>
+                                              setDivisionData={async (data: IDivisionDataDto) => setOverrideDivisionData(data)}>
                 {effectiveTab === 'teams' && divisionDataToUse.season
                     ? (<DivisionTeams/>)
                     : null}

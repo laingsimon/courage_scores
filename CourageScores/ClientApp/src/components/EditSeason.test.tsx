@@ -1,9 +1,25 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../helpers/tests";
 import React from "react";
-import {EditSeason} from "./EditSeason";
-import {divisionBuilder, seasonBuilder} from "../helpers/builders";
+import {EditSeason, IEditSeasonProps} from "./EditSeason";
+import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
+import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
+import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
+import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {ISeasonApi} from "../api/season";
+import {divisionBuilder} from "../helpers/builders/divisions";
+import {seasonBuilder} from "../helpers/builders/seasons";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -13,33 +29,33 @@ jest.mock('react-router-dom', () => ({
 }));
 
 describe('EditSeason', () => {
-    let context;
-    let reportedError;
-    let closed;
-    let saved;
-    let saveError;
-    let updatedSeason;
-    let alert;
-    let confirm;
-    let confirmResponse;
-    let apiResponse;
-    let deletedId;
-    const seasonApi = {
-        update: (data, lastUpdated) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let saved: boolean;
+    let saveError: IClientActionResultDto<ISeasonDto>;
+    let updatedSeason: { data: IEditSeasonDto, lastUpdated?: string };
+    let alert: string;
+    let confirm: string;
+    let confirmResponse: boolean;
+    let apiResponse: IClientActionResultDto<ISeasonDto>;
+    let deletedId: string;
+    const seasonApi = api<ISeasonApi>({
+        update: async (data: IEditSeasonDto, lastUpdated?: string): Promise<IClientActionResultDto<ISeasonDto>> => {
             updatedSeason = {data, lastUpdated};
             return apiResponse;
         },
-        delete: (id) => {
+        delete: async (id: string): Promise<IClientActionResultDto<ISeasonDto>> => {
             deletedId = id;
             return apiResponse;
         }
-    }
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, seasons, divisions) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
         window.alert = (message) => {
             alert = message
         };
@@ -49,8 +65,6 @@ describe('EditSeason', () => {
         };
         alert = null;
         confirm = null;
-        reportedError = null;
-        closed = false;
         saved = false;
         confirmResponse = false;
         saveError = null;
@@ -58,25 +72,22 @@ describe('EditSeason', () => {
         deletedId = null;
         apiResponse = {
             success: true,
-        };
+        } as any;
+    });
+
+    async function renderComponent(props: IEditSeasonProps, seasons: ISeasonDto[], divisions: IDivisionDto[]) {
         context = await renderApp(
-            {seasonApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({seasonApi}),
+            brandingProps(),
+            appProps({
                 seasons,
                 divisions
-            },
+            }, reportedError),
             (<EditSeason
                 {...props}
-                onClose={() => closed = true}
-                onSave={() => saved = true}
-                setSaveError={(err) => saveError = err}
+                onClose={async () => closed = true}
+                onSave={async () => saved = true}
+                setSaveError={async (err: IClientActionResultDto<ISeasonDto>) => saveError = err}
             />));
     }
 
@@ -91,79 +102,79 @@ describe('EditSeason', () => {
     const divisions = [division1, division2];
 
     it('updates season name', async () => {
-        let updatedData;
+        let updatedData: IEditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: (update) => {
+            onUpdateData: (update: IEditSeasonDto) => {
                 updatedData = update;
             }
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
 
         await doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME', context.user);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.name).toEqual('NEW SEASON NAME');
     });
 
     it('updates season dates', async () => {
-        let updatedData;
+        let updatedData: IEditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: (update) => {
+            onUpdateData: (update: IEditSeasonDto) => {
                 updatedData = update;
             }
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
 
         await doChange(context.container, 'input[name="startDate"]', '2023-06-01', context.user);
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.startDate).toEqual('2023-06-01');
 
         await doChange(context.container, 'input[name="endDate"]', '2023-09-01', context.user);
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.endDate).toEqual('2023-09-01');
     });
 
     it('can select a division', async () => {
-        let updatedData;
+        let updatedData: IEditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: (update) => {
+            onUpdateData: (update: IEditSeasonDto) => {
                 updatedData = update;
             }
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
         const unselectedDivision = divisionOptions.filter(d => d.className.indexOf('active') === -1)[0];
         expect(unselectedDivision.textContent).toEqual(division2.name);
         await doClick(unselectedDivision);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.divisionIds).toEqual([division1.id, division2.id]);
     });
 
     it('can unselect a division', async () => {
-        let updatedData;
+        let updatedData: IEditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: (update) => {
+            onUpdateData: (update: IEditSeasonDto) => {
                 updatedData = update;
             }
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
         const selectedDivision = divisionOptions.filter(d => d.className.indexOf('active') !== -1)[0];
         expect(selectedDivision.textContent).toEqual(division1.name);
         await doClick(selectedDivision);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.divisionIds).toEqual([]);
     });
@@ -172,18 +183,18 @@ describe('EditSeason', () => {
         const seasonWithoutId = Object.assign({}, season);
         seasonWithoutId.id = null;
         const otherSeason = seasonBuilder('OTHER SEASON').build();
-        let updatedData;
+        let updatedData: IEditSeasonDto;
         await renderComponent({
             data: seasonWithoutId,
-            onUpdateData: (update) => {
+            onUpdateData: (update: IEditSeasonDto) => {
                 updatedData = update;
             }
-        }, [otherSeason], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [otherSeason], divisions);
+        expect(reportedError.hasError()).toEqual(false);
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(updatedData.copyTeamsFromSeasonId).toEqual(otherSeason.id);
     });
 
@@ -192,7 +203,7 @@ describe('EditSeason', () => {
         seasonWithoutName.name = '';
         await renderComponent({
             data: seasonWithoutName,
-        }, [seasonWithoutName], divisions);
+        } as any, [seasonWithoutName], divisions);
 
         await doClick(findButton(context.container, 'Update season'));
 
@@ -203,12 +214,12 @@ describe('EditSeason', () => {
     it('saves season updates', async () => {
         await renderComponent({
             data: season,
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
 
         await doClick(findButton(context.container, 'Update season'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(alert).toBeNull();
         expect(saved).toEqual(true);
         expect(updatedSeason).not.toBeNull();
@@ -217,23 +228,23 @@ describe('EditSeason', () => {
     it('reports saveError if an error during save', async () => {
         await renderComponent({
             data: season,
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
         apiResponse = {
             success: false
-        }
+        } as any;
 
         await doClick(findButton(context.container, 'Update season'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(saveError).toEqual(apiResponse);
     });
 
     it('confirms if season should be deleted', async () => {
         await renderComponent({
             data: season,
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
 
         await doClick(findButton(context.container, 'Delete season'));
 
@@ -244,29 +255,29 @@ describe('EditSeason', () => {
     it('deletes season', async () => {
         await renderComponent({
             data: season,
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete season'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(deletedId).toEqual(season.id);
     });
 
     it('reports saveError if season cannot be deleted', async () => {
         await renderComponent({
             data: season,
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
         confirmResponse = true;
         apiResponse = {
             success: false
-        };
+        } as any;
 
         await doClick(findButton(context.container, 'Delete season'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(deletedId).toEqual(season.id);
         expect(saveError).toEqual(apiResponse);
     });
@@ -274,8 +285,8 @@ describe('EditSeason', () => {
     it('navigates to home when season deleted', async () => {
         await renderComponent({
             data: season,
-        }, [season], divisions);
-        expect(reportedError).toBeNull();
+        } as any, [season], divisions);
+        expect(reportedError.hasError()).toEqual(false);
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete season'));
