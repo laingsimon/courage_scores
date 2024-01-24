@@ -1,31 +1,47 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp, doChange} from "../../../helpers/tests";
+import {
+    cleanUp,
+    doClick,
+    findButton,
+    renderApp,
+    doChange,
+    iocProps,
+    brandingProps,
+    appProps, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {LegStatistics} from "./LegStatistics";
-import {legBuilder} from "../../../helpers/builders";
+import {ILegStatisticsProps, LegStatistics} from "./LegStatistics";
+import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
+import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
 
 describe('LegStatistics', () => {
-    let context;
-    let newLegDisplayOptions;
+    let context: TestContext;
+    let newLegDisplayOptions: ILegDisplayOptions;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    beforeEach(() => {
         newLegDisplayOptions = null;
+    });
+
+    async function updateLegDisplayOptions(op: ILegDisplayOptions) {
+        newLegDisplayOptions = op;
+    }
+
+    async function renderComponent(props: ILegStatisticsProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {},
-            <LegStatistics {...props} updateLegDisplayOptions={op => newLegDisplayOptions = op} />,
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            <LegStatistics {...props} />,
             null,
             null,
             'tbody');
     }
 
-    function getCellContent(tr) {
+    function getCellContent(tr: HTMLTableRowElement) {
         return Array.from(tr.querySelectorAll('td')).map(td => {
             let content = td.textContent;
 
@@ -47,13 +63,17 @@ describe('LegStatistics', () => {
         it('when no darts thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(0))
-                    .away(c => c.noOfDarts(0))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
                     .build(),
                 legDisplayOptions: {
                     showThrows: false,
                     showAverage: false,
                 },
+                home: 'HOME',
+                away: 'AWAY',
+                legNumber: 1,
+                updateLegDisplayOptions,
             });
 
             expect(context.container.innerHTML).toEqual('');
@@ -62,8 +82,8 @@ describe('LegStatistics', () => {
         it('2 player match without winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100))
-                    .away(c => c.noOfDarts(3).score(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -75,6 +95,7 @@ describe('LegStatistics', () => {
                     showThrows: false,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -88,8 +109,8 @@ describe('LegStatistics', () => {
         it('2 player match with home winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50))
                     .startingScore(501)
                     .winner('home')
                     .build(),
@@ -102,6 +123,7 @@ describe('LegStatistics', () => {
                     showThrows: false,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -115,8 +137,8 @@ describe('LegStatistics', () => {
         it('2 player match away winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -129,6 +151,7 @@ describe('LegStatistics', () => {
                     showThrows: false,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -142,7 +165,7 @@ describe('LegStatistics', () => {
         it('single player match with winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
                     .away({})
                     .startingScore(501)
                     .winner('home')
@@ -156,6 +179,7 @@ describe('LegStatistics', () => {
                     showThrows: false,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -168,7 +192,7 @@ describe('LegStatistics', () => {
         it('single player match without winner', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
                     .away({})
                     .startingScore(501)
                     .build(),
@@ -181,6 +205,7 @@ describe('LegStatistics', () => {
                     showThrows: false,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -193,8 +218,8 @@ describe('LegStatistics', () => {
         it('2 player throws', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50))
                     .startingScore(100)
                     .winner('away')
                     .build(),
@@ -207,6 +232,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -218,8 +244,8 @@ describe('LegStatistics', () => {
         it('2 player match with bust scores', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(120, true))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(120, true))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50))
                     .startingScore(100)
                     .winner('away')
                     .build(),
@@ -232,6 +258,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -243,8 +270,8 @@ describe('LegStatistics', () => {
         it('2 player match with 180s', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(180))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(180))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50))
                     .startingScore(200)
                     .winner('away')
                     .build(),
@@ -257,6 +284,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -268,8 +296,8 @@ describe('LegStatistics', () => {
         it('2 player match with no throws', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100))
-                    .away(c => c.noOfDarts(3).score(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -281,6 +309,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = context.container.querySelector('tr td:nth-child(2) p');
@@ -292,7 +321,7 @@ describe('LegStatistics', () => {
         it('single player throws', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
                     .away({})
                     .startingScore(501)
                     .winner('away')
@@ -306,6 +335,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -315,8 +345,8 @@ describe('LegStatistics', () => {
         it('averages', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -329,6 +359,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: true,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -340,8 +371,8 @@ describe('LegStatistics', () => {
         it('2 player averages when only home player has thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(0).score(0))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0).score(0))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -353,6 +384,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: true,
                 },
+                updateLegDisplayOptions,
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td > span'));
@@ -365,8 +397,8 @@ describe('LegStatistics', () => {
         it('2 player averages when only away player has thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(0).score(0))
-                    .away(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0).score(0))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -378,6 +410,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: true,
                 },
+                updateLegDisplayOptions,
             });
 
             const cells = Array.from(context.container.querySelectorAll('tr td > span'));
@@ -390,8 +423,8 @@ describe('LegStatistics', () => {
         it('no of darts', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -404,6 +437,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -415,8 +449,8 @@ describe('LegStatistics', () => {
         it('1-dart averages', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -429,6 +463,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: true,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -442,8 +477,8 @@ describe('LegStatistics', () => {
         it('can expand 2 player statistics', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50))
                     .startingScore(100)
                     .winner('away')
                     .build(),
@@ -456,6 +491,7 @@ describe('LegStatistics', () => {
                     showThrows: false,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
             const firstCell = context.container.querySelector('tr td:first-child');
 
@@ -470,8 +506,8 @@ describe('LegStatistics', () => {
         it('can toggle expanded statistics to show averages', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -484,6 +520,7 @@ describe('LegStatistics', () => {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
             const firstCell = context.container.querySelector('tr td:first-child');
 
@@ -498,8 +535,8 @@ describe('LegStatistics', () => {
         it('can open change throw dialog', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -508,11 +545,12 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: true,
-                onChangeLeg: () => {},
+                onChangeLeg: async () => {},
                 legDisplayOptions: {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
@@ -524,8 +562,8 @@ describe('LegStatistics', () => {
         it('can close change throw dialog', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -534,11 +572,12 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: true,
-                onChangeLeg: () => {},
+                onChangeLeg: async () => {},
                 legDisplayOptions: {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
             await doClick(homeThrows[0]);
@@ -550,11 +589,11 @@ describe('LegStatistics', () => {
         });
 
         it('can change throw', async () => {
-            let newLeg;
+            let newLeg: ILegDto;
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -563,11 +602,12 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: true,
-                onChangeLeg: (value) => newLeg = value,
+                onChangeLeg: async (value: ILegDto) => newLeg = value,
                 legDisplayOptions: {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
             await doClick(homeThrows[0]);
@@ -588,11 +628,11 @@ describe('LegStatistics', () => {
         });
 
         it('removes throw when noOfDarts set to 0', async () => {
-            let newLeg;
+            let newLeg: ILegDto;
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -601,11 +641,12 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: true,
-                onChangeLeg: (value) => newLeg = value,
+                onChangeLeg: async (value: ILegDto) => newLeg = value,
                 legDisplayOptions: {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
             await doClick(homeThrows[0]);
@@ -624,8 +665,8 @@ describe('LegStatistics', () => {
         it('cannot change throw when no handler', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home(c => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away(c => c.noOfDarts(3).score(50).withThrow(50, false, 3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(50).withThrow(50, false, 3))
                     .startingScore(501)
                     .winner('away')
                     .build(),
@@ -634,11 +675,11 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: true,
-                onChangeLeg: null,
                 legDisplayOptions: {
                     showThrows: true,
                     showAverage: false,
                 },
+                updateLegDisplayOptions,
             });
 
             const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));

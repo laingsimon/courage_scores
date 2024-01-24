@@ -1,4 +1,10 @@
-export function WidescreenSaygPlayerHeading({ name, score, scoreFirst }) {
+export interface IWidescreenSaygPlayerHeadingProps {
+    name: string;
+    score: number;
+    scoreFirst?: boolean;
+}
+
+export function WidescreenSaygPlayerHeading({ name, score, scoreFirst }: IWidescreenSaygPlayerHeadingProps) {
     const scoreElement = <h1 className="flex-grow-0 text-center px-3 text-dark">
         {score}
     </h1>;

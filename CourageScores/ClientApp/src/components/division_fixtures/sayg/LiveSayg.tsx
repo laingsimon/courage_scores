@@ -1,9 +1,10 @@
 import {useParams} from "react-router-dom";
 import {SaygLoadingContainer} from "./SaygLoadingContainer";
+import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 
 export function LiveSayg() {
     const { id } = useParams();
-    const liveOptions = {
+    const liveOptions: ILiveOptions = {
         publish: false,
         canSubscribe: true,
         subscribeAtStartup: [id],

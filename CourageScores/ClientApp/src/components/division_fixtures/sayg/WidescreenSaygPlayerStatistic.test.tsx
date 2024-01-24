@@ -1,55 +1,44 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, iocProps, brandingProps, appProps, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {WidescreenSaygPlayerStatistic} from "./WidescreenSaygPlayerStatistic";
-import {saygBuilder} from "../../../helpers/builders";
+import {IWidescreenSaygPlayerStatisticProps, WidescreenSaygPlayerStatistic} from "./WidescreenSaygPlayerStatistic";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
 
 describe('WidescreenSaygPlayerStatistic', () => {
-    let context;
-    let reportedError;
-    let newOneDartAverage;
+    let context: TestContext;
+    let newOneDartAverage: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function setOneDartAverage(newValue) {
+    beforeEach(() => {
+        newOneDartAverage = null;
+    });
+
+    async function setOneDartAverage(newValue: boolean) {
         newOneDartAverage = newValue;
     }
 
-    async function renderComponent(props) {
-        reportedError = null;
-        newOneDartAverage = null;
+    async function renderComponent(props: IWidescreenSaygPlayerStatisticProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
-            <WidescreenSaygPlayerStatistic {...props} setOneDartAverage={setOneDartAverage} />);
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            <WidescreenSaygPlayerStatistic {...props} />);
     }
 
     describe('renders', () => {
-        let legs;
+        let legs: { [legKey: number]: ILegDto };
 
         beforeEach(() => {
             const sayg = saygBuilder()
-                .withLeg('0', l => l
-                    .home(c => c.score(100).noOfDarts(3))
-                    .away(c => c.score(101).noOfDarts(4)))
-                .withLeg('1', l => l
-                    .home(c => c.score(102).noOfDarts(5))
-                    .away(c => c.score(103).noOfDarts(6)))
+                .withLeg(0, (l: ILegBuilder) => l
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(101).noOfDarts(4)))
+                .withLeg(1, (l: ILegBuilder) => l
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(102).noOfDarts(5))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(103).noOfDarts(6)))
                 .build();
 
             legs = sayg.legs;
@@ -60,6 +49,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs,
                 player: 'home',
                 oneDartAverage: true,
+                setOneDartAverage,
             });
 
             expect(context.container.textContent).toContain('Darts5');
@@ -72,6 +62,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs,
                 player: 'home',
                 oneDartAverage: true,
+                setOneDartAverage,
             });
 
             expect(context.container.textContent).toContain('Leg Avg-');
@@ -82,6 +73,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs,
                 player: 'home',
                 oneDartAverage: false,
+                setOneDartAverage,
             });
 
             expect(context.container.textContent).toContain('Leg Avg61.2');
@@ -93,6 +85,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs,
                 player: 'home',
                 oneDartAverage: true,
+                setOneDartAverage,
             });
 
             expect(context.container.textContent).toContain('Leg Avg20.4');
@@ -106,6 +99,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs,
                 player: 'home',
                 oneDartAverage: true,
+                setOneDartAverage,
             });
 
             expect(context.container.textContent).toContain('Match Avg-');
@@ -116,6 +110,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs,
                 player: 'home',
                 oneDartAverage: false,
+                setOneDartAverage,
             });
 
             expect(context.container.textContent).toContain('Match Avg75.75');
@@ -127,6 +122,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs,
                 player: 'home',
                 oneDartAverage: true,
+                setOneDartAverage,
             });
 
             expect(context.container.textContent).toContain('Match Avg25.25');
@@ -136,12 +132,12 @@ describe('WidescreenSaygPlayerStatistic', () => {
 
     describe('interactivity', () => {
         const sayg = saygBuilder()
-            .withLeg('0', l => l
-                .home(c => c.score(100).noOfDarts(3))
-                .away(c => c.score(101).noOfDarts(4)))
-            .withLeg('1', l => l
-                .home(c => c.score(102).noOfDarts(5))
-                .away(c => c.score(103).noOfDarts(6)))
+            .withLeg(0, (l: ILegBuilder) => l
+                .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.score(101).noOfDarts(4)))
+            .withLeg(1, (l: ILegBuilder) => l
+                .home((c: ILegCompetitorScoreBuilder) => c.score(102).noOfDarts(5))
+                .away((c: ILegCompetitorScoreBuilder) => c.score(103).noOfDarts(6)))
             .build();
 
         it('can change to 1 dart average', async () => {
@@ -149,6 +145,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs: sayg.legs,
                 player: 'home',
                 oneDartAverage: false,
+                setOneDartAverage,
             });
             expect(context.container.querySelector('sup').textContent).toEqual('3');
 
@@ -162,6 +159,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
                 legs: sayg.legs,
                 player: 'home',
                 oneDartAverage: true,
+                setOneDartAverage,
             });
             expect(context.container.querySelector('sup').textContent).toEqual('1');
 

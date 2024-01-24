@@ -1,20 +1,18 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
+import {api, appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
-import {SaygLoadingContainer} from "./SaygLoadingContainer";
-import {saygBuilder} from "../../../helpers/builders";
+import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {ISaygApi} from "../../../api/sayg";
 
 describe('WidescreenMatchStatistics', () => {
-    let context;
-    let reportedError;
-    let saygData;
-    const saygApi = {
-        get: async (id) => {
+    let context: TestContext;
+    let saygData: { [id: string]: IRecordedScoreAsYouGoDto };
+    const saygApi = api<ISaygApi>({
+        get: async (id: string) => {
             return saygData[id];
         },
-    };
+    });
 
     beforeEach(() => {
         saygData = {};
@@ -24,30 +22,18 @@ describe('WidescreenMatchStatistics', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(saygProps) {
-        reportedError = null;
+    async function renderComponent(saygProps: ISaygLoadingContainerProps) {
         context = await renderApp(
-            {saygApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps({saygApi}),
+            brandingProps(),
+            appProps(),
             <SaygLoadingContainer {...saygProps} />,
             '/test',
             '/test?widescreen=true');
     }
 
     describe('single player', () => {
-        let sayg;
+        let sayg: IRecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -55,7 +41,7 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName(null)
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l.startingScore(501).home(c => c.score(100).noOfDarts(3)))
+                .withLeg(0, (l: ILegBuilder) => l.startingScore(501).home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)))
                 .addTo(saygData)
                 .build();
         });
@@ -144,7 +130,7 @@ describe('WidescreenMatchStatistics', () => {
     });
 
     describe('multi player', () => {
-        let sayg;
+        let sayg: IRecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -152,10 +138,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .addTo(saygData)
                 .build();
         });
@@ -293,10 +279,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(3, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(501).noOfDarts(3))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(501).noOfDarts(3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .addTo(saygData)
                 .build();
 
@@ -319,10 +305,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 3)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3))
-                    .away(c => c.score(501).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(501).noOfDarts(6)))
                 .addTo(saygData)
                 .build();
 
@@ -341,7 +327,7 @@ describe('WidescreenMatchStatistics', () => {
     });
 
     describe('interactivity', () => {
-        let sayg;
+        let sayg: IRecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -349,10 +335,10 @@ describe('WidescreenMatchStatistics', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .addTo(saygData)
                 .build();
         });

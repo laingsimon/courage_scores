@@ -2,7 +2,15 @@ import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
 import React from "react";
 
-export function MatchAverage({homeAverage, awayAverage, singlePlayer, oneDartAverage, setOneDartAverage}) {
+export interface IMatchAverageProps {
+    homeAverage: number;
+    awayAverage: number;
+    singlePlayer?: boolean;
+    oneDartAverage?: boolean;
+    setOneDartAverage: (onDartAverage: boolean) => Promise<any>;
+}
+
+export function MatchAverage({homeAverage, awayAverage, singlePlayer, oneDartAverage, setOneDartAverage}: IMatchAverageProps) {
     if (!homeAverage && !awayAverage) {
         return null;
     }

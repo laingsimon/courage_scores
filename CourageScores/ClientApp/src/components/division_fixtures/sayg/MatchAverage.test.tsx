@@ -1,26 +1,29 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
+import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {MatchAverage} from "./MatchAverage";
+import {IMatchAverageProps, MatchAverage} from "./MatchAverage";
 
 describe('MatchAverage', () => {
-    let context;
-    let oneDartAverage;
+    let context: TestContext;
+    let oneDartAverage: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    beforeEach(() => {
         oneDartAverage = null;
+    });
+
+    async function setOneDartAverage(newValue: boolean) {
+        oneDartAverage = newValue;
+    }
+
+    async function renderComponent(props: IMatchAverageProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {},
-            <MatchAverage
-                {...props}
-                setOneDartAverage={(value) => oneDartAverage = value}/>,
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            <MatchAverage {...props} />,
             null,
             null,
             'tbody');
@@ -31,7 +34,8 @@ describe('MatchAverage', () => {
             homeAverage: null,
             awayAverage: null,
             singlePlayer: null,
-            oneDartAverage: false
+            oneDartAverage: false,
+            setOneDartAverage,
         });
 
         expect(context.container.innerHTML).toEqual('');
@@ -42,7 +46,8 @@ describe('MatchAverage', () => {
             homeAverage: 30.3333,
             awayAverage: 20.5555,
             singlePlayer: null,
-            oneDartAverage: false
+            oneDartAverage: false,
+            setOneDartAverage,
         });
 
         const homeAverage = context.container.querySelector('td:nth-child(2)');
@@ -56,7 +61,8 @@ describe('MatchAverage', () => {
             homeAverage: 30.3333,
             awayAverage: 20.5555,
             singlePlayer: null,
-            oneDartAverage: true
+            oneDartAverage: true,
+            setOneDartAverage,
         });
 
         const homeAverage = context.container.querySelector('td:nth-child(2)');
@@ -70,7 +76,8 @@ describe('MatchAverage', () => {
             homeAverage: 30.3333,
             awayAverage: null,
             singlePlayer: true,
-            oneDartAverage: false
+            oneDartAverage: false,
+            setOneDartAverage,
         });
 
         const homeAverage = context.container.querySelector('td:nth-child(2)');
@@ -84,7 +91,8 @@ describe('MatchAverage', () => {
             homeAverage: 30.3333,
             awayAverage: Number.NaN,
             singlePlayer: false,
-            oneDartAverage: false
+            oneDartAverage: false,
+            setOneDartAverage,
         });
 
         const awayAverage = context.container.querySelector('td:nth-child(3)');
@@ -96,7 +104,8 @@ describe('MatchAverage', () => {
             homeAverage: 30.3333,
             awayAverage: 20.5555,
             singlePlayer: null,
-            oneDartAverage: false
+            oneDartAverage: false,
+            setOneDartAverage,
         });
 
         const homeAverage = context.container.querySelector('td:nth-child(2)');
@@ -110,7 +119,8 @@ describe('MatchAverage', () => {
             homeAverage: 20.5555,
             awayAverage: 30.3333,
             singlePlayer: null,
-            oneDartAverage: false
+            oneDartAverage: false,
+            setOneDartAverage,
         });
 
         const homeAverage = context.container.querySelector('td:nth-child(2)');
@@ -124,9 +134,10 @@ describe('MatchAverage', () => {
             homeAverage: 30.3333,
             awayAverage: 20.5555,
             singlePlayer: null,
-            oneDartAverage: true
+            oneDartAverage: true,
+            setOneDartAverage,
         });
-        const toggle = context.container.querySelector('input[id="oneDartAverage"]');
+        const toggle = context.container.querySelector('input[id="oneDartAverage"]') as HTMLInputElement;
         expect(toggle.checked).toEqual(true);
 
         await doClick(toggle);

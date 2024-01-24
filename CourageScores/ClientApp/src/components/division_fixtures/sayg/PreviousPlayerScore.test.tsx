@@ -1,27 +1,39 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, renderApp, findButton} from "../../../helpers/tests";
+import {
+    cleanUp,
+    doClick,
+    renderApp,
+    findButton,
+    iocProps,
+    brandingProps,
+    appProps,
+    TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {PreviousPlayerScore} from "./PreviousPlayerScore";
-import {legBuilder} from "../../../helpers/builders";
+import {IPreviousPlayerScoreProps, PreviousPlayerScore} from "./PreviousPlayerScore";
+import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
 
 describe('PreviousPlayerScore', () => {
-    let context;
-    let lastThrowUndone;
+    let context: TestContext;
+    let lastThrowUndone: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    beforeEach(() => {
         lastThrowUndone = false;
+    });
+
+    async function undoLastThrow() {
+        lastThrowUndone = true;
+    }
+
+    async function renderComponent(props: IPreviousPlayerScoreProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {},
-            <PreviousPlayerScore
-                {...props}
-                undoLastThrow={() => lastThrowUndone = true}/>);
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            <PreviousPlayerScore {...props} />);
     }
 
     it('renders nothing when no opponent score', async () => {
@@ -31,9 +43,10 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).noOfDarts(6))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).noOfDarts(6))
                 .build(),
+            undoLastThrow,
         });
 
         expect(context.container.innerHTML).toEqual('');
@@ -46,9 +59,10 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
                 .build(),
+            undoLastThrow,
         });
 
         const opponentScore = context.container.querySelector('p:nth-child(2)');
@@ -62,9 +76,10 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
                 .build(),
+            undoLastThrow,
         });
 
         const opponentStatistics = context.container.querySelector('p:nth-child(3)');
@@ -78,9 +93,10 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
                 .build(),
+            undoLastThrow,
         });
 
         const opponentStatistics = context.container.querySelector('p:nth-child(3)');
@@ -94,11 +110,12 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
                 .build(),
+            undoLastThrow,
         });
-        let confirm;
+        let confirm: string;
         window.confirm = (message) => {
             confirm = message;
             return true;
@@ -117,9 +134,10 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
                 .build(),
+            undoLastThrow,
         });
         window.confirm = () => false;
 
@@ -135,9 +153,10 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
                 .build(),
+            undoLastThrow,
         });
 
         const opponentLastThrow = context.container.querySelector('p:nth-child(4)');
@@ -151,9 +170,10 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6).bust())
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6).bust())
                 .build(),
+            undoLastThrow,
         });
 
         const opponentLastThrow = context.container.querySelector('p:nth-child(4)');
@@ -167,11 +187,12 @@ describe('PreviousPlayerScore', () => {
             leg: legBuilder()
                 .currentThrow('home')
                 .startingScore(501)
-                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
                 .build(),
+            undoLastThrow,
         });
-        let confirm;
+        let confirm: string;
         window.confirm = (message) => {
             confirm = message;
             return true;

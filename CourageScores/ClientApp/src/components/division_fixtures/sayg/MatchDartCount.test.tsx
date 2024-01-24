@@ -1,23 +1,20 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {MatchDartCount} from "./MatchDartCount";
+import {IMatchDartCountProps, MatchDartCount} from "./MatchDartCount";
 
 describe('MatchDartCount', () => {
-    let context;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    async function renderComponent(props: IMatchDartCountProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {},
-            <MatchDartCount
-                {...props} />,
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            <MatchDartCount {...props} />,
             null,
             null,
             'tbody');
@@ -27,7 +24,6 @@ describe('MatchDartCount', () => {
         await renderComponent({
             homeCount: 0,
             awayCount: 0,
-            singlePlayer: null,
         });
 
         expect(context.container.innerHTML).toEqual('');
@@ -37,7 +33,6 @@ describe('MatchDartCount', () => {
         await renderComponent({
             homeCount: 10,
             awayCount: 12,
-            singlePlayer: null,
         });
 
         const homeCount = context.container.querySelector('td:nth-child(2)');
@@ -63,7 +58,6 @@ describe('MatchDartCount', () => {
         await renderComponent({
             homeCount: 10,
             awayCount: 15,
-            singlePlayer: null,
         });
 
         const homeCount = context.container.querySelector('td:nth-child(2)');
@@ -76,7 +70,6 @@ describe('MatchDartCount', () => {
         await renderComponent({
             homeCount: 15,
             awayCount: 10,
-            singlePlayer: null,
         });
 
         const homeCount = context.container.querySelector('td:nth-child(2)');

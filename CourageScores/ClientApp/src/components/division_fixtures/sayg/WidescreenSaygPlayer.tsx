@@ -3,18 +3,29 @@ import {reverse} from "../../../helpers/collections";
 import {useSayg} from "./SaygLoadingContainer";
 import {useLive} from "../LiveContainer";
 import {RefreshControl} from "../RefreshControl";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegThrowDto} from "../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
 
-export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, changeStatisticsView, showOptions }) {
+export interface IWidescreenSaygPlayerProps {
+    legs: { [legKey: number]: ILegDto };
+    player: 'home' | 'away';
+    scoreFirst?: boolean;
+    finished: boolean;
+    changeStatisticsView?: (widescreen: boolean) => Promise<any>;
+    showOptions?: boolean;
+}
+
+export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, changeStatisticsView, showOptions }: IWidescreenSaygPlayerProps) {
     const {sayg} = useSayg();
     const {liveOptions} = useLive();
-    const orderedLegKeys = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
-    const lastLegKey = orderedLegKeys[orderedLegKeys.length - 1];
+    const orderedLegKeys: string[] = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
+    const lastLegKey: string = orderedLegKeys[orderedLegKeys.length - 1];
     const lastLeg = legs[lastLegKey];
-    const noOfThrowsMax = 5;
+    const noOfThrowsMax: number = 5;
 
-    function throwsInLastLegFor(max, player) {
-        const throws = lastLeg[player].throws;
-        const startIndex = Math.max(throws.length - max, 0);
+    function throwsInLastLegFor(max: number, player: 'home' | 'away'): ILegThrowDto[] {
+        const throws: ILegThrowDto[] = lastLeg[player].throws;
+        const startIndex: number = Math.max(throws.length - max, 0);
         return reverse(throws.slice(startIndex, startIndex + max));
     }
 
@@ -25,7 +36,7 @@ export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, chang
     return (<div datatype="WidescreenSaygPlayer" className="d-flex flex-row flex-grow-1 align-content-stretch">
         {scoreFirst ? score : null}
         <div className="d-flex flex-column flex-grow-0 justify-content-around bg-light">
-            {throwsInLastLegFor(noOfThrowsMax, player).map((thr, index) =>
+            {throwsInLastLegFor(noOfThrowsMax, player).map((thr: ILegThrowDto, index: number) =>
                 (<WidescreenSaygRecentThrow key={index} score={thr.score} bust={thr.bust} throwNumber={index + 1} />))}
         </div>
         {scoreFirst ? null : score}

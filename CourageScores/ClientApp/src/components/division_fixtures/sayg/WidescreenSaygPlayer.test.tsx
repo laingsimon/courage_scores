@@ -1,34 +1,47 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {WidescreenSaygPlayer} from "./WidescreenSaygPlayer";
-import {saygBuilder} from "../../../helpers/builders";
+import {IWidescreenSaygPlayerProps, WidescreenSaygPlayer} from "./WidescreenSaygPlayer";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {LiveContainer} from "../LiveContainer";
-import {SaygLoadingContainer} from "./SaygLoadingContainer";
+import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
+import {ISaygApi} from "../../../api/sayg";
+import {ILiveOptions} from "../../../interfaces/ILiveOptions";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
 
 describe('WidescreenSaygPlayer', () => {
-    let context;
-    let reportedError;
-    let newStatisticsView;
-    const saygApi = {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let newStatisticsView: boolean;
+    const saygApi = api<ISaygApi>({
         get: () => {
             return {};
         }
-    }
+    })
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function changeStatisticsView(newValue) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        newStatisticsView = null;
+    });
+
+    async function changeStatisticsView(newValue: boolean) {
         newStatisticsView = newValue;
     }
 
-    async function renderComponent(liveOptions, props, saygContainerProps) {
-        reportedError = null;
-        newStatisticsView = null;
-
+    async function renderComponent(liveOptions: ILiveOptions, props: IWidescreenSaygPlayerProps, saygContainerProps?: ISaygLoadingContainerProps) {
         let element = <LiveContainer liveOptions={liveOptions}>
             <WidescreenSaygPlayer {...props} />
         </LiveContainer>;
@@ -38,30 +51,20 @@ describe('WidescreenSaygPlayer', () => {
         }
 
         context = await renderApp(
-            { saygApi },
-            {name: 'Courage Scores'},
-            {
+            iocProps({ saygApi }),
+            brandingProps(),
+            appProps({
                 account: {
                     access: {
                         useWebSockets: true,
                     },
                 },
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            }, reportedError),
             element);
     }
 
     describe('renders', () => {
-        let sayg;
+        let sayg: IRecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -69,25 +72,26 @@ describe('WidescreenSaygPlayer', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .build();
         });
 
         it('score first', async () => {
             await renderComponent(
                 { },
-                {   scoreFirst: true,
+                {
+                    scoreFirst: true,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: false,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const scoreElement = context.container.querySelector('div:nth-child(1)');
             expect(scoreElement.querySelector('h1').textContent).toEqual('401');
         });
@@ -103,7 +107,7 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: changeStatisticsView,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const scoreElement = context.container.querySelector('div:nth-child(2)');
             expect(scoreElement.querySelector('h1').textContent).toEqual('401');
         });
@@ -119,7 +123,7 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: changeStatisticsView,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const optionsContainer = context.container.querySelector('div:nth-child(3)');
             expect(optionsContainer).toBeFalsy();
         });
@@ -136,10 +140,12 @@ describe('WidescreenSaygPlayer', () => {
                     showOptions: true,
                     changeStatisticsView: changeStatisticsView,
                 }, {
-                    defaultData: sayg
+                    defaultData: sayg,
+                    id: null,
+                    liveOptions: {},
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const optionsContainer = context.container.querySelector('div:nth-child(3)');
             expect(optionsContainer).toBeTruthy();
             expect(optionsContainer.textContent).toContain('⏸️ Paused');
@@ -157,10 +163,12 @@ describe('WidescreenSaygPlayer', () => {
                     showOptions: true,
                     changeStatisticsView: changeStatisticsView,
                 }, {
-                    defaultData: sayg
+                    defaultData: sayg,
+                    id: null,
+                    liveOptions: {},
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const optionsContainer = context.container.querySelector('div:nth-child(3)');
             expect(optionsContainer).toBeTruthy();
             expect(optionsContainer.textContent).not.toContain('⏸️ Paused');
@@ -178,10 +186,12 @@ describe('WidescreenSaygPlayer', () => {
                     showOptions: true,
                     changeStatisticsView: changeStatisticsView,
                 }, {
-                    defaultData: sayg
+                    defaultData: sayg,
+                    id: null,
+                    liveOptions: {},
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const optionsContainer = context.container.querySelector('div:nth-child(3)');
             expect(optionsContainer).toBeTruthy();
             expect(optionsContainer.textContent).not.toContain('⏸️ Paused');
@@ -198,7 +208,7 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: changeStatisticsView,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const optionsContainer = context.container.querySelector('div:nth-child(3)');
             const changeButton = optionsContainer.querySelector('button');
             expect(changeButton.textContent).toEqual('📊');
@@ -215,14 +225,14 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: null,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const optionsContainer = context.container.querySelector('div:nth-child(3)');
             const changeButton = optionsContainer.querySelector('button');
             expect(changeButton).toBeFalsy();
         });
 
         it('winner when finished', async () => {
-            sayg.legs['0'].home.score = 501;
+            sayg.legs[0].home.score = 501;
 
             await renderComponent(
                 { },
@@ -234,13 +244,13 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: null,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const scoreElement = context.container.querySelector('h1');
             expect(scoreElement.textContent).toEqual('🎉');
         });
 
         it('no winner when unfinished', async () => {
-            sayg.legs['0'].home.score = 501;
+            sayg.legs[0].home.score = 501;
 
             await renderComponent(
                 { },
@@ -252,7 +262,7 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: null,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const scoreElement = context.container.querySelector('h1');
             expect(scoreElement.textContent).toEqual('0');
         });
@@ -263,16 +273,16 @@ describe('WidescreenSaygPlayer', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3)
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
                         .withThrow(2, false, 1)
                         .withThrow(4, false, 1)
                         .withThrow(6, false, 1)
                         .withThrow(8, false, 1)
                         .withThrow(10, false, 1)
                         .withThrow(12, true, 1))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .build();
 
             await renderComponent(
@@ -285,7 +295,7 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: null,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)');
             const throws = Array.from(throwsElement.querySelectorAll('div'));
             expect(throws.map(thr => thr.textContent)).toEqual([ '12', '10', '8', '6', '4' ]);
@@ -297,26 +307,26 @@ describe('WidescreenSaygPlayer', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3)
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
                         .withThrow(2, false, 1)
                         .withThrow(4, false, 1)
                         .withThrow(6, false, 1)
                         .withThrow(8, false, 1)
                         .withThrow(10, false, 1)
                         .withThrow(12, true, 1))
-                    .away(c => c.score(200).noOfDarts(6)))
-                .withLeg('1', l => l
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                .withLeg(1, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3)
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
                         .withThrow(12, false, 1)
                         .withThrow(14, false, 1)
                         .withThrow(16, false, 1)
                         .withThrow(18, false, 1)
                         .withThrow(110, false, 1)
                         .withThrow(112, true, 1))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .build();
 
             await renderComponent(
@@ -329,7 +339,7 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: null,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)');
             const throws = Array.from(throwsElement.querySelectorAll('div'));
             expect(throws.map(thr => thr.textContent)).toEqual([ '112', '110', '18', '16', '14' ]);
@@ -341,13 +351,13 @@ describe('WidescreenSaygPlayer', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3)
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
                         .withThrow(2, false, 1)
                         .withThrow(4, false, 1)
                         .withThrow(6, false, 1))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .build();
 
             await renderComponent(
@@ -360,7 +370,7 @@ describe('WidescreenSaygPlayer', () => {
                     changeStatisticsView: null,
                 });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const throwsElement = context.container.querySelector('div[datatype="WidescreenSaygPlayer"] > div:nth-child(1)');
             const throws = Array.from(throwsElement.querySelectorAll('div'));
             expect(throws.map(thr => thr.textContent)).toEqual([ '6', '4', '2' ]);
@@ -368,7 +378,7 @@ describe('WidescreenSaygPlayer', () => {
     });
 
     describe('interactivity', () => {
-        let sayg;
+        let sayg: IRecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -376,10 +386,10 @@ describe('WidescreenSaygPlayer', () => {
                 .opponentName('AWAY')
                 .scores(1, 2)
                 .numberOfLegs(5)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(100).noOfDarts(3))
-                    .away(c => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
                 .build();
         });
 
@@ -396,7 +406,7 @@ describe('WidescreenSaygPlayer', () => {
 
             await doClick(findButton(context.container, '📊'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(newStatisticsView).toEqual(false);
         });
     });

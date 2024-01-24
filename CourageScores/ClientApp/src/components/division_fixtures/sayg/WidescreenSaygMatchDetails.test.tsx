@@ -1,43 +1,28 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {WidescreenSaygMatchDetails} from "./WidescreenSaygMatchDetails";
-import {saygBuilder} from "../../../helpers/builders";
+import {IWidescreenSaygMatchDetailsProps, WidescreenSaygMatchDetails} from "./WidescreenSaygMatchDetails";
+import {ILegBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 
 describe('WidescreenSaygMatchDetails', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    async function renderComponent(props: IWidescreenSaygMatchDetailsProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps(),
             <WidescreenSaygMatchDetails {...props} />);
     }
 
     describe('renders', () => {
         const sayg = saygBuilder()
             .numberOfLegs(3)
-            .withLeg('0', l => l.startingScore(301))
-            .withLeg('1', l => l.startingScore(501))
+            .withLeg(0, (l: ILegBuilder) => l.startingScore(301))
+            .withLeg(1, (l: ILegBuilder) => l.startingScore(501))
             .build();
 
         it('best of', async () => {

@@ -1,32 +1,36 @@
 import React from "react";
 import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
+import {IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
 
-export function PlayLeg({
-                            leg,
-                            home,
-                            away,
-                            onChange,
-                            onLegComplete,
-                            on180,
-                            onHiCheck,
-                            homeScore,
-                            awayScore,
-                            singlePlayer
-                        }) {
-    function playerOptions() {
+export interface IPlayLegProps {
+    leg?: ILegDto;
+    home: string;
+    away: string;
+    onChange: (newLeg: ILegDto) => Promise<any>;
+    onLegComplete: (accumulatorName: string) => Promise<any>;
+    on180?: (accumulatorName: string) => Promise<any>;
+    onHiCheck?: (accumulatorName: string, score: number) => Promise<any>;
+    homeScore: number;
+    awayScore?: number;
+    singlePlayer?: boolean;
+}
+
+export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer}: IPlayLegProps) {
+    function playerOptions(): IBootstrapDropdownItem[] {
         return [
             {value: 'home', text: home},
             {value: 'away', text: away},
         ];
     }
 
-    async function firstPlayerChanged(firstPlayerName) {
-        const newLeg = Object.assign({}, leg);
+    async function firstPlayerChanged(firstPlayerName: string) {
+        const newLeg: ILegDto = Object.assign({}, leg);
 
-        const players = playerOptions();
-        const firstPlayer = players.filter(p => p.value === firstPlayerName)[0];
-        const secondPlayer = players.filter(p => p.value !== firstPlayerName)[0];
+        const players: IBootstrapDropdownItem[] = playerOptions();
+        const firstPlayer: IBootstrapDropdownItem = players.filter(p => p.value === firstPlayerName)[0];
+        const secondPlayer: IBootstrapDropdownItem = players.filter(p => p.value !== firstPlayerName)[0];
 
         newLeg.playerSequence = [firstPlayer, secondPlayer];
         newLeg.currentThrow = firstPlayer.value;
@@ -34,8 +38,8 @@ export function PlayLeg({
     }
 
     async function undoLastThrow() {
-        const oppositePlayer = leg.currentThrow === 'home' ? 'away' : 'home';
-        const newLeg = Object.assign({}, leg);
+        const oppositePlayer: string = leg.currentThrow === 'home' ? 'away' : 'home';
+        const newLeg: ILegDto = Object.assign({}, leg);
 
         const removedThrow = newLeg[oppositePlayer].throws.pop();
         newLeg.currentThrow = oppositePlayer;
@@ -53,8 +57,8 @@ export function PlayLeg({
         {leg.playerSequence && leg.currentThrow ? null : (<div className="text-center">
             {leg.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
                 <p>Who plays first?</p>)}
-            {playerOptions().map(op => (<button key={op.value} className="btn btn-primary margin-right"
-                                                onClick={() => firstPlayerChanged(op.value)}>🎯<br/>{op.text}</button>))}
+            {playerOptions().map((op: IBootstrapDropdownItem) => (<button key={op.value} className="btn btn-primary margin-right"
+                                                                          onClick={() => firstPlayerChanged(op.value)}>🎯<br/>{op.text}</button>))}
         </div>)}
         {leg.playerSequence && leg.currentThrow ? (<PreviousPlayerScore
             leg={leg}

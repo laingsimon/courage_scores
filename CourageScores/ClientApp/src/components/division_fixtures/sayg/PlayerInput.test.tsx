@@ -1,17 +1,22 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {PlayerInput} from "./PlayerInput";
-import {legBuilder} from "../../../helpers/builders";
+import {IPlayerInputProps, PlayerInput} from "./PlayerInput";
+import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
 
 describe('PlayerInput', () => {
-    let context;
-    let oneEighties;
-    let hiChecks;
-    let changedLegs;
-    let completedLegs;
-    let reportedError;
+    let context: TestContext;
+    let changedLegs: ILegDto[];
+    let reportedError: ErrorState;
     const home = 'home-player';
     const away = 'away-player';
 
@@ -19,62 +24,51 @@ describe('PlayerInput', () => {
         cleanUp(context);
     });
 
-    function on180(accumulatorName) {
-        oneEighties.push(accumulatorName);
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        changedLegs = [];
+    });
+
+    async function on180(_: string) {
     }
 
-    async function onHiCheck(accumulatorName, score) {
-        hiChecks.push({accumulatorName, score});
+    async function onHiCheck(_: string, __: number) {
     }
 
-    async function onChange(leg) {
+    async function onChange(leg: ILegDto) {
         changedLegs.push(leg);
     }
 
-    async function onLegComplete(accumulatorName) {
-        completedLegs.push(accumulatorName);
+    async function onLegComplete(_: string) {
     }
 
-    async function renderComponent(props) {
-        oneEighties = [];
-        hiChecks = [];
-        changedLegs = [];
-        completedLegs = [];
-        reportedError = null;
+    async function renderComponent(props: IPlayerInputProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
-            <PlayerInput
-                {...props}
-                on180={on180}
-                onHiCheck={onHiCheck}
-                onChange={onChange}
-                onLegComplete={onLegComplete}/>);
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
+            <PlayerInput {...props} />);
     }
 
-    async function setScoreInput(score) {
+    async function setScoreInput(score: string) {
         await doChange(context.container, 'input[data-score-input="true"]', score, context.user);
     }
 
-    async function runScoreTest(homeScore, inputScore) {
+    async function runScoreTest(homeScore: number, inputScore: string) {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(homeScore).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(homeScore).noOfDarts(0))
             .build();
         await renderComponent({
-            home: home,
-            homeScore: homeScore,
-            leg: leg,
-            singlePlayer: true
+            home,
+            homeScore,
+            leg,
+            singlePlayer: true,
+            on180,
+            onHiCheck,
+            onChange,
+            onLegComplete,
         });
 
         await setScoreInput(inputScore);
@@ -87,8 +81,8 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(0).noOfDarts(0))
-            .away(c => c.score(0).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
+            .away((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
@@ -96,7 +90,11 @@ describe('PlayerInput', () => {
             homeScore: 0,
             awayScore: 0,
             leg: leg,
-            singlePlayer: false
+            singlePlayer: false,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
         const heading = context.container.querySelector('div h2');
@@ -111,13 +109,17 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(0).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
         const heading = context.container.querySelector('div h2');
@@ -210,19 +212,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(100).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
-        await setScoreInput(50);
+        await setScoreInput("50");
         await doClick(findButton(context.container, '📌📌📌'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -245,19 +251,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(401).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(401).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
-        await setScoreInput(100);
+        await setScoreInput("100");
         await doClick(findButton(context.container, '📌📌'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -281,19 +291,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(451).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(451).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
-        await setScoreInput(50);
+        await setScoreInput("50");
         await doClick(findButton(context.container, '📌'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -317,19 +331,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(331).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(331).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
-        await setScoreInput(180);
+        await setScoreInput("180");
         await doClick(findButton(context.container, '💥💥💥'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -352,19 +370,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(391).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(391).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
-        await setScoreInput(120);
+        await setScoreInput("120");
         await doClick(findButton(context.container, '💥💥'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -387,19 +409,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(461).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(461).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
-        await setScoreInput(60);
+        await setScoreInput("60");
         await doClick(findButton(context.container, '💥'));
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -422,19 +448,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(461).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(461).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
         await setScoreInput('');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([]);
     });
 
@@ -442,19 +472,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(461).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(461).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
         await setScoreInput('.');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs).toEqual([]);
     });
 
@@ -462,19 +496,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(380).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(380).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
         await setScoreInput('121');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs.length).toEqual(1);
     });
 
@@ -482,19 +520,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(451).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(451).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
         await setScoreInput('50'); // could be bull (1 dart), 10, D20 (2 darts) or a range of 3-dart options
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs.length).toEqual(0);
     });
 
@@ -502,19 +544,23 @@ describe('PlayerInput', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
-            .home(c => c.score(261).noOfDarts(0))
+            .home((c: ILegCompetitorScoreBuilder) => c.score(261).noOfDarts(0))
             .build();
         await renderComponent({
             home: home,
             homeScore: 0,
             leg: leg,
-            singlePlayer: true
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
         });
 
         await setScoreInput('200');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(changedLegs.length).toEqual(0);
     });
 });

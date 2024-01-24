@@ -1,8 +1,21 @@
 import {Dialog} from "../../common/Dialog";
 import React from "react";
 
-export function EditThrow({ score, noOfDarts, home, away, competitor, index, bust, onClose, onChange, onSave }) {
-    const competitorName = {
+export interface IEditThrowProps {
+    score?: number;
+    noOfDarts?: number;
+    home: string;
+    away?: string;
+    competitor: 'home' | 'away';
+    index: number;
+    bust?: boolean;
+    onClose: () => Promise<any>;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => Promise<any>;
+    onSave: () => Promise<any>;
+}
+
+export function EditThrow({ score, noOfDarts, home, away, competitor, index, bust, onClose, onChange, onSave }: IEditThrowProps) {
+    const competitorName: { away: string; home: string } = {
         home,
         away,
     };

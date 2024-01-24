@@ -1,37 +1,52 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp, doChange} from "../../../helpers/tests";
+import {
+    cleanUp,
+    doClick,
+    findButton,
+    renderApp,
+    doChange,
+    iocProps,
+    brandingProps,
+    appProps, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {EditThrow} from "./EditThrow";
+import {EditThrow, IEditThrowProps} from "./EditThrow";
 import {toDictionary} from "../../../helpers/collections";
 import {valueChanged} from "../../../helpers/events";
+import {ILegThrowDto} from "../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
 
 describe('EditThrow', () => {
-    let context;
-    let closed;
-    let changed;
-    let saved;
+    let context: TestContext;
+    let closed: boolean;
+    let changed: { [key: string]: ILegThrowDto };
+    let saved: boolean;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function onClose() {
-        closed = true;
-    }
-    function onSave() {
-        saved = true;
-    }
-
-    async function renderComponent(props) {
+    beforeEach(() => {
         closed = false;
         changed = null;
         saved = null;
+    });
+
+    async function onClose() {
+        closed = true;
+    }
+    async function onSave() {
+        saved = true;
+    }
+
+    async function onChange(event: React.ChangeEvent<HTMLInputElement>) {
+        await valueChanged({}, (v: { [key: string]: any }) => changed = v)(event);
+    }
+
+    async function renderComponent(props: IEditThrowProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {},
-            <EditThrow {...props} onClose={onClose} onChange={valueChanged({}, v => changed = v)} onSave={onSave} />);
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            <EditThrow {...props} />);
     }
 
     describe('renders', () => {
@@ -44,6 +59,9 @@ describe('EditThrow', () => {
                 competitor: 'home',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             expect(context.container.textContent).toContain('Edit throw 4 for HOME');
@@ -58,6 +76,9 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             expect(context.container.textContent).toContain('Edit throw 4 for AWAY');
@@ -72,6 +93,9 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             const inputs = Array.from(context.container.querySelectorAll('input'));
@@ -90,6 +114,9 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             const inputs = Array.from(context.container.querySelectorAll('input'));
@@ -109,6 +136,9 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             await doClick(findButton(context.container, 'Close'));
@@ -125,6 +155,9 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             await doClick(findButton(context.container, 'Save changes'));
@@ -141,13 +174,16 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             await doChange(context.container, 'input[name="score"]', '100', context.user);
 
             expect(changed).toEqual({
                 score: 100,
-            });
+            } as ILegThrowDto);
         });
 
         it('can change the noOfDarts', async () => {
@@ -159,13 +195,16 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             await doChange(context.container, 'input[name="noOfDarts"]', '3', context.user);
 
             expect(changed).toEqual({
                 noOfDarts: 3,
-            });
+            } as ILegThrowDto);
         });
 
         it('can change whether bust', async () => {
@@ -177,13 +216,16 @@ describe('EditThrow', () => {
                 competitor: 'away',
                 index: 3,
                 bust: true,
+                onChange,
+                onSave,
+                onClose,
             });
 
             await doClick(context.container, 'input[name="bust"]');
 
             expect(changed).toEqual({
                 bust: false,
-            });
+            } as ILegThrowDto);
         });
     });
 });

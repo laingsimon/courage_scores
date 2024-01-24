@@ -1,69 +1,62 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick, ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {ScoreAsYouGo} from "./ScoreAsYouGo";
-import {legBuilder, saygBuilder} from "../../../helpers/builders";
-import {LiveContainer} from "../LiveContainer";
+import {IScoreAsYouGoProps, ScoreAsYouGo} from "./ScoreAsYouGo";
+import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {ILiveContainerProps, LiveContainer} from "../LiveContainer";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
 
 describe('ScoreAsYouGo', () => {
-    let context;
-    let oneEighties;
-    let hiChecks;
-    let changedLegs;
-    let completedLegs;
-    let reportedError;
+    let context: TestContext;
+    let changedLegs: IRecordedScoreAsYouGoDto[];
+    let completedLegs: {homeScore: number, awayScore: number}[];
+    let reportedError: ErrorState;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    function on180(accumulatorName) {
-        oneEighties.push(accumulatorName);
+    beforeEach(() => {
+        reportedError = new ErrorState();
+        changedLegs = [];
+        completedLegs = [];
+    });
+
+    async function on180(_: string) {
     }
 
-    async function onHiCheck(accumulatorName, score) {
-        hiChecks.push({accumulatorName, score});
+    async function onHiCheck(_: string, __: number) {
     }
 
-    async function onChange(leg) {
+    async function onChange(leg: IRecordedScoreAsYouGoDto) {
         changedLegs.push(leg);
     }
 
-    async function onLegComplete(homeScore, awayScore) {
+    async function onLegComplete(homeScore: number, awayScore: number) {
         completedLegs.push({homeScore, awayScore});
     }
 
-    async function renderComponent(props, liveProps) {
-        oneEighties = [];
-        hiChecks = [];
-        changedLegs = [];
-        completedLegs = [];
-        reportedError = null;
+    async function renderComponent(props: IScoreAsYouGoProps, liveProps?: ILiveContainerProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps({}, reportedError),
             <LiveContainer {...liveProps}>
-                <ScoreAsYouGo
-                    {...props}
-                    onChange={onChange}
-                    onLegComplete={onLegComplete}
-                    on180={on180}
-                    onHiCheck={onHiCheck}/>
+                <ScoreAsYouGo {...props} />
             </LiveContainer>);
     }
 
     it('renders match statistics for single player games', async () => {
         await renderComponent({
-            data: {legs: {}},
+            data: saygBuilder().build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -71,6 +64,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 3,
             singlePlayer: true,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
@@ -78,7 +75,7 @@ describe('ScoreAsYouGo', () => {
 
     it('renders match statistics for 2 player games when all legs played', async () => {
         await renderComponent({
-            data: {legs: {}},
+            data: saygBuilder().build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -86,6 +83,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 2,
             homeScore: 3,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
@@ -93,7 +94,7 @@ describe('ScoreAsYouGo', () => {
 
     it('renders match statistics for 2 player games when home player unbeatable', async () => {
         await renderComponent({
-            data: {legs: {}},
+            data: saygBuilder().build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -101,6 +102,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 3,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
@@ -108,7 +113,7 @@ describe('ScoreAsYouGo', () => {
 
     it('renders match statistics for 2 player games when away player unbeatable', async () => {
         await renderComponent({
-            data: {legs: {}},
+            data: saygBuilder().build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -116,6 +121,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 3,
             homeScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         }, { liveOptions: {} });
 
         expect(context.container.textContent).toContain('Match statistics');
@@ -123,7 +132,7 @@ describe('ScoreAsYouGo', () => {
 
     it('renders play leg otherwise', async () => {
         await renderComponent({
-            data: {legs: {}},
+            data: saygBuilder().build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -131,6 +140,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         expect(context.container.textContent).toContain('Who plays first?');
@@ -138,7 +151,7 @@ describe('ScoreAsYouGo', () => {
 
     it('can update leg', async () => {
         await renderComponent({
-            data: saygBuilder().withLeg('0', l => l).build(),
+            data: saygBuilder().withLeg(0, (l: ILegBuilder) => l).build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -146,6 +159,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doClick(findButton(context.container, '🎯HOME'));
@@ -164,7 +181,8 @@ describe('ScoreAsYouGo', () => {
                             {text: 'AWAY', value: 'away'}
                         ]
                     }
-            }
+            },
+            yourName: null,
         }]);
     });
 
@@ -172,13 +190,13 @@ describe('ScoreAsYouGo', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .playerSequence('home', 'away')
-            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
-            .away(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(50, false, 3))
             .startingScore(501)
             .lastLeg()
             .build();
         await renderComponent({
-            data: {legs: {'0': leg}},
+            data: saygBuilder().withLeg(0, leg).build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -186,6 +204,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
@@ -193,6 +215,7 @@ describe('ScoreAsYouGo', () => {
 
         expect(completedLegs).toEqual([{homeScore: 1, awayScore: 0}]);
         expect(changedLegs).toEqual([{
+            id: expect.any(String),
             legs: {
                 '0': {
                     currentThrow: 'away',
@@ -219,7 +242,8 @@ describe('ScoreAsYouGo', () => {
                     winner: 'home',
                     isLastLeg: true,
                 }
-            }
+            },
+            yourName: null,
         }]);
     });
 
@@ -227,12 +251,12 @@ describe('ScoreAsYouGo', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .playerSequence('home', 'away')
-            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
-            .away(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(50, false, 3))
             .startingScore(501)
             .build();
         await renderComponent({
-            data: {legs: {'0': leg}},
+            data: saygBuilder().withLeg(0, leg).build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -240,6 +264,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
@@ -247,6 +275,7 @@ describe('ScoreAsYouGo', () => {
 
         expect(completedLegs).toEqual([{homeScore: 1, awayScore: 0}]);
         expect(changedLegs[1]).toEqual({
+            id: expect.any(String),
             legs: {
                 '0': {
                     currentThrow: 'home',
@@ -291,7 +320,8 @@ describe('ScoreAsYouGo', () => {
                     startingScore: 501,
                     isLastLeg: false,
                 }
-            }
+            },
+            yourName: null,
         });
     });
 
@@ -300,20 +330,21 @@ describe('ScoreAsYouGo', () => {
             .currentThrow('home')
             .playerSequence('home', 'away')
             .lastLeg()
-            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
-            .away(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(50, false, 3))
             .startingScore(501)
             .build();
         await renderComponent({
-            data: {
-                legs: {
-                    '0': {
-                        home: {throws: [{score: 100}, {score: 100}, {score: 100}, {score: 100}, {score: 101}]},
-                        away: {throws: []}
-                    },
-                    '1': leg
-                }
-            },
+            data: saygBuilder()
+                .withLeg(0, (l: ILegBuilder) => l
+                    .home((c: ILegCompetitorScoreBuilder) => c
+                        .withThrow(100)
+                        .withThrow(100)
+                        .withThrow(100)
+                        .withThrow(100)
+                        .withThrow(101)))
+                .withLeg(1, leg)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -321,6 +352,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 0,
             homeScore: 1,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
@@ -337,20 +372,21 @@ describe('ScoreAsYouGo', () => {
             .currentThrow('away')
             .lastLeg()
             .playerSequence('home', 'away')
-            .home(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
-            .away(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(400).withThrow(400, false, 3))
             .startingScore(501)
             .build();
         await renderComponent({
-            data: {
-                legs: {
-                    '0': {
-                        home: {throws: []},
-                        away: {throws: [{score: 100}, {score: 100}, {score: 100}, {score: 100}, {score: 101}]},
-                    },
-                    '1': leg
-                }
-            },
+            data: saygBuilder()
+                .withLeg(0, (l: ILegBuilder) => l
+                    .away((c: ILegCompetitorScoreBuilder) => c
+                        .withThrow(100)
+                        .withThrow(100)
+                        .withThrow(100)
+                        .withThrow(100)
+                        .withThrow(101)))
+                .withLeg(1, leg)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -358,6 +394,10 @@ describe('ScoreAsYouGo', () => {
             awayScore: 1,
             homeScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
@@ -373,19 +413,23 @@ describe('ScoreAsYouGo', () => {
         const leg = legBuilder()
             .currentThrow('home')
             .playerSequence('home', 'away')
-            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
-            .away(c => c)
+            .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away((c: ILegCompetitorScoreBuilder) => c)
             .startingScore(501)
             .lastLeg()
             .build();
         await renderComponent({
-            data: {legs: {'0': leg}},
+            data: saygBuilder().withLeg(0, leg).build(),
             home: 'HOME',
             startingScore: 501,
             numberOfLegs: 1,
             awayScore: 0,
             homeScore: 0,
             singlePlayer: true,
+            onChange,
+            onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
@@ -393,6 +437,7 @@ describe('ScoreAsYouGo', () => {
 
         expect(completedLegs).toEqual([{homeScore: 1, awayScore: 0}]);
         expect(changedLegs).toEqual([{
+            id: expect.any(String),
             legs: {
                 '0': {
                     currentThrow: 'home',
@@ -419,7 +464,8 @@ describe('ScoreAsYouGo', () => {
                     winner: 'home',
                     isLastLeg: true,
                 }
-            }
+            },
+            yourName: null,
         }]);
     });
 });

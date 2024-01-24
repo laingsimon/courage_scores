@@ -3,25 +3,42 @@ import {MatchStatistics} from "./MatchStatistics";
 import {useApp} from "../../../AppContainer";
 import {useSayg} from "./SaygLoadingContainer";
 import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
-import {useLocation} from "react-router-dom";
+import {Location, useLocation} from "react-router-dom";
 import {useState} from "react";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+
+export interface IScoreAsYouGoProps {
+    data: IRecordedScoreAsYouGoDto;
+    home: string;
+    away?: string;
+    onChange: (data: IRecordedScoreAsYouGoDto) => Promise<any>;
+    onLegComplete: (homeScore: number, awayScore: number) => Promise<any>;
+    startingScore: number;
+    numberOfLegs: number;
+    awayScore?: number;
+    homeScore?: number;
+    on180: (accumulatorName: string) => Promise<any>;
+    onHiCheck: (accumulatorName: string, score: number) => Promise<any>;
+    singlePlayer?: boolean;
+}
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer
-                             }) {
+                             }: IScoreAsYouGoProps) {
     const {onError, account} = useApp();
     const {saveDataAndGetId, matchStatisticsOnly} = useSayg();
-    const canEditThrows = account && account.access && account.access.recordScoresAsYouGo;
-    const location = useLocation();
-    const [useWidescreenStatistics, setUseWidescreenStatistics] = useState(shouldUseWidescreenStatistics(location));
+    const canEditThrows: boolean = account && account.access && account.access.recordScoresAsYouGo;
+    const location: Location = useLocation();
+    const [useWidescreenStatistics, setUseWidescreenStatistics] = useState<boolean>(shouldUseWidescreenStatistics(location));
 
-    function shouldUseWidescreenStatistics() {
+    function shouldUseWidescreenStatistics(location: Location): boolean {
         return location.search.indexOf('widescreen=true') !== -1;
     }
 
-    function getLeg(legIndex) {
-        const leg = data.legs[legIndex];
+    function getLeg(legIndex: number): ILegDto {
+        const leg: ILegDto = data.legs[legIndex];
         if (leg) {
             return leg;
         }
@@ -29,8 +46,8 @@ export function ScoreAsYouGo({
         return addLeg(legIndex).legs[legIndex];
     }
 
-    function addLeg(legIndex) {
-        const newData = Object.assign({}, data);
+    function addLeg(legIndex: number): IRecordedScoreAsYouGoDto {
+        const newData: IRecordedScoreAsYouGoDto = Object.assign({}, data);
         newData.legs[legIndex] = {
             playerSequence: singlePlayer ? [{value: 'home', text: home}, {
                 value: 'away',
@@ -41,12 +58,12 @@ export function ScoreAsYouGo({
             startingScore: startingScore,
             isLastLeg: legIndex === numberOfLegs - 1,
             currentThrow: singlePlayer ? 'home' : null
-        };
+        } as ILegDto;
         return newData;
     }
 
-    async function legChanged(newLeg, legIndex) {
-        const newData = Object.assign({}, data);
+    async function legChanged(newLeg: ILegDto, legIndex: number): Promise<IRecordedScoreAsYouGoDto> {
+        const newData: IRecordedScoreAsYouGoDto = Object.assign({}, data);
         if (data.legs) {
             newData.legs = Object.assign({}, data.legs);
         }
@@ -55,12 +72,12 @@ export function ScoreAsYouGo({
         return newData;
     }
 
-    async function saveChangedLeg(newLeg, legIndex) {
-        const newData = await legChanged(newLeg, legIndex);
+    async function saveChangedLeg(newLeg: ILegDto, legIndex: number): Promise<any> {
+        const newData: IRecordedScoreAsYouGoDto = await legChanged(newLeg, legIndex);
         await saveDataAndGetId(newData);
     }
 
-    async function recordWinner(winnerName) {
+    async function recordWinner(winnerName: string) {
         try {
             const newHomeScore = winnerName === 'home' ? homeScore + 1 : (homeScore || 0);
             const newAwayScore = winnerName === 'away' ? awayScore + 1 : (awayScore || 0);
@@ -93,8 +110,9 @@ export function ScoreAsYouGo({
         }
     }
 
-    const legIndex = (homeScore || 0) + (awayScore || 0);
-    const hasFinished = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
+    const legIndex: number = (homeScore || 0) + (awayScore || 0);
+    const hasFinished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
+    // TODO: Should number of legs be read from the props rather than the data?
     if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
         if (useWidescreenStatistics) {
             return <WidescreenMatchStatistics
@@ -105,9 +123,10 @@ export function ScoreAsYouGo({
                 away={away}
                 singlePlayer={singlePlayer}
                 numberOfLegs={data.numberOfLegs}
-                changeStatisticsView={setUseWidescreenStatistics} />
+                changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)} />
         }
 
+        // TODO: Should number of legs be read from the props rather than the data?
         return <MatchStatistics
             legs={data.legs}
             awayScore={awayScore}
@@ -117,16 +136,16 @@ export function ScoreAsYouGo({
             singlePlayer={singlePlayer}
             numberOfLegs={data.numberOfLegs}
             legChanged={canEditThrows ? saveChangedLeg : null}
-            changeStatisticsView={setUseWidescreenStatistics} />
+            changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)} />
     }
 
-    const leg = getLeg(legIndex);
+    const leg: ILegDto = getLeg(legIndex);
 
     return (<PlayLeg
             leg={leg}
             home={home}
             away={away}
-            onChange={(newLeg) => legChanged(newLeg, legIndex)}
+            onChange={(newLeg: ILegDto) => legChanged(newLeg, legIndex)}
             onLegComplete={recordWinner}
             on180={on180}
             onHiCheck={onHiCheck}

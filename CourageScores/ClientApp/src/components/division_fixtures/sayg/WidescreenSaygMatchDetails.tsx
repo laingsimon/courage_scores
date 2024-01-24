@@ -1,6 +1,13 @@
-export function WidescreenSaygMatchDetails({ legs, numberOfLegs }) {
-    const orderedLegKeys = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
-    const lastLegKey = orderedLegKeys[orderedLegKeys.length - 1];
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+
+export interface IWidescreenSaygMatchDetailsProps {
+    legs: { [legKey: number]: ILegDto };
+    numberOfLegs: number;
+}
+
+export function WidescreenSaygMatchDetails({ legs, numberOfLegs }: IWidescreenSaygMatchDetailsProps) {
+    const orderedLegKeys: string[] = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
+    const lastLegKey: string = orderedLegKeys[orderedLegKeys.length - 1];
     const lastLeg = legs[lastLegKey];
 
     return (<div datatype="WidescreenSaygMatchDetails" className="d-flex flex-row justify-content-around">

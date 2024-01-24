@@ -1,15 +1,25 @@
 import {round2dp} from "../../../helpers/rendering";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegThrowDto} from "../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
+import {ILegCompetitorScoreDto} from "../../../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
 
-export function PreviousPlayerScore({home, away, leg, undoLastThrow}) {
-    const opponent = opposite(leg.currentThrow);
-    const accumulator = leg[opponent];
-    const lastThrow = accumulator.throws[accumulator.throws.length - 1];
-    const playerLookup = {
+export interface IPreviousPlayerScoreProps {
+    home: string;
+    away: string;
+    leg: ILegDto;
+    undoLastThrow: () => Promise<any>;
+}
+
+export function PreviousPlayerScore({home, away, leg, undoLastThrow}: IPreviousPlayerScoreProps) {
+    const opponent: 'home' | 'away' = opposite(leg.currentThrow);
+    const accumulator: ILegCompetitorScoreDto = leg[opponent];
+    const lastThrow: ILegThrowDto = accumulator.throws[accumulator.throws.length - 1];
+    const playerLookup: { home: string, away: string } = {
         home: home,
         away: away
     }
 
-    function opposite(player) {
+    function opposite(player: string): 'away' | 'home' {
         return player === 'home' ? 'away' : 'home';
     }
 

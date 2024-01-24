@@ -1,44 +1,43 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {PlayLeg} from "./PlayLeg";
-import {legBuilder} from "../../../helpers/builders";
+import {IPlayLegProps, PlayLeg} from "./PlayLeg";
+import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
 
 describe('PlayLeg', () => {
-    let context;
-    let changedLeg;
-    let oneEighty;
-    let hiCheck;
-    let legComplete;
+    let context: TestContext;
+    let changedLeg: ILegDto;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    beforeEach(() => {
         changedLeg = null;
-        oneEighty = null;
-        hiCheck = null;
-        legComplete = null;
+    });
+
+    async function onChange(newLeg: ILegDto) {
+        changedLeg = newLeg;
+    }
+
+    async function onLegComplete(_: string) {
+    }
+
+    async function renderComponent(props: IPlayLegProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {},
-            <PlayLeg
-                {...props}
-                onChange={(newLeg) => {
-                    changedLeg = newLeg;
-                }}
-                onLegComplete={(side) => {
-                    legComplete = side;
-                }}
-                on180={(side) => {
-                    oneEighty = side;
-                }}
-                onHiCheck={(side, score) => {
-                    hiCheck = {side, score};
-                }}/>);
+            iocProps(),
+            brandingProps(),
+            appProps(),
+            <PlayLeg {...props} />);
     }
 
     it('renders no-leg if no leg provided', async () => {
@@ -49,6 +48,8 @@ describe('PlayLeg', () => {
             homeScore: 0,
             awayScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
 
         expect(context.container.textContent).toEqual('No leg!');
@@ -60,12 +61,16 @@ describe('PlayLeg', () => {
                 playerSequence: null,
                 currentThrow: null,
                 isLastLeg: false,
+                away: null,
+                home: null,
             },
             home: 'HOME',
             away: 'AWAY',
             homeScore: 0,
             awayScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
 
         expect(context.container.textContent).toContain('Who plays first?');
@@ -81,12 +86,16 @@ describe('PlayLeg', () => {
                 playerSequence: null,
                 currentThrow: null,
                 isLastLeg: true,
+                away: null,
+                home: null,
             },
             home: 'HOME',
             away: 'AWAY',
             homeScore: 2,
             awayScore: 2,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
 
         expect(context.container.textContent).toContain('Who won the bull?');
@@ -101,8 +110,8 @@ describe('PlayLeg', () => {
             leg: legBuilder()
                 .playerSequence('home', 'away')
                 .currentThrow('home')
-                .home(c => c.withThrow(50).score(50))
-                .away(c => c.withThrow(100).score(100))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(50).score(50))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(100))
                 .startingScore(501)
                 .build(),
             home: 'HOME',
@@ -110,6 +119,8 @@ describe('PlayLeg', () => {
             homeScore: 0,
             awayScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
 
         const previousPlayerScore = context.container.querySelector('div > div:nth-child(1)');
@@ -121,8 +132,8 @@ describe('PlayLeg', () => {
             leg: legBuilder()
                 .playerSequence('home', 'away')
                 .currentThrow('home')
-                .home(c => c.withThrow(50).score(50))
-                .away(c => c.withThrow(100).score(100))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(50).score(50))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(100))
                 .startingScore(501)
                 .build(),
             home: 'HOME',
@@ -130,6 +141,8 @@ describe('PlayLeg', () => {
             homeScore: 0,
             awayScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
 
         const playerInput = context.container.querySelector('div > div:nth-child(2)');
@@ -141,8 +154,8 @@ describe('PlayLeg', () => {
             leg: legBuilder()
                 .playerSequence('home', 'away')
                 .currentThrow('home')
-                .home(c => c.withThrow(50, false, 3).score(50).noOfDarts(3))
-                .away(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
+                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(50, false, 3).score(50).noOfDarts(3))
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
                 .startingScore(501)
                 .build(),
             home: 'HOME',
@@ -150,6 +163,8 @@ describe('PlayLeg', () => {
             homeScore: 0,
             awayScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
         const previousPlayerScore = context.container.querySelector('div > div:nth-child(1)');
         window.confirm = () => true;
@@ -185,17 +200,23 @@ describe('PlayLeg', () => {
                 playerSequence: null,
                 currentThrow: null,
                 isLastLeg: false,
+                away: null,
+                home: null,
             },
             home: 'HOME',
             away: 'AWAY',
             homeScore: 0,
             awayScore: 0,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
 
         await doClick(findButton(context.container, '🎯HOME'));
 
         expect(changedLeg).toEqual({
+            away: null,
+            home: null,
             playerSequence: [{text: 'HOME', value: 'home'}, {text: 'AWAY', value: 'away'}],
             currentThrow: 'home',
             isLastLeg: false,
@@ -208,17 +229,23 @@ describe('PlayLeg', () => {
                 playerSequence: null,
                 currentThrow: null,
                 isLastLeg: true,
+                away: null,
+                home: null,
             },
             home: 'HOME',
             away: 'AWAY',
             homeScore: 2,
             awayScore: 2,
             singlePlayer: false,
+            onChange,
+            onLegComplete,
         });
 
         await doClick(findButton(context.container, '🎯AWAY'));
 
         expect(changedLeg).toEqual({
+            away: null,
+            home: null,
             playerSequence: [{text: 'AWAY', value: 'away'}, {text: 'HOME', value: 'home'}],
             currentThrow: 'away',
             isLastLeg: true,

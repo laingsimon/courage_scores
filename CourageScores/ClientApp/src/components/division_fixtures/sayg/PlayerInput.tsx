@@ -2,30 +2,44 @@ import {round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {useApp} from "../../../AppContainer";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegCompetitorScoreDto} from "../../../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
 
-export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }) {
+export interface IPlayerInputProps {
+    home: string;
+    away?: string;
+    homeScore: number;
+    awayScore?: number;
+    on180?: (accumulatorName: string) => Promise<any>;
+    onHiCheck: (accumulatorName: string, score: number) => Promise<any>;
+    onChange: (leg: ILegDto) => Promise<any>;
+    onLegComplete: (accumulatorName: string) => Promise<any>;
+    leg: ILegDto;
+    singlePlayer?: boolean;
+}
+
+export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }: IPlayerInputProps) {
     const [score, setScore] = useState('');
     const {onError} = useApp();
-    const [focusEventHandle, setFocusEventHandle] = useState(null);
-    const accumulator = leg.currentThrow ? leg[leg.currentThrow] : null;
-    const remainingScore = accumulator ? leg.startingScore - accumulator.score : -1;
-    const [savingInput, setSavingInput] = useState(false);
-
-    const playerLookup = {
+    const [focusEventHandle, setFocusEventHandle] = useState<number>(null);
+    const accumulator: ILegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
+    const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
+    const [savingInput, setSavingInput] = useState<boolean>(false);
+    const playerLookup: { home: string, away: string } = {
         home: home,
         away: away
     }
 
-    async function keyUp(event) {
+    async function keyUp(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
             if (savingInput) {
                 return;
             }
 
-            const singleDartScore = checkout && isSingleDartScore(intScore, true);
-            const twoDartScore = checkout && isTwoDartScore(intScore);
-            const threeDartScore = isThreeDartScore(intScore) && (hasRemainingDouble || checkout);
-            let possibleOptions = (singleDartScore ? 1 : 0) + (twoDartScore ? 1 : 0) + (threeDartScore ? 1 : 0);
+            const singleDartScore: boolean = checkout && isSingleDartScore(intScore, true);
+            const twoDartScore: boolean = checkout && isTwoDartScore(intScore);
+            const threeDartScore: boolean = isThreeDartScore(intScore) && (hasRemainingDouble || checkout);
+            let possibleOptions: number = (singleDartScore ? 1 : 0) + (twoDartScore ? 1 : 0) + (threeDartScore ? 1 : 0);
             if (possibleOptions > 1) {
                 // require user to click if there are 2 or more possible options
                 return false;
@@ -42,13 +56,13 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         }
     }
 
-    function opposite(player) {
+    function opposite(player: 'home' | 'away'): 'away' | 'home' {
         return player === 'home' ? 'away' : 'home';
     }
 
     function createFocusEvent() {
         const handle = window.setTimeout(() => {
-            const input = document.querySelector('input[data-score-input="true"]');
+            const input = document.querySelector('input[data-score-input="true"]') as HTMLInputElement;
             if (input) {
                 input.focus();
             } else {
@@ -60,7 +74,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         setFocusEventHandle(handle);
     }
 
-    async function addThrow(scoreInput, noOfDarts, setFocusEvent, bust) {
+    async function addThrow(scoreInput: string, noOfDarts: number, setFocusEvent: boolean, bust?: boolean) {
         try {
             if (focusEventHandle) {
                 window.clearTimeout(focusEventHandle);
@@ -73,9 +87,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             }
 
             setSavingInput(true);
-            const accumulatorName = leg.currentThrow;
-            const newLeg = Object.assign({}, leg);
-            const accumulator = newLeg[accumulatorName];
+            const accumulatorName = leg.currentThrow as 'home' | 'away';
+            const newLeg: ILegDto = Object.assign({}, leg);
+            const accumulator: ILegCompetitorScoreDto = newLeg[accumulatorName];
             accumulator.throws.push({
                 score,
                 noOfDarts,
@@ -85,7 +99,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             accumulator.noOfDarts += noOfDarts;
             accumulator.bust = bust;
 
-            const remainingScore = leg.startingScore - (accumulator.score + score);
+            const remainingScore: number = leg.startingScore - (accumulator.score + score);
             if ((remainingScore !== 0 && remainingScore <= 1) || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
                 accumulator.bust = true;
                 // bust
@@ -136,7 +150,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         }
     }
 
-    function isSingleDartScore(value, doubleOnly) {
+    function isSingleDartScore(value: number, doubleOnly?: boolean): boolean {
         if (value <= 0 || !Number.isFinite(value)) {
             return false;
         }
@@ -153,7 +167,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             || value === 50;
     }
 
-    function isTwoDartScore(value) {
+    function isTwoDartScore(value: number): boolean {
         if (value <= 0 || !Number.isFinite(value)) {
             return false;
         }
@@ -161,7 +175,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         return value <= 120;
     }
 
-    function isThreeDartScore(value) {
+    function isThreeDartScore(value: number): boolean {
         if (value < 0 || !Number.isFinite(value)) {
             return false;
         }
@@ -169,10 +183,10 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         return value <= 180;
     }
 
-    const intScore = Number.parseInt(score);
-    const checkout = intScore === remainingScore;
-    const hasRemainingDouble = remainingScore - intScore >= 2;
-    const canBeBust = score && remainingScore <= 180 && intScore >= 0;
+    const intScore: number = Number.parseInt(score);
+    const checkout: boolean = intScore === remainingScore;
+    const hasRemainingDouble: boolean = remainingScore - intScore >= 2;
+    const canBeBust: boolean = score && remainingScore <= 180 && intScore >= 0;
 
     return (<div className="text-center">
         <h2>

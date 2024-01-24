@@ -1,34 +1,19 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, renderApp} from "../../../helpers/tests";
+import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import React from "react";
-import {WidescreenSaygPlayerHeading} from "./WidescreenSaygPlayerHeading";
+import {IWidescreenSaygPlayerHeadingProps, WidescreenSaygPlayerHeading} from "./WidescreenSaygPlayerHeading";
 
 describe('WidescreenSaygPlayerHeading', () => {
-    let context;
-    let reportedError;
+    let context: TestContext;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
-        reportedError = null;
+    async function renderComponent(props: IWidescreenSaygPlayerHeadingProps) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-            },
+            iocProps(),
+            brandingProps(),
+            appProps(),
             <WidescreenSaygPlayerHeading {...props} />);
     }
 

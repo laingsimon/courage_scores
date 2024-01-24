@@ -1,65 +1,48 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, noop, renderApp} from "../../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    ErrorState,
+    iocProps, MockSocketFactory,
+    noop,
+    renderApp,
+    TestContext
+} from "../../../helpers/tests";
 import React from "react";
 import {LiveSayg} from "./LiveSayg";
-import {saygBuilder} from "../../../helpers/builders";
+import {saygBuilder} from "../../../helpers/builders/sayg";
+import {ISaygApi} from "../../../api/sayg";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
 
 describe('LiveSayg', () => {
-    let context;
-    let requestedSaygId;
-    let saygData;
-    let reportedError;
-    const saygApi = {
-        get: (id) => {
+    let context: TestContext;
+    let requestedSaygId: string;
+    let saygData: IRecordedScoreAsYouGoDto;
+    let reportedError: ErrorState;
+    let socketFactory: MockSocketFactory;
+    const saygApi = api<ISaygApi>({
+        get: (id: string) => {
             requestedSaygId = id;
             return saygData;
         }
-    };
-    const webSocket = {
-        sent: [],
-        subscriptions: {},
-        socket: null,
-        socketFactory: () => {
-            const socket = {
-                close: () => {},
-                readyState: 1,
-                send: (data) => {
-                    const message = JSON.parse(data);
-                    if (message.type === 'subscribed') {
-                        webSocket.subscriptions[message.id] = true;
-                    } else if (message.type === 'unsubscribed') {
-                        delete webSocket.subscriptions[message.id];
-                    }
-                    webSocket.sent.push(message);
-                }
-            };
-            webSocket.socket = socket;
-            return socket;
-        }
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(route, currentPath) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
         requestedSaygId = null;
-        reportedError = null;
-        webSocket.socket = null;
-        webSocket.subscriptions = {};
-        webSocket.sent = [];
+        socketFactory = new MockSocketFactory();
+    });
+
+    async function renderComponent(route?: string, currentPath?: string) {
         context = await renderApp(
-            {saygApi, socketFactory: webSocket.socketFactory},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
-            },
+            iocProps({saygApi, socketFactory: socketFactory.createSocket }),
+            brandingProps(),
+            appProps({}, reportedError),
             <LiveSayg />,
             route,
             currentPath);
@@ -72,7 +55,7 @@ describe('LiveSayg', () => {
 
         await renderComponent('/live/match/:id', '/live/match/' + saygData.id);
 
-        expect(reportedError).toBeNull();
+        expect(reportedError.hasError()).toEqual(false);
         expect(requestedSaygId).toEqual(saygData.id);
     })
 });

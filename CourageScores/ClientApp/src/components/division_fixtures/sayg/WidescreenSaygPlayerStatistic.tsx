@@ -1,14 +1,22 @@
 import {sum} from "../../../helpers/collections";
 import {ifNaN, round2dp} from "../../../helpers/rendering";
+import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
 
-export function WidescreenSaygPlayerStatistic({legs, player, oneDartAverage, setOneDartAverage }) {
+export interface IWidescreenSaygPlayerStatisticProps {
+    legs: { [legKey: number]: ILegDto };
+    player: 'home' | 'away';
+    oneDartAverage: boolean;
+    setOneDartAverage: (newValue: boolean) => Promise<any>;
+}
+
+export function WidescreenSaygPlayerStatistic({legs, player, oneDartAverage, setOneDartAverage }: IWidescreenSaygPlayerStatisticProps) {
     const orderedLegKeys = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
     const lastLegKey = orderedLegKeys[orderedLegKeys.length - 1];
     const lastLeg = legs[lastLegKey];
     const dartAverageMultiplier = oneDartAverage ? 3 : 1;
 
-    function sumOf(player, prop) {
-        return sum(Object.values(legs), leg => leg[player][prop]);
+    function sumOf(player: string, prop: string): number {
+        return sum(Object.values(legs), (leg: ILegDto) => leg[player][prop]);
     }
 
     return (<div datatype="WidescreenSaygPlayerStatistic" className="d-flex flex-row justify-content-between text-center border-top border-secondary fs-3">
