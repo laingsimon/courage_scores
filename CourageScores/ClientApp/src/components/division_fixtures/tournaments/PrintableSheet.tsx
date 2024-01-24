@@ -8,15 +8,22 @@ import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
 import {RefreshControl} from "../RefreshControl";
+import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
 
-export function PrintableSheet({printOnly}) {
+export interface IPrintableSheetProps {
+    printOnly: boolean;
+}
+
+export function PrintableSheet({printOnly}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
     const {tournamentData, season, division, matchOptionDefaults} = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
-    const [wiggle, setWiggle] = useState(!printOnly);
+    const [wiggle, setWiggle] = useState<boolean>(!printOnly);
     const winner = getWinner();
 
     useEffect(() => {
@@ -62,6 +69,7 @@ export function PrintableSheet({printOnly}) {
         }, 10);
     }
 
+    // TODO: define an interface for a movement
     function getWiggleMovements() {
         const element = document.querySelector('div[datatype="rounds-and-players"]');
         if (!element) {
@@ -69,11 +77,11 @@ export function PrintableSheet({printOnly}) {
             return [];
         }
 
-        function movement(percentage) {
+        function movement(percentage: number) {
             return {scrollLeft: percentage * element.getBoundingClientRect().width};
         }
 
-        function movements(lowerPercentage, upperPercentage, times) {
+        function movements(lowerPercentage: number, upperPercentage: number, times: number) {
             const singleMovement = (upperPercentage - lowerPercentage) / times;
             return repeat(times + 1, index => movement(lowerPercentage + (index * singleMovement)));
         }
@@ -92,7 +100,7 @@ export function PrintableSheet({printOnly}) {
         ].flatMap(movements => movements);
     }
 
-    function setRoundNames(layoutData) {
+    function setRoundNames(layoutData: any[]) {
         const layoutDataCopy = layoutData.filter(_ => true);
         const newLayoutData = [];
         let unnamedRoundNumber = layoutDataCopy.length - 3;
@@ -122,7 +130,7 @@ export function PrintableSheet({printOnly}) {
         return newLayoutData;
     }
 
-    function getLinkToSide(side) {
+    function getLinkToSide(side: ITournamentSideDto) {
         if (side && side.teamId && division) {
             const team = teams[side.teamId];
 
@@ -141,7 +149,7 @@ export function PrintableSheet({printOnly}) {
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
     }
 
-    function findTeamAndDivisionForPlayer(player) {
+    function findTeamAndDivisionForPlayer(player: ITournamentPlayerDto) {
         const teamAndDivisionMapping = teams.map(t => {
             const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
             if (!teamSeason) {
@@ -170,7 +178,8 @@ export function PrintableSheet({printOnly}) {
         };
     }
 
-    function getPlayedLayoutData(sides, round, depth) {
+    // TODO: define an interface for the layout data
+    function getPlayedLayoutData(sides: ITournamentSideDto[], round: ITournamentRoundDto, depth: number) {
         if (!round) {
             return [];
         }
@@ -236,7 +245,7 @@ export function PrintableSheet({printOnly}) {
         return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map(b => b.sideA)), round.nextRound, depth + 1));
     }
 
-    function getUnplayedLayoutData(sideLength, depth) {
+    function getUnplayedLayoutData(sideLength: number, depth: number) {
         if (sideLength <= 1) {
             return [];
         }
@@ -378,7 +387,7 @@ export function PrintableSheet({printOnly}) {
                     <div key={index} datatype={`round-${index}`} className="d-flex flex-column p-3">
                         {index === layoutData.length - 1 ? render180s() : null}
                         <h5 datatype="round-name">{roundData.name}</h5>
-                        {roundData.matches.map((matchData, index) => (<div key={index} datatype="match"
+                        {roundData.matches.map((matchData: any, index: number) => (<div key={index} datatype="match"
                                                                            className={`p-0 border-solid border-1 m-1 ${matchData.bye ? 'opacity-50 position-relative' : ''}`}>
                             {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
                             <div datatype="sideA"

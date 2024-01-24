@@ -1,108 +1,131 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
-import {TournamentRound} from "./TournamentRound";
+import {ITournamentRoundProps, TournamentRound} from "./TournamentRound";
 import {createTemporaryId} from "../../../helpers/projection";
-import {TournamentContainer} from "./TournamentContainer";
-import {tournamentMatchBuilder, roundBuilder, saygBuilder, sideBuilder} from "../../../helpers/builders";
+import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
+import {ITournamentApi} from "../../../api/tournament";
+import {ISaygApi} from "../../../api/sayg";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
+import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
+import {
+    ITournamentMatchBuilder, ITournamentRoundBuilder,
+    roundBuilder,
+    sideBuilder,
+    tournamentBuilder, tournamentMatchBuilder
+} from "../../../helpers/builders/tournaments";
+import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 
 describe('TournamentRound', () => {
-    let context;
-    let reportedError;
-    let oneEighty;
-    let hiCheck;
-    let updatedRound;
-    let updatedTournamentData;
-    let warnBeforeSave;
-    let patchedData;
-    const tournamentApi = {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let oneEighty: ITournamentPlayerDto;
+    let hiCheck: {player: ITournamentPlayerDto, note: number};
+    let updatedRound: ITournamentRoundDto;
+    let warnBeforeSave: string;
+    let patchedData: { patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound?: boolean };
+    let saygApiData: { [id: string]: IRecordedScoreAsYouGoDto };
+    const tournamentApi = api<ITournamentApi>({
         addSayg: async () => {
             return {
                 success: true,
                 result: { /* tournament data */}
             };
         }
-    };
-    let saygApiData;
-    const saygApi = {
-        get: async (id) => {
+    });
+    const saygApi = api<ISaygApi>({
+        get: async (id: string) => {
             return saygApiData[id];
         },
-        upsert: async (data) => {
-            const result = Object.assign({}, data);
+        upsert: async (data: IUpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
+            const result: IRecordedScoreAsYouGoDto = Object.assign({}, data);
 
             return {
                 success: true,
                 result: result,
             };
         },
-    };
-    const webSocket = {
-        subscriptions: {},
-        publish: async () => {},
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function onChange(newRound) {
-        updatedRound = newRound;
-    }
-
-    async function onHiCheck(player, note) {
-        hiCheck = {player, note};
-    }
-
-    async function on180(player) {
-        oneEighty = player
-    }
-
-    async function setTournamentData(data) {
-        updatedTournamentData = data;
-    }
-
-    async function renderComponent(containerProps, props, account) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         oneEighty = null;
-        updatedTournamentData = null;
         hiCheck = null;
         saygApiData = {};
         updatedRound = null;
         warnBeforeSave = null;
         patchedData = null;
+    });
+
+    async function onChange(newRound: ITournamentRoundDto) {
+        updatedRound = newRound;
+    }
+
+    async function onHiCheck(player: ITournamentPlayerDto, score: number) {
+        hiCheck = {player, note: score};
+    }
+
+    async function on180(player: ITournamentPlayerDto) {
+        oneEighty = player
+    }
+
+    async function setTournamentData() {
+    }
+
+    async function patchData(patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound?: boolean) {
+        patchedData = { patch, nestInRound }
+    }
+
+    async function setWarnBeforeSave(msg: string) {
+        warnBeforeSave = msg;
+    }
+
+    async function saveTournament() {
+        return null;
+    }
+
+    async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundProps, account?: IUserDto) {
         context = await renderApp(
-            {tournamentApi, saygApi, webSocket},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
+            iocProps({tournamentApi, saygApi}),
+            brandingProps(),
+            appProps({
                 account
-            },
-            (<TournamentContainer {...containerProps}
-                                  setTournamentData={setTournamentData}
-                                  saveTournament={noop}
-                                  setWarnBeforeSave={msg => warnBeforeSave = msg}>
-                <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180} patchData={(patch, nestInRound) => patchedData = { patch, nestInRound }} />
+            }, reportedError),
+            (<TournamentContainer {...containerProps} >
+                <TournamentRound {...props} />
             </TournamentContainer>));
     }
 
-    function assertMatch(table, ordinal, expectedText) {
+    function assertMatch(table: Element, ordinal: number, expectedText: string[]) {
         const matchRow = table.querySelector(`tr:nth-child(${ordinal})`);
         const cells = Array.from(matchRow.querySelectorAll('td'));
         expect(cells.map(td => td.textContent)).toEqual(expectedText);
     }
 
-    function assertEditableMatch(table, ordinal, expectedText) {
+    function assertEditableMatch(table: Element, ordinal: number, expectedText: string[]) {
         const matchRow = table.querySelector(`tr:nth-child(${ordinal})`);
         const cells = Array.from(matchRow.querySelectorAll('td'));
         expect(cells.map(td => {
@@ -118,55 +141,74 @@ describe('TournamentRound', () => {
     }
 
     describe('when logged out (readonly)', () => {
-        const side1 = sideBuilder('SIDE 1').build();
-        const side2 = sideBuilder('SIDE 2').build();
-        const side3 = sideBuilder('SIDE 3').build();
-        const side4 = sideBuilder('SIDE 4').build();
-        const readOnly = true;
+        const side1: ITournamentSideDto = sideBuilder('SIDE 1').build();
+        const side2: ITournamentSideDto = sideBuilder('SIDE 2').build();
+        const side3: ITournamentSideDto = sideBuilder('SIDE 3').build();
+        const side4: ITournamentSideDto = sideBuilder('SIDE 4').build();
+        const readOnly: boolean = true;
+        const emptyTournamentGame: ITournamentGameDto = tournamentBuilder().build();
+        const defaultTournamentContainerProps: ITournamentContainerProps = {
+            tournamentData: emptyTournamentGame,
+            setTournamentData,
+            setWarnBeforeSave,
+            saveTournament,
+        };
 
         describe('renders', () => {
             it('when no matches', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder().build(),
                     sides: [],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.textContent).toContain('No matches defined');
             });
 
             it('unplayed round', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1).sideB(side2))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1).sideB(side2))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2']);
             });
 
             it('played round', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -174,23 +216,27 @@ describe('TournamentRound', () => {
             });
 
             it('next round (when all sides have a score)', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     allowNextRound: true,
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                        .round(r => r
-                            .withMatch(m => m.sideA(side2).sideB(side3))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                        .round((r: ITournamentRoundBuilder) => r
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2).sideB(side3))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
                         )
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
                 assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -200,30 +246,34 @@ describe('TournamentRound', () => {
         });
 
         it('final round (when all sides have a score)', async () => {
-            const side5 = sideBuilder('SIDE 5').build();
-            const side6 = sideBuilder('SIDE 6').build();
-            const side7 = sideBuilder('SIDE 7').build();
-            const side8 = sideBuilder('SIDE 8').build();
+            const side5: ITournamentSideDto = sideBuilder('SIDE 5').build();
+            const side6: ITournamentSideDto = sideBuilder('SIDE 6').build();
+            const side7: ITournamentSideDto = sideBuilder('SIDE 7').build();
+            const side8: ITournamentSideDto = sideBuilder('SIDE 8').build();
 
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 allowNextRound: true,
                 round: roundBuilder()
-                    .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                    .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                    .withMatch(m => m.sideA(side5, 2).sideB(side6, 1))
-                    .withMatch(m => m.sideA(side7, 2).sideB(side8, 1))
-                    .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                    .round(r => r
-                        .withMatch(m => m.sideA(side2, 2).sideB(side3, 1))
-                        .withMatch(m => m.sideA(side5, 1).sideB(side7, 2))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 2).sideB(side6, 1))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side7, 2).sideB(side8, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2, 2).sideB(side3, 1))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 1).sideB(side7, 2))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
                     .build(),
                 sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                 readOnly,
                 depth: 1,
+                onChange,
+                on180,
+                patchData,
+                onHiCheck,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual(['Quarter-Final', 'Semi-Final']);
             const roundTables = context.container.querySelectorAll('table');
             assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -235,21 +285,25 @@ describe('TournamentRound', () => {
         });
 
         it('no next round (when single round)', async () => {
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 round: roundBuilder()
-                    .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                    .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                    .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                    .round(r => r
-                        .withMatch(m => m.sideA(side2).sideB(side3))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2).sideB(side3))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
                     .build(),
                 sides: [side1, side2, side3, side4],
                 readOnly,
                 depth: 1,
+                onChange,
+                on180,
+                patchData,
+                onHiCheck,
             });
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
             const roundTables = context.container.querySelectorAll('table');
             expect(roundTables.length).toEqual(1);
@@ -257,13 +311,17 @@ describe('TournamentRound', () => {
 
         it('cannot change round name', async () => {
             const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 round: roundBuilder().withMatch(match).build(),
                 sides: [side1, side2, side3, side4],
                 readOnly,
                 depth: 1,
+                onChange,
+                on180,
+                patchData,
+                onHiCheck,
             });
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(context.container.querySelector('strong'));
 
@@ -272,37 +330,52 @@ describe('TournamentRound', () => {
     });
 
     describe('when logged in', () => {
-        const side1 = sideBuilder('SIDE 1').withPlayer('PLAYER').build();
-        const side2 = sideBuilder('SIDE 2').withPlayer('PLAYER').build();
-        const side3 = sideBuilder('SIDE 3').build();
-        const side4 = sideBuilder('SIDE 4').build();
-        const readOnly = false;
+        const side1: ITournamentSideDto = sideBuilder('SIDE 1').withPlayer('PLAYER').build();
+        const side2: ITournamentSideDto = sideBuilder('SIDE 2').withPlayer('PLAYER').build();
+        const side3: ITournamentSideDto = sideBuilder('SIDE 3').build();
+        const side4: ITournamentSideDto = sideBuilder('SIDE 4').build();
+        const readOnly: boolean = false;
+        const emptyTournamentGame: ITournamentGameDto = tournamentBuilder().build();
+        const defaultTournamentContainerProps: ITournamentContainerProps = {
+            tournamentData: emptyTournamentGame,
+            setTournamentData: setTournamentData,
+            setWarnBeforeSave,
+            saveTournament,
+        }
 
         describe('renders', () => {
             it('when no matches', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder().build(),
                     sides: [side1, side2],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('table')).toBeTruthy();
             });
 
             it('unplayed round', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1).sideB(side2))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1).sideB(side2))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertEditableMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2', '🗑🛠']);
@@ -311,21 +384,26 @@ describe('TournamentRound', () => {
             it('played round', async () => {
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
                     },
                     {
                         round: roundBuilder()
-                            .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                            .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
                             .build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertEditableMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2', '🗑🛠']);
@@ -333,22 +411,26 @@ describe('TournamentRound', () => {
             });
 
             it('next round (when all sides have a score)', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     allowNextRound: true,
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                        .round(r => r
-                            .withMatch(m => m.sideA(side2).sideB(side3))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                        .round((r: ITournamentRoundBuilder) => r
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2).sideB(side3))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
                 assertEditableMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -365,28 +447,33 @@ describe('TournamentRound', () => {
 
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
                     },
                     {
                         allowNextRound: true,
                         round: roundBuilder()
-                            .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                            .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                            .withMatch(m => m.sideA(side5, 2).sideB(side6, 1))
-                            .withMatch(m => m.sideA(side7, 2).sideB(side8, 1))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                            .round(r => r
-                                .withMatch(m => m.sideA(side2, 2).sideB(side3, 1))
-                                .withMatch(m => m.sideA(side5, 1).sideB(side7, 2))
-                                .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 2).sideB(side6, 1))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side7, 2).sideB(side8, 1))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                            .round((r: ITournamentRoundBuilder) => r
+                                .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2, 2).sideB(side3, 1))
+                                .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 1).sideB(side7, 2))
+                                .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
                             .build(),
                         sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual(['Quarter-Final', 'Semi-Final', 'Final']);
                 const roundTables = context.container.querySelectorAll('table');
                 assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -399,21 +486,25 @@ describe('TournamentRound', () => {
             });
 
             it('no next round (when single round)', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                        .round(r => r
-                            .withMatch(m => m.sideA(side2).sideB(side3))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                        .round((r: ITournamentRoundBuilder) => r
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2).sideB(side3))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
                 expect(roundTables.length).toEqual(1);
@@ -424,24 +515,30 @@ describe('TournamentRound', () => {
             it('can delete match', async () => {
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder()
-                            .withMatch(m => m.sideA(side1).sideB(side2))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1).sideB(side2))
                             .build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 window.confirm = () => true;
 
                 await doClick(findButton(matchRow, '🗑'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedRound).toEqual({
                     matches: [],
                     matchOptions: [],
@@ -453,26 +550,32 @@ describe('TournamentRound', () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideAScore = matchRow.querySelector('td:nth-child(2)');
 
                 await doChange(sideAScore, 'input', '2', context.user);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
-                        scoreA: '2',
+                        scoreA: 2,
                         scoreB: null,
                         sideA: side1,
                         sideB: side2,
@@ -486,27 +589,33 @@ describe('TournamentRound', () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideBScore = matchRow.querySelector('td:nth-child(4)');
 
                 await doChange(sideBScore, 'input', '2', context.user);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
                         scoreA: null,
-                        scoreB: '2',
+                        scoreB: 2,
                         sideA: side1,
                         sideB: side2,
                     }],
@@ -519,16 +628,22 @@ describe('TournamentRound', () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 5, startingScore: 501},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doClick(findButton(matchRow, '🛠'));
@@ -537,7 +652,7 @@ describe('TournamentRound', () => {
                 await doChange(matchOptionsDialog, 'input[name="startingScore"]', '123', context.user);
                 await doClick(findButton(matchOptionsDialog, 'Close'));
                 expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedRound).not.toBeNull();
                 expect(updatedRound.matchOptions).toEqual([{
                     startingScore: 123,
@@ -547,24 +662,33 @@ describe('TournamentRound', () => {
 
             it('cannot open sayg when not permitted', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                const permittedAccount = {
+                const permittedAccount: IUserDto = {
+                    name: '',
+                    givenName: '',
+                    emailAddress: '',
                     access: {
                         recordScoresAsYouGo: false,
                     }
                 };
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     },
                     permittedAccount);
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 expect(matchRow.textContent).not.toContain('📊');
@@ -572,28 +696,38 @@ describe('TournamentRound', () => {
 
             it('can change open sayg', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                const permittedAccount = {
+                const permittedAccount: IUserDto = {
+                    name: '',
+                    emailAddress: '',
+                    givenName: '',
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
+                        saveTournament,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     },
                     permittedAccount);
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog).toBeTruthy();
             });
@@ -602,22 +736,28 @@ describe('TournamentRound', () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideA = matchRow.querySelector('td:nth-child(1)');
 
                 await doSelectOption(sideA.querySelector('.dropdown-menu'), 'SIDE 3');
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
@@ -635,22 +775,28 @@ describe('TournamentRound', () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideB = matchRow.querySelector('td:nth-child(5)');
 
                 await doSelectOption(sideB.querySelector('.dropdown-menu'), 'SIDE 3');
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
@@ -665,15 +811,19 @@ describe('TournamentRound', () => {
             });
 
             it('cannot add match with only sideA', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                let message;
+                let message: string;
                 window.alert = (msg) => message = msg;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
@@ -684,15 +834,19 @@ describe('TournamentRound', () => {
             });
 
             it('cannot add match with only sideB', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                let message;
+                let message: string;
                 window.alert = (msg) => message = msg;
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
@@ -708,16 +862,23 @@ describe('TournamentRound', () => {
                         tournamentData: {
                             id: createTemporaryId(),
                             bestOf: 3,
+                            address: '',
                         },
                         matchOptionDefaults: {numberOfLegs: 3, startingScore: 501},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder().build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
@@ -736,13 +897,17 @@ describe('TournamentRound', () => {
             });
 
             it('sets up warning if side not added and tournament saved', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
@@ -755,21 +920,25 @@ describe('TournamentRound', () => {
             });
 
             it('can set sides in sub-round', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     allowNextRound: true,
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                        .round(r => r
-                            .withMatch(m => m.sideA(side2).sideB(side3))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                        .round((r: ITournamentRoundBuilder) => r
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2).sideB(side3))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const roundTables = context.container.querySelectorAll('table');
                 const subMatchRow = roundTables[1].querySelector('tr:nth-child(1)');
 
@@ -788,21 +957,25 @@ describe('TournamentRound', () => {
             });
 
             it('does not show match selection after final', async () => {
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     allowNextRound: true,
                     round: roundBuilder()
-                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
-                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
-                        .round(r => r
-                            .withMatch(m => m.sideA(side2, 1).sideB(side3, 2))
-                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                        .round((r: ITournamentRoundBuilder) => r
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2, 1).sideB(side3, 2))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
+                    onChange,
+                    on180,
+                    patchData,
+                    onHiCheck,
                 });
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
 
                 const roundTables = Array.from(context.container.querySelectorAll('table'));
                 expect(roundTables.length).toEqual(2);
@@ -810,35 +983,45 @@ describe('TournamentRound', () => {
 
             it('can record 180', async () => {
                 const saygData = saygBuilder()
-                    .withLeg('0', l => l
+                    .withLeg(0, (l: ILegBuilder) => l
                         .playerSequence('home', 'away')
-                        .home(c => c.withThrow(0))
-                        .away(c => c.withThrow(0))
+                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0))
+                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0))
                         .startingScore(501)
                         .currentThrow('home'))
+                    .numberOfLegs(3)
                     .build();
-                const permittedAccount = {
+                const permittedAccount: IUserDto = {
+                    name: '',
+                    givenName: '',
+                    emailAddress: '',
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
-                        round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
+                        round: roundBuilder().withMatch((m: ITournamentMatchBuilder) => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
                 await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
@@ -849,35 +1032,45 @@ describe('TournamentRound', () => {
 
             it('can record hiCheck', async () => {
                 const saygData = saygBuilder()
-                    .withLeg('0', l => l
+                    .withLeg(0, (l: ILegBuilder) => l
                         .playerSequence('home', 'away')
-                        .home(c => c.withThrow(0).score(351))
-                        .away(c => c.withThrow(0).score(301))
+                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(351))
+                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(301))
                         .startingScore(501)
                         .currentThrow('home'))
+                    .numberOfLegs(3)
                     .build();
-                const permittedAccount = {
+                const permittedAccount: IUserDto = {
+                    name: '',
+                    givenName: '',
+                    emailAddress: '',
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
-                        round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
+                        round: roundBuilder().withMatch((m: ITournamentMatchBuilder) => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
                 await doChange(saygDialog, 'input[data-score-input="true"]', '150', context.user);
@@ -889,47 +1082,56 @@ describe('TournamentRound', () => {
 
             it('completing a leg patches the match data', async () => {
                 const saygData = saygBuilder()
-                    .withLeg('0', l => l
+                    .withLeg(0, (l: ILegBuilder) => l
                         .playerSequence('home', 'away')
-                        .home(c => c.withThrow(450, false, 3).score(450))
-                        .away(c => c.withThrow(300, false, 3).score(300))
+                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(450, false, 3).score(450))
+                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(300, false, 3).score(300))
                         .startingScore(501)
                         .currentThrow('home'))
                     .scores(0, 0)
                     .startingScore(501)
                     .build();
-                const permittedAccount = {
+                const permittedAccount: IUserDto = {
+                    name: '',
+                    givenName: '',
+                    emailAddress: '',
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
                     },
                     {
                         round: roundBuilder()
-                            .withMatch(m => m.sideA(side1, 0).sideB(side2, 0).saygId(saygData.id))
-                            .withMatchOption(o => o.numberOfLegs(3).startingScore(501))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 0).sideB(side2, 0).saygId(saygData.id))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3).startingScore(501))
                             .build(),
                         sides: [side1, side2],
                         readOnly,
                         depth: 1,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
 
                 await doChange(saygDialog, 'input[data-score-input="true"]', '51', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(patchedData).toEqual({
                     nestInRound: true,
                     patch: {
@@ -945,63 +1147,73 @@ describe('TournamentRound', () => {
 
             it('completing a leg in a nested match patches the match data', async () => {
                 const saygData = saygBuilder()
-                    .withLeg('0', l => l
+                    .withLeg(0, (l: ILegBuilder) => l
                         .playerSequence('home', 'away')
-                        .home(c => c.withThrow(450, false, 3).score(450))
-                        .away(c => c.withThrow(300, false, 3).score(300))
+                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(450, false, 3).score(450))
+                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(300, false, 3).score(300))
                         .startingScore(501)
                         .currentThrow('home'))
                     .scores(0, 0)
                     .startingScore(501)
                     .build();
                 const nestedSaygData = saygBuilder()
-                    .withLeg('0', l => l
+                    .withLeg(0, (l: ILegBuilder) => l
                         .playerSequence('home', 'away')
-                        .home(c => c.withThrow(460, false, 3).score(460))
-                        .away(c => c.withThrow(360, false, 3).score(360))
+                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(460, false, 3).score(460))
+                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(360, false, 3).score(360))
                         .startingScore(501)
                         .currentThrow('home'))
                     .scores(0, 0)
                     .startingScore(501)
                     .build();
-                const permittedAccount = {
+                const permittedAccount: IUserDto = {
+                    name: '',
+                    givenName: '',
+                    emailAddress: '',
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent(
                     {
-                        tournamentData: {id: createTemporaryId()},
+                        tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
+                        setTournamentData,
+                        setWarnBeforeSave,
+                        saveTournament,
                     },
                     {
                         round: roundBuilder()
-                            .withMatch(m => m.sideA(side1, 3).sideB(side2, 2).saygId(saygData.id))
-                            .withMatchOption(o => o.numberOfLegs(3).startingScore(501))
-                            .round(r => r
-                                .withMatch(m => m.sideA(side1, 0).sideB(side3, 0).saygId(nestedSaygData.id))
-                                .withMatchOption(o => o.numberOfLegs(3).startingScore(501)))
+                            .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 3).sideB(side2, 2).saygId(saygData.id))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3).startingScore(501))
+                            .round((r: ITournamentRoundBuilder) => r
+                                .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 0).sideB(side3, 0).saygId(nestedSaygData.id))
+                                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3).startingScore(501)))
                             .build(),
                         sides: [side1, side2, side3],
                         readOnly,
                         depth: 1,
                         allowNextRound: true,
+                        onChange,
+                        on180,
+                        patchData,
+                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
                 saygApiData[nestedSaygData.id] = nestedSaygData;
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const secondRoundTable = context.container.querySelectorAll('table')[1];
-                const matchRow = secondRoundTable.querySelector('tr:nth-child(1)'); // TODO: find the match in the second round
+                const matchRow = secondRoundTable.querySelector('tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
 
                 await doChange(saygDialog, 'input[data-score-input="true"]', '41', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(patchedData).toEqual({
                     nestInRound: true,
                     patch: {

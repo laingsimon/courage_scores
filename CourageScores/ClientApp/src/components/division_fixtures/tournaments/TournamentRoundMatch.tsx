@@ -1,45 +1,71 @@
 import React, {useState} from "react";
-import {BootstrapDropdown} from "../../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
 import {Dialog} from "../../common/Dialog";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {useApp} from "../../../AppContainer";
 import {useDependencies} from "../../../IocContainer";
 import {useTournament} from "./TournamentContainer";
-import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
+import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
-import {count} from "../../../helpers/collections";
+import {count, DataMap} from "../../../helpers/collections";
 import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
 import {DebugOptions} from "../../common/DebugOptions";
 import {Link} from "react-router-dom";
+import {ILiveOptions} from "../../../interfaces/ILiveOptions";
+import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
+import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
+import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+
+export interface ITournamentRoundMatchProps {
+    readOnly?: boolean;
+    match: ITournamentMatchDto;
+    hasNextRound?: boolean;
+    sideMap: DataMap<ITournamentSideDto>;
+    exceptSelected: (side: ITournamentSideDto, matchIndex: number, sideAOrB: string) => boolean;
+    matchIndex: number;
+    onChange?: (round: ITournamentRoundDto) => Promise<any>;
+    round: ITournamentRoundDto;
+    matchOptions: IGameMatchOptionDto;
+    onMatchOptionsChanged: (newOptions: IGameMatchOptionDto) => Promise<any>;
+    onHiCheck?: (player: ITournamentPlayerDto, score: number) => Promise<any>;
+    on180?: (player: ITournamentPlayerDto) => Promise<any>;
+    patchData: (patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
+}
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange,
-                                         round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }) {
+                                         round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }: ITournamentRoundMatchProps) {
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
     const {tournamentData, setTournamentData, saveTournament} = useTournament();
-    const scoreA = Number.parseInt(match.scoreA);
-    const scoreB = Number.parseInt(match.scoreB);
-    const scoreARecorded = hasScore(match.scoreA);
-    const scoreBRecorded = hasScore(match.scoreB);
-    const hasBothScores = scoreARecorded && scoreBRecorded;
-    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState(false);
-    const [saygOpen, setSaygOpen] = useState(false);
-    const [creatingSayg, setCreatingSayg] = useState(false);
-    const [saveError, setSaveError] = useState(null);
+    const scoreA: number = match.scoreA;
+    const scoreB: number = match.scoreB;
+    const scoreARecorded: boolean = hasScore(match.scoreA);
+    const scoreBRecorded: boolean = hasScore(match.scoreB);
+    const hasBothScores: boolean = scoreARecorded && scoreBRecorded;
+    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState<boolean>(false);
+    const [saygOpen, setSaygOpen] = useState<boolean>(false);
+    const [creatingSayg, setCreatingSayg] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<ITournamentGameDto> | null>(null);
 
-    function sideSelection(side) {
+    function sideSelection(side: ITournamentSideDto): IBootstrapDropdownItem {
         return {
             value: side.id,
             text: side.name
         };
     }
 
-    function hasScore(score) {
+    function hasScore(score: number) {
         return score !== null && score !== undefined;
     }
 
-    async function updateMatch(property, sideId) {
+    async function updateMatch(property: string, sideId: string) {
         try {
             const newRound = Object.assign({}, round);
             const match = newRound.matches[matchIndex];
@@ -54,11 +80,11 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         }
     }
 
-    async function changeScore(event, property) {
+    async function changeScore(event: React.ChangeEvent<HTMLInputElement>, property: string) {
         try {
-            const newRound = Object.assign({}, round);
-            const match = newRound.matches[matchIndex];
-            match[property] = event.target.value || '0';
+            const newRound: ITournamentRoundDto = Object.assign({}, round);
+            const match: ITournamentMatchDto = newRound.matches[matchIndex];
+            match[property] = Number.parseInt(event.target.value || '0');
 
             if (onChange) {
                 await onChange(newRound);
@@ -74,7 +100,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             return;
         }
 
-        const newRound = Object.assign({}, round);
+        const newRound: ITournamentRoundDto = Object.assign({}, round);
         newRound.matches = round.matches || [];
         newRound.matches.splice(matchIndex, 1);
 
@@ -84,7 +110,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     }
 
     function renderMatchSettingsDialog() {
-        return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
+        return (<Dialog title="Edit match options" slim={true} onClose={async () => setMatchOptionsDialogOpen(false)}>
             <EditMatchOptions
                 matchOptions={matchOptions}
                 onMatchOptionsChanged={onMatchOptionsChanged}
@@ -98,20 +124,20 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         }
 
         try {
-            const response = await tournamentApi.deleteSayg(tournamentData.id, match.id);
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.deleteSayg(tournamentData.id, match.id);
             if (!response.success) {
                 onError(response);
                 return;
             }
 
             window.alert('Sayg removed from match');
-            const newRound = Object.assign({}, round);
-            const newMatch = Object.assign({}, match);
+            const newRound: ITournamentRoundDto = Object.assign({}, round);
+            const newMatch: ITournamentMatchDto = Object.assign({}, match);
             newRound.matches[matchIndex] = newMatch;
             newMatch.saygId = null;
-            onChange(newRound);
+            await onChange(newRound);
             setSaygOpen(null);
-            setTournamentData(response.result);
+            await setTournamentData(response.result);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -119,9 +145,9 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     }
 
     function renderSaygDialog() {
-        const numberOfLegs = matchOptions.numberOfLegs;
-        const finished = (match.scoreA >= numberOfLegs / 2.0) || (match.scoreB >= numberOfLegs / 2.0);
-        const liveOptions = {
+        const numberOfLegs: number = matchOptions.numberOfLegs;
+        const finished: boolean = (match.scoreA >= numberOfLegs / 2.0) || (match.scoreB >= numberOfLegs / 2.0);
+        const liveOptions: ILiveOptions = {
             publish: true,
         };
 
@@ -132,7 +158,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 on180={record180}
                 autoSave={true}
                 liveOptions={liveOptions}
-                onSaved={async (data) => {
+                onSaved={async (data: ILoadedScoreAsYouGoDto) => {
                     await patchData({
                         match: {
                             sideA: match.sideA.id,
@@ -169,10 +195,10 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         </Dialog>)
     }
 
-    function canOpenSaygDialog() {
-        const isPermitted = (account || {access: {}}).access.recordScoresAsYouGo;
-        const hasSaygData = !!match.saygId;
-        const hasSidesSelected = match.sideA !== null && match.sideB !== null;
+    function canOpenSaygDialog(): boolean {
+        const isPermitted: boolean = (account || {access: {}}).access.recordScoresAsYouGo;
+        const hasSaygData: boolean = !!match.saygId;
+        const hasSidesSelected: boolean = match.sideA !== null && match.sideB !== null;
 
         if (!hasSidesSelected) {
             return false;
@@ -196,19 +222,19 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         return match.sideA.players.length === 1 && match.sideB.players.length === 1;
     }
 
-    function canShowLiveSayg() {
-        const hasSaygData = !!match.saygId;
-        const hasSidesSelected = match.sideA !== null && match.sideB !== null;
+    function canShowLiveSayg(): boolean {
+        const hasSaygData: boolean = !!match.saygId;
+        const hasSidesSelected: boolean = match.sideA !== null && match.sideB !== null;
 
         return hasSidesSelected && hasSaygData;
     }
 
-    async function recordHiCheck(sideName, score) {
+    async function recordHiCheck(sideName: string, score: number) {
         if (readOnly) {
             return;
         }
 
-        const side = sideName === 'home' ? match.sideA : match.sideB;
+        const side: ITournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
             if (onHiCheck) {
                 await onHiCheck(side.players[0], score);
@@ -220,12 +246,12 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         }
     }
 
-    async function record180(sideName) {
+    async function record180(sideName: string) {
         if (readOnly) {
             return;
         }
 
-        const side = sideName === 'home' ? match.sideA : match.sideB;
+        const side: ITournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
             if (on180) {
                 await on180(side.players[0]);
@@ -266,9 +292,9 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         try {
             setCreatingSayg(true);
 
-            const response = await tournamentApi.addSayg(tournamentData.id, match.id, matchOptions);
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, match.id, matchOptions);
             if (response.success) {
-                setTournamentData(response.result);
+                await setTournamentData(response.result);
                 setSaygOpen(true);
             } else {
                 setSaveError(response);
@@ -288,7 +314,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 : (<BootstrapDropdown
                     readOnly={readOnly}
                     value={match.sideA ? match.sideA.id : null}
-                    options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
+                    options={sideMap.filter((s: ITournamentSideDto) => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
                     onChange={(side) => updateMatch('sideA', side)}
                     slim={true}
                     className="margin-right"/>)}
@@ -306,7 +332,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             {saveError
                 ? (<ErrorDisplay
                     {...saveError}
-                    onClose={() => setSaveError(null)}
+                    onClose={async () => setSaveError(null)}
                     title="Could not create sayg session"/>)
                 : null}
             {saygOpen ? renderSaygDialog() : null}
@@ -315,14 +341,14 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             {readOnly || hasNextRound
                 ? scoreA || (scoreARecorded ? '0' : '')
                 : (<input type="number" value={scoreARecorded ? (match.scoreA || '0') : ''}
-                          max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')}/>)}
+                          max={matchOptions.numberOfLegs} min="0" onChange={(event: React.ChangeEvent<HTMLInputElement>) => changeScore(event, 'scoreA')}/>)}
         </td>
         <td className="narrow-column">vs</td>
         <td className={hasBothScores && scoreB > scoreA ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreB || (scoreBRecorded ? '0' : '')
                 : (<input type="number" value={scoreBRecorded ? (match.scoreB || '0') : ''}
-                          max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')}/>)}
+                          max={matchOptions.numberOfLegs} min="0" onChange={(event: React.ChangeEvent<HTMLInputElement>) => changeScore(event, 'scoreB')}/>)}
         </td>
         <td className={hasBothScores && scoreB > scoreA ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
@@ -330,7 +356,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 : (<BootstrapDropdown
                     readOnly={readOnly}
                     value={match.sideB ? match.sideB.id : null}
-                    options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
+                    options={sideMap.filter((s: ITournamentSideDto) => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
                     onChange={(side) => updateMatch('sideB', side)}
                     slim={true}
                     className="margin-right"/>)}

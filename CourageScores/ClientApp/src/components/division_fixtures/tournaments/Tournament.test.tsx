@@ -1,60 +1,98 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    noop,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
 import {Tournament} from "./Tournament";
-import {any, toMap} from "../../../helpers/collections";
+import {any, DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
+import {IDivisionApi} from "../../../api/division";
+import {ITournamentApi} from "../../../api/tournament";
+import {IPlayerApi} from "../../../api/player";
+import {ISaygApi} from "../../../api/sayg";
+import {IDataApi} from "../../../api/data";
+import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
+import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
+import {IEditTournamentGameDto} from "../../../interfaces/serverSide/Game/IEditTournamentGameDto";
+import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {IEditTeamPlayerDto} from "../../../interfaces/serverSide/Team/IEditTeamPlayerDto";
+import {IExportDataRequestDto} from "../../../interfaces/serverSide/Data/IExportDataRequestDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
+import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
+import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {divisionBuilder, divisionDataBuilder} from "../../../helpers/builders/divisions";
+import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {
-    divisionBuilder, divisionDataBuilder, playerBuilder, saygBuilder,
-    seasonBuilder,
-    sideBuilder,
-    teamBuilder,
+    ITournamentMatchBuilder, ITournamentRoundBuilder,
+    ITournamentSideBuilder, sideBuilder,
     tournamentBuilder
-} from "../../../helpers/builders";
+} from "../../../helpers/builders/tournaments";
+import {teamBuilder} from "../../../helpers/builders/teams";
+import {playerBuilder} from "../../../helpers/builders/players";
+import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+
+interface IScenario {
+    account?: IUserDto;
+    seasons: DataMap<ISeasonDto>;
+    teams: DataMap<ITeamDto>;
+    divisions: IDivisionDto[];
+}
 
 describe('Tournament', () => {
-    let context;
-    let reportedError;
-    let teamsReloaded;
-    let divisionDataLookup;
-    let tournamentDataLookup;
-    let updatedTournamentData;
-    let patchedTournamentData;
-    let saygDataLookup;
-    let createdPlayer;
-    let exportRequest;
-    let apiResponse;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let divisionDataLookup: { [key: string]: IDivisionDataDto };
+    let tournamentDataLookup: { [id: string]: ITournamentGameDto };
+    let updatedTournamentData: {data: IEditTournamentGameDto, lastUpdated?: string }[];
+    let patchedTournamentData: {id: string, data: IPatchTournamentDto}[];
+    let saygDataLookup: { [id: string]: IRecordedScoreAsYouGoDto };
+    let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto};
+    let exportRequest: IExportDataRequestDto;
+    let apiResponse: IClientActionResultDto<any>;
 
-    const divisionApi = {
-        data: async (divisionId, seasonId) => {
-            const key = `${divisionId}_${seasonId}`;
+    const divisionApi = api<IDivisionApi>({
+        data: async (divisionId: string, seasonId: string) => {
+            const key: string = `${divisionId}_${seasonId}`;
             if (any(Object.keys(divisionDataLookup), k => k === key)) {
                 return divisionDataLookup[key];
             }
 
             throw new Error('Unexpected request for division data: ' + key);
         }
-    };
-    const tournamentApi = {
-        get: async (id) => {
+    });
+    const tournamentApi = api<ITournamentApi>({
+        get: async (id: string) => {
             if (any(Object.keys(tournamentDataLookup), k => k === id)) {
                 return tournamentDataLookup[id];
             }
 
             throw new Error('Unexpected request for tournament data: ' + id);
         },
-        update: async (data, lastUpdated) => {
+        update: async (data: IEditTournamentGameDto, lastUpdated?: string) => {
             updatedTournamentData.push({data, lastUpdated});
             return apiResponse || {success: true, result: data};
         },
-        patch: async (id, data) => {
+        patch: async (id: string, data: IPatchTournamentDto) => {
             patchedTournamentData.push({id, data});
             return apiResponse || {success: true, result: data};
         },
-    };
-    const playerApi = {
-        create: async (divisionId, seasonId, teamId, playerDetails) => {
+    });
+    const playerApi = api<IPlayerApi>({
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto) => {
             createdPlayer = {divisionId, seasonId, teamId, playerDetails};
             return apiResponse || {
                 success: true,
@@ -66,39 +104,35 @@ describe('Tournament', () => {
                 }
             };
         }
-    };
-    const dataApi = {
-        export: async (request) => {
+    });
+    const dataApi = api<IDataApi>({
+        export: async (request: IExportDataRequestDto) => {
             exportRequest = request;
             return {success: true, result: {zip: 'content'}};
         }
-    };
-    const saygApi = {
-        get: async (id) => {
+    });
+    const saygApi = api<ISaygApi>({
+        get: async (id: string) => {
             if (any(Object.keys(saygDataLookup), k => k === id)) {
                 return saygDataLookup[id];
             }
 
             throw new Error('Unexpected request for sayg data: ' + id);
         },
-        upsert: async (data) => {
+        upsert: async (data: IUpdateRecordedScoreAsYouGoDto) => {
             return {
                 success: true,
                 result: data,
             };
         },
-    };
-    const webSocket = {
-        subscriptions: {},
-        publish: async () => {},
-    };
+    });
 
-    function expectDivisionDataRequest(divisionId, seasonId, data) {
+    function expectDivisionDataRequest(divisionId: string, seasonId: string, data: IDivisionDataDto) {
         if (!divisionDataLookup) {
             divisionDataLookup = {};
         }
 
-        const key = `${divisionId}_${seasonId}`;
+        const key: string = `${divisionId}_${seasonId}`;
         divisionDataLookup[key] = data;
     }
 
@@ -109,52 +143,41 @@ describe('Tournament', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(tournamentId, scenario, appLoading) {
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedTournamentData = [];
         patchedTournamentData = [];
-        reportedError = null;
-        teamsReloaded = false;
         createdPlayer = null;
         exportRequest = null;
         apiResponse = null;
+    });
+
+    async function renderComponent(tournamentId: string, scenario: IScenario, appLoading: boolean) {
         context = await renderApp(
-            {
+            iocProps({
                 divisionApi,
                 tournamentApi,
                 playerApi,
                 dataApi,
                 saygApi,
-                webSocket,
-            },
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
+            }),
+            brandingProps(),
+            appProps({
                 appLoading,
                 account: scenario.account,
                 seasons: scenario.seasons,
                 teams: scenario.teams,
                 reloadTeams: async () => {
-                    teamsReloaded = true;
                     return scenario.teams;
                 },
                 divisions: scenario.divisions,
-                reportClientSideException: noop,
-            },
+            }, reportedError),
             (<Tournament/>),
             '/test/:tournamentId',
             '/test/' + tournamentId);
     }
 
-    async function assertDataChange(existingData, expectedChange) {
+    async function assertDataChange(existingData: ITournamentGameDto, expectedChange: ITournamentGameDto) {
         await doClick(findButton(context.container, 'Save'));
         expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         const update = updatedTournamentData.shift();
@@ -163,8 +186,8 @@ describe('Tournament', () => {
             Object.assign({}, existingData, expectedChange));
     }
 
-    const division = divisionBuilder('DIVISION').build();
-    const season = seasonBuilder('SEASON')
+    const division: IDivisionDto = divisionBuilder('DIVISION').build();
+    const season: ISeasonDto = seasonBuilder('SEASON')
         .starting('2023-01-02T00:00:00')
         .ending('2023-05-02T00:00:00')
         .withDivision(division)
@@ -180,7 +203,7 @@ describe('Tournament', () => {
             });
 
             it('error when no seasons', async () => {
-                const tournamentData = tournamentBuilder()
+                const tournamentData: ITournamentGameDto = tournamentBuilder()
                     .forSeason(season)
                     .forDivision(division)
                     .date('2023-01-02T00:00:00')
@@ -190,7 +213,7 @@ describe('Tournament', () => {
                     .accoladesCount()
                     .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = divisionDataBuilder().build();
+                const divisionData: IDivisionDataDto = divisionDataBuilder().build();
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -200,7 +223,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toEqual('No seasons found');
+                expect(reportedError.error).toEqual('No seasons found');
             });
 
             it('loading', async () => {
@@ -224,7 +247,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, true);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const container = context.container.querySelector('.content-background');
                 expect(container).toBeTruthy();
                 expect(container.className).toContain('loading-background');
@@ -241,7 +264,8 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toEqual('Tournament could not be found');
+                expect(reportedError.hasError()).toEqual(true);
+                expect(reportedError.error).toEqual('Tournament could not be found');
                 expect(context.container.textContent).toContain('Tournament not found');
             });
 
@@ -267,8 +291,8 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).not.toBeNull();
-                expect(reportedError.message).toEqual('Could not find the season for this tournament');
+                expect(reportedError.hasError()).toEqual(true);
+                expect(reportedError.error.message).toEqual('Could not find the season for this tournament');
             });
 
             it('tournament without any sides', async () => {
@@ -296,7 +320,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
@@ -311,7 +335,7 @@ describe('Tournament', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .date('2023-01-02T00:00:00')
-                    .withSide(s => s.teamId(team.id))
+                    .withSide((s: ITournamentSideBuilder) => s.teamId(team.id))
                     .address('ADDRESS')
                     .type('TYPE')
                     .notes('NOTES')
@@ -328,7 +352,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
@@ -343,7 +367,7 @@ describe('Tournament', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .date('2023-01-02T00:00:00')
-                    .withSide(s => s
+                    .withSide((s: ITournamentSideBuilder) => s
                         .name('SIDE 1')
                         .teamId(team.id)
                         .withPlayer('PLAYER', teamPlayer.id, division.id))
@@ -363,14 +387,17 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const printableSheet = context.container.querySelector('div[datatype="printable-sheet"]');
                 expect(printableSheet).toBeTruthy();
             });
         });
 
         describe('when logged in', () => {
-            const account = {
+            const account: IUserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
                 access: {
                     manageTournaments: true,
                     managePlayers: true,
@@ -403,7 +430,8 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toEqual('No seasons found');
+                expect(reportedError.hasError()).toEqual(true);
+                expect(reportedError.error).toEqual('No seasons found');
             });
 
             it('loading', async () => {
@@ -427,7 +455,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, true);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const container = context.container.querySelector('.content-background');
                 expect(container).toBeTruthy();
                 expect(container.className).toContain('loading-background');
@@ -454,7 +482,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 // address
                 const address = context.container.querySelector('.content-background > div:nth-child(2)');
                 expect(address).toBeTruthy();
@@ -485,7 +513,7 @@ describe('Tournament', () => {
                     .forSeason(season)
                     .forDivision(division)
                     .date('2023-01-02T00:00:00')
-                    .withSide(s => s.name('SIDE 1').withPlayer('PLAYER', null, division.id))
+                    .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1').withPlayer('PLAYER', null, division.id))
                     .address('ADDRESS')
                     .type('TYPE')
                     .notes('NOTES')
@@ -502,7 +530,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(6)');
                 expect(editTournamentComponent).toBeTruthy();
                 expect(editTournamentComponent.textContent).toContain('Playing:');
@@ -535,13 +563,15 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
                 expect(superLeagueOptions).toBeTruthy();
-                expect(superLeagueOptions.querySelector(' input[name="host"]')).toBeTruthy();
-                expect(superLeagueOptions.querySelector(' input[name="host"]').value).toEqual('HOST');
-                expect(superLeagueOptions.querySelector(' input[name="opponent"]')).toBeTruthy();
-                expect(superLeagueOptions.querySelector(' input[name="opponent"]').value).toEqual('OPPONENT');
+                const hostInput = superLeagueOptions.querySelector('input[name="host"]') as HTMLInputElement;
+                const opponentInput = superLeagueOptions.querySelector('input[name="opponent"]') as HTMLInputElement;
+                expect(hostInput).toBeTruthy();
+                expect(hostInput.value).toEqual('HOST');
+                expect(opponentInput).toBeTruthy();
+                expect(opponentInput.value).toEqual('OPPONENT');
                 expect(superLeagueOptions.querySelector('div[datatype="superleague-gender"] .dropdown-menu .active').textContent).toEqual('Men');
             });
 
@@ -569,18 +599,32 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 expect(context.container.querySelector('div[data-options-for="superleague"]')).toBeFalsy();
             });
         });
     });
 
     describe('interactivity', () => {
-        const account = {
+        const account: IUserDto = {
+            name: '',
+            emailAddress: '',
+            givenName: '',
             access: {
                 manageTournaments: true,
                 managePlayers: true,
                 recordScoresAsYouGo: true,
+            }
+        };
+        const canExportAccount: IUserDto = {
+            name: '',
+            emailAddress: '',
+            givenName: '',
+            access: {
+                manageTournaments: true,
+                managePlayers: true,
+                recordScoresAsYouGo: true,
+                exportData: true,
             }
         };
 
@@ -644,7 +688,7 @@ describe('Tournament', () => {
             await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(createdPlayer).not.toBeNull();
             expect(createdPlayer.teamId).toEqual(team.id);
             expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
@@ -820,8 +864,8 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.name('SIDE 1'))
-                .withSide(s => s.name('SIDE 2'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 2'))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -836,7 +880,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
             await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
@@ -853,8 +897,8 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.name('SIDE 1'))
-                .withSide(s => s.name('SIDE 2'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 2'))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -869,7 +913,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
             await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
@@ -886,8 +930,8 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.name('SIDE 1'))
-                .withSide(s => s.name('SIDE 2'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 2'))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -902,7 +946,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
             await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
@@ -920,8 +964,8 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .forDivision(division)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.name('SIDE 1'))
-                .withSide(s => s.name('SIDE 2'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 2'))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -937,7 +981,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            let alert;
+            let alert: string;
             window.alert = (msg) => alert = msg;
             await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
@@ -964,12 +1008,12 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [],
                 divisions: [division],
             }, false);
-            window.open = noop;
+            (window as any).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -995,23 +1039,23 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(saygId)
                         .sideA('A')
                         .sideB('B'))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [],
                 divisions: [division],
             }, false);
-            window.open = noop;
+            (window as any).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1038,29 +1082,29 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(saygId1)
                         .sideA('A')
                         .sideB('B'))
-                    .withMatchOption(o => o.numberOfLegs(3))
-                    .round(r => r
-                        .withMatch(m => m
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m
                             .saygId(saygId2)
                             .sideA('A')
                             .sideB('B'))
-                        .withMatchOption(o => o.numberOfLegs(3))))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [],
                 divisions: [division],
             }, false);
-            window.open = noop;
+            (window as any).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1089,12 +1133,12 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [],
                 divisions: [division],
             }, false);
-            window.open = noop;
+            (window as any).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1113,7 +1157,7 @@ describe('Tournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.teamId(team.id))
+                .withSide((s: ITournamentSideBuilder) => s.teamId(team.id))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -1123,12 +1167,12 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [],
                 divisions: [division],
             }, false);
-            window.open = noop;
+            (window as any).open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1151,7 +1195,7 @@ describe('Tournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.withPlayer(undefined, playerId))
+                .withSide((s: ITournamentSideBuilder) => s.withPlayer(undefined, playerId))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
@@ -1161,13 +1205,13 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [team],
                 divisions: [division],
             }, false);
-            window.open = noop;
-            expect(reportedError).toBeNull();
+            (window as any).open = noop;
+            expect(reportedError.hasError()).toEqual(false);
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1199,7 +1243,7 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [team],
                 divisions: [division],
@@ -1228,7 +1272,7 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: {access: Object.assign({exportData: true}, account.access)},
+                account: canExportAccount,
                 seasons: toMap([season]),
                 teams: [team],
                 divisions: [division],
@@ -1244,10 +1288,10 @@ describe('Tournament', () => {
             const playerA = playerBuilder('PLAYER A').build();
             const playerB = playerBuilder('PLAYER B').build();
             const sayg = saygBuilder()
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.withThrow(100).score(451))
-                    .away(c => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(451))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -1265,12 +1309,12 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1282,13 +1326,13 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(patchedTournamentData).toEqual([{
                 data: {
                     round: {
@@ -1308,10 +1352,10 @@ describe('Tournament', () => {
             const playerA = playerBuilder('PLAYER A').build();
             const playerB = playerBuilder('PLAYER B').build();
             const sayg = saygBuilder()
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.withThrow(100).score(100))
-                    .away(c => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -1328,12 +1372,12 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1345,13 +1389,13 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(patchedTournamentData).toEqual([{
                 data: {
                     additional180: playerA,
@@ -1364,10 +1408,10 @@ describe('Tournament', () => {
             const playerA = playerBuilder('PLAYER A').build();
             const playerB = playerBuilder('PLAYER B').build();
             const sayg = saygBuilder()
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.withThrow(100).score(401))
-                    .away(c => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(401))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -1385,12 +1429,12 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1402,19 +1446,20 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '100', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(patchedTournamentData).toEqual([{
                 data: {
                     additionalOver100Checkout: {
                         id: playerA.id,
                         name: playerA.name,
                         notes: '100',
+                        team: null,
                     },
                 },
                 id: tournamentData.id,
@@ -1437,10 +1482,10 @@ describe('Tournament', () => {
             const playerA = playerBuilder('PLAYER A').build();
             const playerB = playerBuilder('PLAYER B').build();
             const sayg = saygBuilder()
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.withThrow(100).score(100))
-                    .away(c => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -1457,12 +1502,12 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1474,13 +1519,13 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(patchedTournamentData).not.toBeNull();
             expect(context.container.textContent).toContain('Could not save tournament details');
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -1495,7 +1540,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r)
+                .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1514,7 +1559,7 @@ describe('Tournament', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(dialog.querySelector('.list-group-item')); // click on a player
             await doClick(findButton(dialog, 'Save')); // close the dialog
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             const oneEightiesDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
             const oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
@@ -1530,7 +1575,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .round(r => r)
+                .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1549,7 +1594,7 @@ describe('Tournament', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(dialog.querySelector('.list-group-item')); // click on a player
             await doClick(findButton(dialog, 'Save')); // close the dialog
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
             const hiCheckPlayers = Array.from(hiCheckDropdown.querySelectorAll('.dropdown-item'));
@@ -1565,8 +1610,8 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .withSide(s => s.withPlayer(playerA))
-                .round(r => r)
+                .withSide((s: ITournamentSideBuilder) => s.withPlayer(playerA))
+                .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1585,7 +1630,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Delete side')); // delete the side
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             const oneEightyDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
             expect(oneEightyDropdown).toBeFalsy();
@@ -1600,8 +1645,8 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .withSide(s => s.withPlayer(playerA))
-                .round(r => r)
+                .withSide((s: ITournamentSideBuilder) => s.withPlayer(playerA))
+                .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -1620,7 +1665,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Delete side')); // delete the side
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
             expect(hiCheckDropdown).toBeFalsy();

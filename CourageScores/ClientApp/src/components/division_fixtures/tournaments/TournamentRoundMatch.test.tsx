@@ -1,39 +1,67 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    noop,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {any, toMap} from "../../../helpers/collections";
-import {TournamentRoundMatch} from "./TournamentRoundMatch";
-import {TournamentContainer} from "./TournamentContainer";
+import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoundMatch";
+import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
+import {ISaygApi} from "../../../api/sayg";
+import {ITournamentApi} from "../../../api/tournament";
+import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
+import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
+import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
+import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
 import {
-    tournamentMatchBuilder,
-    matchOptionsBuilder,
     roundBuilder,
-    saygBuilder,
     sideBuilder,
-    playerBuilder
-} from "../../../helpers/builders";
+    tournamentBuilder,
+    tournamentMatchBuilder
+} from "../../../helpers/builders/tournaments";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {playerBuilder} from "../../../helpers/builders/players";
+import {matchOptionsBuilder} from "../../../helpers/builders/games";
+
+interface ISaygDataLookup extends IClientActionResultDto<ITournamentGameDto> {
+    match: ITournamentMatchDto;
+    saygId: string;
+}
 
 describe('TournamentRoundMatch', () => {
-    let context;
-    let reportedError;
-    let updatedRound;
-    let updatedMatchOptions;
-    let hiChecks;
-    let oneEighties;
-    let updatedTournamentData;
-    let updatedSaygData;
-    let createdSaygSessions;
-    let addSaygLookup;
-    let updatedPatch;
-    let saygApiData;
-    let tournamentApiResponse;
-    let deletedSayg;
-    const tournamentApi = {
-        addSayg: async (tournamentId, matchId, matchOptions) => {
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let updatedRound: ITournamentRoundDto;
+    let hiChecks: {player: ITournamentPlayerDto, notes: number}[];
+    let oneEighties: ITournamentPlayerDto[];
+    let updatedSaygData: IUpdateRecordedScoreAsYouGoDto;
+    let createdSaygSessions: {tournamentId: string, matchId: string, matchOptions: IGameMatchOptionDto}[];
+    let addSaygLookup: ISaygDataLookup[];
+    let saygApiData: { [id: string]: IRecordedScoreAsYouGoDto };
+    let tournamentApiResponse: IClientActionResultDto<ITournamentGameDto>;
+    let deletedSayg: { tournamentId: string, matchId: string };
+    const tournamentApi = api<ITournamentApi>({
+        addSayg: async (tournamentId: string, matchId: string, matchOptions: IGameMatchOptionDto): Promise<IClientActionResultDto<ITournamentGameDto>> => {
             createdSaygSessions.push({tournamentId, matchId, matchOptions});
-            const responseData = addSaygLookup.filter(l => l.match.id === matchId)[0];
+            const responseData: ISaygDataLookup = addSaygLookup.filter((l: ISaygDataLookup) => l.match.id === matchId)[0];
 
             if (!responseData) {
                 throw new Error('Did not expect match to have sayg session created');
@@ -47,29 +75,25 @@ describe('TournamentRoundMatch', () => {
                 result: responseData.result
             };
         },
-        deleteSayg: async (tournamentId, matchId) => {
+        deleteSayg: async (tournamentId: string, matchId: string): Promise<IClientActionResultDto<ITournamentGameDto>> => {
             deletedSayg = { tournamentId, matchId };
             return tournamentApiResponse || {
                 success: true,
             }
         }
-    };
-    const saygApi = {
-        get: async (id) => {
+    });
+    const saygApi = api<ISaygApi>({
+        get: async (id: string): Promise<IRecordedScoreAsYouGoDto | null>  => {
             return saygApiData[id];
         },
-        upsert: async (data) => {
+        upsert: async (data: IUpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
             updatedSaygData = data;
             return {
                 success: true,
                 result: data,
             };
         },
-    };
-    const webSocket = {
-        subscriptions: {},
-        publish: async () => {},
-    };
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -77,65 +101,58 @@ describe('TournamentRoundMatch', () => {
 
     beforeEach(() => {
         saygApiData = {};
-    });
-
-    function onHiCheck(player, notes) {
-        hiChecks.push({player, notes});
-    }
-
-    function on180(player) {
-        oneEighties.push(player);
-    }
-
-    function setTournamentData(data) {
-        updatedTournamentData = data;
-    }
-
-    async function renderComponent(containerProps, props, account) {
-        reportedError = null;
+        reportedError = new ErrorState();
         updatedRound = null;
         tournamentApiResponse = null;
-        updatedMatchOptions = null;
-        updatedTournamentData = null;
         hiChecks = [];
         oneEighties = [];
         addSaygLookup = [];
         updatedSaygData = null;
-        updatedPatch = null;
         createdSaygSessions = [];
         deletedSayg = null;
+    });
+
+    async function onHiCheck(player: ITournamentPlayerDto, notes: number) {
+        hiChecks.push({player, notes});
+    }
+
+    async function on180(player: ITournamentPlayerDto) {
+        oneEighties.push(player);
+    }
+
+    async function setTournamentData() {
+    }
+
+    async function saveTournament(): Promise<ITournamentGameDto> {
+        return null;
+    }
+
+    async function onMatchOptionsChanged(_: IGameMatchOptionDto) {
+    }
+
+    async function patchData(_: IPatchTournamentDto | IPatchTournamentRoundDto) {
+    }
+
+    async function onChange(updated: ITournamentRoundDto) {
+        updatedRound = updated;
+    }
+
+    async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundMatchProps, account?: IUserDto) {
         context = await renderApp(
-            {tournamentApi, saygApi, webSocket},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
-                account,
-                reportClientSideException: noop,
-            },
-            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={noop}>
-                <TournamentRoundMatch
-                    {...props}
-                    onChange={updated => updatedRound = updated}
-                    onMatchOptionsChanged={updated => updatedMatchOptions = updated}
-                    onHiCheck={onHiCheck}
-                    on180={on180}
-                    patchData={(patch) => updatedPatch = patch}/>
+            iocProps({tournamentApi, saygApi}),
+            brandingProps(),
+            appProps({
+                account
+            }, reportedError),
+            (<TournamentContainer {...containerProps}>
+                <TournamentRoundMatch {...props} />
             </TournamentContainer>),
             null,
             null,
             'tbody');
     }
 
-    function assertDropdown(cell, selected, optionsText) {
+    function assertDropdown(cell: Element, selected: string, optionsText: string[]) {
         const dropdownToggle = cell.querySelector('.dropdown-toggle');
         expect(dropdownToggle).toBeTruthy();
         expect(dropdownToggle.textContent).toEqual(selected);
@@ -144,25 +161,25 @@ describe('TournamentRoundMatch', () => {
         expect(options.map(o => o.textContent)).toEqual(optionsText);
     }
 
-    function assertScore(cell, expectedScore) {
+    function assertScore(cell: Element, expectedScore: string) {
         const input = cell.querySelector('input');
         expect(input).toBeTruthy();
         expect(input.value).toEqual(expectedScore);
     }
 
     describe('renders', () => {
-        const sideA = sideBuilder('SIDE A').build();
-        const sideB = sideBuilder('SIDE B').build();
-        const sideC = sideBuilder('SIDE C').build();
-        const sideD = sideBuilder('SIDE D').build();
-        const sideE = sideBuilder('SIDE E').build();
-        let returnFromExceptSelected;
-        const exceptSelected = (side, matchIndex, sideName) => {
-            const exceptSides = returnFromExceptSelected[sideName];
+        const sideA: ITournamentSideDto = sideBuilder('SIDE A').build();
+        const sideB: ITournamentSideDto = sideBuilder('SIDE B').build();
+        const sideC: ITournamentSideDto = sideBuilder('SIDE C').build();
+        const sideD: ITournamentSideDto = sideBuilder('SIDE D').build();
+        const sideE: ITournamentSideDto = sideBuilder('SIDE E').build();
+        let returnFromExceptSelected: {};
+        const exceptSelected = (side: ITournamentSideDto, _: number, sideName: string) => {
+            const exceptSides: ITournamentSideDto[] = returnFromExceptSelected[sideName];
             if (!exceptSides) {
                 return true;
             }
-            return !any(exceptSides, s => s.name === side.name);
+            return !any(exceptSides, (s: ITournamentSideDto) => s.name === side.name);
         };
 
         beforeEach(() => {
@@ -171,10 +188,15 @@ describe('TournamentRoundMatch', () => {
 
         describe('when logged out', () => {
             const account = null;
+            const defaultTournamentContainerProps: ITournamentContainerProps = {
+                tournamentData: tournamentBuilder().build(),
+                saveTournament,
+                setTournamentData,
+            };
 
             it('when has next round', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -185,9 +207,14 @@ describe('TournamentRoundMatch', () => {
                         matches: [match]
                     },
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].textContent).toEqual('SIDE A');
@@ -199,7 +226,7 @@ describe('TournamentRoundMatch', () => {
 
             it('when has next round and no scores', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -208,9 +235,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].textContent).toEqual('SIDE A');
@@ -222,7 +254,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideA winner', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 3).sideB(sideB, 2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -231,9 +263,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].className).toContain('bg-winner');
@@ -244,7 +281,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideA outright winner shows 0 value score for sideB', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 3).sideB(sideB, 0).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -253,9 +290,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[1].textContent).toEqual('3');
@@ -264,7 +306,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideB winner', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 2).sideB(sideB, 3).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -273,9 +315,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].className).not.toContain('bg-winner');
@@ -286,7 +333,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideB outright winner shows 0 value score for sideA', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 3).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -295,9 +342,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[1].textContent).toEqual('0');
@@ -306,7 +358,7 @@ describe('TournamentRoundMatch', () => {
 
             it('when no next round', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -315,9 +367,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].textContent).toEqual('SIDE A');
@@ -329,7 +386,7 @@ describe('TournamentRoundMatch', () => {
 
             it('cannot open sayg if not exists', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -338,9 +395,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).not.toContain('📊');
             });
@@ -353,7 +415,7 @@ describe('TournamentRoundMatch', () => {
                     .build();
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
 
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -362,6 +424,11 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
                 const link = context.container.querySelector('a');
@@ -372,11 +439,19 @@ describe('TournamentRoundMatch', () => {
         });
 
         describe('when logged in', () => {
-            const account = {
+            const account: IUserDto = {
+                name: '',
+                emailAddress: '',
+                givenName: '',
                 access: {
                     manageTournaments: true,
                     recordScoresAsYouGo: true,
                 }
+            };
+            const defaultTournamentContainerProps: ITournamentContainerProps = {
+                tournamentData: tournamentBuilder().build(),
+                saveTournament,
+                setTournamentData,
             };
 
             it('when no next round', async () => {
@@ -384,7 +459,7 @@ describe('TournamentRoundMatch', () => {
                 returnFromExceptSelected['sideA'] = [sideC, sideD];
                 returnFromExceptSelected['sideB'] = [sideD, sideE];
 
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -393,9 +468,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertDropdown(cells[0], 'SIDE A', ['SIDE A', 'SIDE B', 'SIDE E']);
@@ -407,7 +487,7 @@ describe('TournamentRoundMatch', () => {
 
             it('can open match options', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -416,16 +496,26 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[5].textContent).toContain('🛠');
             });
 
             it('can open sayg when super league tournament', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId(), singleRound: true}}, {
+                const tournamentContainerProps: ITournamentContainerProps = {
+                    tournamentData: tournamentBuilder().singleRound().build(),
+                    setTournamentData,
+                    saveTournament,
+                }
+                await renderComponent(tournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -434,9 +524,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).toContain('📊');
             });
@@ -445,7 +540,7 @@ describe('TournamentRoundMatch', () => {
                 const singlesSideA = sideBuilder('A').withPlayer('A player').build();
                 const singlesSideB = sideBuilder('B').withPlayer('B player').build();
                 const match = tournamentMatchBuilder().sideA(singlesSideA, 0).sideB(singlesSideB, 0).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -454,9 +549,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).toContain('📊');
             });
@@ -471,7 +571,7 @@ describe('TournamentRoundMatch', () => {
                     .withPlayer('B player 2')
                     .build();
                 const match = tournamentMatchBuilder().sideA(pairsSideA, 0).sideB(pairsSideB, 0).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -480,9 +580,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).not.toContain('📊');
             });
@@ -491,7 +596,7 @@ describe('TournamentRoundMatch', () => {
                 const teamSideA = sideBuilder('A').teamId(createTemporaryId()).build();
                 const teamSideB = sideBuilder('B').teamId(createTemporaryId()).build();
                 const match = tournamentMatchBuilder().sideA(teamSideA, 0).sideB(teamSideB, 0).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -500,16 +605,21 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).not.toContain('📊');
             });
 
             it('sideA outright winner shows 0 value score for sideB', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 3).sideB(sideB, 0).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -518,9 +628,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertScore(cells[1], '3');
@@ -529,7 +644,7 @@ describe('TournamentRoundMatch', () => {
 
             it('sideB outright winner shows 0 value score for sideA', async () => {
                 const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 3).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+                await renderComponent(defaultTournamentContainerProps, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -538,9 +653,14 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
+                    on180,
+                    patchData,
+                    onChange,
+                    onHiCheck,
+                    onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError).toBeNull();
+                expect(reportedError.hasError()).toEqual(false);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertScore(cells[1], '0');
@@ -550,32 +670,40 @@ describe('TournamentRoundMatch', () => {
     });
 
     describe('interactivity', () => {
-        const playerSideA = playerBuilder('PLAYER SIDE A').build();
-        const playerSideB = playerBuilder('PLAYER SIDE A').build();
-        const sideA = sideBuilder('SIDE A').withPlayer(playerSideA).build();
-        const sideB = sideBuilder('SIDE B').withPlayer(playerSideB).build();
-        const sideC = sideBuilder('SIDE C')
+        const playerSideA: ITeamPlayerDto = playerBuilder('PLAYER SIDE A').build();
+        const playerSideB: ITeamPlayerDto = playerBuilder('PLAYER SIDE A').build();
+        const sideA: ITournamentSideDto = sideBuilder('SIDE A').withPlayer(playerSideA).build();
+        const sideB: ITournamentSideDto = sideBuilder('SIDE B').withPlayer(playerSideB).build();
+        const sideC: ITournamentSideDto = sideBuilder('SIDE C')
             .withPlayer(playerSideA)
             .withPlayer(playerSideB)
             .build();
-        const sideD = sideBuilder('SIDE D')
+        const sideD: ITournamentSideDto = sideBuilder('SIDE D')
             .withPlayer(playerSideA)
             .withPlayer(playerSideB)
             .build();
-        const sideE = sideBuilder('SIDE E').build();
-        let returnFromExceptSelected;
-        const exceptSelected = (side, matchIndex, sideName) => {
-            const exceptSides = returnFromExceptSelected[sideName];
+        const sideE: ITournamentSideDto = sideBuilder('SIDE E').build();
+        let returnFromExceptSelected: {};
+        const exceptSelected = (side: ITournamentSideDto, _: number, sideName: string) => {
+            const exceptSides: ITournamentSideDto[] = returnFromExceptSelected[sideName];
             if (!exceptSides) {
                 return true;
             }
-            return !any(exceptSides, s => s.name === side.name);
+            return !any(exceptSides, (s: ITournamentSideDto) => s.name === side.name);
         };
-        const account = {
+        const account: IUserDto = {
+            givenName: '',
+            emailAddress: '',
+            name: '',
             access: {
                 manageTournaments: true,
                 recordScoresAsYouGo: true,
             }
+        };
+        const defaultTournamentContainerProps: ITournamentContainerProps = {
+            tournamentData: tournamentBuilder().build(),
+            saveTournament,
+            setTournamentData,
         };
 
         beforeEach(() => {
@@ -584,9 +712,9 @@ describe('TournamentRoundMatch', () => {
         });
 
         it('can open sayg', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
-            const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            const match: ITournamentMatchDto = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
+            const matchOptions: IGameMatchOptionDto = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -595,9 +723,17 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
                 .build();
             addSaygLookup.push({
                 match: match,
@@ -607,6 +743,7 @@ describe('TournamentRoundMatch', () => {
                     round: {
                         matches: [match]
                     },
+                    address: '',
                 },
                 saygId: saygData.id,
             });
@@ -615,7 +752,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
@@ -627,7 +764,7 @@ describe('TournamentRoundMatch', () => {
         it('handles error when opening sayg dialog', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
             const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -636,9 +773,14 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
                 .build();
             addSaygLookup.push({
                 match: match,
@@ -648,6 +790,7 @@ describe('TournamentRoundMatch', () => {
                     round: {
                         matches: [match]
                     },
+                    address: '',
                 },
                 saygId: saygData.id,
             });
@@ -657,7 +800,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(context.container.textContent).toContain('SOME ERROR');
             expect(context.container.textContent).toContain('Could not create sayg session');
         });
@@ -665,7 +808,7 @@ describe('TournamentRoundMatch', () => {
         it('can close error dialog after sayg creation failure', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
             const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -674,9 +817,14 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
                 .build();
             addSaygLookup.push({
                 match: match,
@@ -686,6 +834,7 @@ describe('TournamentRoundMatch', () => {
                     round: {
                         matches: [match]
                     },
+                    address: '',
                 },
                 saygId: saygData.id,
             });
@@ -703,7 +852,7 @@ describe('TournamentRoundMatch', () => {
         it('does not open sayg for tentative match', async () => {
             const match = tournamentMatchBuilder().noId().sideA(sideA, 1).sideB(sideB, 2).build();
             const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -712,9 +861,14 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
                 .build();
             addSaygLookup.push({
                 match: match,
@@ -724,17 +878,18 @@ describe('TournamentRoundMatch', () => {
                     round: {
                         matches: [match]
                     },
+                    address: '',
                 },
                 saygId: saygData.id,
             });
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let message;
+            let message: string;
             window.alert = (msg) => message = msg;
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(createdSaygSessions.length).toEqual(0);
             expect(message).toEqual('Save the tournament first');
         });
@@ -742,7 +897,7 @@ describe('TournamentRoundMatch', () => {
         it('does not open sayg for matches with score', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -751,9 +906,14 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
                 .build();
             addSaygLookup.push({
                 match: match,
@@ -763,24 +923,25 @@ describe('TournamentRoundMatch', () => {
                     round: {
                         matches: [match]
                     },
+                    address: '',
                 },
                 saygId: saygData.id,
             });
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let message;
+            let message: string;
             window.alert = (msg) => message = msg;
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(createdSaygSessions.length).toEqual(0);
             expect(message).toEqual('Game has already been played; cannot score as you go');
         });
 
         it('can close sayg', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -789,9 +950,17 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
                 .build();
             addSaygLookup.push({
                 match: match,
@@ -801,6 +970,7 @@ describe('TournamentRoundMatch', () => {
                     round: {
                         matches: [match]
                     },
+                    address: '',
                 },
                 saygId: saygData.id,
             });
@@ -809,7 +979,7 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(cells[0], '📊'));
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
 
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
@@ -817,10 +987,13 @@ describe('TournamentRoundMatch', () => {
 
         it('can open existing sayg', async () => {
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
                 .build();
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -829,13 +1002,18 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
@@ -843,14 +1021,22 @@ describe('TournamentRoundMatch', () => {
 
         it('can delete sayg', async () => {
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
                 .build();
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
             const tournamentId = createTemporaryId();
             const accountWithDebugOptions = Object.assign({}, account);
             accountWithDebugOptions.access = Object.assign({}, account.access);
             accountWithDebugOptions.access.showDebugOptions = true;
-            await renderComponent({tournamentData: {id: tournamentId}}, {
+            const tournamentContainerProps: ITournamentContainerProps = {
+                tournamentData: {id: tournamentId, address: ''},
+                saveTournament,
+                setTournamentData,
+            };
+            await renderComponent(tournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -859,10 +1045,15 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, accountWithDebugOptions);
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm;
+            let confirm: string;
             window.confirm = (msg) => {
                 confirm = msg;
                 return true;
@@ -872,7 +1063,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], 'Delete sayg'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeFalsy();
             expect(deletedSayg).toEqual({
@@ -885,14 +1076,22 @@ describe('TournamentRoundMatch', () => {
 
         it('does not delete sayg if unconfirmed', async () => {
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
                 .build();
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
             const tournamentId = createTemporaryId();
             const accountWithDebugOptions = Object.assign({}, account);
             accountWithDebugOptions.access = Object.assign({}, account.access);
             accountWithDebugOptions.access.showDebugOptions = true;
-            await renderComponent({tournamentData: {id: tournamentId}}, {
+            const tournamentContainerProps: ITournamentContainerProps = {
+                tournamentData: {id: tournamentId, address: ''},
+                saveTournament,
+                setTournamentData,
+            };
+            await renderComponent(tournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -901,10 +1100,15 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, accountWithDebugOptions);
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm;
+            let confirm: string;
             window.confirm = (msg) => {
                 confirm = msg;
                 return false;
@@ -913,7 +1117,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], 'Delete sayg'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(deletedSayg).toBeNull();
@@ -922,14 +1126,22 @@ describe('TournamentRoundMatch', () => {
 
         it('handles error when deleting sayg', async () => {
             const saygData = saygBuilder()
-                .withLeg('0', l => l.startingScore(501))
+                .withLeg(0, (l: ILegBuilder) => l
+                    .startingScore(501)
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
                 .build();
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
             const tournamentId = createTemporaryId();
             const accountWithDebugOptions = Object.assign({}, account);
             accountWithDebugOptions.access = Object.assign({}, account.access);
             accountWithDebugOptions.access.showDebugOptions = true;
-            await renderComponent({tournamentData: {id: tournamentId}}, {
+            const tournamentContainerProps: ITournamentContainerProps = {
+                tournamentData: {id: tournamentId, address: ''},
+                saveTournament,
+                setTournamentData,
+            };
+            await renderComponent(tournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -938,6 +1150,11 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, accountWithDebugOptions);
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -953,7 +1170,7 @@ describe('TournamentRoundMatch', () => {
                 tournamentId: tournamentId,
                 matchId: match.id,
             });
-            expect(reportedError).toEqual({
+            expect(reportedError.error).toEqual({
                 errors: ['ERROR'],
                 success: false,
             });
@@ -961,7 +1178,7 @@ describe('TournamentRoundMatch', () => {
 
         it('can set first player for match', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -970,23 +1187,28 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home(c => c.score(0))
-                    .away(c => c.score(0)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(0)))
                 .yourName('SIDE A')
                 .opponentName('SIDE B')
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, '🎯SIDE A'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedSaygData.legs[0].playerSequence).toEqual([
                 {text: 'SIDE A', value: 'home'},
                 {text: 'SIDE B', value: 'away'},
@@ -995,7 +1217,7 @@ describe('TournamentRoundMatch', () => {
 
         it('can record sayg 180', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1004,31 +1226,35 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('home', 'away')
                     .currentThrow('home')
-                    .home(c => c.score(0).startingScore(501))
-                    .away(c => c.score(0).startingScore(501))
-                    .scores(0, 0)
-                    .startingScore(501)
-                    .numberOfLegs(3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .startingScore(501))
+                .numberOfLegs(3)
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(oneEighties).toEqual([playerSideA]);
         });
 
         it('cannot record sayg 180 when readonly', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
@@ -1037,31 +1263,35 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('home', 'away')
                     .currentThrow('home')
-                    .home(c => c.score(0).startingScore(501))
-                    .away(c => c.score(0).startingScore(501))
-                    .scores(0, 0)
-                    .startingScore(501)
-                    .numberOfLegs(3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .startingScore(501))
+                .numberOfLegs(3)
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(oneEighties).toEqual([]);
         });
 
         it('cannot record sayg 180 for multi-player sides', async () => {
             const match = tournamentMatchBuilder().sideA(sideC, 0).sideB(sideD, 0).saygId(createTemporaryId()).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1070,31 +1300,35 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('home', 'away')
                     .currentThrow('home')
-                    .home(c => c.score(0).startingScore(501))
-                    .away(c => c.score(0).startingScore(501))
-                    .scores(0, 0)
-                    .startingScore(501)
-                    .numberOfLegs(3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
+                    .startingScore(501))
+                .numberOfLegs(3)
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(oneEighties).toEqual([]);
         });
 
         it('can record sayg hi-check', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1103,25 +1337,29 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('away', 'home')
                     .currentThrow('away')
-                    .home(c => c.withThrow(0).score(200).startingScore(501))
-                    .away(c => c.withThrow(0).score(350).startingScore(501))
-                    .scores(200, 350)
-                    .startingScore(501)
-                    .numberOfLegs(3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(200))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(350))
+                    .startingScore(501))
+                .numberOfLegs(3)
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(hiChecks).toEqual([{
                 notes: 151,
                 player: playerSideB,
@@ -1130,7 +1368,7 @@ describe('TournamentRoundMatch', () => {
 
         it('cannot record sayg hi-check when readonly', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
@@ -1139,31 +1377,35 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('away', 'home')
                     .currentThrow('away')
-                    .home(c => c.withThrow(0).score(200).startingScore(501))
-                    .away(c => c.withThrow(0).score(350).startingScore(501))
-                    .scores(200, 350)
-                    .startingScore(501)
-                    .numberOfLegs(3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(200))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(350))
+                    .startingScore(501))
+                .numberOfLegs(3)
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(hiChecks).toEqual([]);
         });
 
         it('cannot record sayg hi-check for multi-player sides', async () => {
             const match = tournamentMatchBuilder().sideA(sideC, 0).sideB(sideD, 0).saygId(createTemporaryId()).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1172,31 +1414,35 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg('0', l => l
+                .withLeg(0, (l: ILegBuilder) => l
                     .playerSequence('away', 'home')
                     .currentThrow('away')
-                    .home(c => c.withThrow(0).score(200).startingScore(501))
-                    .away(c => c.withThrow(0).score(350).startingScore(501))
-                    .scores(200, 350)
-                    .startingScore(501)
-                    .numberOfLegs(3))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(200))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(350))
+                    .startingScore(501))
+                .numberOfLegs(3)
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(hiChecks).toEqual([]);
         });
 
         it('can open match options dialog', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1205,12 +1451,17 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doClick(findButton(cells[5], '🛠'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Edit match options');
@@ -1218,7 +1469,7 @@ describe('TournamentRoundMatch', () => {
 
         it('can close match options dialog', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1227,6 +1478,11 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[5], '🛠'));
@@ -1241,7 +1497,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideC, sideD];
             returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1250,14 +1506,19 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doChange(cells[1], 'input', '5', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreA: '5'})],
+                matches: [Object.assign({}, match, {scoreA: 5})],
                 matchOptions: [],
                 nextRound: null,
             });
@@ -1267,7 +1528,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideC, sideD];
             returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1276,14 +1537,19 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doChange(cells[1], 'input', '', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreA: '0'})],
+                matches: [Object.assign({}, match, {scoreA: 0})],
                 matchOptions: [],
                 nextRound: null,
             });
@@ -1293,7 +1559,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1302,12 +1568,17 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doSelectOption(cells[0].querySelector('.dropdown-menu'), 'SIDE C');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {sideA: sideC})],
                 matchOptions: [],
@@ -1319,7 +1590,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideC, sideD];
             returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1328,14 +1599,19 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doChange(cells[3], 'input', '5', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreB: '5'})],
+                matches: [Object.assign({}, match, {scoreB: 5})],
                 matchOptions: [],
                 nextRound: null,
             });
@@ -1345,7 +1621,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideC, sideD];
             returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1354,14 +1630,19 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doChange(cells[3], 'input', '', context.user);
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreB: '0'})],
+                matches: [Object.assign({}, match, {scoreB: 0})],
                 matchOptions: [],
                 nextRound: null,
             });
@@ -1371,7 +1652,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1380,12 +1661,17 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doSelectOption(cells[4].querySelector('.dropdown-menu'), 'SIDE C');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {sideB: sideC})],
                 matchOptions: [],
@@ -1397,7 +1683,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1406,9 +1692,14 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm;
+            let confirm: string;
             window.confirm = (message) => {
                 confirm = message;
                 return true;
@@ -1416,7 +1707,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[5], '🗑'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(confirm).toEqual('Are you sure you want to remove this match?');
             expect(updatedRound).toEqual({
                 matches: [],
@@ -1429,7 +1720,7 @@ describe('TournamentRoundMatch', () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
             returnFromExceptSelected['sideB'] = [sideA, sideE];
-            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
+            await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1438,9 +1729,14 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
+                on180,
+                patchData,
+                onChange,
+                onHiCheck,
+                onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm;
+            let confirm: string;
             window.confirm = (message) => {
                 confirm = message;
                 return false;
@@ -1448,7 +1744,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[5], '🗑'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(confirm).toEqual('Are you sure you want to remove this match?');
             expect(updatedRound).toBeNull();
         });

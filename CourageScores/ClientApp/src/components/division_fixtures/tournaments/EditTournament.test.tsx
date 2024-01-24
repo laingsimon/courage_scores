@@ -1,46 +1,63 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    doSelectOption, ErrorState,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../../helpers/tests";
 import React from "react";
 import {toMap} from "../../../helpers/collections";
-import {EditTournament} from "./EditTournament";
-import {TournamentContainer} from "./TournamentContainer";
-import {seasonBuilder, sideBuilder, teamBuilder, tournamentBuilder, divisionBuilder} from "../../../helpers/builders";
+import {EditTournament, IEditTournamentProps} from "./EditTournament";
+import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
+import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
+import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
+import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+import {seasonBuilder} from "../../../helpers/builders/seasons";
+import {
+    ITournamentMatchBuilder,
+    ITournamentRoundBuilder,
+    ITournamentSideBuilder, sideBuilder,
+    tournamentBuilder
+} from "../../../helpers/builders/tournaments";
+import {teamBuilder} from "../../../helpers/builders/teams";
+import {divisionBuilder} from "../../../helpers/builders/divisions";
+import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 
 describe('EditTournament', () => {
-    let context;
-    let reportedError;
-    let updatedData;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let updatedData: ITournamentGameDto;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function setTournamentData(newData) {
+    async function setTournamentData(newData: ITournamentGameDto) {
         updatedData = newData;
     }
+    async function applyPatch(_: IPatchTournamentDto | IPatchTournamentRoundDto, __?: boolean) {
+    }
 
-    async function renderComponent(containerProps, props, account, teams) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         updatedData = null;
+    });
+
+    async function renderComponent(containerProps: ITournamentContainerProps, props: IEditTournamentProps, account?: IUserDto, teams?: ITeamDto[]) {
         context = await renderApp(
-            {},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    if (err.message) {
-                        reportedError = {
-                            message: err.message,
-                            stack: err.stack
-                        };
-                    } else {
-                        reportedError = err;
-                    }
-                },
+            iocProps(),
+            brandingProps(),
+            appProps({
                 account,
                 teams: toMap(teams || []),
-            },
-            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData}>
+            }, reportedError),
+            (<TournamentContainer {...containerProps}>
                 <EditTournament {...props} />
             </TournamentContainer>));
     }
@@ -52,19 +69,21 @@ describe('EditTournament', () => {
         it('who is playing', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
-                .withSide(s => s.name('SIDE 1'))
-                .withSide(s => s.name('ANOTHER SIDE'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE'))
                 .build();
 
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: true,
                 saving: false,
-                canSave: false
+                canSave: false,
+                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -77,19 +96,21 @@ describe('EditTournament', () => {
         it('rounds, when 2 or more sides', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
-                .withSide(s => s.name('SIDE 1'))
-                .withSide(s => s.name('ANOTHER SIDE'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE'))
                 .build();
 
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: true,
                 saving: false,
-                canSave: false
+                canSave: false,
+                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -101,18 +122,20 @@ describe('EditTournament', () => {
         it('no rounds, when less than 2 sides', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
-                .withSide(s => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
                 .build();
 
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: true,
                 saving: false,
-                canSave: false
+                canSave: false,
+                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -124,20 +147,22 @@ describe('EditTournament', () => {
         it('accolades, when 2 or more sides with scores', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
-                .withSide(s => s.name('SIDE 1'))
-                .withSide(s => s.name('ANOTHER SIDE'))
-                .round(r => r.withMatch(m => m.sideA('SIDE 1', 1).sideB('ANOTHER SIDE', 2)))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE'))
+                .round((r: ITournamentRoundBuilder) => r.withMatch((m: ITournamentMatchBuilder) => m.sideA('SIDE 1', 1).sideB('ANOTHER SIDE', 2)))
                 .build();
 
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: true,
                 saving: false,
-                canSave: false
+                canSave: false,
+                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -149,18 +174,20 @@ describe('EditTournament', () => {
         it('no accolades, when less than 2 sides', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
-                .withSide(s => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
                 .build();
 
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: true,
                 saving: false,
-                canSave: false
+                canSave: false,
+                applyPatch,
             }, account);
 
             const accolades = context.container.querySelector('div > div > table');
@@ -171,8 +198,8 @@ describe('EditTournament', () => {
             const side1 = sideBuilder('SIDE 1').build();
             const anotherSide = sideBuilder('ANOTHER SIDE').build();
             const tournamentData = tournamentBuilder()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .sideA(side1, 1)
                         .sideB(anotherSide, 2)))
                 .forSeason(season)
@@ -183,12 +210,14 @@ describe('EditTournament', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: true,
                 saving: false,
-                canSave: false
+                canSave: false,
+                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -203,12 +232,12 @@ describe('EditTournament', () => {
             const side1 = sideBuilder('SIDE 1').build();
             const anotherSide = sideBuilder('ANOTHER SIDE').build();
             const tournamentData = tournamentBuilder()
-                .round(r => r
-                    .withMatch(m => m
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
                         .sideA(side1, 2)
                         .sideB(anotherSide, 2))
-                    .round(r => r
-                        .withMatch(m => m.sideA(side1, 2).sideB(anotherSide, 1))))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 2).sideB(anotherSide, 1))))
                 .forSeason(season)
                 .withSide(side1)
                 .withSide(anotherSide)
@@ -217,12 +246,14 @@ describe('EditTournament', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: true,
                 saving: false,
-                canSave: false
+                canSave: false,
+                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -235,7 +266,10 @@ describe('EditTournament', () => {
     });
 
     describe('interactivity', () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 manageTournaments: true,
             }
@@ -253,12 +287,14 @@ describe('EditTournament', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -270,7 +306,7 @@ describe('EditTournament', () => {
             await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM 1');
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.sides).toEqual([existingSide, {
                 id: expect.any(String),
                 name: 'TEAM 1',
@@ -287,12 +323,14 @@ describe('EditTournament', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -305,7 +343,7 @@ describe('EditTournament', () => {
             await doChange(dialog, 'input[name="name"]', 'NAME   ', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.sides).toEqual([{
                 id: expect.any(String),
                 name: 'NAME',
@@ -316,17 +354,19 @@ describe('EditTournament', () => {
         it('can close add a side dialog', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
-                .withSide(s => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
                 .build();
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -337,7 +377,7 @@ describe('EditTournament', () => {
             expect(dialog).toBeTruthy();
             await doClick(findButton(dialog, 'Close'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(sides.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -350,20 +390,20 @@ describe('EditTournament', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
             const sideElement = sides.querySelector('div');
-            let message;
-            window.confirm = (msg) => {
-                message = msg;
+            window.confirm = (_) => {
                 return true;
             }
 
@@ -372,7 +412,7 @@ describe('EditTournament', () => {
             expect(dialog).toBeTruthy();
             await doClick(findButton(dialog, 'Close'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(sides.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -385,20 +425,20 @@ describe('EditTournament', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
             const sideElement = sides.querySelector('div');
-            let message;
-            window.confirm = (msg) => {
-                message = msg;
+            window.confirm = (_) => {
                 return true;
             }
 
@@ -407,7 +447,7 @@ describe('EditTournament', () => {
             expect(dialog).toBeTruthy();
             await doClick(findButton(dialog, 'Delete side'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.sides).toEqual([]);
         });
 
@@ -416,19 +456,21 @@ describe('EditTournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(side)
-                .round(r => r
-                    .withMatch(m => m.sideA(side))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(side))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .build();
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -441,7 +483,7 @@ describe('EditTournament', () => {
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.round.matches[0]).toEqual({
                 id: expect.any(String),
                 sideA: {id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: []},
@@ -456,19 +498,21 @@ describe('EditTournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(side)
-                .round(r => r
-                    .withMatch(m => m.sideB(side))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideB(side))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .build();
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -481,7 +525,7 @@ describe('EditTournament', () => {
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.round.matches[0]).toEqual({
                 id: expect.any(String),
                 sideA: null,
@@ -496,19 +540,21 @@ describe('EditTournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(side)
-                .round(r => r
-                    .withMatch(m => m.sideB(side))
-                    .withMatchOption(o => o.numberOfLegs(3)))
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideB(side))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .build();
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -521,7 +567,7 @@ describe('EditTournament', () => {
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1   ', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedData.sides[0]).toEqual({
                 id: side.id,
                 name: 'NEW SIDE 1',
@@ -542,12 +588,14 @@ describe('EditTournament', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: [],
+                alreadyPlaying: {},
                 allPlayers: [],
+                setTournamentData,
             }, {
                 disabled: false,
                 saving: false,
-                canSave: true
+                canSave: true,
+                applyPatch,
             }, account, [team1]);
 
             const rounds = context.container.querySelector('div > div > div.mt-3:nth-child(3)');

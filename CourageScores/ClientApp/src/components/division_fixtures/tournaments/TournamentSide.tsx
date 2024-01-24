@@ -1,8 +1,18 @@
 import React, {useState} from 'react';
 import {EditSide} from "./EditSide";
 import {count, isEmpty} from "../../../helpers/collections";
+import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
 
-export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
+export interface ITournamentSideProps {
+    side: ITournamentSideDto;
+    onChange?: (editSide: ITournamentSideDto) => Promise<any>;
+    winner?: boolean;
+    readOnly?: boolean;
+    onRemove: () => Promise<any>;
+}
+
+export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITournamentSideProps) {
     const [editSide, setEditSide] = useState(null);
 
     function renderPlayers() {
@@ -15,7 +25,7 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
         }
 
         return (<ol className="no-list-indent">
-            {(side.players || []).map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
+            {(side.players || []).map((p: ITournamentPlayerDto) => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
                 {p.name}
             </li>))}
         </ol>);
@@ -28,8 +38,8 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
     function renderEditSide() {
         return (<EditSide
             side={editSide}
-            onChange={(side) => setEditSide(side)}
-            onClose={() => setEditSide(null)}
+            onChange={async (side: ITournamentSideDto) => setEditSide(side)}
+            onClose={async () => setEditSide(null)}
             onApply={async () => {
                 if (onChange) {
                     await onChange(editSide);
