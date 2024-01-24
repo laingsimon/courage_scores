@@ -7,3 +7,6 @@ describe('build', () => {
         });
     });
 });
+
+// indicate this is a module rather than a global script
+export {};

@@ -1,10 +1,13 @@
 import {all, any} from "./collections";
 import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
 import {isInFuture, isInPast, isToday} from "./dates";
+import {IFilter} from "../interfaces/IFilter";
 
-export function isLastFixtureBeforeToday(renderContext, fixtures, date) {
+// TODO: create interface for renderContext
+
+export function isLastFixtureBeforeToday(renderContext: any, fixtures: any, date: any): boolean {
     if (!renderContext.lastFixtureDateBeforeToday) {
-        const dates = fixtures.map(f => f.date).filter(isInPast);
+        const dates = fixtures.map((f: {date: string}) => f.date).filter(isInPast);
         // Assumes all dates are sorted
         if (any(dates)) {
             renderContext.lastFixtureDateBeforeToday = dates[dates.length - 1];
@@ -16,7 +19,7 @@ export function isLastFixtureBeforeToday(renderContext, fixtures, date) {
     return date === renderContext.lastFixtureDateBeforeToday;
 }
 
-export function isNextFixtureAfterToday(renderContext, date) {
+export function isNextFixtureAfterToday(renderContext: any, date: string): boolean {
     if (isInFuture(date)) {
         if (!renderContext.futureDateShown) {
             renderContext.futureDateShown = date;
@@ -28,7 +31,7 @@ export function isNextFixtureAfterToday(renderContext, date) {
     return false;
 }
 
-export function optionallyInvertFilter(getFilter, filterInput, renderContext, fixtures) {
+export function optionallyInvertFilter(getFilter: (constraint: string, context: any, fixtures: any) => IFilter, filterInput?: string, renderContext?: any, fixtures?: any): IFilter {
     if (filterInput && filterInput.indexOf('not(') === 0) {
         const withoutNot = filterInput.substring(4, filterInput.length - 1);
         const positiveFilter = getFilter(withoutNot, renderContext, fixtures);
@@ -40,7 +43,7 @@ export function optionallyInvertFilter(getFilter, filterInput, renderContext, fi
     return getFilter(filterInput, renderContext, fixtures) ?? new NullFilter();
 }
 
-export function getDateFilter(date, renderContext, fixtures) {
+export function getDateFilter(date: string, renderContext: any, fixtures: any): IFilter {
     switch (date) {
         case 'past':
             return new Filter(c => isInPast(c.date));
@@ -53,7 +56,7 @@ export function getDateFilter(date, renderContext, fixtures) {
                 new Filter(c => isNextFixtureAfterToday(renderContext, c.date))
             ]);
         default:
-            if (date && all(date.split(','), d => d.match(/\d{4}-\d{2}/))) {
+            if (date && all(date.split(','), (d: string) => !!d.match(/\d{4}-\d{2}/))) {
                 const splitDates = date.split(',');
                 return new Filter(c => any(splitDates, date => c.date.indexOf(date) === 0));
             }
@@ -62,7 +65,7 @@ export function getDateFilter(date, renderContext, fixtures) {
     }
 }
 
-export function getTypeFilter(type) {
+export function getTypeFilter(type: string): IFilter {
     switch (type) {
         case 'league':
             return new AndFilter([
@@ -78,7 +81,7 @@ export function getTypeFilter(type) {
     }
 }
 
-export function getTeamFilter(name) {
+export function getTeamFilter(name: string): IFilter {
     if (!name) {
         return new NullFilter();
     }
@@ -86,11 +89,11 @@ export function getTeamFilter(name) {
     return new OrFilter([
         new Filter(c => c.fixture && c.fixture.homeTeam && (c.fixture.homeTeam.id === name || c.fixture.homeTeam.name.toLowerCase() === name.toLowerCase())),
         new Filter(c => c.fixture && c.fixture.awayTeam && (c.fixture.awayTeam.id === name || c.fixture.awayTeam.name.toLowerCase() === name.toLowerCase())),
-        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
+        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, (s: {teamId: string, name: string}) => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
     ]);
 }
 
-export function getNotesFilter(notesFilter) {
+export function getNotesFilter(notesFilter: string): IFilter {
     if (!notesFilter) {
         return new NullFilter();
     }
@@ -101,19 +104,19 @@ export function getNotesFilter(notesFilter) {
         default:
             const notes = notesFilter.split(';');
             return new OrFilter(
-                notes.map(note => new Filter(fd => any(fd.notes, n => n.note.toLowerCase().indexOf(note.toLowerCase()) === 0)))
+                notes.map(note => new Filter(fd => any(fd.notes, (n: {note: string}) => n.note.toLowerCase().indexOf(note.toLowerCase()) === 0)))
             );
     }
 }
 
-export function getFixtureFilters(filter) {
+export function getFixtureFilters(filter: any): IFilter {
     return new AndFilter([
         optionallyInvertFilter(getTypeFilter, filter.type),
         optionallyInvertFilter(getTeamFilter, filter.team)
     ]);
 }
 
-export function getFixtureDateFilters(filter, renderContext, fixtures) {
+export function getFixtureDateFilters(filter: { date?: string, notes?: string }, renderContext: any, fixtures: any): IFilter {
     return new AndFilter([
         new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures) || any(fd.notes) || fd.isNew),
         optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),
@@ -121,9 +124,16 @@ export function getFixtureDateFilters(filter, renderContext, fixtures) {
     ]);
 }
 
-export function initFilter(location) {
+export interface IInitialisedFilters {
+    date?: string;
+    type?: string;
+    team?: string;
+    notes?: string
+}
+
+export function initFilter(location: { search: string }): IInitialisedFilters {
     const search = new URLSearchParams(location.search);
-    const filter = {};
+    const filter: IInitialisedFilters = {};
     if (search.has('date')) {
         filter.date = search.get('date');
     }
@@ -140,11 +150,11 @@ export function initFilter(location) {
     return filter;
 }
 
-export function changeFilter(newFilter, setFilter, navigate, location) {
+export function changeFilter(newFilter: IInitialisedFilters, setFilter: (filter: IInitialisedFilters) => any, navigate: Function, location: { pathname: string, hash: string }) {
     setFilter(newFilter);
 
-    const search = Object.assign({}, newFilter);
-    Object.keys(newFilter).forEach(key => {
+    const search: IInitialisedFilters = Object.assign({}, newFilter);
+    Object.keys(newFilter).forEach((key: string) => {
         if (!newFilter[key]) {
             delete search[key];
         }
@@ -152,7 +162,7 @@ export function changeFilter(newFilter, setFilter, navigate, location) {
 
     navigate({
         pathname: location.pathname,
-        search: new URLSearchParams(search).toString(),
+        search: new URLSearchParams(search as any).toString(),
         hash: location.hash,
     });
 }

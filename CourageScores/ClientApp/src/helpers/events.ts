@@ -1,16 +1,19 @@
 /*
 * Change a property of a state-object based on on event
 * */
-export function valueChanged(get, set, nullIf) {
-    return async (event) => {
-        const newData = Object.assign({}, get);
-        newData[event.target.name] = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value === nullIf
+import {Dispatch, SetStateAction} from "react";
+
+export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((value: T) => Promise<any>), nullIf?: string) {
+    return async (event: any) => {
+        const newData: any = Object.assign({}, get);
+        const target: any = event.target;
+        newData[target.name] = target.type === 'checkbox'
+            ? target.checked
+            : target.value === nullIf
                 ? null
-                : event.target.type === 'number'
-                    ? Number.parseFloat(event.target.value)
-                    : event.target.value;
+                : target.type === 'number'
+                    ? Number.parseFloat(target.value)
+                    : target.value;
         await set(newData);
     }
 }
@@ -22,16 +25,16 @@ export function valueChanged(get, set, nullIf) {
 *
 * Returned function will return the newly set data
 * */
-export function propChanged(get, set, prop) {
-    const setProp = (prop, value) => {
-        const newData = Object.assign({}, get);
+export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: string): (x: any, y?: any) => Promise<any> {
+    const setProp = (prop: string, value: any) => {
+        const newData: any = Object.assign({}, get);
         newData[prop] = value;
         set(newData);
         return newData;
     };
 
     if (prop) {
-        return (value) => setProp(prop, value);
+        return (value: any) => setProp(prop, value);
     }
 
     return setProp;
@@ -40,28 +43,30 @@ export function propChanged(get, set, prop) {
 /*
 * Set a state property based on an input changing
 * */
-export function stateChanged(set) {
-    return (event) => {
-        const value = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value;
+export function stateChanged<T>(set: Dispatch<SetStateAction<T>>) {
+    return (event: any) => {
+        const target: any = event.target;
+        const value = target.type === 'checkbox'
+            ? target.checked
+            : target.value;
 
         set(value);
     }
 }
 
 /* An event handler that will invoke a function with the name of the element and its value */
-export function handleChange(handler) {
+export function handleChange(handler?: (name: string, value: any) => Promise<any>) {
     if (!handler) {
         // prevent updates
         return () => false;
     }
 
-    return async (event) => {
-        const value = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value;
+    return async (event: any) => {
+        const target: any = event.target;
+        const value = target.type === 'checkbox'
+            ? target.checked
+            : target.value;
 
-        await handler(event.target.name, value);
+        await handler(target.name, value);
     };
 }

@@ -5,7 +5,7 @@ import {handleChange, propChanged, valueChanged} from './events';
 describe('events', () => {
     describe('valueChanged', () => {
          it('should set data to true if checkbox checked', async () => {
-            let newObj;
+            let newObj: any;
             const handler = valueChanged({
                 enabled: false,
             }, val => newObj = val);
@@ -23,7 +23,7 @@ describe('events', () => {
          });
 
         it('should set data to false if checkbox unchecked', async () => {
-            let newObj;
+            let newObj: any;
             const handler = valueChanged({
                 enabled: true,
             }, val => newObj = val);
@@ -41,7 +41,7 @@ describe('events', () => {
         });
 
         it('should set data to number if number input changed', async () => {
-            let newObj;
+            let newObj: any;
             const handler = valueChanged({
                 age: 10,
             }, val => newObj = val);
@@ -58,7 +58,7 @@ describe('events', () => {
         });
 
         it('should set data to null if number input changed to nullIf', async () => {
-            let newObj;
+            let newObj: any;
             const handler = valueChanged({
                 age: 10,
             }, val => newObj = val, '');
@@ -75,7 +75,7 @@ describe('events', () => {
         });
 
         it('should set data to string if input changed', async () => {
-            let newObj;
+            let newObj: any;
             const handler = valueChanged({
                 name: 'NAME',
             }, val => newObj = val);
@@ -92,7 +92,7 @@ describe('events', () => {
         });
 
         it('should set data to null if input changed to nullIf', async () => {
-            let newObj;
+            let newObj: any;
             const handler = valueChanged({
                 name: 'NAME',
             }, val => newObj = val, '');
@@ -111,7 +111,7 @@ describe('events', () => {
 
     describe('propChanged', () => {
         it('updates single property when named', () => {
-            let newValue;
+            let newValue: any;
 
             const func = propChanged({name: 'Simon', age: 40}, v => newValue = v, 'name');
             func('Laing');
@@ -146,8 +146,8 @@ describe('events', () => {
         });
 
         it('should return event-handler that supports checkboxes', async () => {
-            let handled = null;
-            const eventHandler = handleChange((name, value) => {
+            let handled: {name: string, value: boolean} | null = null;
+            const eventHandler = handleChange(async (name: string, value: boolean) => {
                 handled = {name, value};
             });
             const event = {
@@ -160,13 +160,13 @@ describe('events', () => {
 
             await eventHandler(event);
 
-            expect(handled.name).toEqual('foo');
-            expect(handled.value).toEqual(true);
+            expect(handled!.name).toEqual('foo');
+            expect(handled!.value).toEqual(true);
         });
 
         it('should return event-handler that supports inputs', async () => {
-            let handled = null;
-            const eventHandler = handleChange((name, value) => {
+            let handled: {name: string, value: boolean} | null = null;
+            const eventHandler = handleChange(async (name: string, value: boolean) => {
                 handled = {name, value};
             });
             const event = {
@@ -179,8 +179,8 @@ describe('events', () => {
 
             await eventHandler(event);
 
-            expect(handled.name).toEqual('foo');
-            expect(handled.value).toEqual('bar');
+            expect(handled!.name).toEqual('foo');
+            expect(handled!.value).toEqual('bar');
         });
     });
 });

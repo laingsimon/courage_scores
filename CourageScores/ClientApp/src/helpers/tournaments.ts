@@ -1,4 +1,4 @@
-export function getRoundNameFromSides(round, sideLength, depth) {
+export function getRoundNameFromSides(round: { name?: string | null }, sideLength: number, depth: number) {
     if (round.name) {
         return round.name;
     }
@@ -15,7 +15,7 @@ export function getRoundNameFromSides(round, sideLength, depth) {
     return `Round: ${depth}`;
 }
 
-export function getRoundNameFromMatches(matches, depth) {
+export function getRoundNameFromMatches(matches: number, depth: number) {
     if (matches === 1) {
         return 'Final';
     }
@@ -29,12 +29,12 @@ export function getRoundNameFromMatches(matches, depth) {
     return `Round: ${depth + 1}`;
 }
 
-export function hasScore(score) {
+export function hasScore(score?: number | null) {
     return score !== null && score !== undefined;
 }
 
 /* istanbul ignore next */
-export function sideSelection(side) {
+export function sideSelection(side: { id: string, name: string}) {
     return {
         value: side.id,
         text: side.name

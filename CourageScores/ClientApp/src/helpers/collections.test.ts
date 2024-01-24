@@ -38,7 +38,7 @@ describe('collections', () => {
                 {id: 'c', name: 'c'}
             ];
 
-            const filteredItems = toMap(items).filter(item => item.name === 'a');
+            const filteredItems = toMap(items).filter((item: any) => item.name === 'a');
 
             expect(filteredItems).toEqual([{id: 'a', name: 'a'}]);
         });
@@ -50,7 +50,7 @@ describe('collections', () => {
                 {id: 'c', name: 'c'}
             ];
 
-            const mappedItems = toMap(items).map(item => item.name.toUpperCase());
+            const mappedItems = toMap(items).map((item: any) => item.name.toUpperCase());
 
             expect(mappedItems).toEqual(['A', 'B', 'C']);
         });
@@ -149,7 +149,7 @@ describe('collections', () => {
         });
 
         it('should return false if empty', () => {
-            const items = [];
+            const items: any[] = [];
 
             const result = any(items);
 
@@ -167,7 +167,7 @@ describe('collections', () => {
 
     describe('all', () => {
         it('should return true if empty', () => {
-            const items = [];
+            const items: any[] = [];
 
             const result = all(items);
 
@@ -193,7 +193,7 @@ describe('collections', () => {
 
     describe('isEmpty', () => {
         it('should return true if empty', () => {
-            const items = [];
+            const items: any[] = [];
 
             const result = isEmpty(items);
 
@@ -227,7 +227,7 @@ describe('collections', () => {
         });
 
         it('returns 0 when empty', () => {
-            const items = [];
+            const items: any[] = [];
 
             const result = count(items);
 
@@ -271,7 +271,7 @@ describe('collections', () => {
         });
 
         it('should return 0 when empty', () => {
-            const items = [];
+            const items: any[] = [];
 
             const result = max(items, i => i);
 
@@ -388,7 +388,7 @@ describe('collections', () => {
         it('should throw for duplicate ids', () => {
             const item1 = {name: 'NAME', age: 1};
             const item2 = {name: 'NAME', age: 2};
-            let error;
+            let error: any;
 
             try {
                 toDictionary([item1, item2], a => a.name);
@@ -411,7 +411,7 @@ describe('collections', () => {
         });
 
         it('reverses empty collection', () => {
-            const input = [];
+            const input: any[] = [];
 
             const result = reverse(input);
 

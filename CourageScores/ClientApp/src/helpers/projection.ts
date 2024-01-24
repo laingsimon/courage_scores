@@ -1,7 +1,7 @@
 /*
 * Create a pseudo-random GUID
 * */
-export function createTemporaryId() {
+export function createTemporaryId(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = Math.random() * 16 | 0;
         // eslint-disable-next-line
@@ -13,7 +13,7 @@ export function createTemporaryId() {
 /*
 * Create a collection of items, containing the given number of items, provided by the given function
 * */
-export function repeat(times, itemProvider) {
+export function repeat<T>(times: number, itemProvider?: (x: number) => T): any[] {
     const items = [];
     for (let index = 0; index < times; index++) {
         items.push(itemProvider ? itemProvider(index) : index);
@@ -26,7 +26,7 @@ export const EMPTY_ID = '00000000-0000-0000-0000-000000000000';
 /*
 * Determine if the given id is a compatible GUID
 * */
-export function isGuid(id) {
+export function isGuid(id?: string | null): boolean {
     if (!id) {
         return false;
     }

@@ -1,11 +1,13 @@
-function getBuildDetail(name) {
+import {IBuild} from "../interfaces/IBuild";
+
+function getBuildDetail(name: string): string | null {
     const meta = document.querySelector(`meta[name="build:${name}"]`);
     return meta
         ? meta.getAttribute('content')
         : null;
 }
 
-export function getBuild() {
+export function getBuild(): IBuild {
     return {
         branch: getBuildDetail('branch'),
         version: getBuildDetail('sha'),

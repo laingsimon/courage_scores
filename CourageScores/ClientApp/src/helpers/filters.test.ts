@@ -7,20 +7,23 @@ import {
     getFixtureFilters,
     getNotesFilter,
     getTeamFilter,
-    getTypeFilter,
+    getTypeFilter, IInitialisedFilters,
     initFilter,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
     optionallyInvertFilter
 } from "./filters";
-import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder, teamBuilder, tournamentBuilder} from "./builders";
+import {IFilter} from "../interfaces/IFilter";
+import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder} from "./builders/divisions";
+import {tournamentBuilder} from "./builders/tournaments";
+import {teamBuilder} from "./builders/teams";
 
 describe('filters', () => {
     const today = date(0);
     const future = date(1);
     const past = date(-1);
 
-    function date(monthOffset) {
+    function date(monthOffset: number) {
         let date = new Date();
         date.setMonth(date.getMonth() + monthOffset);
         return date.toISOString();
@@ -31,7 +34,7 @@ describe('filters', () => {
             const context = {
                 lastFixtureDateBeforeToday: past
             };
-            const fixtureDates = [];
+            const fixtureDates: any[] = [];
 
             const result = isLastFixtureBeforeToday(context, fixtureDates, past);
 
@@ -42,7 +45,7 @@ describe('filters', () => {
             const context = {
                 lastFixtureDateBeforeToday: today
             };
-            const fixtureDates = [];
+            const fixtureDates: any[] = [];
 
             const result = isLastFixtureBeforeToday(context, fixtureDates, past);
 
@@ -63,7 +66,7 @@ describe('filters', () => {
 
         it('does not set lastFixtureDateBeforeToday if no fixture dates', () => {
             const context = {};
-            const fixtureDates = [];
+            const fixtureDates: any[] = [];
 
             const result = isLastFixtureBeforeToday(context, fixtureDates, past);
 
@@ -92,7 +95,7 @@ describe('filters', () => {
         });
 
         it('is in future and future date not shown then returns true', () => {
-            const context = {};
+            const context: { futureDateShown?: boolean } = {};
 
             const result = isNextFixtureAfterToday(context, future);
 
@@ -125,78 +128,78 @@ describe('filters', () => {
         it('returns filter if empty', () => {
             const context = {id: 1};
             const fixtures = [{id: 2}];
-            const stubFilter = {id: 3};
-            let call;
-            const getFilter = (filter, context, fixtures) => {
+            const stubFilter: IFilter = {id: 3} as any;
+            let call: {filter: string, context: any, fixtures: any};
+            const getFilter = (filter: string, context: any, fixtures: any) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
 
             const result = optionallyInvertFilter(getFilter, '', context, fixtures);
 
-            expect(call).toBeTruthy();
-            expect(call.filter).toEqual('');
-            expect(call.context).toEqual(context);
-            expect(call.fixtures).toEqual(fixtures);
+            expect(call!).toBeTruthy();
+            expect(call!.filter).toEqual('');
+            expect(call!.context).toEqual(context);
+            expect(call!.fixtures).toEqual(fixtures);
             expect(result).toEqual(stubFilter);
         });
 
         it('returns filter if it does not start with not(', () => {
             const context = {id: 1};
             const fixtures = [{id: 2}];
-            const stubFilter = {id: 3};
-            let call;
-            const getFilter = (filter, context, fixtures) => {
+            const stubFilter: IFilter = {id: 3} as any;
+            let call: {filter: string, context: any, fixtures: any};
+            const getFilter = (filter: string, context: any, fixtures: any) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
 
             const result = optionallyInvertFilter(getFilter, 'a=b', context, fixtures);
 
-            expect(call).toBeTruthy();
-            expect(call.filter).toEqual('a=b');
-            expect(call.context).toEqual(context);
-            expect(call.fixtures).toEqual(fixtures);
+            expect(call!).toBeTruthy();
+            expect(call!.filter).toEqual('a=b');
+            expect(call!.context).toEqual(context);
+            expect(call!.fixtures).toEqual(fixtures);
             expect(result).toEqual(stubFilter);
         });
 
         it('returns null filter if no filter created and filter start with not(', () => {
             const context = {id: 1};
             const fixtures = [{id: 2}];
-            let call;
-            const getFilter = (filter, context, fixtures) => {
+            let call: {filter: string, context: any, fixtures: any};
+            const getFilter = (filter: string, context: any, fixtures: any) => {
                 call = {filter, context, fixtures};
                 return null;
             };
 
             const result = optionallyInvertFilter(getFilter, 'not(a=b)', context, fixtures);
 
-            expect(call).toBeTruthy();
-            expect(call.filter).toEqual('a=b');
-            expect(call.context).toEqual(context);
-            expect(call.fixtures).toEqual(fixtures);
+            expect(call!).toBeTruthy();
+            expect(call!.filter).toEqual('a=b');
+            expect(call!.context).toEqual(context);
+            expect(call!.fixtures).toEqual(fixtures);
             expect(result.apply({})).toEqual(true);
         });
 
         it('returns inverted filter if filter created and filter start with not(', () => {
             const context = {id: 1};
             const fixtures = [{id: 2}];
-            const stubFilter = {
+            const stubFilter: IFilter & {id: number} = {
                 id: 3,
                 apply: () => true
             };
-            let call;
-            const getFilter = (filter, context, fixtures) => {
+            let call: {filter: string, context: any, fixtures: any};
+            const getFilter = (filter: string, context: any, fixtures: any) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
 
             const result = optionallyInvertFilter(getFilter, 'not(a=b)', context, fixtures);
 
-            expect(call).toBeTruthy();
-            expect(call.filter).toEqual('a=b');
-            expect(call.context).toEqual(context);
-            expect(call.fixtures).toEqual(fixtures);
+            expect(call!).toBeTruthy();
+            expect(call!.filter).toEqual('a=b');
+            expect(call!.context).toEqual(context);
+            expect(call!.fixtures).toEqual(fixtures);
             expect(result.apply({})).toEqual(false);
         });
     });
@@ -361,7 +364,7 @@ describe('filters', () => {
                     .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: tournamentBuilder().withSide(s => s.teamId('abcd')).build(),
+                tournamentFixture: tournamentBuilder().withSide((s: any) => s.teamId('abcd')).build(),
             })).toEqual(true);
         });
 
@@ -380,7 +383,7 @@ describe('filters', () => {
                     .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: tournamentBuilder().withSide(s => s.name('name').teamId('abcd')).build(),
+                tournamentFixture: tournamentBuilder().withSide((s: any) => s.name('name').teamId('abcd')).build(),
             })).toEqual(true);
         });
 
@@ -399,7 +402,7 @@ describe('filters', () => {
                     .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: tournamentBuilder().withSide(s => s.name('name').teamId('abcd')).build(),
+                tournamentFixture: tournamentBuilder().withSide((s: any) => s.name('name').teamId('abcd')).build(),
             })).toEqual(true);
         });
     });
@@ -583,12 +586,12 @@ describe('filters', () => {
     });
 
     describe('changeFilter', () => {
-        let updatedFilter;
-        let navigated;
-        const setFilter = (filter) => {
+        let updatedFilter: any;
+        let navigated: any;
+        const setFilter = (filter: any) => {
             updatedFilter = filter
         };
-        const navigate = (params) => {
+        const navigate = (params: any) => {
             navigated = params
         };
         const location = {pathname: 'path', hash: '#hash'};
@@ -596,7 +599,7 @@ describe('filters', () => {
         it('sets new filter', () => {
             updatedFilter = null;
             navigated = null;
-            const filter = {new: true};
+            const filter: IInitialisedFilters = {new: true} as any;
 
             changeFilter(filter, setFilter, navigate, location);
 
@@ -611,11 +614,10 @@ describe('filters', () => {
 
             changeFilter(filter, setFilter, navigate, location);
 
-            expect(navigated).not.toBeNull();
-            // noinspection JSObjectNullOrUndefined
-            expect(navigated.search).toEqual('date=past');
-            expect(navigated.pathname).toEqual(location.pathname);
-            expect(navigated.hash).toEqual(location.hash);
+            expect(navigated).toBeTruthy();
+            expect(navigated!.search).toEqual('date=past');
+            expect(navigated!.pathname).toEqual(location.pathname);
+            expect(navigated!.hash).toEqual(location.hash);
         });
 
         it('navigates with new search params', () => {
@@ -625,12 +627,11 @@ describe('filters', () => {
 
             changeFilter(filter, setFilter, navigate, location);
 
-            expect(navigated).not.toBeNull();
-            // noinspection JSObjectNullOrUndefined
-            expect(navigated.search).toContain('date=past');
-            expect(navigated.search).toContain('type=league');
-            expect(navigated.pathname).toEqual(location.pathname);
-            expect(navigated.hash).toEqual(location.hash);
+            expect(navigated).toBeTruthy();
+            expect(navigated!.search).toContain('date=past');
+            expect(navigated!.search).toContain('type=league');
+            expect(navigated!.pathname).toEqual(location.pathname);
+            expect(navigated!.hash).toEqual(location.hash);
         });
     });
 });

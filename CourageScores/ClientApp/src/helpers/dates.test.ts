@@ -7,7 +7,7 @@ describe('dates', () => {
     const future = date(1);
     const past = date(-1);
 
-    function date(monthOffset) {
+    function date(monthOffset: number) {
         let date = new Date();
         date.setMonth(date.getMonth() + monthOffset);
         return date.toISOString();
