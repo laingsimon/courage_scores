@@ -1,88 +1,103 @@
-// noinspection JSUnresolvedFunction
-
 import {
+    api,
+    appProps,
+    brandingProps,
     cleanUp,
     doClick,
-    doSelectOption,
-    findButton,
-    noop,
-    renderApp,
+    doSelectOption, ErrorState,
+    findButton, iocProps,
+    renderApp, TestContext,
 } from "../../helpers/tests";
-import {
-    divisionFixtureBuilder,
-    teamBuilder, seasonBuilder, divisionBuilder, divisionDataBuilder
-} from "../../helpers/builders";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
-import {toMap} from "../../helpers/collections";
+import {DataMap, toMap} from "../../helpers/collections";
 import React from "react";
-import {DivisionFixture} from "./DivisionFixture";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionFixture, IDivisionFixtureProps} from "./DivisionFixture";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {IGameApi} from "../../api/game";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IEditGameDto} from "../../interfaces/serverSide/Game/IEditGameDto";
+import {IGameDto} from "../../interfaces/serverSide/Game/IGameDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {IDatedDivisionFixtureDto} from "../../interfaces/IDatedDivisionFixtureDto";
+import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {
+    divisionBuilder,
+    divisionDataBuilder,
+    divisionFixtureBuilder,
+    IDivisionFixtureDateBuilder
+} from "../../helpers/builders/divisions";
+import {teamBuilder} from "../../helpers/builders/teams";
+import {seasonBuilder} from "../../helpers/builders/seasons";
 
 describe('DivisionFixture', () => {
-    let context;
-    let reportedError;
-    let divisionReloaded;
-    let updatedFixtures;
-    let beforeReloadDivision;
-    let savedFixture;
-    let deletedFixture;
-    let apiResponse;
+    let context: TestContext;
+    let reportedError: ErrorState;
+    let divisionReloaded: boolean;
+    let updatedFixtures: (x: IEditableDivisionFixtureDateDto[]) => IDivisionFixtureDateDto[];
+    let beforeReloadDivisionCalled: boolean;
+    let savedFixture: {fixture: IEditGameDto, lastUpdated?: string};
+    let deletedFixture: string;
+    let apiResponse: IClientActionResultDto<IGameDto>;
 
-    const gameApi = {
-        update: async (fixture, lastUpdated) => {
+    const gameApi = api<IGameApi>({
+        update: async (fixture: IEditGameDto, lastUpdated?: string) => {
             savedFixture = {fixture, lastUpdated};
             return apiResponse || {success: true};
         },
-        delete: async (id) => {
+        delete: async (id: string) => {
             deletedFixture = id;
             return apiResponse || {success: true};
         }
-    }
+    });
 
-    function onReloadDivision() {
+    async function onReloadDivision() {
         divisionReloaded = true;
 
-        if (!beforeReloadDivision) {
+        if (!beforeReloadDivisionCalled) {
             throw new Error('Reload Division called before beforeReloadDivision');
         }
+
+        return null;
     }
 
-    function onBeforeReloadDivision() {
-        beforeReloadDivision = true;
+    async function beforeReloadDivision() {
+        beforeReloadDivisionCalled = true;
+    }
+
+    async function onUpdateFixtures(data: (x: IEditableDivisionFixtureDateDto[]) => IDivisionFixtureDateDto[]): Promise<IDivisionFixtureDateDto[]> {
+        updatedFixtures = data;
+        return [];
     }
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, divisionData, account, teams) {
-        reportedError = null;
+    beforeEach(() => {
+        reportedError = new ErrorState();
         divisionReloaded = false;
         updatedFixtures = null;
-        beforeReloadDivision = null;
+        beforeReloadDivisionCalled = null;
         savedFixture = null;
         deletedFixture = null;
         apiResponse = null;
+    });
+
+    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: IUserDto, teams: DataMap<ITeamDto>) {
         context = await renderApp(
-            {gameApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({gameApi}),
+            brandingProps(),
+            appProps({
                 account,
                 teams,
-                reportClientSideException: noop,
-            },
+            }, reportedError),
             (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
-                <DivisionFixture
-                    {...props}
-                    beforeReloadDivision={onBeforeReloadDivision}
-                    onUpdateFixtures={(data) => updatedFixtures = data}/>
+                <DivisionFixture {...props} />
             </DivisionDataContainer>),
             null,
             null,
@@ -90,27 +105,27 @@ describe('DivisionFixture', () => {
     }
 
     describe('when logged out', () => {
-        const season = seasonBuilder('SEASON').build();
-        const division = divisionBuilder('DIVISION').build();
-        const team = teamBuilder('TEAM').build();
-        const account = null;
+        const season: ISeasonDto = seasonBuilder('SEASON').build();
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const team: ITeamDto = teamBuilder('TEAM').build();
+        const account: IUserDto = null;
 
         it('renders unplayed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(team)
                     .build(),
                 account,
                 toMap([team]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY']);
@@ -122,21 +137,21 @@ describe('DivisionFixture', () => {
 
         it('renders postponed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .postponed()
                 .playing('HOME', 'AWAY')
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(team)
                     .build(),
                 account,
                 toMap([team]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', 'P', 'vs', 'P', 'AWAY']);
@@ -148,21 +163,21 @@ describe('DivisionFixture', () => {
 
         it('renders qualifier fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(team)
                     .build(),
                 account,
                 toMap([team]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY']);
@@ -174,20 +189,20 @@ describe('DivisionFixture', () => {
 
         it('renders bye', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye('HOME')
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(team)
                     .build(),
                 account,
                 toMap([team]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'Bye']);
@@ -199,18 +214,20 @@ describe('DivisionFixture', () => {
     });
 
     describe('when logged in', () => {
-        const season = seasonBuilder('SEASON').build();
-        const division = divisionBuilder('DIVISION').build();
-        const homeTeam = teamBuilder('HOME')
+        const season: ISeasonDto = seasonBuilder('SEASON').build();
+        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const homeTeam: ITeamDto = teamBuilder('HOME')
             .address('HOME ADDRESS')
             .forSeason(season, division)
             .build();
-        const awayTeam = teamBuilder('AWAY')
+        const awayTeam: ITeamDto = teamBuilder('AWAY')
             .address('AWAY ADDRESS')
             .forSeason(season, division)
             .build();
-
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 manageGames: true,
             }
@@ -218,20 +235,20 @@ describe('DivisionFixture', () => {
 
         it('renders unplayed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAYAWAY', '🗑']);
@@ -241,21 +258,21 @@ describe('DivisionFixture', () => {
 
         it('renders postponed fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .postponed()
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', 'P', 'vs', 'P', 'AWAYAWAY', '🗑']);
@@ -265,21 +282,21 @@ describe('DivisionFixture', () => {
 
         it('renders qualifier fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAYAWAY', '🗑']);
@@ -289,20 +306,20 @@ describe('DivisionFixture', () => {
 
         it('renders bye', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY', '']);
@@ -312,23 +329,23 @@ describe('DivisionFixture', () => {
 
         it('renders selectable away team with same address (league fixture)', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeamAtHomeAddress = teamBuilder('ANOTHER TEAM')
+            const anotherTeamAtHomeAddress: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('HOME ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain('ANOTHER TEAM');
             expect(awayCell.textContent).not.toContain('🚫');
@@ -336,132 +353,132 @@ describe('DivisionFixture', () => {
 
         it('renders unselectable away team playing elsewhere (league fixture)', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
-            const anotherFixture = divisionFixtureBuilder(date)
+            const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture).withFixture(anotherFixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture).withFixture(anotherFixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain('🚫 AWAY (Already playing against HOME)');
         });
 
         it('renders unselectable away team played fixture previously (league fixture)', async () => {
-            const fixture = divisionFixtureBuilder('2023-05-06T00:00:00')
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-06T00:00:00')
                 .bye(homeTeam)
                 .build();
-            const anotherFixture = divisionFixtureBuilder('2023-05-13T00:00:00')
+            const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-13T00:00:00')
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date: fixture.date, readOnly: false},
+                {fixture, date: fixture.date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
-                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(anotherFixture), anotherFixture.date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain(`🚫 AWAY (Already playing same leg on ${renderDate(anotherFixture.date)})`);
         });
 
         it('renders selectable away team when away team is playing a qualifier on another date', async () => {
-            const fixture = divisionFixtureBuilder('2023-05-06T00:00:00')
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-06T00:00:00')
                 .bye(homeTeam)
                 .build();
-            const anotherFixture = divisionFixtureBuilder('2023-05-13T00:00:00')
+            const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-13T00:00:00')
                 .playing(homeTeam, awayTeam)
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date: fixture.date, readOnly: false},
+                {fixture, date: fixture.date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
-                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(anotherFixture), anotherFixture.date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toEqual(`AWAY`);
         });
 
         it('renders selectable away team with same address (qualifier)', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
                 .build();
-            const anotherTeamAtHomeAddress = teamBuilder('ANOTHER TEAM')
+            const anotherTeamAtHomeAddress: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('HOME ADDRESS')
                 .forSeason(season, division)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toEqual(`AWAYANOTHER TEAM`);
         });
 
         it('renders unselectable away team playing elsewhere (qualifier)', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
                 .build();
-            const anotherFixture = divisionFixtureBuilder(date)
+            const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture).withFixture(anotherFixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture).withFixture(anotherFixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain('🚫 AWAY (Already playing against HOME)');
         });
 
         it('renders selectable home team when no other fixtures for date', async () => {
             const date = '2023-05-06T00:00:00';
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
@@ -469,7 +486,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).not.toContain('🚫');
         });
@@ -477,13 +494,13 @@ describe('DivisionFixture', () => {
         it('renders no away selection when home address is in use', async () => {
             const date = '2023-05-06T00:00:00';
             const otherFixtureId = createTemporaryId();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
                 .withOtherFixtureUsingUsingAddress('HOME - SAME ADDRESS', otherFixtureId)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
@@ -491,7 +508,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.querySelector('.dropdown-menu')).toBeFalsy();
             expect(awayCell.textContent).toContain('🚫 HOME - SAME ADDRESS vs AWAY using this venue');
@@ -500,42 +517,42 @@ describe('DivisionFixture', () => {
         });
 
         it('renders unselectable away team played fixture previously (qualifier)', async () => {
-            const fixture = divisionFixtureBuilder('2023-05-06T00:00:00')
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-06T00:00:00')
                 .bye(homeTeam)
                 .knockout()
                 .build();
-            const anotherFixture = divisionFixtureBuilder('2023-05-13T00:00:00')
+            const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-13T00:00:00')
                 .playing(homeTeam, awayTeam)
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date: fixture.date, readOnly: false},
+                {fixture, date: fixture.date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
-                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(anotherFixture), anotherFixture.date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toEqual('AWAY');
         });
 
         it('can change away team', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -545,7 +562,7 @@ describe('DivisionFixture', () => {
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedFixtures).not.toBeNull();
             expect(updatedFixtures([{date, fixtures: [fixture]}])).toEqual([{
                 date,
@@ -565,16 +582,16 @@ describe('DivisionFixture', () => {
 
         it('can change away team for qualifiers', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture).knockout(), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture).knockout(), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -584,7 +601,7 @@ describe('DivisionFixture', () => {
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedFixtures).not.toBeNull();
             expect(updatedFixtures([{date, fixtures: [fixture], isKnockout: true}])).toEqual([{
                 date,
@@ -605,17 +622,17 @@ describe('DivisionFixture', () => {
 
         it('can save league fixture change', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .originalAwayTeamId('unset')
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -626,26 +643,26 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '💾'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(savedFixture).not.toBeNull();
-            expect(beforeReloadDivision).toEqual(true);
+            expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
         });
 
         it('can save qualifier change', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .originalAwayTeamId('unset')
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -656,26 +673,26 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '💾'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(savedFixture).not.toBeNull();
-            expect(beforeReloadDivision).toEqual(true);
+            expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
         });
 
         it('handles error during save', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .knockout()
                 .originalAwayTeamId('unset')
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -687,9 +704,9 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '💾'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(savedFixture).not.toBeNull();
-            expect(beforeReloadDivision).toEqual(null);
+            expect(beforeReloadDivisionCalled).toEqual(null);
             expect(divisionReloaded).toEqual(false);
             expect(context.container.textContent).toContain('Could not save fixture details');
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -697,16 +714,16 @@ describe('DivisionFixture', () => {
 
         it('can delete league fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -714,7 +731,7 @@ describe('DivisionFixture', () => {
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
-            let confirm;
+            let confirm: string;
             window.confirm = (message) => {
                 confirm = message;
                 return true;
@@ -722,25 +739,25 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(confirm).toEqual('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
             expect(deletedFixture).toEqual(fixture.id);
-            expect(beforeReloadDivision).toEqual(true);
+            expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
         });
 
         it('cannot delete fixture if readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: true},
+                {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -748,9 +765,7 @@ describe('DivisionFixture', () => {
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
-            let prompted = false;
             window.confirm = () => {
-                prompted = true;
                 return false;
             };
 
@@ -761,16 +776,16 @@ describe('DivisionFixture', () => {
 
         it('does not delete league fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -782,24 +797,24 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(deletedFixture).toBeNull();
-            expect(beforeReloadDivision).toEqual(null);
+            expect(beforeReloadDivisionCalled).toEqual(null);
             expect(divisionReloaded).toEqual(false);
         });
 
         it('handles error during delete', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -812,9 +827,9 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(deletedFixture).toEqual(fixture.id);
-            expect(beforeReloadDivision).toEqual(null);
+            expect(beforeReloadDivisionCalled).toEqual(null);
             expect(divisionReloaded).toEqual(false);
             expect(context.container.textContent).toContain('Could not save fixture details');
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -822,16 +837,16 @@ describe('DivisionFixture', () => {
 
         it('can close error dialog from deletion failure', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -851,17 +866,17 @@ describe('DivisionFixture', () => {
 
         it('can delete qualifier', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .knockout()
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: false},
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -869,7 +884,7 @@ describe('DivisionFixture', () => {
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
-            let confirm;
+            let confirm: string;
             window.confirm = (message) => {
                 confirm = message;
                 return true;
@@ -877,26 +892,26 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(confirm).toEqual('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
             expect(deletedFixture).toEqual(fixture.id);
-            expect(beforeReloadDivision).toEqual(true);
+            expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
         });
 
         it('cannot save when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .originalAwayTeamId('unset')
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: true},
+                {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -910,16 +925,16 @@ describe('DivisionFixture', () => {
 
         it('cannot delete when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: true},
+                {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -933,16 +948,16 @@ describe('DivisionFixture', () => {
 
         it('cannot change away team when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
-            const fixture = divisionFixtureBuilder(date)
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
             await renderComponent(
-                {fixture, date, readOnly: true},
+                {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
@@ -952,7 +967,7 @@ describe('DivisionFixture', () => {
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            expect(reportedError).toBeNull();
+            expect(reportedError.hasError()).toEqual(false);
             expect(updatedFixtures).toBeNull();
         });
     });

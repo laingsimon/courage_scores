@@ -1,7 +1,14 @@
 import {valueChanged} from "../../helpers/events";
 import React from "react";
+import {IGameMatchOptionDto} from "../../interfaces/serverSide/Game/IGameMatchOptionDto";
 
-export function EditMatchOptions({matchOptions, onMatchOptionsChanged, hideNumberOfPlayers}) {
+export interface IEditMatchOptionsProps {
+    matchOptions: IGameMatchOptionDto;
+    onMatchOptionsChanged: (newOptions: IGameMatchOptionDto) => Promise<any>;
+    hideNumberOfPlayers?: boolean;
+}
+
+export function EditMatchOptions({matchOptions, onMatchOptionsChanged, hideNumberOfPlayers}: IEditMatchOptionsProps) {
     return (<div>
         {hideNumberOfPlayers ? null : (<div className="input-group my-3">
             <div className="input-group-prepend">

@@ -636,6 +636,7 @@ describe('EditSide', () => {
                 }, {
                     id: player.id,
                     name: 'PLAYER',
+                    team: null,
                 }],
             });
         });
@@ -664,6 +665,7 @@ describe('EditSide', () => {
                 players: [{
                     id: player.id,
                     name: 'PLAYER',
+                    team: null,
                 }, {
                     id: anotherPlayer.id,
                     name: 'ANOTHER PLAYER',
@@ -830,7 +832,10 @@ describe('EditSide', () => {
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'SIDE NAME',
-                players: [player],
+                players: [{
+                    id: player.id,
+                    name: player.name,
+                }],
             });
         });
 

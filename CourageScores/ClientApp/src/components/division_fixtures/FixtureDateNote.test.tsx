@@ -1,27 +1,37 @@
-﻿// noinspection JSUnresolvedFunction
-
-import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
+﻿import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
-import {FixtureDateNote} from "./FixtureDateNote";
+import {FixtureDateNote, IFixtureDateNoteProps} from "./FixtureDateNote";
 import {DivisionDataContainer} from "../DivisionDataContainer";
-import {noteBuilder} from "../../helpers/builders";
+import {noteBuilder} from "../../helpers/builders/divisions";
+import {INoteApi} from "../../api/note";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
 
 describe('FixtureDateNote', () => {
-    let context;
-    let reportedError;
-    let editNote;
-    let divisionReloaded;
-    let deletedNoteId;
-    let deleteResult;
+    let context: TestContext;
+    let editNote: IFixtureDateNoteDto;
+    let deletedNoteId: string;
+    let deleteResult: IClientActionResultDto<IFixtureDateNoteDto>;
 
-    const noteApi = {
-        delete: async (id) => {
+    const noteApi = api<INoteApi>({
+        delete: async (id: string) => {
             deletedNoteId = id;
             return deleteResult || {success: true};
         }
-    }
+    });
 
-    function setEditNote(note) {
+    async function setEditNote(note: IFixtureDateNoteDto) {
         editNote = note;
     }
 
@@ -29,31 +39,29 @@ describe('FixtureDateNote', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(note, preventDelete, account, setEditNote) {
-        reportedError = null;
+    beforeEach(() => {
         editNote = null;
         deletedNoteId = null;
-        divisionReloaded = false;
+    });
+
+    async function renderComponent(props: IFixtureDateNoteProps, account?: IUserDto) {
         context = await renderApp(
-            {noteApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({noteApi}),
+            brandingProps(),
+            appProps({
                 account
-            },
-            (<DivisionDataContainer onReloadDivision={() => divisionReloaded = true}>
-                <FixtureDateNote note={note} preventDelete={preventDelete} setEditNote={setEditNote}/>
+            }),
+            (<DivisionDataContainer onReloadDivision={async () => null} name="" setDivisionData={() => null}>
+                <FixtureDateNote {...props}/>
             </DivisionDataContainer>));
     }
 
     describe('renders', () => {
         it('when logged out', async () => {
-            await renderComponent(noteBuilder().note('**some markdown**').build());
+            await renderComponent({
+                note: noteBuilder().note('**some markdown**').build(),
+                setEditNote,
+            });
 
             const markdown = context.container.querySelector('p');
             expect(markdown).toBeTruthy();
@@ -61,16 +69,20 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to delete', async () => {
-            const account = {
+            const account: IUserDto = {
+                givenName: '',
+                name: '',
+                emailAddress: '',
                 access: {
                     manageNotes: true,
                 }
             };
-            await renderComponent(
-                noteBuilder().note('**some markdown**').build(),
-                true,
-                account,
-                setEditNote);
+            await renderComponent({
+                note: noteBuilder().note('**some markdown**').build(),
+                preventDelete: true,
+                setEditNote,
+            },
+            account);
 
             const buttons = Array.from(context.container.querySelectorAll('button'));
             expect(buttons.length).toEqual(1);
@@ -78,16 +90,19 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, with ability to delete', async () => {
-            const account = {
+            const account: IUserDto = {
+                givenName: '',
+                name: '',
+                emailAddress: '',
                 access: {
                     manageNotes: true,
                 }
             };
-            await renderComponent(
-                noteBuilder().note('**some markdown**').build(),
-                false,
-                account,
-                setEditNote);
+            await renderComponent({
+                note: noteBuilder().note('**some markdown**').build(),
+                setEditNote
+            },
+            account);
 
             const buttons = Array.from(context.container.querySelectorAll('button'));
             expect(buttons.length).toEqual(2);
@@ -96,16 +111,19 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to edit', async () => {
-            const account = {
+            const account: IUserDto = {
+                givenName: '',
+                name: '',
+                emailAddress: '',
                 access: {
                     manageNotes: true,
                 }
             };
-            await renderComponent(
-                noteBuilder().note('**some markdown**').build(),
-                true,
-                account,
-                null);
+            await renderComponent({
+                note: noteBuilder().note('**some markdown**').build(),
+                preventDelete: true,
+            },
+            account);
 
             const buttons = Array.from(context.container.querySelectorAll('button'));
             expect(buttons.length).toEqual(0);
@@ -114,14 +132,17 @@ describe('FixtureDateNote', () => {
 
     describe('interactivity', () => {
         it('can delete note', async () => {
-            const account = {
+            const account: IUserDto = {
+                givenName: '',
+                name: '',
+                emailAddress: '',
                 access: {
                     manageNotes: true,
                 }
             };
             const note = noteBuilder().note('**some markdown**').build();
-            await renderComponent(note, false, account, setEditNote);
-            let confirm;
+            await renderComponent({ note, setEditNote }, account);
+            let confirm: string;
             window.confirm = (message) => {
                 confirm = message;
                 return true;
@@ -134,14 +155,17 @@ describe('FixtureDateNote', () => {
         });
 
         it('prevents delete if user does not agree', async () => {
-            const account = {
+            const account: IUserDto = {
+                givenName: '',
+                name: '',
+                emailAddress: '',
                 access: {
                     manageNotes: true,
                 }
             };
             const note = noteBuilder().note('**some markdown**').build();
-            await renderComponent(note, false, account, setEditNote);
-            let confirm;
+            await renderComponent({ note, setEditNote }, account);
+            let confirm: string;
             window.confirm = (message) => {
                 confirm = message;
                 return false;
@@ -154,14 +178,17 @@ describe('FixtureDateNote', () => {
         });
 
         it('alerts if unable to delete', async () => {
-            const account = {
+            const account: IUserDto = {
+                givenName: '',
+                name: '',
+                emailAddress: '',
                 access: {
                     manageNotes: true,
                 }
             };
             const note = noteBuilder().note('**some markdown**').build();
-            await renderComponent(note, false, account, setEditNote);
-            let alert;
+            await renderComponent({ note, setEditNote }, account);
+            let alert: string;
             window.confirm = () => true;
             window.alert = (message) => alert = message;
             deleteResult = {success: false};
@@ -172,13 +199,16 @@ describe('FixtureDateNote', () => {
         });
 
         it('can edit note', async () => {
-            const account = {
+            const account: IUserDto = {
+                givenName: '',
+                name: '',
+                emailAddress: '',
                 access: {
                     manageNotes: true,
                 }
             };
             const note = noteBuilder().note('**some markdown**').build();
-            await renderComponent(note, false, account, setEditNote);
+            await renderComponent({ note, setEditNote }, account);
 
             await doClick(findButton(context.container, 'Edit'));
 

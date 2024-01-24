@@ -1,12 +1,16 @@
-import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {useLive} from "./LiveContainer";
 import {useApp} from "../../AppContainer";
 
-export function RefreshControl({ id }) {
+export interface IRefreshControlProps {
+    id: string;
+}
+
+export function RefreshControl({ id }: IRefreshControlProps) {
     const {enableLiveUpdates, subscriptions, connected} = useLive();
     const {account} = useApp();
 
-    function getRefreshOptions() {
+    function getRefreshOptions(): IBootstrapDropdownItem[] {
         return [
             { value: false, text: '⏸️ Paused', collapsedText: '⏸️' },
             { value: true, text: '▶️ Live', collapsedText: '▶️' },
@@ -21,7 +25,7 @@ export function RefreshControl({ id }) {
         <BootstrapDropdown
             className="margin-left float-end"
             options={getRefreshOptions()}
-            onChange={v => enableLiveUpdates(v, id)}
+            onChange={async (v: boolean) => enableLiveUpdates(v, id)}
             value={!!subscriptions[id] && connected}
             slim={true} />
     </>);

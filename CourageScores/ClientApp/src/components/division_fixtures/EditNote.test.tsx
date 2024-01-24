@@ -1,40 +1,54 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
+import {
+    api,
+    appProps,
+    brandingProps,
+    cleanUp,
+    doChange,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp, TestContext
+} from "../../helpers/tests";
 import React from "react";
 import {EditNote} from "./EditNote";
-import {divisionBuilder, noteBuilder, seasonBuilder} from "../../helpers/builders";
+import {INoteApi} from "../../api/note";
+import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
+import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {seasonBuilder} from "../../helpers/builders/seasons";
+import {divisionBuilder, noteBuilder} from "../../helpers/builders/divisions";
 
 describe('EditNote', () => {
-    let context;
-    let reportedError;
-    let savedNote;
-    let createdNote;
-    let changedNote;
-    let closed;
-    let saved;
-    let saveResult;
+    let context: TestContext;
+    let savedNote: { id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string };
+    let createdNote: IEditFixtureDateNoteDto;
+    let changedNote: IFixtureDateNoteDto;
+    let closed: boolean;
+    let saved: boolean;
+    let saveResult: IClientActionResultDto<IEditFixtureDateNoteDto>;
 
-    const noteApi = {
-        create: async (note) => {
+    const noteApi = api<INoteApi>({
+        create: async (note: IEditFixtureDateNoteDto): Promise<IClientActionResultDto<IFixtureDateNoteDto>> => {
             createdNote = note;
             return saveResult || {success: true};
         },
-        upsert: async (id, note, lastUpdated) => {
+        upsert: async (id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string): Promise<IClientActionResultDto<IFixtureDateNoteDto>> => {
             savedNote = {id, note, lastUpdated};
             return saveResult || {success: true};
         },
-    }
+    });
 
-    function onNoteChanged(note) {
+    async function onNoteChanged(note: IFixtureDateNoteDto) {
         changedNote = note;
     }
 
-    function onClose() {
+    async function onClose() {
         closed = true;
     }
 
-    function onSaved() {
+    async function onSaved() {
         saved = true;
     }
 
@@ -42,27 +56,23 @@ describe('EditNote', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(note, divisions, seasons) {
-        reportedError = null;
+    beforeEach(() => {
         savedNote = null;
         changedNote = null;
         createdNote = null;
         closed = false;
         saved = false;
+    });
+
+    async function renderComponent(note: IFixtureDateNoteDto, divisions: IDivisionDto[], seasons: ISeasonDto[]) {
         context = await renderApp(
-            {noteApi},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({noteApi}),
+            brandingProps(),
+            appProps({
                 divisions,
                 seasons
-            },
-            (<EditNote note={note} onNoteChanged={onNoteChanged} onClose={onClose} onSaved={onSaved}/>));
+            }),
+            (<EditNote note={note} onNoteChanged={onNoteChanged} onClose={onClose} onSaved={onSaved} />));
     }
 
     describe('renders', () => {
@@ -207,7 +217,7 @@ describe('EditNote', () => {
         const division = divisionBuilder('DIVISION').build();
         const divisions = [division];
         const seasons = [season];
-        let alert;
+        let alert: string;
 
         window.alert = (message) => alert = message;
 

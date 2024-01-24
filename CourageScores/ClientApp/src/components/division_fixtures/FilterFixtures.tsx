@@ -5,8 +5,14 @@ import {renderDate} from "../../helpers/rendering";
 import {ShareButton} from "../common/ShareButton";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useBranding} from "../../BrandingContainer";
+import {IInitialisedFilters} from "../../helpers/filters";
 
-export function FilterFixtures({filter, setFilter}) {
+export interface IFilterFixturesProps {
+    filter: IInitialisedFilters;
+    setFilter: (newFilter: IInitialisedFilters) => Promise<any>;
+}
+
+export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
     const {teams} = useDivisionData();
     const {name} = useBranding();
     const teamFilters = teams.sort(sortBy('name')).map(t => {

@@ -6,14 +6,28 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {ITournamentGameDto} from "../../interfaces/serverSide/Game/ITournamentGameDto";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {ITournamentSideDto} from "../../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {
+    IDivisionTournamentFixtureDetailsDto
+} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
 
-export function TournamentFixture({tournament, onTournamentChanged, date, expanded}) {
+export interface ITournamentFixtureProps {
+    tournament: IDivisionTournamentFixtureDetailsDto;
+    onTournamentChanged: () => Promise<any>;
+    date: string;
+    expanded: boolean;
+}
+
+export function TournamentFixture({tournament, onTournamentChanged, date, expanded}: ITournamentFixtureProps) {
     const {id: divisionId, name: divisionName, season} = useDivisionData();
     const {account, teams} = useApp();
-    const [creating, setCreating] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [saveError, setSaveError] = useState(null);
-    const isAdmin = account && account.access && account.access.manageTournaments;
+    const [creating, setCreating] = useState<boolean>(false);
+    const [deleting, setDeleting] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<ITournamentGameDto> | null>(null);
+    const isAdmin: boolean = account && account.access && account.access.manageTournaments;
     const {tournamentApi} = useDependencies();
 
     async function createTournamentGame() {
@@ -26,7 +40,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         try {
             setCreating(true);
 
-            const response = await tournamentApi.update({
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.update({
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
@@ -57,7 +71,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         try {
             setDeleting(true);
 
-            const response = await tournamentApi.delete(tournament.id);
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.delete(tournament.id);
 
             if (response.success) {
                 await onTournamentChanged();
@@ -69,7 +83,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         }
     }
 
-    function renderLinkToPlayer(player) {
+    function renderLinkToPlayer(player: ITournamentPlayerDto) {
         return (<EmbedAwareLink key={player.id} to={`/division/${divisionName}/player:${player.name}/${season.name}`}>
             {player.name}
         </EmbedAwareLink>);
@@ -79,7 +93,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         tournament.sides.sort(sortBy('name'));
 
         return (<div className="px-3">
-            {tournament.sides.map(side => {
+            {tournament.sides.map((side: ITournamentSideDto) => {
                 if (side.teamId && count(side.players) !== 1) {
                     return (<div key={side.id}>
                         <EmbedAwareLink to={`/division/${divisionName}/team:${side.teamId}/${season.name}`}>
@@ -99,7 +113,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         </div>);
     }
 
-    function renderWinner(winningSide) {
+    function renderWinner(winningSide: ITournamentSideDto) {
         if (winningSide.teamId) {
             const team = teams[winningSide.teamId];
 
@@ -122,7 +136,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         }
 
         return (<tr>
-            <td colSpan="5">
+            <td colSpan={5}>
                 Tournament at <strong>{tournament.address}</strong>
             </td>
             <td className="medium-column-width text-end">
@@ -133,7 +147,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
                                 : '➕'}
                         </button>)
                     : null}
-                {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+                {saveError ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)}
                                             title="Could not create tournament"/>) : null}
             </td>
         </tr>)
@@ -146,7 +160,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
             </EmbedAwareLink>
             {expanded ? showTournamentSidesPlayers() : null}
         </td>
-        {tournament.winningSide ? (<td colSpan="2">
+        {tournament.winningSide ? (<td colSpan={2}>
             {tournament.winningSide
                 ? (<span className="margin-left">Winner: {renderWinner(tournament.winningSide)}</span>)
                 : null}
@@ -160,7 +174,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
             {saveError
                 ? (<ErrorDisplay
                     {...saveError}
-                    onClose={() => setSaveError(null)}
+                    onClose={async () => setSaveError(null)}
                     title="Could not delete tournament"/>)
                 : null}
         </td>) : null}

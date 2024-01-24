@@ -4,15 +4,23 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
 
-export function FixtureDateNote({note, setEditNote, preventDelete}) {
+export interface IFixtureDateNoteProps {
+    note: IFixtureDateNoteDto;
+    setEditNote?: (note: IFixtureDateNoteDto) => Promise<any>;
+    preventDelete?: boolean;
+}
+
+export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDateNoteProps) {
     const {onReloadDivision} = useDivisionData();
     const {account, onError} = useApp();
     const {noteApi} = useDependencies();
-    const [deletingNote, setDeletingNote] = useState(false);
-    const isNoteAdmin = account && account.access && account.access.manageNotes;
+    const [deletingNote, setDeletingNote] = useState<boolean>(false);
+    const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
 
-    async function deleteNote(note) {
+    async function deleteNote(note: IFixtureDateNoteDto) {
         /* istanbul ignore next */
         if (deletingNote) {
             /* istanbul ignore next */
@@ -25,7 +33,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}) {
 
         setDeletingNote(true);
         try {
-            const response = await noteApi.delete(note.id);
+            const response: IClientActionResultDto<IFixtureDateNoteDto> = await noteApi.delete(note.id);
 
             if (response.success) {
                 await onReloadDivision();

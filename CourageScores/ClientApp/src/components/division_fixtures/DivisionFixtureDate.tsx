@@ -1,38 +1,49 @@
 import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
-import {DivisionFixture} from "./DivisionFixture";
+import {DivisionFixture, IEditableDivisionFixtureDto} from "./DivisionFixture";
 import {TournamentFixture} from "./TournamentFixture";
 import React from "react";
 import {useApp} from "../../AppContainer";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
+import {IDivisionFixtureDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDto";
+import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {
+    IDivisionTournamentFixtureDetailsDto
+} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
+import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
 
-export function DivisionFixtureDate({
-                                        date,
-                                        showPlayers,
-                                        startAddNote,
-                                        setEditNote,
-                                        setShowPlayers,
-                                        setNewFixtures,
-                                        onTournamentChanged
-                                    }) {
+export interface IDivisionFixtureDateProps {
+    date: IEditableDivisionFixtureDateDto;
+    showPlayers: { [date: string]: boolean };
+    startAddNote: (date: string) => void;
+    setEditNote: (note: IEditFixtureDateNoteDto) => Promise<any>;
+    setShowPlayers: (newShowPlayers: { [date: string]: boolean }) => Promise<any>;
+    setNewFixtures: (newFixtures: IDivisionFixtureDateDto[]) => Promise<any>;
+    onTournamentChanged: () => Promise<any>;
+}
+
+export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged}: IDivisionFixtureDateProps) {
     const {account, controls} = useApp();
     const navigate = useNavigate();
     const location = useLocation();
     const {fixtures, teams} = useDivisionData();
-    const isAdmin = account && account.access && account.access.manageGames;
-    const isNoteAdmin = account && account.access && account.access.manageNotes;
+    const isAdmin: boolean = account && account.access && account.access.manageGames;
+    const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
 
-    function toggleShowPlayers(date) {
+    async function toggleShowPlayers(date: string) {
         const newShowPlayers = Object.assign({}, showPlayers);
         if (newShowPlayers[date]) {
             delete newShowPlayers[date];
         } else {
             newShowPlayers[date] = true;
         }
-        setShowPlayers(newShowPlayers);
+        await setShowPlayers(newShowPlayers);
 
         navigate({
             pathname: location.pathname,
@@ -43,7 +54,7 @@ export function DivisionFixtureDate({
         });
     }
 
-    function getClassName() {
+    function getClassName(): string {
         if (date.isNew) {
             return '';
         }
@@ -59,15 +70,15 @@ export function DivisionFixtureDate({
         return '';
     }
 
-    function onUpdateFixtures(adaptFixtures) {
-        const newFixtures = adaptFixtures(fixtures);
+    async function onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => IDivisionFixtureDateDto[]) {
+        const newFixtures: IDivisionFixtureDateDto[] = adaptFixtures(fixtures);
 
         if (newFixtures) {
-            setNewFixtures(newFixtures);
+            await setNewFixtures(newFixtures);
         }
     }
 
-    function isPotentialFixtureValid(fixture) {
+    function isPotentialFixtureValid(fixture: IDivisionFixtureDto) {
         if (fixture.id !== fixture.homeTeam.id) {
             return true; // a real fixture
         }
@@ -77,29 +88,29 @@ export function DivisionFixtureDate({
             return true;
         }
 
-        if (any(date.tournamentFixtures, t => !t.proposed)) {
+        if (any(date.tournamentFixtures, (t: IDivisionTournamentFixtureDetailsDto) => !t.proposed)) {
             return false;
         }
 
-        if (any(date.fixtures, f => f.isKnockout) && !fixture.awayTeam && !isAdmin) {
+        if (any(date.fixtures, (f: IDivisionFixtureDto) => f.isKnockout) && !fixture.awayTeam && !isAdmin) {
             // don't show byes for any knockout/qualifier fixtures when logged out
             return false;
         }
 
-        const fixturesForThisTeam = date.fixtures
-            .filter(f => f.awayTeam) // a created fixture
-            .filter(f => f.homeTeam.id === fixture.homeTeam.id || f.awayTeam.id === fixture.homeTeam.id);
+        const fixturesForThisTeam: IDivisionFixtureDto[] = date.fixtures
+            .filter((f: IDivisionFixtureDto) => f.awayTeam) // a created fixture
+            .filter((f: IDivisionFixtureDto) => f.homeTeam.id === fixture.homeTeam.id || f.awayTeam.id === fixture.homeTeam.id);
 
         return !any(fixturesForThisTeam);
     }
 
-    function onChangeIsKnockout(event) {
-        const newFixtureDate = Object.assign({}, date);
+    async function onChangeIsKnockout(event: React.ChangeEvent<HTMLInputElement>) {
+        const newFixtureDate: IEditableDivisionFixtureDateDto = Object.assign({}, date);
         newFixtureDate.isKnockout = event.target.checked;
 
-        if (!any(date.fixtures, f => f.id !== f.homeTeam.id)) {
+        if (!any(date.fixtures, (f: IDivisionFixtureDto) => f.id !== f.homeTeam.id)) {
             // no fixtures exist yet, can replace them all
-            newFixtureDate.fixtures = teams.map(team => {
+            newFixtureDate.fixtures = teams.map((team: IDivisionTeamDto): IEditableDivisionFixtureDto => {
                 return {
                     id: team.id,
                     homeTeam: {
@@ -115,12 +126,12 @@ export function DivisionFixtureDate({
             });
         }
 
-        setNewFixtures(fixtures.map(fd => fd.date === date.date ? newFixtureDate : fd));
+        await setNewFixtures(fixtures.map((fd: IDivisionFixtureDateDto) => fd.date === date.date ? newFixtureDate : fd));
     }
 
-    const hasKnockoutFixture = any(date.fixtures, f => f.id !== f.homeTeam.id && f.isKnockout);
-    const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(date.tournamentFixtures, f => !f.proposed) && !any(date.fixtures, f => f.id !== f.homeTeam.id)) || date.isNew);
-    const allowTournamentProposals = !any(date.fixtures, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout);
+    const hasKnockoutFixture: boolean = any(date.fixtures, (f: IDivisionFixtureDto) => f.id !== f.homeTeam.id && f.isKnockout);
+    const showQualifierToggle: boolean = isAdmin && ((!hasKnockoutFixture && !any(date.tournamentFixtures, (f: IDivisionTournamentFixtureDetailsDto) => !f.proposed) && !any(date.fixtures, f => f.id !== f.homeTeam.id)) || date.isNew);
+    const allowTournamentProposals: boolean = !any(date.fixtures, (f: IDivisionFixtureDto) => f.id !== f.homeTeam.id || !!f.awayTeam || f.isKnockout);
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
@@ -130,7 +141,7 @@ export function DivisionFixtureDate({
                     📌 Add note
                 </button>)
                 : null}
-            {any(date.tournamentFixtures, f => !f.proposed) && !date.isNew && controls ? (
+            {any(date.tournamentFixtures, (f: IDivisionTournamentFixtureDetailsDto) => !f.proposed) && !date.isNew && controls ? (
                 <span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false}
@@ -148,15 +159,15 @@ export function DivisionFixtureDate({
                            htmlFor={'isKnockout_' + date.date}>Qualifier</label>
                 </span>) : null}
         </h4>
-        {date.notes.map(note => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
+        {date.notes.map((note: IFixtureDateNoteDto) => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">
             <tbody>
-            {date.fixtures.filter(isPotentialFixtureValid).map(f => (<DivisionFixture
+            {date.fixtures.filter(isPotentialFixtureValid).map((f: IDivisionFixtureDto) => (<DivisionFixture
                 key={f.id}
                 fixture={f}
                 date={date.date}
                 onUpdateFixtures={onUpdateFixtures}/>))}
-            {date.tournamentFixtures.filter(t => !date.isKnockout || !t.proposal || (allowTournamentProposals && t.proposal)).map(tournament => (
+            {date.tournamentFixtures.filter((t: IDivisionTournamentFixtureDetailsDto) => !date.isKnockout || !t.proposed || (allowTournamentProposals && t.proposed)).map((tournament: IDivisionTournamentFixtureDetailsDto) => (
                 <TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}

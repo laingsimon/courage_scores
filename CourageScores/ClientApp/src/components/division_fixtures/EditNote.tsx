@@ -6,10 +6,20 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
+import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
 
-export function EditNote({note, onNoteChanged, onClose, onSaved}) {
-    const [savingNote, setSavingNote] = useState(false);
-    const [saveError, setSaveError] = useState(null);
+export interface IEditNoteProps {
+    note: IEditFixtureDateNoteDto;
+    onNoteChanged: (newNote: IFixtureDateNoteDto) => Promise<any>;
+    onClose: () => Promise<any>;
+    onSaved?: () => Promise<any>;
+}
+
+export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps) {
+    const [savingNote, setSavingNote] = useState<boolean>(false);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<IEditFixtureDateNoteDto>>(null);
     const {noteApi} = useDependencies();
     const {divisions, seasons, onError} = useApp();
 
@@ -32,7 +42,7 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}) {
 
         setSavingNote(true);
         try {
-            const response = note.id
+            const response: IClientActionResultDto<IFixtureDateNoteDto> = note.id
                 ? await noteApi.upsert(note.id, note, note.updated)
                 : await noteApi.create(note);
 
@@ -62,13 +72,13 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}) {
             </div>
             <div className="form-group my-3 d-flex">
                 <label htmlFor="note-text" className="input-group-text">Note</label>
-                <textarea cols="75" rows="2" id="note-text" value={note.note} name="note"
+                <textarea cols={75} rows={2} id="note-text" value={note.note} name="note"
                           onChange={valueChanged(note, onNoteChanged)}></textarea>
             </div>
             <div className="form-group my-3">
                 <h5>Preview</h5>
                 <div>
-                    <FixtureDateNote note={note} preventDelete={true}/>
+                    <FixtureDateNote note={note} preventDelete={true} />
                 </div>
             </div>
             <div className="input-group my-3">
@@ -93,7 +103,7 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}) {
             {saveError
                 ? (<ErrorDisplay
                     {...saveError}
-                    onClose={() => setSaveError(null)}
+                    onClose={async () => setSaveError(null)}
                     title="Could not save note"/>)
                 : null}
         </div>

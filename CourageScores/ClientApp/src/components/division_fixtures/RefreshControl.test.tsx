@@ -1,54 +1,54 @@
-// noinspection JSUnresolvedFunction
-
-import {cleanUp, doSelectOption, renderApp} from "../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doSelectOption,
+    iocProps,
+    MockSocketFactory, noop,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import React from "react";
 import {RefreshControl} from "./RefreshControl";
-import {LiveContainer} from "./LiveContainer";
+import {LiveContainer, useLive} from "./LiveContainer";
 import {createTemporaryId} from "../../helpers/projection";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {ILive} from "../../interfaces/ILive";
+import {act} from "@testing-library/react";
 
 describe('RefreshControl', () => {
-    let context;
-    let reportedError;
-    const webSocket = {
-        subscriptions: {},
-        subscribe: async (id) => {
-            webSocket.subscriptions[id] = true;
-        },
-        unsubscribe: async (id) => {
-            delete webSocket.subscriptions[id];
-        },
-        socket: {},
-    };
+    let context: TestContext;
+    let socketFactory: MockSocketFactory;
+    let liveContainer: ILive;
 
     beforeEach(() => {
-        reportedError = null;
-        webSocket.subscriptions = {};
+        liveContainer = null;
+        socketFactory = new MockSocketFactory();
     });
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(id, account) {
+    async function renderComponent(id: string, account?: IUserDto) {
         context = await renderApp(
-            {webSocket},
-            {name: 'Courage Scores'},
-            {
-                onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
-                },
+            iocProps({socketFactory: socketFactory.createSocket}),
+            brandingProps(),
+            appProps({
                 account,
-            },
-            (<LiveContainer>
-                <RefreshControl id={id} />
+            }),
+            (<LiveContainer liveOptions={null} onDataUpdate={noop}>
+                <GetLiveContainer onLoad={(live: ILive) => liveContainer = live}>
+                    <RefreshControl id={id} />
+                </GetLiveContainer>
             </LiveContainer>));
     }
 
     describe('renders', () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 useWebSockets: true,
             },
@@ -56,7 +56,6 @@ describe('RefreshControl', () => {
 
         it('nothing when logged out', async () => {
             const id = createTemporaryId();
-            webSocket.socket = {};
 
             await renderComponent(id);
 
@@ -66,9 +65,8 @@ describe('RefreshControl', () => {
 
         it('nothing when not permitted', async () => {
             const id = createTemporaryId();
-            webSocket.socket = {};
 
-            await renderComponent(id, { access: {} });
+            await renderComponent(id, { givenName: '',name: '',emailAddress:'', access: {} });
 
             const menu = context.container.querySelector('.dropdown-menu');
             expect(menu).toBeFalsy();
@@ -76,7 +74,6 @@ describe('RefreshControl', () => {
 
         it('options', async () => {
             const id = createTemporaryId();
-            webSocket.socket = {};
 
             await renderComponent(id, account);
 
@@ -86,10 +83,12 @@ describe('RefreshControl', () => {
 
         it('selected option', async () => {
             const id = createTemporaryId();
-            webSocket.subscriptions[id] = true;
-            webSocket.socket = {};
 
             await renderComponent(id, account);
+            await act(async () => {
+                await liveContainer.enableLiveUpdates(true, id);
+                expect(socketFactory.socketWasCreated()).toEqual(true);
+            });
 
             const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
             expect(selectedItem.textContent).toEqual('▶️ Live');
@@ -97,8 +96,6 @@ describe('RefreshControl', () => {
 
         it('paused when disconnected', async () => {
             const id = createTemporaryId();
-            webSocket.subscriptions[id] = true;
-            webSocket.socket = null;
 
             await renderComponent(id, account);
 
@@ -108,7 +105,10 @@ describe('RefreshControl', () => {
     });
 
     describe('interactivity', () => {
-        const account = {
+        const account: IUserDto = {
+            emailAddress: '',
+            name: '',
+            givenName: '',
             access: {
                 useWebSockets: true,
             },
@@ -121,18 +121,28 @@ describe('RefreshControl', () => {
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
-            expect(Object.keys(webSocket.subscriptions)).toEqual([id]);
+            expect(Object.keys(socketFactory.subscriptions)).toEqual([id]);
         });
 
         it('disables live', async () => {
             const id = createTemporaryId();
-            webSocket.subscriptions[id] = {};
 
             await renderComponent(id, account);
+            await act(async () => {
+                await liveContainer.enableLiveUpdates(true, id);
+            });
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');
 
-            expect(webSocket.subscriptions).toEqual({});
+            expect(socketFactory.subscriptions).toEqual({});
         });
-    })
+    });
+
+    function GetLiveContainer({ children, onLoad }) {
+        const live: ILive = useLive();
+
+        onLoad(live);
+
+        return <>{children}</>
+    }
 });
