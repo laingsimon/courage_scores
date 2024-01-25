@@ -113,7 +113,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         try {
             const multiCreationResponse: IMultiPlayerCreationResult = response as IMultiPlayerCreationResult;
             if (!multiCreationResponse.playerDetails) {
-                // TODO: return the details of the single created player
+                // this flow is for updates; single player creation is a multi-creation request with 1 player
                 return [];
             }
 
