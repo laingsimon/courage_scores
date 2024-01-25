@@ -11,16 +11,47 @@ import {RefreshControl} from "../RefreshControl";
 import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
 import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
 import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
+import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
+import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
+}
+
+interface IMovement {
+    scrollLeft: number;
+}
+
+interface IWiggler {
+    handle?: number;
+    movements: IMovement[];
+}
+
+interface ILayoutDataForSide {
+    name: string;
+    link: JSX.Element;
+}
+
+interface ILayoutDataForMatch {
+    sideA: ILayoutDataForSide;
+    sideB: ILayoutDataForSide;
+    scoreA: string;
+    scoreB: string;
+    bye?: boolean;
+    winner?: string;
+    saygId?: string;
+}
+
+interface ILayoutDataForRound {
+    name: string;
+    matches: ILayoutDataForMatch[];
 }
 
 export function PrintableSheet({printOnly}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
     const {tournamentData, season, division, matchOptionDefaults} = useTournament();
-    const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
+    const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
     const [wiggle, setWiggle] = useState<boolean>(!printOnly);
@@ -38,7 +69,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         [wiggle]);
 
     function setupWiggle() {
-        const wiggler = {
+        const wiggler: IWiggler = {
             handle: null,
             movements: getWiggleMovements(),
         };
@@ -69,19 +100,18 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         }, 10);
     }
 
-    // TODO: define an interface for a movement
-    function getWiggleMovements() {
+    function getWiggleMovements(): IMovement[] {
         const element = document.querySelector('div[datatype="rounds-and-players"]');
         if (!element) {
             /* istanbul ignore next */
             return [];
         }
 
-        function movement(percentage: number) {
+        function movement(percentage: number): IMovement {
             return {scrollLeft: percentage * element.getBoundingClientRect().width};
         }
 
-        function movements(lowerPercentage: number, upperPercentage: number, times: number) {
+        function movements(lowerPercentage: number, upperPercentage: number, times: number): IMovement[] {
             const singleMovement = (upperPercentage - lowerPercentage) / times;
             return repeat(times + 1, index => movement(lowerPercentage + (index * singleMovement)));
         }
@@ -97,16 +127,16 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             movements(0.2, 0.1, 5),
             movements(0.1, 0.05, 10),
             movements(0.05, 0.0, 10),
-        ].flatMap(movements => movements);
+        ].flatMap((movements: IMovement[]) => movements);
     }
 
-    function setRoundNames(layoutData: any[]) {
-        const layoutDataCopy = layoutData.filter(_ => true);
-        const newLayoutData = [];
-        let unnamedRoundNumber = layoutDataCopy.length - 3;
+    function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
+        const layoutDataCopy: ILayoutDataForRound[] = layoutData.filter(_ => true);
+        const newLayoutData: ILayoutDataForRound[] = [];
+        let unnamedRoundNumber: number = layoutDataCopy.length - 3;
 
         while (any(layoutDataCopy)) {
-            const lastRound = layoutDataCopy.pop();
+            const lastRound: ILayoutDataForRound = layoutDataCopy.pop();
             let roundName = null;
             switch (newLayoutData.length) {
                 case 0:
@@ -178,23 +208,22 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         };
     }
 
-    // TODO: define an interface for the layout data
-    function getPlayedLayoutData(sides: ITournamentSideDto[], round: ITournamentRoundDto, depth: number) {
+    function getPlayedLayoutData(sides: ITournamentSideDto[], round: ITournamentRoundDto, depth: number): ILayoutDataForRound[] {
         if (!round) {
             return [];
         }
 
-        const winnersFromThisRound = [];
-        const playedInThisRound = [];
+        const winnersFromThisRound: ITournamentSideDto[] = [];
+        const playedInThisRound: ITournamentSideDto[] = [];
 
-        const layoutDataForRound = {
+        const layoutDataForRound: ILayoutDataForRound = {
             name: round.name,
-            matches: round.matches.map((m, index) => {
+            matches: round.matches.map((m: ITournamentMatchDto, index: number) => {
                 let winner = null;
                 playedInThisRound.push(m.sideA);
                 playedInThisRound.push(m.sideB);
-                const matchOptions = round.matchOptions[index] || matchOptionDefaults;
-                const numberOfLegs = matchOptions.numberOfLegs;
+                const matchOptions: IGameMatchOptionDto = round.matchOptions[index] || matchOptionDefaults;
+                const numberOfLegs: number = matchOptions.numberOfLegs;
 
                 if (m.scoreA > (numberOfLegs / 2.0)) {
                     winnersFromThisRound.push(m.sideA);
@@ -212,14 +241,14 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                     bye: false,
                     winner: winner,
                     saygId: m.saygId,
-                };
+                } as ILayoutDataForMatch;
             }),
         };
 
         const byesFromThisRound = sides
-            .filter(side => !side.noShow)
-            .filter(side => !any(playedInThisRound, s => s.id === side.id))
-            .map(side => {
+            .filter((side: ITournamentSideDto) => !side.noShow)
+            .filter((side: ITournamentSideDto) => !any(playedInThisRound, (s: ITournamentSideDto) => s.id === side.id))
+            .map((side: ITournamentSideDto) => {
                 return {
                     sideA: {
                         id: side.id,
@@ -232,7 +261,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                     bye: true,
                     winner: null,
                     saygId: null,
-                };
+                } as ILayoutDataForMatch;
             });
 
         layoutDataForRound.matches = layoutDataForRound.matches.concat(byesFromThisRound);
@@ -245,13 +274,13 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map(b => b.sideA)), round.nextRound, depth + 1));
     }
 
-    function getUnplayedLayoutData(sideLength: number, depth: number) {
+    function getUnplayedLayoutData(sideLength: number, depth: number): ILayoutDataForRound[] {
         if (sideLength <= 1) {
             return [];
         }
 
-        const hasBye = sideLength % 2 !== 0;
-        const layoutDataForRound = {
+        const hasBye: boolean = sideLength % 2 !== 0;
+        const layoutDataForRound: ILayoutDataForRound = {
             name: null,
             matches: repeat(Math.floor(sideLength / 2), _ => {
                 return {
@@ -262,7 +291,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                     bye: false,
                     winner: null,
                     saygId: null,
-                };
+                } as ILayoutDataForMatch;
             }),
         };
         if (hasBye) {
@@ -274,7 +303,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                 bye: true,
                 winner: null,
                 saygId: null,
-            });
+            } as ILayoutDataForMatch);
         }
 
         return [layoutDataForRound].concat(getUnplayedLayoutData(Math.floor(sideLength / 2) + (hasBye ? 1 : 0), depth + 1));
@@ -352,12 +381,12 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             return null;
         }
 
-        const finalRound = layoutData[layoutData.length - 1];
+        const finalRound: ILayoutDataForRound = layoutData[layoutData.length - 1];
         if (!finalRound || count(finalRound.matches || []) !== 1) {
             return null;
         }
 
-        const final = finalRound.matches[0];
+        const final: ILayoutDataForMatch = finalRound.matches[0];
         if (final && final.winner) {
             const winningSide = final[final.winner];
             return winningSide.link;
@@ -383,7 +412,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             </div>
             <div datatype="rounds-and-players"
                  className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
-                {layoutData.map((roundData, index) => (
+                {layoutData.map((roundData: ILayoutDataForRound, index: number) => (
                     <div key={index} datatype={`round-${index}`} className="d-flex flex-column p-3">
                         {index === layoutData.length - 1 ? render180s() : null}
                         <h5 datatype="round-name">{roundData.name}</h5>
