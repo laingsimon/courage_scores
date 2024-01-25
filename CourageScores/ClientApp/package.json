@@ -2,6 +2,7 @@
   "name": "couragescores",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@vitejs/plugin-react": "^4.2.1",
     "bootstrap": "^5.1.3",
