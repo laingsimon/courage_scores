@@ -346,7 +346,6 @@ describe('MatchStatistics', () => {
 
         await renderComponent({
             id: saygData.id,
-            // livePermitted: false, // TODO: Check why this test passes without this property
             matchStatisticsOnly: true,
             liveOptions: emptyLiveOptions(),
         }, saygData);
