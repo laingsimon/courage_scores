@@ -22,7 +22,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
     const homeScore = getScore(data, 'home');
     const awayScore = getScore(data, 'away');
-    //TODO: this should check if the homeScore > 0.5*numberOfLegs
+    //TODO: #724: this should check if the homeScore > 0.5*numberOfLegs
     const winner = homeScore > awayScore
         ? 'home'
         : awayScore > homeScore
@@ -55,10 +55,10 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
         function sideWonMatch(match: IGameMatchDto) {
             switch (side) {
                 case 'home':
-                    //TODO: this should check if the homeScore > 0.5*numberOfLegs
+                    //TODO: #724: this should check if the homeScore > 0.5*numberOfLegs
                     return match.homeScore > match.awayScore;
                 case 'away':
-                    //TODO: this should check if the homeScore > 0.5*numberOfLegs
+                    //TODO: #724: this should check if the homeScore > 0.5*numberOfLegs
                     return match.awayScore > match.homeScore;
                 default:
                     return false;

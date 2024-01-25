@@ -40,7 +40,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
         if (round && round.matches && round.matches.length === 1) {
             const match: ITournamentMatchDto = round.matches[0];
             if (match.scoreA !== null && match.scoreB !== null && match.sideA && match.sideB) {
-                // TODO: compare scores against > 0.5*bestOf
+                // TODO: #724: compare scores against > 0.5*bestOf
                 if (match.scoreA > match.scoreB) {
                     return match.sideA.id;
                 } else if (match.scoreB > match.scoreA) {
