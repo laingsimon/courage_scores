@@ -294,8 +294,7 @@ describe('filters', () => {
             })).toEqual(true);
             expect(filter.apply({
                 tournamentFixture: null,
-                note: {},
-            })).toEqual(true);
+            })).toEqual(false);
             expect(filter.apply({
                 tournamentFixture: {
                     address: '',
@@ -313,8 +312,7 @@ describe('filters', () => {
                 fixture: divisionFixtureBuilder().knockout().build(),
             })).toEqual(true);
             expect(filter.apply({
-                note: {},
-            })).toEqual(true);
+            })).toEqual(false);
             expect(filter.apply({
                 fixture: divisionFixtureBuilder().build(),
             })).toEqual(false);
@@ -328,8 +326,7 @@ describe('filters', () => {
             })).toEqual(true);
             expect(filter.apply({
                 tournamentFixture: tournamentBuilder().proposed().build(),
-                note: {}
-            })).toEqual(true);
+            })).toEqual(false);
             expect(filter.apply({
                 tournamentFixture: tournamentBuilder().proposed().build(),
             })).toEqual(false);

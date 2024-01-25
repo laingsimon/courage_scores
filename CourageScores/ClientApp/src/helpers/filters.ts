@@ -19,8 +19,6 @@ export interface IFixtureMapping {
     date?: string;
     fixture?: IDivisionFixtureDto;
     tournamentFixture?: IDivisionTournamentFixtureDetailsDto;
-
-    note?: any;
 }
 
 export function isLastFixtureBeforeToday(renderContext: IRenderContext, fixtures: any, date: any): boolean {
@@ -89,13 +87,13 @@ export function getTypeFilter(type: string): IFilter<IFixtureMapping> {
     switch (type) {
         case 'league':
             return new AndFilter<IFixtureMapping>([
-                new Filter<IFixtureMapping>(c => !c.tournamentFixture || c.note),
-                new Filter<IFixtureMapping>(c => (c.fixture && !c.fixture.isKnockout) || c.note),
+                new Filter<IFixtureMapping>(c => !c.tournamentFixture),
+                new Filter<IFixtureMapping>(c => (c.fixture && !c.fixture.isKnockout)),
             ]);
         case 'qualifier':
-            return new Filter<IFixtureMapping>(c => (c.fixture && c.fixture.isKnockout) || c.note);
+            return new Filter<IFixtureMapping>(c => (c.fixture && c.fixture.isKnockout));
         case 'tournament':
-            return new Filter<IFixtureMapping>(c => (c.tournamentFixture && !c.tournamentFixture.proposed) || c.note);
+            return new Filter<IFixtureMapping>(c => (c.tournamentFixture && !c.tournamentFixture.proposed));
         default:
             return new NullFilter<IFixtureMapping>();
     }
