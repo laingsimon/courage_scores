@@ -112,7 +112,6 @@ export function ScoreAsYouGo({
 
     const legIndex: number = (homeScore || 0) + (awayScore || 0);
     const hasFinished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
-    // TODO: Should number of legs be read from the props rather than the data?
     if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
         if (useWidescreenStatistics) {
             return <WidescreenMatchStatistics
@@ -122,11 +121,10 @@ export function ScoreAsYouGo({
                 home={home}
                 away={away}
                 singlePlayer={singlePlayer}
-                numberOfLegs={data.numberOfLegs}
+                numberOfLegs={numberOfLegs}
                 changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)} />
         }
 
-        // TODO: Should number of legs be read from the props rather than the data?
         return <MatchStatistics
             legs={data.legs}
             awayScore={awayScore}
@@ -134,7 +132,7 @@ export function ScoreAsYouGo({
             home={home}
             away={away}
             singlePlayer={singlePlayer}
-            numberOfLegs={data.numberOfLegs}
+            numberOfLegs={numberOfLegs}
             legChanged={canEditThrows ? saveChangedLeg : null}
             changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)} />
     }
