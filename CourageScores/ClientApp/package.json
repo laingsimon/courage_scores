@@ -76,7 +76,8 @@
     },
     "collectCoverageFrom": [
       "!src/api/**/*.ts",
-      "!src/tests/**/*.ts"
+      "!src/tests/**/*.ts",
+      "!coverage/**/*.js"
     ]
   },
   "scripts": {
