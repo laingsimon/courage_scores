@@ -7,7 +7,7 @@ import {
     getFixtureFilters,
     getNotesFilter,
     getTeamFilter,
-    getTypeFilter, IInitialisedFilters,
+    getTypeFilter, IFixtureMapping, IInitialisedFilters,
     initFilter, IRenderContext,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
@@ -17,6 +17,9 @@ import {IFilter} from "../interfaces/IFilter";
 import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder} from "./builders/divisions";
 import {tournamentBuilder} from "./builders/tournaments";
 import {teamBuilder} from "./builders/teams";
+import {IDivisionFixtureDateDto} from "../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {Filter, NullFilter} from "../Filter";
+import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
 
 describe('filters', () => {
     const today = date(0);
@@ -126,16 +129,16 @@ describe('filters', () => {
 
     describe('optionallyInvertFilter', () => {
         it('returns filter if empty', () => {
-            const context: IRenderContext = {id: 1} as any;
-            const fixtures = [{id: 2}];
-            const stubFilter: IFilter = {id: 3} as any;
-            let call: {filter: string, context: any, fixtures: any};
-            const getFilter = (filter: string, context: any, fixtures: any) => {
+            const context: IRenderContext = {futureDateShown: '1'};
+            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
+            const stubFilter = new NullFilter<string>();
+            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
 
-            const result: IFilter = optionallyInvertFilter(getFilter, '', context, fixtures);
+            const result: IFilter<string> = optionallyInvertFilter(getFilter, '', context, fixtures);
 
             expect(call!).toBeTruthy();
             expect(call!.filter).toEqual('');
@@ -145,16 +148,16 @@ describe('filters', () => {
         });
 
         it('returns filter if it does not start with not(', () => {
-            const context: IRenderContext = {id: 1} as any;
-            const fixtures = [{id: 2}];
-            const stubFilter: IFilter = {id: 3} as any;
-            let call: {filter: string, context: any, fixtures: any};
-            const getFilter = (filter: string, context: any, fixtures: any) => {
+            const context: IRenderContext = {futureDateShown: '1'};
+            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
+            const stubFilter = new NullFilter<string>();
+            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
 
-            const result: IFilter = optionallyInvertFilter(getFilter, 'a=b', context, fixtures);
+            const result: IFilter<string> = optionallyInvertFilter(getFilter, 'a=b', context, fixtures);
 
             expect(call!).toBeTruthy();
             expect(call!.filter).toEqual('a=b');
@@ -164,49 +167,46 @@ describe('filters', () => {
         });
 
         it('returns null filter if no filter created and filter start with not(', () => {
-            const context: IRenderContext = {id: 1} as any;
-            const fixtures = [{id: 2}];
-            let call: {filter: string, context: any, fixtures: any};
-            const getFilter = (filter: string, context: any, fixtures: any) => {
+            const context: IRenderContext = {futureDateShown: '1'};
+            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
+            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return null;
             };
 
-            const result: IFilter = optionallyInvertFilter(getFilter, 'not(a=b)', context, fixtures);
+            const result: IFilter<string> = optionallyInvertFilter(getFilter, 'not(a=b)', context, fixtures);
 
             expect(call!).toBeTruthy();
             expect(call!.filter).toEqual('a=b');
             expect(call!.context).toEqual(context);
             expect(call!.fixtures).toEqual(fixtures);
-            expect(result.apply({})).toEqual(true);
+            expect(result.apply('')).toEqual(true);
         });
 
         it('returns inverted filter if filter created and filter start with not(', () => {
-            const context: IRenderContext = {id: 1} as any;
-            const fixtures = [{id: 2}];
-            const stubFilter: IFilter & {id: number} = {
-                id: 3,
-                apply: () => true
-            };
-            let call: {filter: string, context: any, fixtures: any};
-            const getFilter = (filter: string, context: any, fixtures: any) => {
+            const context: IRenderContext = {futureDateShown: '1'};
+            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
+            const stubFilter = new Filter<string>(_ => true);
+            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
 
-            const result: IFilter = optionallyInvertFilter(getFilter, 'not(a=b)', context, fixtures);
+            const result: IFilter<string> = optionallyInvertFilter(getFilter, 'not(a=b)', context, fixtures);
 
             expect(call!).toBeTruthy();
             expect(call!.filter).toEqual('a=b');
             expect(call!.context).toEqual(context);
             expect(call!.fixtures).toEqual(fixtures);
-            expect(result.apply({})).toEqual(false);
+            expect(result.apply('')).toEqual(false);
         });
     });
 
     describe('getDateFilter', () => {
         it('when past', () => {
-            const filter = getDateFilter('past', {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('past', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({date: past})).toEqual(true);
@@ -215,7 +215,7 @@ describe('filters', () => {
         });
 
         it('when future', () => {
-            const filter = getDateFilter('future', {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('future', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({date: past})).toEqual(false);
@@ -228,7 +228,7 @@ describe('filters', () => {
                 lastFixtureDateBeforeToday: past,
                 futureDateShown: future,
             };
-            const filter = getDateFilter('last+next', context, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('last+next', context, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({date: date(-2)})).toEqual(false);
@@ -239,7 +239,7 @@ describe('filters', () => {
         });
 
         it('when matches date yyyy-MM format', () => {
-            const filter: IFilter = getDateFilter('2023-02', {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('2023-02', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({date: '2023-02-01T00:00:00'})).toEqual(true);
@@ -248,7 +248,7 @@ describe('filters', () => {
         });
 
         it('when matches date yyyy-MM,yyyy-MM format', () => {
-            const filter: IFilter = getDateFilter('2023-02,2023-03', {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('2023-02,2023-03', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({date: '2023-01-01T00:00:00'})).toEqual(false);
@@ -259,7 +259,7 @@ describe('filters', () => {
         });
 
         it('when matches date yyyy-MM-dd format', () => {
-            const filter: IFilter = getDateFilter('2023-02-01', {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('2023-02-01', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({date: '2023-02-01T00:00:00'})).toEqual(true);
@@ -268,7 +268,7 @@ describe('filters', () => {
         });
 
         it('when matches date yyyy-MM-dd,yyyy-MM-dd format', () => {
-            const filter: IFilter = getDateFilter('2023-02-01,2023-03-03', {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('2023-02-01,2023-03-03', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({date: '2023-02-01T00:00:00'})).toEqual(true);
@@ -277,7 +277,7 @@ describe('filters', () => {
         });
 
         it('otherwise returns null filter', () => {
-            const filter: IFilter = getDateFilter('foo', {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('foo', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
@@ -286,7 +286,7 @@ describe('filters', () => {
 
     describe('getTypeFilter', () => {
         it('when league', () => {
-            const filter: IFilter = getTypeFilter('league');
+            const filter: IFilter<IFixtureMapping> = getTypeFilter('league');
 
             expect(filter.apply({
                 tournamentFixture: null,
@@ -297,8 +297,9 @@ describe('filters', () => {
                 note: {},
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: {},
-                note: {},
+                tournamentFixture: {
+                    address: '',
+                },
             })).toEqual(false);
             expect(filter.apply({
                 tournamentFixture: null,
@@ -306,7 +307,7 @@ describe('filters', () => {
         });
 
         it('when qualifier', () => {
-            const filter: IFilter = getTypeFilter('qualifier');
+            const filter: IFilter<IFixtureMapping> = getTypeFilter('qualifier');
 
             expect(filter.apply({
                 fixture: divisionFixtureBuilder().knockout().build(),
@@ -320,7 +321,7 @@ describe('filters', () => {
         });
 
         it('when tournament', () => {
-            const filter: IFilter = getTypeFilter('tournament');
+            const filter: IFilter<IFixtureMapping> = getTypeFilter('tournament');
 
             expect(filter.apply({
                 tournamentFixture: tournamentBuilder().build(),
@@ -335,7 +336,7 @@ describe('filters', () => {
         });
 
         it('otherwise', () => {
-            const filter: IFilter = getTypeFilter('foo');
+            const filter: IFilter<IFixtureMapping> = getTypeFilter('foo');
 
             expect(filter).not.toBeNull();
         });
@@ -343,14 +344,14 @@ describe('filters', () => {
 
     describe('getTeamFilter', () => {
         it('when empty', () => {
-            const filter: IFilter = getTeamFilter('');
+            const filter: IFilter<IFixtureMapping> = getTeamFilter('');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
         });
 
         it('when id provided', () => {
-            const filter: IFilter = getTeamFilter('abcd');
+            const filter: IFilter<IFixtureMapping> = getTeamFilter('abcd');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -369,7 +370,7 @@ describe('filters', () => {
         });
 
         it('when name provided', () => {
-            const filter: IFilter = getTeamFilter('name');
+            const filter: IFilter<IFixtureMapping> = getTeamFilter('name');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -388,7 +389,7 @@ describe('filters', () => {
         });
 
         it('when name provided ignores case', () => {
-            const filter: IFilter = getTeamFilter('NAME');
+            const filter: IFilter<IFixtureMapping> = getTeamFilter('NAME');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -409,27 +410,27 @@ describe('filters', () => {
 
     describe('getNotesFilter', () => {
         it('filters out dates with no fixtures and no tournaments', () => {
-            const filter: IFilter = getNotesFilter('only-with-fixtures');
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('only-with-fixtures');
 
             expect(filter.apply({
-                notes: [{}],
+                notes: [{ note: '' }],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);
         });
 
         it('keeps dates with notes and no fixtures or tournaments', () => {
-            const filter: IFilter = getNotesFilter('');
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('');
 
             expect(filter.apply({
-                notes: [{}],
+                notes: [{ note: '' }],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
         });
 
         it('keeps dates with single note matching filter', () => {
-            const filter: IFilter = getNotesFilter('abc');
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('abc');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('abcd').build()],
@@ -439,7 +440,7 @@ describe('filters', () => {
         });
 
         it('keeps dates with any note matching any filter criteria', () => {
-            const filter: IFilter = getNotesFilter('abc;efg');
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('abc;efg');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('another note').build(), noteBuilder().note('efgh').build()],
@@ -449,7 +450,7 @@ describe('filters', () => {
         });
 
         it('keeps dates with any note matching filter ignoring case', () => {
-            const filter: IFilter = getNotesFilter('abc;efg');
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('abc;efg');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('EFGH').build()],
@@ -459,7 +460,7 @@ describe('filters', () => {
         });
 
         it('ignores dates without any note matching filter', () => {
-            const filter: IFilter = getNotesFilter('abc;efg');
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('abc;efg');
 
             expect(filter.apply({
                 notes: [noteBuilder().note('ijkl').build()],
@@ -471,14 +472,14 @@ describe('filters', () => {
 
     describe('getFixtureFilters', () => {
         it('returns positive filter when expression is empty', () => {
-            const filter: IFilter = getFixtureFilters('');
+            const filter: IFilter<IFixtureMapping> = getFixtureFilters('');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
         });
 
         it('returns filter when expression is not empty', () => {
-            const filter: IFilter = getFixtureFilters({type: 'league'});
+            const filter: IFilter<IFixtureMapping> = getFixtureFilters({type: 'league'});
 
             expect(filter).not.toBeNull();
         });
@@ -486,7 +487,7 @@ describe('filters', () => {
 
     describe('getFixtureDateFilters', () => {
         it('returns negative when no notes, fixtures or tournaments and not new', () => {
-            const filter: IFilter = getFixtureDateFilters({}, {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({}, {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -497,7 +498,7 @@ describe('filters', () => {
         });
 
         it('returns positive when no notes, fixtures or tournaments and new', () => {
-            const filter: IFilter = getFixtureDateFilters({}, {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({}, {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -509,40 +510,40 @@ describe('filters', () => {
         });
 
         it('returns positive when notes but no fixtures or tournaments', () => {
-            const filter: IFilter = getFixtureDateFilters({}, {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({}, {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                notes: [{}],
+                notes: [{ note: '' }],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
         });
 
         it('returns positive when no notes but has fixtures and tournaments', () => {
-            const filter: IFilter = getFixtureDateFilters({}, {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({}, {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 notes: [],
-                fixtures: [{}],
-                tournamentFixtures: [{}],
+                fixtures: [{ homeTeam: { name: 'HOME' } }],
+                tournamentFixtures: [{ address: '' }],
             })).toEqual(true);
         });
 
         it('returns negative when notes but no fixtures or tournaments', () => {
-            const filter: IFilter = getFixtureDateFilters({notes: 'only-with-fixtures'}, {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({notes: 'only-with-fixtures'}, {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                notes: [{}],
+                notes: [{ note: '' }],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);
         });
 
         it('returns filter for dates', () => {
-            const filter: IFilter = getFixtureDateFilters({date: 'past'}, {}, []);
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getFixtureDateFilters({date: 'past'}, {}, []);
 
             expect(filter).not.toBeNull();
         });

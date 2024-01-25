@@ -12,7 +12,7 @@ import {
     getFixtureDateFilters,
     getFixtureFilters,
     IInitialisedFilters,
-    initFilter
+    initFilter, IFixtureMapping
 } from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "./season_creation/CreateSeasonDialog";
@@ -190,28 +190,28 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
         </Dialog>);
     }
 
-    function applyFixtureFilters(fixtureDate: IDivisionFixtureDateDto, fixtureFilters: IFilter): IDivisionFixtureDateDto {
+    function applyFixtureFilters(fixtureDate: IDivisionFixtureDateDto, fixtureFilters: IFilter<IFixtureMapping>): IDivisionFixtureDateDto {
         const filteredFixtureDate: IDivisionFixtureDateDto = Object.assign({}, fixtureDate);
         filteredFixtureDate.tournamentFixtures = fixtureDate.tournamentFixtures.filter((f: IDivisionTournamentFixtureDetailsDto) => fixtureFilters.apply({
             date: fixtureDate.date,
             fixture: null,
-            tournamentFixture: f
-        }));
+            tournamentFixture: f,
+        } as IFixtureMapping));
         const hasFixtures: boolean = any(fixtureDate.fixtures, (f: IDivisionFixtureDto) => f.id !== f.homeTeam.id);
         filteredFixtureDate.fixtures = (!isAdmin && !hasFixtures)
             ? []
             : fixtureDate.fixtures.filter((f: IDivisionFixtureDto) => fixtureFilters.apply({
                 date: fixtureDate.date,
                 fixture: f,
-                tournamentFixture: null
-            }));
+                tournamentFixture: null,
+            } as IFixtureMapping));
 
         return filteredFixtureDate;
     }
 
     try {
-        const fixtureDateFilters: IFilter = getFixtureDateFilters(filter, {}, fixtures);
-        const fixtureFilters: IFilter = getFixtureFilters(filter);
+        const fixtureDateFilters: IFilter<IDivisionFixtureDateDto> = getFixtureDateFilters(filter, {}, fixtures);
+        const fixtureFilters: IFilter<IFixtureMapping> = getFixtureFilters(filter);
         const resultsToRender = fixtures
             .filter((fd: IDivisionFixtureDateDto) => fixtureDateFilters.apply(fd))
             .map((fd: IDivisionFixtureDateDto) => applyFixtureFilters(fd, fixtureFilters))
