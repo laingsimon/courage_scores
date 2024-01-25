@@ -401,7 +401,7 @@ describe('MatchStatistics', () => {
         console.log = noop;
         const saygData = saygBuilder()
             .withLeg(0, leg)
-            .scores(0, 2) // TODO: check on this, can't have an away score when there is no opponent
+            .scores(0)
             .yourName('HOME')
             .numberOfLegs(3)
             .build();
