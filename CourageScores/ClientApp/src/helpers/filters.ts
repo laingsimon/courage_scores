@@ -3,9 +3,12 @@ import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
 import {isInFuture, isInPast, isToday} from "./dates";
 import {IFilter} from "../interfaces/IFilter";
 
-// TODO: create interface for renderContext
+export interface IRenderContext {
+    lastFixtureDateBeforeToday?: string;
+    futureDateShown?: string;
+}
 
-export function isLastFixtureBeforeToday(renderContext: any, fixtures: any, date: any): boolean {
+export function isLastFixtureBeforeToday(renderContext: IRenderContext, fixtures: any, date: any): boolean {
     if (!renderContext.lastFixtureDateBeforeToday) {
         const dates = fixtures.map((f: {date: string}) => f.date).filter(isInPast);
         // Assumes all dates are sorted
@@ -19,7 +22,7 @@ export function isLastFixtureBeforeToday(renderContext: any, fixtures: any, date
     return date === renderContext.lastFixtureDateBeforeToday;
 }
 
-export function isNextFixtureAfterToday(renderContext: any, date: string): boolean {
+export function isNextFixtureAfterToday(renderContext: IRenderContext, date: string): boolean {
     if (isInFuture(date)) {
         if (!renderContext.futureDateShown) {
             renderContext.futureDateShown = date;
@@ -31,7 +34,7 @@ export function isNextFixtureAfterToday(renderContext: any, date: string): boole
     return false;
 }
 
-export function optionallyInvertFilter(getFilter: (constraint: string, context: any, fixtures: any) => IFilter, filterInput?: string, renderContext?: any, fixtures?: any): IFilter {
+export function optionallyInvertFilter(getFilter: (constraint: string, context: IRenderContext, fixtures: any) => IFilter, filterInput?: string, renderContext?: any, fixtures?: any): IFilter {
     if (filterInput && filterInput.indexOf('not(') === 0) {
         const withoutNot = filterInput.substring(4, filterInput.length - 1);
         const positiveFilter = getFilter(withoutNot, renderContext, fixtures);
@@ -43,7 +46,7 @@ export function optionallyInvertFilter(getFilter: (constraint: string, context: 
     return getFilter(filterInput, renderContext, fixtures) ?? new NullFilter();
 }
 
-export function getDateFilter(date: string, renderContext: any, fixtures: any): IFilter {
+export function getDateFilter(date: string, renderContext: IRenderContext, fixtures: any): IFilter {
     switch (date) {
         case 'past':
             return new Filter(c => isInPast(c.date));
@@ -116,7 +119,7 @@ export function getFixtureFilters(filter: any): IFilter {
     ]);
 }
 
-export function getFixtureDateFilters(filter: { date?: string, notes?: string }, renderContext: any, fixtures: any): IFilter {
+export function getFixtureDateFilters(filter: { date?: string, notes?: string }, renderContext: IRenderContext, fixtures: any): IFilter {
     return new AndFilter([
         new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures) || any(fd.notes) || fd.isNew),
         optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),

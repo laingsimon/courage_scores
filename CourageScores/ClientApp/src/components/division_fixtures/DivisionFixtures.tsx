@@ -210,12 +210,12 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     }
 
     try {
-        const fixtureDateFilters = getFixtureDateFilters(filter, {}, fixtures);
-        const fixtureFilters = getFixtureFilters(filter);
+        const fixtureDateFilters: IFilter = getFixtureDateFilters(filter, {}, fixtures);
+        const fixtureFilters: IFilter = getFixtureFilters(filter);
         const resultsToRender = fixtures
-            .filter(fd => fixtureDateFilters.apply(fd))
-            .map(fd => applyFixtureFilters(fd, fixtureFilters))
-            .filter(fd => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
+            .filter((fd: IDivisionFixtureDateDto) => fixtureDateFilters.apply(fd))
+            .map((fd: IDivisionFixtureDateDto) => applyFixtureFilters(fd, fixtureFilters))
+            .filter((fd: IDivisionFixtureDateDto) => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
             .map(renderFixtureDate);
         return (<div className="content-background p-3">
             {controls
