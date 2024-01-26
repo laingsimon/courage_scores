@@ -126,7 +126,7 @@ export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string
 
         // no of legs won in this match
         return count(
-            Object.keys(saygData.legs).map((key: string) => Number.parseInt(key)).map((legKey: number) => saygData.legs[legKey]),
+            Object.keys(saygData.legs).map((key: string) => saygData.legs[key]),
             (leg: ILegDto) => isLegWinner(leg, accumulatorName));
     });
 }
@@ -197,6 +197,6 @@ function countMatchThrowsBetween(saygData: IScoreAsYouGoDto | null | undefined, 
 
         return count(
             accumulator.throws!,
-            thr => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+            (thr: ILegThrowDto) => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
     }));
 }

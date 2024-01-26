@@ -39,7 +39,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     function getLegDisplayOptions(legs: { [key: number]: ILegDto }, showThrowsOnLastLeg?: boolean): ILegDisplayOptionsLookup {
         const options: ILegDisplayOptionsLookup = {};
         let lastLegIndex = null;
-        Object.keys(legs).forEach(legIndex => {
+        Object.keys(legs).forEach((legIndex: string) => {
             options[legIndex] = {
                 showThrows: false,
                 showAverage: false,
@@ -98,9 +98,9 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                 const legKey: number = Number.parseInt(legIndex);
 
                 return (<LegStatistics
-                    key={legKey}
+                    key={legIndex}
                     legNumber={legKey + 1}
-                    leg={legs[legKey]}
+                    leg={legs[legIndex]}
                     home={home}
                     away={away}
                     singlePlayer={singlePlayer}

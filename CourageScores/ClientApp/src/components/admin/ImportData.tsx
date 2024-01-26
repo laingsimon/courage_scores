@@ -122,7 +122,7 @@ export function ImportData() {
         {response ? (<div className="py-3">
             <h5>Output</h5>
             <ul>
-                {Object.keys(response.result.tables).map(t => (
+                {Object.keys(response.result.tables).map((t: string) => (
                     <li key={t}><strong>{t}</strong>: {response.result.tables[t]} row/s imported</li>))}
             </ul>
             <strong>Messages</strong>

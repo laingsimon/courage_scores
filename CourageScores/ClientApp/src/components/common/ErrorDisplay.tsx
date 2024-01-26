@@ -72,7 +72,7 @@ export function ErrorDisplay({errors, messages, warnings, onClose, title, Except
         setErrorReported(true);
         if (errors.length === undefined) {
             reportClientSideException({
-                message: Object.keys(errors).map(key => `${key}: ${errors[key]}`).join('\n '),
+                message: Object.keys(errors).map((key: string) => `${key}: ${errors[key]}`).join('\n '),
                 stack: null,
                 type: 'Server Validation error',
             });

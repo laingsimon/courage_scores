@@ -336,7 +336,7 @@ describe('Practice', () => {
 
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
-            expect(saygData[id].legs['0'].home).toEqual({
+            expect(saygData[id].legs[0].home).toEqual({
                 noOfDarts: 3,
                 score: 180,
                 bust: false,

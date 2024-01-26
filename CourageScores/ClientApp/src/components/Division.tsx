@@ -129,7 +129,7 @@ export function Division() {
             if (newDivisionData.status) {
                 /* istanbul ignore next */
                 console.log(newDivisionData);
-                const suffix = newDivisionData.errors ? ' -- ' + Object.keys(newDivisionData.errors).map(key => `${key}: ${newDivisionData.errors![key]}`).join(', ') : '';
+                const suffix = newDivisionData.errors ? ' -- ' + Object.keys(newDivisionData.errors).map((key: string) => `${key}: ${newDivisionData.errors![key]}`).join(', ') : '';
                 onError(`Error accessing division: Code: ${newDivisionData.status}${suffix}`);
             } else if (newDivisionData.id !== divisionId) {
                 /* istanbul ignore next */

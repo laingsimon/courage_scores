@@ -113,11 +113,11 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             return;
         }
 
-        if (!newData.legs['0']) {
+        if (!newData.legs[0]) {
             return;
         }
 
-        if (!sayg.legs['0'] || isEmpty(sayg.legs['0'].playerSequence || [])) {
+        if (!sayg.legs[0] || isEmpty(sayg.legs[0].playerSequence || [])) {
             await saveDataAndGetId(newSayg);
         }
     }

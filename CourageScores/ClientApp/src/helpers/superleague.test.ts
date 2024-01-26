@@ -34,7 +34,7 @@ describe('superleague', () => {
         it('calculates correct average for home', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [{
                                 score: 100,
@@ -53,7 +53,7 @@ describe('superleague', () => {
                         isLastLeg: false,
                         away: null,
                     },
-                    '1': {
+                    1: {
                         home: {
                             throws: [{
                                 score: 50,
@@ -95,7 +95,7 @@ describe('superleague', () => {
         it('should return count of scores greater-than-or-equal 100 and less than 140', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [
                                 /* valid */
@@ -140,7 +140,7 @@ describe('superleague', () => {
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [
                                 /* valid */
@@ -185,7 +185,7 @@ describe('superleague', () => {
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [
                                 /* valid */
@@ -228,7 +228,7 @@ describe('superleague', () => {
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [
                                 /* valid */
@@ -270,7 +270,7 @@ describe('superleague', () => {
         it('should return no of legs with scores', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             noOfDarts: 3,
                             throws: [],
@@ -286,7 +286,7 @@ describe('superleague', () => {
                         startingScore: 501,
                         isLastLeg: false,
                     },
-                    '1': {
+                    1: {
                         home: {
                             noOfDarts: 0,
                             throws: [],
@@ -302,7 +302,7 @@ describe('superleague', () => {
                         startingScore: 501,
                         isLastLeg: false,
                     },
-                    '2': {
+                    2: {
                         home: {
                             noOfDarts: 0,
                             throws: [],
@@ -348,7 +348,7 @@ describe('superleague', () => {
 
         it('should return sum of props', () => {
             const legs: { [key: string]: ILegDto } = {
-                '0': {
+                0: {
                     home: {
                         throws: [{
                             noOfDarts: 1,
@@ -379,7 +379,7 @@ describe('superleague', () => {
 
         it('should return sum of non-bust props', () => {
             const legs: { [key: string]: ILegDto } = {
-                '0': {
+                0: {
                     home: {
                         throws: [{
                             noOfDarts: 1,
@@ -410,7 +410,7 @@ describe('superleague', () => {
 
         it('should return sum of bust and non-bust props', () => {
             const legs: { [key: string]: ILegDto } = {
-                '0': {
+                0: {
                     home: {
                         throws: [{
                             noOfDarts: 1,
@@ -464,7 +464,7 @@ describe('superleague', () => {
             const saygMatch: ISuperleagueSayg = {
                 saygData: {
                     legs: {
-                        '0': {
+                        0: {
                             home: {
                                 throws: [
                                     {bust: false, score: 0, noOfDarts: 0},
@@ -500,7 +500,7 @@ describe('superleague', () => {
             const saygMatch: ISuperleagueSayg = {
                 saygData: {
                     legs: {
-                        '0': {
+                        0: {
                             home: {
                                 throws: [
                                     {score: 0, noOfDarts: 0, bust: false},
@@ -537,7 +537,7 @@ describe('superleague', () => {
         it('should return home when home checkout', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [
                                 {score: 100, bust: false, noOfDarts: 0},
@@ -577,7 +577,7 @@ describe('superleague', () => {
         it('should return away when away checkout', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [
                                 {score: 100, bust: false, noOfDarts: 0},
@@ -617,7 +617,7 @@ describe('superleague', () => {
         it('should return empty when no checkout', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [
                                 {score: 100, bust: false, noOfDarts: 0},
@@ -743,7 +743,7 @@ describe('superleague', () => {
         it('should return number of won legs for side', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [],
                             noOfDarts: 0,
@@ -755,7 +755,7 @@ describe('superleague', () => {
                         isLastLeg: false,
                         away: null,
                     },
-                    '1': {
+                    1: {
                         home: {
                             throws: [],
                             noOfDarts: 0,
@@ -778,7 +778,7 @@ describe('superleague', () => {
         it('should return 0 if not won any legs', () => {
             const saygData: IScoreAsYouGoDto = {
                 legs: {
-                    '0': {
+                    0: {
                         home: {
                             throws: [],
                             noOfDarts: 1,
@@ -790,7 +790,7 @@ describe('superleague', () => {
                         isLastLeg: false,
                         away: null,
                     },
-                    '1': {
+                    1: {
                         home: {
                             throws: [],
                             noOfDarts: 1,

@@ -56,7 +56,7 @@ describe('Score', () => {
     let saveGameApiResult: IClientActionResultDto<IGameDto>;
     const gameApi = api<IGameApi>({
         get: async (fixtureId: string) => {
-            if (any(Object.keys(fixtureDataMap), key => key === fixtureId)) {
+            if (any(Object.keys(fixtureDataMap), (key: string) => key === fixtureId)) {
                 return fixtureDataMap[fixtureId];
             }
 

@@ -42,7 +42,7 @@ describe('Division', () => {
         data: async (divisionId: string, seasonId?: string): Promise<IDivisionDataDto> => {
             const key = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
 
-            if (!any(Object.keys(divisionDataMap), k => k === key)) {
+            if (!any(Object.keys(divisionDataMap), (k: string) => k === key)) {
                 throw new Error(`DivisionData request not expected for ${key}`);
             }
 

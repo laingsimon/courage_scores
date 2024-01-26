@@ -31,7 +31,7 @@ export function MatchReportRow({matchIndex, saygData, noOfThrows, noOfLegs, show
 
         const winner = getMatchWinner(saygData);
         return (<>
-            {repeat(noOfLegs, legIndex => {
+            {repeat(noOfLegs, (legIndex: number) => {
                 const leg = saygData.legs[legIndex.toString()] || {home: {}, away: {}};
 
                 return (<tr key={matchIndex + '_' + legIndex}>

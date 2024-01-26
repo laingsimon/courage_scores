@@ -37,7 +37,7 @@ export function MatchLog({showWinner, noOfThrows, host, opponent, saygMatches}: 
                     <table className="table">
                         <tbody>
                         <MatchLogTableHeading team={host} noOfThrows={noOfThrows}/>
-                        {Object.keys(matchDataMap.saygData.legs).map(legIndex => <MatchLogRow
+                        {Object.keys(matchDataMap.saygData.legs).map((legIndex: string) => <MatchLogRow
                             key={legIndex}
                             accumulatorName="home"
                             leg={matchDataMap.saygData.legs[legIndex]}
@@ -49,7 +49,7 @@ export function MatchLog({showWinner, noOfThrows, host, opponent, saygMatches}: 
                             showWinner={showWinner}
                             teamAverage={homeTeamAverage}/>)}
                         <MatchLogTableHeading team={opponent} noOfThrows={noOfThrows}/>
-                        {Object.keys(matchDataMap.saygData.legs).map(legIndex => <MatchLogRow
+                        {Object.keys(matchDataMap.saygData.legs).map((legIndex: string) => <MatchLogRow
                             key={legIndex}
                             accumulatorName="away"
                             leg={matchDataMap.saygData.legs[legIndex]}

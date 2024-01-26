@@ -161,7 +161,7 @@ describe('SaygLoadingContainer', () => {
                 enableLiveUpdates: expect.any(Function),
                 sayg: {
                     legs: {
-                        '0': legBuilder()
+                        0: legBuilder()
                             .home((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
                             .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
                             .startingScore(501)

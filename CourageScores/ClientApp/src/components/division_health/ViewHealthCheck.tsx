@@ -1,5 +1,6 @@
 import {useApp} from "../../AppContainer";
 import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {IHealthCheckResultDto} from "../../interfaces/serverSide/Health/IHealthCheckResultDto";
 
 export interface IViewHealthCheckProps {
     result: ISeasonHealthCheckResultDto
@@ -23,8 +24,8 @@ export function ViewHealthCheck({result}: IViewHealthCheckProps) {
     try {
         return (<div datatype="view-health-check">
             <ol>
-                {Object.keys(result.checks).map(check => {
-                    const checkResult = result.checks[check];
+                {Object.keys(result.checks).map((check: string) => {
+                    const checkResult: IHealthCheckResultDto = result.checks[check];
 
                     return (<li key={check}>
                         <div>

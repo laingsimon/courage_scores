@@ -56,7 +56,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
         });
 
         it('NaN leg average', async () => {
-            legs['1'].home.noOfDarts = Number.NaN;
+            legs[1].home.noOfDarts = Number.NaN;
 
             await renderComponent({
                 legs,
@@ -93,7 +93,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
         });
 
         it('NaN match average', async () => {
-            legs['1'].home.noOfDarts = Number.NaN;
+            legs[1].home.noOfDarts = Number.NaN;
 
             await renderComponent({
                 legs,

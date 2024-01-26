@@ -94,7 +94,7 @@ export function DataBrowser() {
     function renderItem(data: ISingleDataResultDto) {
         return (<table className="table table-sm">
             <tbody>
-            {Object.keys(data).map(key => (<tr key={key}>
+            {Object.keys(data).map((key: string) => (<tr key={key}>
                 <td style={{ textTransform: 'capitalize' }}>{key}</td>
                 <td>{renderValue(key, data[key])}</td>
             </tr>))}
@@ -154,7 +154,7 @@ export function DataBrowser() {
             {response.errors && response.errors.length ? (<ol>{response.errors.map((msg, index) => (<li key={index}>{msg}</li>))}</ol>) : null}
             {response.errors && response.status ? (<div className="text-danger">
                 Status: {response.status}
-                {Object.keys(response.errors).map(key => (<li key={key}>{key}: {response.errors[key]}</li>))}
+                {Object.keys(response.errors).map((key: string) => (<li key={key}>{key}: {response.errors[key]}</li>))}
             </div>) : null}
         </div>)}
     </div>);

@@ -170,7 +170,7 @@ describe('ScoreAsYouGo', () => {
         expect(changedLegs).toEqual([{
             id: expect.any(String),
             legs: {
-                '0':
+                0:
                     {
                         isLastLeg: false,
                         away: null,
@@ -217,7 +217,7 @@ describe('ScoreAsYouGo', () => {
         expect(changedLegs).toEqual([{
             id: expect.any(String),
             legs: {
-                '0': {
+                0: {
                     currentThrow: 'away',
                     playerSequence: [
                         {text: 'HOME', value: 'home'},
@@ -277,7 +277,7 @@ describe('ScoreAsYouGo', () => {
         expect(changedLegs[1]).toEqual({
             id: expect.any(String),
             legs: {
-                '0': {
+                0: {
                     currentThrow: 'home',
                     playerSequence: [
                         {text: 'HOME', value: 'home'},
@@ -301,7 +301,7 @@ describe('ScoreAsYouGo', () => {
                     startingScore: 501,
                     isLastLeg: false,
                 },
-                '1': {
+                1: {
                     currentThrow: 'away',
                     playerSequence: [
                         {text: 'AWAY', value: 'away'},
@@ -439,7 +439,7 @@ describe('ScoreAsYouGo', () => {
         expect(changedLegs).toEqual([{
             id: expect.any(String),
             legs: {
-                '0': {
+                0: {
                     currentThrow: 'home',
                     playerSequence: [
                         {text: 'HOME', value: 'home'},
