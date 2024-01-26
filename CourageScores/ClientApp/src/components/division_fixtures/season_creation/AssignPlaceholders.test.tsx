@@ -18,6 +18,7 @@ import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemp
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('AssignPlaceholders', () => {
     let context: TestContext;
@@ -67,6 +68,7 @@ describe('AssignPlaceholders', () => {
             .forSeason(season, division1, [])
             .build();
         const template: ITemplateDto = {
+            id: createTemporaryId(),
             name: 'TEMPLATE 1',
             sharedAddresses: [],
             divisions: [{
@@ -127,6 +129,7 @@ describe('AssignPlaceholders', () => {
 
         it('template shared address placeholders', async () => {
             const templateWithSharedAddresses: ITemplateDto = {
+                id: createTemporaryId(),
                 name: 'TEMPLATE 2',
                 sharedAddresses: [ [ 'A', 'D' ] ],
                 divisions: [{
@@ -167,6 +170,7 @@ describe('AssignPlaceholders', () => {
 
         it('division shared address placeholders', async () => {
             const templateWithSharedAddresses: ITemplateDto = {
+                id: createTemporaryId(),
                 name: 'TEMPLATE 3',
                 sharedAddresses: [],
                 divisions: [{
@@ -262,6 +266,7 @@ describe('AssignPlaceholders', () => {
             .forSeason(season, division1, [])
             .build();
         const template: ITemplateDto = {
+            id: createTemporaryId(),
             name: 'TEMPLATE 3',
             sharedAddresses: [],
             divisions: [{

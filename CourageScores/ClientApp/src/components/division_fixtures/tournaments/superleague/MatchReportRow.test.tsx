@@ -12,6 +12,7 @@ import {IMatchReportRowProps, MatchReportRow} from "./MatchReportRow";
 import {ILegThrowDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
 import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
 import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {saygBuilder} from "../../../../helpers/builders/sayg";
 
 describe('MatchReportRow', () => {
     let context: TestContext;
@@ -101,14 +102,11 @@ describe('MatchReportRow', () => {
         });
 
         it('for the given number of legs', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(),
-                    '1': createLeg(),
-                    '2': createLeg(),
-                }
-            };
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg())
+                .withLeg(1, createLeg())
+                .withLeg(2, createLeg())
+                .build();
 
             await renderComponent({
                 matchIndex: 1,
@@ -126,12 +124,9 @@ describe('MatchReportRow', () => {
         });
 
         it('first leg', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(true, false),
-                }
-            };
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .build();
 
             await renderComponent({
                 matchIndex: 0,
@@ -153,13 +148,10 @@ describe('MatchReportRow', () => {
         });
 
         it('second leg', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(false, true),
-                    '1': createLeg(false, true),
-                }
-            };
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(false, true))
+                .withLeg(1, createLeg(false, true))
+                .build();
 
             await renderComponent({
                 matchIndex: 0,
@@ -180,14 +172,11 @@ describe('MatchReportRow', () => {
         });
 
         it('ignores bust scores', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(true, false),
-                }
-            };
-            saygData.legs['0'].home.throws.forEach((thr, index) => thr.bust = index % 2 === 0);
-            saygData.legs['0'].away.throws.forEach((thr, index) => thr.bust = index % 2 !== 0);
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .build();
+            saygData.legs[0].home.throws.forEach((thr, index) => thr.bust = index % 2 === 0);
+            saygData.legs[0].away.throws.forEach((thr, index) => thr.bust = index % 2 !== 0);
 
             await renderComponent({
                 matchIndex: 0,
@@ -209,14 +198,11 @@ describe('MatchReportRow', () => {
         });
 
         it('highlights 100+ scores', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(true, false),
-                }
-            };
-            saygData.legs['0'].home.throws.forEach((thr, index) => thr.score = 100 + (index * 10));
-            saygData.legs['0'].away.throws.forEach(thr => thr.score = 99);
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .build();
+            saygData.legs[0].home.throws.forEach((thr, index) => thr.score = 100 + (index * 10));
+            saygData.legs[0].away.throws.forEach(thr => thr.score = 99);
 
             await renderComponent({
                 matchIndex: 0,
@@ -237,14 +223,11 @@ describe('MatchReportRow', () => {
         });
 
         it('highlights 180 scores', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(true, false),
-                }
-            };
-            saygData.legs['0'].home.throws.forEach(thr => thr.score = 180);
-            saygData.legs['0'].away.throws.forEach(thr => thr.score = 179);
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .build();
+            saygData.legs[0].home.throws.forEach(thr => thr.score = 180);
+            saygData.legs[0].away.throws.forEach(thr => thr.score = 179);
 
             await renderComponent({
                 matchIndex: 0,
@@ -265,14 +248,11 @@ describe('MatchReportRow', () => {
         });
 
         it('shows non-180-tons correctly', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(true, false),
-                }
-            };
-            saygData.legs['0'].home.throws.forEach(thr => thr.score = 120);
-            saygData.legs['0'].away.throws.forEach(thr => thr.score = 130);
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .build();
+            saygData.legs[0].home.throws.forEach(thr => thr.score = 120);
+            saygData.legs[0].away.throws.forEach(thr => thr.score = 130);
 
             await renderComponent({
                 matchIndex: 0,
@@ -293,14 +273,11 @@ describe('MatchReportRow', () => {
         });
 
         it('shows 180-tons correctly', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = {
-                yourName: '',
-                legs: {
-                    '0': createLeg(true, false),
-                }
-            };
-            saygData.legs['0'].home.throws.forEach(thr => thr.score = 180);
-            saygData.legs['0'].away.throws.forEach(thr => thr.score = 180);
+            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .build();
+            saygData.legs[0].home.throws.forEach(thr => thr.score = 180);
+            saygData.legs[0].away.throws.forEach(thr => thr.score = 180);
 
             await renderComponent({
                 matchIndex: 0,

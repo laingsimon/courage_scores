@@ -20,6 +20,7 @@ import {teamBuilder} from "./builders/teams";
 import {IDivisionFixtureDateDto} from "../interfaces/serverSide/Division/IDivisionFixtureDateDto";
 import {Filter, NullFilter} from "../Filter";
 import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
+import {fixtureBuilder} from "./builders/games";
 
 describe('filters', () => {
     const today = date(0);
@@ -296,9 +297,7 @@ describe('filters', () => {
                 tournamentFixture: null,
             })).toEqual(false);
             expect(filter.apply({
-                tournamentFixture: {
-                    address: '',
-                },
+                tournamentFixture: tournamentBuilder().build(),
             })).toEqual(false);
             expect(filter.apply({
                 tournamentFixture: null,
@@ -410,7 +409,7 @@ describe('filters', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('only-with-fixtures');
 
             expect(filter.apply({
-                notes: [{ note: '' }],
+                notes: [noteBuilder().build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);
@@ -420,7 +419,7 @@ describe('filters', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('');
 
             expect(filter.apply({
-                notes: [{ note: '' }],
+                notes: [noteBuilder().build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -511,7 +510,7 @@ describe('filters', () => {
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                notes: [{ note: '' }],
+                notes: [noteBuilder().build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -523,8 +522,8 @@ describe('filters', () => {
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 notes: [],
-                fixtures: [{ homeTeam: { name: 'HOME' } }],
-                tournamentFixtures: [{ address: '' }],
+                fixtures: [fixtureBuilder().playing('HOME').build()],
+                tournamentFixtures: [tournamentBuilder().build()],
             })).toEqual(true);
         });
 
@@ -533,7 +532,7 @@ describe('filters', () => {
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                notes: [{ note: '' }],
+                notes: [noteBuilder().build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);

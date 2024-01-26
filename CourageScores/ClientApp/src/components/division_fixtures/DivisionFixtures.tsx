@@ -89,7 +89,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             isNew: true,
             isKnockout: isKnockout,
             date: date,
-            fixtures: seasonalTeams.map((team: ITeamDto) => {
+            fixtures: seasonalTeams.map((team: ITeamDto): IDivisionFixtureDto => {
                 return {
                     id: team.id,
                     homeTeam: {
@@ -103,7 +103,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                     fixturesUsingAddress: [],
                 };
             }),
-            tournamentFixtures: seasonalTeams.map((team: ITeamDto) => {
+            tournamentFixtures: seasonalTeams.map((team: ITeamDto): IDivisionTournamentFixtureDetailsDto => {
                 return {
                     address: team.address,
                     proposed: true,

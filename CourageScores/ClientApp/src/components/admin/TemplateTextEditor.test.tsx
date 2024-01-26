@@ -51,6 +51,7 @@ describe('TemplateTextEditor', () => {
         it('renders empty template', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                 },
                 onUpdate,
@@ -64,6 +65,7 @@ describe('TemplateTextEditor', () => {
         it('marks template as invalid when invalid json', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                 },
                 onUpdate,
@@ -79,6 +81,7 @@ describe('TemplateTextEditor', () => {
         it('marks template as valid when json is valid again', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                 },
                 onUpdate,
@@ -94,6 +97,7 @@ describe('TemplateTextEditor', () => {
         it('updates template when valid', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                 },
                 onUpdate,
@@ -105,6 +109,7 @@ describe('TemplateTextEditor', () => {
 
             expect(valid).toEqual(true);
             expect(update).toEqual({
+                id: expect.any(String),
                 a: 'b',
                 name: '',
             });

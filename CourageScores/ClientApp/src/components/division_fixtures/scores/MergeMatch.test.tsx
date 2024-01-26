@@ -13,6 +13,7 @@ import {IMergeMatchProps, MergeMatch} from "./MergeMatch";
 import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
 import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, matchBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
+import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
 
 describe('MergeMatch', () => {
     let context: TestContext;
@@ -66,7 +67,7 @@ describe('MergeMatch', () => {
         });
 
         it('when home and away submissions match', async () => {
-            const match = {};
+            const match: IGameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
                 .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
@@ -93,7 +94,7 @@ describe('MergeMatch', () => {
         });
 
         it('when home and away submissions match and readonly', async () => {
-            const match = {};
+            const match: IGameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
                 .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
@@ -121,7 +122,7 @@ describe('MergeMatch', () => {
         });
 
         it('when home but no away submission match', async () => {
-            const match = {};
+            const match: IGameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
                 .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
@@ -152,7 +153,7 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: false,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
@@ -179,7 +180,7 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: false,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
@@ -210,7 +211,7 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: true,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
@@ -239,7 +240,7 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: false,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
@@ -270,7 +271,7 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: true,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
@@ -302,16 +303,14 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: false,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {
-                    matches: [{}],
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    address: '',
-                },
+                fixtureData: fixtureBuilder()
+                    .withMatch((m: IMatchBuilder) => m)
+                    .playing('HOME', 'AWAY')
+                    .build(),
                 setFixtureData,
             });
             const homeSubmission = context.container.querySelector('td:nth-child(1)');
@@ -343,16 +342,14 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: false,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {
-                    matches: [{}],
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    address: '',
-                },
+                fixtureData: fixtureBuilder()
+                    .withMatch((m: IMatchBuilder) => m)
+                    .playing('HOME', 'AWAY')
+                    .build(),
                 setFixtureData,
             });
             const awaySubmission = context.container.querySelector('td:nth-child(3)');
@@ -384,16 +381,14 @@ describe('MergeMatch', () => {
                 .build();
             await renderComponent({
                 readOnly: false,
-                matches: [{}],
+                matches: [matchBuilder().build()],
                 matchIndex: 0,
                 homeSubmission: fixture.homeSubmission,
                 awaySubmission: fixture.awaySubmission,
-                fixtureData: {
-                    matches: [{}],
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    address: '',
-                },
+                fixtureData: fixtureBuilder()
+                    .withMatch((m: IMatchBuilder) => m)
+                    .playing('HOME', 'AWAY')
+                    .build(),
                 setFixtureData,
             });
             const homeSubmission = context.container.querySelector('td:nth-child(1)');

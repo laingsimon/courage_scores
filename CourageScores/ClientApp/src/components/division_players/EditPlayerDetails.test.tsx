@@ -38,7 +38,9 @@ describe('EditPlayerDetails', () => {
         create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto) => {
             createdPlayers.push({divisionId, seasonId, teamId, playerDetails});
             cumulativeCreatedPlayers.push(playerDetails);
-            (playerDetails as any).id = createTemporaryId();
+
+            const teamPlayer: ITeamPlayerDto = playerDetails as ITeamPlayerDto;
+            teamPlayer.id = createTemporaryId();
 
             return apiResponse || {
                 success: true,

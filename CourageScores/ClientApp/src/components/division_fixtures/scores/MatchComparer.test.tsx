@@ -14,13 +14,13 @@ describe('MatchComparer', () => {
         });
 
         it('when x is null and y is not null', () => {
-            const result = matchEquals(null, {});
+            const result = matchEquals(null, matchBuilder().build());
 
             expect(result).toEqual(false);
         });
 
         it('when x is not null and y is null', () => {
-            const result = matchEquals({}, null);
+            const result = matchEquals(matchBuilder().build(), null);
 
             expect(result).toEqual(false);
         });

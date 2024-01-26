@@ -12,6 +12,7 @@ import {
 } from "../../helpers/tests";
 import {ITemplateVisualEditorProps, TemplateVisualEditor} from "./TemplateVisualEditor";
 import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('TemplateVisualEditor', () => {
     let context: TestContext;
@@ -45,6 +46,7 @@ describe('TemplateVisualEditor', () => {
         it('empty template', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                     sharedAddresses: [],
                     divisions: [],
@@ -61,6 +63,7 @@ describe('TemplateVisualEditor', () => {
         it('template shared addresses', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                     sharedAddresses: [ [ 'A' ] ],
                     divisions: [],
@@ -75,6 +78,7 @@ describe('TemplateVisualEditor', () => {
         it('template divisions', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                     sharedAddresses: [],
                     divisions: [{
@@ -94,6 +98,7 @@ describe('TemplateVisualEditor', () => {
         it('can update template shared addresses', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                     sharedAddresses: [],
                     divisions: [],
@@ -105,6 +110,7 @@ describe('TemplateVisualEditor', () => {
             await doClick(findButton(sharedAddresses, '➕ Add shared address'));
 
             expect(update).toEqual({
+                id: expect.any(String),
                 name: '',
                 sharedAddresses: [ [] ],
                 divisions: [],
@@ -114,6 +120,7 @@ describe('TemplateVisualEditor', () => {
         it('can update divisions', async () => {
             await renderComponent({
                 template: {
+                    id: createTemporaryId(),
                     name: '',
                     sharedAddresses: [],
                     divisions: [],
@@ -125,6 +132,7 @@ describe('TemplateVisualEditor', () => {
             await doClick(findButton(divisions, '➕ Add another division'));
 
             expect(update).toEqual({
+                id: expect.any(String),
                 sharedAddresses: [],
                 name: '',
                 divisions: [{

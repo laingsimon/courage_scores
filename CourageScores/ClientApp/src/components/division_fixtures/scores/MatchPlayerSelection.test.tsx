@@ -29,6 +29,7 @@ import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {ILegBuilder, ILegCompetitorScoreBuilder, IRecordedSaygBuilder} from "../../../helpers/builders/sayg";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('MatchPlayerSelection', () => {
     let context: TestContext;
@@ -352,6 +353,7 @@ describe('MatchPlayerSelection', () => {
             };
             const matchTypeProps: IMatchTypeContainerProps = {
                 otherMatches: [{
+                    id: createTemporaryId(),
                     homeScore: 2,
                     awayScore: 2,
                     homePlayers: [anotherHomePlayer],
@@ -396,6 +398,7 @@ describe('MatchPlayerSelection', () => {
             };
             const matchTypeProps: IMatchTypeContainerProps = {
                 otherMatches: [{
+                    id: createTemporaryId(),
                     homeScore: 2,
                     awayScore: 2,
                     homePlayers: [],
@@ -526,8 +529,8 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([homePlayer]);
             expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(null);
-            expect(updatedMatch.awayScore).toEqual(null);
+            expect(updatedMatch.awayScore).toBeFalsy();
+            expect(updatedMatch.awayScore).toBeFalsy();
         });
 
         it('can add a home player', async () => {
@@ -579,7 +582,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch.homePlayers).toEqual([]);
             expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(null);
-            expect(updatedMatch.awayScore).toEqual(null);
+            expect(updatedMatch.awayScore).toBeFalsy();
         });
 
         it('can set away player', async () => {
@@ -604,8 +607,8 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
             expect(updatedMatch.awayPlayers).toEqual([awayPlayer]);
-            expect(updatedMatch.homeScore).toEqual(null);
-            expect(updatedMatch.awayScore).toEqual(null);
+            expect(updatedMatch.homeScore).toBeFalsy();
+            expect(updatedMatch.awayScore).toBeFalsy();
         });
 
         it('can add an away player', async () => {
@@ -656,7 +659,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
             expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(null);
+            expect(updatedMatch.homeScore).toBeFalsy();
             expect(updatedMatch.awayScore).toEqual(null);
         });
 
@@ -683,7 +686,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch.homePlayers).toEqual([]);
             expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(3);
-            expect(updatedMatch.awayScore).toEqual(null);
+            expect(updatedMatch.awayScore).toBeFalsy();
         });
 
         it('can update away score', async () => {
@@ -708,7 +711,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
             expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(null);
+            expect(updatedMatch.homeScore).toBeFalsy();
             expect(updatedMatch.awayScore).toEqual(3);
         });
 
@@ -735,7 +738,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch.homePlayers).toEqual([]);
             expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(5);
-            expect(updatedMatch.awayScore).toEqual(null);
+            expect(updatedMatch.awayScore).toBeFalsy();
         });
 
         it('sets awayScore to numberOfLegs if greater than numberOfLegs', async () => {
@@ -760,7 +763,7 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
             expect(updatedMatch.awayPlayers).toEqual([]);
-            expect(updatedMatch.homeScore).toEqual(null);
+            expect(updatedMatch.homeScore).toBeFalsy();
             expect(updatedMatch.awayScore).toEqual(5);
         });
 

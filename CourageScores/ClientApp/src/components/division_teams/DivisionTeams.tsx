@@ -16,7 +16,7 @@ export function DivisionTeams() {
     const [teamDetails, setTeamDetails] = useState<IEditTeamDto>({
         name: '',
         address: '',
-        newDivisionId: divisionId
+        newDivisionId: divisionId,
     });
 
     async function onChange(name: string, value: string) {

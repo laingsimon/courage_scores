@@ -12,7 +12,6 @@ import {
 } from "../../../helpers/tests";
 import React from "react";
 import {ITournamentRoundProps, TournamentRound} from "./TournamentRound";
-import {createTemporaryId} from "../../../helpers/projection";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {ITournamentApi} from "../../../api/tournament";
 import {ISaygApi} from "../../../api/sayg";
@@ -859,11 +858,7 @@ describe('TournamentRound', () => {
             it('can add match', async () => {
                 await renderComponent(
                     {
-                        tournamentData: {
-                            id: createTemporaryId(),
-                            bestOf: 3,
-                            address: '',
-                        },
+                        tournamentData: tournamentBuilder().bestOf(3).build(),
                         matchOptionDefaults: {numberOfLegs: 3, startingScore: 501},
                         setTournamentData,
                         setWarnBeforeSave,

@@ -1,5 +1,6 @@
 import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
 import {IError} from "../interfaces/IError";
+import {IErrorDetailDto} from "../interfaces/serverSide/IErrorDetailDto";
 
 export function mapError(error: any): IError {
     if (error.stack) {
@@ -12,7 +13,7 @@ export function mapError(error: any): IError {
     return {message: error};
 }
 
-export function mapForLogging(error: any, account?: IUserDto | null) {
+export function mapForLogging(error: any, account?: IUserDto): IErrorDetailDto {
     // noinspection JSUnresolvedReference
     const userAgent = window.navigator.userAgent;
 

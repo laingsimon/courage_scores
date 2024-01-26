@@ -9,6 +9,7 @@ import {IDivisionFixtureDto} from "../interfaces/serverSide/Division/IDivisionFi
 import {IDivisionFixtureDateDto} from "../interfaces/serverSide/Division/IDivisionFixtureDateDto";
 import {IFixtureDateNoteDto} from "../interfaces/serverSide/IFixtureDateNoteDto";
 import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
+import {ITournamentSideDto} from "../interfaces/serverSide/Game/ITournamentSideDto";
 
 export interface IRenderContext {
     lastFixtureDateBeforeToday?: string;
@@ -107,7 +108,7 @@ export function getTeamFilter(name: string): IFilter<IFixtureMapping> {
     return new OrFilter<IFixtureMapping>([
         new Filter<IFixtureMapping>((c: IFixtureMapping) => c.fixture && c.fixture.homeTeam && (c.fixture.homeTeam.id === name || c.fixture.homeTeam.name.toLowerCase() === name.toLowerCase())),
         new Filter<IFixtureMapping>((c: IFixtureMapping) => c.fixture && c.fixture.awayTeam && (c.fixture.awayTeam.id === name || c.fixture.awayTeam.name.toLowerCase() === name.toLowerCase())),
-        new Filter<IFixtureMapping>((c: IFixtureMapping) => c.tournamentFixture && any(c.tournamentFixture.sides, (s: {teamId: string, name: string}) => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
+        new Filter<IFixtureMapping>((c: IFixtureMapping) => c.tournamentFixture && any(c.tournamentFixture.sides, (s: ITournamentSideDto) => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
     ]);
 }
 

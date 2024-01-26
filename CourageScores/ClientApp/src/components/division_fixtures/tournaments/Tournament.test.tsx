@@ -44,6 +44,9 @@ import {teamBuilder} from "../../../helpers/builders/teams";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {
+    IDivisionTournamentFixtureDetailsDto
+} from "../../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
 
 interface IScenario {
     account?: IUserDto;
@@ -56,7 +59,7 @@ describe('Tournament', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let divisionDataLookup: { [key: string]: IDivisionDataDto };
-    let tournamentDataLookup: { [id: string]: ITournamentGameDto };
+    let tournamentDataLookup: { [id: string]: ITournamentGameDto & IDivisionTournamentFixtureDetailsDto };
     let updatedTournamentData: {data: IEditTournamentGameDto, lastUpdated?: string }[];
     let patchedTournamentData: {id: string, data: IPatchTournamentDto}[];
     let saygDataLookup: { [id: string]: IRecordedScoreAsYouGoDto };

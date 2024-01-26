@@ -22,6 +22,7 @@ import {ITeamApi} from "../../api/team";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('AssignTeamToSeasons', () => {
     let context: TestContext;
@@ -70,7 +71,7 @@ describe('AssignTeamToSeasons', () => {
                 teams,
                 seasons,
             }, reportedError),
-            (<DivisionDataContainer season={currentSeason} onReloadDivision={onReloadDivision} name="" setDivisionData={null}>
+            (<DivisionDataContainer season={currentSeason} onReloadDivision={onReloadDivision} name="" setDivisionData={null} id={createTemporaryId()}>
                 <AssignTeamToSeasons teamOverview={teamOverview} onClose={onClose}/>
             </DivisionDataContainer>));
     }

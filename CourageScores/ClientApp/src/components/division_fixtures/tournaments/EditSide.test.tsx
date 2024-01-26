@@ -53,7 +53,8 @@ describe('EditSide', () => {
                 teamId,
                 playerDetails,
             };
-            (playerDetails as ITeamPlayerDto).id = createTemporaryId();
+            const playerDetailsAsTeamPlayer = playerDetails as ITeamPlayerDto;
+            playerDetailsAsTeamPlayer.id = createTemporaryId();
             return {
                 success: true,
                 result: {
@@ -62,7 +63,7 @@ describe('EditSide', () => {
                     address: '',
                     seasons: [{
                         seasonId: seasonId,
-                        players: [playerDetails],
+                        players: [playerDetailsAsTeamPlayer],
                     }]
                 }
             };
@@ -137,7 +138,7 @@ describe('EditSide', () => {
             .build();
 
         it('new side', async () => {
-            const side = {};
+            const side: ITournamentSideDto = sideBuilder().build();
 
             await renderComponent({
                 tournamentData,
@@ -536,7 +537,7 @@ describe('EditSide', () => {
         });
 
         it('can change team id', async () => {
-            const side: ITournamentSideDto = {};
+            const side: ITournamentSideDto = sideBuilder().build();
             await renderComponent({
                 tournamentData,
                 season,
@@ -547,6 +548,8 @@ describe('EditSide', () => {
 
             expect(reportedError.hasError()).toEqual(false);
             expect(updatedData).toEqual({
+                id: side.id,
+                players: [],
                 name: 'TEAM',
                 teamId: team.id,
             });
@@ -646,11 +649,9 @@ describe('EditSide', () => {
             const side: ITournamentSideDto = sideBuilder('PLAYER')
                 .withPlayer(player)
                 .build();
-            const noSidesTournamentData: ITournamentGameDto = {
-                address: '',
-                divisionId: tournamentData.divisionId,
-                sides: []
-            };
+            const noSidesTournamentData: ITournamentGameDto = tournamentBuilder()
+                .forDivision(tournamentData.divisionId)
+                .build();
             await renderComponent({
                 tournamentData: noSidesTournamentData,
                 season,
@@ -679,11 +680,9 @@ describe('EditSide', () => {
             const side: ITournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const noSidesTournamentData: ITournamentGameDto = {
-                address: '',
-                divisionId: tournamentData.divisionId,
-                sides: []
-            };
+            const noSidesTournamentData: ITournamentGameDto = tournamentBuilder()
+                .forDivision(tournamentData.divisionId)
+                .build();
             await renderComponent({
                 tournamentData: noSidesTournamentData,
                 season,
@@ -713,11 +712,9 @@ describe('EditSide', () => {
                 .withPlayer(player)
                 .withPlayer(anotherPlayer)
                 .build();
-            const noSidesTournamentData: ITournamentGameDto = {
-                address: '',
-                divisionId: tournamentData.divisionId,
-                sides: []
-            };
+            const noSidesTournamentData: ITournamentGameDto = tournamentBuilder()
+                .forDivision(tournamentData.divisionId)
+                .build();
             await renderComponent({
                 tournamentData: noSidesTournamentData,
                 season,

@@ -17,6 +17,7 @@ import {INoteApi} from "../../api/note";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
 import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('FixtureDateNote', () => {
     let context: TestContext;
@@ -44,6 +45,14 @@ describe('FixtureDateNote', () => {
         deletedNoteId = null;
     });
 
+    async function onReloadDivision() {
+        return null;
+    }
+
+    async function setDivisionData() {
+        return null;
+    }
+
     async function renderComponent(props: IFixtureDateNoteProps, account?: IUserDto) {
         context = await renderApp(
             iocProps({noteApi}),
@@ -51,7 +60,7 @@ describe('FixtureDateNote', () => {
             appProps({
                 account
             }),
-            (<DivisionDataContainer onReloadDivision={async () => null} name="" setDivisionData={() => null}>
+            (<DivisionDataContainer onReloadDivision={onReloadDivision} name="" setDivisionData={setDivisionData} id={createTemporaryId()}>
                 <FixtureDateNote {...props}/>
             </DivisionDataContainer>));
     }

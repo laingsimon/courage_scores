@@ -6,11 +6,12 @@ import {IGameMatchDto} from "../../interfaces/serverSide/Game/IGameMatchDto";
 import {IGameMatchOptionDto} from "../../interfaces/serverSide/Game/IGameMatchOptionDto";
 import {playerBuilder} from "./players";
 import {saygBuilder} from "./sayg";
+import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
 
 export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto & IGameDto> {
     playing: (home?: any, away?: any) => IFixtureBuilder;
     bye: (venue: any, id?: string) => IFixtureBuilder;
-    manOfTheMatch: (homePlayerOrId: any, awayPlayerOrId: any) => IFixtureBuilder;
+    manOfTheMatch: (homePlayerOrId: any, awayPlayerOrId?: any) => IFixtureBuilder;
     knockout: () => IFixtureBuilder;
     postponed: () => IFixtureBuilder;
     accoladesCount: () => IFixtureBuilder;
@@ -72,12 +73,21 @@ export function fixtureBuilder(date?: string, id?: string, omitSubmission?: bool
             fixture.awayTeam = null;
             return builder;
         },
-        manOfTheMatch: (homePlayerOrId: any, awayPlayerOrId: any) => {
+        manOfTheMatch: (homePlayerOrId: string | ITeamPlayerDto | null, awayPlayerOrId: string | ITeamPlayerDto | null) => {
+            function getId(playerOrId: string | ITeamPlayerDto): string {
+                const player: ITeamPlayerDto = playerOrId as ITeamPlayerDto;
+                if (player.id) {
+                    return player.id;
+                }
+
+                return playerOrId as string;
+            }
+
             if (homePlayerOrId) {
-                fixture.home.manOfTheMatch = homePlayerOrId.id ? homePlayerOrId.id : homePlayerOrId;
+                fixture.home.manOfTheMatch = getId(homePlayerOrId);
             }
             if (awayPlayerOrId) {
-                fixture.away.manOfTheMatch = awayPlayerOrId.id ? awayPlayerOrId.id : homePlayerOrId;
+                fixture.away.manOfTheMatch = getId(awayPlayerOrId);
             }
             return builder;
         },
@@ -175,12 +185,7 @@ export interface IMatchBuilder extends IBuilder<IGameMatchDto> {
 }
 
 export function matchBuilder(): IMatchBuilder {
-    const match: IGameMatchDto = {
-        homePlayers: null,
-        awayPlayers: null,
-        homeScore: null,
-        awayScore: null,
-    };
+    const match: IGameMatchDto = {};
 
     const builder: IMatchBuilder = {
         build: () => match,

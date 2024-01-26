@@ -27,7 +27,7 @@ describe('EditNote', () => {
     let changedNote: IFixtureDateNoteDto;
     let closed: boolean;
     let saved: boolean;
-    let saveResult: IClientActionResultDto<IEditFixtureDateNoteDto>;
+    let saveResult: IClientActionResultDto<IFixtureDateNoteDto>;
 
     const noteApi = api<INoteApi>({
         create: async (note: IEditFixtureDateNoteDto): Promise<IClientActionResultDto<IFixtureDateNoteDto>> => {

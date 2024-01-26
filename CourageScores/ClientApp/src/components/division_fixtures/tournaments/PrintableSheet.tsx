@@ -28,6 +28,7 @@ interface IWiggler {
 }
 
 interface ILayoutDataForSide {
+    id: string;
     name: string;
     link: JSX.Element;
 }
@@ -245,10 +246,10 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             }),
         };
 
-        const byesFromThisRound = sides
+        const byesFromThisRound: ILayoutDataForMatch[] = sides
             .filter((side: ITournamentSideDto) => !side.noShow)
             .filter((side: ITournamentSideDto) => !any(playedInThisRound, (s: ITournamentSideDto) => s.id === side.id))
-            .map((side: ITournamentSideDto) => {
+            .map((side: ITournamentSideDto): ILayoutDataForMatch => {
                 return {
                     sideA: {
                         id: side.id,
@@ -261,7 +262,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                     bye: true,
                     winner: null,
                     saygId: null,
-                } as ILayoutDataForMatch;
+                };
             });
 
         layoutDataForRound.matches = layoutDataForRound.matches.concat(byesFromThisRound);
@@ -271,7 +272,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             return [layoutDataForRound].concat(getUnplayedLayoutData(Math.ceil(playedInThisRound.length / 2), depth + 1));
         }
 
-        return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map(b => b.sideA)), round.nextRound, depth + 1));
+        return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map((b: ILayoutDataForMatch) => b.sideA)), round.nextRound, depth + 1));
     }
 
     function getUnplayedLayoutData(sideLength: number, depth: number): ILayoutDataForRound[] {

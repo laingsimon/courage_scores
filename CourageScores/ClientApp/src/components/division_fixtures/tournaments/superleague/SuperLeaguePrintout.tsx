@@ -63,7 +63,7 @@ export function SuperLeaguePrintout({division}: ISuperLeaguePrintoutProps) {
             for (let saygId in saygDataMap) {
                 if (!subscriptions[saygId]) {
                     // noinspection JSIgnoredPromiseFromCall
-                    webSocket.subscribe(saygId, (newSaygData) => {
+                    webSocket.subscribe(saygId, (newSaygData: IRecordedScoreAsYouGoDto) => {
                         const newSaygDataMap: ISaygDataMap = Object.assign({}, saygDataMap);
                         newSaygDataMap[newSaygData.id] = newSaygData;
                         setSaygDataMap(newSaygDataMap);

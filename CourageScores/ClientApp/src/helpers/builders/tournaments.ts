@@ -28,6 +28,8 @@ export interface ITournamentBuilder extends IAddableBuilder<ITournamentGameDto &
     opponent: (opponent: string) => ITournamentBuilder;
     gender: (gender: string) => ITournamentBuilder;
     singleRound: () => ITournamentBuilder;
+    withHiCheck: (playerOrName: any) => ITournamentBuilder;
+    withOneEighty: (playerOrName: any, score?: string) => ITournamentBuilder;
 }
 
 export function tournamentBuilder(id?: string): ITournamentBuilder {
@@ -134,6 +136,29 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
         },
         singleRound: () => {
             tournament.singleRound = true;
+            return builder;
+        },
+        withOneEighty: (playerOrName: any) => {
+            if (playerOrName.id) {
+                tournament.oneEighties.push(playerOrName);
+            } else {
+                tournament.oneEighties.push({
+                    id: createTemporaryId(),
+                    name: playerOrName,
+                });
+            }
+            return builder;
+        },
+        withHiCheck: (playerOrName: any, score?: string) => {
+            if (playerOrName.id) {
+                tournament.over100Checkouts.push(playerOrName);
+            } else {
+                tournament.over100Checkouts.push({
+                    id: createTemporaryId(),
+                    name: playerOrName,
+                    notes: score,
+                });
+            }
             return builder;
         },
     };
