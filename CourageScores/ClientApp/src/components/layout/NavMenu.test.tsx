@@ -2,10 +2,11 @@ import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestCont
 import React from "react";
 import {NavMenu} from "./NavMenu";
 import {ISettings} from "../../api/settings";
-import {IAppProps} from "../../App";
 import {IBrandingContainerProps} from "../../BrandingContainer";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
+import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IAppContainerProps} from "../../AppContainer";
 
 describe('NavMenu', () => {
     let context: TestContext;
@@ -15,7 +16,11 @@ describe('NavMenu', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(settings: ISettings, appContainerProps: IAppProps, branding?: IBrandingContainerProps, route?: string, currentPath?: string) {
+    function clearError() {
+        errorCleared = true;
+    }
+
+    async function renderComponent(settings: ISettings, appContainerProps: IAppContainerProps, branding?: IBrandingContainerProps, route?: string, currentPath?: string) {
         errorCleared = false;
 
         branding = branding || {name: '', menu: {beforeDivisions: [], afterDivisions: []}};
@@ -23,10 +28,7 @@ describe('NavMenu', () => {
         context = await renderApp(
             iocProps({settings}),
             branding ?? brandingProps(),
-            appProps({
-                clearError: () => errorCleared = true,
-                ...appContainerProps,
-            }),
+            appContainerProps,
             (<NavMenu/>),
             route || '/practice',
             currentPath || '/practice');
@@ -64,15 +66,16 @@ describe('NavMenu', () => {
         }
         const seasons = [currentSeason, otherSeason];
         const divisions = [division];
-        const account = null;
+        const account: IUserDto = null;
 
         it('when app loading', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
                 appLoading: true,
-            } as any);
+                clearError,
+            }));
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
@@ -82,12 +85,13 @@ describe('NavMenu', () => {
         });
 
         it('before and after division menu items', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                     account,
                     divisions,
                     seasons,
                     appLoading: false,
-                } as any,
+                    clearError,
+                }),
                 {
                     name: '',
                     menu: {
@@ -115,12 +119,13 @@ describe('NavMenu', () => {
         });
 
         it('divisions', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                     account,
                     divisions,
                     seasons,
-                    appLoading: false
-                } as any,
+                    appLoading: false,
+                    clearError,
+                }),
                 {name: '', menu: {beforeDivisions: [], afterDivisions: []}});
 
             expect(context.container.textContent).not.toContain('ERROR:');
@@ -130,12 +135,13 @@ describe('NavMenu', () => {
         });
 
         it('login prompt', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
 
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
@@ -145,12 +151,13 @@ describe('NavMenu', () => {
         });
 
         it('navigates to login', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
             const items = Array.from(menu.querySelectorAll('li'));
@@ -162,12 +169,13 @@ describe('NavMenu', () => {
         });
 
         it('clears error on navigate', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any, {
+                appLoading: false,
+                clearError,
+            }), {
                 name: '',
                 menu: {
                     beforeDivisions: [{
@@ -191,23 +199,25 @@ describe('NavMenu', () => {
         });
 
         it('renders nav-menu error', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions: [null],
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
 
             expect(context.container.textContent).toContain('ERROR:');
         });
 
         it('collapses on navigate', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any, {
+                appLoading: false,
+                clearError,
+            }), {
                 name: '',
                 menu: {
                     beforeDivisions: [{
@@ -233,12 +243,13 @@ describe('NavMenu', () => {
         });
 
         it('collapses and expands with brand', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
             expect(context.container.textContent).not.toContain('ERROR:');
             await doClick(context.container.querySelector('.navbar-brand'));
             expect(isExpanded()).toEqual(true);
@@ -251,12 +262,13 @@ describe('NavMenu', () => {
         it('highlight division', async () => {
             await renderComponent(
                 settings,
-                {
+                appProps({
                     account,
                     divisions,
                     seasons,
-                    appLoading: false
-                } as any,
+                    appLoading: false,
+                    clearError,
+                }),
                 null,
                 '/division/:id',
                 '/division/' + division.name);
@@ -271,12 +283,13 @@ describe('NavMenu', () => {
         });
 
         it('should highlight route', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any, {
+                appLoading: false,
+                clearError,
+            }), {
                 name: '',
                 menu: {
                     beforeDivisions: [{
@@ -311,12 +324,13 @@ describe('NavMenu', () => {
 
             await renderComponent(
                 settings,
-                {
+                appProps({
                     account,
                     divisions: [division1, division2],
                     seasons: [onlyDivision1SeasonCurrent, bothDivisionsSeasonsNotCurrent],
-                    appLoading: false
-                } as any,
+                    appLoading: false,
+                    clearError,
+                }),
                 null,
                 '/division/:divisionId/:mode/:seasonId',
                 `/division/${division1.id}/teams/${onlyDivision1SeasonCurrent.id}`);
@@ -337,12 +351,13 @@ describe('NavMenu', () => {
 
             await renderComponent(
                 settings,
-                {
+                appProps({
                     account,
                     divisions: [division1, division2],
                     seasons: [bothDivisionsSeasonsNotCurrent],
-                    appLoading: false
-                } as any,
+                    appLoading: false,
+                    clearError,
+                }),
                 null,
                 '/divisions/:divisionId/teams/:seasonId',
                 `/divisions/${division1.id}/teams/${bothDivisionsSeasonsNotCurrent.id}`);
@@ -368,7 +383,9 @@ describe('NavMenu', () => {
             currentSeason,
             seasonBuilder('OTHER SEASON').withDivision(division).build()];
         const divisions = [division];
-        const account = {
+        const account: IUserDto = {
+            name: '',
+            emailAddress: '',
             access: {
                 manageAccess: true
             },
@@ -376,16 +393,19 @@ describe('NavMenu', () => {
         };
 
         it('should not show admin link', async () => {
-            const nonAdminAccount = {
+            const nonAdminAccount: IUserDto = {
+                name: '',
+                emailAddress: '',
                 access: {},
                 givenName: 'Not an admin',
             }
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account: nonAdminAccount,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');
@@ -395,12 +415,13 @@ describe('NavMenu', () => {
         });
 
         it('should show admin link', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');
@@ -410,12 +431,13 @@ describe('NavMenu', () => {
         });
 
         it('should show logout link', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');
@@ -425,12 +447,13 @@ describe('NavMenu', () => {
         });
 
         it('should navigate to logout', async () => {
-            await renderComponent(settings, {
+            await renderComponent(settings, appProps({
                 account,
                 divisions,
                 seasons,
-                appLoading: false
-            } as any);
+                appLoading: false,
+                clearError,
+            }));
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');

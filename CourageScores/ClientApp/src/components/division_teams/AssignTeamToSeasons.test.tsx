@@ -178,7 +178,7 @@ describe('AssignTeamToSeasons', () => {
             await doClick(context.container, '.list-group .list-group-item:not(.active)');
             apiResponse = {
                 success: false,
-            } as any;
+            };
 
             await doClick(findButton(context.container, 'Apply changes'));
 

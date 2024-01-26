@@ -13,7 +13,7 @@ import {ReportApi} from "./api/report";
 import {DivisionApi} from "./api/division";
 import {SeasonApi} from "./api/season";
 import {SaygApi} from "./api/sayg";
-import {ParentHeight} from "./ParentHeight";
+import {IParentHeight, ParentHeight} from "./ParentHeight";
 import {TemplateApi} from "./api/template";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
@@ -27,17 +27,19 @@ export function useDependencies(): IDependencies {
     return useContext(DependenciesContext) as IDependencies;
 }
 
-export interface IIocContainerProps extends IDependencies {
+export interface IIocContainerProps {
     children?: React.ReactNode,
     socketFactory?: (setts: ISettings) => WebSocket,
+    overrideHttp?: IHttp;
+    overrideParentHeight?: IParentHeight;
 }
 
 /* istanbul ignore next */
-export function IocContainer({children, ...services} : IIocContainerProps) {
+export function IocContainer({children, overrideHttp, overrideParentHeight, ...services} : IIocContainerProps) {
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [subscriptions, setSubscriptions] = useState<ISubscriptions>({});
     const settings: ISettings = new Settings();
-    const http: IHttp = new Http(settings);
+    const http: IHttp = overrideHttp || new Http(settings);
     const defaultServices: IDependencies = {
         settings: settings,
         divisionApi: new DivisionApi(http),
@@ -54,7 +56,7 @@ export function IocContainer({children, ...services} : IIocContainerProps) {
         saygApi: new SaygApi(http),
         templateApi: new TemplateApi(http),
         liveApi: new LiveApi(http),
-        parentHeight: new ParentHeight(25),
+        parentHeight: overrideParentHeight || new ParentHeight(25),
         webSocket: new LiveWebSocket({
             socket,
             subscriptions,

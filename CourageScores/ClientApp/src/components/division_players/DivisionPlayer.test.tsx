@@ -36,13 +36,20 @@ describe('DivisionPlayer', () => {
     const playerApi = api<IPlayerApi>({
         delete: async (seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<ITeamDto>> => {
             deletedPlayer = {seasonId, teamId, playerId};
-            return apiResponse || {success: true} as any;
+            return apiResponse || {success: true};
         },
         update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string): Promise<IClientActionResultDto<ITeamDto>> => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
-            return apiResponse || {success: true} as any;
+            return apiResponse || {success: true};
         }
     });
+
+    async function onReloadDivision() {
+        return null;
+    }
+
+    async function setDivisionData() {
+    }
 
     afterEach(() => {
         cleanUp(context);
@@ -107,7 +114,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
 
                 expect(reportedError.hasError()).toEqual(false);
@@ -133,7 +146,13 @@ describe('DivisionPlayer', () => {
                         player: captain,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
 
                 expect(reportedError.hasError()).toEqual(false);
@@ -148,7 +167,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: true
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
 
                 expect(reportedError.hasError()).toEqual(false);
@@ -171,7 +196,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
 
                 expect(reportedError.hasError()).toEqual(false);
@@ -185,7 +216,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
 
                 expect(reportedError.hasError()).toEqual(false);
@@ -201,7 +238,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
 
                 expect(reportedError.hasError()).toEqual(false);
@@ -219,7 +262,13 @@ describe('DivisionPlayer', () => {
                         player: noTeamPlayer,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
 
                 expect(reportedError.hasError()).toEqual(false);
@@ -278,7 +327,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 expect(nameCell.textContent).toContain('NAME');
@@ -295,7 +350,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -311,7 +372,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = false;
@@ -329,7 +396,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
@@ -347,11 +420,17 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
-                apiResponse = { success: false, errors: [ 'SOME ERROR' ] } as any;
+                apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
 
                 await doClick(findButton(nameCell, '🗑️'));
 
@@ -367,11 +446,17 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
-                apiResponse = { success: false, errors: [ 'SOME ERROR' ] } as any;
+                apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
                 await doClick(findButton(nameCell, '🗑️'));
                 expect(context.container.textContent).toContain('Could not delete player');
 
@@ -385,7 +470,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -406,13 +497,19 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    {id: division.id, season, name: division.name} as any,
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                    },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
                 const dialog = nameCell.querySelector('.modal-dialog');
                 await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
-                apiResponse = {success: false} as any;
+                apiResponse = {success: false};
 
                 await doClick(findButton(dialog, 'Save player'));
 

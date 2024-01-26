@@ -24,11 +24,10 @@ import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
 import {IDivisionTeamDto} from "../interfaces/serverSide/Division/IDivisionTeamDto";
 import {IDivisionPlayerDto} from "../interfaces/serverSide/Division/IDivisionPlayerDto";
 import {IDataErrorDto} from "../interfaces/serverSide/Division/IDataErrorDto";
+import {IFailedRequest} from "../interfaces/IFailedRequest";
 
-export interface IRequestedDivisionDataDto extends IDivisionDataDto {
+export interface IRequestedDivisionDataDto extends IDivisionDataDto, IFailedRequest {
     requested?: { divisionId: string, seasonId: string };
-    status?: number;
-    errors?: { [key: string]: string };
 }
 
 export function Division() {

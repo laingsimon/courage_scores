@@ -238,7 +238,7 @@ describe('SocketAdmin', () => {
             apiResult = {
                 success: false,
                 errors: [ 'ERROR' ],
-            } as any;
+            };
             await renderComponent();
 
             await doClick(findButton(context.container, '🗑'));

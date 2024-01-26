@@ -131,7 +131,7 @@ describe('PageError', () => {
         const error: string = 'MESSAGE';
 
         it('shows error details', async () => {
-            await renderComponent(error as any);
+            await renderComponent(error as IError);
 
             const message = context.container.querySelector('div.content-background > p > span:first-child');
             expect(message).toBeTruthy();
@@ -139,14 +139,14 @@ describe('PageError', () => {
         });
 
         it('does not show stack toggle', async () => {
-            await renderComponent(error as any);
+            await renderComponent(error as IError);
 
             const toggle = context.container.querySelector('div.content-background > p > span.form-switch');
             expect(toggle).toBeFalsy();
         });
 
         it('clears app error', async () => {
-            await renderComponent(error as any);
+            await renderComponent(error as IError);
 
             await doClick(findButton(context.container, 'Clear error'));
 
@@ -154,7 +154,7 @@ describe('PageError', () => {
         });
 
         it('reports client-side exception', async () => {
-            await renderComponent(error as any);
+            await renderComponent(error as IError);
 
             expect(reportedClientSideException).toEqual([error]);
         });

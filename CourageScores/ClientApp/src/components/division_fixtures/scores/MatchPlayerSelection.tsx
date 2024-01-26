@@ -207,7 +207,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         disabled={disabled}
                         readOnly={readOnly}
                         players={homePlayers}
-                        selected={player(index, 'home') as { id: string }}
+                        selected={player(index, 'home')}
                         except={exceptPlayers(index, 'home')}
                         onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'home')}/></div>))}
             </td>
@@ -247,7 +247,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                             disabled={disabled}
                             readOnly={readOnly}
                             players={awayPlayers}
-                            selected={player(index, 'away') as { id: string }}
+                            selected={player(index, 'away')}
                             except={exceptPlayers(index, 'away')}
                             onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'away')}/>
                     </div>))}

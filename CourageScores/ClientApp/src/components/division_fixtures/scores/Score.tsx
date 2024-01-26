@@ -125,7 +125,7 @@ export function Score() {
                 player={newPlayerDetails}
                 seasonId={fixtureData.seasonId}
                 gameId={fixtureData.id}
-                team={team as { id: string }}
+                team={team}
                 divisionId={fixtureData.divisionId}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={async () => setCreatePlayerFor(null)}

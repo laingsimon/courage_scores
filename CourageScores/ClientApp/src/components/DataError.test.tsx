@@ -12,6 +12,14 @@ describe('DataError', () => {
         cleanUp(context);
     });
 
+    async function setDivisionData() {
+
+    }
+
+    async function onReloadDivision() {
+        return null;
+    }
+
     async function renderComponent(containerProps: IDivisionDataContainerProps, dataError: IDataErrorDto) {
         context = await renderApp(
             iocProps(),
@@ -24,7 +32,12 @@ describe('DataError', () => {
 
     describe('renders', () => {
         it('message and no ids', async () => {
-            await renderComponent({ } as any, { message: 'SOME MESSAGE' });
+            await renderComponent({
+                id: '',
+                name: '',
+                setDivisionData,
+                onReloadDivision,
+            }, { message: 'SOME MESSAGE' });
 
             expect(context.container.textContent).toContain('SOME MESSAGE');
             expect(context.container.querySelectorAll('a').length).toEqual(0);
@@ -36,7 +49,10 @@ describe('DataError', () => {
             await renderComponent(
                 {
                     id: divisionId,
-                } as any,
+                    name: '',
+                    setDivisionData,
+                    onReloadDivision,
+                },
                 {
                     message: 'SOME MESSAGE',
                     gameId,
@@ -55,7 +71,10 @@ describe('DataError', () => {
             await renderComponent(
                 {
                     id: divisionId,
-                } as any,
+                    name: '',
+                    setDivisionData,
+                    onReloadDivision,
+                },
                 {
                     message: 'SOME MESSAGE',
                     tournamentId,
@@ -74,7 +93,10 @@ describe('DataError', () => {
             await renderComponent(
                 {
                     id: divisionId,
-                } as any,
+                    name: '',
+                    setDivisionData,
+                    onReloadDivision,
+                },
                 {
                     message: 'SOME MESSAGE',
                     teamId,
@@ -93,7 +115,10 @@ describe('DataError', () => {
             await renderComponent(
                 {
                     id: divisionId,
-                } as any,
+                    name: '',
+                    setDivisionData,
+                    onReloadDivision,
+                },
                 {
                     message: 'SOME MESSAGE',
                     playerId,
@@ -110,7 +135,10 @@ describe('DataError', () => {
             await renderComponent(
                 {
                     id: divisionId,
-                } as any,
+                    name: '',
+                    setDivisionData,
+                    onReloadDivision,
+                },
                 {
                     message: 'SOME MESSAGE',
                     teamId,

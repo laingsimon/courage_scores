@@ -33,7 +33,11 @@ describe('errors', () => {
 
     describe('mapForLogging', () => {
         it('maps basic properties', () => {
-            const account: IUserDto = {name: 'NAME'} as any;
+            const account: IUserDto = {
+                name: 'NAME',
+                emailAddress: '',
+                givenName: '',
+            };
             const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2', type: 'TYPE'}, account);
             const today = new Date().toISOString();
 
@@ -48,7 +52,11 @@ describe('errors', () => {
         });
 
         it('accepts null stack', () => {
-            const account: IUserDto = {name: 'NAME'} as any;
+            const account: IUserDto = {
+                name: 'NAME',
+                emailAddress: '',
+                givenName: '',
+            };
             const result = mapForLogging({message: 'MESSAGE', type: 'TYPE'}, account);
 
             expect(result.stack).toBeNull();
@@ -62,7 +70,11 @@ describe('errors', () => {
         });
 
         it('accepts no type', () => {
-            const account: IUserDto = {name: 'NAME'} as any;
+            const account: IUserDto = {
+                name: 'NAME',
+                emailAddress: '',
+                givenName: '',
+            };
             const result = mapForLogging({message: 'MESSAGE', stack: 'FRAME1\nFRAME2'}, account);
 
             expect(result.type).toBeNull();

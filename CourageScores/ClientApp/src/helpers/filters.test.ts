@@ -596,7 +596,7 @@ describe('filters', () => {
         it('sets new filter', () => {
             updatedFilter = null;
             navigated = null;
-            const filter: IInitialisedFilters = {new: true} as any;
+            const filter: IInitialisedFilters = {new: true} as IInitialisedFilters;
 
             changeFilter(filter, setFilter, navigate, location);
 

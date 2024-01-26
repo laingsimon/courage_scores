@@ -35,6 +35,7 @@ import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {fixtureBuilder, matchBuilder} from "../../../helpers/builders/games";
+import {IFailedRequest} from "../../../interfaces/IFailedRequest";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -229,7 +230,11 @@ describe('Score', () => {
         it('renders when fixture data not returned successfully', async () => {
             const fixture = fixtureBuilder().build();
             const appData = getDefaultAppData(account);
-            fixtureDataMap[fixture.id] = {status: 400, errors: {'key': 'Some error'}} as any;
+            const failedRequest: IFailedRequest = {
+                status: 400,
+                errors: {'key': ['Some error']}
+            };
+            fixtureDataMap[fixture.id] = failedRequest as any;
 
             await renderComponent(fixture.id, appData);
 
@@ -239,7 +244,14 @@ describe('Score', () => {
         it('renders when home or away are not defined', async () => {
             const fixture = fixtureBuilder().build();
             const appData = getDefaultAppData(account);
-            fixtureDataMap[fixture.id] = {} as IGameDto & IDatedDivisionFixtureDto;
+            fixtureDataMap[fixture.id] = {
+                id: '',
+                date: '',
+                address: '',
+                away: null,
+                home: null,
+                homeTeam: null,
+            };
 
             await renderComponent(fixture.id, appData);
 

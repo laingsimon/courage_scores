@@ -4,12 +4,13 @@ import {MemoryRouter, Route, Routes} from "react-router-dom";
 import {IocContainer, IIocContainerProps} from "../IocContainer";
 import {AppContainer, IAppContainerProps} from "../AppContainer";
 import ReactDOM from "react-dom/client";
-import React, {Dispatch, SetStateAction} from "react";
+import React from "react";
 import {BrandingContainer, IBrandingContainerProps} from "../BrandingContainer";
 import {UserEvent} from "@testing-library/user-event/setup/setup";
 import {IError} from "../interfaces/IError";
-import {Settings} from "../api/settings";
 import {ISubscriptions} from "../interfaces/ISubscriptions";
+import {IParentHeight} from "../ParentHeight";
+import {IHttp} from "../api/http";
 
 /* istanbul ignore file */
 
@@ -57,32 +58,42 @@ export interface TestContext {
 }
 
 export function api<T>(methods: any): T {
-    return Object.assign({}, methods) as any;
+    return Object.assign({}, methods) as T;
 }
 
 export function iocProps(props?: any) : IIocContainerProps {
     const mockWebSocketFactory = new MockSocketFactory();
-    const defaultSettings = new Settings();
+    const mockParentHeight: IParentHeight = {
+        cancelInterval() {
+        },
+        publishContentHeight() {
+        },
+        setupInterval(_?: number) {
+        }
+    };
+    const mockHttp: IHttp = {
+        get(relativeUrl: string): any {
+            throw new Error(`GET ${relativeUrl} attempted; mock api should be injected`);
+        },
+        delete(relativeUrl: string, _?: any): any {
+            throw new Error(`DELETE ${relativeUrl} attempted; mock api should be injected`);
+        },
+        put(relativeUrl: string, _: any): any {
+            throw new Error(`PUT ${relativeUrl} attempted; mock api should be injected`);
+        },
+        patch(relativeUrl: string, _: any): any {
+            throw new Error(`PATCH ${relativeUrl} attempted; mock api should be injected`);
+        },
+        post(relativeUrl: string, _: any): any {
+            throw new Error(`POST ${relativeUrl} attempted; mock api should be injected`);
+        }
+    }
 
     const defaultProps: IIocContainerProps = {
-        accountApi: {} as any,
-        dataApi: {} as any,
-        errorApi: {} as any,
-        gameApi: {} as any,
-        liveApi: {} as any,
-        noteApi: {} as any,
-        divisionApi: {} as any,
-        parentHeight: {} as any,
-        playerApi: {} as any,
-        saygApi: {} as any,
-        reportApi: {} as any,
-        seasonApi: {} as any,
-        settings: defaultSettings,
-        teamApi: {} as any,
-        templateApi: {} as any,
-        tournamentApi: {} as any,
+        overrideHttp: mockHttp,
+        overrideParentHeight: mockParentHeight,
         socketFactory: mockWebSocketFactory.createSocket,
-    } as any;
+    };
     return Object.assign({}, defaultProps, props);
 }
 

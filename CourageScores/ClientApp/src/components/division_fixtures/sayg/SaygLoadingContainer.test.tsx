@@ -198,7 +198,10 @@ describe('SaygLoadingContainer', () => {
 
         it('reports load error if no legs in returned sayg data', async () => {
             const id = 'NO_LEGS_ID';
-            saygDataMap[id] = {} as any;
+            saygDataMap[id] = {
+                id,
+                yourName: '',
+            };
             await renderComponent({
                 children: (<TestComponent onLoaded={noop} />),
                 id: id,
@@ -249,8 +252,7 @@ describe('SaygLoadingContainer', () => {
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data }/>),
                 id: null,
                 defaultData: {
-                    isDefault: true,
-                    yourName: 'HOME',
+                    yourName: 'DEFAULT',
                     legs: {
                         '0': legBuilder()
                             .startingScore(501)
@@ -258,7 +260,7 @@ describe('SaygLoadingContainer', () => {
                             .away((c: ILegCompetitorScoreBuilder) => c.score(0))
                             .build()
                     },
-                } as any,
+                },
                 autoSave: false,
                 liveOptions: { },
                 on180,
@@ -267,7 +269,7 @@ describe('SaygLoadingContainer', () => {
                 onLoadError,
                 onSaved,
             });
-            expect((containerProps.sayg as any).isDefault).toEqual(true);
+            expect(containerProps.sayg.yourName).toEqual('DEFAULT');
 
             await act(async () => {
                 await containerProps.setSayg({
@@ -415,7 +417,10 @@ describe('SaygLoadingContainer', () => {
                 onSaved,
                 liveOptions: {},
             });
-            apiResponse = {success: true, result: 'SOMETHING THAT WILL TRIGGER AN EXCEPTION'} as any;
+            apiResponse = {
+                success: true,
+                result: ('SOMETHING THAT WILL TRIGGER AN EXCEPTION' as unknown) as IRecordedScoreAsYouGoDto,
+            } as IClientActionResultDto<IRecordedScoreAsYouGoDto>;
             let result: string;
 
             await act(async () => {
@@ -616,7 +621,7 @@ describe('SaygLoadingContainer', () => {
                         type: 'Error',
                         message: 'Some error message'
                     })
-                } as any);
+                } as MessageEvent<string>);
             });
 
             expect(reportedError.error).toEqual('Some error message');
@@ -673,7 +678,7 @@ describe('SaygLoadingContainer', () => {
                         data: newSaygData,
                         id: newSaygData.id,
                     })
-                } as any);
+                } as MessageEvent<string>);
             });
 
             expect(reportedError.hasError()).toEqual(false);

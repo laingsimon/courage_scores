@@ -80,8 +80,11 @@ describe('DivisionPlayers', () => {
         };
     }
 
-    async function onReloadDivision(): Promise<IDivisionDataDto | null> {
+    async function onReloadDivision() {
         return null;
+    }
+
+    async function setDivisionData() {
     }
 
     function assertPlayer(tr: HTMLTableRowElement, values: string[]) {
@@ -98,7 +101,7 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError.hasError()).toEqual(false);
@@ -120,7 +123,7 @@ describe('DivisionPlayers', () => {
             captain.singles.matchesLost = 0;
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError.hasError()).toEqual(false);
@@ -134,7 +137,7 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: true});
 
             expect(reportedError.hasError()).toEqual(false);
@@ -149,7 +152,7 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: true, hideHeading: undefined});
 
             expect(reportedError.hasError()).toEqual(false);
@@ -179,7 +182,7 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError.hasError()).toEqual(false);
@@ -201,7 +204,7 @@ describe('DivisionPlayers', () => {
             captain.singles.matchesLost = 0;
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
             expect(reportedError.hasError()).toEqual(false);
@@ -216,7 +219,7 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: true});
 
             expect(reportedError.hasError()).toEqual(false);
@@ -231,7 +234,7 @@ describe('DivisionPlayers', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any,
+                {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: true, hideHeading: undefined});
 
             expect(reportedError.hasError()).toEqual(false);

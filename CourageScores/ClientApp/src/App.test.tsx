@@ -1,4 +1,4 @@
-import {api, cleanUp, doClick, findButton, noop, TestContext} from "./helpers/tests";
+import {api, cleanUp, doClick, findButton, iocProps, noop, TestContext} from "./helpers/tests";
 import React from "react";
 import {App} from "./App";
 import {act} from "@testing-library/react";
@@ -51,7 +51,7 @@ describe('App', () => {
     const errorApi = api<IErrorApi>({
         add: async (error: IErrorDetailDto): Promise<IClientActionResultDto<IErrorDetailDto>> => {
             reportedError = error;
-            return { success: true } as any;
+            return { success: true };
         }
     });
 
@@ -67,14 +67,14 @@ describe('App', () => {
         reportedError = null;
         settings = {};
         context = await renderApp(
-            {
+            iocProps({
                 divisionApi,
                 accountApi,
                 seasonApi,
                 teamApi,
                 errorApi,
                 settings,
-            } as any,
+            }),
             (<BrandingContainer name='COURAGE LEAGUE'>
                 <App controls={true} embed={embed} testRoute={testRoute}/>
             </BrandingContainer>),

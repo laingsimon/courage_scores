@@ -152,8 +152,8 @@ export function DataBrowser() {
         {loading || !response ? null : (<div>
             {response.success ? renderResponse() : null}
             {response.errors && response.errors.length ? (<ol>{response.errors.map((msg, index) => (<li key={index}>{msg}</li>))}</ol>) : null}
-            {response.errors && (response as any).status ? (<div className="text-danger">
-                Status: {(response as any).status}
+            {response.errors && response.status ? (<div className="text-danger">
+                Status: {response.status}
                 {Object.keys(response.errors).map(key => (<li key={key}>{key}: {response.errors[key]}</li>))}
             </div>) : null}
         </div>)}

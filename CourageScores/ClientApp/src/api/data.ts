@@ -33,7 +33,7 @@ class DataApi implements IDataApi {
         const data = new FormData();
         data.append('Zip', file);
         const keys = Object.keys(request);
-        keys.forEach(key => data.append(key, (request as any)[key]));
+        keys.forEach(key => data.append(key, request[key]));
 
         const settings = new Settings();
         const absoluteUrl = settings.apiHost + `/api/Data/Import`;

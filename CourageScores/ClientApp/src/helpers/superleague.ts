@@ -11,8 +11,8 @@ export function playerOverallAverage(saygData: IScoreAsYouGoDto | null | undefin
     }
 
     const metrics = Object.keys(saygData.legs).map((legIndex: string) => {
-        const leg = saygData.legs![legIndex as any];
-        const side = (leg as any)[sideName];
+        const leg: ILegDto = saygData.legs![legIndex];
+        const side = leg[sideName];
 
         return {
             score: sum(side.throws, (thr: ILegThrowDto) => thr.bust ? 0 : thr.score),
@@ -45,8 +45,8 @@ export function getNoOfLegs(saygData: IScoreAsYouGoDto | null | undefined): numb
     }
 
     return Object.keys(saygData.legs || {})
-        .map((legKey: string) => saygData.legs![legKey as any])
-        .filter(leg => {
+        .map((legKey: string): ILegDto => saygData.legs![legKey])
+        .filter((leg: ILegDto): number => {
             return leg.home!.noOfDarts || (leg.away ? leg.away.noOfDarts : 0);
         })
         .length;
@@ -58,23 +58,23 @@ export function sumOverThrows(saygData: IScoreAsYouGoDto | null | undefined, acc
     }
 
     return sum(Object.keys(saygData.legs || {})
-        .map((legKey: string) => saygData.legs![legKey as any])
-        .flatMap(leg => (leg as any)[accumulatorName].throws)
-        .map(thr => includeBust || !thr.bust ? (thr as any)[prop] : 0));
+        .map((legKey: string): ILegDto => saygData.legs![legKey])
+        .flatMap((leg: ILegDto) => (leg)[accumulatorName].throws)
+        .map((thr: ILegThrowDto) => includeBust || !thr.bust ? thr[prop] : 0));
 }
 
 export function maxNoOfThrowsAllMatches(saygMatches: ISuperleagueSayg[]) {
     let throws: number = 0;
 
     for (let index = 0; index < saygMatches.length; index++) {
-        const saygData = saygMatches[index].saygData;
+        const saygData: IScoreAsYouGoDto = saygMatches[index].saygData;
 
         if (!saygData || !saygData.legs) {
             continue;
         }
 
         for (const legsKey in saygData.legs) {
-            const leg = saygData.legs[legsKey];
+            const leg: ILegDto = saygData.legs[legsKey];
 
             throws = Math.max(throws, leg.home!.throws!.length);
             throws = Math.max(throws, leg.away!.throws!.length);
@@ -89,7 +89,7 @@ export function getMatchWinner(saygData: IScoreAsYouGoDto) {
     let awayScore = 0;
 
     for (let legIndex in saygData.legs) {
-        const leg: ILegDto = saygData.legs[legIndex as any];
+        const leg: ILegDto = saygData.legs[legIndex];
         const startingScore = leg.startingScore;
         const homeWinner = sum(leg.home!.throws!, thr => thr.bust ? 0 : thr.score) === startingScore;
         const awayWinner = leg.away ? sum(leg.away.throws!, thr => thr.bust ? 0 : thr.score) === startingScore : false;
@@ -132,7 +132,7 @@ export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string
 }
 
 export function countLegThrowsBetween(leg: ILegDto, accumulatorName: string, lowerInclusive: number, upperExclusive?: number): number {
-    const accumulator: ILegCompetitorScoreDto = (leg as any)[accumulatorName] || {};
+    const accumulator: ILegCompetitorScoreDto = leg[accumulatorName] || {};
     const throws = accumulator.throws || [];
     return count(throws, thr => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
 }
@@ -157,7 +157,7 @@ export function legTonsSplit(leg: ILegDto, accumulatorName: string): string {
 }
 
 export function legActualDarts(leg: ILegDto, accumulatorName: string): number {
-    const accumulator: ILegCompetitorScoreDto = (leg as any)[accumulatorName];
+    const accumulator: ILegCompetitorScoreDto = leg[accumulatorName];
     if (!accumulator || !accumulator.throws) {
         return 0;
     }
@@ -166,7 +166,7 @@ export function legActualDarts(leg: ILegDto, accumulatorName: string): number {
 }
 
 export function legGameShot(leg: ILegDto, accumulatorName: string): number | null {
-    const accumulator: ILegCompetitorScoreDto = (leg as any)[accumulatorName];
+    const accumulator: ILegCompetitorScoreDto = leg[accumulatorName];
     if (!accumulator || !accumulator.throws) {
         return null;
     }
@@ -176,7 +176,7 @@ export function legGameShot(leg: ILegDto, accumulatorName: string): number | nul
 }
 
 export function legScoreLeft(leg: ILegDto, accumulatorName: string): number | null {
-    const accumulator: ILegCompetitorScoreDto = (leg as any)[accumulatorName];
+    const accumulator: ILegCompetitorScoreDto = leg[accumulatorName];
     if (!accumulator || !accumulator.throws) {
         return null;
     }
@@ -192,8 +192,8 @@ function countMatchThrowsBetween(saygData: IScoreAsYouGoDto | null | undefined, 
     }
 
     return sum(Object.keys(saygData.legs).map((legIndex: string) => {
-        const leg = saygData.legs![legIndex as any];
-        const accumulator: ILegCompetitorScoreDto = (leg as any)[accumulatorName];
+        const leg: ILegDto = saygData.legs![legIndex];
+        const accumulator: ILegCompetitorScoreDto = leg[accumulatorName];
 
         return count(
             accumulator.throws!,

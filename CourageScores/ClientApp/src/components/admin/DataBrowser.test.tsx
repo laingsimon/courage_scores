@@ -18,6 +18,7 @@ import {IAppContainerProps} from "../../AppContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IError} from "../../interfaces/IError";
 import {IDataApi} from "../../api/data";
+import {IFailedRequest} from "../../interfaces/IFailedRequest";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -152,15 +153,16 @@ describe('DataBrowser', () => {
         });
 
         it('bad request when fetching', async () => {
-            apiResult = {
+            const error: IFailedRequest = {
                 errors: {
                     id: [
                         'The value \'abcd\' is not valid.'
                     ]
-                } as any,
+                },
                 title: 'One or more validation errors occurred.',
                 status: 400,
             };
+            apiResult = error as any;
 
             await renderComponent(appProps({
                 account: {}

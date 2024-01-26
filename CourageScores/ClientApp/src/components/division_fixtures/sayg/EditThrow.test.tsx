@@ -183,7 +183,7 @@ describe('EditThrow', () => {
 
             expect(changed).toEqual({
                 score: 100,
-            } as ILegThrowDto);
+            });
         });
 
         it('can change the noOfDarts', async () => {
@@ -204,7 +204,7 @@ describe('EditThrow', () => {
 
             expect(changed).toEqual({
                 noOfDarts: 3,
-            } as ILegThrowDto);
+            });
         });
 
         it('can change whether bust', async () => {
@@ -225,7 +225,7 @@ describe('EditThrow', () => {
 
             expect(changed).toEqual({
                 bust: false,
-            } as ILegThrowDto);
+            });
         });
     });
 });

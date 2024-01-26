@@ -22,6 +22,7 @@ import {IAppContainerProps} from "../../../AppContainer";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
 import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
 
 describe('MatchStatistics', () => {
     let context: TestContext;
@@ -666,7 +667,7 @@ describe('MatchStatistics', () => {
         await renderComponent({
             id: saygData.id,
             liveOptions,
-            lastLegDisplayOptions: { showThrows: true, initial: true } as any,
+            lastLegDisplayOptions: { showThrows: true, initial: true } as ILegDisplayOptions,
         }, saygData, appProps({ account }));
 
         const newSaygData = saygBuilder(id)
@@ -687,7 +688,7 @@ describe('MatchStatistics', () => {
                     data: newSaygData,
                     id: newSaygData.id,
                 })
-            } as any);
+            } as MessageEvent<string>);
         });
 
         expect(reportedError.hasError()).toEqual(false);

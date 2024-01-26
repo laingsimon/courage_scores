@@ -1,4 +1,8 @@
 export interface IFailedRequest {
-    status: any;
-    errors: { [key: string]: string };
+    status?: number;
+    body?: any;
+    errors?: { [key: string]: string[] };
+    text?: () => Promise<string>;
+    json?: () => Promise<any>;
+    title?: string;
 }

@@ -4,9 +4,22 @@ import React from "react";
 import {About} from "./About";
 import {IBuild} from "../interfaces/IBuild";
 import {IBrandingContainerProps} from "../BrandingContainer";
+import {IBranding} from "../interfaces/IBranding";
 
 describe('About', () => {
     let context: TestContext;
+    const emptyBuild: IBuild = {
+        branch: '',
+        date: '',
+        version: ''
+    };
+    const emptyBranding: IBranding = {
+        name: '',
+        menu: {
+            beforeDivisions: [],
+            afterDivisions: [],
+        },
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -37,7 +50,7 @@ describe('About', () => {
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
                 date: '2023-04-05T06:07:08',
-            }, {} as any);
+            }, emptyBranding);
 
             const branchRow = getRow('Branch');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
@@ -49,7 +62,7 @@ describe('About', () => {
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
                 date: '2023-04-05T06:07:08',
-            }, {} as any);
+            }, emptyBranding);
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
@@ -64,7 +77,7 @@ describe('About', () => {
                 branch: 'BRANCH',
                 date: '2023-04-05T06:07:08',
                 version: null!,
-            }, {} as any);
+            }, emptyBranding);
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
@@ -77,7 +90,7 @@ describe('About', () => {
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
                 date: buildDate,
-            }, {} as any);
+            }, emptyBranding);
 
             const branchRow = getRow('Date');
             const cell = branchRow.querySelector('td') as HTMLTableCellElement;
@@ -88,7 +101,7 @@ describe('About', () => {
 
     describe('with branding', () => {
         it('renders link to brand website', async () => {
-            await renderComponent({} as any, {
+            await renderComponent(emptyBuild, {
                 name: 'COURAGE SCORES',
                 website: 'https://couragescores',
                 custodians: [],
@@ -105,7 +118,7 @@ describe('About', () => {
         });
 
         it('renders custodians', async () => {
-            await renderComponent({} as any, {
+            await renderComponent(emptyBuild, {
                 name: 'COURAGE SCORES',
                 website: 'https://couragescores',
                 custodians: ['Simon', 'Laing'],

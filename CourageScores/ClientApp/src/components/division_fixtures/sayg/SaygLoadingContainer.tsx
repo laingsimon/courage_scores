@@ -163,7 +163,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                         data={sayg}
                         singlePlayer={!sayg.opponentName}
                         onLegComplete={async (homeScore: number, awayScore: number) => {
-                            const sayg = await updateSayg({homeScore, awayScore} as any);
+                            const sayg = await updateSayg({homeScore, awayScore} as IUpdateRecordedScoreAsYouGoDto);
                             if (autoSave) {
                                 await saveDataAndGetId(sayg);
                             }

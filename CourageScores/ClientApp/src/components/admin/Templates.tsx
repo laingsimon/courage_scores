@@ -155,7 +155,7 @@ export function Templates() {
 
         try {
             const template: IEditTemplateDto = Object.assign({}, selected);
-            (template as any).lastUpdated = selected.updated;
+            template.lastUpdated = selected.updated;
             const result: IClientActionResultDto<ITemplateDto> = await templateApi.update(template);
             if (result.success) {
                 setSelected(null);

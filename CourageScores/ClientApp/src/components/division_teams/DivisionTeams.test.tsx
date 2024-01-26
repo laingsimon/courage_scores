@@ -19,9 +19,9 @@ import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
 import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
 import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
 import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionDataDto} from "../../interfaces/serverSide/Division/IDivisionDataDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ITeamApi} from "../../api/team";
+import {IDivisionDataDto} from "../../interfaces/serverSide/Division/IDivisionDataDto";
 
 describe('DivisionTeams', () => {
     let context: TestContext;
@@ -32,8 +32,8 @@ describe('DivisionTeams', () => {
         update: async (team: IEditTeamDto): Promise<IClientActionResultDto<ITeamDto>> => {
             return {
                 success: true,
-                result: team,
-            } as any;
+                result: team as ITeamDto,
+            };
         }
     });
 
@@ -59,15 +59,17 @@ describe('DivisionTeams', () => {
             </DivisionDataContainer>));
     }
 
-    function createDivisionData(divisionId: string) {
+    function createDivisionData(divisionId: string): IDivisionDataDto {
         const season = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .build();
         return {
             id: divisionId,
+            name: '',
             teams: [{
                 id: createTemporaryId(),
+                address: '',
                 name: 'A team 2',
                 played: 1,
                 points: 2,
@@ -78,6 +80,7 @@ describe('DivisionTeams', () => {
                 rank: 2
             }, {
                 id: createTemporaryId(),
+                address: '',
                 name: 'A team 1',
                 played: 1,
                 points: 2,
@@ -92,9 +95,12 @@ describe('DivisionTeams', () => {
         };
     }
 
-    async function onReloadDivision(): Promise<IDivisionDataDto> {
+    async function onReloadDivision() {
         divisionReloaded = true;
         return null;
+    }
+
+    async function setDivisionData() {
     }
 
     function assertTeam(tr: HTMLTableRowElement, values: string[]) {
@@ -112,7 +118,7 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any);
+                {...divisionData, onReloadDivision, setDivisionData });
 
             expect(reportedError.hasError()).toEqual(false);
             const teamsRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
@@ -126,7 +132,7 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any);
+                {...divisionData, onReloadDivision, setDivisionData});
 
             expect(reportedError.hasError()).toEqual(false);
             const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
@@ -151,7 +157,7 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any);
+                {...divisionData, onReloadDivision, setDivisionData});
 
             expect(reportedError.hasError()).toEqual(false);
             const teamsRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
@@ -165,7 +171,7 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any);
+                {...divisionData, onReloadDivision, setDivisionData});
 
             expect(reportedError.hasError()).toEqual(false);
             const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
@@ -176,7 +182,7 @@ describe('DivisionTeams', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any);
+                {...divisionData, onReloadDivision, setDivisionData});
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -190,7 +196,7 @@ describe('DivisionTeams', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any);
+                {...divisionData, onReloadDivision, setDivisionData});
             await doClick(findButton(context.container, 'Add team'));
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
 
@@ -203,7 +209,7 @@ describe('DivisionTeams', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             await renderComponent(
-                {...divisionData, onReloadDivision: onReloadDivision} as any);
+                {...divisionData, onReloadDivision, setDivisionData});
             await doClick(findButton(context.container, 'Add team'));
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog.textContent).toContain('Create a new team...');

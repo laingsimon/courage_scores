@@ -2,7 +2,8 @@ import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from
 import React from "react";
 import {IPrintDivisionHeadingProps, PrintDivisionHeading} from "./PrintDivisionHeading";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
-import {seasonBuilder} from "../helpers/builders/seasons";
+import {divisionDataBuilder} from "../helpers/builders/divisions";
+import {ISeasonBuilder} from "../helpers/builders/seasons";
 
 describe('PrintDivisionHeading', () => {
     let context: TestContext;
@@ -25,33 +26,33 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no season', async () => {
             await renderComponent({
                 hideDivision: false
-            }, {season: null, name: 'DIVISION'} as any);
+            }, divisionDataBuilder('DIVISION').build());
 
             expect(context.container.textContent).toEqual('');
         });
 
         it('renders nothing when no division and division included', async () => {
-            const season = seasonBuilder('SEASON').build();
             await renderComponent({
                 hideDivision: false
-            }, {season: season, name: null} as any);
+            }, divisionDataBuilder(null).season((s: ISeasonBuilder) => s,'SEASON').build());
 
             expect(context.container.textContent).toEqual('');
         });
 
         it('renders nothing when no division and division excluded', async () => {
-            const season = seasonBuilder('SEASON').build();
             await renderComponent({
                 hideDivision: true
-            }, {season: season, name: null} as any);
+            }, divisionDataBuilder(null).season((s: ISeasonBuilder) => s,'SEASON').build());
 
             expect(context.container.textContent).toEqual('SEASON');
         });
     })
 
     describe('when season and division present', () => {
-        const season = seasonBuilder('SEASON').build();
-        const divisionData: IDivisionDataContainerProps = {season: season, name: 'DIVISION'} as any;
+        const divisionData = divisionDataBuilder()
+            .name('DIVISION')
+            .season((s: ISeasonBuilder) => s,'SEASON')
+            .build();
 
         it('shows division name', async () => {
             await renderComponent({

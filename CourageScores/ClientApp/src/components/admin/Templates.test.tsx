@@ -32,14 +32,14 @@ describe('Templates', () => {
         },
         delete: async (id: string): Promise<IClientActionResultDto<ITemplateDto>> => {
             deleted = id;
-            return apiResponse || {success: true} as any;
+            return apiResponse || {success: true};
         },
         update: async (data: IEditTemplateDto): Promise<IClientActionResultDto<ITemplateDto>> => {
             updated = data;
-            return apiResponse || {success: true} as any;
+            return apiResponse || {success: true};
         },
         health: async (): Promise<IClientActionResultDto<ISeasonHealthCheckResultDto>> => {
-            return apiResponse || {success: true, result: { checks: {}, errors: [], warnings: [], messages: [] } } as any;
+            return apiResponse || {success: true, result: { checks: {}, errors: [], warnings: [], messages: [] } };
         },
     });
 
@@ -348,7 +348,7 @@ describe('Templates', () => {
             apiResponse = {
                 success: true,
                 result: health,
-            } as any;
+            };
 
             await doChange(context.container, 'textarea', '{}', context.user);
 
@@ -470,7 +470,7 @@ describe('Templates', () => {
         it('handles error during save', async () => {
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
-            apiResponse = {success: false, errors: ['ERROR ']} as any;
+            apiResponse = {success: false, errors: ['ERROR ']};
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -492,7 +492,7 @@ describe('Templates', () => {
             window.confirm = () => {
                 return true;
             };
-            apiResponse = {success: false, errors: ['ERROR ']} as any;
+            apiResponse = {success: false, errors: ['ERROR ']};
 
             await doClick(findButton(context.container, 'Delete'));
 
@@ -505,7 +505,7 @@ describe('Templates', () => {
         it('can close error dialog after save failure', async () => {
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
-            apiResponse = {success: false, errors: ['ERROR ']} as any;
+            apiResponse = {success: false, errors: ['ERROR ']};
             await doClick(findButton(context.container, 'Save'));
             expect(context.container.textContent).toContain('Could not save template');
 

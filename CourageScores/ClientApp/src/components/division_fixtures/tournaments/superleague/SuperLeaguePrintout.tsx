@@ -107,11 +107,11 @@ export function SuperLeaguePrintout({division}: ISuperLeaguePrintoutProps) {
         return (<div>Loading...</div>);
     }
 
-    const saygMatches: ISuperleagueSaygMatchMapping[] = matches.map((m: ITournamentMatchDto) => {
+    const saygMatches: ISuperleagueSaygMatchMapping[] = matches.map((m: ITournamentMatchDto): ISuperleagueSaygMatchMapping => {
         return {
             match: m,
             saygData: saygDataMap[m.saygId],
-        } as ISuperleagueSaygMatchMapping;
+        };
     });
     const noOfThrows: number = maxNoOfThrowsAllMatches(saygMatches);
     const noOfLegs: number = tournamentData.bestOf || max(saygMatches, (map: ISuperleagueSaygMatchMapping) => getNoOfLegs(map.saygData) || 0);

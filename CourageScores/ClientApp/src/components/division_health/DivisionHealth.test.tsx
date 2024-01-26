@@ -4,7 +4,6 @@ import {DivisionHealth} from "./DivisionHealth";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
-import {IError} from "../../interfaces/IError";
 import {ISeasonApi} from "../../api/season";
 
 describe('DivisionHealth', () => {
@@ -18,16 +17,23 @@ describe('DivisionHealth', () => {
         }
     });
 
+    async function setDivisionData() {
+
+    }
+
+    async function onReloadDivision() {
+        return null;
+    }
+
     beforeEach(() => {
-        apiResponse = (id: string): ISeasonHealthCheckResultDto => {
+        apiResponse = (_: string): ISeasonHealthCheckResultDto => {
             return {
-                id: id,
                 checks: {},
                 success: true,
                 errors: [],
                 warnings: [],
                 messages: []
-            } as any;
+            };
         };
         reportedError = new ErrorState();
     });
@@ -57,22 +63,30 @@ describe('DivisionHealth', () => {
             throw new Error('SOME ERROR');
         };
         await renderComponent({
+            id: createTemporaryId(),
+            name: '',
             season: {
                 name: '',
                 id: createTemporaryId()
-            }
-        } as any);
+            },
+            setDivisionData,
+            onReloadDivision,
+        });
 
         expect(reportedError.hasError()).toEqual(true);
     });
 
     it('shows health-check results', async () => {
         await renderComponent({
+            id: createTemporaryId(),
+            name: '',
             season: {
                 name: '',
                 id: createTemporaryId()
-            }
-        } as any);
+            },
+            setDivisionData,
+            onReloadDivision,
+        });
 
         expect(reportedError.hasError()).toEqual(false);
         expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
@@ -90,11 +104,15 @@ describe('DivisionHealth', () => {
         };
 
         await renderComponent({
+            id: createTemporaryId(),
+            name: '',
             season: {
                 name: '',
                 id: createTemporaryId()
-            }
-        } as any);
+            },
+            setDivisionData,
+            onReloadDivision,
+        });
 
         expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Healthy', 'text-success');
@@ -112,11 +130,15 @@ describe('DivisionHealth', () => {
         };
 
         await renderComponent({
+            id: createTemporaryId(),
+            name: '',
             season: {
                 name: '',
                 id: createTemporaryId()
-            }
-        } as any);
+            },
+            setDivisionData,
+            onReloadDivision,
+        });
 
         expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Unhealthy', 'text-warning');
@@ -134,11 +156,15 @@ describe('DivisionHealth', () => {
         };
 
         await renderComponent({
+            id: createTemporaryId(),
+            name: '',
             season: {
                 name: '',
                 id: createTemporaryId()
-            }
-        } as any);
+            },
+            setDivisionData,
+            onReloadDivision,
+        });
 
         expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Unhealthy', 'text-warning');
@@ -156,11 +182,15 @@ describe('DivisionHealth', () => {
         };
 
         await renderComponent({
+            id: createTemporaryId(),
+            name: '',
             season: {
                 name: '',
                 id: createTemporaryId()
-            }
-        } as any);
+            },
+            setDivisionData,
+            onReloadDivision,
+        });
 
         expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Healthy', 'text-success');
@@ -178,11 +208,15 @@ describe('DivisionHealth', () => {
         };
 
         await renderComponent({
+            id: createTemporaryId(),
+            name: '',
             season: {
                 name: '',
                 id: createTemporaryId()
-            }
-        } as any);
+            },
+            setDivisionData,
+            onReloadDivision,
+        });
 
         expect(reportedError.hasError()).toEqual(false);
         assertHeading('Status: Unhealthy', 'text-warning');

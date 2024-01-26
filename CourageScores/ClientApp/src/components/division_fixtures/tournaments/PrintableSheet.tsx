@@ -219,7 +219,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
 
         const layoutDataForRound: ILayoutDataForRound = {
             name: round.name,
-            matches: round.matches.map((m: ITournamentMatchDto, index: number) => {
+            matches: round.matches.map((m: ITournamentMatchDto, index: number): ILayoutDataForMatch => {
                 let winner = null;
                 playedInThisRound.push(m.sideA);
                 playedInThisRound.push(m.sideB);
@@ -235,14 +235,14 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                 }
 
                 return {
-                    sideA: {name: m.sideA.name, link: getLinkToSide(m.sideA)},
-                    sideB: {name: m.sideB.name, link: getLinkToSide(m.sideB)},
-                    scoreA: m.scoreA || '0',
-                    scoreB: m.scoreB || '0',
+                    sideA: {id: m.sideA.id, name: m.sideA.name, link: getLinkToSide(m.sideA)},
+                    sideB: {id: m.sideB.id, name: m.sideB.name, link: getLinkToSide(m.sideB)},
+                    scoreA: (m.scoreA ? m.scoreA.toString() : null) || '0',
+                    scoreB: (m.scoreB ? m.scoreB.toString() : null) || '0',
                     bye: false,
                     winner: winner,
                     saygId: m.saygId,
-                } as ILayoutDataForMatch;
+                };
             }),
         };
 
@@ -283,28 +283,28 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         const hasBye: boolean = sideLength % 2 !== 0;
         const layoutDataForRound: ILayoutDataForRound = {
             name: null,
-            matches: repeat(Math.floor(sideLength / 2), _ => {
+            matches: repeat(Math.floor(sideLength / 2), (_: number): ILayoutDataForMatch => {
                 return {
-                    sideA: {name: null},
-                    sideB: {name: null},
+                    sideA: {id: null, name: null, link: null},
+                    sideB: {id: null, name: null, link: null},
                     scoreA: null,
                     scoreB: null,
                     bye: false,
                     winner: null,
                     saygId: null,
-                } as ILayoutDataForMatch;
+                };
             }),
         };
         if (hasBye) {
             layoutDataForRound.matches.push({
-                sideA: {name: null},
-                sideB: {name: null},
+                sideA: {id: null, name: null, link: null},
+                sideB: {id: null, name: null, link: null},
                 scoreA: null,
                 scoreB: null,
                 bye: true,
                 winner: null,
                 saygId: null,
-            } as ILayoutDataForMatch);
+            });
         }
 
         return [layoutDataForRound].concat(getUnplayedLayoutData(Math.floor(sideLength / 2) + (hasBye ? 1 : 0), depth + 1));

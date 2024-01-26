@@ -209,7 +209,7 @@ describe('SuperLeaguePrintout', () => {
                             id: newSaygData.id,
                             data: newSaygData
                         }),
-                    } as any);
+                    } as MessageEvent<string>);
                 });
 
                 expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)').textContent).toEqual('Legs won: 2');

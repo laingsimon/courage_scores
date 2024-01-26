@@ -19,6 +19,7 @@ import {IReportDto} from "../../interfaces/serverSide/Report/IReportDto";
 import {IReportCollectionDto} from "../../interfaces/serverSide/Report/IReportCollectionDto";
 import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
 import {IReportApi} from "../../api/report";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 describe('DivisionReports', () => {
     let context: TestContext;
@@ -119,7 +120,7 @@ describe('DivisionReports', () => {
                 Exception: {
                     Message: 'Some server side error',
                 },
-            } as any;
+            } as IReportCollectionDto;
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 

@@ -41,7 +41,7 @@ describe('Practice', () => {
             delete saygData[id];
             return {
                 success: true,
-            } as any;
+            };
         },
     });
 

@@ -48,7 +48,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
             <EditPlayerDetails
                 gameId={null}
                 player={playerDetails}
-                team={team as ({ id: string })}
+                team={team}
                 seasonId={season.id}
                 divisionId={divisionId}
                 onCancel={async () => setEditPlayer(false)}

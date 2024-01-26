@@ -44,8 +44,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         .flatMap((t: ITeamDto) => {
             const teamSeason: ITeamSeasonDto = t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === season.id)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
-                return teamSeason.players.map((p: ITeamPlayerDto) => {
-                    return {id: p.id, name: p.name, team: t} as ITeamPlayerMap
+                return teamSeason.players.map((p: ITeamPlayerDto): ITeamPlayerMap => {
+                    return {id: p.id, name: p.name, team: t}
                 }) || [];
             }
 

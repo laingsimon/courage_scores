@@ -15,7 +15,7 @@ describe('ExportDataButton', () => {
     const dataApi = api<IDataApi>({
         export: async (request: IExportDataRequestDto): Promise<IClientActionResultDto<IExportDataResultDto>> => {
             exportRequest = request;
-            return apiResult || {success: false} as any;
+            return apiResult || {success: false};
         },
     });
 
@@ -141,7 +141,7 @@ describe('ExportDataButton', () => {
                 result: {
                     zip: 'ZIP CONTENT'
                 },
-            } as any;
+            };
             let openedWindow: string;
             (window as any).open = (url: string) => {
                 openedWindow = url;
