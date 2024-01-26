@@ -7,6 +7,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
+import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
 
 export interface IDivisionTeamProps {
     team: IDivisionTeamDto;
@@ -15,9 +16,9 @@ export interface IDivisionTeamProps {
 export function DivisionTeam({team}: IDivisionTeamProps) {
     const {id: divisionId, season, onReloadDivision, name: divisionName} = useDivisionData();
     const {account, onError} = useApp();
-    const [teamDetails, setTeamDetails] = useState(Object.assign({newDivisionId: divisionId}, team));
-    const [editTeam, setEditTeam] = useState(false);
-    const [addTeamToSeason, setAddTeamToSeason] = useState(false);
+    const [teamDetails, setTeamDetails] = useState<IEditTeamDto>(Object.assign({newDivisionId: divisionId}, team));
+    const [editTeam, setEditTeam] = useState<boolean>(false);
+    const [addTeamToSeason, setAddTeamToSeason] = useState<boolean>(false);
     const isAdmin = account && account.access && account.access.manageTeams;
 
     async function teamDetailSaved() {
@@ -33,6 +34,7 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
                     divisionId={divisionId}
                     seasonId={season.id}
                     team={teamDetails}
+                    lastUpdated={team.updated}
                     onCancel={async () => setEditTeam(false)}
                     onChange={propChanged(teamDetails, setTeamDetails)}
                     onSaved={teamDetailSaved}

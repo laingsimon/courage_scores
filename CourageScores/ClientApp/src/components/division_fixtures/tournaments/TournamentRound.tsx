@@ -11,6 +11,7 @@ import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatc
 import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
 import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
 import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {createTemporaryId} from "../../../helpers/projection";
 
 export interface ITournamentRoundProps {
     round: ITournamentRoundDto;
@@ -25,7 +26,7 @@ export interface ITournamentRoundProps {
 }
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData, allowNextRound }: ITournamentRoundProps) {
-    const [newMatch, setNewMatch] = useState<ITournamentMatchDto>({ sideA: null, sideB: null });
+    const [newMatch, setNewMatch] = useState<ITournamentMatchDto>(createNewMatch());
     const allMatchesHaveAScore: boolean = round.matches && all(round.matches, (current: ITournamentMatchDto) => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap: DataMap<ITournamentSideDto> = toMap(sides);
     const {setWarnBeforeSave, matchOptionDefaults} = useTournament();
@@ -37,6 +38,14 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         await setWarnBeforeSave(`Add the (new) match before saving, otherwise it would be lost.
 
 ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newNewMatch.sideB.name : ''}`);
+    }
+
+    function createNewMatch(): ITournamentMatchDto {
+        return {
+            sideA: null,
+            sideB: null,
+            id: createTemporaryId(),
+        };
     }
 
     function exceptSelected(side: ITournamentSideDto, matchIndex: number, property: string): boolean {
@@ -76,7 +85,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         newRound.matches.push(newMatch);
         newRound.matchOptions = newRound.matchOptions || [];
         newRound.matchOptions.push(matchOptionDefaults);
-        setNewMatch({ sideA: null, sideB: null });
+        setNewMatch(createNewMatch());
         await setWarnBeforeSave(null);
 
         if (onChange) {

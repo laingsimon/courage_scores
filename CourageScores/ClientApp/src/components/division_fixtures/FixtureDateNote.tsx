@@ -6,10 +6,11 @@ import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
 
 export interface IFixtureDateNoteProps {
-    note: IFixtureDateNoteDto;
-    setEditNote?: (note: IFixtureDateNoteDto) => Promise<any>;
+    note: IEditFixtureDateNoteDto;
+    setEditNote?: (note: IEditFixtureDateNoteDto) => Promise<any>;
     preventDelete?: boolean;
 }
 
@@ -20,7 +21,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
     const [deletingNote, setDeletingNote] = useState<boolean>(false);
     const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
 
-    async function deleteNote(note: IFixtureDateNoteDto) {
+    async function deleteNote() {
         /* istanbul ignore next */
         if (deletingNote) {
             /* istanbul ignore next */
@@ -51,12 +52,12 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
     return (<div className="alert alert-warning alert-dismissible fade show pb-0 mb-1" role="alert" key={note.id}>
         <span className="margin-right float-start">📌</span>
         <ReactMarkdown remarkPlugins={[gfm]}>{note.note}</ReactMarkdown>
-        {isNoteAdmin && !preventDelete
+        {isNoteAdmin && !preventDelete && note.id
             ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close"
-                       onClick={() => deleteNote(note)}></button>)
+                       onClick={deleteNote}></button>)
             : null}
-        {isNoteAdmin && setEditNote ? (<div className="mt-2 mb-3">
-            <button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>Edit</button>
+        {isNoteAdmin && setEditNote && note.id ? (<div className="mt-2 mb-3">
+            <button className="btn btn-sm btn-primary margin-right" onClick={async () => await setEditNote(note)}>Edit</button>
         </div>) : null}
     </div>);
 }

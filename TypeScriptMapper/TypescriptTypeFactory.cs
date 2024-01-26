@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Reflection;
+using CourageScores.Models.Dtos;
 using Newtonsoft.Json;
 
 namespace TypeScriptMapper;
@@ -36,11 +37,11 @@ public class TypescriptTypeFactory
         var relevantProperties = type.GetProperties().Where(p => p.GetCustomAttribute<JsonIgnoreAttribute>() == null);
         foreach (var property in relevantProperties)
         {
-            yield return GetProperty(property.Name, property.PropertyType, property, instance);
+            yield return GetProperty(property.Name, property.PropertyType, property, instance, type);
         }
     }
 
-    private static IProperty GetProperty(string name, Type propertyType, PropertyInfo? property, object? instance)
+    private static IProperty GetProperty(string name, Type propertyType, PropertyInfo? property, object? instance, Type? dtoType)
     {
         var underlyingNullableType = Nullable.GetUnderlyingType(propertyType);
         if (propertyType.IsEnum || underlyingNullableType?.IsEnum == true)
@@ -58,9 +59,9 @@ public class TypescriptTypeFactory
             return new DictionaryProperty
             {
                 Name = ToCamelCase(name),
-                Key = GetProperty("key", propertyType.GetGenericArguments()[0], null, null),
-                Value = GetProperty("value", propertyType.GetGenericArguments()[1], null, null),
-                Nullable = IsNullableReferenceType(property, instance),
+                Key = GetProperty("key", propertyType.GetGenericArguments()[0], null, null, propertyType),
+                Value = GetProperty("value", propertyType.GetGenericArguments()[1], null, null, propertyType),
+                Nullable = IsNullableReferenceType(property, instance, dtoType),
             };
         }
 
@@ -69,12 +70,12 @@ public class TypescriptTypeFactory
             var itemType = propertyType.GetGenericArguments().ElementAtOrDefault(0) ?? propertyType.GetElementType();
             if (itemType != typeof(byte))
             {
-                var itemProperty = GetProperty(name, itemType!, null, null);
+                var itemProperty = GetProperty(name, itemType!, null, null, itemType);
                 return new ArrayProperty
                 {
                     Name = ToCamelCase(name),
                     ItemType = itemProperty,
-                    Nullable = IsNullableReferenceType(property, instance),
+                    Nullable = IsNullableReferenceType(property, instance, dtoType),
                 };
             }
         }
@@ -84,7 +85,7 @@ public class TypescriptTypeFactory
         {
             Name = ToCamelCase(name),
             PropertyType = underlyingNullableType ?? propertyType,
-            Nullable = underlyingNullableType != null || IsNullableReferenceType(property, instance),
+            Nullable = underlyingNullableType != null || IsNullableReferenceType(property, instance, dtoType),
         };
     }
 
@@ -93,7 +94,7 @@ public class TypescriptTypeFactory
         return name.Substring(0, 1).ToLower() + name.Substring(1);
     }
 
-    private static bool IsNullableReferenceType(PropertyInfo? property, object? instance)
+    private static bool IsNullableReferenceType(PropertyInfo? property, object? instance, Type? dtoType)
     {
         if (property == null)
         {
@@ -102,7 +103,7 @@ public class TypescriptTypeFactory
 
         if (property.PropertyType.IsValueType)
         {
-            return true;
+            return IsOptionalValueTypeProperty(property, dtoType);
         }
 
         var context = new NullabilityInfoContext();
@@ -128,6 +129,23 @@ public class TypescriptTypeFactory
                 return defaultedPropertyValue != null;
             default:
                 return defaultedPropertyValue == null;
+        }
+    }
+
+    private static bool IsOptionalValueTypeProperty(PropertyInfo property, Type? dtoType)
+    {
+        var optionalProperty = dtoType?.GetCustomAttribute<PropertyIsOptional>();
+        if (optionalProperty?.PropertyNames.Contains(property.Name) == true)
+        {
+            return true;
+        }
+
+        switch (property.Name)
+        {
+            case nameof(CosmosDto.Id):
+                return false;
+            default:
+                return true;
         }
     }
 }

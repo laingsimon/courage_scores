@@ -1,5 +1,5 @@
 // see CourageScores.Models.Dtos.Game.RecordScoresDto+RecordScoresGamePlayerDto
 export interface IRecordScoresGamePlayerDto {
-    id?: string;
+    id: string;
     name: string;
 }

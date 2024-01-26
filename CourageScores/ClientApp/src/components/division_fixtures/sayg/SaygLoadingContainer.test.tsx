@@ -624,7 +624,7 @@ describe('SaygLoadingContainer', () => {
 
         it('given update live message type, updates sayg data', async () => {
             let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
-            let renderedData: IRecordedScoreAsYouGoDto;
+            let renderedData: IUpdateRecordedScoreAsYouGoDto;
             const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)

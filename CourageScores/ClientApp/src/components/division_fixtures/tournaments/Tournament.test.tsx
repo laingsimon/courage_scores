@@ -769,6 +769,7 @@ describe('Tournament', () => {
             await assertDataChange(
                 tournamentData,
                 {
+                    id: tournamentData.id,
                     address: 'NEW ADDRESS',
                     type: 'NEW TYPE',
                     notes: 'NEW NOTES',

@@ -1,5 +1,6 @@
-﻿import {IRecordedScoreAsYouGoDto} from "./serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {ILegDisplayOptions} from "./ILegDisplayOptions";
+﻿import {ILegDisplayOptions} from "./ILegDisplayOptions";
+import {IUpdateRecordedScoreAsYouGoDto} from "./serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IScoreAsYouGoDto} from "./serverSide/Game/Sayg/IScoreAsYouGoDto";
 
 export interface IBaseSayg {
     matchStatisticsOnly?: boolean;
@@ -7,7 +8,7 @@ export interface IBaseSayg {
 }
 
 export interface ISayg extends IBaseSayg {
-    sayg: IRecordedScoreAsYouGoDto;
-    setSayg: (newData: IRecordedScoreAsYouGoDto) => Promise<IRecordedScoreAsYouGoDto>;
-    saveDataAndGetId: (useData?: IRecordedScoreAsYouGoDto) => Promise<string>;
+    sayg: IUpdateRecordedScoreAsYouGoDto;
+    setSayg: (newData: IUpdateRecordedScoreAsYouGoDto) => Promise<IUpdateRecordedScoreAsYouGoDto>;
+    saveDataAndGetId: (useData?: IScoreAsYouGoDto) => Promise<string>;
 }

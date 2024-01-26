@@ -88,9 +88,13 @@ describe('TournamentRoundMatch', () => {
         },
         upsert: async (data: IUpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
             updatedSaygData = data;
+            if (!data.id) {
+                data.id = createTemporaryId();
+            }
+
             return {
                 success: true,
-                result: data,
+                result: data as IRecordedScoreAsYouGoDto,
             };
         },
     });

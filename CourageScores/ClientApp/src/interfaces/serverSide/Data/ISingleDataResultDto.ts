@@ -10,5 +10,5 @@ export interface ISingleDataResultDto {
     editor?: string;
     deleted?: string;
     remover?: string;
-    id?: string;
+    id: string;
 }

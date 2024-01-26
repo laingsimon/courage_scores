@@ -1,20 +1,20 @@
 import React, {useState} from "react";
 import {stateChanged} from "../../helpers/events";
-import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
 import {IDateTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
 import {IFixtureTemplateDto} from "../../interfaces/serverSide/Season/Creation/IFixtureTemplateDto";
+import {IEditTemplateDto} from "../../interfaces/serverSide/Season/Creation/IEditTemplateDto";
 
 export interface ITemplateTextEditorProps {
-    template: ITemplateDto;
+    template: IEditTemplateDto;
     setValid: (valid: boolean) => Promise<any>;
-    onUpdate: (update: ITemplateDto) => Promise<any>;
+    onUpdate: (update: IEditTemplateDto) => Promise<any>;
 }
 
 export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTextEditorProps) {
     const [ editing, setEditing ] = useState<string>(formatTemplateAsSingleLine(template));
     const [fixtureToFormat, setFixtureToFormat] = useState<string>('');
 
-    function formatTemplateAsSingleLine(t: ITemplateDto): string {
+    function formatTemplateAsSingleLine(t: IEditTemplateDto): string {
         let jsonString = JSON.stringify(t, excludePropertiesFromEdit, '  ');
 
         // fixture inlining

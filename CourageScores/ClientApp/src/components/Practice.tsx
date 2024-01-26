@@ -4,10 +4,10 @@ import {useApp} from "../AppContainer";
 import {SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContainer";
 import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";
 import {Loading} from "./common/Loading";
-import {IRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {ILiveOptions} from "../interfaces/ILiveOptions";
+import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
-interface IPracticeScoreAsYouGoDto extends IRecordedScoreAsYouGoDto {
+interface IPracticeScoreAsYouGoDto extends IUpdateRecordedScoreAsYouGoDto {
     loaded: boolean;
 }
 

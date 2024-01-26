@@ -16,10 +16,11 @@ export interface IEditTeamDetailsProps {
     onChange?: (name: string, value: string) => Promise<any>;
     onCancel: () => Promise<any>;
     seasonId: string;
-    team: IEditTeamDto & ITeamDto;
+    team: IEditTeamDto;
+    lastUpdated?: string;
 }
 
-export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, seasonId, team}: IEditTeamDetailsProps) {
+export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, seasonId, team, lastUpdated}: IEditTeamDetailsProps) {
     const {divisions, onError} = useApp();
     const {teamApi} = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
@@ -50,7 +51,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
                 divisionId: divisionId,
                 seasonId: seasonId,
                 newDivisionId: team.newDivisionId,
-            }, team.updated);
+            }, lastUpdated);
 
             if (response.success) {
                 if (onChange) {

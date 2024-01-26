@@ -29,7 +29,7 @@ export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awayS
             const newFixtureData: IGameDto = Object.assign({}, fixtureData);
             const matchOnlyProperties: IGameMatchDto = Object.assign({}, match);
 
-            newFixtureData.matches[matchIndex] = Object.assign(matchOnlyProperties, newFixtureData.matches[matchIndex]);
+            newFixtureData.matches[matchIndex] = Object.assign({}, matchOnlyProperties, newFixtureData.matches[matchIndex]);
 
             await setFixtureData(newFixtureData);
         } catch (e) {

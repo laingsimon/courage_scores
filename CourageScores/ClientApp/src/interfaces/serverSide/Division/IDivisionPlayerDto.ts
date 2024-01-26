@@ -2,7 +2,7 @@ import {IPlayerPerformanceDto} from './IPlayerPerformanceDto'
 
 // see CourageScores.Models.Dtos.Division.DivisionPlayerDto
 export interface IDivisionPlayerDto {
-    id?: string;
+    id: string;
     teamId?: string;
     name: string;
     team: string;

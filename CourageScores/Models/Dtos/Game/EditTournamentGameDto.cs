@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos.Game;
 
 [ExcludeFromCodeCoverage]
+[PropertyIsOptional(nameof(Id))]
 public class EditTournamentGameDto : IIntegrityCheckDto
 {
     public Guid Id { get; set; }

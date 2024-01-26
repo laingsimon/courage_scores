@@ -11,9 +11,10 @@ import {useLocation} from "react-router-dom";
 import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {IEditTemplateDto} from "../../interfaces/serverSide/Season/Creation/IEditTemplateDto";
 
 export function Templates() {
-    const EMPTY_TEMPLATE: ITemplateDto = {
+    const EMPTY_TEMPLATE: IEditTemplateDto = {
         name: '',
         sharedAddresses: [],
         divisions: [],
@@ -23,7 +24,7 @@ export function Templates() {
     const {onError} = useApp();
     const [templates, setTemplates] = useState<ITemplateDto[] | null>(null);
     const [loading, setLoading] = useState<boolean | null>(null);
-    const [selected, setSelected] = useState<ITemplateDto | null>(null);
+    const [selected, setSelected] = useState<IEditTemplateDto | null>(null);
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
     const [valid, setValid] = useState<boolean | null>(null);
@@ -82,7 +83,7 @@ export function Templates() {
         const response: IClientActionResultDto<ISeasonHealthCheckResultDto> = await templateApi.health(selected);
 
         if (selected && response && response.result) {
-            const newTemplate = Object.assign({}, selected);
+            const newTemplate: IEditTemplateDto = Object.assign({}, selected);
             newTemplate.templateHealth = response.result;
             setSelected(newTemplate);
         }
@@ -100,7 +101,7 @@ export function Templates() {
         }
     }
 
-    function setEditingTemplate(t: ITemplateDto) {
+    function setEditingTemplate(t: IEditTemplateDto) {
         setValid(true);
         setSelected(Object.assign({}, t));
     }
@@ -153,7 +154,7 @@ export function Templates() {
         setSaving(true);
 
         try {
-            const template: ITemplateDto = Object.assign({}, selected);
+            const template: IEditTemplateDto = Object.assign({}, selected);
             (template as any).lastUpdated = selected.updated;
             const result: IClientActionResultDto<ITemplateDto> = await templateApi.update(template);
             if (result.success) {

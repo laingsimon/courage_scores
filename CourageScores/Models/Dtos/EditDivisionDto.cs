@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos;
 
 [ExcludeFromCodeCoverage]
+[PropertyIsOptional(nameof(Id))]
 public class EditDivisionDto : IIntegrityCheckDto
 {
     /// <summary>

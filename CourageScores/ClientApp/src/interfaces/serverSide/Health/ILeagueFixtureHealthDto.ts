@@ -1,6 +1,6 @@
 // see CourageScores.Models.Dtos.Health.LeagueFixtureHealthDto
 export interface ILeagueFixtureHealthDto {
-    id?: string;
+    id: string;
     date?: string;
     homeTeamId?: string;
     homeTeam: string;

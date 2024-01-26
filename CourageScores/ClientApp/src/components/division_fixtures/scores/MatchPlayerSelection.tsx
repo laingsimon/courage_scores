@@ -12,9 +12,9 @@ import {useMatchType} from "./MatchTypeContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
 import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {IGameTeamDto} from "../../../interfaces/serverSide/Game/IGameTeamDto";
 import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
@@ -37,10 +37,10 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         const matchPlayers: IGamePlayerDto[] = match[side + 'Players'];
 
         if (!matchPlayers || index >= matchPlayers.length) {
-            return {name: null};
+            return {id: null, name: null};
         }
 
-        return matchPlayers[index] || {name: null};
+        return matchPlayers[index] || {id: null, name: null};
     }
 
     function linkToPlayer(index: number, side: 'home' | 'away', team: IGameTeamDto) {
@@ -167,12 +167,15 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         const home: string = match.homePlayers.reduce((current: string, next: IGamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
         const away: string = match.awayPlayers.reduce((current: string, next: IGamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
         const singlePlayerMatch: boolean = match.homePlayers.length === 1 && match.awayPlayers.length === 1;
-        const defaultSaygData: IRecordedScoreAsYouGoDto = {legs: {}, yourName: ''};
+        const defaultSaygData: IUpdateRecordedScoreAsYouGoDto = {
+            legs: {},
+            yourName: ''
+        };
 
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
                         onClose={async () => setSaygOpen(false)} className="text-start">
             <ScoreAsYouGo
-                data={(match.sayg as IRecordedScoreAsYouGoDto) || defaultSaygData}
+                data={(match.sayg as IUpdateRecordedScoreAsYouGoDto) || defaultSaygData}
                 home={home}
                 away={away}
                 onChange={propChanged(match, onMatchChanged, 'sayg')}

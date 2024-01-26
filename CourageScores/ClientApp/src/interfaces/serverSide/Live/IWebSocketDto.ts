@@ -1,6 +1,6 @@
 // see CourageScores.Models.Dtos.Live.WebSocketDto
 export interface IWebSocketDto {
-    id?: string;
+    id: string;
     originatingUrl?: string;
     userName?: string;
     connected?: string;

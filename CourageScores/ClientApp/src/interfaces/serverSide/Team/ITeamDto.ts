@@ -11,5 +11,5 @@ export interface ITeamDto {
     editor?: string;
     deleted?: string;
     remover?: string;
-    id?: string;
+    id: string;
 }

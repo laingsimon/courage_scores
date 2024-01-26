@@ -105,6 +105,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             }),
             tournamentFixtures: seasonalTeams.map((team: ITeamDto): IDivisionTournamentFixtureDetailsDto => {
                 return {
+                    id: null,
                     address: team.address,
                     proposed: true,
                 };

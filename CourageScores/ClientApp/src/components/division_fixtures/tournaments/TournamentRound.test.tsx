@@ -33,6 +33,7 @@ import {
 } from "../../../helpers/builders/tournaments";
 import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('TournamentRound', () => {
     let context: TestContext;
@@ -56,11 +57,14 @@ describe('TournamentRound', () => {
             return saygApiData[id];
         },
         upsert: async (data: IUpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
-            const result: IRecordedScoreAsYouGoDto = Object.assign({}, data);
+            const result: IUpdateRecordedScoreAsYouGoDto = Object.assign({}, data);
+            if (!result.id) {
+                result.id = createTemporaryId();
+            }
 
             return {
                 success: true,
-                result: result,
+                result: result as IRecordedScoreAsYouGoDto,
             };
         },
     });
@@ -882,6 +886,7 @@ describe('TournamentRound', () => {
 
                 expect(updatedRound).not.toBeNull();
                 expect(updatedRound.matches).toEqual([{
+                    id: expect.any(String),
                     sideA: side1,
                     sideB: side2,
                 }]);

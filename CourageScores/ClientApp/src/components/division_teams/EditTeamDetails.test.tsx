@@ -65,7 +65,7 @@ describe('EditTeamDetails', () => {
             iocProps({teamApi}),
             brandingProps(),
             appProps({divisions}),
-            (<EditTeamDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel}/>));
+            (<EditTeamDetails {...props} />));
     }
 
     describe('renders', () => {
@@ -75,7 +75,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').address('ADDRESS').build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division]);
 
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
             expect(nameGroup).toBeTruthy();
@@ -91,7 +94,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').address('ADDRESS').build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division]);
 
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
             expect(addressGroup).toBeTruthy();
@@ -107,7 +113,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             expect(divisionGroup).toBeTruthy();
@@ -124,7 +133,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(otherDivision.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division, otherDivision]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division, otherDivision]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             expect(divisionGroup).toBeTruthy();
@@ -142,7 +154,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division]);
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
 
             await doChange(nameGroup, 'input', 'NEW', context.user);
@@ -158,7 +173,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division]);
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
 
             await doChange(addressGroup, 'input', 'NEW', context.user);
@@ -175,7 +193,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division, otherDivision]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division, otherDivision]);
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
 
             await doSelectOption(divisionGroup.querySelector('.dropdown-menu'), 'OTHER DIVISION');
@@ -193,7 +214,10 @@ describe('EditTeamDetails', () => {
                 team: teamBuilder('TEAM').noId().address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            } as any, [division, otherDivision]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division, otherDivision]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             const dropdown = divisionGroup.querySelector('button.dropdown-toggle') as HTMLButtonElement;
@@ -218,7 +242,10 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            } as any, [division]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division]);
             let alert: string;
             window.alert = (message) => {
                 alert = message
@@ -233,28 +260,29 @@ describe('EditTeamDetails', () => {
         it('can save team changes', async () => {
             const division = divisionBuilder('DIVISION').build();
             const otherDivision = divisionBuilder('OTHER DIVISION').build();
-            const team = teamBuilder('TEAM')
+            const updated = '2023-07-01T00:00:00';
+            const team: IEditTeamDto = teamBuilder('TEAM')
                 .address('ADDRESS')
                 .division(division)
                 .season(createTemporaryId())
-                .updated('2023-07-01T00:00:00')
                 .build();
             await renderComponent({
-                team: {
-                    id: team.id,
-                    name: team.name,
-                    address: team.address,
-                    updated: team.updated,
-                    newDivisionId: otherDivision.id,
-                },
+                team: teamBuilder(team.name, team.id)
+                    .address(team.address)
+                    .newDivisionId(otherDivision.id)
+                    .build(),
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            } as any, [division, otherDivision]);
+                onSaved,
+                onChange,
+                onCancel,
+                lastUpdated: updated,
+            }, [division, otherDivision]);
 
             await doClick(findButton(context.container, 'Save team'));
 
             expect(saved).toEqual(true);
-            expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
+            expect(updatedTeam.lastUpdated).toEqual(updated);
             expect(updatedTeam.team).toEqual({
                 id: team.id,
                 name: team.name,
@@ -281,7 +309,10 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            } as any, [division, otherDivision]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division, otherDivision]);
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -313,8 +344,11 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            } as any, [division, otherDivision]);
-            apiResponse = {success: false} as any;
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division, otherDivision]);
+            apiResponse = {success: false};
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -340,8 +374,11 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            } as any, [division, otherDivision]);
-            apiResponse = {success: false} as any;
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division, otherDivision]);
+            apiResponse = {success: false};
             await doClick(findButton(context.container, 'Add team'));
             expect(context.container.textContent).toContain('Could not save team details');
 
@@ -365,7 +402,10 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            } as any, [division]);
+                onSaved,
+                onChange,
+                onCancel,
+            }, [division]);
 
             await doClick(findButton(context.container, 'Cancel'));
 

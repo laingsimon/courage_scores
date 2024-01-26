@@ -1,6 +1,6 @@
 // see CourageScores.Models.Dtos.Division.DivisionTeamDto
 export interface IDivisionTeamDto {
-    id?: string;
+    id: string;
     name: string;
     played?: number;
     points?: number;

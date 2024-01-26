@@ -26,5 +26,6 @@ export function mapForLogging(error: any, account?: IUserDto): IErrorDetailDto {
         userName: account ? account.name : null,
         userAgent: userAgent,
         url: window.location.href,
+        id: null,
     };
 }

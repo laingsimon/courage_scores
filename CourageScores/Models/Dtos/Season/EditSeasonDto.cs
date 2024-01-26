@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos.Season;
 
 [ExcludeFromCodeCoverage]
+[PropertyIsOptional(nameof(Id))]
 public class EditSeasonDto : IIntegrityCheckDto
 {
     /// <summary>

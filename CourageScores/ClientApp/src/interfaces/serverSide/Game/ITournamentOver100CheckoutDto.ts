@@ -2,6 +2,6 @@
 export interface ITournamentOver100CheckoutDto {
     notes?: string;
     divisionId?: string;
-    id?: string;
+    id: string;
     name: string;
 }

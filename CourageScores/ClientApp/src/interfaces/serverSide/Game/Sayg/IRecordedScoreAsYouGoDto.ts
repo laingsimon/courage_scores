@@ -16,5 +16,5 @@ export interface IRecordedScoreAsYouGoDto {
     editor?: string;
     deleted?: string;
     remover?: string;
-    id?: string;
+    id: string;
 }

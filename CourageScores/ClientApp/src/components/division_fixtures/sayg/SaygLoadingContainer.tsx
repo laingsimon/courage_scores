@@ -7,9 +7,9 @@ import {ScoreAsYouGo} from "./ScoreAsYouGo";
 import {isEmpty} from "../../../helpers/collections";
 import {LiveContainer} from "../LiveContainer";
 import {IBaseSayg, ISayg} from "../../../interfaces/ISayg";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
 const SaygContext = createContext({});
 
@@ -32,7 +32,7 @@ export interface ISaygLoadingContainerProps extends IBaseSayg {
     onScoreChange?: (homeScore: number, awayScore: number) => Promise<any>;
 }
 
-export interface ILoadedScoreAsYouGoDto extends IRecordedScoreAsYouGoDto {
+export interface ILoadedScoreAsYouGoDto extends IUpdateRecordedScoreAsYouGoDto {
     lastUpdated?: string;
 }
 
@@ -83,7 +83,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    async function saveDataAndGetId(useData?: ILoadedScoreAsYouGoDto) {
+    async function saveDataAndGetId(useData?: IUpdateRecordedScoreAsYouGoDto) {
         try {
             const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg);
             if (response.success) {
@@ -107,7 +107,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     async function onChange(newData: ILoadedScoreAsYouGoDto) {
-        const newSayg = await updateSayg(newData);
+        const newSayg: ILoadedScoreAsYouGoDto = await updateSayg(newData);
 
         if (!autoSave) {
             return;
@@ -122,8 +122,8 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    async function updateSayg(newData: IRecordedScoreAsYouGoDto): Promise<ILoadedScoreAsYouGoDto> {
-        const newSayg = Object.assign({}, sayg, newData);
+    async function updateSayg(newData: IUpdateRecordedScoreAsYouGoDto): Promise<IUpdateRecordedScoreAsYouGoDto> {
+        const newSayg: IUpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg, newData);
         setSayg(newSayg);
         if (liveOptions.publish) {
             await webSocket.publish(id, newSayg);

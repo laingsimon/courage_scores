@@ -6,7 +6,7 @@ import {IDivisionDataSeasonDto} from './IDivisionDataSeasonDto'
 
 // see CourageScores.Models.Dtos.Division.DivisionDataDto
 export interface IDivisionDataDto {
-    id?: string;
+    id: string;
     name: string;
     updated?: string;
     dataErrors?: IDataErrorDto[];

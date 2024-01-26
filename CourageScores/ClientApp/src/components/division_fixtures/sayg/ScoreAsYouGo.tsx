@@ -6,13 +6,14 @@ import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
 import {Location, useLocation} from "react-router-dom";
 import {useState} from "react";
 import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
 
 export interface IScoreAsYouGoProps {
-    data: IRecordedScoreAsYouGoDto;
+    data: IUpdateRecordedScoreAsYouGoDto;
     home: string;
     away?: string;
-    onChange: (data: IRecordedScoreAsYouGoDto) => Promise<any>;
+    onChange: (data: IScoreAsYouGoDto) => Promise<any>;
     onLegComplete: (homeScore: number, awayScore: number) => Promise<any>;
     startingScore: number;
     numberOfLegs: number;
@@ -46,8 +47,8 @@ export function ScoreAsYouGo({
         return addLeg(legIndex).legs[legIndex];
     }
 
-    function addLeg(legIndex: number): IRecordedScoreAsYouGoDto {
-        const newData: IRecordedScoreAsYouGoDto = Object.assign({}, data);
+    function addLeg(legIndex: number): IScoreAsYouGoDto {
+        const newData: IScoreAsYouGoDto = Object.assign({}, data);
         newData.legs[legIndex] = {
             playerSequence: singlePlayer ? [{value: 'home', text: home}, {
                 value: 'away',
@@ -58,12 +59,12 @@ export function ScoreAsYouGo({
             startingScore: startingScore,
             isLastLeg: legIndex === numberOfLegs - 1,
             currentThrow: singlePlayer ? 'home' : null
-        } as ILegDto;
+        };
         return newData;
     }
 
-    async function legChanged(newLeg: ILegDto, legIndex: number): Promise<IRecordedScoreAsYouGoDto> {
-        const newData: IRecordedScoreAsYouGoDto = Object.assign({}, data);
+    async function legChanged(newLeg: ILegDto, legIndex: number): Promise<IScoreAsYouGoDto> {
+        const newData: IScoreAsYouGoDto = Object.assign({}, data);
         if (data.legs) {
             newData.legs = Object.assign({}, data.legs);
         }
@@ -73,7 +74,7 @@ export function ScoreAsYouGo({
     }
 
     async function saveChangedLeg(newLeg: ILegDto, legIndex: number): Promise<any> {
-        const newData: IRecordedScoreAsYouGoDto = await legChanged(newLeg, legIndex);
+        const newData: IScoreAsYouGoDto = await legChanged(newLeg, legIndex);
         await saveDataAndGetId(newData);
     }
 
@@ -87,8 +88,8 @@ export function ScoreAsYouGo({
 
             const unbeatable = newHomeScore > (numberOfLegs / 2) || newAwayScore > (numberOfLegs / 2);
             if (!currentLeg.isLastLeg && !unbeatable) {
-                const newData = addLeg(currentLegIndex + 1);
-                const newLeg = newData.legs[currentLegIndex + 1];
+                const newData: IScoreAsYouGoDto = addLeg(currentLegIndex + 1);
+                const newLeg: ILegDto = newData.legs[currentLegIndex + 1];
 
                 if (!singlePlayer) {
                     newLeg.playerSequence = [currentLeg.playerSequence[1], currentLeg.playerSequence[0]];

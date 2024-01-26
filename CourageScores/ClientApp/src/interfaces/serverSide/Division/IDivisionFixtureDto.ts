@@ -3,7 +3,7 @@ import {IOtherDivisionFixtureDto} from './IOtherDivisionFixtureDto'
 
 // see CourageScores.Models.Dtos.Division.DivisionFixtureDto
 export interface IDivisionFixtureDto {
-    id?: string;
+    id: string;
     homeScore?: number;
     homeTeam: IDivisionFixtureTeamDto;
     awayScore?: number;

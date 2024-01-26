@@ -34,7 +34,7 @@ describe('Practice', () => {
             if (!data.id) {
                 data.id = createTemporaryId();
             }
-            saygData[data.id] = data;
+            saygData[data.id] = data as IRecordedScoreAsYouGoDto;
             return apiResultFunc(data);
         },
         delete: async (id: string): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {

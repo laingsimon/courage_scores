@@ -23,6 +23,6 @@ public class TypeRepository
             .Where(t => t.GetGenericArguments().Length == 0) // non-generic classes
             .Where(t => t.Namespace?.StartsWith(rootNamespace) == true); // within the given namespace
 
-        return new[] { typeof(ActionResultDto<>) }.Concat(types).Where(t => !_typeMapper.IsDefinedAsPrimitive(t));
+        return new[] { typeof(ActionResultDto<>) }.Concat(types).Where(t => !_typeMapper.IsDefinedAsPrimitive(t) && !t.IsAssignableTo(typeof(Attribute)));
     }
 }
