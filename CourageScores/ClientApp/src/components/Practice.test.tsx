@@ -18,6 +18,7 @@ import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg
 import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {ISaygApi} from "../api/sayg";
+import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../helpers/builders/sayg";
 
 describe('Practice', () => {
     let context: TestContext;
@@ -154,21 +155,17 @@ describe('Practice', () => {
         });
 
         it('renders given valid unfinished json data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = {
-                startingScore: 123,
-                numberOfLegs: 2,
-                legs: {
-                    '0': {
-                        away: null,
-                        home: null,
-                    }
-                },
-                homeScore: 1,
-                yourName: 'Simon',
-                opponentName: '',
-                id: createTemporaryId(),
-            };
-            saygData[jsonData.id] = jsonData;
+            const jsonData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .startingScore(123)
+                .numberOfLegs(2)
+                .withLeg(0, (l: ILegBuilder) => l
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .scores(1)
+                .yourName('Simon')
+                .opponentName('')
+                .addTo(saygData)
+                .build();
 
             await renderComponent(account, '#' + jsonData.id);
 
@@ -208,21 +205,17 @@ describe('Practice', () => {
         });
 
         it('can save unfinished practice data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = {
-                startingScore: 123,
-                numberOfLegs: 2,
-                legs: {
-                    '0': {
-                        away: null,
-                        home: null,
-                    }
-                },
-                homeScore: 1,
-                yourName: 'Simon',
-                opponentName: '',
-                id: createTemporaryId(),
-            };
-            saygData[jsonData.id] = jsonData;
+            const jsonData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .startingScore(123)
+                .numberOfLegs(2)
+                .withLeg(0, (l: ILegBuilder) => l
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .scores(1)
+                .yourName('Simon')
+                .opponentName('')
+                .addTo(saygData)
+                .build();
             await renderComponent(account, '#' + jsonData.id);
             expect(reportedError.hasError()).toEqual(false);
             assertNoDataError();
@@ -393,21 +386,17 @@ describe('Practice', () => {
         });
 
         it('renders given valid unfinished json data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = {
-                startingScore: 123,
-                numberOfLegs: 2,
-                legs: {
-                    '0': {
-                        away: null,
-                        home: null,
-                    }
-                },
-                homeScore: 1,
-                yourName: 'Simon',
-                opponentName: '',
-                id: createTemporaryId(),
-            };
-            saygData[jsonData.id] = jsonData;
+            const jsonData: IRecordedScoreAsYouGoDto = saygBuilder()
+                .startingScore(123)
+                .numberOfLegs(2)
+                .withLeg(0, (l: ILegBuilder) => l
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c))
+                .scores(1)
+                .yourName('Simon')
+                .opponentName('')
+                .addTo(saygData)
+                .build();
 
             await renderComponent(account, '#' + jsonData.id);
 

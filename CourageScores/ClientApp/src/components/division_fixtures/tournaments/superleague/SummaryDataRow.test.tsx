@@ -12,6 +12,7 @@ import {ISummaryDataRowProps, SummaryDataRow} from "./SummaryDataRow";
 import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
 import {ILegThrowDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
 import {IScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
+import {saygBuilder} from "../../../../helpers/builders/sayg";
 
 describe('SummaryDataRow', () => {
     let context: TestContext;
@@ -69,12 +70,10 @@ describe('SummaryDataRow', () => {
 
     describe('renders', () => {
         it('match data', async () => {
-            const saygData: IScoreAsYouGoDto = {
-                legs: {
-                    '0': createLeg(true, false),
-                    '1': createLeg(true, false),
-                }
-            };
+            const saygData: IScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .withLeg(1, createLeg(true, false))
+                .build();
 
             await renderComponent({
                 matchNo: 1,
@@ -95,12 +94,10 @@ describe('SummaryDataRow', () => {
         });
 
         it('host winner', async () => {
-            const saygData: IScoreAsYouGoDto = {
-                legs: {
-                    '0': createLeg(true, false),
-                    '1': createLeg(true, false),
-                }
-            };
+            const saygData: IScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(true, false))
+                .withLeg(1, createLeg(true, false))
+                .build();
 
             await renderComponent({
                 matchNo: 1,
@@ -120,12 +117,10 @@ describe('SummaryDataRow', () => {
         });
 
         it('opponent winner', async () => {
-            const saygData: IScoreAsYouGoDto = {
-                legs: {
-                    '0': createLeg(false, true),
-                    '1': createLeg(false, true),
-                }
-            };
+            const saygData: IScoreAsYouGoDto = saygBuilder()
+                .withLeg(0, createLeg(false, true))
+                .withLeg(1, createLeg(false, true))
+                .build();
 
             await renderComponent({
                 matchNo: 1,

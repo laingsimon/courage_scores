@@ -3,8 +3,9 @@ import {IRecordedScoreAsYouGoDto} from "../../interfaces/serverSide/Game/Sayg/IR
 import {createTemporaryId} from "../projection";
 import {ILegDto} from "../../interfaces/serverSide/Game/Sayg/ILegDto";
 import {ILegCompetitorScoreDto} from "../../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
-export interface IRecordedSaygBuilder extends IAddableBuilder<IRecordedScoreAsYouGoDto> {
+export interface IRecordedSaygBuilder extends IAddableBuilder<IRecordedScoreAsYouGoDto & IUpdateRecordedScoreAsYouGoDto> {
     scores: (home: number, away?: number) => IRecordedSaygBuilder;
     withLeg: (id: number, legOrBuilderFunc: any) => IRecordedSaygBuilder;
     yourName: (name: string) => IRecordedSaygBuilder;
@@ -12,10 +13,12 @@ export interface IRecordedSaygBuilder extends IAddableBuilder<IRecordedScoreAsYo
     updated: (updated: string) => IRecordedSaygBuilder;
     numberOfLegs: (legs: number) => IRecordedSaygBuilder;
     startingScore: (score: number) => IRecordedSaygBuilder;
+    lastUpdated: (lastUpdated: string) => IRecordedSaygBuilder;
+    noId: () => IRecordedSaygBuilder;
 }
 
 export function saygBuilder(id?: string): IRecordedSaygBuilder {
-    const sayg: IRecordedScoreAsYouGoDto = {
+    const sayg: IRecordedScoreAsYouGoDto & IUpdateRecordedScoreAsYouGoDto = {
         id: id || createTemporaryId(),
         legs: {},
         yourName: null,
@@ -59,6 +62,14 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
             sayg.startingScore = score;
             return builder;
         },
+        lastUpdated: (lastUpdated: string) => {
+            sayg.lastUpdated = lastUpdated;
+            return builder;
+        },
+        noId: () => {
+            delete sayg.id;
+            return builder;
+        }
     };
 
     return builder;

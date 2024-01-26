@@ -137,16 +137,14 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
                 id: null,
-                defaultData: {
-                    legs: {
-                        '0': legBuilder()
-                            .home((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
-                            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
-                            .startingScore(501)
-                            .build(),
-                    },
-                    yourName: 'HOME',
-                },
+                defaultData: saygBuilder()
+                    .noId()
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .home((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
+                        .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                        .startingScore(501))
+                    .build(),
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -251,16 +249,13 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data }/>),
                 id: null,
-                defaultData: {
-                    yourName: 'DEFAULT',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                            .away((c: ILegCompetitorScoreBuilder) => c.score(0))
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .yourName('DEFAULT')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .home((c: ILegCompetitorScoreBuilder) => c.score(0))
+                        .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                        .startingScore(501))
+                    .build(),
                 autoSave: false,
                 liveOptions: { },
                 on180,
@@ -272,17 +267,14 @@ describe('SaygLoadingContainer', () => {
             expect(containerProps.sayg.yourName).toEqual('DEFAULT');
 
             await act(async () => {
-                await containerProps.setSayg({
-                    yourName: 'HOME',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home((c: ILegCompetitorScoreBuilder) => c.score(1))
-                            .away((c: ILegCompetitorScoreBuilder) => c.score(1))
-                            .build()
-                    },
-                    lastUpdated: '2023-07-21',
-                });
+                await containerProps.setSayg(saygBuilder()
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .home((c: ILegCompetitorScoreBuilder) => c.score(1))
+                        .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(1))
+                        .startingScore(501))
+                    .lastUpdated('2023-07-21')
+                    .build());
             });
 
             expect(reportedError.hasError()).toEqual(false);
@@ -294,16 +286,13 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
                 id: null,
-                defaultData: {
-                    yourName: 'HOME',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home((c: ILegCompetitorScoreBuilder) => c)
-                            .away((c: ILegCompetitorScoreBuilder) => c)
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .home((c: ILegCompetitorScoreBuilder) => c)
+                        .away((c: ILegCompetitorScoreBuilder) => c)
+                        .startingScore(501))
+                    .build(),
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -328,16 +317,14 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
                 id: null,
-                defaultData: {
-                    yourName: 'HOME',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home((c: ILegCompetitorScoreBuilder) => c)
-                            .away((c: ILegCompetitorScoreBuilder) => c)
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .noId()
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .home((c: ILegCompetitorScoreBuilder) => c)
+                        .away((c: ILegCompetitorScoreBuilder) => c)
+                        .startingScore(501))
+                    .build(),
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -365,16 +352,13 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
                 id: null,
-                defaultData: {
-                    yourName: 'HOME',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home((c: ILegCompetitorScoreBuilder) => c)
-                            .away((c: ILegCompetitorScoreBuilder) => c)
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .home((c: ILegCompetitorScoreBuilder) => c)
+                        .away((c: ILegCompetitorScoreBuilder) => c)
+                        .startingScore(501))
+                    .build(),
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -399,16 +383,14 @@ describe('SaygLoadingContainer', () => {
             await renderComponent({
                 children: (<TestComponent onLoaded={(data: IExtractedProps) => containerProps = data}/>),
                 id: null,
-                defaultData: {
-                    yourName: 'HOME',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home((c: ILegCompetitorScoreBuilder) => c)
-                            .away((c: ILegCompetitorScoreBuilder) => c)
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .noId()
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .home((c: ILegCompetitorScoreBuilder) => c)
+                        .away((c: ILegCompetitorScoreBuilder) => c)
+                        .startingScore(501))
+                    .build(),
                 autoSave: false,
                 on180,
                 onHiCheck,
@@ -436,22 +418,18 @@ describe('SaygLoadingContainer', () => {
         it('should save data when score changes and auto save enabled', async () => {
             await renderComponent({
                 id: null,
-                defaultData: {
-                    homeScore: 0,
-                    awayScore: 0,
-                    startingScore: 501,
-                    numberOfLegs: 3,
-                    yourName: 'HOME',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .currentThrow('home')
-                            .playerSequence('home', 'away')
-                            .home((c: ILegCompetitorScoreBuilder) => c.score(451))
-                            .away((c: ILegCompetitorScoreBuilder) => c.score(200).withThrow(0))
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .scores(0, 0)
+                    .startingScore(501)
+                    .numberOfLegs(3)
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .startingScore(501)
+                        .currentThrow('home')
+                        .playerSequence('home', 'away')
+                        .home((c: ILegCompetitorScoreBuilder) => c.score(451))
+                        .away((c: ILegCompetitorScoreBuilder) => c.score(200).withThrow(0)))
+                    .build(),
                 autoSave: true,
                 liveOptions: { },
                 on180,
@@ -472,21 +450,18 @@ describe('SaygLoadingContainer', () => {
         it('should save data when player sequence changes and auto save enabled', async () => {
             await renderComponent({
                 id: null,
-                defaultData: {
-                    homeScore: 0,
-                    awayScore: 0,
-                    startingScore: 501,
-                    numberOfLegs: 3,
-                    yourName: 'HOME',
-                    opponentName: 'AWAY',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                            .away((c: ILegCompetitorScoreBuilder) => c.score(0))
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .noId()
+                    .scores(0, 0)
+                    .startingScore(501)
+                    .numberOfLegs(3)
+                    .yourName('HOME')
+                    .opponentName('AWAY')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .startingScore(501)
+                        .home((c: ILegCompetitorScoreBuilder) => c.score(0))
+                        .away((c: ILegCompetitorScoreBuilder) => c.score(0)))
+                    .build(),
                 autoSave: true,
                 liveOptions: { },
                 on180,
@@ -505,22 +480,18 @@ describe('SaygLoadingContainer', () => {
         it('should not save data when score changes and auto save disabled', async () => {
             await renderComponent({
                 id: null,
-                defaultData: {
-                    homeScore: 0,
-                    awayScore: 0,
-                    startingScore: 501,
-                    numberOfLegs: 3,
-                    yourName: 'HOME',
-                    legs: {
-                        '0': legBuilder()
-                            .startingScore(501)
-                            .playerSequence('home', 'away')
-                            .currentThrow('home')
-                            .home((c: ILegCompetitorScoreBuilder) => c.score(451))
-                            .away((c: ILegCompetitorScoreBuilder) => c.score(200).withThrow(0))
-                            .build()
-                    },
-                },
+                defaultData: saygBuilder()
+                    .scores(0, 0)
+                    .startingScore(501)
+                    .numberOfLegs(3)
+                    .yourName('HOME')
+                    .withLeg(0, (l: ILegBuilder) => l
+                        .startingScore(501)
+                        .currentThrow('home')
+                        .playerSequence('home', 'away')
+                        .home((c: ILegCompetitorScoreBuilder) => c.score(451))
+                        .away((c: ILegCompetitorScoreBuilder) => c.score(200).withThrow(0)))
+                    .build(),
                 autoSave: false,
                 liveOptions: { },
                 on180,
