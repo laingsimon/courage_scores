@@ -13,10 +13,10 @@ export function MatchDartCount({homeCount, awayCount, singlePlayer}: IMatchDartC
         <td>
             Match darts
         </td>
-        <td className={`${homeCount > awayCount ? '' : 'bg-winner'} fw-bold`}>
+        <td className={`${homeCount < awayCount || singlePlayer ? 'bg-winner' : ''} fw-bold`}>
             {homeCount}
         </td>
-        {singlePlayer ? null : (<td className={`${homeCount > awayCount ? 'bg-winner' : ''} fw-bold`}>
+        {singlePlayer ? null : (<td className={`${homeCount < awayCount ? '' : 'bg-winner'} fw-bold`}>
             {awayCount}
         </td>)}
     </tr>);

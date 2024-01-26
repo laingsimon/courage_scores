@@ -166,7 +166,7 @@ describe('LegStatistics', () => {
             await renderComponent({
                 leg: legBuilder()
                     .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
-                    .away({})
+                    .away((c: ILegCompetitorScoreBuilder) => c)
                     .startingScore(501)
                     .winner('home')
                     .build(),
@@ -193,7 +193,7 @@ describe('LegStatistics', () => {
             await renderComponent({
                 leg: legBuilder()
                     .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100))
-                    .away({})
+                    .away((c: ILegCompetitorScoreBuilder) => c)
                     .startingScore(501)
                     .build(),
                 home: 'HOME',
@@ -322,7 +322,7 @@ describe('LegStatistics', () => {
             await renderComponent({
                 leg: legBuilder()
                     .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
-                    .away({})
+                    .away((c: ILegCompetitorScoreBuilder) => c)
                     .startingScore(501)
                     .winner('away')
                     .build(),

@@ -171,7 +171,7 @@ describe('MatchStatistics', () => {
             .currentThrow('home')
             .startingScore(501)
             .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-            .away({})
+            .away((c: ILegCompetitorScoreBuilder) => c)
             .winner('home')
             .build();
         const saygData = saygBuilder()

@@ -15,7 +15,7 @@ import {
 } from "./filters";
 import {IFilter} from "../interfaces/IFilter";
 import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder} from "./builders/divisions";
-import {tournamentBuilder} from "./builders/tournaments";
+import {ITournamentSideBuilder, tournamentBuilder} from "./builders/tournaments";
 import {teamBuilder} from "./builders/teams";
 import {IDivisionFixtureDateDto} from "../interfaces/serverSide/Division/IDivisionFixtureDateDto";
 import {Filter, NullFilter} from "../Filter";
@@ -361,7 +361,7 @@ describe('filters', () => {
                     .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: tournamentBuilder().withSide((s: any) => s.teamId('abcd')).build(),
+                tournamentFixture: tournamentBuilder().withSide((s: ITournamentSideBuilder) => s.teamId('abcd')).build(),
             })).toEqual(true);
         });
 
@@ -380,7 +380,7 @@ describe('filters', () => {
                     .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: tournamentBuilder().withSide((s: any) => s.name('name').teamId('abcd')).build(),
+                tournamentFixture: tournamentBuilder().withSide((s: ITournamentSideBuilder) => s.name('name').teamId('abcd')).build(),
             })).toEqual(true);
         });
 
@@ -399,7 +399,7 @@ describe('filters', () => {
                     .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: tournamentBuilder().withSide((s: any) => s.name('name').teamId('abcd')).build(),
+                tournamentFixture: tournamentBuilder().withSide((s: ITournamentSideBuilder) => s.name('name').teamId('abcd')).build(),
             })).toEqual(true);
         });
     });
