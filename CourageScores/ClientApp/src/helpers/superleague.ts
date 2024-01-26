@@ -3,9 +3,7 @@ import {ILegThrowDto} from "../interfaces/serverSide/Game/Sayg/ILegThrowDto";
 import {IScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
 import {ILegDto} from "../interfaces/serverSide/Game/Sayg/ILegDto";
 import {ILegCompetitorScoreDto} from "../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
-
 import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
-import {ISuperleagueSaygMatchMapping} from "../interfaces/ISuperleagueSaygMatchMapping";
 
 export function playerOverallAverage(saygData: IScoreAsYouGoDto | null | undefined, sideName: string): number | null {
     if (!saygData || !saygData.legs) {

@@ -6,7 +6,6 @@ import {App} from './App';
 import {IIocContainerProps, IocContainer} from "./IocContainer";
 import {BrandingContainer} from "./BrandingContainer";
 import {IBranding} from "./interfaces/IBranding";
-import {IDependencies} from "./interfaces/IDependencies";
 
 /* istanbul ignore file */
 
