@@ -40,11 +40,6 @@ export interface ITournamentPlayerMap {
     [id: string]: {};
 }
 
-interface ITeamSeasonAndDivisionMapping {
-    teamSeason?: ITeamSeasonDto;
-    divisionId: string;
-}
-
 export function Tournament() {
     const {tournamentId} = useParams();
     const {appLoading, account, seasons, onError, teams, reloadTeams, divisions} = useApp();
@@ -146,18 +141,9 @@ export function Tournament() {
 
         const players: ISelectablePlayer[] = teams
             .filter((t: ITeamDto) => any(selectedTournamentTeams, (id: string) => id === t.id))
-            .map((t: ITeamDto) => {
-                // TODO: divisionId is a property of ITournamentPlayerDto, assume this is why this is being added in here...
-                // TODO: find out where divisionId came from...
-                return {
-                    teamSeason: t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === tournamentData.seasonId)[0],
-                    divisionId: (t as any).divisionId,
-                } as ITeamSeasonAndDivisionMapping;
-            })
-            .filter((mapping: ITeamSeasonAndDivisionMapping) => mapping.teamSeason)
-            .flatMap((mapping: ITeamSeasonAndDivisionMapping) => mapping.teamSeason.players.map((p: ITeamPlayerDto) => {
-                return Object.assign({}, p, {divisionId: mapping.divisionId}) as ISelectablePlayer;
-            }));
+            .map((t: ITeamDto) => t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === tournamentData.seasonId)[0])
+            .filter((teamSeasonDto: ITeamSeasonDto) => teamSeasonDto)
+            .flatMap((teamSeason: ITeamSeasonDto) => teamSeason.players.map((p: ITeamPlayerDto) => p as ISelectablePlayer));
 
         return players.sort(sortBy('name'));
     }
