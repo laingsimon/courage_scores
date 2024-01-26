@@ -15,7 +15,6 @@
     "remark-gfm": "^3.0.1",
     "vite": "^5.0.12",
     "vite-tsconfig-paths": "^4.2.3",
-    "web-vitals": "^2.1.4",
     "workbox-background-sync": "^6.5.3",
     "workbox-broadcast-update": "^6.5.3",
     "workbox-cacheable-response": "^6.5.3",
