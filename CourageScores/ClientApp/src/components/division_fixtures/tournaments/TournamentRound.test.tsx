@@ -261,11 +261,15 @@ describe('TournamentRound', () => {
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 2).sideB(side6, 1))
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(side7, 2).sideB(side8, 1))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
                     .round((r: ITournamentRoundBuilder) => r
                         .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2, 2).sideB(side3, 1))
                         .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 1).sideB(side7, 2))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3)))
                     .build(),
                 sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                 readOnly,
@@ -419,7 +423,8 @@ describe('TournamentRound', () => {
                     round: roundBuilder()
                         .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
                         .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
                         .round((r: ITournamentRoundBuilder) => r
                             .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2).sideB(side3))
                             .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
@@ -461,11 +466,15 @@ describe('TournamentRound', () => {
                             .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
                             .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 2).sideB(side6, 1))
                             .withMatch((m: ITournamentMatchBuilder) => m.sideA(side7, 2).sideB(side8, 1))
-                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                            .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
                             .round((r: ITournamentRoundBuilder) => r
                                 .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2, 2).sideB(side3, 1))
                                 .withMatch((m: ITournamentMatchBuilder) => m.sideA(side5, 1).sideB(side7, 2))
-                                .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))
+                                .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                                .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3)))
                             .build(),
                         sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                         readOnly,
@@ -925,7 +934,8 @@ describe('TournamentRound', () => {
                     round: roundBuilder()
                         .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 1).sideB(side2, 2))
                         .withMatch((m: ITournamentMatchBuilder) => m.sideA(side3, 2).sideB(side4, 1))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(3))
                         .round((r: ITournamentRoundBuilder) => r
                             .withMatch((m: ITournamentMatchBuilder) => m.sideA(side2).sideB(side3))
                             .withMatchOption((o: IMatchOptionsBuilder) => o.startingScore(601).numberOfLegs(7)))

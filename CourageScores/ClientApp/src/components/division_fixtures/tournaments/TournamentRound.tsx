@@ -108,13 +108,15 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
             return !isPlaying;
         });
 
-        return sidesForTheNextRound.concat(round.matches.flatMap((match: ITournamentMatchDto) => {
+        return sidesForTheNextRound.concat(round.matches.flatMap((match: ITournamentMatchDto, index: number) => {
             const scoreA: number = match.scoreA;
             const scoreB: number = match.scoreB;
+            const matchOptions: IGameMatchOptionDto = round.matchOptions[index];
+            const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : 5;
 
-            if (scoreA > scoreB) {
+            if (scoreA > (numberOfLegs / 2.0)) {
                 return [match.sideA];
-            } else if (scoreB > scoreA) {
+            } else if (scoreB > (numberOfLegs / 2.0)) {
                 return [match.sideB];
             }
 
