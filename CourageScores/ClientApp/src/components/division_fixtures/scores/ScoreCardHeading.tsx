@@ -6,6 +6,7 @@ import {renderDate} from "../../../helpers/rendering";
 import {count} from "../../../helpers/collections";
 import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
 import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
+import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
 
 export interface IScoreCardHeadingProps {
     data: IGameDto;
@@ -22,7 +23,6 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
     const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
     const homeScore = getScore(data, 'home');
     const awayScore = getScore(data, 'away');
-    //TODO: #724: this should check if the homeScore > 0.5*numberOfLegs
     const winner = homeScore > awayScore
         ? 'home'
         : awayScore > homeScore
@@ -51,15 +51,17 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
             && (access === 'admin' || (account && submission && account.teamId === submission.id && access === 'clerk'));
     }
 
-    function getScore(data: IGameDto, side: string) {
-        function sideWonMatch(match: IGameMatchDto) {
+    function getScore(data: IGameDto, side: string): number {
+        function sideWonMatch(match: IGameMatchDto, index: number): boolean {
+            const matchOptions: IGameMatchOptionDto = data.matchOptions[index];
+            const defaultNumberOfLegs: number = 5;
+            const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : defaultNumberOfLegs;
+
             switch (side) {
                 case 'home':
-                    //TODO: #724: this should check if the homeScore > 0.5*numberOfLegs
-                    return match.homeScore > match.awayScore;
+                    return match.homeScore > (numberOfLegs / 2.0);
                 case 'away':
-                    //TODO: #724: this should check if the homeScore > 0.5*numberOfLegs
-                    return match.awayScore > match.homeScore;
+                    return match.awayScore > (numberOfLegs / 2.0);
                 default:
                     return false;
             }

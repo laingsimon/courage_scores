@@ -30,7 +30,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     const {sayg, lastLegDisplayOptions} = useSayg();
     const {subscriptions, liveOptions} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState<ILegDisplayOptionsLookup>(getLegDisplayOptions(legs));
-    const finished: boolean = (homeScore >= numberOfLegs / 2.0) || (awayScore >= numberOfLegs / 2.0);
+    const finished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
     const isSubscribed: boolean = !!(sayg && subscriptions[sayg.id]);
     const legDisplayOptions: ILegDisplayOptionsLookup = isSubscribed && !finished
         ? getLegDisplayOptions(legs, true)

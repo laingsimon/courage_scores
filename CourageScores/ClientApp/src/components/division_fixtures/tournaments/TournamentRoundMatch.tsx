@@ -146,7 +146,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
 
     function renderSaygDialog() {
         const numberOfLegs: number = matchOptions.numberOfLegs;
-        const finished: boolean = (match.scoreA >= numberOfLegs / 2.0) || (match.scoreB >= numberOfLegs / 2.0);
+        const finished: boolean = (match.scoreA > numberOfLegs / 2.0) || (match.scoreB > numberOfLegs / 2.0);
         const liveOptions: ILiveOptions = {
             publish: true,
         };
@@ -307,8 +307,13 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         }
     }
 
+    function isWinner(scoreA: number): boolean {
+        const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : 5;
+        return scoreA > (numberOfLegs / 2.0);
+    }
+
     return (<tr className="bg-light">
-        <td className={hasBothScores && scoreA > scoreB ? 'bg-winner' : ''}>
+        <td className={hasBothScores && isWinner(scoreA) ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
                 ? (match.sideA.name || sideMap[match.sideA.id].name)
                 : (<BootstrapDropdown
@@ -337,20 +342,20 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 : null}
             {saygOpen ? renderSaygDialog() : null}
         </td>
-        <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>
+        <td className={hasBothScores && isWinner(scoreA) ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreA || (scoreARecorded ? '0' : '')
                 : (<input type="number" value={scoreARecorded ? (match.scoreA || '0') : ''}
                           max={matchOptions.numberOfLegs} min="0" onChange={(event: React.ChangeEvent<HTMLInputElement>) => changeScore(event, 'scoreA')}/>)}
         </td>
         <td className="narrow-column">vs</td>
-        <td className={hasBothScores && scoreB > scoreA ? 'narrow-column bg-winner' : 'narrow-column'}>
+        <td className={hasBothScores && isWinner(scoreB) ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreB || (scoreBRecorded ? '0' : '')
                 : (<input type="number" value={scoreBRecorded ? (match.scoreB || '0') : ''}
                           max={matchOptions.numberOfLegs} min="0" onChange={(event: React.ChangeEvent<HTMLInputElement>) => changeScore(event, 'scoreB')}/>)}
         </td>
-        <td className={hasBothScores && scoreB > scoreA ? 'bg-winner' : ''}>
+        <td className={hasBothScores && isWinner(scoreB) ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
                 ? (match.sideB.name || sideMap[match.sideB.id].name)
                 : (<BootstrapDropdown

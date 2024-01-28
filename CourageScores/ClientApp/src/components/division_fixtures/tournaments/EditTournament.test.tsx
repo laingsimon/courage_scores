@@ -201,7 +201,8 @@ describe('EditTournament', () => {
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .sideA(side1, 1)
-                        .sideB(anotherSide, 2)))
+                        .sideB(anotherSide, 2))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .forSeason(season)
                 .withSide(side1)
                 .withSide(anotherSide)
@@ -237,7 +238,10 @@ describe('EditTournament', () => {
                         .sideA(side1, 2)
                         .sideB(anotherSide, 2))
                     .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(side1, 2).sideB(anotherSide, 1))))
+                        .withMatch((m: ITournamentMatchBuilder) => m
+                            .sideA(side1, 2)
+                            .sideB(anotherSide, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
                 .forSeason(season)
                 .withSide(side1)
                 .withSide(anotherSide)
