@@ -17,6 +17,7 @@ jobs:
           name: NUnit Tests
           path: 'TestResults.trx'
           reporter: dotnet-trx
+          fail-on-error: false
 
       - uses: dorny/test-reporter@v1
         with:
@@ -24,3 +25,4 @@ jobs:
            name: Jest Tests
            path: '*.xml'
            reporter: jest-junit
+           fail-on-error: false
