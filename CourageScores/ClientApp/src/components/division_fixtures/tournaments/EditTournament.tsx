@@ -15,6 +15,7 @@ import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamen
 import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
 import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
 import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
 
 export interface IEditTournamentProps {
     canSave?: boolean;
@@ -39,11 +40,12 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
 
         if (round && round.matches && round.matches.length === 1) {
             const match: ITournamentMatchDto = round.matches[0];
+            const matchOptions: IGameMatchOptionDto = round.matchOptions[0];
+            const bestOf: number = matchOptions ? matchOptions.numberOfLegs : 5;
             if (match.scoreA !== null && match.scoreB !== null && match.sideA && match.sideB) {
-                // TODO: #724: compare scores against > 0.5*bestOf
-                if (match.scoreA > match.scoreB) {
+                if (match.scoreA > (bestOf / 2.0)) {
                     return match.sideA.id;
-                } else if (match.scoreB > match.scoreA) {
+                } else if (match.scoreB > (bestOf / 2.0)) {
                     return match.sideB.id;
                 } else {
                     return null;
