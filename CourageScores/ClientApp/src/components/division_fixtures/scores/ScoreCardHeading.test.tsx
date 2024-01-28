@@ -10,7 +10,7 @@ import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
 import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
 import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
 import {IGameTeamDto} from "../../../interfaces/serverSide/Game/IGameTeamDto";
-import {fixtureBuilder, IFixtureBuilder, IMatchBuilder} from "../../../helpers/builders/games";
+import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
@@ -192,9 +192,12 @@ describe('ScoreCardHeading', () => {
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
                 .awaySubmission()
+                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(2, 1))
                 .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(3, 1))
+                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(4, 1))
+                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5))
+                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(7))
                 .build();
             const winner = 'home';
             const fixtureData: ILeagueFixtureContainerProps = {
@@ -252,9 +255,12 @@ describe('ScoreCardHeading', () => {
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
                 .awaySubmission()
+                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 2))
                 .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
-                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 3))
+                .withMatch((m: IMatchBuilder) => m.withHome('HOME PLAYER').withAway('AWAY PLAYER').scores(1, 4))
+                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(5))
+                .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(7))
                 .build();
             const winner = 'away';
             const fixtureData: ILeagueFixtureContainerProps = {
