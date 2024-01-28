@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Cosmos.Game;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -14,5 +13,5 @@ public class CreateTournamentSaygDto
     /// <summary>
     /// The options for this match
     /// </summary>
-    public GameMatchOption? MatchOptions { get; set; }
+    public GameMatchOptionDto? MatchOptions { get; set; }
 }

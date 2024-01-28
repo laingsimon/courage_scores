@@ -28,9 +28,9 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
-          REACT_APP_BRANCH: "${{ inputs.branch-name }}"
-          REACT_APP_SHA: "${{ inputs.commit-sha }}"
-          REACT_APP_DATE: "${{ inputs.commit-date }}"
+          VITE_APP_BRANCH: "${{ inputs.branch-name }}"
+          VITE_APP_SHA: "${{ inputs.commit-sha }}"
+          VITE_APP_DATE: "${{ inputs.commit-date }}"
 
       - name: Publish react coverage
         uses: coverallsapp/github-action@v2

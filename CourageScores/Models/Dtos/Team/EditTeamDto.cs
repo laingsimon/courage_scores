@@ -3,6 +3,7 @@
 namespace CourageScores.Models.Dtos.Team;
 
 [ExcludeFromCodeCoverage]
+[PropertyIsOptional(nameof(Id))]
 public class EditTeamDto : IIntegrityCheckDto
 {
     public Guid Id { get; set; }

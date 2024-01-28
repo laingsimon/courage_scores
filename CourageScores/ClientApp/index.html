@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <meta content="#000000" name="theme-color">
+    <meta content="https://couragescores.azurewebsites.net/" property="og:url"/>
+    <meta content="website" property="og:type"/>
+    <meta content="Courage Scores" property="og:title"/>
+    <meta content="The Courage Scores" name="twitter:title"/>
+    <meta content="The Courage Scores" property="og:description"/>
+    <meta content="The Courage Scores" name="twitter:description"/>
+    <meta content="https://couragescores.azurewebsites.net/social.png" property="og:image"/>
+    <meta content="https://couragescores.azurewebsites.net/social.png" name="twitter:image"/>
+    <meta content="summary_large_image" name="twitter:card"/>
+    <link href="/whitelabel.css" rel="stylesheet"/>
+    <title>Courage Scores</title>
+    <base href="/"/>
+    <link href="/layout.css" rel="stylesheet"/>
+    <link href="/manifest.json" rel="manifest">
+    <link href="/favicon.png" rel="shortcut icon">
+    <meta content="%VITE_APP_BRANCH%" name="build:branch"/>
+    <meta content="%VITE_APP_SHA%" name="build:sha"/>
+    <meta content="%VITE_APP_DATE%" name="build:date"/>
+</head>
+<body class="darts-background">
+<noscript>
+    You need to enable JavaScript to run this app.
+</noscript>
+<script>
+    window.branding = {
+        name: 'Courage Scores',
+        email: 'info@couragescores.co.uk',
+        facebook: 'unset',
+        twitter: 'unset',
+        website: 'https://github.com/laingsimon/courage_scores',
+        custodians: [
+            'Simon Laing'
+        ],
+        menu: {
+            beforeDivisions: [{
+                text: 'Project page',
+                url: 'https://github.com/laingsimon/courage_scores',
+            }, {
+                text: 'Practice',
+                url: '/practice',
+            }],
+            afterDivisions: [{
+                text: 'Help',
+                url: 'https://github.com/laingsimon/courage_scores/wiki',
+            }, {
+                text: 'About',
+                url: '/about',
+            }]
+        }
+    }
+</script>
+<div id="root"></div>
+<script type="module" src="/src/index.tsx"></script>
+</body>
+</html>
