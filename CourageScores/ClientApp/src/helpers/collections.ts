@@ -78,7 +78,7 @@ export function isEmpty<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boo
 /*
 * Return the number of items (that match the optional predicate)
 * */
-export function count<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boolean): number {
+export function count<T>(iterable: T[] | DataMap<T>, predicate?: (a: T, index?: number) => boolean): number {
     return iterable.filter(predicate || (_ => true)).length;
 }
 
