@@ -38,7 +38,7 @@ public class AccountController : Controller
     }
 
     [HttpGet("/api/Account")]
-    public async Task<UserDto?> GetUser(CancellationToken token)
+    public async Task<UserDto?> Account(CancellationToken token)
     {
         return await _userService.GetUser(token);
     }
@@ -50,13 +50,13 @@ public class AccountController : Controller
     }
 
     [HttpGet("/api/Account/{emailAddress}")]
-    public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)
+    public async Task<UserDto?> Get(string emailAddress, CancellationToken token)
     {
         return await _userService.GetUser(emailAddress, token);
     }
 
     [HttpPost("/api/Account/Access")]
-    public async Task<ActionResultDto<UserDto>> UpdateAccess([FromBody] UpdateAccessDto access, CancellationToken token)
+    public async Task<ActionResultDto<UserDto>> Update([FromBody] UpdateAccessDto access, CancellationToken token)
     {
         return await _userService.UpdateAccess(access, token);
     }

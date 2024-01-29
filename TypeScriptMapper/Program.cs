@@ -18,7 +18,7 @@ var token = cancellationTokenSource.Token;
 Console.CancelKeyPress += (_, _) => cancellationTokenSource.Cancel();
 
 var dtos = new DtoStrategy(assembly, typeMapper, "CourageScores.Models.Dtos");
-var controllers = new ControllerStrategy(assembly, typeMapper, "CourageScores.Controllers");
+var controllers = new ControllerStrategy(assembly);
 
 await dtos.Execute(outputDirectory + "/dtos", onlyType, token);
 await controllers.Execute(outputDirectory + "/apis", onlyType, token);

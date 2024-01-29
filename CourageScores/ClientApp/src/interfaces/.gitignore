@@ -1,2 +1,5 @@
 dtos/*.d.ts
 dtos/**/*.d.ts
+
+apis/*.d.ts
+apis/**/*.d.ts
