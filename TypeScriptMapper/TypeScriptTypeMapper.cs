@@ -1,48 +1,71 @@
 using System.Text.RegularExpressions;
-using CourageScores.Models.Dtos.Season.Creation;
-using Microsoft.AspNetCore.Http;
 
 namespace TypeScriptMapper;
 
 public class TypeScriptTypeMapper
 {
+    public const string String = "string";
+    public const string Boolean = "boolean";
+    public const string Number = "number";
+    public const string Object = "object";
+
+    private static readonly HashSet<string> PrimitiveTypes = new(new[] { String, Boolean, Number, Object });
+
     private static readonly Dictionary<Type, string> TypeMap = new()
     {
-        { typeof(bool), "boolean" },
-        { typeof(string), "string" },
-        { typeof(int), "number" },
-        { typeof(long), "number" },
-        { typeof(double), "number" },
-        { typeof(float), "number" },
-        { typeof(DateTime), "string" },
-        { typeof(DateTimeOffset), "string" },
-        { typeof(TimeSpan), "string" },
-        { typeof(IFormFile), "string" },
-        { typeof(byte[]), "string" },
-        { typeof(object), "object" },
-        { typeof(Guid), "string" },
-        // types with custom converters
-        { typeof(TeamPlaceholderDto), "string" },
+        { typeof(bool), Boolean },
+        { typeof(string), String },
+        { typeof(int), Number },
+        { typeof(long), Number },
+        { typeof(double), Number },
+        { typeof(float), Number },
+        { typeof(DateTime), String },
+        { typeof(DateTimeOffset), String },
+        { typeof(TimeSpan), String },
+        { typeof(Microsoft.AspNetCore.Http.IFormFile), String },
+        { typeof(byte[]), String },
+        { typeof(object), Object },
+        { typeof(Guid), String },
+    };
+
+    private static readonly Dictionary<string, string> CustomMappings = new()
+    {
+        { "TeamPlaceholderDto", String },
     };
 
     public bool IsDefinedAsPrimitive(Type propertyType)
     {
-        return TypeMap.ContainsKey(propertyType);
+        if (TypeMap.TryGetValue(propertyType, out var simpleTsType))
+        {
+            return PrimitiveTypes.Contains(simpleTsType);
+        }
+
+        if (CustomMappings.TryGetValue(propertyType.Name, out var customTsType))
+        {
+            return PrimitiveTypes.Contains(customTsType);
+        }
+
+        return false;
     }
 
     public bool RequiresImport(Type propertyType)
     {
-        return !propertyType.IsEnum && !TypeMap.ContainsKey(propertyType) && !propertyType.IsGenericParameter;
+        if (propertyType.IsEnum || propertyType.IsGenericParameter)
+        {
+            return false;
+        }
+
+        return !IsDefinedAsPrimitive(propertyType);
     }
 
     public string GetTypeScriptType(Type propertyType)
     {
         if (propertyType.IsEnum)
         {
-            return "string";
+            return String;
         }
 
-        return TypeMap.GetValueOrDefault(propertyType, GetTypeName(propertyType));
+        return TypeMap.GetValueOrDefault(propertyType) ?? CustomMappings.GetValueOrDefault(propertyType.Name) ?? GetTypeName(propertyType);
     }
 
     private static string GetTypeName(Type propertyType)

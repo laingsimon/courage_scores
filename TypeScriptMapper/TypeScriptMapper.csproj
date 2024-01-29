@@ -8,7 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CourageScores\CourageScores.csproj" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.10"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
 </Project>

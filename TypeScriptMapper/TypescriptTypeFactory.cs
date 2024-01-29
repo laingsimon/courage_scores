@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Reflection;
-using CourageScores.Models.Dtos;
 using Newtonsoft.Json;
 
 namespace TypeScriptMapper;
@@ -142,7 +141,7 @@ public class TypescriptTypeFactory
 
         switch (property.Name)
         {
-            case nameof(CosmosDto.Id):
+            case "Id":
                 return false;
             default:
                 return true;

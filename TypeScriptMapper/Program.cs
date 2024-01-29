@@ -1,13 +1,17 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using CourageScores;
+using System.Reflection;
 using TypeScriptMapper;
 
-var rootNamespace = "CourageScores.Models.Dtos";
-var outputDirectory = "..\\..\\..\\..\\CourageScores\\ClientApp\\src\\interfaces\\serverSide";
-string? onlyType = args.FirstOrDefault();
+var rootNamespace = args.ElementAtOrDefault(1) ?? "CourageScores.Models.Dtos";
+var outputDirectory = args.ElementAtOrDefault(2) ?? "..\\..\\..\\..\\CourageScores\\ClientApp\\src\\interfaces\\serverSide";
+string? onlyType = args.ElementAtOrDefault(3);
 
-var assembly = typeof(DependencyInjectionExtensions).Assembly;
+Console.WriteLine($"Working in {Environment.CurrentDirectory}");
+Console.WriteLine($"Output to {Path.GetFullPath(outputDirectory)} ({outputDirectory})");
+Console.WriteLine($"Classes in {rootNamespace}");
+
+var assembly = Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, "CourageScores.dll"));
 var typeMapper = new TypeScriptTypeMapper();
 var typeRepository = new TypeRepository(assembly, typeMapper);
 var typeFactory = new TypescriptTypeFactory();

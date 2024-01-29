@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using CourageScores.Models.Dtos;
 
 namespace TypeScriptMapper;
 
@@ -23,6 +22,19 @@ public class TypeRepository
             .Where(t => t.GetGenericArguments().Length == 0) // non-generic classes
             .Where(t => t.Namespace?.StartsWith(rootNamespace) == true); // within the given namespace
 
-        return new[] { typeof(ActionResultDto<>) }.Concat(types).Where(t => !_typeMapper.IsDefinedAsPrimitive(t) && !t.IsAssignableTo(typeof(Attribute)));
+        return GetAdditionalTypes().Concat(types).Where(t => !_typeMapper.IsDefinedAsPrimitive(t) && !t.IsAssignableTo(typeof(Attribute)));
+    }
+
+    private IEnumerable<Type> GetAdditionalTypes()
+    {
+        var actionResultDto = _assembly.GetTypes().SingleOrDefault(t => t.Name.StartsWith("ActionResultDto"));
+        if (actionResultDto != null)
+        {
+            yield return actionResultDto;
+        }
+        else
+        {
+            Console.Error.WriteLine($"Could not find ActionResultDto<> type in assembly {_assembly.FullName}");
+        }
     }
 }

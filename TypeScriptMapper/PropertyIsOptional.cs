@@ -1,4 +1,4 @@
-namespace CourageScores.Models.Dtos;
+namespace TypeScriptMapper;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class PropertyIsOptional : Attribute
