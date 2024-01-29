@@ -46,7 +46,6 @@
     </Target>
 
     <Target Name="Write typescript interfaces" AfterTargets="Build">
-        <RemoveDir Directories="$(SpaRoot)src/interfaces/serverSide" />
         <Exec WorkingDirectory="$(OutDir)" Command="dotnet TypeScriptMapper.dll -- $(ProjectDir)$(SpaRoot)src/interfaces/serverSide"/>
     </Target>
 
