@@ -1,14 +1,14 @@
 using System.Collections;
 
-namespace TypeScriptMapper;
+namespace TypeScriptMapper.Dtos;
 
-public class TypescriptTypeWriter
+public class DtoTypeWriter
 {
     private readonly string _outputDirectory;
     private readonly string _rootNamespace;
     private readonly TypeScriptTypeMapper _typeMapper;
 
-    public TypescriptTypeWriter(string outputDirectory, string rootNamespace, TypeScriptTypeMapper typeMapper)
+    public DtoTypeWriter(string outputDirectory, string rootNamespace, TypeScriptTypeMapper typeMapper)
     {
         _outputDirectory = outputDirectory;
         _rootNamespace = rootNamespace;

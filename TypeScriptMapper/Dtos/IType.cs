@@ -1,4 +1,4 @@
-namespace TypeScriptMapper;
+namespace TypeScriptMapper.Dtos;
 
 public interface IType
 {

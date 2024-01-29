@@ -2,9 +2,9 @@ using System.Collections;
 using System.Reflection;
 using Newtonsoft.Json;
 
-namespace TypeScriptMapper;
+namespace TypeScriptMapper.Dtos;
 
-public class TypescriptTypeFactory
+public class DtoTypeFactory
 {
     public IType Create(Type type)
     {

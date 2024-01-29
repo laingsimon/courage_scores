@@ -1,14 +1,14 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace TypeScriptMapper;
+namespace TypeScriptMapper.Dtos;
 
-public class TypeRepository
+public class DtoRepository
 {
     private readonly Assembly _assembly;
     private readonly TypeScriptTypeMapper _typeMapper;
 
-    public TypeRepository(Assembly assembly, TypeScriptTypeMapper typeMapper)
+    public DtoRepository(Assembly assembly, TypeScriptTypeMapper typeMapper)
     {
         _assembly = assembly;
         _typeMapper = typeMapper;
