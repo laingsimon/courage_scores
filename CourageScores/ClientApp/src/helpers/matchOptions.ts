@@ -1,5 +1,5 @@
 import {elementAt} from "./collections";
-import {IGameMatchOptionDto} from "../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {IGameMatchOptionDto} from "../interfaces/dtos/Game/IGameMatchOptionDto";
 
 export interface IMultiMatchOptions {
     [legIndex: number]: number

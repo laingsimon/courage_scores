@@ -1,7 +1,7 @@
 import {IHttp} from "./http";
-import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
-import {ISeasonHealthCheckResultDto} from "../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
-import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
+import {ISeasonDto} from "../interfaces/dtos/Season/ISeasonDto";
+import {ISeasonHealthCheckResultDto} from "../interfaces/dtos/Health/ISeasonHealthCheckResultDto";
+import {IEditSeasonDto} from "../interfaces/dtos/Season/IEditSeasonDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface ISeasonApi {

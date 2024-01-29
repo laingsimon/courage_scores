@@ -1,6 +1,6 @@
 import {IHttp} from "./http";
-import {IReportCollectionDto} from "../interfaces/serverSide/Report/IReportCollectionDto";
-import {IReportRequestDto} from "../interfaces/serverSide/Report/IReportRequestDto";
+import {IReportCollectionDto} from "../interfaces/dtos/Report/IReportCollectionDto";
+import {IReportRequestDto} from "../interfaces/dtos/Report/IReportRequestDto";
 
 export interface IReportApi {
     getReport(request: IReportRequestDto): Promise<IReportCollectionDto>;

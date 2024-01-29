@@ -9,7 +9,7 @@ import {
 } from "../../../../helpers/tests";
 import React from "react";
 import {IMatchLogProps, MatchLog} from "./MatchLog";
-import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../../interfaces/dtos/Game/Sayg/ILegDto";
 import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
 import {tournamentMatchBuilder} from "../../../../helpers/builders/tournaments";

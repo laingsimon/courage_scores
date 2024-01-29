@@ -15,7 +15,7 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {IErrorDetailDto} from "../../interfaces/serverSide/IErrorDetailDto";
+import {IErrorDetailDto} from "../../interfaces/dtos/IErrorDetailDto";
 import {IErrorApi} from "../../api/error";
 
 describe('Errors', () => {

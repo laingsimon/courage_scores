@@ -12,11 +12,11 @@ import {
 import React from "react";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionDataDto} from "../../interfaces/serverSide/Division/IDivisionDataDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
+import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
+import {IDivisionTeamDto} from "../../interfaces/dtos/Division/IDivisionTeamDto";
+import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
+import {IDivisionDataDto} from "../../interfaces/dtos/Division/IDivisionDataDto";
+import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ITeamApi} from "../../api/team";
 import {teamBuilder} from "../../helpers/builders/teams";

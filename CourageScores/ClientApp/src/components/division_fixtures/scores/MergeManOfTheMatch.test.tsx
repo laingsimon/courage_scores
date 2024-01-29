@@ -11,8 +11,8 @@ import {
 } from "../../../helpers/tests";
 import {IMergeManOfTheMatchProps, MergeManOfTheMatch} from "./MergeManOfTheMatch";
 import {playerBuilder} from "../../../helpers/builders/players";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
+import {ITeamPlayerDto} from "../../../interfaces/dtos/Team/ITeamPlayerDto";
 import {fixtureBuilder, IFixtureBuilder} from "../../../helpers/builders/games";
 
 describe('MergeManOfTheMatch', () => {

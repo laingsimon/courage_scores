@@ -10,7 +10,7 @@
 } from "../../helpers/tests";
 import React from "react";
 import {ITableSelectionProps, TableSelection} from "./TableSelection";
-import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {ITableDto} from "../../interfaces/dtos/Data/ITableDto";
 
 describe('TableSelection', () => {
     let context: TestContext;

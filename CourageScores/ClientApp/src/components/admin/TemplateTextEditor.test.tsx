@@ -12,7 +12,7 @@ import {
 } from "../../helpers/tests";
 import {ITemplateTextEditorProps, TemplateTextEditor} from "./TemplateTextEditor";
 import {createTemporaryId} from "../../helpers/projection";
-import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {ITemplateDto} from "../../interfaces/dtos/Season/Creation/ITemplateDto";
 
 describe('TemplateTextEditor', () => {
     let context: TestContext;

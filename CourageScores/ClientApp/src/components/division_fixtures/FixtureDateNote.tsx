@@ -5,8 +5,8 @@ import {useApp} from "../../AppContainer";
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
-import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
+import {IFixtureDateNoteDto} from "../../interfaces/dtos/IFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/dtos/IEditFixtureDateNoteDto";
 
 export interface IFixtureDateNoteProps {
     note: IEditFixtureDateNoteDto;

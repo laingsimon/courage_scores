@@ -1,4 +1,4 @@
-import {IActionResultDto} from "./serverSide/IActionResultDto";
+import {IActionResultDto} from "./dtos/IActionResultDto";
 import {IFailedRequest} from "./IFailedRequest";
 // NOTE: This adds in the extra properties that are exposed by the fetch() API
 // https://developer.mozilla.org/en-US/docs/Web/API/Response

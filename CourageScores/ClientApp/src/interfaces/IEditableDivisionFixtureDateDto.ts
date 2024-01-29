@@ -1,4 +1,4 @@
-﻿import {IDivisionFixtureDateDto} from "./serverSide/Division/IDivisionFixtureDateDto";
+﻿import {IDivisionFixtureDateDto} from "./dtos/Division/IDivisionFixtureDateDto";
 
 export interface IEditableDivisionFixtureDateDto extends IDivisionFixtureDateDto {
     isKnockout?: boolean;

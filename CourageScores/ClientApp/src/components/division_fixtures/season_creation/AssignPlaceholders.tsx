@@ -1,15 +1,15 @@
 import {useApp} from "../../../AppContainer";
 import {any, distinct, sortBy} from "../../../helpers/collections";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
-import {IActionResultDto} from "../../../interfaces/serverSide/IActionResultDto";
-import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {IDivisionTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IDivisionTemplateDto";
-import {IDateTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IFixtureTemplateDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../../interfaces/serverSide/Team/ITeamSeasonDto";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
+import {IActionResultDto} from "../../../interfaces/dtos/IActionResultDto";
+import {ITemplateDto} from "../../../interfaces/dtos/Season/Creation/ITemplateDto";
+import {IDivisionDto} from "../../../interfaces/dtos/IDivisionDto";
+import {IDivisionTemplateDto} from "../../../interfaces/dtos/Season/Creation/IDivisionTemplateDto";
+import {IDateTemplateDto} from "../../../interfaces/dtos/Season/Creation/IDateTemplateDto";
+import {IFixtureTemplateDto} from "../../../interfaces/dtos/Season/Creation/IFixtureTemplateDto";
+import {ITeamDto} from "../../../interfaces/dtos/Team/ITeamDto";
+import {ITeamSeasonDto} from "../../../interfaces/dtos/Team/ITeamSeasonDto";
+import {ISeasonDto} from "../../../interfaces/dtos/Season/ISeasonDto";
 
 export interface IPlaceholderMappings {
     [placeholder: string]: string;

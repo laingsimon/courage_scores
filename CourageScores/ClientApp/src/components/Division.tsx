@@ -18,12 +18,12 @@ import {isGuid} from "../helpers/projection";
 import {EmbedAwareLink} from "./common/EmbedAwareLink";
 import {DivisionHealth} from "./division_health/DivisionHealth";
 import {DataError} from "./DataError";
-import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionTeamDto} from "../interfaces/serverSide/Division/IDivisionTeamDto";
-import {IDivisionPlayerDto} from "../interfaces/serverSide/Division/IDivisionPlayerDto";
-import {IDataErrorDto} from "../interfaces/serverSide/Division/IDataErrorDto";
+import {IDivisionDataDto} from "../interfaces/dtos/Division/IDivisionDataDto";
+import {IDivisionDto} from "../interfaces/dtos/IDivisionDto";
+import {ISeasonDto} from "../interfaces/dtos/Season/ISeasonDto";
+import {IDivisionTeamDto} from "../interfaces/dtos/Division/IDivisionTeamDto";
+import {IDivisionPlayerDto} from "../interfaces/dtos/Division/IDivisionPlayerDto";
+import {IDataErrorDto} from "../interfaces/dtos/Division/IDataErrorDto";
 import {IFailedRequest} from "../interfaces/IFailedRequest";
 
 export interface IRequestedDivisionDataDto extends IDivisionDataDto, IFailedRequest {

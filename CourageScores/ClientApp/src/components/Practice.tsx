@@ -5,7 +5,7 @@ import {SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContaine
 import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";
 import {Loading} from "./common/Loading";
 import {ILiveOptions} from "../interfaces/ILiveOptions";
-import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
 interface IPracticeScoreAsYouGoDto extends IUpdateRecordedScoreAsYouGoDto {
     loaded: boolean;

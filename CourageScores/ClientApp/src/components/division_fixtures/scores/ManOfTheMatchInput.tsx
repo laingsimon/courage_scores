@@ -2,9 +2,9 @@ import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerS
 import React from "react";
 import {distinct, sortBy} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
-import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
-import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
+import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
+import {IGameMatchDto} from "../../../interfaces/dtos/Game/IGameMatchDto";
+import {IGamePlayerDto} from "../../../interfaces/dtos/Game/IGamePlayerDto";
 
 export interface IManOfTheMatchInputProps {
     fixtureData: IGameDto;

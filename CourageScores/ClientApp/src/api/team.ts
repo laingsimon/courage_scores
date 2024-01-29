@@ -1,7 +1,7 @@
 import {IHttp} from "./http";
-import {ITeamDto} from "../interfaces/serverSide/Team/ITeamDto";
+import {ITeamDto} from "../interfaces/dtos/Team/ITeamDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IEditTeamDto} from "../interfaces/serverSide/Team/IEditTeamDto";
+import {IEditTeamDto} from "../interfaces/dtos/Team/IEditTeamDto";
 
 export interface ITeamApi {
     get(id: string): Promise<ITeamDto | null>;

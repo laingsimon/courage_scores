@@ -8,11 +8,11 @@ import {EditSeason} from "./EditSeason";
 import {any, isEmpty, sortBy} from "../helpers/collections";
 import {renderDate} from "../helpers/rendering";
 import {useApp} from "../AppContainer";
-import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
-import {IDivisionDataSeasonDto} from "../interfaces/serverSide/Division/IDivisionDataSeasonDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
-import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
+import {IDivisionDataDto} from "../interfaces/dtos/Division/IDivisionDataDto";
+import {IDivisionDataSeasonDto} from "../interfaces/dtos/Division/IDivisionDataSeasonDto";
+import {IDivisionDto} from "../interfaces/dtos/IDivisionDto";
+import {ISeasonDto} from "../interfaces/dtos/Season/ISeasonDto";
+import {IEditSeasonDto} from "../interfaces/dtos/Season/IEditSeasonDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface IDivisionControlsProps {

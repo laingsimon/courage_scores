@@ -8,10 +8,10 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
 import {useLocation} from "react-router-dom";
-import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {ITemplateDto} from "../../interfaces/dtos/Season/Creation/ITemplateDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
-import {IEditTemplateDto} from "../../interfaces/serverSide/Season/Creation/IEditTemplateDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/dtos/Health/ISeasonHealthCheckResultDto";
+import {IEditTemplateDto} from "../../interfaces/dtos/Season/Creation/IEditTemplateDto";
 
 export function Templates() {
     const EMPTY_TEMPLATE: IEditTemplateDto = {

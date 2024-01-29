@@ -18,19 +18,19 @@ import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoun
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {ISaygApi} from "../../../api/sayg";
 import {ITournamentApi} from "../../../api/tournament";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IGameMatchOptionDto} from "../../../interfaces/dtos/Game/IGameMatchOptionDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
-import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
-import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
-import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
+import {ITournamentGameDto} from "../../../interfaces/dtos/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/dtos/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/dtos/Game/IPatchTournamentRoundDto";
+import {ITournamentRoundDto} from "../../../interfaces/dtos/Game/ITournamentRoundDto";
+import {IUserDto} from "../../../interfaces/dtos/Identity/IUserDto";
+import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
+import {ITeamPlayerDto} from "../../../interfaces/dtos/Team/ITeamPlayerDto";
+import {ITournamentMatchDto} from "../../../interfaces/dtos/Game/ITournamentMatchDto";
 import {
     roundBuilder,
     sideBuilder,

@@ -1,11 +1,11 @@
 import {IHttp} from "./http";
-import {ITemplateDto} from "../interfaces/serverSide/Season/Creation/ITemplateDto";
-import {IProposalResultDto} from "../interfaces/serverSide/Season/Creation/IProposalResultDto";
-import {ISeasonHealthCheckResultDto} from "../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {ITemplateDto} from "../interfaces/dtos/Season/Creation/ITemplateDto";
+import {IProposalResultDto} from "../interfaces/dtos/Season/Creation/IProposalResultDto";
+import {ISeasonHealthCheckResultDto} from "../interfaces/dtos/Health/ISeasonHealthCheckResultDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IEditTemplateDto} from "../interfaces/serverSide/Season/Creation/IEditTemplateDto";
-import {IProposalRequestDto} from "../interfaces/serverSide/Season/Creation/IProposalRequestDto";
-import {IActionResultDto} from "../interfaces/serverSide/IActionResultDto";
+import {IEditTemplateDto} from "../interfaces/dtos/Season/Creation/IEditTemplateDto";
+import {IProposalRequestDto} from "../interfaces/dtos/Season/Creation/IProposalRequestDto";
+import {IActionResultDto} from "../interfaces/dtos/IActionResultDto";
 
 export interface ITemplateApi {
     get(id: string): Promise<ITemplateDto | null>;

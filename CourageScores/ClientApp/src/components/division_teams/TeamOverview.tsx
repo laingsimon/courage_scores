@@ -7,7 +7,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/dtos/Division/IDivisionFixtureDateDto";
 
 export interface ITeamOverviewProps {
     teamId: string;

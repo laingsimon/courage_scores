@@ -20,19 +20,19 @@ import {ITournamentApi} from "../../../api/tournament";
 import {IPlayerApi} from "../../../api/player";
 import {ISaygApi} from "../../../api/sayg";
 import {IDataApi} from "../../../api/data";
-import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {IEditTournamentGameDto} from "../../../interfaces/serverSide/Game/IEditTournamentGameDto";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {IDivisionDataDto} from "../../../interfaces/dtos/Division/IDivisionDataDto";
+import {ITournamentGameDto} from "../../../interfaces/dtos/Game/ITournamentGameDto";
+import {IEditTournamentGameDto} from "../../../interfaces/dtos/Game/IEditTournamentGameDto";
+import {IPatchTournamentDto} from "../../../interfaces/dtos/Game/IPatchTournamentDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IEditTeamPlayerDto} from "../../../interfaces/serverSide/Team/IEditTeamPlayerDto";
-import {IExportDataRequestDto} from "../../../interfaces/serverSide/Data/IExportDataRequestDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {IEditTeamPlayerDto} from "../../../interfaces/dtos/Team/IEditTeamPlayerDto";
+import {IExportDataRequestDto} from "../../../interfaces/dtos/Data/IExportDataRequestDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUserDto} from "../../../interfaces/dtos/Identity/IUserDto";
+import {ISeasonDto} from "../../../interfaces/dtos/Season/ISeasonDto";
+import {ITeamDto} from "../../../interfaces/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../../interfaces/dtos/IDivisionDto";
 import {divisionBuilder, divisionDataBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {
@@ -46,7 +46,7 @@ import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
+} from "../../../interfaces/dtos/Division/IDivisionTournamentFixtureDetailsDto";
 
 interface IScenario {
     account?: IUserDto;

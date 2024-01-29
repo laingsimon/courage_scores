@@ -1,6 +1,6 @@
 import {sum} from "../../../helpers/collections";
 import {ifNaN, round2dp} from "../../../helpers/rendering";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
 
 export interface IWidescreenSaygPlayerStatisticProps {
     legs: { [legKey: number]: ILegDto };

@@ -8,11 +8,11 @@ import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
 import {RefreshControl} from "../RefreshControl";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
-import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
-import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../../interfaces/dtos/Game/ITournamentPlayerDto";
+import {ITournamentRoundDto} from "../../../interfaces/dtos/Game/ITournamentRoundDto";
+import {ITournamentMatchDto} from "../../../interfaces/dtos/Game/ITournamentMatchDto";
+import {IGameMatchOptionDto} from "../../../interfaces/dtos/Game/IGameMatchOptionDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;

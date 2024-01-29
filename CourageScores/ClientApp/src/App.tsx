@@ -15,10 +15,10 @@ import {mapError, mapForLogging} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 import {LiveSayg} from "./components/division_fixtures/sayg/LiveSayg";
 import {IApp} from "./interfaces/IApp";
-import {IDivisionDto} from "./interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "./interfaces/serverSide/Season/ISeasonDto";
-import {ITeamDto} from "./interfaces/serverSide/Team/ITeamDto";
-import {IUserDto} from "./interfaces/serverSide/Identity/IUserDto";
+import {IDivisionDto} from "./interfaces/dtos/IDivisionDto";
+import {ISeasonDto} from "./interfaces/dtos/Season/ISeasonDto";
+import {ITeamDto} from "./interfaces/dtos/Team/ITeamDto";
+import {IUserDto} from "./interfaces/dtos/Identity/IUserDto";
 
 export interface IAppProps {
     embed: boolean;

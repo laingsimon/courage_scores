@@ -13,7 +13,7 @@ import {
 } from "../../helpers/tests";
 import {SocketAdmin} from "./SocketAdmin";
 import {createTemporaryId} from "../../helpers/projection";
-import {IWebSocketDto} from "../../interfaces/serverSide/Live/IWebSocketDto";
+import {IWebSocketDto} from "../../interfaces/dtos/Live/IWebSocketDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ILiveApi} from "../../api/live";
 

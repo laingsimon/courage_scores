@@ -1,6 +1,6 @@
 import {IHttp} from "./http";
-import {IRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface ISaygApi {

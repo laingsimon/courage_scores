@@ -13,15 +13,15 @@ import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
 import {DebugOptions} from "../../common/DebugOptions";
 import {Link} from "react-router-dom";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
-import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITournamentMatchDto} from "../../../interfaces/dtos/Game/ITournamentMatchDto";
+import {ITournamentRoundDto} from "../../../interfaces/dtos/Game/ITournamentRoundDto";
+import {IGameMatchOptionDto} from "../../../interfaces/dtos/Game/IGameMatchOptionDto";
+import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+import {ITournamentGameDto} from "../../../interfaces/dtos/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/dtos/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/dtos/Game/IPatchTournamentRoundDto";
 
 export interface ITournamentRoundMatchProps {
     readOnly?: boolean;

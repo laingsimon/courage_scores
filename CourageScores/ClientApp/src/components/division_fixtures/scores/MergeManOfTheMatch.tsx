@@ -1,7 +1,7 @@
 import React from "react";
 import {useApp} from "../../../AppContainer";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
+import {ITeamPlayerDto} from "../../../interfaces/dtos/Team/ITeamPlayerDto";
 
 export interface IMergeManOfTheMatchProps {
     data: IGameDto;

@@ -1,6 +1,6 @@
 import {useApp} from "../../AppContainer";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
-import {IHealthCheckResultDto} from "../../interfaces/serverSide/Health/IHealthCheckResultDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/dtos/Health/ISeasonHealthCheckResultDto";
+import {IHealthCheckResultDto} from "../../interfaces/dtos/Health/IHealthCheckResultDto";
 
 export interface IViewHealthCheckProps {
     result: ISeasonHealthCheckResultDto

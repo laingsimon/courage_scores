@@ -3,7 +3,7 @@ import React from "react";
 import {DataError} from "./DataError";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
 import {createTemporaryId} from "../helpers/projection";
-import {IDataErrorDto} from "../interfaces/serverSide/Division/IDataErrorDto";
+import {IDataErrorDto} from "../interfaces/dtos/Division/IDataErrorDto";
 
 describe('DataError', () => {
     let context: TestContext;

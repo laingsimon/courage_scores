@@ -1,6 +1,6 @@
-import {ITeamPlayerDto} from "./serverSide/Team/ITeamPlayerDto";
-import {IGameMatchDto} from "./serverSide/Game/IGameMatchDto";
-import {IGameMatchOptionDto} from "./serverSide/Game/IGameMatchOptionDto";
+import {ITeamPlayerDto} from "./dtos/Team/ITeamPlayerDto";
+import {IGameMatchDto} from "./dtos/Game/IGameMatchDto";
+import {IGameMatchOptionDto} from "./dtos/Game/IGameMatchOptionDto";
 import {ICreatePlayerFor} from "../components/division_fixtures/scores/Score";
 
 export interface IMatchType {

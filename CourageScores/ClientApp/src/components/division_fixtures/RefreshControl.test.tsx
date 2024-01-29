@@ -12,7 +12,7 @@ import React from "react";
 import {RefreshControl} from "./RefreshControl";
 import {LiveContainer, useLive} from "./LiveContainer";
 import {createTemporaryId} from "../../helpers/projection";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
 import {ILive} from "../../interfaces/ILive";
 import {act} from "@testing-library/react";
 

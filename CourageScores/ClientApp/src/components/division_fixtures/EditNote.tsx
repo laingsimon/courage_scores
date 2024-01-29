@@ -7,8 +7,8 @@ import {useApp} from "../../AppContainer";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
-import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/dtos/IEditFixtureDateNoteDto";
+import {IFixtureDateNoteDto} from "../../interfaces/dtos/IFixtureDateNoteDto";
 
 export interface IEditNoteProps {
     note: IEditFixtureDateNoteDto;

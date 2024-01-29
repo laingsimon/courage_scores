@@ -5,9 +5,9 @@ import {stateChanged} from "../../helpers/events";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useDependencies} from "../../IocContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
+import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
+import {IDivisionTeamDto} from "../../interfaces/dtos/Division/IDivisionTeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IAssignTeamToSeasonsProps {

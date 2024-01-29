@@ -6,9 +6,9 @@ import {useApp} from "../../AppContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
-import {IUpdateAccessDto} from "../../interfaces/serverSide/Identity/IUpdateAccessDto";
-import {IAccessDto} from "../../interfaces/serverSide/Identity/IAccessDto";
+import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
+import {IUpdateAccessDto} from "../../interfaces/dtos/Identity/IUpdateAccessDto";
+import {IAccessDto} from "../../interfaces/dtos/Identity/IAccessDto";
 
 export function UserAdmin() {
     const {account, onError, reloadAccount} = useApp();

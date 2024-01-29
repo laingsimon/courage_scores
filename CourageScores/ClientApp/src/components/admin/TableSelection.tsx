@@ -1,6 +1,6 @@
 import React from 'react';
 import {any, sortBy} from "../../helpers/collections";
-import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {ITableDto} from "../../interfaces/dtos/Data/ITableDto";
 
 export interface ITableSelectionProps {
     allTables?: ITableDto[];

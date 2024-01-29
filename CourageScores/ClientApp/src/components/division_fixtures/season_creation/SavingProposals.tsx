@@ -2,7 +2,7 @@ import {any} from "../../../helpers/collections";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import React from "react";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
 
 export interface ISavingProposalsProps {
     saveMessage: string;

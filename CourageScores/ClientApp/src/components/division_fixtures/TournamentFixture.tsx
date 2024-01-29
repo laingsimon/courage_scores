@@ -6,13 +6,13 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITournamentGameDto} from "../../interfaces/serverSide/Game/ITournamentGameDto";
+import {ITournamentGameDto} from "../../interfaces/dtos/Game/ITournamentGameDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITournamentSideDto} from "../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {ITournamentSideDto} from "../../interfaces/dtos/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../interfaces/dtos/Game/ITournamentPlayerDto";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
+} from "../../interfaces/dtos/Division/IDivisionTournamentFixtureDetailsDto";
 
 export interface ITournamentFixtureProps {
     tournament: IDivisionTournamentFixtureDetailsDto;

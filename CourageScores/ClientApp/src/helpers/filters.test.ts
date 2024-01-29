@@ -17,7 +17,7 @@ import {IFilter} from "../interfaces/IFilter";
 import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder} from "./builders/divisions";
 import {ITournamentSideBuilder, tournamentBuilder} from "./builders/tournaments";
 import {teamBuilder} from "./builders/teams";
-import {IDivisionFixtureDateDto} from "../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {IDivisionFixtureDateDto} from "../interfaces/dtos/Division/IDivisionFixtureDateDto";
 import {Filter, NullFilter} from "../Filter";
 import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
 import {fixtureBuilder} from "./builders/games";

@@ -13,8 +13,8 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {ExportData} from "./ExportData";
-import {IExportDataRequestDto} from "../../interfaces/serverSide/Data/IExportDataRequestDto";
-import {IExportDataResultDto} from "../../interfaces/serverSide/Data/IExportDataResultDto";
+import {IExportDataRequestDto} from "../../interfaces/dtos/Data/IExportDataRequestDto";
+import {IExportDataResultDto} from "../../interfaces/dtos/Data/IExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IDataApi} from "../../api/data";
 

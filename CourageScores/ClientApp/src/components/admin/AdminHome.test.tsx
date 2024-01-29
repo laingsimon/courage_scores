@@ -2,11 +2,11 @@
 import {AdminHome} from "./AdminHome";
 import {AdminContainer} from "./AdminContainer";
 import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
-import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
-import {IWebSocketDto} from "../../interfaces/serverSide/Live/IWebSocketDto";
-import {IAccessDto} from "../../interfaces/serverSide/Identity/IAccessDto";
+import {ITableDto} from "../../interfaces/dtos/Data/ITableDto";
+import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
+import {ITemplateDto} from "../../interfaces/dtos/Season/Creation/ITemplateDto";
+import {IWebSocketDto} from "../../interfaces/dtos/Live/IWebSocketDto";
+import {IAccessDto} from "../../interfaces/dtos/Identity/IAccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IDataApi} from "../../api/data";
 import {IAccountApi} from "../../api/account";

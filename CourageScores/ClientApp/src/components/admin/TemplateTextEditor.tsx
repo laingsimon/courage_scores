@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import {stateChanged} from "../../helpers/events";
-import {IDateTemplateDto} from "../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../interfaces/serverSide/Season/Creation/IFixtureTemplateDto";
-import {IEditTemplateDto} from "../../interfaces/serverSide/Season/Creation/IEditTemplateDto";
+import {IDateTemplateDto} from "../../interfaces/dtos/Season/Creation/IDateTemplateDto";
+import {IFixtureTemplateDto} from "../../interfaces/dtos/Season/Creation/IFixtureTemplateDto";
+import {IEditTemplateDto} from "../../interfaces/dtos/Season/Creation/IEditTemplateDto";
 
 export interface ITemplateTextEditorProps {
     template: IEditTemplateDto;

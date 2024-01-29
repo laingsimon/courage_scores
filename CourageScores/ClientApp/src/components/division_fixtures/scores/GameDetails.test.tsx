@@ -11,7 +11,7 @@ import {
 } from "../../../helpers/tests";
 import {GameDetails, IGameDetailsProps} from "./GameDetails";
 import {fixtureBuilder} from "../../../helpers/builders/games";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
 
 describe('GameDetails', () => {
     let context: TestContext;

@@ -14,11 +14,11 @@ import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionFixtureDate, IDivisionFixtureDateProps} from "./DivisionFixtureDate";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
+import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
+import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/dtos/Division/IDivisionFixtureDateDto";
 import {
     divisionBuilder,
     divisionDataBuilder,

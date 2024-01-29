@@ -8,12 +8,12 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IDivisionFixtureDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDto";
+import {IDivisionFixtureDto} from "../../interfaces/dtos/Division/IDivisionFixtureDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IGameDto} from "../../interfaces/serverSide/Game/IGameDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
-import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IGameDto} from "../../interfaces/dtos/Game/IGameDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/dtos/Division/IDivisionFixtureDateDto";
+import {IDivisionTeamDto} from "../../interfaces/dtos/Division/IDivisionTeamDto";
+import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 
 export interface IDivisionFixtureProps {

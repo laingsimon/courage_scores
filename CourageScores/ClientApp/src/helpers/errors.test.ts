@@ -2,7 +2,7 @@
 
 import {mapError, mapForLogging} from "./errors";
 import {noop} from "./tests";
-import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
+import {IUserDto} from "../interfaces/dtos/Identity/IUserDto";
 
 describe('errors', () => {
     describe('mapError', () => {

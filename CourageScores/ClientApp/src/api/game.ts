@@ -1,7 +1,7 @@
 import {IHttp} from "./http";
-import {IGameDto} from "../interfaces/serverSide/Game/IGameDto";
-import {IRecordScoresDto} from "../interfaces/serverSide/Game/IRecordScoresDto";
-import {IEditGameDto} from "../interfaces/serverSide/Game/IEditGameDto";
+import {IGameDto} from "../interfaces/dtos/Game/IGameDto";
+import {IRecordScoresDto} from "../interfaces/dtos/Game/IRecordScoresDto";
+import {IEditGameDto} from "../interfaces/dtos/Game/IEditGameDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface IGameApi {

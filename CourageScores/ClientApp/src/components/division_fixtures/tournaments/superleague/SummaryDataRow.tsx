@@ -7,7 +7,7 @@ import {
     matchTons,
     playerOverallAverage
 } from "../../../../helpers/superleague";
-import {IScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
+import {IScoreAsYouGoDto} from "../../../../interfaces/dtos/Game/Sayg/IScoreAsYouGoDto";
 
 export interface ISummaryDataRowProps {
     matchNo: number;

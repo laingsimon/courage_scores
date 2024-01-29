@@ -1,7 +1,7 @@
 import React from "react";
 import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {DebugOptions} from "./DebugOptions";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
 
 describe('DebugOptions', () => {
     let context: TestContext;

@@ -1,6 +1,6 @@
 import {valueChanged} from "../../helpers/events";
 import React from "react";
-import {IGameMatchOptionDto} from "../../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {IGameMatchOptionDto} from "../../interfaces/dtos/Game/IGameMatchOptionDto";
 
 export interface IEditMatchOptionsProps {
     matchOptions: IGameMatchOptionDto;

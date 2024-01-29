@@ -2,7 +2,7 @@ import React from "react";
 import {ShareButton} from "../../common/ShareButton";
 import {valueChanged} from "../../../helpers/events";
 import {useBranding} from "../../../BrandingContainer";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
 
 export interface IGameDetailsProps {
     saving: boolean;

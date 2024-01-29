@@ -3,13 +3,13 @@ import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerS
 import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
-import {INotablePlayerDto} from "../../../interfaces/serverSide/Game/INotablePlayerDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../../interfaces/serverSide/Team/ITeamSeasonDto";
-import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {ITeamPlayerDto} from "../../../interfaces/dtos/Team/ITeamPlayerDto";
+import {INotablePlayerDto} from "../../../interfaces/dtos/Game/INotablePlayerDto";
+import {ITeamDto} from "../../../interfaces/dtos/Team/ITeamDto";
+import {ITeamSeasonDto} from "../../../interfaces/dtos/Team/ITeamSeasonDto";
+import {IGamePlayerDto} from "../../../interfaces/dtos/Game/IGamePlayerDto";
+import {ISeasonDto} from "../../../interfaces/dtos/Season/ISeasonDto";
+import {IDivisionDto} from "../../../interfaces/dtos/IDivisionDto";
 
 export interface IMultiPlayerSelectionProps {
     onAddPlayer?: (player: ISelectablePlayer, notes: string) => Promise<any>;

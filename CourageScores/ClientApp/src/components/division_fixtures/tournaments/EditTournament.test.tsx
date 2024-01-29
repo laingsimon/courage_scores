@@ -13,11 +13,11 @@ import React from "react";
 import {toMap} from "../../../helpers/collections";
 import {EditTournament, IEditTournamentProps} from "./EditTournament";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+import {ITournamentGameDto} from "../../../interfaces/dtos/Game/ITournamentGameDto";
+import {IUserDto} from "../../../interfaces/dtos/Identity/IUserDto";
+import {ITeamDto} from "../../../interfaces/dtos/Team/ITeamDto";
+import {IPatchTournamentDto} from "../../../interfaces/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/dtos/Game/IPatchTournamentRoundDto";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {
     ITournamentMatchBuilder,

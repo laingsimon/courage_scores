@@ -13,7 +13,7 @@ import {
 import {DataBrowser} from "./DataBrowser";
 import {createTemporaryId, repeat} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
-import {ISingleDataResultDto} from "../../interfaces/serverSide/Data/ISingleDataResultDto";
+import {ISingleDataResultDto} from "../../interfaces/dtos/Data/ISingleDataResultDto";
 import {IAppContainerProps} from "../../AppContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IError} from "../../interfaces/IError";

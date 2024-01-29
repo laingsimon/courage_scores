@@ -3,9 +3,9 @@ import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {valueChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {EditThrow} from "./EditThrow";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
-import {ILegThrowDto} from "../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
-import {ILegCompetitorScoreDto} from "../../../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
+import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
+import {ILegThrowDto} from "../../../interfaces/dtos/Game/Sayg/ILegThrowDto";
+import {ILegCompetitorScoreDto} from "../../../interfaces/dtos/Game/Sayg/ILegCompetitorScoreDto";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
 
 export interface ILegStatisticsProps {

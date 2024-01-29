@@ -4,7 +4,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
-import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
+import {IDivisionPlayerDto} from "../../interfaces/dtos/Division/IDivisionPlayerDto";
 
 export interface IDivisionPlayersProps {
     hideVenue?: boolean;

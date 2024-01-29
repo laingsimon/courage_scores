@@ -10,11 +10,11 @@ import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {useMatchType} from "./MatchTypeContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
-import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
-import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
-import {IGameTeamDto} from "../../../interfaces/serverSide/Game/IGameTeamDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IGamePlayerDto} from "../../../interfaces/dtos/Game/IGamePlayerDto";
+import {IGameMatchDto} from "../../../interfaces/dtos/Game/IGameMatchDto";
+import {IGameTeamDto} from "../../../interfaces/dtos/Game/IGameTeamDto";
+import {IGameMatchOptionDto} from "../../../interfaces/dtos/Game/IGameMatchOptionDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 

@@ -3,8 +3,8 @@ import {reverse} from "../../../helpers/collections";
 import {useSayg} from "./SaygLoadingContainer";
 import {useLive} from "../LiveContainer";
 import {RefreshControl} from "../RefreshControl";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
-import {ILegThrowDto} from "../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
+import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
+import {ILegThrowDto} from "../../../interfaces/dtos/Game/Sayg/ILegThrowDto";
 
 export interface IWidescreenSaygPlayerProps {
     legs: { [legKey: number]: ILegDto };

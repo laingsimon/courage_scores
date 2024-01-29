@@ -12,11 +12,11 @@ import {
 import React from "react";
 import {EditNote} from "./EditNote";
 import {INoteApi} from "../../api/note";
-import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/dtos/IEditFixtureDateNoteDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IFixtureDateNoteDto} from "../../interfaces/dtos/IFixtureDateNoteDto";
+import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
+import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder, noteBuilder} from "../../helpers/builders/divisions";
 

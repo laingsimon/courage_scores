@@ -4,7 +4,7 @@ import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IErrorDetailDto} from "../../interfaces/serverSide/IErrorDetailDto";
+import {IErrorDetailDto} from "../../interfaces/dtos/IErrorDetailDto";
 
 export function Errors() {
     const [since, setSince] = useState<string>(new Date().toISOString().substring(0, 10));

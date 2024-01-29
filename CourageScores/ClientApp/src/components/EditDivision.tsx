@@ -4,9 +4,9 @@ import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
-import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
+import {IDivisionDataDto} from "../interfaces/dtos/Division/IDivisionDataDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {IDivisionDto} from "../interfaces/dtos/IDivisionDto";
 
 export interface IEditDivisionProps {
     onClose: () => Promise<any>;

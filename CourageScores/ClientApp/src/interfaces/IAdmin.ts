@@ -1,5 +1,5 @@
-import {ITableDto} from "./serverSide/Data/ITableDto";
-import {IUserDto} from "./serverSide/Identity/IUserDto";
+import {ITableDto} from "./dtos/Data/ITableDto";
+import {IUserDto} from "./dtos/Identity/IUserDto";
 
 export interface IAdmin {
     tables: ITableDto[] | null;

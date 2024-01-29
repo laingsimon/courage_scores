@@ -1,4 +1,4 @@
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
 
 export interface IWidescreenSaygMatchDetailsProps {
     legs: { [legKey: number]: ILegDto };

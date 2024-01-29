@@ -15,9 +15,9 @@ import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IReportDto} from "../../interfaces/serverSide/Report/IReportDto";
-import {IReportCollectionDto} from "../../interfaces/serverSide/Report/IReportCollectionDto";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IReportDto} from "../../interfaces/dtos/Report/IReportDto";
+import {IReportCollectionDto} from "../../interfaces/dtos/Report/IReportCollectionDto";
+import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
 import {IReportApi} from "../../api/report";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 

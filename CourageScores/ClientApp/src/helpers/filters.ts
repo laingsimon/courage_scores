@@ -4,12 +4,12 @@ import {isInFuture, isInPast, isToday} from "./dates";
 import {IFilter} from "../interfaces/IFilter";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
-import {IDivisionFixtureDto} from "../interfaces/serverSide/Division/IDivisionFixtureDto";
-import {IDivisionFixtureDateDto} from "../interfaces/serverSide/Division/IDivisionFixtureDateDto";
-import {IFixtureDateNoteDto} from "../interfaces/serverSide/IFixtureDateNoteDto";
+} from "../interfaces/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+import {IDivisionFixtureDto} from "../interfaces/dtos/Division/IDivisionFixtureDto";
+import {IDivisionFixtureDateDto} from "../interfaces/dtos/Division/IDivisionFixtureDateDto";
+import {IFixtureDateNoteDto} from "../interfaces/dtos/IFixtureDateNoteDto";
 import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
-import {ITournamentSideDto} from "../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITournamentSideDto} from "../interfaces/dtos/Game/ITournamentSideDto";
 
 export interface IRenderContext {
     lastFixtureDateBeforeToday?: string;

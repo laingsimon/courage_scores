@@ -7,7 +7,7 @@ import {useSayg} from "./SaygLoadingContainer";
 import {RefreshControl} from "../RefreshControl";
 import {useLive} from "../LiveContainer";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
 
 export interface IMatchStatisticsProps {
     legs: { [key: number]: ILegDto };

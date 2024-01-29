@@ -15,9 +15,9 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {ImportData} from "./ImportData";
-import {IImportDataRequestDto} from "../../interfaces/serverSide/Data/IImportDataRequestDto";
+import {IImportDataRequestDto} from "../../interfaces/dtos/Data/IImportDataRequestDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IImportDataResultDto} from "../../interfaces/serverSide/Data/IImportDataResultDto";
+import {IImportDataResultDto} from "../../interfaces/dtos/Data/IImportDataResultDto";
 import {IDataApi} from "../../api/data";
 
 describe('ImportData', () => {

@@ -11,7 +11,7 @@ import {
 } from "../../../helpers/tests";
 import {IMultiPlayerSelectionProps, MultiPlayerSelection} from "./MultiPlayerSelection";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
+import {ITeamDto} from "../../../interfaces/dtos/Team/ITeamDto";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {playerBuilder} from "../../../helpers/builders/players";

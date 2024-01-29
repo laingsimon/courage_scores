@@ -6,7 +6,7 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
-import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
+import {IEditTeamDto} from "../../interfaces/dtos/Team/IEditTeamDto";
 
 export function DivisionTeams() {
     const {id: divisionId, season, teams, onReloadDivision} = useDivisionData();

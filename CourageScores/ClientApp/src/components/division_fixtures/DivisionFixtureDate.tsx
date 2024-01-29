@@ -8,15 +8,15 @@ import {useApp} from "../../AppContainer";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
-import {IDivisionFixtureDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDto";
+import {IDivisionFixtureDto} from "../../interfaces/dtos/Division/IDivisionFixtureDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
-import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
-import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
-import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
+} from "../../interfaces/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+import {IDivisionTeamDto} from "../../interfaces/dtos/Division/IDivisionTeamDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/dtos/Division/IDivisionFixtureDateDto";
+import {IFixtureDateNoteDto} from "../../interfaces/dtos/IFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/dtos/IEditFixtureDateNoteDto";
 
 export interface IDivisionFixtureDateProps {
     date: IEditableDivisionFixtureDateDto;

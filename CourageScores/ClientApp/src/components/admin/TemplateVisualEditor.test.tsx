@@ -11,7 +11,7 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {ITemplateVisualEditorProps, TemplateVisualEditor} from "./TemplateVisualEditor";
-import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {ITemplateDto} from "../../interfaces/dtos/Season/Creation/ITemplateDto";
 import {createTemporaryId} from "../../helpers/projection";
 
 describe('TemplateVisualEditor', () => {

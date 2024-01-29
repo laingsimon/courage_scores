@@ -6,11 +6,11 @@ import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
-import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
-import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
-import {IDivisionFixtureDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDto";
-import {IDivisionTournamentFixtureDetailsDto} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
+import {IDivisionPlayerDto} from "../../interfaces/dtos/Division/IDivisionPlayerDto";
+import {IDivisionTeamDto} from "../../interfaces/dtos/Division/IDivisionTeamDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/dtos/Division/IDivisionFixtureDateDto";
+import {IDivisionFixtureDto} from "../../interfaces/dtos/Division/IDivisionFixtureDto";
+import {IDivisionTournamentFixtureDetailsDto} from "../../interfaces/dtos/Division/IDivisionTournamentFixtureDetailsDto";
 
 export interface IPlayerOverviewProps {
     playerId: string;

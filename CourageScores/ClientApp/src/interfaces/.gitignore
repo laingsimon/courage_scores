@@ -1,2 +1,2 @@
-serverSide/*.ts*
-serverSide/**/*.ts*
+dtos/*.ts*
+dtos/**/*.ts*

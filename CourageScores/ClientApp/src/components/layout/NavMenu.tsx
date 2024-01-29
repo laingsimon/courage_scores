@@ -8,9 +8,9 @@ import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {IMenuItem} from "../../interfaces/IMenuItem";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
-import {IAccessDto} from "../../interfaces/serverSide/Identity/IAccessDto";
+import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
+import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
+import {IAccessDto} from "../../interfaces/dtos/Identity/IAccessDto";
 import {IError} from "../../interfaces/IError";
 
 export function NavMenu() {

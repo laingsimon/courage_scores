@@ -6,8 +6,8 @@ import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
-import {IDivisionDataSeasonDto} from "../interfaces/serverSide/Division/IDivisionDataSeasonDto";
-import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
+import {IDivisionDataSeasonDto} from "../interfaces/dtos/Division/IDivisionDataSeasonDto";
+import {IEditSeasonDto} from "../interfaces/dtos/Season/IEditSeasonDto";
 
 export interface IEditSeasonProps {
     onClose: () => Promise<any>;

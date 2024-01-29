@@ -13,10 +13,10 @@ import {
 import React from "react";
 import {EditDivision, IEditDivisionProps} from "./EditDivision";
 import {divisionBuilder} from "../helpers/builders/divisions";
-import {IEditDivisionDto} from "../interfaces/serverSide/IEditDivisionDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {IEditDivisionDto} from "../interfaces/dtos/IEditDivisionDto";
+import {IDivisionDto} from "../interfaces/dtos/IDivisionDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
+import {IDivisionDataDto} from "../interfaces/dtos/Division/IDivisionDataDto";
 import {IDivisionApi} from "../api/division";
 
 const mockedUsedNavigate = jest.fn();
