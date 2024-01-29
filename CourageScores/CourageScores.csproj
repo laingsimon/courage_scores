@@ -45,6 +45,11 @@
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install"/>
     </Target>
 
+    <Target Name="Write typescript interfaces" AfterTargets="Build">
+        <RemoveDir Directories="$(SpaRoot)src/interfaces/serverSide" />
+        <Exec WorkingDirectory="$(OutDir)" Command="TypeScriptMapper.exe $(SpaRoot)src/interfaces/serverSide"/>
+    </Target>
+
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund"/>

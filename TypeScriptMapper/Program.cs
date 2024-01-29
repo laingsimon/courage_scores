@@ -3,9 +3,9 @@
 using System.Reflection;
 using TypeScriptMapper;
 
-var rootNamespace = args.ElementAtOrDefault(1) ?? "CourageScores.Models.Dtos";
-var outputDirectory = args.ElementAtOrDefault(2) ?? "..\\..\\..\\..\\CourageScores\\ClientApp\\src\\interfaces\\serverSide";
-string? onlyType = args.ElementAtOrDefault(3);
+var outputDirectory = args.ElementAtOrDefault(1) ?? "..\\..\\..\\..\\CourageScores\\ClientApp\\src\\interfaces\\serverSide";
+var onlyType = args.ElementAtOrDefault(2);
+var rootNamespace = args.ElementAtOrDefault(3) ?? "CourageScores.Models.Dtos";
 
 Console.WriteLine($"Working in {Environment.CurrentDirectory}");
 Console.WriteLine($"Output to {Path.GetFullPath(outputDirectory)} ({outputDirectory})");
