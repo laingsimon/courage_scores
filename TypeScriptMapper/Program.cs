@@ -3,7 +3,7 @@
 using System.Reflection;
 using TypeScriptMapper;
 
-var outputDirectory = args.ElementAtOrDefault(1) ?? "..\\..\\..\\..\\CourageScores\\ClientApp\\src\\interfaces\\serverSide";
+var outputDirectory = args.ElementAtOrDefault(1) ?? "../../../../CourageScores/ClientApp/src/interfaces/serverSide";
 var onlyType = args.ElementAtOrDefault(2);
 var rootNamespace = args.ElementAtOrDefault(3) ?? "CourageScores.Models.Dtos";
 
