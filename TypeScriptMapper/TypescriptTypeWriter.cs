@@ -27,7 +27,7 @@ public class TypescriptTypeWriter
         {
             Directory.CreateDirectory(directoryPath);
         }
-        var filePath = Path.GetFullPath(Path.Combine(directoryPath, _typeMapper.GetTypeScriptType(type.DotNetType) + ".ts"));
+        var filePath = Path.GetFullPath(Path.Combine(directoryPath, _typeMapper.GetTypeScriptType(type.DotNetType) + ".d.ts"));
         await Console.Out.WriteLineAsync($"Writing {type.DotNetType.Name} to {filePath}...");
 
         using (var writer = new StreamWriter(File.Create(filePath)))

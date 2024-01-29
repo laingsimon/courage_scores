@@ -1,2 +1,2 @@
-dtos/*.ts*
-dtos/**/*.ts*
+dtos/*.d.ts
+dtos/**/*.d.ts
