@@ -22,7 +22,7 @@ public class TypescriptTypeWriter
             Directory.CreateDirectory(_outputDirectory);
         }
         var subNamespace = type.DotNetType.Namespace!.Substring(_rootNamespace.Length).TrimStart('.');
-        var directoryPath = Path.Combine(_outputDirectory, subNamespace.Replace(".", "\\"));
+        var directoryPath = Path.Combine(_outputDirectory, subNamespace.Replace(".", "/"));
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
