@@ -35,6 +35,7 @@ import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTo
 import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
 import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
+import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -236,7 +237,7 @@ export function Tournament() {
         let teamIds = [];
         let round = tournamentData.round;
         while (round) {
-            saygDataIds = saygDataIds.concat(round.matches.map(m => m.saygId).filter(id => id));
+            saygDataIds = saygDataIds.concat(round.matches.map((m: ITournamentMatchDto) => m.saygId).filter((id: string) => id));
             round = round.nextRound;
         }
 
@@ -280,7 +281,7 @@ export function Tournament() {
                 team: t,
             }
         });
-        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, p => p.id === player.id));
+        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, (p: ITeamPlayerDto) => p.id === player.id));
 
         if (any(teamsWithPlayer)) {
             return teamsWithPlayer[0].team.id

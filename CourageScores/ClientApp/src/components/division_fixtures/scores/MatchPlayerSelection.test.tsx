@@ -1044,7 +1044,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const containerProps = {
+            const containerProps: ILeagueFixtureContainerProps = {
                 disabled: true,
                 readOnly: false,
                 season: season,
@@ -1076,7 +1076,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const containerProps = {
+            const containerProps: ILeagueFixtureContainerProps = {
                 disabled: true,
                 readOnly: false,
                 season: season,

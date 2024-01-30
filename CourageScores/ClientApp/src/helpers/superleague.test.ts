@@ -347,7 +347,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of props', () => {
-            const legs: { [key: string]: ILegDto } = {
+            const legs: { [key: number]: ILegDto } = {
                 0: {
                     home: {
                         throws: [{
@@ -378,7 +378,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of non-bust props', () => {
-            const legs: { [key: string]: ILegDto } = {
+            const legs: { [key: number]: ILegDto } = {
                 0: {
                     home: {
                         throws: [{
@@ -409,7 +409,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of bust and non-bust props', () => {
-            const legs: { [key: string]: ILegDto } = {
+            const legs: { [key: number]: ILegDto } = {
                 0: {
                     home: {
                         throws: [{

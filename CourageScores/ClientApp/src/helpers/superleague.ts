@@ -91,8 +91,8 @@ export function getMatchWinner(saygData: IScoreAsYouGoDto) {
     for (let legIndex in saygData.legs) {
         const leg: ILegDto = saygData.legs[legIndex];
         const startingScore = leg.startingScore;
-        const homeWinner = sum(leg.home!.throws!, thr => thr.bust ? 0 : thr.score) === startingScore;
-        const awayWinner = leg.away ? sum(leg.away.throws!, thr => thr.bust ? 0 : thr.score) === startingScore : false;
+        const homeWinner = sum(leg.home!.throws!, (thr: ILegThrowDto) => thr.bust ? 0 : thr.score) === startingScore;
+        const awayWinner = leg.away ? sum(leg.away.throws!, (thr: ILegThrowDto) => thr.bust ? 0 : thr.score) === startingScore : false;
 
         if (homeWinner) {
             homeScore++;
