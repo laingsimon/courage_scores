@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Data;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper;
 
 namespace CourageScores.Controllers;
 
@@ -40,12 +41,14 @@ public class DataController : Controller
         return await _dataService.ImportData(request, token);
     }
 
+    [ExcludeFromTypeScript]
     [HttpPost("/api/Data/Backup")]
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(BackupDataRequestDto request, CancellationToken token)
     {
         return await _dataService.BackupData(request, token);
     }
 
+    [ExcludeFromTypeScript]
     [HttpPost("/api/Data/Restore")]
     [RequestFormLimits(KeyLengthLimit = 1024*1027*20)] // 20MB
     [RequestSizeLimit(bytes: 1024*1024*20)] // 20MB

@@ -21,39 +21,39 @@ public class TeamController : Controller
     }
 
     [HttpGet("/api/Team/{id}")]
-    public async Task<TeamDto?> GetTeam(Guid id, CancellationToken token)
+    public async Task<TeamDto?> Get(Guid id, CancellationToken token)
     {
         return await _teamService.Get(id, token);
     }
 
     [HttpGet("/api/Team/")]
-    public IAsyncEnumerable<TeamDto> GetTeams(CancellationToken token)
+    public IAsyncEnumerable<TeamDto> GetAll(CancellationToken token)
     {
         return _teamService.GetAll(token);
     }
 
     [HttpGet("/api/Team/{divisionId}/{seasonId}")]
-    public IAsyncEnumerable<TeamDto> GetTeams(Guid divisionId, Guid seasonId, CancellationToken token)
+    public IAsyncEnumerable<TeamDto> GetForDivisionAndSeason(Guid divisionId, Guid seasonId, CancellationToken token)
     {
         return _teamService.GetTeamsForSeason(divisionId, seasonId, token);
     }
 
     [HttpPut("/api/Team/")]
-    public async Task<ActionResultDto<TeamDto>> UpsertTeam(EditTeamDto team, CancellationToken token)
+    public async Task<ActionResultDto<TeamDto>> Update(EditTeamDto team, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateTeamCommand>().WithData(team);
         return await _teamService.Upsert(team.Id, command, token);
     }
 
     [HttpDelete("/api/Team/{id}/{seasonId}")]
-    public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, Guid seasonId, CancellationToken token)
+    public async Task<ActionResultDto<TeamDto>> Delete(Guid id, Guid seasonId, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<DeleteTeamCommand>().FromSeason(seasonId);
         return await _teamService.Upsert(id, command, token);
     }
 
     [HttpPut("/api/Team/{id}/{seasonId}")]
-    public async Task<ActionResultDto<TeamDto>> AddTeamToSeason(ModifyTeamSeasonDto request, CancellationToken token)
+    public async Task<ActionResultDto<TeamDto>> Add(ModifyTeamSeasonDto request, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(request.SeasonId).ForDivision(request.DivisionId);
         if (request.CopyPlayersFromSeasonId != null)

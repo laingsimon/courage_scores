@@ -29,7 +29,7 @@ public class ErrorController : Controller
     }
 
     [HttpPut("/api/Error")]
-    public async Task<ActionResultDto<ErrorDetailDto>> Save(ErrorDetailDto errorDetail, CancellationToken token)
+    public async Task<ActionResultDto<ErrorDetailDto>> Add(ErrorDetailDto errorDetail, CancellationToken token)
     {
         return await _errorDetailService.AddError(errorDetail, token);
     }

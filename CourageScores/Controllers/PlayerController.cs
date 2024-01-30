@@ -22,7 +22,7 @@ public class PlayerController : Controller
     }
 
     [HttpPost("/api/Player/{divisionId}/{seasonId}/{teamId}")]
-    public async Task<ActionResultDto<TeamDto>> AddPlayer(Guid divisionId, Guid seasonId, Guid teamId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
+    public async Task<ActionResultDto<TeamDto>> Create(Guid divisionId, Guid seasonId, Guid teamId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddPlayerToTeamSeasonCommand>()
             .ToSeason(seasonId)
@@ -31,7 +31,7 @@ public class PlayerController : Controller
     }
 
     [HttpDelete("/api/Player/{seasonId}/{teamId}/{playerId}")]
-    public async Task<ActionResultDto<TeamDto>> RemovePlayer(Guid seasonId, Guid teamId, Guid playerId, CancellationToken token)
+    public async Task<ActionResultDto<TeamDto>> Delete(Guid seasonId, Guid teamId, Guid playerId, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<RemovePlayerCommand>()
             .FromSeason(seasonId)
@@ -40,7 +40,7 @@ public class PlayerController : Controller
     }
 
     [HttpPatch("/api/Player/{seasonId}/{teamId}/{playerId}")]
-    public async Task<ActionResultDto<TeamDto>> UpdatePlayer(Guid seasonId, Guid teamId, Guid playerId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
+    public async Task<ActionResultDto<TeamDto>> Update(Guid seasonId, Guid teamId, Guid playerId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<UpdatePlayerCommand>()
             .InSeason(seasonId)
