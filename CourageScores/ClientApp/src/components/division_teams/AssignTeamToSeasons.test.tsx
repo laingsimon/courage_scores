@@ -18,23 +18,24 @@ import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
 import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITeamApi} from "../../api/team";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {createTemporaryId} from "../../helpers/projection";
+import {ITeamApi} from "../../interfaces/apis/TeamApi";
+import {IModifyTeamSeasonDto} from "../../interfaces/models/dtos/Team/IModifyTeamSeasonDto";
 
 describe('AssignTeamToSeasons', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let apiAdded: {teamId: string, seasonId: string, copyFromSeasonId?: string}[];
+    let apiAdded: IModifyTeamSeasonDto[];
     let apiDeleted: {teamId: string, seasonId: string}[];
     let apiResponse: IClientActionResultDto<ITeamDto>;
     let closed: boolean;
 
     const teamApi = api<ITeamApi>({
-        add: async (teamId: string, seasonId: string, copyFromSeasonId?: string) => {
-            apiAdded.push({teamId, seasonId, copyFromSeasonId});
+        add: async (request: IModifyTeamSeasonDto) => {
+            apiAdded.push(request);
             return apiResponse || {success: true};
         },
         delete: async (teamId: string, seasonId: string) => {
@@ -122,14 +123,14 @@ describe('AssignTeamToSeasons', () => {
             expect(reportedError.hasError()).toEqual(false);
             expect(apiDeleted).toEqual([]);
             expect(apiAdded.length).toEqual(1);
-            expect(apiAdded[0].copyFromSeasonId).toEqual(season.id);
+            expect(apiAdded[0].copyPlayersFromSeasonId).toEqual(season.id);
 
             await doClick(context.container, 'input[id="copyTeamFromCurrentSeason"]');
             await doClick(findButton(context.container, 'Apply changes'));
             expect(reportedError.hasError()).toEqual(false);
             expect(apiDeleted).toEqual([]);
             expect(apiAdded.length).toEqual(2);
-            expect(apiAdded[1].copyFromSeasonId).toEqual(null);
+            expect(apiAdded[1].copyPlayersFromSeasonId).toEqual(null);
         });
 
         it('can unassign a selected season', async () => {
@@ -162,7 +163,11 @@ describe('AssignTeamToSeasons', () => {
             expect(items.map(i => i.className)).toEqual(['list-group-item bg-success', 'list-group-item active']);
             await doClick(findButton(context.container, 'Apply changes'));
             expect(reportedError.hasError()).toEqual(false);
-            expect(apiAdded).toEqual([{teamId: team.id, seasonId: otherSeason.id, copyFromSeasonId: season.id}]);
+            expect(apiAdded).toEqual([{
+                id: team.id,
+                seasonId: otherSeason.id,
+                copyPlayersFromSeasonId: season.id
+            }]);
             expect(apiDeleted).toEqual([]);
         });
 

@@ -18,21 +18,21 @@ import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
 import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITeamApi} from "../../api/team";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {divisionBuilder} from "../../helpers/builders/divisions";
+import {ITeamApi} from "../../interfaces/apis/TeamApi";
 
 describe('EditTeamDetails', () => {
     let context: TestContext;
-    let updatedTeam: {team: IEditTeamDto, lastUpdated?: string};
+    let updatedTeam: IEditTeamDto;
     let apiResponse: IClientActionResultDto<ITeamDto>;
     let saved: boolean;
     let change: {name: string, value: string};
     let canceled: boolean;
 
     const teamApi = api<ITeamApi>({
-        update: async (team: IEditTeamDto, lastUpdated?: string) => {
-            updatedTeam = {team, lastUpdated};
+        update: async (team: IEditTeamDto) => {
+            updatedTeam = team;
             return apiResponse || {success: true, result: team};
         }
     });
@@ -283,13 +283,14 @@ describe('EditTeamDetails', () => {
 
             expect(saved).toEqual(true);
             expect(updatedTeam.lastUpdated).toEqual(updated);
-            expect(updatedTeam.team).toEqual({
+            expect(updatedTeam).toEqual({
                 id: team.id,
                 name: team.name,
                 address: team.address,
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
                 newDivisionId: otherDivision.id,
+                lastUpdated: updated,
             });
         });
 
@@ -318,7 +319,7 @@ describe('EditTeamDetails', () => {
 
             expect(saved).toEqual(true);
             expect(updatedTeam.lastUpdated).toBeFalsy();
-            expect(updatedTeam.team).toEqual({
+            expect(updatedTeam).toEqual({
                 id: undefined,
                 name: team.name,
                 address: team.address,

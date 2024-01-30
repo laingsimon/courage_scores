@@ -9,6 +9,7 @@ import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
 import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IModifyTeamSeasonDto} from "../../interfaces/models/dtos/Team/IModifyTeamSeasonDto";
 
 export interface IAssignTeamToSeasonsProps {
     teamOverview: IDivisionTeamDto;
@@ -37,14 +38,19 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
         try {
             const results: IClientActionResultDto<ITeamDto>[] = [];
             for (let index = 0; index < changes.removed.length; index++) {
-                const seasonId = changes.removed[index];
-                const result = await teamApi.delete(team.id, seasonId);
+                const seasonId: string = changes.removed[index];
+                const result: IClientActionResultDto<ITeamDto> = await teamApi.delete(team.id, seasonId);
                 results.push(result);
             }
 
             for (let index = 0; index < changes.added.length; index++) {
-                const seasonId = changes.added[index];
-                const result = await teamApi.add(team.id, seasonId, copyTeamFromCurrentSeason ? currentSeason.id : null);
+                const seasonId: string = changes.added[index];
+                const details: IModifyTeamSeasonDto = {
+                    id: team.id,
+                    seasonId: seasonId,
+                    copyPlayersFromSeasonId: copyTeamFromCurrentSeason ? currentSeason.id : null,
+                };
+                const result: IClientActionResultDto<ITeamDto> = await teamApi.add(details);
                 results.push(result);
             }
 

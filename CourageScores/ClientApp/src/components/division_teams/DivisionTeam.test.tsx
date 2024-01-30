@@ -20,19 +20,19 @@ import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
 import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITeamApi} from "../../api/team";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
+import {ITeamApi} from "../../interfaces/apis/TeamApi";
 
 describe('DivisionTeam', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedTeam: {team: IEditTeamDto, lastUpdated?: string};
+    let updatedTeam: IEditTeamDto;
     let apiResponse: IClientActionResultDto<ITeamDto>;
 
     const teamApi = api<ITeamApi>({
-        update: async (team: IEditTeamDto, lastUpdated?: string) => {
-            updatedTeam = {team, lastUpdated};
+        update: async (team: IEditTeamDto) => {
+            updatedTeam = team;
             return apiResponse || {success: true, result: team};
         }
     });
@@ -188,7 +188,7 @@ describe('DivisionTeam', () => {
             expect(reportedError.hasError()).toEqual(false);
             expect(updatedTeam).not.toBeNull();
             expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
-            expect(updatedTeam.team.name).toEqual('NEW TEAM');
+            expect(updatedTeam.name).toEqual('NEW TEAM');
         });
 
         it('can close edit dialog', async () => {

@@ -1,5 +1,4 @@
-﻿import {ITeamApi} from "../api/team";
-import {ISettings} from "../api/settings";
+﻿import {ISettings} from "../api/settings";
 import {IParentHeight} from "../ParentHeight";
 import {ILiveWebSocket} from "../LiveWebSocket";
 import {IAccountApi} from "./apis/AccountApi";
@@ -13,6 +12,7 @@ import {ILiveApi} from "./apis/LiveApi";
 import {INoteApi} from "./apis/NoteApi";
 import {ISeasonApi} from "./apis/SeasonApi";
 import {IPlayerApi} from "./apis/PlayerApi";
+import {ITeamApi} from "./apis/TeamApi";
 import {ITournamentGameApi} from "./apis/TournamentGameApi";
 import {IDataApi} from "./apis/DataApi";
 

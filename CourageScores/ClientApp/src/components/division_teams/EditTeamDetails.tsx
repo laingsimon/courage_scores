@@ -51,7 +51,8 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
                 divisionId: divisionId,
                 seasonId: seasonId,
                 newDivisionId: team.newDivisionId,
-            }, lastUpdated);
+                lastUpdated: lastUpdated,
+            });
 
             if (response.success) {
                 if (onChange) {

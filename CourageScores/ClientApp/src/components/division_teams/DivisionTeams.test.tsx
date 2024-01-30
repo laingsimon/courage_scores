@@ -20,8 +20,8 @@ import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
 import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
 import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITeamApi} from "../../api/team";
 import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {ITeamApi} from "../../interfaces/apis/TeamApi";
 
 describe('DivisionTeams', () => {
     let context: TestContext;

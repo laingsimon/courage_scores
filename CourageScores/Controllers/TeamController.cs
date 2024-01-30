@@ -54,7 +54,7 @@ public class TeamController : Controller
         return await _teamService.Upsert(id, command, token);
     }
 
-    [HttpPut("/api/Team/{id}/{seasonId}")]
+    [HttpPut("/api/Team/Season")]
     public async Task<ActionResultDto<TeamDto>> Add(ModifyTeamSeasonDto request, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(request.SeasonId).ForDivision(request.DivisionId);
