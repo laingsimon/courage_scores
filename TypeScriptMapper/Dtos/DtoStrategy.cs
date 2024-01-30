@@ -70,7 +70,7 @@ public class DtoStrategy: IStrategy
     {
         await writer.WriteLineAsync($"export interface I{name} {{");
 
-        foreach (var member in type.Members.OrderBy(m => m.Name))
+        foreach (var member in type.Members.OfType<TypeScriptProperty>().OrderBy(m => m.Name))
         {
             if (token.IsCancellationRequested)
             {
@@ -88,7 +88,8 @@ public class DtoStrategy: IStrategy
     {
         var importWritten = false;
 
-        foreach (var import in type.Types.SelectMany(t => t.GetImports()).Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath).OrderBy(i => i.Name))
+        var types = type.Members.OfType<TypeScriptProperty>().SelectMany(p => p.Types).Concat(type.GenericArguments.Select(ga => ga.Type));
+        foreach (var import in types.SelectMany(t => t.GetImports()).Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath).OrderBy(i => i.Name))
         {
             if (token.IsCancellationRequested)
             {
