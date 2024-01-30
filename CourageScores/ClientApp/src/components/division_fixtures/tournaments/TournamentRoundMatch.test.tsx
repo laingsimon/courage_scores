@@ -16,7 +16,6 @@ import {createTemporaryId} from "../../../helpers/projection";
 import {any, toMap} from "../../../helpers/collections";
 import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoundMatch";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {ISaygApi} from "../../../api/sayg";
 import {ITournamentApi} from "../../../api/tournament";
 import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
@@ -40,6 +39,7 @@ import {
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {matchOptionsBuilder} from "../../../helpers/builders/games";
+import {ISaygApi} from "../../../interfaces/apis/SaygApi";
 
 interface ISaygDataLookup extends IClientActionResultDto<ITournamentGameDto> {
     match: ITournamentMatchDto;

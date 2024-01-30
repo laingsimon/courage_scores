@@ -20,7 +20,6 @@ import {
 import {any} from "../../../helpers/collections";
 import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {useLive} from "../LiveContainer";
-import {ISaygApi} from "../../../api/sayg";
 import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
@@ -28,6 +27,7 @@ import {ISubscriptions} from "../../../interfaces/ISubscriptions";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
 import {IAppContainerProps} from "../../../AppContainer";
+import {ISaygApi} from "../../../interfaces/apis/SaygApi";
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;

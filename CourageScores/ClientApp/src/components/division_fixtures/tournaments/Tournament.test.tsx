@@ -18,7 +18,6 @@ import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 import {IDivisionApi} from "../../../api/division";
 import {ITournamentApi} from "../../../api/tournament";
 import {IPlayerApi} from "../../../api/player";
-import {ISaygApi} from "../../../api/sayg";
 import {IDataApi} from "../../../api/data";
 import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
@@ -47,6 +46,7 @@ import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../hel
 import {
     IDivisionTournamentFixtureDetailsDto
 } from "../../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+import {ISaygApi} from "../../../interfaces/apis/SaygApi";
 
 interface IScenario {
     account?: IUserDto;
