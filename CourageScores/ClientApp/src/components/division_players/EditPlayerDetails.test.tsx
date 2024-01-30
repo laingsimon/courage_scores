@@ -11,11 +11,11 @@ import {
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails, IEditPlayerDetailsProps} from "./EditPlayerDetails";
-import {IEditTeamPlayerDto} from "../../interfaces/dtos/Team/IEditTeamPlayerDto";
-import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
-import {ITeamPlayerDto} from "../../interfaces/dtos/Team/ITeamPlayerDto";
+import {IEditTeamPlayerDto} from "../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IPlayerApi} from "../../api/player";
 import {divisionBuilder} from "../../helpers/builders/divisions";

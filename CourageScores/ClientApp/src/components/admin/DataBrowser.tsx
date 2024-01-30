@@ -5,7 +5,7 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useDependencies} from "../../IocContainer";
 import {renderDate} from "../../helpers/rendering";
 import {repeat} from "../../helpers/projection";
-import {ISingleDataResultDto} from "../../interfaces/dtos/Data/ISingleDataResultDto";
+import {ISingleDataResultDto} from "../../interfaces/models/dtos/Data/ISingleDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function DataBrowser() {

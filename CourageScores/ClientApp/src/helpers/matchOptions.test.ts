@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedReference
 
 import {getMatchOptionDefaults, getMatchOptionsLookup} from "./matchOptions";
-import {IGameMatchOptionDto} from "../interfaces/dtos/Game/IGameMatchOptionDto";
+import {IGameMatchOptionDto} from "../interfaces/models/dtos/Game/IGameMatchOptionDto";
 
 describe('matchOptions', () => {
     describe('getMatchOptionsDefaults', () => {

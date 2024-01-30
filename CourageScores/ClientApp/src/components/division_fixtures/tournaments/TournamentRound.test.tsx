@@ -15,16 +15,16 @@ import {ITournamentRoundProps, TournamentRound} from "./TournamentRound";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {ITournamentApi} from "../../../api/tournament";
 import {ISaygApi} from "../../../api/sayg";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUserDto} from "../../../interfaces/dtos/Identity/IUserDto";
-import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
-import {ITournamentGameDto} from "../../../interfaces/dtos/Game/ITournamentGameDto";
-import {ITournamentPlayerDto} from "../../../interfaces/dtos/Game/ITournamentPlayerDto";
-import {IPatchTournamentDto} from "../../../interfaces/dtos/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/dtos/Game/IPatchTournamentRoundDto";
-import {ITournamentRoundDto} from "../../../interfaces/dtos/Game/ITournamentRoundDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
+import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
 import {
     ITournamentMatchBuilder, ITournamentRoundBuilder,
     roundBuilder,

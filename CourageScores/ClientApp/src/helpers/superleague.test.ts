@@ -19,8 +19,8 @@ import {
     playerOverallAverage,
     sumOverThrows
 } from "./superleague";
-import {IScoreAsYouGoDto} from "../interfaces/dtos/Game/Sayg/IScoreAsYouGoDto";
-import {ILegDto} from "../interfaces/dtos/Game/Sayg/ILegDto";
+import {IScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ILegDto} from "../interfaces/models/dtos/Game/Sayg/ILegDto";
 import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
 
 describe('superleague', () => {

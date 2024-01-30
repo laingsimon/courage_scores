@@ -15,13 +15,13 @@ import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionTeams} from "./DivisionTeams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
-import {IEditTeamDto} from "../../interfaces/dtos/Team/IEditTeamDto";
-import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ITeamApi} from "../../api/team";
-import {IDivisionDataDto} from "../../interfaces/dtos/Division/IDivisionDataDto";
+import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
 
 describe('DivisionTeams', () => {
     let context: TestContext;

@@ -1,7 +1,7 @@
-import {ISeasonDto} from "./dtos/Season/ISeasonDto";
-import {IDivisionDto} from "./dtos/IDivisionDto";
-import {ITeamPlayerDto} from "./dtos/Team/ITeamPlayerDto";
-import {IGameTeamDto} from "./dtos/Game/IGameTeamDto";
+import {ISeasonDto} from "./models/dtos/Season/ISeasonDto";
+import {IDivisionDto} from "./models/dtos/IDivisionDto";
+import {ITeamPlayerDto} from "./models/dtos/Team/ITeamPlayerDto";
+import {IGameTeamDto} from "./models/dtos/Game/IGameTeamDto";
 import {ISelectablePlayer} from "../components/division_players/PlayerSelection";
 
 export interface ILeagueFixture {

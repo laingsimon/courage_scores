@@ -9,8 +9,8 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {EMPTY_ID} from "../../helpers/projection";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IDivisionPlayerDto} from "../../interfaces/dtos/Division/IDivisionPlayerDto";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
+import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IDivisionPlayerProps {

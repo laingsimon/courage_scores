@@ -135,8 +135,8 @@ public class MetaDataHelper : IMetaDataHelper
     {
         const string rootNamespace = "CourageScores";
         var relativeNamespace = ns.Replace(rootNamespace, "");
-        relativeNamespace = relativeNamespace.Replace("Models.Dtos", "Dtos");
         relativeNamespace = relativeNamespace.Replace("Dtos", "dtos");
+        relativeNamespace = relativeNamespace.Replace("Models", "models");
         relativeNamespace = relativeNamespace.Replace("Controllers", "apis");
 
         return GetPathToRoot(context) + relativeNamespace.Replace(".", "/");

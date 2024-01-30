@@ -1,7 +1,7 @@
-import {IGamePlayerDto} from "../../interfaces/dtos/Game/IGamePlayerDto";
-import {ITournamentPlayerDto} from "../../interfaces/dtos/Game/ITournamentPlayerDto";
-import {INotablePlayerDto} from "../../interfaces/dtos/Game/INotablePlayerDto";
-import {INotableTournamentPlayerDto} from "../../interfaces/dtos/Game/INotableTournamentPlayerDto";
+import {IGamePlayerDto} from "../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {ITournamentPlayerDto} from "../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {INotablePlayerDto} from "../../interfaces/models/dtos/Game/INotablePlayerDto";
+import {INotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/INotableTournamentPlayerDto";
 
 export interface IAccoladeFixtureData {
     oneEighties?: (IGamePlayerDto | ITournamentPlayerDto)[];

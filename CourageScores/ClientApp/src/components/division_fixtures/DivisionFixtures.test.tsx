@@ -17,10 +17,10 @@ import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDat
 import {INoteApi} from "../../api/note";
 import {ITournamentApi} from "../../api/tournament";
 import {ITemplateApi} from "../../api/template";
-import {IEditFixtureDateNoteDto} from "../../interfaces/dtos/IEditFixtureDateNoteDto";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
-import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
-import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
@@ -31,7 +31,7 @@ import {
     INoteBuilder
 } from "../../helpers/builders/divisions";
 import {ITournamentBuilder, ITournamentSideBuilder} from "../../helpers/builders/tournaments";
-import {IDivisionFixtureDateDto} from "../../interfaces/dtos/Division/IDivisionFixtureDateDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;

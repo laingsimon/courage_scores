@@ -9,9 +9,9 @@ import {
 } from "../../../../helpers/tests";
 import React from "react";
 import {ISummaryDataRowProps, SummaryDataRow} from "./SummaryDataRow";
-import {ILegDto} from "../../../../interfaces/dtos/Game/Sayg/ILegDto";
-import {ILegThrowDto} from "../../../../interfaces/dtos/Game/Sayg/ILegThrowDto";
-import {IScoreAsYouGoDto} from "../../../../interfaces/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ILegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
+import {IScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
 import {saygBuilder} from "../../../../helpers/builders/sayg";
 
 describe('SummaryDataRow', () => {

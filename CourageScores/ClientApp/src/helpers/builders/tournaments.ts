@@ -1,12 +1,12 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {ITournamentGameDto} from "../../interfaces/dtos/Game/ITournamentGameDto";
+import {ITournamentGameDto} from "../../interfaces/models/dtos/Game/ITournamentGameDto";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+} from "../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
 import {createTemporaryId} from "../projection";
-import {ITournamentSideDto} from "../../interfaces/dtos/Game/ITournamentSideDto";
-import {ITournamentRoundDto} from "../../interfaces/dtos/Game/ITournamentRoundDto";
-import {ITournamentMatchDto} from "../../interfaces/dtos/Game/ITournamentMatchDto";
+import {ITournamentSideDto} from "../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentRoundDto} from "../../interfaces/models/dtos/Game/ITournamentRoundDto";
+import {ITournamentMatchDto} from "../../interfaces/models/dtos/Game/ITournamentMatchDto";
 import {matchOptionsBuilder} from "./games";
 
 export interface ITournamentBuilder extends IAddableBuilder<ITournamentGameDto & IDivisionTournamentFixtureDetailsDto> {

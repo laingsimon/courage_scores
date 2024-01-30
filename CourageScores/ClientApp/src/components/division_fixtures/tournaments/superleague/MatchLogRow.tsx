@@ -3,9 +3,9 @@ import {sum} from "../../../../helpers/collections";
 import {round2dp} from "../../../../helpers/rendering";
 import {useApp} from "../../../../AppContainer";
 import {countLegThrowsBetween, isLegWinner, legTons} from "../../../../helpers/superleague";
-import {ILegDto} from "../../../../interfaces/dtos/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../../../../interfaces/dtos/Game/Sayg/ILegCompetitorScoreDto";
-import {ILegThrowDto} from "../../../../interfaces/dtos/Game/Sayg/ILegThrowDto";
+import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ILegCompetitorScoreDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
+import {ILegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
 
 export interface IMatchLogRowProps {
     leg: ILegDto;

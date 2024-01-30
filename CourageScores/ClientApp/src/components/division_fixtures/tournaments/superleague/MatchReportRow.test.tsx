@@ -9,9 +9,9 @@
 } from "../../../../helpers/tests";
 import React from "react";
 import {IMatchReportRowProps, MatchReportRow} from "./MatchReportRow";
-import {ILegThrowDto} from "../../../../interfaces/dtos/Game/Sayg/ILegThrowDto";
-import {ILegDto} from "../../../../interfaces/dtos/Game/Sayg/ILegDto";
-import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {ILegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
+import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../../helpers/builders/sayg";
 
 describe('MatchReportRow', () => {

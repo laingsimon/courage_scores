@@ -1,11 +1,11 @@
 import {Settings} from "./settings";
 import {IHttp} from "./http";
-import {IExportDataResultDto} from "../interfaces/dtos/Data/IExportDataResultDto";
-import {ITableDto} from "../interfaces/dtos/Data/ITableDto";
-import {IImportDataResultDto} from "../interfaces/dtos/Data/IImportDataResultDto";
-import {ISingleDataResultDto} from "../interfaces/dtos/Data/ISingleDataResultDto";
-import {IExportDataRequestDto} from "../interfaces/dtos/Data/IExportDataRequestDto";
-import {IImportDataRequestDto} from "../interfaces/dtos/Data/IImportDataRequestDto";
+import {IExportDataResultDto} from "../interfaces/models/dtos/Data/IExportDataResultDto";
+import {ITableDto} from "../interfaces/models/dtos/Data/ITableDto";
+import {IImportDataResultDto} from "../interfaces/models/dtos/Data/IImportDataResultDto";
+import {ISingleDataResultDto} from "../interfaces/models/dtos/Data/ISingleDataResultDto";
+import {IExportDataRequestDto} from "../interfaces/models/dtos/Data/IExportDataRequestDto";
+import {IImportDataRequestDto} from "../interfaces/models/dtos/Data/IImportDataRequestDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface IDataApi {

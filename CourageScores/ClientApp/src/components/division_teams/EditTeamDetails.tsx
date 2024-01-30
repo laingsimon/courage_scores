@@ -5,9 +5,9 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {handleChange} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
-import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
-import {IEditTeamDto} from "../../interfaces/dtos/Team/IEditTeamDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IEditTeamDetailsProps {

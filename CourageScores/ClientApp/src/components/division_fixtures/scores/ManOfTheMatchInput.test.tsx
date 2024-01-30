@@ -9,8 +9,8 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {IManOfTheMatchInputProps, ManOfTheMatchInput} from "./ManOfTheMatchInput";
-import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
-import {IUserDto} from "../../../interfaces/dtos/Identity/IUserDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
 import {fixtureBuilder, IMatchBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import {any, isEmpty} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
-import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
 
 export interface IMergeHiCheckAnd180sProps {
     fixtureData: IGameDto;

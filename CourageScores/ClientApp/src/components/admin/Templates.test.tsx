@@ -14,10 +14,10 @@ import {
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {ITemplateApi} from "../../api/template";
-import {ITemplateDto} from "../../interfaces/dtos/Season/Creation/ITemplateDto";
+import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/dtos/Health/ISeasonHealthCheckResultDto";
-import {IEditTemplateDto} from "../../interfaces/dtos/Season/Creation/IEditTemplateDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
+import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
 
 describe('Templates', () => {
     let context: TestContext;

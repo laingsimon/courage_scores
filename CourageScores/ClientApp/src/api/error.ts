@@ -1,5 +1,5 @@
 import {IHttp} from "./http";
-import {IErrorDetailDto} from "../interfaces/dtos/IErrorDetailDto";
+import {IErrorDetailDto} from "../interfaces/models/dtos/IErrorDetailDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface IErrorApi {

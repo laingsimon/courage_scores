@@ -4,8 +4,8 @@ import React from "react";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IActionResultDto} from "../../../interfaces/dtos/IActionResultDto";
-import {ITemplateDto} from "../../../interfaces/dtos/Season/Creation/ITemplateDto";
+import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
+import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
 
 export interface IPickTemplateProps {
     selectedTemplate: IActionResultDto<ITemplateDto> | null;

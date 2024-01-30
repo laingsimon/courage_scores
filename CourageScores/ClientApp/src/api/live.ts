@@ -1,5 +1,5 @@
 import {IHttp} from "./http";
-import {IWebSocketDto} from "../interfaces/dtos/Live/IWebSocketDto";
+import {IWebSocketDto} from "../interfaces/models/dtos/Live/IWebSocketDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface ILiveApi {

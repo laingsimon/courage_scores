@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import {any} from "../../helpers/collections";
 import {valueChanged} from "../../helpers/events";
-import {IDateTemplateDto} from "../../interfaces/dtos/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../interfaces/dtos/Season/Creation/IFixtureTemplateDto";
+import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
+import {IFixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IFixtureTemplateDto";
 
 export interface ITemplateDateProps {
     date: IDateTemplateDto;

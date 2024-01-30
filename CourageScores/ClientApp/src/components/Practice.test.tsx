@@ -13,9 +13,9 @@ import {
 import React from "react";
 import {Practice} from "./Practice";
 import {createTemporaryId} from "../helpers/projection";
-import {IRecordedScoreAsYouGoDto} from "../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IUserDto} from "../interfaces/dtos/Identity/IUserDto";
+import {IRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {ISaygApi} from "../api/sayg";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../helpers/builders/sayg";

@@ -1,6 +1,6 @@
 ﻿import {IAddableBuilder} from "./builders";
-import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
-import {IEditSeasonDto} from "../../interfaces/dtos/Season/IEditSeasonDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {IEditSeasonDto} from "../../interfaces/models/dtos/Season/IEditSeasonDto";
 import {createTemporaryId} from "../projection";
 
 export interface ISeasonBuilder extends IAddableBuilder<ISeasonDto & IEditSeasonDto> {

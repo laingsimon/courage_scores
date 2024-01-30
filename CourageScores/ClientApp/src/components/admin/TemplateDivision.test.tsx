@@ -11,7 +11,7 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {ITemplateDivisionProps, TemplateDivision} from "./TemplateDivision";
-import {IDivisionTemplateDto} from "../../interfaces/dtos/Season/Creation/IDivisionTemplateDto";
+import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
 
 describe('TemplateDivision', () => {
     let context: TestContext;

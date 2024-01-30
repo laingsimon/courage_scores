@@ -1,8 +1,8 @@
 import {count, sum} from "./collections";
-import {ILegThrowDto} from "../interfaces/dtos/Game/Sayg/ILegThrowDto";
-import {IScoreAsYouGoDto} from "../interfaces/dtos/Game/Sayg/IScoreAsYouGoDto";
-import {ILegDto} from "../interfaces/dtos/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../interfaces/dtos/Game/Sayg/ILegCompetitorScoreDto";
+import {ILegThrowDto} from "../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
+import {IScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ILegDto} from "../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ILegCompetitorScoreDto} from "../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
 import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
 
 export function playerOverallAverage(saygData: IScoreAsYouGoDto | null | undefined, sideName: string): number | null {

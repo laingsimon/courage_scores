@@ -13,10 +13,10 @@ import {
 } from "../helpers/tests";
 import React from "react";
 import {EditSeason, IEditSeasonProps} from "./EditSeason";
-import {IEditSeasonDto} from "../interfaces/dtos/Season/IEditSeasonDto";
-import {ISeasonDto} from "../interfaces/dtos/Season/ISeasonDto";
+import {IEditSeasonDto} from "../interfaces/models/dtos/Season/IEditSeasonDto";
+import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IDivisionDto} from "../interfaces/dtos/IDivisionDto";
+import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
 import {ISeasonApi} from "../api/season";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {seasonBuilder} from "../helpers/builders/seasons";

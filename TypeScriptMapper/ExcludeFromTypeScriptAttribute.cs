@@ -1,6 +1,6 @@
 namespace TypeScriptMapper;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Property)]
 public class ExcludeFromTypeScriptAttribute : Attribute
 {
 }

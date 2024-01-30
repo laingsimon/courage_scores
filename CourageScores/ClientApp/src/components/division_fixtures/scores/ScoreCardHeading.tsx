@@ -4,9 +4,9 @@ import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {renderDate} from "../../../helpers/rendering";
 import {count} from "../../../helpers/collections";
-import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
-import {IGameMatchDto} from "../../../interfaces/dtos/Game/IGameMatchDto";
-import {IGameMatchOptionDto} from "../../../interfaces/dtos/Game/IGameMatchOptionDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 
 export interface IScoreCardHeadingProps {
     data: IGameDto;

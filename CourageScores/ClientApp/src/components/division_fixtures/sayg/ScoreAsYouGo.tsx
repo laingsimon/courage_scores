@@ -5,9 +5,9 @@ import {useSayg} from "./SaygLoadingContainer";
 import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
 import {Location, useLocation} from "react-router-dom";
 import {useState} from "react";
-import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
 
 export interface IScoreAsYouGoProps {
     data: IUpdateRecordedScoreAsYouGoDto;

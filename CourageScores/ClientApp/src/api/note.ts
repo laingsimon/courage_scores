@@ -1,6 +1,6 @@
 import {IHttp} from "./http";
-import {IFixtureDateNoteDto} from "../interfaces/dtos/IFixtureDateNoteDto";
-import {IEditFixtureDateNoteDto} from "../interfaces/dtos/IEditFixtureDateNoteDto";
+import {IFixtureDateNoteDto} from "../interfaces/models/dtos/IFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../interfaces/models/dtos/IEditFixtureDateNoteDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface INoteApi {

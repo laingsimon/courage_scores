@@ -4,7 +4,7 @@ import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {any, sortBy} from "../../helpers/collections";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IWebSocketDto} from "../../interfaces/dtos/Live/IWebSocketDto";
+import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
 
 export function SocketAdmin() {
     const {liveApi} = useDependencies();

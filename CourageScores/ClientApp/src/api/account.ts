@@ -1,6 +1,6 @@
 import {IHttp} from "./http";
-import {IUserDto} from "../interfaces/dtos/Identity/IUserDto";
-import {IUpdateAccessDto} from "../interfaces/dtos/Identity/IUpdateAccessDto";
+import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
+import {IUpdateAccessDto} from "../interfaces/models/dtos/Identity/IUpdateAccessDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface IAccountApi {

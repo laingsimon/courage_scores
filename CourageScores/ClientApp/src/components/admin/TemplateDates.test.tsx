@@ -11,7 +11,7 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {ITemplateDatesProps, TemplateDates} from "./TemplateDates";
-import {IDateTemplateDto} from "../../interfaces/dtos/Season/Creation/IDateTemplateDto";
+import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
 
 describe('TemplateDates', () => {
     let context: TestContext;

@@ -10,7 +10,7 @@
 import React from "react";
 import {IMatchLogRowProps, MatchLogRow} from "./MatchLogRow";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../../helpers/builders/sayg";
-import {ILegDto} from "../../../../interfaces/dtos/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
 
 describe('MatchLogRow', () => {
     let context: TestContext;

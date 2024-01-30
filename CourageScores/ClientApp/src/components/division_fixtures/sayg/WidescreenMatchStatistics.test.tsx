@@ -2,7 +2,7 @@ import {api, appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, Tes
 import React from "react";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {ISaygApi} from "../../../api/sayg";
 
 describe('WidescreenMatchStatistics', () => {

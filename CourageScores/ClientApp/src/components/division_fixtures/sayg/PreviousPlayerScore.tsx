@@ -1,7 +1,7 @@
 import {round2dp} from "../../../helpers/rendering";
-import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
-import {ILegThrowDto} from "../../../interfaces/dtos/Game/Sayg/ILegThrowDto";
-import {ILegCompetitorScoreDto} from "../../../interfaces/dtos/Game/Sayg/ILegCompetitorScoreDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ILegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
+import {ILegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
 
 export interface IPreviousPlayerScoreProps {
     home: string;

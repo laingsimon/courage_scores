@@ -1,5 +1,5 @@
 import {TemplateDivision} from "./TemplateDivision";
-import {IDivisionTemplateDto} from "../../interfaces/dtos/Season/Creation/IDivisionTemplateDto";
+import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
 
 export interface ITemplateDivisionsProps {
     divisions: IDivisionTemplateDto[];

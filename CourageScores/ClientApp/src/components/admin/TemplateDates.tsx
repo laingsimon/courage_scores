@@ -1,6 +1,6 @@
 import {TemplateDate} from "./TemplateDate";
 import {renderDate} from "../../helpers/rendering";
-import {IDateTemplateDto} from "../../interfaces/dtos/Season/Creation/IDateTemplateDto";
+import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
 
 export interface ITemplateDatesProps {
     dates: IDateTemplateDto[];

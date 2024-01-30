@@ -1,9 +1,9 @@
 ﻿import {IAddableBuilder} from "./builders";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
-import {IEditTeamDto} from "../../interfaces/dtos/Team/IEditTeamDto";
-import {ITeamPlayerDto} from "../../interfaces/dtos/Team/ITeamPlayerDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {createTemporaryId} from "../projection";
-import {ITeamSeasonDto} from "../../interfaces/dtos/Team/ITeamSeasonDto";
+import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
 
 export interface ITeamBuilder extends IAddableBuilder<ITeamDto & IEditTeamDto> {
     forSeason: (seasonOrId: any, divisionOrId?: any, players?: ITeamPlayerDto[]) => ITeamBuilder;

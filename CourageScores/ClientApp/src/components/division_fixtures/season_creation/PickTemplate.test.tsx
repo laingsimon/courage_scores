@@ -10,9 +10,9 @@ import {
 import React from "react";
 import {IPickTemplateProps, PickTemplate} from "./PickTemplate";
 import {createTemporaryId} from "../../../helpers/projection";
-import {ITemplateDto} from "../../../interfaces/dtos/Season/Creation/ITemplateDto";
+import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IActionResultDto} from "../../../interfaces/dtos/IActionResultDto";
+import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
 
 describe('PickTemplate', () => {
     let context: TestContext;

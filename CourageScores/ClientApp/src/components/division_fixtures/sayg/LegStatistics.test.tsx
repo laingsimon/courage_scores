@@ -12,7 +12,7 @@ import React from "react";
 import {ILegStatisticsProps, LegStatistics} from "./LegStatistics";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
-import {ILegDto} from "../../../interfaces/dtos/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
 
 describe('LegStatistics', () => {
     let context: TestContext;

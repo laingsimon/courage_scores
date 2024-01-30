@@ -6,13 +6,13 @@ import {useApp} from "../../../AppContainer";
 import {any, sortBy} from "../../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
-import {IEditTeamPlayerDto} from "../../../interfaces/dtos/Team/IEditTeamPlayerDto";
-import {ITeamDto} from "../../../interfaces/dtos/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../../interfaces/dtos/Team/ITeamSeasonDto";
-import {ITeamPlayerDto} from "../../../interfaces/dtos/Team/ITeamPlayerDto";
-import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../../interfaces/dtos/Game/ITournamentPlayerDto";
-import {ISeasonDto} from "../../../interfaces/dtos/Season/ISeasonDto";
+import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
 
 export interface IEditSideProps {
     side: ITournamentSideDto;

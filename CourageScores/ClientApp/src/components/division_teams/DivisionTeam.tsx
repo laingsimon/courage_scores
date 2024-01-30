@@ -6,8 +6,8 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
-import {IDivisionTeamDto} from "../../interfaces/dtos/Division/IDivisionTeamDto";
-import {IEditTeamDto} from "../../interfaces/dtos/Team/IEditTeamDto";
+import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
 
 export interface IDivisionTeamProps {
     team: IDivisionTeamDto;

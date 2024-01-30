@@ -10,7 +10,7 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {IMergeHiCheckAnd180sProps, MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
-import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
 import {fixtureBuilder, IFixtureBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
 

@@ -9,13 +9,13 @@ import {useApp} from "../../../AppContainer";
 import {useTournament} from "./TournamentContainer";
 import {EditSide} from "./EditSide";
 import {createTemporaryId} from "../../../helpers/projection";
-import {ITournamentRoundDto} from "../../../interfaces/dtos/Game/ITournamentRoundDto";
-import {ITournamentMatchDto} from "../../../interfaces/dtos/Game/ITournamentMatchDto";
-import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
-import {ITournamentGameDto} from "../../../interfaces/dtos/Game/ITournamentGameDto";
-import {IPatchTournamentDto} from "../../../interfaces/dtos/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/dtos/Game/IPatchTournamentRoundDto";
-import {IGameMatchOptionDto} from "../../../interfaces/dtos/Game/IGameMatchOptionDto";
+import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
+import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 
 export interface IEditTournamentProps {
     canSave?: boolean;

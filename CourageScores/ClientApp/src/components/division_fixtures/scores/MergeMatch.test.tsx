@@ -10,10 +10,10 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {IMergeMatchProps, MergeMatch} from "./MergeMatch";
-import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
 import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, matchBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
-import {IGameMatchDto} from "../../../interfaces/dtos/Game/IGameMatchDto";
+import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
 
 describe('MergeMatch', () => {
     let context: TestContext;

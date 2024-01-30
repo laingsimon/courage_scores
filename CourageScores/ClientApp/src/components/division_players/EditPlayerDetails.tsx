@@ -6,9 +6,9 @@ import {useApp} from "../../AppContainer";
 import {sortBy} from "../../helpers/collections";
 import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
-import {ITeamPlayerDto} from "../../interfaces/dtos/Team/ITeamPlayerDto";
-import {ITeamSeasonDto} from "../../interfaces/dtos/Team/ITeamSeasonDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IEditPlayerDetailsProps {

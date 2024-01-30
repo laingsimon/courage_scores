@@ -12,7 +12,7 @@ import React from "react";
 import {IScoreAsYouGoProps, ScoreAsYouGo} from "./ScoreAsYouGo";
 import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {ILiveContainerProps, LiveContainer} from "../LiveContainer";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 
 describe('ScoreAsYouGo', () => {
     let context: TestContext;

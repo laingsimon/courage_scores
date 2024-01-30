@@ -1,8 +1,8 @@
 ﻿import {IBuild} from "./IBuild";
-import {IDivisionDto} from "./dtos/IDivisionDto";
-import {ISeasonDto} from "./dtos/Season/ISeasonDto";
-import {ITeamDto} from "./dtos/Team/ITeamDto";
-import {IUserDto} from "./dtos/Identity/IUserDto";
+import {IDivisionDto} from "./models/dtos/IDivisionDto";
+import {ISeasonDto} from "./models/dtos/Season/ISeasonDto";
+import {ITeamDto} from "./models/dtos/Team/ITeamDto";
+import {IUserDto} from "./models/dtos/Identity/IUserDto";
 import {DataMap} from "../helpers/collections";
 import {IError} from "./IError";
 

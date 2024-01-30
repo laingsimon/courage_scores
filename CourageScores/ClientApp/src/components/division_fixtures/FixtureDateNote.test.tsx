@@ -15,8 +15,8 @@ import {DivisionDataContainer} from "../DivisionDataContainer";
 import {noteBuilder} from "../../helpers/builders/divisions";
 import {INoteApi} from "../../api/note";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/dtos/IFixtureDateNoteDto";
-import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
+import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 import {createTemporaryId} from "../../helpers/projection";
 
 describe('FixtureDateNote', () => {

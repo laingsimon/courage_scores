@@ -12,9 +12,9 @@ import {getNoOfLegs, maxNoOfThrowsAllMatches} from "../../../../helpers/superlea
 import {RefreshControl} from "../../RefreshControl";
 import {useLive} from "../../LiveContainer";
 import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
-import {IDivisionDto} from "../../../../interfaces/dtos/IDivisionDto";
-import {ITournamentMatchDto} from "../../../../interfaces/dtos/Game/ITournamentMatchDto";
-import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IDivisionDto} from "../../../../interfaces/models/dtos/IDivisionDto";
+import {ITournamentMatchDto} from "../../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {ISubscription} from "../../../../interfaces/ISubscription";
 
 export interface ISuperLeaguePrintoutProps {

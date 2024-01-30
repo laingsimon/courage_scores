@@ -9,8 +9,8 @@ import {ReportGenerationMessages} from "./ReportGenerationMessages";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useApp} from "../../AppContainer";
-import {IReportCollectionDto} from "../../interfaces/dtos/Report/IReportCollectionDto";
-import {IReportDto} from "../../interfaces/dtos/Report/IReportDto";
+import {IReportCollectionDto} from "../../interfaces/models/dtos/Report/IReportCollectionDto";
+import {IReportDto} from "../../interfaces/models/dtos/Report/IReportDto";
 
 export function DivisionReports() {
     const {id: divisionId, season} = useDivisionData();

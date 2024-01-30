@@ -1,6 +1,6 @@
 import {IHttp} from "./http";
-import {ITeamDto} from "../interfaces/dtos/Team/ITeamDto";
-import {IEditTeamPlayerDto} from "../interfaces/dtos/Team/IEditTeamPlayerDto";
+import {ITeamDto} from "../interfaces/models/dtos/Team/ITeamDto";
+import {IEditTeamPlayerDto} from "../interfaces/models/dtos/Team/IEditTeamPlayerDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface IPlayerApi {

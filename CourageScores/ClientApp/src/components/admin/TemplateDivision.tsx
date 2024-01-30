@@ -1,8 +1,8 @@
 import {SharedAddresses} from "./SharedAddresses";
 import {TemplateDates} from "./TemplateDates";
 import {useState} from "react";
-import {IDivisionTemplateDto} from "../../interfaces/dtos/Season/Creation/IDivisionTemplateDto";
-import {IDateTemplateDto} from "../../interfaces/dtos/Season/Creation/IDateTemplateDto";
+import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
+import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
 
 export interface ITemplateDivisionProps {
     divisionNo: number;

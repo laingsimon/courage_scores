@@ -2,7 +2,7 @@ import {any} from "../../../helpers/collections";
 import {ViewHealthCheck} from "../../division_health/ViewHealthCheck";
 import React from "react";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IProposalResultDto} from "../../../interfaces/dtos/Season/Creation/IProposalResultDto";
+import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
 
 export interface IReviewProposalHealthProps {
     response: IClientActionResultDto<IProposalResultDto>;

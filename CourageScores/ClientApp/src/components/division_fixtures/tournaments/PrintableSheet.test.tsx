@@ -5,12 +5,12 @@ import {IPrintableSheetProps, PrintableSheet} from "./PrintableSheet";
 import {renderDate} from "../../../helpers/rendering";
 import {DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";
-import {ITeamDto} from "../../../interfaces/dtos/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/dtos/IDivisionDto";
-import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
-import {ISeasonDto} from "../../../interfaces/dtos/Season/ISeasonDto";
-import {ITournamentGameDto} from "../../../interfaces/dtos/Game/ITournamentGameDto";
-import {ITeamPlayerDto} from "../../../interfaces/dtos/Team/ITeamPlayerDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {
     ITournamentMatchBuilder, ITournamentRoundBuilder,
     ITournamentSideBuilder,
@@ -22,8 +22,8 @@ import {playerBuilder} from "../../../helpers/builders/players";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
-import {INotableTournamentPlayerDto} from "../../../interfaces/dtos/Game/INotableTournamentPlayerDto";
-import {ITournamentPlayerDto} from "../../../interfaces/dtos/Game/ITournamentPlayerDto";
+import {INotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/INotableTournamentPlayerDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
 
 describe('PrintableSheet', () => {
     let context: TestContext;

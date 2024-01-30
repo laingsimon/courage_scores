@@ -1,7 +1,7 @@
 import {IHttp} from "./http";
-import {IDivisionDto} from "../interfaces/dtos/IDivisionDto";
-import {IDivisionDataDto} from "../interfaces/dtos/Division/IDivisionDataDto";
-import {IEditDivisionDto} from "../interfaces/dtos/IEditDivisionDto";
+import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
+import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
+import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface IDivisionApi {

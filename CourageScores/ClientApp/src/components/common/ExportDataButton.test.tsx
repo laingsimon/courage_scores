@@ -1,9 +1,9 @@
 import {api, appProps, cleanUp, doClick, iocProps, noop, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {ExportDataButton, IExportDataButtonProps} from "./ExportDataButton";
-import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
-import {IExportDataRequestDto} from "../../interfaces/dtos/Data/IExportDataRequestDto";
-import {IExportDataResultDto} from "../../interfaces/dtos/Data/IExportDataResultDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
+import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IDataApi} from "../../api/data";
 

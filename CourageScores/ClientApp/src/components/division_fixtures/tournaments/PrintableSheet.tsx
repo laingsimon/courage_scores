@@ -8,11 +8,11 @@ import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
 import {RefreshControl} from "../RefreshControl";
-import {ITournamentSideDto} from "../../../interfaces/dtos/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../../interfaces/dtos/Game/ITournamentPlayerDto";
-import {ITournamentRoundDto} from "../../../interfaces/dtos/Game/ITournamentRoundDto";
-import {ITournamentMatchDto} from "../../../interfaces/dtos/Game/ITournamentMatchDto";
-import {IGameMatchOptionDto} from "../../../interfaces/dtos/Game/IGameMatchOptionDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
+import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;

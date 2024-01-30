@@ -1,9 +1,9 @@
 import {IHttp} from "./http";
-import {ITournamentGameDto} from "../interfaces/dtos/Game/ITournamentGameDto";
-import {IGameMatchOptionDto} from "../interfaces/dtos/Game/IGameMatchOptionDto";
-import {IPatchTournamentDto} from "../interfaces/dtos/Game/IPatchTournamentDto";
-import {ICreateTournamentSaygDto} from "../interfaces/dtos/Game/ICreateTournamentSaygDto";
-import {IEditTournamentGameDto} from "../interfaces/dtos/Game/IEditTournamentGameDto";
+import {ITournamentGameDto} from "../interfaces/models/dtos/Game/ITournamentGameDto";
+import {IGameMatchOptionDto} from "../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {IPatchTournamentDto} from "../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {ICreateTournamentSaygDto} from "../interfaces/models/dtos/Game/ICreateTournamentSaygDto";
+import {IEditTournamentGameDto} from "../interfaces/models/dtos/Game/IEditTournamentGameDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 
 export interface ITournamentApi {

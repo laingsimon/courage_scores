@@ -13,10 +13,10 @@ import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrint
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {act} from "@testing-library/react";
 import {ISaygApi} from "../../../../api/sayg";
-import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {ILegDto} from "../../../../interfaces/dtos/Game/Sayg/ILegDto";
-import {ITournamentGameDto} from "../../../../interfaces/dtos/Game/ITournamentGameDto";
-import {IDivisionDto} from "../../../../interfaces/dtos/IDivisionDto";
+import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ITournamentGameDto} from "../../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {IDivisionDto} from "../../../../interfaces/models/dtos/IDivisionDto";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
 import {
     ITournamentMatchBuilder,

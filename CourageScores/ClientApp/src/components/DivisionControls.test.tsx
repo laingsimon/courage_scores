@@ -13,11 +13,11 @@ import {
 import React from "react";
 import {DivisionControls, IDivisionControlsProps} from "./DivisionControls";
 import {renderDate} from "../helpers/rendering";
-import {IEditSeasonDto} from "../interfaces/dtos/Season/IEditSeasonDto";
-import {ISeasonDto} from "../interfaces/dtos/Season/ISeasonDto";
-import {IEditDivisionDto} from "../interfaces/dtos/IEditDivisionDto";
-import {IDivisionDto} from "../interfaces/dtos/IDivisionDto";
-import {IUserDto} from "../interfaces/dtos/Identity/IUserDto";
+import {IEditSeasonDto} from "../interfaces/models/dtos/Season/IEditSeasonDto";
+import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
+import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
+import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
+import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {ISeasonApi} from "../api/season";
 import {IDivisionApi} from "../api/division";

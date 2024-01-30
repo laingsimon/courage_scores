@@ -13,13 +13,13 @@ import {ReviewProposalHealth} from "./ReviewProposalHealth";
 import {ConfirmSave} from "./ConfirmSave";
 import {AssignPlaceholders, IPlaceholderMappings} from "./AssignPlaceholders";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITemplateDto} from "../../../interfaces/dtos/Season/Creation/ITemplateDto";
-import {IActionResultDto} from "../../../interfaces/dtos/IActionResultDto";
-import {IProposalResultDto} from "../../../interfaces/dtos/Season/Creation/IProposalResultDto";
-import {IDivisionDataDto} from "../../../interfaces/dtos/Division/IDivisionDataDto";
-import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
-import {IDivisionFixtureDto} from "../../../interfaces/dtos/Division/IDivisionFixtureDto";
-import {IDivisionFixtureDateDto} from "../../../interfaces/dtos/Division/IDivisionFixtureDateDto";
+import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
+import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
+import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {IDivisionFixtureDto} from "../../../interfaces/models/dtos/Division/IDivisionFixtureDto";
+import {IDivisionFixtureDateDto} from "../../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;

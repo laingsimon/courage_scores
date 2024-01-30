@@ -14,9 +14,9 @@ import {
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails, IEditTeamDetailsProps} from "./EditTeamDetails";
-import {ITeamDto} from "../../interfaces/dtos/Team/ITeamDto";
-import {IEditTeamDto} from "../../interfaces/dtos/Team/IEditTeamDto";
-import {IDivisionDto} from "../../interfaces/dtos/IDivisionDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ITeamApi} from "../../api/team";
 import {teamBuilder} from "../../helpers/builders/teams";

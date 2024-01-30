@@ -1,7 +1,7 @@
 import {SharedAddresses} from "./SharedAddresses";
 import {TemplateDivisions} from "./TemplateDivisions";
-import {IDivisionTemplateDto} from "../../interfaces/dtos/Season/Creation/IDivisionTemplateDto";
-import {IEditTemplateDto} from "../../interfaces/dtos/Season/Creation/IEditTemplateDto";
+import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
+import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
 
 export interface ITemplateVisualEditorProps {
     template: IEditTemplateDto;

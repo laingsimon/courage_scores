@@ -3,7 +3,7 @@ import {legsWon} from "../../../../helpers/superleague";
 import {repeat} from "../../../../helpers/projection";
 import {MatchReportRow} from "./MatchReportRow";
 import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
-import {IDivisionDto} from "../../../../interfaces/dtos/IDivisionDto";
+import {IDivisionDto} from "../../../../interfaces/models/dtos/IDivisionDto";
 
 export interface IMatchReportProps {
     division: IDivisionDto;

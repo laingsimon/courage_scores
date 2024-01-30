@@ -13,9 +13,9 @@ import React from "react";
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";
 import {IAccountApi} from "../../api/account";
-import {IUpdateAccessDto} from "../../interfaces/dtos/Identity/IUpdateAccessDto";
+import {IUpdateAccessDto} from "../../interfaces/models/dtos/Identity/IUpdateAccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 
 describe('UserAdmin', () => {
     let context: TestContext;

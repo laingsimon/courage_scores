@@ -4,9 +4,9 @@ import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionPlayers, IDivisionPlayersProps} from "./DivisionPlayers";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IUserDto} from "../../interfaces/dtos/Identity/IUserDto";
-import {ISeasonDto} from "../../interfaces/dtos/Season/ISeasonDto";
-import {IDivisionDataDto} from "../../interfaces/dtos/Division/IDivisionDataDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
 
 describe('DivisionPlayers', () => {
     let context: TestContext;

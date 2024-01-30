@@ -1,6 +1,6 @@
 ﻿import {ILegDisplayOptions} from "./ILegDisplayOptions";
-import {IUpdateRecordedScoreAsYouGoDto} from "./dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IScoreAsYouGoDto} from "./dtos/Game/Sayg/IScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "./models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IScoreAsYouGoDto} from "./models/dtos/Game/Sayg/IScoreAsYouGoDto";
 
 export interface IBaseSayg {
     matchStatisticsOnly?: boolean;

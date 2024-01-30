@@ -4,9 +4,9 @@ import {any, distinct, sortBy} from "../../../helpers/collections";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
-import {IGameDto} from "../../../interfaces/dtos/Game/IGameDto";
-import {IGamePlayerDto} from "../../../interfaces/dtos/Game/IGamePlayerDto";
-import {IGameMatchDto} from "../../../interfaces/dtos/Game/IGameMatchDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
 
 export interface IHiCheckAnd180sProps {
