@@ -4,11 +4,13 @@ using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Mvc;
 using TypeScriptMapper;
+using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
+[MethodsOnly]
 public class LiveController : Controller
 {
     private readonly ILiveService _liveService;

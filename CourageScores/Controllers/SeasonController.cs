@@ -6,11 +6,13 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Health;
 using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
+[MethodsOnly]
 public class SeasonController : Controller
 {
     private readonly ICommandFactory _commandFactory;

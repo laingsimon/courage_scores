@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using TypeScriptMapper.Controllers;
 
 namespace TypeScriptMapper.MetaData;
 
@@ -34,6 +35,11 @@ public class TypeScriptInterfaceFactory
 
     private static bool AppropriateProperty(PropertyInfo property)
     {
+        if (property.ReflectedType!.GetCustomAttribute<MethodsOnlyAttribute>() != null)
+        {
+            return false;
+        }
+
         return property.GetCustomAttribute<CompilerGeneratedAttribute>() == null
                && property.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null;
     }

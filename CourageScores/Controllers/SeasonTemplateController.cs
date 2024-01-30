@@ -5,11 +5,13 @@ using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Services.Command;
 using CourageScores.Services.Season.Creation;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
+[MethodsOnly]
 public class SeasonTemplateController : Controller
 {
     private readonly ICommandFactory _commandFactory;

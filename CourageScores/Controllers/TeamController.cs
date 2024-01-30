@@ -4,11 +4,13 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Command;
 using CourageScores.Services.Team;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
+[MethodsOnly]
 public class TeamController : Controller
 {
     private readonly ICommandFactory _commandFactory;

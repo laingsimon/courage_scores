@@ -2,11 +2,13 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Error;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
+[MethodsOnly]
 public class ErrorController : Controller
 {
     private readonly IErrorDetailService _errorDetailService;
