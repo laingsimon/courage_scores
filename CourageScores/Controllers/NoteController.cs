@@ -4,13 +4,11 @@ using CourageScores.Models.Dtos;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using Microsoft.AspNetCore.Mvc;
-using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
-[MethodsOnly]
 public class NoteController : Controller
 {
     private readonly ICommandFactory _commandFactory;

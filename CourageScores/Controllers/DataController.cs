@@ -4,13 +4,11 @@ using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Data;
 using Microsoft.AspNetCore.Mvc;
 using TypeScriptMapper;
-using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
-[MethodsOnly]
 public class DataController : Controller
 {
     private readonly ICosmosTableService _cosmosTableService;

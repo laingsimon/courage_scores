@@ -6,12 +6,10 @@ namespace TypeScriptMapper.Dtos;
 public class DtoRepository
 {
     private readonly Assembly _assembly;
-    private readonly TypeScriptTypeMapper _typeMapper;
 
-    public DtoRepository(Assembly assembly, TypeScriptTypeMapper typeMapper)
+    public DtoRepository(Assembly assembly)
     {
         _assembly = assembly;
-        _typeMapper = typeMapper;
     }
 
     public IEnumerable<Type> GetTypes(string rootNamespace)
@@ -22,7 +20,7 @@ public class DtoRepository
             .Where(t => t.GetGenericArguments().Length == 0) // non-generic classes
             .Where(t => t.Namespace?.StartsWith(rootNamespace) == true); // within the given namespace
 
-        return GetAdditionalTypes().Concat(types).Where(t => !_typeMapper.IsDefinedAsPrimitive(t) && !t.IsAssignableTo(typeof(Attribute)));
+        return GetAdditionalTypes().Concat(types);
     }
 
     private IEnumerable<Type> GetAdditionalTypes()

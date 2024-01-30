@@ -5,13 +5,11 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using Microsoft.AspNetCore.Mvc;
 using TypeScriptMapper;
-using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
-[MethodsOnly]
 public class DivisionController : Controller
 {
     private readonly ICommandFactory _commandFactory;

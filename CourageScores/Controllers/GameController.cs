@@ -4,13 +4,11 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
 using Microsoft.AspNetCore.Mvc;
-using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
-[MethodsOnly]
 public class GameController : Controller
 {
     private readonly ICommandFactory _commandFactory;

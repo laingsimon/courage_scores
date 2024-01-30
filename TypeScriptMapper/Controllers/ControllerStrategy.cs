@@ -180,7 +180,7 @@ public class ControllerStrategy: IStrategy
     {
         await writer.WriteLineAsync($"export interface I{name} {{");
 
-        foreach (var member in controller.Members.OrderBy(m => m.Name))
+        foreach (var member in controller.Members.OfType<IRouteMethod>().OrderBy(m => m.Name))
         {
             if (token.IsCancellationRequested)
             {

@@ -7,13 +7,11 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TypeScriptMapper;
-using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [AllowAnonymous]
 [ExcludeFromCodeCoverage]
-[MethodsOnly]
 public class AccountController : Controller
 {
     private readonly IUserService _userService;

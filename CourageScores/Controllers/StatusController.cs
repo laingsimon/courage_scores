@@ -3,13 +3,11 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Status;
 using CourageScores.Services.Status;
 using Microsoft.AspNetCore.Mvc;
-using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
 [ExcludeFromCodeCoverage]
-[MethodsOnly]
 public class StatusController : Controller
 {
     private readonly IStatusService _statusService;

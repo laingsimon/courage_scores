@@ -10,10 +10,10 @@ public class DtoStrategy: IStrategy
     private readonly TypeScriptInterfaceFactory _metaDataFactory;
     private readonly IMetaDataHelper _metaDataHelper;
 
-    public DtoStrategy(Assembly assembly, TypeScriptTypeMapper typeMapper, string dtosNamespace)
+    public DtoStrategy(Assembly assembly, string dtosNamespace)
     {
         _dtosNamespace = dtosNamespace;
-        _dtoRepository = new DtoRepository(assembly, typeMapper);
+        _dtoRepository = new DtoRepository(assembly);
         _metaDataHelper = new MetaDataHelper();
         _metaDataFactory = new TypeScriptInterfaceFactory(_metaDataHelper);
     }
