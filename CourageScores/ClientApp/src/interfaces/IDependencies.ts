@@ -8,13 +8,13 @@ import {IDataApi} from "../api/data";
 import {IGameApi} from "../api/game";
 import {INoteApi} from "../api/note";
 import {IPlayerApi} from "../api/player";
-import {IReportApi} from "../api/report";
 import {ISaygApi} from "../api/sayg";
 import {ITemplateApi} from "../api/template";
 import {ILiveApi} from "../api/live";
 import {ILiveWebSocket} from "../LiveWebSocket";
 import {IAccountApi} from "./apis/AccountApi";
 import {IErrorApi} from "./apis/ErrorApi";
+import {IReportApi} from "./apis/ReportApi";
 
 export interface IDependencies {
     divisionApi: IDivisionApi;

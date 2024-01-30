@@ -7,7 +7,6 @@ import {DataApi} from "./api/data";
 import {GameApi} from "./api/game";
 import {NoteApi} from "./api/note";
 import {PlayerApi} from "./api/player";
-import {ReportApi} from "./api/report";
 import {DivisionApi} from "./api/division";
 import {SeasonApi} from "./api/season";
 import {SaygApi} from "./api/sayg";
@@ -20,6 +19,7 @@ import {IDependencies} from "./interfaces/IDependencies";
 import {ISubscriptions} from "./interfaces/ISubscriptions";
 import {AccountApi} from "./interfaces/apis/AccountApi";
 import {ErrorApi} from "./interfaces/apis/ErrorApi";
+import {ReportApi} from "./interfaces/apis/ReportApi";
 
 const DependenciesContext = createContext({});
 
