@@ -1,10 +1,13 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace TypeScriptMapper.MetaData;
 
 public class TypeScriptMethod : IRouteMethod
 {
+    public const string FileListParameterName = "file";
+
     private readonly MethodInfo _method;
     private readonly IMetaDataHelper _helper;
     private readonly HelperContext _context;
@@ -25,6 +28,8 @@ public class TypeScriptMethod : IRouteMethod
     public IEnumerable<ITypeScriptType> Types => new[] { _helper.GetTypeScriptType(_context, _method.ReturnType) }.Concat(_parameters.Select(p => p.Type));
 
     public string Name => _method.Name.ToCamelCase();
+
+    public string? FileUploadPropertyName => _parameters.Select(p => ParameterRequiresFileUpload(p.ParameterType)).SingleOrDefault(name => name != null);
 
     public string GetDefinition()
     {
@@ -57,5 +62,15 @@ public class TypeScriptMethod : IRouteMethod
 
             yield return parameter.GetDefinition();
         }
+
+        if (FileUploadPropertyName != null)
+        {
+            yield return $"{FileListParameterName}: File";
+        }
+    }
+
+    private static string? ParameterRequiresFileUpload(Type parameterType)
+    {
+        return parameterType.GetProperties().SingleOrDefault(p => p.PropertyType == typeof(IFormFile))?.Name;
     }
 }

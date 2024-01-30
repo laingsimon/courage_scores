@@ -6,4 +6,5 @@ public interface IRouteMethod : ITypeScriptMember
 {
     HttpMethodAttribute? RouteAttribute { get; }
     List<TypeScriptParameter> Parameters { get; }
+    string? FileUploadPropertyName { get; }
 }

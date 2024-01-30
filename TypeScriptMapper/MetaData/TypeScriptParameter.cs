@@ -21,6 +21,7 @@ public class TypeScriptParameter
     public bool IsBodyParameter => _parameterInfo.GetCustomAttribute<FromBodyAttribute>() != null;
     public bool IsCancellationToken => _parameterInfo.ParameterType == typeof(CancellationToken);
     public string Name => _parameterInfo.Name!;
+    public Type ParameterType => _parameterInfo.ParameterType;
 
     public string GetDefinition()
     {

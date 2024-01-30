@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using TypeScriptMapper.MetaData;
 
@@ -77,9 +78,13 @@ public class ControllerStrategy: IStrategy
                 break;
             }
 
+            var asyncKeyword = member.FileUploadPropertyName != null
+                ? "async "
+                : "";
+
             var definition = member.GetDefinition();
             await writer.WriteLineAsync("");
-            await writer.WriteLineAsync($"    {definition} {{");
+            await writer.WriteLineAsync($"    {asyncKeyword}{definition} {{");
             await writer.WriteLineAsync($"        {GetHttpUsage(member)}");
             await writer.WriteLineAsync("    }");
         }
@@ -89,6 +94,11 @@ public class ControllerStrategy: IStrategy
 
     private static string GetHttpUsage(IRouteMethod method)
     {
+        if (method.FileUploadPropertyName != null)
+        {
+            return GetFileUploadImplementation(method);
+        }
+
         var attribute = method.RouteAttribute;
         if (attribute == null)
         {
@@ -108,6 +118,45 @@ public class ControllerStrategy: IStrategy
             : "";
 
         return $"return this.http.{httpMethod.ToLower()}(`{url}`{body});";
+    }
+
+    private static string GetFileUploadImplementation(IRouteMethod method)
+    {
+        var builder = new StringBuilder();
+        var filePropertyName = method.FileUploadPropertyName!;
+        var methodIndent = new string(' ', 8);
+        var functionIndent = new string(' ', 4);
+
+        builder.AppendLine($"const data = new FormData();");
+        builder.AppendLine($"{methodIndent}data.append('{filePropertyName}', {TypeScriptMethod.FileListParameterName});");
+
+        foreach (var parameter in method.Parameters.Where(p => !p.IsCancellationToken))
+        {
+            builder.AppendLine($"{methodIndent}Object.keys({parameter.Name}).forEach(key => data.append(key, {parameter.Name}[key]));");
+        }
+        builder.AppendLine();
+
+        builder.AppendLine($"{methodIndent}const settings = new Settings();");
+        builder.AppendLine($"{methodIndent}const absoluteUrl = settings.apiHost + `{method.RouteAttribute!.Template}`;");
+        builder.AppendLine();
+
+        builder.AppendLine($"{methodIndent}const response = await fetch(absoluteUrl, {{");
+        builder.AppendLine($"{methodIndent}{functionIndent}method: '{method.RouteAttribute.HttpMethods.First()}',");
+        builder.AppendLine($"{methodIndent}{functionIndent}mode: 'cors',");
+        builder.AppendLine($"{methodIndent}{functionIndent}body: data,");
+        builder.AppendLine($"{methodIndent}{functionIndent}headers: {{}},");
+        builder.AppendLine($"{methodIndent}{functionIndent}credentials: 'include',");
+        builder.AppendLine($"{methodIndent}}});");
+        builder.AppendLine();
+
+        builder.AppendLine($"{methodIndent}if (response.status === 204) {{");
+        builder.AppendLine($"{methodIndent}{functionIndent}return null;");
+        builder.AppendLine($"{methodIndent}}}");
+        builder.AppendLine();
+
+        builder.Append($"{methodIndent}return await response.json();");
+
+        return builder.ToString();
     }
 
     private static string GetBodyParameter(IReadOnlyCollection<TypeScriptParameter> parameters, string urlTemplate)
@@ -148,6 +197,10 @@ public class ControllerStrategy: IStrategy
     private static async Task WriteImports(TextWriter writer, TypeScriptInterface controller, CancellationToken token)
     {
         await writer.WriteLineAsync("import {IHttp} from '../../api/http';");
+        if (controller.Members.OfType<IRouteMethod>().Any(m => m.FileUploadPropertyName != null))
+        {
+            await writer.WriteLineAsync("import {Settings} from '../../api/settings';");
+        }
 
         foreach (var import in controller.Types.SelectMany(t => t.GetImports()).Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath).OrderBy(i => i.Name))
         {
