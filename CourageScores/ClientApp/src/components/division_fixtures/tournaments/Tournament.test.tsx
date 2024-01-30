@@ -15,7 +15,6 @@ import React from "react";
 import {Tournament} from "./Tournament";
 import {any, DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
-import {IDivisionApi} from "../../../api/division";
 import {ITournamentApi} from "../../../api/tournament";
 import {IPlayerApi} from "../../../api/player";
 import {IDataApi} from "../../../api/data";
@@ -47,6 +46,8 @@ import {
     IDivisionTournamentFixtureDetailsDto
 } from "../../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
 import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {IDivisionApi} from "../../../interfaces/apis/DivisionApi";
+import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
 
 interface IScenario {
     account?: IUserDto;
@@ -68,7 +69,8 @@ describe('Tournament', () => {
     let apiResponse: IClientActionResultDto<any>;
 
     const divisionApi = api<IDivisionApi>({
-        data: async (divisionId: string, seasonId: string) => {
+        data: async (divisionId: string, filter: IDivisionDataFilter) => {
+            const seasonId = filter.seasonId;
             const key: string = `${divisionId}_${seasonId}`;
             if (any(Object.keys(divisionDataLookup), k => k === key)) {
                 return divisionDataLookup[key];

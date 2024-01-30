@@ -25,6 +25,7 @@ import {IDivisionTeamDto} from "../interfaces/models/dtos/Division/IDivisionTeam
 import {IDivisionPlayerDto} from "../interfaces/models/dtos/Division/IDivisionPlayerDto";
 import {IDataErrorDto} from "../interfaces/models/dtos/Division/IDataErrorDto";
 import {IFailedRequest} from "../interfaces/IFailedRequest";
+import {IDivisionDataFilter} from "../interfaces/models/dtos/Division/IDivisionDataFilter";
 
 export interface IRequestedDivisionDataDto extends IDivisionDataDto, IFailedRequest {
     requested?: { divisionId: string, seasonId: string };
@@ -120,7 +121,10 @@ export function Division() {
                 }
             }
 
-            const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(divisionId, seasonId);
+            const filter: IDivisionDataFilter = {
+                seasonId: seasonId
+            };
+            const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(divisionId, filter);
             newDivisionData.requested = {
                 divisionId,
                 seasonId,

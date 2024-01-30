@@ -16,7 +16,6 @@ import {renderDate} from "../helpers/rendering";
 import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
 import {ISeasonHealthCheckResultDto} from "../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
 import {IGameDto} from "../interfaces/models/dtos/Game/IGameDto";
-import {IDivisionApi} from "../api/division";
 import {ISeasonApi} from "../api/season";
 import {IGameApi} from "../api/game";
 import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
@@ -31,6 +30,8 @@ import {teamBuilder} from "../helpers/builders/teams";
 import {IPlayerPerformanceBuilder, playerBuilder} from "../helpers/builders/players";
 import {IFixtureBuilder} from "../helpers/builders/games";
 import {IFailedRequest} from "../interfaces/IFailedRequest";
+import {IDivisionApi} from "../interfaces/apis/DivisionApi";
+import {IDivisionDataFilter} from "../interfaces/models/dtos/Division/IDivisionDataFilter";
 
 describe('Division', () => {
     let context: TestContext;
@@ -39,7 +40,8 @@ describe('Division', () => {
     let dataRequested: {divisionId: string, seasonId?: string}[];
 
     const divisionApi = api<IDivisionApi>({
-        data: async (divisionId: string, seasonId?: string): Promise<IDivisionDataDto> => {
+        data: async (divisionId: string, filter: IDivisionDataFilter): Promise<IDivisionDataDto> => {
+            const seasonId = filter.seasonId;
             const key = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
 
             if (!any(Object.keys(divisionDataMap), (k: string) => k === key)) {

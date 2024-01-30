@@ -36,6 +36,7 @@ import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPa
 import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
 import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -103,7 +104,11 @@ export function Tournament() {
 
             const tournamentPlayerMap: ITournamentPlayerMap = {};
             if (canManageTournaments) {
-                const divisionData: IDivisionDataDto = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
+                const filter: IDivisionDataFilter = {
+                    seasonId: tournamentData.seasonId,
+                };
+
+                const divisionData: IDivisionDataDto = await divisionApi.data(EMPTY_ID, filter);
                 const fixtureDate: IDivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
                 const tournamentPlayerIds: string[] = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
                 tournamentPlayerIds.forEach((id: string) => tournamentPlayerMap[id] = {});

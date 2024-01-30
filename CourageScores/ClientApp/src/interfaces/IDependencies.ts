@@ -1,5 +1,4 @@
-﻿import {IDivisionApi} from "../api/division";
-import {ISeasonApi} from "../api/season";
+﻿import {ISeasonApi} from "../api/season";
 import {ITeamApi} from "../api/team";
 import {ISettings} from "../api/settings";
 import {IParentHeight} from "../ParentHeight";
@@ -15,6 +14,7 @@ import {IErrorApi} from "./apis/ErrorApi";
 import {IReportApi} from "./apis/ReportApi";
 import {ISaygApi} from "./apis/SaygApi";
 import {ISeasonTemplateApi} from "./apis/SeasonTemplateApi";
+import {IDivisionApi} from "./apis/DivisionApi";
 
 export interface IDependencies {
     divisionApi: IDivisionApi;
