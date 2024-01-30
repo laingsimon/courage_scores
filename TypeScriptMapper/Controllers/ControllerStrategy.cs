@@ -77,11 +77,6 @@ public class ControllerStrategy: IStrategy
                 break;
             }
 
-            if (member.IsExcluded)
-            {
-                continue;
-            }
-
             var definition = member.GetDefinition();
             await writer.WriteLineAsync("");
             await writer.WriteLineAsync($"    {definition} {{");
@@ -138,11 +133,6 @@ public class ControllerStrategy: IStrategy
             if (token.IsCancellationRequested)
             {
                 break;
-            }
-
-            if (member.IsExcluded)
-            {
-                continue;
             }
 
             var definition = member.GetDefinition();

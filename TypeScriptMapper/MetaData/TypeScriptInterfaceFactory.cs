@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace TypeScriptMapper.MetaData;
 
@@ -20,13 +22,38 @@ public class TypeScriptInterfaceFactory
         return new TypeScriptInterface
         {
             DotNetType = type,
-            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/" + type.Name + ".d.ts",
-            Name = type.Name,
+            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/" + GetTypeName(type, false) + ".d.ts",
+            Name = GetTypeName(type, true),
             Members =
-                type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
-                .Concat(type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Select(m => new TypeScriptMethod(m, _helper, context)))
+                type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
+                .Concat(type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateMethod).Select(m => new TypeScriptMethod(m, _helper, context)))
                 .ToList(),
             GenericArguments = type.GetGenericArguments().Select(ga => new TypeScriptGenericArgument(ga, _helper, context)).ToList(),
         };
+    }
+
+    private static bool AppropriateProperty(PropertyInfo property)
+    {
+        return property.GetCustomAttribute<CompilerGeneratedAttribute>() == null
+               && property.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null;
+    }
+
+    private static bool AppropriateMethod(MethodInfo method)
+    {
+        return method.GetCustomAttribute<CompilerGeneratedAttribute>() == null
+            && method.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null;
+    }
+
+    private static string GetTypeName(Type type, bool includeGenericArguments)
+    {
+        if (type.GetGenericArguments().Any())
+        {
+            var name = Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
+            return includeGenericArguments
+                ? $"{name}<{string.Join(", ", type.GetGenericArguments().Select(ga => ga.Name))}>"
+                : name;
+        }
+
+        return type.Name;
     }
 }

@@ -22,8 +22,6 @@ public class TypeScriptMethod : IRouteMethod
 
     public List<TypeScriptParameter> Parameters => _parameters;
 
-    public bool IsExcluded => _method.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() != null;
-
     public IEnumerable<ITypeScriptType> Types => new[] { _helper.GetTypeScriptType(_context, _method.ReturnType) }.Concat(_parameters.Select(p => p.Type));
 
     public string Name => _method.Name.ToCamelCase();

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TypeScriptMapper.MetaData;
@@ -41,9 +42,16 @@ public class MetaDataHelper : IMetaDataHelper
 
     public ITypeScriptType GetTypeScriptType(HelperContext context, Type type)
     {
-        var isPrimitive = TypeMap.TryGetValue(type, out var primitiveTypeName);
-        var isCustomPrimitive = CustomMappings.TryGetValue(type.Name, out var customPrimitiveTypeName);
-        var isDotnetNativeType = type.Namespace?.StartsWith("System.") == true || type.Namespace?.StartsWith("Microsoft.") == true;
+        if (type.IsGenericTypeParameter)
+        {
+            return new TypeScriptType
+            {
+                DotNetType = type,
+                Name = type.Name,
+                IsPrimitive = true,
+                RelativePath = null,
+            };
+        }
 
         if (type == typeof(RedirectResult))
         {
@@ -55,8 +63,24 @@ public class MetaDataHelper : IMetaDataHelper
             return new PromiseTypeScriptType(Any);
         }
 
+        if (type.IsEnum)
+        {
+            type = typeof(string); //enums are serialized as strings
+        }
+        if (type == typeof(byte[]))
+        {
+            type = typeof(string); // base64 encoded data
+        }
+
         if (type.GetGenericArguments().Any())
         {
+            if (type.IsAssignableTo(typeof(IDictionary)) && type.GetGenericArguments().Length == 2)
+            {
+                return new DictionaryTypeScriptType(
+                    GetTypeScriptType(context, type.GetGenericArguments()[0]),
+                    GetTypeScriptType(context, type.GetGenericArguments()[1]));
+            }
+
             if (type.IsAssignableTo(typeof(IEnumerable)))
             {
                 var itemType = type.GetGenericArguments()[0];
@@ -112,23 +136,25 @@ public class MetaDataHelper : IMetaDataHelper
             };
         }
 
+        if (type.IsAssignableTo(typeof(IEnumerable)) && type != typeof(string))
+        {
+            var elementType = type.GetElementType()!;
+            return new ArrayTypeScriptType(GetTypeScriptType(context, elementType));
+        }
+
+        var isPrimitive = TypeMap.TryGetValue(type, out var primitiveTypeName);
+        var isCustomPrimitive = CustomMappings.TryGetValue(type.Name, out var customPrimitiveTypeName);
+        var isDotnetNativeType = type.Namespace?.StartsWith("System.") == true || type.Namespace?.StartsWith("Microsoft.") == true;
+
         return new TypeScriptType
         {
             DotNetType = type,
-            Name = primitiveTypeName ?? customPrimitiveTypeName ?? "I" + type.Name,
+            Name = primitiveTypeName ?? customPrimitiveTypeName ?? GetTypeName(type),
             IsPrimitive = isPrimitive || isCustomPrimitive || isDotnetNativeType,
             RelativePath = isPrimitive || isCustomPrimitive || isDotnetNativeType
                 ? null
                 : GetRelativePath(context, type.Namespace!) + "/I" + type.Name + ".d.ts",
         };
-    }
-
-    private string GetPathToRoot(HelperContext context)
-    {
-        const string rootNamespace = "CourageScores";
-        var relativeContextualNamespace = context.Namespace.Replace(rootNamespace, "");
-
-        return string.Join("/", Enumerable.Range(0, relativeContextualNamespace.Count(c => c == '.')).Select(_ => ".."));
     }
 
     public string GetRelativePath(HelperContext context, string ns)
@@ -140,5 +166,23 @@ public class MetaDataHelper : IMetaDataHelper
         relativeNamespace = relativeNamespace.Replace("Controllers", "apis");
 
         return GetPathToRoot(context) + relativeNamespace.Replace(".", "/");
+    }
+
+    private static string GetTypeName(Type type)
+    {
+        if (type.GetGenericArguments().Any())
+        {
+            return "I" + Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
+        }
+
+        return "I" + type.Name;
+    }
+
+    private static string GetPathToRoot(HelperContext context)
+    {
+        const string rootNamespace = "CourageScores";
+        var relativeContextualNamespace = context.Namespace.Replace(rootNamespace, "");
+
+        return string.Join("/", Enumerable.Range(0, relativeContextualNamespace.Count(c => c == '.')).Select(_ => ".."));
     }
 }
