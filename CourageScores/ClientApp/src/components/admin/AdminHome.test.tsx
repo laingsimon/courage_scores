@@ -2,16 +2,16 @@
 import {AdminHome} from "./AdminHome";
 import {AdminContainer} from "./AdminContainer";
 import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
-import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
-import {IWebSocketDto} from "../../interfaces/serverSide/Live/IWebSocketDto";
-import {IAccessDto} from "../../interfaces/serverSide/Identity/IAccessDto";
+import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
+import {IAccessDto} from "../../interfaces/models/dtos/Identity/IAccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IDataApi} from "../../api/data";
-import {IAccountApi} from "../../api/account";
-import {ITemplateApi} from "../../api/template";
-import {ILiveApi} from "../../api/live";
+import {IAccountApi} from "../../interfaces/apis/AccountApi";
+import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
+import {ILiveApi} from "../../interfaces/apis/LiveApi";
+import {IDataApi} from "../../interfaces/apis/DataApi";
 
 describe('AdminHome', () => {
     let context: TestContext;
@@ -26,7 +26,7 @@ describe('AdminHome', () => {
             return [];
         }
     });
-    const templateApi = api<ITemplateApi>({
+    const templateApi = api<ISeasonTemplateApi>({
         getAll: async (): Promise<ITemplateDto[]> => {
             return [];
         }

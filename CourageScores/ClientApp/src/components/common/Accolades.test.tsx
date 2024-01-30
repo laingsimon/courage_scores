@@ -2,7 +2,7 @@
 
 import {add180, addHiCheck, IAccoladeFixtureData, remove180, removeHiCheck} from "./Accolades";
 import {playerBuilder} from "../../helpers/builders/players";
-import {IGamePlayerDto} from "../../interfaces/serverSide/Game/IGamePlayerDto";
+import {IGamePlayerDto} from "../../interfaces/models/dtos/Game/IGamePlayerDto";
 
 describe('Accolades', () => {
     const player1: IGamePlayerDto = playerBuilder('PLAYER 1').build();

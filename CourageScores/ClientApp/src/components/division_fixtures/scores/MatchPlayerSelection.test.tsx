@@ -14,14 +14,14 @@ import {
 import {IMatchPlayerSelectionProps, MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {ILeagueFixtureContainerProps, LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {IMatchTypeContainerProps, MatchTypeContainer} from "./MatchTypeContainer";
-import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
-import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
+import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
 import {ICreatePlayerFor} from "./Score";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {matchBuilder, matchOptionsBuilder} from "../../../helpers/builders/games";
@@ -1044,7 +1044,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const containerProps = {
+            const containerProps: ILeagueFixtureContainerProps = {
                 disabled: true,
                 readOnly: false,
                 season: season,
@@ -1076,7 +1076,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const containerProps = {
+            const containerProps: ILeagueFixtureContainerProps = {
                 disabled: true,
                 readOnly: false,
                 season: season,

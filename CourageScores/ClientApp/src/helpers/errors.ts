@@ -1,6 +1,6 @@
-import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
+import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
 import {IError} from "../interfaces/IError";
-import {IErrorDetailDto} from "../interfaces/serverSide/IErrorDetailDto";
+import {IErrorDetailDto} from "../interfaces/models/dtos/IErrorDetailDto";
 
 export function mapError(error: any): IError {
     if (error.stack) {

@@ -5,7 +5,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {Loading} from "../common/Loading";
 import {ViewHealthCheck} from "./ViewHealthCheck";
 import {isEmpty} from "../../helpers/collections";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
 
 export function DivisionHealth() {
     const [result, setResult] = useState<ISeasonHealthCheckResultDto | null>(null);

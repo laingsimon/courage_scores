@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {EditSide} from "./EditSide";
 import {count, isEmpty} from "../../../helpers/collections";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
 
 export interface ITournamentSideProps {
     side: ITournamentSideDto;

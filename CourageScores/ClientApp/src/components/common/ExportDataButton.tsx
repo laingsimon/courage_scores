@@ -3,8 +3,8 @@ import {any} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import React, {useState} from "react";
 import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
-import {IExportDataRequestDto} from "../../interfaces/serverSide/Data/IExportDataRequestDto";
-import {IExportDataResultDto} from "../../interfaces/serverSide/Data/IExportDataResultDto";
+import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
+import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IExportDataButtonProps extends IExportDataRequestDto {

@@ -15,14 +15,14 @@ import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../help
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {createTemporaryId} from "../../../helpers/projection";
 import {act} from "@testing-library/react";
-import {ISaygApi} from "../../../api/sayg";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 import {IAppContainerProps} from "../../../AppContainer";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
+import {ISaygApi} from "../../../interfaces/apis/SaygApi";
 
 describe('MatchStatistics', () => {
     let context: TestContext;

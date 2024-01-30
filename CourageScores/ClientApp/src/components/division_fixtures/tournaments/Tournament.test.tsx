@@ -15,24 +15,19 @@ import React from "react";
 import {Tournament} from "./Tournament";
 import {any, DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
-import {IDivisionApi} from "../../../api/division";
-import {ITournamentApi} from "../../../api/tournament";
-import {IPlayerApi} from "../../../api/player";
-import {ISaygApi} from "../../../api/sayg";
-import {IDataApi} from "../../../api/data";
-import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {IEditTournamentGameDto} from "../../../interfaces/serverSide/Game/IEditTournamentGameDto";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
+import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {IEditTournamentGameDto} from "../../../interfaces/models/dtos/Game/IEditTournamentGameDto";
+import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IEditTeamPlayerDto} from "../../../interfaces/serverSide/Team/IEditTeamPlayerDto";
-import {IExportDataRequestDto} from "../../../interfaces/serverSide/Data/IExportDataRequestDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
+import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
+import {IExportDataRequestDto} from "../../../interfaces/models/dtos/Data/IExportDataRequestDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
 import {divisionBuilder, divisionDataBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {
@@ -46,7 +41,13 @@ import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
+} from "../../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {IDivisionApi} from "../../../interfaces/apis/DivisionApi";
+import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
+import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
+import {IDataApi} from "../../../interfaces/apis/DataApi";
 
 interface IScenario {
     account?: IUserDto;
@@ -60,7 +61,7 @@ describe('Tournament', () => {
     let reportedError: ErrorState;
     let divisionDataLookup: { [key: string]: IDivisionDataDto };
     let tournamentDataLookup: { [id: string]: ITournamentGameDto & IDivisionTournamentFixtureDetailsDto };
-    let updatedTournamentData: {data: IEditTournamentGameDto, lastUpdated?: string }[];
+    let updatedTournamentData: IEditTournamentGameDto[];
     let patchedTournamentData: {id: string, data: IPatchTournamentDto}[];
     let saygDataLookup: { [id: string]: IRecordedScoreAsYouGoDto };
     let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto};
@@ -68,7 +69,8 @@ describe('Tournament', () => {
     let apiResponse: IClientActionResultDto<any>;
 
     const divisionApi = api<IDivisionApi>({
-        data: async (divisionId: string, seasonId: string) => {
+        data: async (divisionId: string, filter: IDivisionDataFilter) => {
+            const seasonId = filter.seasonId;
             const key: string = `${divisionId}_${seasonId}`;
             if (any(Object.keys(divisionDataLookup), k => k === key)) {
                 return divisionDataLookup[key];
@@ -77,7 +79,7 @@ describe('Tournament', () => {
             throw new Error('Unexpected request for division data: ' + key);
         }
     });
-    const tournamentApi = api<ITournamentApi>({
+    const tournamentApi = api<ITournamentGameApi>({
         get: async (id: string) => {
             if (any(Object.keys(tournamentDataLookup), k => k === id)) {
                 return tournamentDataLookup[id];
@@ -85,8 +87,8 @@ describe('Tournament', () => {
 
             throw new Error('Unexpected request for tournament data: ' + id);
         },
-        update: async (data: IEditTournamentGameDto, lastUpdated?: string) => {
-            updatedTournamentData.push({data, lastUpdated});
+        update: async (data: IEditTournamentGameDto) => {
+            updatedTournamentData.push(data);
             return apiResponse || {success: true, result: data};
         },
         patch: async (id: string, data: IPatchTournamentDto) => {
@@ -185,8 +187,8 @@ describe('Tournament', () => {
         expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         const update = updatedTournamentData.shift();
         expect(update.lastUpdated).toEqual(existingData.updated || '<updated> not defined in existing data');
-        expect(update.data).toEqual(
-            Object.assign({}, existingData, expectedChange));
+        expect(update).toEqual(
+            Object.assign({ lastUpdated: update.lastUpdated }, existingData, expectedChange));
     }
 
     const division: IDivisionDto = divisionBuilder('DIVISION').build();
@@ -959,7 +961,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].data.round;
+            const round = updatedTournamentData[0].round;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
         });
 
@@ -994,7 +996,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].data.round;
+            const round = updatedTournamentData[0].round;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 

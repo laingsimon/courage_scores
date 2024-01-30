@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Data;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper;
 
 namespace CourageScores.Controllers;
 
@@ -20,7 +21,7 @@ public class DataController : Controller
     }
 
     [HttpPost("/api/Data/Export")]
-    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ExportDataResultDto>> Export(ExportDataRequestDto request, CancellationToken token)
     {
         return await _dataService.ExportData(request, token);
     }
@@ -34,18 +35,20 @@ public class DataController : Controller
     [HttpPost("/api/Data/Import")]
     [RequestFormLimits(KeyLengthLimit = 1024*1027*20)] // 20MB
     [RequestSizeLimit(bytes: 1024*1024*20)] // 20MB
-    public async Task<ActionResultDto<ImportDataResultDto>> ImportData([FromForm] ImportDataRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ImportDataResultDto>> Import([FromForm] ImportDataRequestDto request, CancellationToken token)
     {
         request.Tables = request.Tables.SelectMany(t => t.Split(',')).ToList();
         return await _dataService.ImportData(request, token);
     }
 
+    [ExcludeFromTypeScript]
     [HttpPost("/api/Data/Backup")]
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(BackupDataRequestDto request, CancellationToken token)
     {
         return await _dataService.BackupData(request, token);
     }
 
+    [ExcludeFromTypeScript]
     [HttpPost("/api/Data/Restore")]
     [RequestFormLimits(KeyLengthLimit = 1024*1027*20)] // 20MB
     [RequestSizeLimit(bytes: 1024*1024*20)] // 20MB
@@ -55,13 +58,13 @@ public class DataController : Controller
     }
 
     [HttpGet("/api/Data/Browse/{table}/")]
-    public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token)
+    public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> GetRows(string table, CancellationToken token)
     {
         return await _dataService.Browse(table, token);
     }
 
     [HttpGet("/api/Data/Browse/{table}/{id}")]
-    public async Task<ActionResultDto<SingleDataResultDto>> Browse(string table, Guid id, CancellationToken token)
+    public async Task<ActionResultDto<SingleDataResultDto>> GetRecord(string table, Guid id, CancellationToken token)
     {
         return await _dataService.Browse(table, id, token);
     }

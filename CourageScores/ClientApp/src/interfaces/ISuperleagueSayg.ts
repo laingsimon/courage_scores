@@ -1,4 +1,4 @@
-import {IScoreAsYouGoDto} from "./serverSide/Game/Sayg/IScoreAsYouGoDto";
+import {IScoreAsYouGoDto} from "./models/dtos/Game/Sayg/IScoreAsYouGoDto";
 
 export interface ISuperleagueSayg {
     saygData?: IScoreAsYouGoDto | null;

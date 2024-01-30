@@ -13,16 +13,16 @@ import {
 import React from "react";
 import {DivisionControls, IDivisionControlsProps} from "./DivisionControls";
 import {renderDate} from "../helpers/rendering";
-import {IEditSeasonDto} from "../interfaces/serverSide/Season/IEditSeasonDto";
-import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
-import {IEditDivisionDto} from "../interfaces/serverSide/IEditDivisionDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
-import {IUserDto} from "../interfaces/serverSide/Identity/IUserDto";
+import {IEditSeasonDto} from "../interfaces/models/dtos/Season/IEditSeasonDto";
+import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
+import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
+import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
+import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {ISeasonApi} from "../api/season";
-import {IDivisionApi} from "../api/division";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {seasonBuilder} from "../helpers/builders/seasons";
+import {IDivisionApi} from "../interfaces/apis/DivisionApi";
+import {ISeasonApi} from "../interfaces/apis/SeasonApi";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -37,19 +37,19 @@ describe('DivisionControls', () => {
     let changedDivisionOrSeason: boolean;
     let reloadSeasonsCalled: boolean;
     let reloadDivisionsCalled: boolean;
-    let updatedSeason: {data: IEditSeasonDto, lastUpdated?: string};
-    let updatedDivision: {data: IEditDivisionDto, lastUpdated?: string};
+    let updatedSeason: IEditSeasonDto;
+    let updatedDivision: IEditDivisionDto;
     const seasonApi = api<ISeasonApi>({
-        update: async (data: IEditSeasonDto, lastUpdated?: string): Promise<IClientActionResultDto<ISeasonDto>> => {
-            updatedSeason = {data, lastUpdated};
+        update: async (data: IEditSeasonDto): Promise<IClientActionResultDto<ISeasonDto>> => {
+            updatedSeason = data;
             return {
                 success: true,
             };
         }
     });
     const divisionApi = api<IDivisionApi>({
-        update: async (data: IEditDivisionDto, lastUpdated?: string): Promise<IClientActionResultDto<IDivisionDto>> => {
-            updatedDivision = {data, lastUpdated};
+        update: async (data: IEditDivisionDto): Promise<IClientActionResultDto<IDivisionDto>> => {
+            updatedDivision = data;
             return {
                 success: true
             };

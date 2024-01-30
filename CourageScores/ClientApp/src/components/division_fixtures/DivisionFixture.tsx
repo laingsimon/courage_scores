@@ -8,12 +8,12 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IDivisionFixtureDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDto";
+import {IDivisionFixtureDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IGameDto} from "../../interfaces/serverSide/Game/IGameDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
-import {IDivisionTeamDto} from "../../interfaces/serverSide/Division/IDivisionTeamDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IGameDto} from "../../interfaces/models/dtos/Game/IGameDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 
 export interface IDivisionFixtureProps {
@@ -232,7 +232,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 isKnockout: fixture.isKnockout,
                 seasonId: season.id,
                 accoladesCount: fixture.accoladesCount,
-            }, null);
+            });
 
             if (result.success) {
                 await doReloadDivision();

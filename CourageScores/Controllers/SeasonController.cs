@@ -25,26 +25,26 @@ public class SeasonController : Controller
     }
 
     [HttpGet("/api/Season/{id}")]
-    public async Task<SeasonDto?> GetSeason(Guid id, CancellationToken token)
+    public async Task<SeasonDto?> Get(Guid id, CancellationToken token)
     {
         return await _seasonService.Get(id, token);
     }
 
     [HttpGet("/api/Season/")]
-    public IAsyncEnumerable<SeasonDto> GetSeasons(CancellationToken token)
+    public IAsyncEnumerable<SeasonDto> GetAll(CancellationToken token)
     {
         return _seasonService.GetAll(token);
     }
 
     [HttpPut("/api/Season/")]
-    public async Task<ActionResultDto<SeasonDto>> AddOrUpdateSeason(EditSeasonDto season, CancellationToken token)
+    public async Task<ActionResultDto<SeasonDto>> Update(EditSeasonDto season, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateSeasonCommand>().WithData(season);
         return await _seasonService.Upsert(season.Id, command, token);
     }
 
     [HttpDelete("/api/Season/{id}")]
-    public async Task<ActionResultDto<SeasonDto>> DeleteSeason(Guid id, CancellationToken token)
+    public async Task<ActionResultDto<SeasonDto>> Delete(Guid id, CancellationToken token)
     {
         return await _seasonService.Delete(id, token);
     }

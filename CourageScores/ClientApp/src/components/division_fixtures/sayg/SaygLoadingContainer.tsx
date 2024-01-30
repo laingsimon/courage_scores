@@ -9,7 +9,7 @@ import {LiveContainer} from "../LiveContainer";
 import {IBaseSayg, ISayg} from "../../../interfaces/ISayg";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
 const SaygContext = createContext({});
 

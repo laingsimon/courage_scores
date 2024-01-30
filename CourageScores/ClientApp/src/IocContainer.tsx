@@ -1,25 +1,25 @@
 import React, {createContext, useContext, useState} from "react";
 import {Http, IHttp} from "./api/http";
 import {ISettings, Settings} from "./api/settings";
-import {TeamApi} from "./api/team";
-import {TournamentApi} from "./api/tournament";
-import {ErrorApi} from "./api/error";
-import {DataApi} from "./api/data";
-import {AccountApi} from "./api/account";
-import {GameApi} from "./api/game";
-import {NoteApi} from "./api/note";
-import {PlayerApi} from "./api/player";
-import {ReportApi} from "./api/report";
-import {DivisionApi} from "./api/division";
-import {SeasonApi} from "./api/season";
-import {SaygApi} from "./api/sayg";
 import {IParentHeight, ParentHeight} from "./ParentHeight";
-import {TemplateApi} from "./api/template";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
-import {LiveApi} from "./api/live";
 import {IDependencies} from "./interfaces/IDependencies";
 import {ISubscriptions} from "./interfaces/ISubscriptions";
+import {AccountApi} from "./interfaces/apis/AccountApi";
+import {ErrorApi} from "./interfaces/apis/ErrorApi";
+import {ReportApi} from "./interfaces/apis/ReportApi";
+import {SaygApi} from "./interfaces/apis/SaygApi";
+import {SeasonTemplateApi} from "./interfaces/apis/SeasonTemplateApi";
+import {DivisionApi} from "./interfaces/apis/DivisionApi";
+import {GameApi} from "./interfaces/apis/GameApi";
+import {LiveApi} from "./interfaces/apis/LiveApi";
+import {NoteApi} from "./interfaces/apis/NoteApi";
+import {SeasonApi} from "./interfaces/apis/SeasonApi";
+import {PlayerApi} from "./interfaces/apis/PlayerApi";
+import {TeamApi} from "./interfaces/apis/TeamApi";
+import {TournamentGameApi} from "./interfaces/apis/TournamentGameApi";
+import {DataApi} from "./interfaces/apis/DataApi";
 
 const DependenciesContext = createContext({});
 
@@ -45,7 +45,7 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
         divisionApi: new DivisionApi(http),
         seasonApi: new SeasonApi(http),
         teamApi: new TeamApi(http),
-        tournamentApi: new TournamentApi(http),
+        tournamentApi: new TournamentGameApi(http),
         errorApi: new ErrorApi(http),
         dataApi: new DataApi(http),
         accountApi: new AccountApi(http),
@@ -54,7 +54,7 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
         playerApi: new PlayerApi(http),
         reportApi: new ReportApi(http),
         saygApi: new SaygApi(http),
-        templateApi: new TemplateApi(http),
+        templateApi: new SeasonTemplateApi(http),
         liveApi: new LiveApi(http),
         parentHeight: overrideParentHeight || new ParentHeight(25),
         webSocket: new LiveWebSocket({

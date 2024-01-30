@@ -2,7 +2,7 @@ import {cleanUp, renderApp, doClick, iocProps, brandingProps, appProps, TestCont
 import React from "react";
 import {IWidescreenSaygPlayerStatisticProps, WidescreenSaygPlayerStatistic} from "./WidescreenSaygPlayerStatistic";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
 
 describe('WidescreenSaygPlayerStatistic', () => {
     let context: TestContext;

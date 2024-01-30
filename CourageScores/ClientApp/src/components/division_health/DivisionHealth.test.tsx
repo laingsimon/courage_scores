@@ -3,8 +3,8 @@ import React from "react";
 import {DivisionHealth} from "./DivisionHealth";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
-import {ISeasonApi} from "../../api/season";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
+import {ISeasonApi} from "../../interfaces/apis/SeasonApi";
 
 describe('DivisionHealth', () => {
     let context: TestContext;

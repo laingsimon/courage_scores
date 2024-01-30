@@ -7,9 +7,9 @@ import {useAdmin} from "./AdminContainer";
 import {any, toDictionary} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IExportDataRequestDto} from "../../interfaces/serverSide/Data/IExportDataRequestDto";
-import {IExportDataResultDto} from "../../interfaces/serverSide/Data/IExportDataResultDto";
-import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
+import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
+import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function ExportData() {

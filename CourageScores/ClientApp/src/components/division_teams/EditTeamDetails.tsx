@@ -5,9 +5,9 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {handleChange} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IEditTeamDetailsProps {
@@ -51,7 +51,8 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
                 divisionId: divisionId,
                 seasonId: seasonId,
                 newDivisionId: team.newDivisionId,
-            }, lastUpdated);
+                lastUpdated: lastUpdated,
+            });
 
             if (response.success) {
                 if (onChange) {

@@ -1,0 +1,5 @@
+models/*.d.ts
+models/**/*.d.ts
+
+apis/*.ts
+apis/**/*.ts

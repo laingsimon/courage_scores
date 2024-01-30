@@ -12,11 +12,10 @@ import React from "react";
 import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrintout";
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {act} from "@testing-library/react";
-import {ISaygApi} from "../../../../api/sayg";
-import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {ILegDto} from "../../../../interfaces/serverSide/Game/Sayg/ILegDto";
-import {ITournamentGameDto} from "../../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {IDivisionDto} from "../../../../interfaces/serverSide/IDivisionDto";
+import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ITournamentGameDto} from "../../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {IDivisionDto} from "../../../../interfaces/models/dtos/IDivisionDto";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
 import {
     ITournamentMatchBuilder,
@@ -24,6 +23,7 @@ import {
     tournamentBuilder
 } from "../../../../helpers/builders/tournaments";
 import {divisionBuilder} from "../../../../helpers/builders/divisions";
+import {ISaygApi} from "../../../../interfaces/apis/SaygApi";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;

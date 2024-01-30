@@ -6,10 +6,11 @@ import {useApp} from "../../AppContainer";
 import {sortBy} from "../../helpers/collections";
 import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
-import {ITeamSeasonDto} from "../../interfaces/serverSide/Team/ITeamSeasonDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IEditTeamPlayerDto} from "../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
 
 export interface IEditPlayerDetailsProps {
     onSaved: (team: ITeamDto, newPlayers: ITeamPlayerDto[] | null) => Promise<any>;
@@ -73,7 +74,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         setSaving(true);
 
         try {
-            const playerDetails: IEditPlayerDetailsPlayer = {
+            const playerDetails: IEditTeamPlayerDto = {
                 name: player.name,
                 captain: player.captain,
                 emailAddress: player.emailAddress,
@@ -81,12 +82,16 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 gameId: null,
             };
 
+            if (player.id) {
+                playerDetails.lastUpdated = player.updated;
+            }
+
             if (player.id && gameId) {
                 playerDetails.gameId = gameId;
             }
 
             const response: IClientActionResultDto<ITeamDto> = player.id
-                ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails, player.updated)
+                ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails)
                 : await createMultiple();
 
             if (response.success) {

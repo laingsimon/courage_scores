@@ -1,6 +1,6 @@
 import {useApp} from "../../../../AppContainer";
 import {renderDate} from "../../../../helpers/rendering";
-import {ITournamentMatchDto} from "../../../../interfaces/serverSide/Game/ITournamentMatchDto";
+import {ITournamentMatchDto} from "../../../../interfaces/models/dtos/Game/ITournamentMatchDto";
 
 export interface IMasterDrawProps {
     matches: ITournamentMatchDto[];

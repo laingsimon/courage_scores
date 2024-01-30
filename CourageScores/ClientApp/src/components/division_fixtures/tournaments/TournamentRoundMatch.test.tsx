@@ -16,21 +16,19 @@ import {createTemporaryId} from "../../../helpers/projection";
 import {any, toMap} from "../../../helpers/collections";
 import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoundMatch";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {ISaygApi} from "../../../api/sayg";
-import {ITournamentApi} from "../../../api/tournament";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
-import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
-import {IUserDto} from "../../../interfaces/serverSide/Identity/IUserDto";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
-import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
+import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
+import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
 import {
     roundBuilder,
     sideBuilder,
@@ -40,6 +38,9 @@ import {
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {matchOptionsBuilder} from "../../../helpers/builders/games";
+import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
+import {ICreateTournamentSaygDto} from "../../../interfaces/models/dtos/Game/ICreateTournamentSaygDto";
 
 interface ISaygDataLookup extends IClientActionResultDto<ITournamentGameDto> {
     match: ITournamentMatchDto;
@@ -53,15 +54,15 @@ describe('TournamentRoundMatch', () => {
     let hiChecks: {player: ITournamentPlayerDto, notes: number}[];
     let oneEighties: ITournamentPlayerDto[];
     let updatedSaygData: IUpdateRecordedScoreAsYouGoDto;
-    let createdSaygSessions: {tournamentId: string, matchId: string, matchOptions: IGameMatchOptionDto}[];
+    let createdSaygSessions: {tournamentId: string, request: ICreateTournamentSaygDto}[];
     let addSaygLookup: ISaygDataLookup[];
     let saygApiData: { [id: string]: IRecordedScoreAsYouGoDto };
     let tournamentApiResponse: IClientActionResultDto<ITournamentGameDto>;
     let deletedSayg: { tournamentId: string, matchId: string };
-    const tournamentApi = api<ITournamentApi>({
-        addSayg: async (tournamentId: string, matchId: string, matchOptions: IGameMatchOptionDto): Promise<IClientActionResultDto<ITournamentGameDto>> => {
-            createdSaygSessions.push({tournamentId, matchId, matchOptions});
-            const responseData: ISaygDataLookup = addSaygLookup.filter((l: ISaygDataLookup) => l.match.id === matchId)[0];
+    const tournamentApi = api<ITournamentGameApi>({
+        addSayg: async (tournamentId: string, request: ICreateTournamentSaygDto): Promise<IClientActionResultDto<ITournamentGameDto>> => {
+            createdSaygSessions.push({tournamentId, request});
+            const responseData: ISaygDataLookup = addSaygLookup.filter((l: ISaygDataLookup) => l.match.id === request.matchId)[0];
 
             if (!responseData) {
                 throw new Error('Did not expect match to have sayg session created');
@@ -761,8 +762,8 @@ describe('TournamentRoundMatch', () => {
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
             expect(createdSaygSessions.length).toEqual(1);
-            expect(createdSaygSessions[0].matchId).toEqual(match.id);
-            expect(createdSaygSessions[0].matchOptions).toEqual(matchOptions);
+            expect(createdSaygSessions[0].request.matchId).toEqual(match.id);
+            expect(createdSaygSessions[0].request.matchOptions).toEqual(matchOptions);
         });
 
         it('handles error when opening sayg dialog', async () => {

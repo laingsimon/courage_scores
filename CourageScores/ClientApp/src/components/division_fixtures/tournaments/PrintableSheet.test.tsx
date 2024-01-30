@@ -5,12 +5,12 @@ import {IPrintableSheetProps, PrintableSheet} from "./PrintableSheet";
 import {renderDate} from "../../../helpers/rendering";
 import {DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {
     ITournamentMatchBuilder, ITournamentRoundBuilder,
     ITournamentSideBuilder,
@@ -22,8 +22,8 @@ import {playerBuilder} from "../../../helpers/builders/players";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
-import {INotableTournamentPlayerDto} from "../../../interfaces/serverSide/Game/INotableTournamentPlayerDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {INotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/INotableTournamentPlayerDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
 
 describe('PrintableSheet', () => {
     let context: TestContext;

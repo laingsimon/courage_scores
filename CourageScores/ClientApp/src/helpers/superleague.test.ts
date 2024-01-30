@@ -19,8 +19,8 @@ import {
     playerOverallAverage,
     sumOverThrows
 } from "./superleague";
-import {IScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
-import {ILegDto} from "../interfaces/serverSide/Game/Sayg/ILegDto";
+import {IScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ILegDto} from "../interfaces/models/dtos/Game/Sayg/ILegDto";
 import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
 
 describe('superleague', () => {
@@ -347,7 +347,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of props', () => {
-            const legs: { [key: string]: ILegDto } = {
+            const legs: { [key: number]: ILegDto } = {
                 0: {
                     home: {
                         throws: [{
@@ -378,7 +378,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of non-bust props', () => {
-            const legs: { [key: string]: ILegDto } = {
+            const legs: { [key: number]: ILegDto } = {
                 0: {
                     home: {
                         throws: [{
@@ -409,7 +409,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of bust and non-bust props', () => {
-            const legs: { [key: string]: ILegDto } = {
+            const legs: { [key: number]: ILegDto } = {
                 0: {
                     home: {
                         throws: [{

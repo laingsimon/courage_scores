@@ -1,28 +1,28 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using CourageScores;
-using TypeScriptMapper;
+using System.Reflection;
+using TypeScriptMapper.Controllers;
+using TypeScriptMapper.Dtos;
 
-var rootNamespace = "CourageScores.Models.Dtos";
-var outputDirectory = "..\\..\\..\\..\\CourageScores\\ClientApp\\src\\interfaces\\serverSide";
-string? onlyType = args.FirstOrDefault();
+const string defaultOutputDir = "../../../../CourageScores/ClientApp/src/interfaces";
+var outputDirectory = args.ElementAtOrDefault(0) ?? defaultOutputDir;
+var onlyType = args.ElementAtOrDefault(1);
 
-var assembly = typeof(DependencyInjectionExtensions).Assembly;
-var typeMapper = new TypeScriptTypeMapper();
-var typeRepository = new TypeRepository(assembly, typeMapper);
-var typeFactory = new TypescriptTypeFactory();
-var typeWriter = new TypescriptTypeWriter(outputDirectory, rootNamespace, typeMapper);
-var typeScriptTypes = typeRepository.GetTypes(rootNamespace).Where(t => onlyType == null || t.Name.Contains(onlyType)).Select(typeFactory.Create).ToArray();
+if (outputDirectory == "-")
+{
+    outputDirectory = defaultOutputDir;
+}
+
+Console.WriteLine($"Working in {Environment.CurrentDirectory}");
+Console.WriteLine($"Output to {Path.GetFullPath(outputDirectory)} ({outputDirectory})");
+
+var assembly = Assembly.LoadFrom(Path.Combine(Environment.CurrentDirectory, "CourageScores.dll"));
 var cancellationTokenSource = new CancellationTokenSource();
 var token = cancellationTokenSource.Token;
 Console.CancelKeyPress += (_, _) => cancellationTokenSource.Cancel();
 
-foreach (var type in typeScriptTypes)
-{
-    if (token.IsCancellationRequested)
-    {
-        break;
-    }
+var dtos = new DtoStrategy(assembly, "CourageScores.Models.Dtos");
+var controllers = new ControllerStrategy(assembly);
 
-    await typeWriter.Write(type, token);
-}
+await dtos.Execute(outputDirectory + "/models/dtos", onlyType, token);
+await controllers.Execute(outputDirectory + "/apis", onlyType, token);

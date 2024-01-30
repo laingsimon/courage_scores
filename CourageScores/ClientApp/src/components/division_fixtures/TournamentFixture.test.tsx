@@ -14,21 +14,21 @@ import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {ITournamentFixtureProps, TournamentFixture} from "./TournamentFixture";
-import {ITournamentApi} from "../../api/tournament";
-import {IEditTournamentGameDto} from "../../interfaces/serverSide/Game/IEditTournamentGameDto";
+import {IEditTournamentGameDto} from "../../interfaces/models/dtos/Game/IEditTournamentGameDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITournamentGameDto} from "../../interfaces/serverSide/Game/ITournamentGameDto";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
-import {ITournamentPlayerDto} from "../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {ITournamentGameDto} from "../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
+import {ITournamentPlayerDto} from "../../interfaces/models/dtos/Game/ITournamentPlayerDto";
 import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {playerBuilder} from "../../helpers/builders/players";
+import {ITournamentGameApi} from "../../interfaces/apis/TournamentGameApi";
 
 describe('TournamentFixture', () => {
     let context: TestContext;
@@ -38,7 +38,7 @@ describe('TournamentFixture', () => {
     let deletedId: string;
     let apiResponse: IClientActionResultDto<ITournamentGameDto>;
 
-    const tournamentApi = api<ITournamentApi>({
+    const tournamentApi = api<ITournamentGameApi>({
         update: async (data: IEditTournamentGameDto, lastUpdated?: string) => {
             savedTournament = {data, lastUpdated};
             return apiResponse || {success: true};

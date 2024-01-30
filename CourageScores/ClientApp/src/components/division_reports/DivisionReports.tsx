@@ -9,8 +9,8 @@ import {ReportGenerationMessages} from "./ReportGenerationMessages";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useApp} from "../../AppContainer";
-import {IReportCollectionDto} from "../../interfaces/serverSide/Report/IReportCollectionDto";
-import {IReportDto} from "../../interfaces/serverSide/Report/IReportDto";
+import {IReportCollectionDto} from "../../interfaces/models/dtos/Report/IReportCollectionDto";
+import {IReportDto} from "../../interfaces/models/dtos/Report/IReportDto";
 
 export function DivisionReports() {
     const {id: divisionId, season} = useDivisionData();
@@ -33,7 +33,7 @@ export function DivisionReports() {
             const result = await reportApi.getReport(request);
             setReportData(result);
             if (result.reports && any(result.reports)) {
-                const selectedReportExists = any(result.reports, r => r.name === activeReport);
+                const selectedReportExists = any(result.reports, (r: IReportDto) => r.name === activeReport);
                 if (!selectedReportExists) {
                     setActiveReport(result.reports[0].name);
                 }

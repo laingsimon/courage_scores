@@ -2,9 +2,9 @@ import React from 'react';
 import {useApp} from "../../../AppContainer";
 import {matchEquals} from "./MatchComparer";
 import {repeat} from "../../../helpers/projection";
-import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
-import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
+import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
 
 export interface IMergeMatchProps {
     readOnly?: boolean;

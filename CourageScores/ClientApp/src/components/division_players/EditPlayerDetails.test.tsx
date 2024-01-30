@@ -11,23 +11,23 @@ import {
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails, IEditPlayerDetailsProps} from "./EditPlayerDetails";
-import {IEditTeamPlayerDto} from "../../interfaces/serverSide/Team/IEditTeamPlayerDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
-import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {IEditTeamPlayerDto} from "../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IPlayerApi} from "../../api/player";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {playerBuilder} from "../../helpers/builders/players";
+import {IPlayerApi} from "../../interfaces/apis/PlayerApi";
 
 describe('EditPlayerDetails', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let createdPlayers: {divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto}[];
-    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string};
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto};
     let saved: {result: ITeamDto, newPlayers: ITeamPlayerDto[] | null};
     let change: {name: string, value: string};
     let canceled: boolean;
@@ -53,8 +53,8 @@ describe('EditPlayerDetails', () => {
                 }
             };
         },
-        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string) => {
-            updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
+        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto) => {
+            updatedPlayer = {seasonId, teamId, playerId, playerDetails};
             return apiResponse || {success: true};
         }
     });

@@ -1,12 +1,12 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
 import {IDatedDivisionFixtureDto} from "../../interfaces/IDatedDivisionFixtureDto";
-import {IGameDto} from "../../interfaces/serverSide/Game/IGameDto";
+import {IGameDto} from "../../interfaces/models/dtos/Game/IGameDto";
 import {createTemporaryId} from "../projection";
-import {IGameMatchDto} from "../../interfaces/serverSide/Game/IGameMatchDto";
-import {IGameMatchOptionDto} from "../../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {IGameMatchDto} from "../../interfaces/models/dtos/Game/IGameMatchDto";
+import {IGameMatchOptionDto} from "../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 import {playerBuilder} from "./players";
 import {saygBuilder} from "./sayg";
-import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
 
 export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto & IGameDto> {
     playing: (home?: any, away?: any) => IFixtureBuilder;

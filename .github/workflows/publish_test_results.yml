@@ -11,7 +11,7 @@ jobs:
     name: 'Test Results'
     runs-on: ubuntu-latest
     steps:
-      - uses: dorny/test-reporter@v1
+      - uses: dorny/test-reporter@v1.8.0
         with:
           artifact: NUnitTestResults
           name: NUnit Tests
@@ -19,7 +19,7 @@ jobs:
           reporter: dotnet-trx
           fail-on-error: false
 
-      - uses: dorny/test-reporter@v1
+      - uses: dorny/test-reporter@v1.8.0
         with:
            artifact: JestTestResults
            name: Jest Tests

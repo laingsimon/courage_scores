@@ -13,11 +13,11 @@ import React from "react";
 import {FixtureDateNote, IFixtureDateNoteProps} from "./FixtureDateNote";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {noteBuilder} from "../../helpers/builders/divisions";
-import {INoteApi} from "../../api/note";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 import {createTemporaryId} from "../../helpers/projection";
+import {INoteApi} from "../../interfaces/apis/NoteApi";
 
 describe('FixtureDateNote', () => {
     let context: TestContext;

@@ -18,23 +18,26 @@ import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {ExportDataButton} from "../../common/ExportDataButton";
 import {PrintableSheet} from "./PrintableSheet";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
-import {IDivisionFixtureDateDto} from "../../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {IEditTeamPlayerDto} from "../../../interfaces/serverSide/Team/IEditTeamPlayerDto";
+import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {IDivisionFixtureDateDto} from "../../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
-import {ITeamSeasonDto} from "../../../interfaces/serverSide/Team/ITeamSeasonDto";
+import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
+import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
+import {IEditTournamentGameDto} from "../../../interfaces/models/dtos/Game/IEditTournamentGameDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -102,7 +105,11 @@ export function Tournament() {
 
             const tournamentPlayerMap: ITournamentPlayerMap = {};
             if (canManageTournaments) {
-                const divisionData: IDivisionDataDto = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
+                const filter: IDivisionDataFilter = {
+                    seasonId: tournamentData.seasonId,
+                };
+
+                const divisionData: IDivisionDataDto = await divisionApi.data(EMPTY_ID, filter);
                 const fixtureDate: IDivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
                 const tournamentPlayerIds: string[] = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
                 tournamentPlayerIds.forEach((id: string) => tournamentPlayerMap[id] = {});
@@ -166,7 +173,10 @@ export function Tournament() {
         }
 
         try {
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.update(tournamentData, tournamentData.updated);
+            const update: IEditTournamentGameDto = tournamentData;
+            update.lastUpdated = tournamentData.updated;
+
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.update(update);
             if (!response.success) {
                 setSaveError(response);
             } else {
@@ -236,7 +246,7 @@ export function Tournament() {
         let teamIds = [];
         let round = tournamentData.round;
         while (round) {
-            saygDataIds = saygDataIds.concat(round.matches.map(m => m.saygId).filter(id => id));
+            saygDataIds = saygDataIds.concat(round.matches.map((m: ITournamentMatchDto) => m.saygId).filter((id: string) => id));
             round = round.nextRound;
         }
 
@@ -280,7 +290,7 @@ export function Tournament() {
                 team: t,
             }
         });
-        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, p => p.id === player.id));
+        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, (p: ITeamPlayerDto) => p.id === player.id));
 
         if (any(teamsWithPlayer)) {
             return teamsWithPlayer[0].team.id

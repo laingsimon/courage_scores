@@ -13,15 +13,16 @@ import {SuperleagueMatchHeading} from "./SuperleagueMatchHeading";
 import {DebugOptions} from "../../common/DebugOptions";
 import {Link} from "react-router-dom";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
-import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
+import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITournamentGameDto} from "../../../interfaces/serverSide/Game/ITournamentGameDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
-import {IPatchTournamentDto} from "../../../interfaces/serverSide/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/serverSide/Game/IPatchTournamentRoundDto";
+import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
+import {ICreateTournamentSaygDto} from "../../../interfaces/models/dtos/Game/ICreateTournamentSaygDto";
 
 export interface ITournamentRoundMatchProps {
     readOnly?: boolean;
@@ -292,7 +293,11 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         try {
             setCreatingSayg(true);
 
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, match.id, matchOptions);
+            const request: ICreateTournamentSaygDto = {
+                matchOptions: matchOptions,
+                matchId: match.id,
+            };
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
                 await setTournamentData(response.result);
                 setSaygOpen(true);

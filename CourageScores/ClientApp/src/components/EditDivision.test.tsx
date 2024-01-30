@@ -13,11 +13,11 @@ import {
 import React from "react";
 import {EditDivision, IEditDivisionProps} from "./EditDivision";
 import {divisionBuilder} from "../helpers/builders/divisions";
-import {IEditDivisionDto} from "../interfaces/serverSide/IEditDivisionDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
+import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
-import {IDivisionApi} from "../api/division";
+import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
+import {IDivisionApi} from "../interfaces/apis/DivisionApi";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -31,7 +31,7 @@ describe('EditDivision', () => {
     let reportedError: ErrorState;
     let saved: boolean;
     let saveError: IClientActionResultDto<IDivisionDto>;
-    let updatedDivision: {data: IEditDivisionDto, lastUpdated?: string};
+    let updatedDivision: IEditDivisionDto;
     let alert: string;
     let confirm: string;
     let confirmResponse: boolean;
@@ -39,8 +39,8 @@ describe('EditDivision', () => {
     let deletedId: string;
     let updatedData: IDivisionDataDto;
     const divisionApi = api<IDivisionApi>({
-        update: (data: IEditDivisionDto, lastUpdated?: string) => {
-            updatedDivision = {data, lastUpdated};
+        update: (data: IEditDivisionDto) => {
+            updatedDivision = data;
             return apiResponse;
         },
         delete: (id: string) => {

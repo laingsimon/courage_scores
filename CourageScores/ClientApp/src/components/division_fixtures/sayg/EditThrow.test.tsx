@@ -12,7 +12,7 @@ import React from "react";
 import {EditThrow, IEditThrowProps} from "./EditThrow";
 import {toDictionary} from "../../../helpers/collections";
 import {valueChanged} from "../../../helpers/events";
-import {ILegThrowDto} from "../../../interfaces/serverSide/Game/Sayg/ILegThrowDto";
+import {ILegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
 
 describe('EditThrow', () => {
     let context: TestContext;

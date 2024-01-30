@@ -11,7 +11,7 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {HiCheckAnd180s, IHiCheckAnd180sProps} from "./HiCheckAnd180s";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {fixtureBuilder, IMatchBuilder} from "../../../helpers/builders/games";

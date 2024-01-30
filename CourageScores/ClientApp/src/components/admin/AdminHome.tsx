@@ -13,8 +13,8 @@ import {AdminContainer} from "./AdminContainer";
 import {Templates} from "./Templates";
 import {SocketAdmin} from "./SocketAdmin";
 import {DataBrowser} from "./DataBrowser";
-import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 
 export function AdminHome() {
     const {mode} = useParams();

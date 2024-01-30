@@ -13,12 +13,12 @@ import {
 import {DataBrowser} from "./DataBrowser";
 import {createTemporaryId, repeat} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
-import {ISingleDataResultDto} from "../../interfaces/serverSide/Data/ISingleDataResultDto";
+import {ISingleDataResultDto} from "../../interfaces/models/dtos/Data/ISingleDataResultDto";
 import {IAppContainerProps} from "../../AppContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IError} from "../../interfaces/IError";
-import {IDataApi} from "../../api/data";
 import {IFailedRequest} from "../../interfaces/IFailedRequest";
+import {IDataApi} from "../../interfaces/apis/DataApi";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -33,7 +33,7 @@ describe('DataBrowser', () => {
     let apiResult: IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>;
     let apiException: IError;
     const dataApi = api<IDataApi>({
-        browse: async (table: string, id?: string): Promise<IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>> => {
+        getRecord: async (table: string, id: string): Promise<IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>> => {
             requestedData = { table, id };
             if (apiException) {
                 throw apiException;
@@ -41,7 +41,18 @@ describe('DataBrowser', () => {
 
             return apiResult || {
                 success: true,
-                result: (id ? { id } : []),
+                result: { id }
+            };
+        },
+        getRows: async (table: string): Promise<IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>> => {
+            requestedData = { table, id: null };
+            if (apiException) {
+                throw apiException;
+            }
+
+            return apiResult || {
+                success: true,
+                result: [],
             };
         }
     });
@@ -280,7 +291,7 @@ describe('DataBrowser', () => {
             }), '?table=TABLE');
 
             expect(requestedData).toEqual({
-                id: '',
+                id: null,
                 table: 'TABLE',
             });
         });

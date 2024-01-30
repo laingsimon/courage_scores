@@ -32,18 +32,18 @@ import {
 import {PageError} from "../../common/PageError";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {DebugOptions} from "../../common/DebugOptions";
-import {ISeasonDto} from "../../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
 import {IFailedRequest} from "../../../interfaces/IFailedRequest";
-import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
-import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
-import {ITeamPlayerDto} from "../../../interfaces/serverSide/Team/ITeamPlayerDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
-import {IGameTeamDto} from "../../../interfaces/serverSide/Game/IGameTeamDto";
+import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
+import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {IGameTeamDto} from "../../../interfaces/models/dtos/Game/IGameTeamDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITeamSeasonDto} from "../../../interfaces/serverSide/Team/ITeamSeasonDto";
+import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
 
 export interface ICreatePlayerFor {
@@ -319,7 +319,7 @@ export function Score() {
 
         try {
             setSaving(true);
-            const response: IClientActionResultDto<IGameDto> = await gameApi.updateScores(fixtureId, fixtureData, fixtureData.updated);
+            const response: IClientActionResultDto<IGameDto> = await gameApi.updateScores(fixtureId, fixtureData);
 
             if (!response.success) {
                 setSaveError(response);

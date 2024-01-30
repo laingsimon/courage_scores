@@ -11,7 +11,7 @@ import {
 import React from "react";
 import {IPlayLegProps, PlayLeg} from "./PlayLeg";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
 
 describe('PlayLeg', () => {
     let context: TestContext;

@@ -14,23 +14,23 @@ import {repeat, createTemporaryId} from "../../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog, ICreateSeasonDialogProps} from "./CreateSeasonDialog";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../../DivisionDataContainer";
-import {ITemplateApi} from "../../../api/template";
-import {IGameApi} from "../../../api/game";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IActionResultDto} from "../../../interfaces/serverSide/IActionResultDto";
-import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
-import {IProposalResultDto} from "../../../interfaces/serverSide/Season/Creation/IProposalResultDto";
-import {IProposalRequestDto} from "../../../interfaces/serverSide/Season/Creation/IProposalRequestDto";
-import {IEditGameDto} from "../../../interfaces/serverSide/Game/IEditGameDto";
-import {IGameDto} from "../../../interfaces/serverSide/Game/IGameDto";
+import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
+import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
+import {IProposalRequestDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalRequestDto";
+import {IEditGameDto} from "../../../interfaces/models/dtos/Game/IEditGameDto";
+import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
 import {IAppContainerProps} from "../../../AppContainer";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {IDivisionTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IDivisionTemplateDto";
-import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {IDivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
+import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {divisionBuilder, fixtureDateBuilder, IDivisionFixtureBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
+import {ISeasonTemplateApi} from "../../../interfaces/apis/SeasonTemplateApi";
+import {IGameApi} from "../../../interfaces/apis/GameApi";
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;
@@ -44,7 +44,7 @@ describe('CreateSeasonDialog', () => {
     let updateFixtureApiResponse: (fixture: IEditGameDto) => Promise<IClientActionResultDto<IGameDto>>;
     let divisionReloaded: boolean;
 
-    const templateApi = api<ITemplateApi>({
+    const templateApi = api<ISeasonTemplateApi>({
         getCompatibility: (seasonId: string) => {
             return compatibilityResponses[seasonId] || {success: false};
         },
@@ -54,7 +54,7 @@ describe('CreateSeasonDialog', () => {
         },
     });
     const gameApi = api<IGameApi>({
-        update: async (fixture: IEditGameDto, _?: string) => {
+        update: async (fixture: IEditGameDto) => {
             updatedFixtures.push(fixture);
             return updateFixtureApiResponse
                 ? await updateFixtureApiResponse(fixture)

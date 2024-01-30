@@ -1,8 +1,8 @@
 import {count, sum} from "./collections";
-import {ILegThrowDto} from "../interfaces/serverSide/Game/Sayg/ILegThrowDto";
-import {IScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IScoreAsYouGoDto";
-import {ILegDto} from "../interfaces/serverSide/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
+import {ILegThrowDto} from "../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
+import {IScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ILegDto} from "../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ILegCompetitorScoreDto} from "../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
 import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
 
 export function playerOverallAverage(saygData: IScoreAsYouGoDto | null | undefined, sideName: string): number | null {
@@ -91,8 +91,8 @@ export function getMatchWinner(saygData: IScoreAsYouGoDto) {
     for (let legIndex in saygData.legs) {
         const leg: ILegDto = saygData.legs[legIndex];
         const startingScore = leg.startingScore;
-        const homeWinner = sum(leg.home!.throws!, thr => thr.bust ? 0 : thr.score) === startingScore;
-        const awayWinner = leg.away ? sum(leg.away.throws!, thr => thr.bust ? 0 : thr.score) === startingScore : false;
+        const homeWinner = sum(leg.home!.throws!, (thr: ILegThrowDto) => thr.bust ? 0 : thr.score) === startingScore;
+        const awayWinner = leg.away ? sum(leg.away.throws!, (thr: ILegThrowDto) => thr.bust ? 0 : thr.score) === startingScore : false;
 
         if (homeWinner) {
             homeScore++;

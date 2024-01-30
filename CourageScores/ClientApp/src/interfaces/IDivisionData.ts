@@ -1,4 +1,4 @@
-import {IDivisionDataDto} from "./serverSide/Division/IDivisionDataDto";
+import {IDivisionDataDto} from "./models/dtos/Division/IDivisionDataDto";
 import React from "react";
 
 export interface IDivisionData extends IDivisionDataDto {

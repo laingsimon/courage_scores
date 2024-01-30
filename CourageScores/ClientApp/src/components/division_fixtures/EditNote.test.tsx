@@ -11,18 +11,18 @@ import {
 } from "../../helpers/tests";
 import React from "react";
 import {EditNote} from "./EditNote";
-import {INoteApi} from "../../api/note";
-import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
+import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder, noteBuilder} from "../../helpers/builders/divisions";
+import {INoteApi} from "../../interfaces/apis/NoteApi";
 
 describe('EditNote', () => {
     let context: TestContext;
-    let savedNote: { id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string };
+    let savedNote: { id: string, note: IEditFixtureDateNoteDto };
     let createdNote: IEditFixtureDateNoteDto;
     let changedNote: IFixtureDateNoteDto;
     let closed: boolean;
@@ -34,8 +34,8 @@ describe('EditNote', () => {
             createdNote = note;
             return saveResult || {success: true};
         },
-        upsert: async (id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string): Promise<IClientActionResultDto<IFixtureDateNoteDto>> => {
-            savedNote = {id, note, lastUpdated};
+        upsert: async (id: string, note: IEditFixtureDateNoteDto): Promise<IClientActionResultDto<IFixtureDateNoteDto>> => {
+            savedNote = {id, note};
             return saveResult || {success: true};
         },
     });
@@ -369,7 +369,7 @@ describe('EditNote', () => {
 
             expect(alert).toBeNull();
             expect(savedNote).not.toBeNull();
-            expect(savedNote.lastUpdated).toEqual('2023-07-01T00:00:00');
+            expect(savedNote.note.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(saved).toEqual(true);
         });
 

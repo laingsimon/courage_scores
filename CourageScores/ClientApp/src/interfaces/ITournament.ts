@@ -1,8 +1,8 @@
-import {ITournamentGameDto} from "./serverSide/Game/ITournamentGameDto";
-import {IDivisionDto} from "./serverSide/IDivisionDto";
-import {IGameMatchOptionDto} from "./serverSide/Game/IGameMatchOptionDto";
+import {ITournamentGameDto} from "./models/dtos/Game/ITournamentGameDto";
+import {IDivisionDto} from "./models/dtos/IDivisionDto";
+import {IGameMatchOptionDto} from "./models/dtos/Game/IGameMatchOptionDto";
 import {ITournamentPlayerMap} from "../components/division_fixtures/tournaments/Tournament";
-import {ISeasonDto} from "./serverSide/Season/ISeasonDto";
+import {ISeasonDto} from "./models/dtos/Season/ISeasonDto";
 import {ISelectablePlayer} from "../components/division_players/PlayerSelection";
 
 export interface ITournament {

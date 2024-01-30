@@ -16,18 +16,18 @@ import {
 } from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "./season_creation/CreateSeasonDialog";
-import {IDivisionDataDto} from "../../interfaces/serverSide/Division/IDivisionDataDto";
-import {IEditFixtureDateNoteDto} from "../../interfaces/serverSide/IEditFixtureDateNoteDto";
+import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../interfaces/serverSide/Team/ITeamSeasonDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
-import {IDivisionFixtureDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {IDivisionFixtureDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDto";
 import {IFilter} from "../../interfaces/IFilter";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
-import {IFixtureDateNoteDto} from "../../interfaces/serverSide/IFixtureDateNoteDto";
+} from "../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
 
 export interface IDivisionFixturesProps {
     setNewFixtures: (fixtures: IDivisionFixtureDateDto[]) => Promise<any>;

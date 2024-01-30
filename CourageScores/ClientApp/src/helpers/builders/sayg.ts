@@ -1,9 +1,9 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {IRecordedScoreAsYouGoDto} from "../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
 import {createTemporaryId} from "../projection";
-import {ILegDto} from "../../interfaces/serverSide/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {ILegDto} from "../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ILegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
 export interface IRecordedSaygBuilder extends IAddableBuilder<IRecordedScoreAsYouGoDto & IUpdateRecordedScoreAsYouGoDto> {
     scores: (home: number, away?: number) => IRecordedSaygBuilder;

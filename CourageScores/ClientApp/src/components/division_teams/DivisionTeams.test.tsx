@@ -15,13 +15,13 @@ import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionTeams} from "./DivisionTeams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
-import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITeamApi} from "../../api/team";
-import {IDivisionDataDto} from "../../interfaces/serverSide/Division/IDivisionDataDto";
+import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {ITeamApi} from "../../interfaces/apis/TeamApi";
 
 describe('DivisionTeams', () => {
     let context: TestContext;

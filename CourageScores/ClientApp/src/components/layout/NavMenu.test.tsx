@@ -5,7 +5,7 @@ import {ISettings} from "../../api/settings";
 import {IBrandingContainerProps} from "../../BrandingContainer";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IUserDto} from "../../interfaces/serverSide/Identity/IUserDto";
+import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 import {IAppContainerProps} from "../../AppContainer";
 
 describe('NavMenu', () => {

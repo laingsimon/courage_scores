@@ -13,10 +13,10 @@ import {IReviewProposalsFloatingDialogProps, ReviewProposalsFloatingDialog} from
 import {toDictionary} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";
 import {IAppContainerProps} from "../../../AppContainer";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {ITeamDto} from "../../../interfaces/serverSide/Team/ITeamDto";
-import {IProposalResultDto} from "../../../interfaces/serverSide/Season/Creation/IProposalResultDto";
-import {IDivisionDataDto} from "../../../interfaces/serverSide/Division/IDivisionDataDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
+import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {teamBuilder} from "../../../helpers/builders/teams";
 

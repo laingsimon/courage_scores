@@ -15,10 +15,10 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {ImportData} from "./ImportData";
-import {IImportDataRequestDto} from "../../interfaces/serverSide/Data/IImportDataRequestDto";
+import {IImportDataRequestDto} from "../../interfaces/models/dtos/Data/IImportDataRequestDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IImportDataResultDto} from "../../interfaces/serverSide/Data/IImportDataResultDto";
-import {IDataApi} from "../../api/data";
+import {IImportDataResultDto} from "../../interfaces/models/dtos/Data/IImportDataResultDto";
+import {IDataApi} from "../../interfaces/apis/DataApi";
 
 describe('ImportData', () => {
     let context: TestContext;

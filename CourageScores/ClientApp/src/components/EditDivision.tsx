@@ -4,9 +4,9 @@ import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
-import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
+import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
+import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
 
 export interface IEditDivisionProps {
     onClose: () => Promise<any>;
@@ -37,7 +37,7 @@ export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}
 
         try {
             setSaving(true);
-            const result: IClientActionResultDto<IDivisionDto> = await divisionApi.update(data, data.updated);
+            const result: IClientActionResultDto<IDivisionDto> = await divisionApi.update(data);
 
             if (result.success) {
                 await onSave();

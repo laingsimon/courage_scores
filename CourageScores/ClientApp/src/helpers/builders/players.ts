@@ -1,8 +1,8 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {IPlayerPerformanceDto} from "../../interfaces/serverSide/Division/IPlayerPerformanceDto";
-import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
-import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
-import {INotablePlayerDto} from "../../interfaces/serverSide/Game/INotablePlayerDto";
+import {IPlayerPerformanceDto} from "../../interfaces/models/dtos/Division/IPlayerPerformanceDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
+import {INotablePlayerDto} from "../../interfaces/models/dtos/Game/INotablePlayerDto";
 import {ISelectablePlayer} from "../../components/division_players/PlayerSelection";
 import {createTemporaryId} from "../projection";
 

@@ -8,11 +8,12 @@ import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
 import {RefreshControl} from "../RefreshControl";
-import {ITournamentSideDto} from "../../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../../interfaces/serverSide/Game/ITournamentPlayerDto";
-import {ITournamentRoundDto} from "../../../interfaces/serverSide/Game/ITournamentRoundDto";
-import {ITournamentMatchDto} from "../../../interfaces/serverSide/Game/ITournamentMatchDto";
-import {IGameMatchOptionDto} from "../../../interfaces/serverSide/Game/IGameMatchOptionDto";
+import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
+import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -187,7 +188,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                 return null;
             }
 
-            const hasPlayer = any(teamSeason.players, p => p.id === player.id);
+            const hasPlayer = any(teamSeason.players, (p: ITeamPlayerDto) => p.id === player.id);
             return hasPlayer ? {team: t, divisionId: teamSeason.divisionId} : null;
         }).filter(a => a !== null)[0];
 

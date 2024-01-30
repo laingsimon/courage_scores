@@ -12,8 +12,8 @@ import {
 import React from "react";
 import {LiveSayg} from "./LiveSayg";
 import {saygBuilder} from "../../../helpers/builders/sayg";
-import {ISaygApi} from "../../../api/sayg";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/serverSide/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {ISaygApi} from "../../../interfaces/apis/SaygApi";
 
 describe('LiveSayg', () => {
     let context: TestContext;

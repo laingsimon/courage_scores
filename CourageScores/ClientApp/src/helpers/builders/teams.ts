@@ -1,11 +1,12 @@
 ﻿import {IAddableBuilder} from "./builders";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {IEditTeamDto} from "../../interfaces/serverSide/Team/IEditTeamDto";
-import {ITeamPlayerDto} from "../../interfaces/serverSide/Team/ITeamPlayerDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {createTemporaryId} from "../projection";
-import {ITeamSeasonDto} from "../../interfaces/serverSide/Team/ITeamSeasonDto";
+import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
+import {IGameTeamDto} from "../../interfaces/models/dtos/Game/IGameTeamDto";
 
-export interface ITeamBuilder extends IAddableBuilder<ITeamDto & IEditTeamDto> {
+export interface ITeamBuilder extends IAddableBuilder<ITeamDto & IEditTeamDto & IGameTeamDto> {
     forSeason: (seasonOrId: any, divisionOrId?: any, players?: ITeamPlayerDto[]) => ITeamBuilder;
     address: (address: string) => ITeamBuilder;
     season: (seasonOrId: any) => ITeamBuilder;
@@ -16,7 +17,7 @@ export interface ITeamBuilder extends IAddableBuilder<ITeamDto & IEditTeamDto> {
 }
 
 export function teamBuilder(name?: string, id?: string): ITeamBuilder {
-    const team: ITeamDto & IEditTeamDto = {
+    const team: ITeamDto & IEditTeamDto & IGameTeamDto = {
         id: id || createTemporaryId(),
         name,
         address: '',

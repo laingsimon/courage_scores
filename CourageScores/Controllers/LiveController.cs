@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper;
 
 namespace CourageScores.Controllers;
 
@@ -17,6 +18,7 @@ public class LiveController : Controller
         _liveService = liveService;
     }
 
+    [ExcludeFromTypeScript]
     [ApiExplorerSettings(IgnoreApi = true)]
     [Route("/api/Live")]
     public async Task Subscribe(CancellationToken token)
@@ -37,13 +39,13 @@ public class LiveController : Controller
     }
 
     [HttpGet("/api/Live/Sockets")]
-    public async Task<ActionResultDto<List<WebSocketDto>>> GetSockets(CancellationToken token)
+    public async Task<ActionResultDto<List<WebSocketDto>>> GetAll(CancellationToken token)
     {
         return await _liveService.GetSockets(token);
     }
 
     [HttpDelete("/api/Live/Socket/{id}")]
-    public async Task<ActionResultDto<WebSocketDto>> CloseSocket(Guid id, CancellationToken token)
+    public async Task<ActionResultDto<WebSocketDto>> Close(Guid id, CancellationToken token)
     {
         return await _liveService.CloseSocket(id, token);
     }

@@ -2,7 +2,7 @@ import React from "react";
 import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
 
 export interface IPlayLegProps {
     leg?: ILegDto;

@@ -6,9 +6,9 @@ import {propChanged, valueChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IImportDataRequestDto} from "../../interfaces/serverSide/Data/IImportDataRequestDto";
-import {IImportDataResultDto} from "../../interfaces/serverSide/Data/IImportDataResultDto";
-import {ITableDto} from "../../interfaces/serverSide/Data/ITableDto";
+import {IImportDataRequestDto} from "../../interfaces/models/dtos/Data/IImportDataRequestDto";
+import {IImportDataResultDto} from "../../interfaces/models/dtos/Data/IImportDataResultDto";
+import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function ImportData() {

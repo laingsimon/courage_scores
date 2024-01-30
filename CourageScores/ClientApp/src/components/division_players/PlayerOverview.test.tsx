@@ -4,11 +4,11 @@ import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDat
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {PlayerOverview} from "./PlayerOverview";
-import {IDivisionPlayerDto} from "../../interfaces/serverSide/Division/IDivisionPlayerDto";
-import {ITeamDto} from "../../interfaces/serverSide/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionDto} from "../../interfaces/serverSide/IDivisionDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/serverSide/Division/IDivisionFixtureDateDto";
+import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
+import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {

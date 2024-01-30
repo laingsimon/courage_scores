@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Game;
 

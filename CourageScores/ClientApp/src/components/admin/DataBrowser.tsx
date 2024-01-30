@@ -5,7 +5,7 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useDependencies} from "../../IocContainer";
 import {renderDate} from "../../helpers/rendering";
 import {repeat} from "../../helpers/projection";
-import {ISingleDataResultDto} from "../../interfaces/serverSide/Data/ISingleDataResultDto";
+import {ISingleDataResultDto} from "../../interfaces/models/dtos/Data/ISingleDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function DataBrowser() {
@@ -53,7 +53,9 @@ export function DataBrowser() {
         setLoading(true);
         try {
             setResponse(null);
-            const response = await dataApi.browse(table, id);
+            const response: IClientActionResultDto<ISingleDataResultDto> | IClientActionResultDto<ISingleDataResultDto[]> = id
+                ? await dataApi.getRecord(table, id)
+                : await dataApi.getRows(table);
             setResponse(response);
         }
         catch (e) {

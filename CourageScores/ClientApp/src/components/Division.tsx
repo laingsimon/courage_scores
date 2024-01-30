@@ -18,13 +18,14 @@ import {isGuid} from "../helpers/projection";
 import {EmbedAwareLink} from "./common/EmbedAwareLink";
 import {DivisionHealth} from "./division_health/DivisionHealth";
 import {DataError} from "./DataError";
-import {IDivisionDataDto} from "../interfaces/serverSide/Division/IDivisionDataDto";
-import {IDivisionDto} from "../interfaces/serverSide/IDivisionDto";
-import {ISeasonDto} from "../interfaces/serverSide/Season/ISeasonDto";
-import {IDivisionTeamDto} from "../interfaces/serverSide/Division/IDivisionTeamDto";
-import {IDivisionPlayerDto} from "../interfaces/serverSide/Division/IDivisionPlayerDto";
-import {IDataErrorDto} from "../interfaces/serverSide/Division/IDataErrorDto";
+import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
+import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
+import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
+import {IDivisionTeamDto} from "../interfaces/models/dtos/Division/IDivisionTeamDto";
+import {IDivisionPlayerDto} from "../interfaces/models/dtos/Division/IDivisionPlayerDto";
+import {IDataErrorDto} from "../interfaces/models/dtos/Division/IDataErrorDto";
 import {IFailedRequest} from "../interfaces/IFailedRequest";
+import {IDivisionDataFilter} from "../interfaces/models/dtos/Division/IDivisionDataFilter";
 
 export interface IRequestedDivisionDataDto extends IDivisionDataDto, IFailedRequest {
     requested?: { divisionId: string, seasonId: string };
@@ -120,7 +121,10 @@ export function Division() {
                 }
             }
 
-            const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(divisionId, seasonId);
+            const filter: IDivisionDataFilter = {
+                seasonId: seasonId
+            };
+            const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(divisionId, filter);
             newDivisionData.requested = {
                 divisionId,
                 seasonId,

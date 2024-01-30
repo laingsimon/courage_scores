@@ -1,5 +1,5 @@
-import {IGameMatchDto} from "../../../interfaces/serverSide/Game/IGameMatchDto";
-import {IGamePlayerDto} from "../../../interfaces/serverSide/Game/IGamePlayerDto";
+import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
+import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
 
 export function matchEquals(x?: IGameMatchDto, y?: IGameMatchDto): boolean {
     if (!x && !y) {

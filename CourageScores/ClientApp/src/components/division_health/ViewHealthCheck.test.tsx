@@ -1,7 +1,7 @@
 import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {ViewHealthCheck} from "./ViewHealthCheck";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
 
 describe('DivisionHealth', () => {
     let context: TestContext;

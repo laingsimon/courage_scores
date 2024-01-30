@@ -13,9 +13,9 @@ import {
 } from "../../helpers/tests";
 import {SocketAdmin} from "./SocketAdmin";
 import {createTemporaryId} from "../../helpers/projection";
-import {IWebSocketDto} from "../../interfaces/serverSide/Live/IWebSocketDto";
+import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ILiveApi} from "../../api/live";
+import {ILiveApi} from "../../interfaces/apis/LiveApi";
 
 describe('SocketAdmin', () => {
     let context: TestContext;

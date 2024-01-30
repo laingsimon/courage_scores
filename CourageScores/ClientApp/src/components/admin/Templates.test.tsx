@@ -13,11 +13,11 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
-import {ITemplateApi} from "../../api/template";
-import {ITemplateDto} from "../../interfaces/serverSide/Season/Creation/ITemplateDto";
+import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/serverSide/Health/ISeasonHealthCheckResultDto";
-import {IEditTemplateDto} from "../../interfaces/serverSide/Season/Creation/IEditTemplateDto";
+import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
+import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
+import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
 
 describe('Templates', () => {
     let context: TestContext;
@@ -26,7 +26,7 @@ describe('Templates', () => {
     let apiResponse: IClientActionResultDto<any>;
     let deleted: string;
     let updated: IEditTemplateDto;
-    const templateApi = api<ITemplateApi>({
+    const templateApi = api<ISeasonTemplateApi>({
         getAll: async (): Promise<ITemplateDto[]> => {
             return templates;
         },

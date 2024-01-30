@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Game.Sayg;
+using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Game;
 

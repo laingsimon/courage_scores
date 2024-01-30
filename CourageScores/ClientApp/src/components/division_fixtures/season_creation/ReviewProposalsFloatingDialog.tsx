@@ -2,12 +2,12 @@ import {any, distinct, sortBy} from "../../../helpers/collections";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
 import React from "react";
 import {useApp} from "../../../AppContainer";
-import {IDivisionDto} from "../../../interfaces/serverSide/IDivisionDto";
-import {IProposalResultDto} from "../../../interfaces/serverSide/Season/Creation/IProposalResultDto";
-import {ITemplateDto} from "../../../interfaces/serverSide/Season/Creation/ITemplateDto";
-import {IDivisionTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IDivisionTemplateDto";
-import {IDateTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../../interfaces/serverSide/Season/Creation/IFixtureTemplateDto";
+import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
+import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {IDivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
+import {IDateTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
+import {IFixtureTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IFixtureTemplateDto";
 
 export interface IReviewProposalsFloatingDialogProps {
     proposalResult: IProposalResultDto;

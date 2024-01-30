@@ -2,8 +2,8 @@ import {round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {useApp} from "../../../AppContainer";
-import {ILegDto} from "../../../interfaces/serverSide/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../../../interfaces/serverSide/Game/Sayg/ILegCompetitorScoreDto";
+import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ILegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
 
 export interface IPlayerInputProps {
     home: string;

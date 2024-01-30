@@ -2,7 +2,7 @@ import {valueChanged} from "../helpers/events";
 import {ShareButton} from "./common/ShareButton";
 import React from "react";
 import {useSayg} from "./division_fixtures/sayg/SaygLoadingContainer";
-import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/serverSide/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 
 export function EditSaygPracticeOptions() {
     const {sayg, setSayg, saveDataAndGetId} = useSayg();

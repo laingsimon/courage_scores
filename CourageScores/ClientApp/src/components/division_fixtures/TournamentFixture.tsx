@@ -6,13 +6,13 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITournamentGameDto} from "../../interfaces/serverSide/Game/ITournamentGameDto";
+import {ITournamentGameDto} from "../../interfaces/models/dtos/Game/ITournamentGameDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITournamentSideDto} from "../../interfaces/serverSide/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../interfaces/serverSide/Game/ITournamentPlayerDto";
+import {ITournamentSideDto} from "../../interfaces/models/dtos/Game/ITournamentSideDto";
+import {ITournamentPlayerDto} from "../../interfaces/models/dtos/Game/ITournamentPlayerDto";
 import {
     IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/serverSide/Division/IDivisionTournamentFixtureDetailsDto";
+} from "../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
 
 export interface ITournamentFixtureProps {
     tournament: IDivisionTournamentFixtureDetailsDto;
@@ -45,7 +45,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
                 address: tournament.address,
                 divisionId: divisionId,
                 seasonId: season.id
-            }, null);
+            });
 
             if (response.success) {
                 await onTournamentChanged();
