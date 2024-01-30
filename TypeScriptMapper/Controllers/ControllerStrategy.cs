@@ -46,7 +46,7 @@ public class ControllerStrategy: IStrategy
         var name = controller.Name.Replace("Controller", "Api");
         controller.RelativePath = controller.RelativePath.Replace("Controller", "Api");
 
-        var path = Path.GetFullPath(Path.Combine(outputDirectory, controller.RelativePath));
+        var path = Path.GetFullPath(Path.Combine(outputDirectory, controller.RelativePath.Replace(".d.ts", ".ts")));
         using (var writer = new StreamWriter(File.Create(path)))
         {
             await Console.Out.WriteLineAsync($"Writing {controller.Name} to {path}...");
