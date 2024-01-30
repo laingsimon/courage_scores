@@ -153,7 +153,7 @@ public class ControllerStrategy: IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{import.Name}}} from '{Path.ChangeExtension(import.RelativePath!.Replace(".d.ts", ".ts"), null)}';");
         }
     }
 
