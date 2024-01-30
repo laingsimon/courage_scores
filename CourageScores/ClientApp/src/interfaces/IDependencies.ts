@@ -1,5 +1,4 @@
 ﻿import {IDivisionApi} from "../api/division";
-import {IAccountApi} from "../api/account";
 import {ISeasonApi} from "../api/season";
 import {ITeamApi} from "../api/team";
 import {IErrorApi} from "../api/error";
@@ -15,6 +14,7 @@ import {ISaygApi} from "../api/sayg";
 import {ITemplateApi} from "../api/template";
 import {ILiveApi} from "../api/live";
 import {ILiveWebSocket} from "../LiveWebSocket";
+import {IAccountApi} from "./apis/AccountApi";
 
 export interface IDependencies {
     divisionApi: IDivisionApi;

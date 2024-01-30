@@ -5,7 +5,6 @@ import {TeamApi} from "./api/team";
 import {TournamentApi} from "./api/tournament";
 import {ErrorApi} from "./api/error";
 import {DataApi} from "./api/data";
-import {AccountApi} from "./api/account";
 import {GameApi} from "./api/game";
 import {NoteApi} from "./api/note";
 import {PlayerApi} from "./api/player";
@@ -20,6 +19,7 @@ import {LiveWebSocket} from "./LiveWebSocket";
 import {LiveApi} from "./api/live";
 import {IDependencies} from "./interfaces/IDependencies";
 import {ISubscriptions} from "./interfaces/ISubscriptions";
+import {AccountApi} from "./interfaces/apis/AccountApi";
 
 const DependenciesContext = createContext({});
 
