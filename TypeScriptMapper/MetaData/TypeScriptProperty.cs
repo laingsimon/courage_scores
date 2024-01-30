@@ -21,8 +21,6 @@ public class TypeScriptProperty : ITypeScriptMember
 
     public string Name => _property.Name.ToCamelCase();
 
-    public List<TypeScriptParameter> Parameters => new();
-
     public string GetDefinition()
     {
         return $"{Name}{(IsOptional() ? "?" : "")}: {_helper.GetTypeScriptType(_context, _property.PropertyType).GetTypeScriptDefinition()}";

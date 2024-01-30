@@ -70,7 +70,7 @@ public class ControllerStrategy: IStrategy
         await writer.WriteLineAsync("        this.http = http;");
         await writer.WriteLineAsync("    }");
 
-        foreach (var member in controller.Members.OfType<TypeScriptMethod>().OrderBy(m => m.Name))
+        foreach (var member in controller.Members.OfType<IRouteMethod>().OrderBy(m => m.Name))
         {
             if (token.IsCancellationRequested)
             {
@@ -92,7 +92,7 @@ public class ControllerStrategy: IStrategy
         await writer.WriteLineAsync("}");
     }
 
-    private static string GetHttpUsage(TypeScriptMethod method)
+    private static string GetHttpUsage(IRouteMethod method)
     {
         var attribute = method.RouteAttribute;
         if (attribute == null)

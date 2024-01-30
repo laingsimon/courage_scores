@@ -13,11 +13,6 @@ public interface ITypeScriptMember
     string Name { get; }
 
     /// <summary>
-    /// Any parameters for this member
-    /// </summary>
-    List<TypeScriptParameter> Parameters { get; }
-
-    /// <summary>
     /// Should this member be excluded from the typescript API?
     /// </summary>
     bool IsExcluded { get; }
