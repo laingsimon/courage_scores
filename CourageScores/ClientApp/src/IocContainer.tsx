@@ -3,7 +3,6 @@ import {Http, IHttp} from "./api/http";
 import {ISettings, Settings} from "./api/settings";
 import {TeamApi} from "./api/team";
 import {TournamentApi} from "./api/tournament";
-import {ErrorApi} from "./api/error";
 import {DataApi} from "./api/data";
 import {GameApi} from "./api/game";
 import {NoteApi} from "./api/note";
@@ -20,6 +19,7 @@ import {LiveApi} from "./api/live";
 import {IDependencies} from "./interfaces/IDependencies";
 import {ISubscriptions} from "./interfaces/ISubscriptions";
 import {AccountApi} from "./interfaces/apis/AccountApi";
+import {ErrorApi} from "./interfaces/apis/ErrorApi";
 
 const DependenciesContext = createContext({});
 
