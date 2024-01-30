@@ -47,7 +47,9 @@ public class TypeScriptInterfaceFactory
     private static bool AppropriateMethod(MethodInfo method)
     {
         return method.GetCustomAttribute<CompilerGeneratedAttribute>() == null
-            && method.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null;
+            && method.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null
+            && !method.Name.StartsWith("get_")
+            && !method.Name.StartsWith("set_");
     }
 
     private static string GetTypeName(Type type, bool includeGenericArguments)
