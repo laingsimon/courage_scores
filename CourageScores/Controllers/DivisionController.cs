@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper;
 using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
@@ -37,6 +38,7 @@ public class DivisionController : Controller
         return await _divisionService.GetDivisionData(filter, token);
     }
 
+    [ExcludeFromTypeScript]
     [HttpGet("/api/Division/{divisionId}/{seasonId}/Data")]
     public async Task<DivisionDataDto> Data(Guid? divisionId, Guid seasonId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
