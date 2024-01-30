@@ -30,7 +30,8 @@ public class TypeScriptProperty : ITypeScriptMember
 
     private bool IsOptional()
     {
-        // TODO: Work this out
-        return false;
+        var context = new NullabilityInfoContext();
+        var info = context.Create(_property);
+        return info.ReadState == NullabilityState.Nullable;
     }
 }
