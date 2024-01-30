@@ -15,7 +15,6 @@ import React from "react";
 import {Tournament} from "./Tournament";
 import {any, DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
-import {IDataApi} from "../../../api/data";
 import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
 import {IEditTournamentGameDto} from "../../../interfaces/models/dtos/Game/IEditTournamentGameDto";
@@ -48,6 +47,7 @@ import {IDivisionApi} from "../../../interfaces/apis/DivisionApi";
 import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
 import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
 import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
+import {IDataApi} from "../../../interfaces/apis/DataApi";
 
 interface IScenario {
     account?: IUserDto;

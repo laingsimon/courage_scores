@@ -53,7 +53,9 @@ export function DataBrowser() {
         setLoading(true);
         try {
             setResponse(null);
-            const response = await dataApi.browse(table, id);
+            const response: IClientActionResultDto<ISingleDataResultDto> | IClientActionResultDto<ISingleDataResultDto[]> = id
+                ? await dataApi.getRecord(table, id)
+                : await dataApi.getRows(table);
             setResponse(response);
         }
         catch (e) {

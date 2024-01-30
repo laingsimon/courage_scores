@@ -60,13 +60,13 @@ public class DataController : Controller
     }
 
     [HttpGet("/api/Data/Browse/{table}/")]
-    public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token)
+    public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> GetRows(string table, CancellationToken token)
     {
         return await _dataService.Browse(table, token);
     }
 
     [HttpGet("/api/Data/Browse/{table}/{id}")]
-    public async Task<ActionResultDto<SingleDataResultDto>> Browse(string table, Guid id, CancellationToken token)
+    public async Task<ActionResultDto<SingleDataResultDto>> GetRecord(string table, Guid id, CancellationToken token)
     {
         return await _dataService.Browse(table, id, token);
     }

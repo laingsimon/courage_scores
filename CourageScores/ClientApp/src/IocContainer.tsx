@@ -2,7 +2,6 @@ import React, {createContext, useContext, useState} from "react";
 import {Http, IHttp} from "./api/http";
 import {ISettings, Settings} from "./api/settings";
 import {TeamApi} from "./api/team";
-import {DataApi} from "./api/data";
 import {IParentHeight, ParentHeight} from "./ParentHeight";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
@@ -20,6 +19,7 @@ import {NoteApi} from "./interfaces/apis/NoteApi";
 import {SeasonApi} from "./interfaces/apis/SeasonApi";
 import {PlayerApi} from "./interfaces/apis/PlayerApi";
 import {TournamentGameApi} from "./interfaces/apis/TournamentGameApi";
+import {DataApi} from "./interfaces/apis/DataApi";
 
 const DependenciesContext = createContext({});
 
