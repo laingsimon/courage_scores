@@ -11,8 +11,14 @@ public class GenericTypeScriptType : ITypeScriptType
     {
         return $"{OuterType.GetTypeScriptDefinition()}<{string.Join(", ", GenericTypes.Select(gt => gt.GetTypeScriptDefinition()))}>";
     }
+
     public IEnumerable<IImportableType> GetImports()
     {
         return OuterType.GetImports().Concat(GenericTypes.SelectMany(gt => gt.GetImports()));
+    }
+
+    public ITypeScriptType ToNullable()
+    {
+        return new NullableTypeScriptType(this);
     }
 }

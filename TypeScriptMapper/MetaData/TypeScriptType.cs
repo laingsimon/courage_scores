@@ -31,4 +31,9 @@ public class TypeScriptType : ITypeScriptType, IImportableType
     {
         yield return this;
     }
+
+    public ITypeScriptType ToNullable()
+    {
+        return new NullableTypeScriptType(this);
+    }
 }

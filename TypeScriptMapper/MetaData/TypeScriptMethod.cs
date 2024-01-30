@@ -34,8 +34,17 @@ public class TypeScriptMethod : ITypeScriptMember
 
     private string GetReturnTypeDefinition()
     {
-        // TODO: Include nullability in return type
-        return _helper.GetTypeScriptType(_context, _method.ReturnType).GetTypeScriptDefinition();
+        var type = _helper.GetTypeScriptType(_context, _method.ReturnType);
+
+        var customAttributes = _method.ReturnTypeCustomAttributes.GetCustomAttributes(false);
+        var hasNullableAttribute = customAttributes.Any(a => a.ToString() == "System.Runtime.CompilerServices.NullableAttribute");
+
+        if (hasNullableAttribute)
+        {
+            type = type.ToNullable();
+        }
+
+        return type.GetTypeScriptDefinition();
     }
 
     private IEnumerable<string> GetParameterDefinition()

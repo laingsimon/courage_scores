@@ -21,4 +21,9 @@ public class ArrayTypeScriptType : ITypeScriptType
             yield return import;
         }
     }
+
+    public ITypeScriptType ToNullable()
+    {
+        return new NullableTypeScriptType(this);
+    }
 }

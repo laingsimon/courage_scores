@@ -21,4 +21,9 @@ public class PromiseTypeScriptType : ITypeScriptType
             yield return import;
         }
     }
+
+    public ITypeScriptType ToNullable()
+    {
+        return new PromiseTypeScriptType(new NullableTypeScriptType(_taskType));
+    }
 }
