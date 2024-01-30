@@ -2,7 +2,6 @@ import React, {createContext, useContext, useState} from "react";
 import {Http, IHttp} from "./api/http";
 import {ISettings, Settings} from "./api/settings";
 import {TeamApi} from "./api/team";
-import {TournamentApi} from "./api/tournament";
 import {DataApi} from "./api/data";
 import {IParentHeight, ParentHeight} from "./ParentHeight";
 import socketFactory from "./api/socketFactory";
@@ -20,6 +19,7 @@ import {LiveApi} from "./interfaces/apis/LiveApi";
 import {NoteApi} from "./interfaces/apis/NoteApi";
 import {SeasonApi} from "./interfaces/apis/SeasonApi";
 import {PlayerApi} from "./interfaces/apis/PlayerApi";
+import {TournamentGameApi} from "./interfaces/apis/TournamentGameApi";
 
 const DependenciesContext = createContext({});
 
@@ -45,7 +45,7 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
         divisionApi: new DivisionApi(http),
         seasonApi: new SeasonApi(http),
         teamApi: new TeamApi(http),
-        tournamentApi: new TournamentApi(http),
+        tournamentApi: new TournamentGameApi(http),
         errorApi: new ErrorApi(http),
         dataApi: new DataApi(http),
         accountApi: new AccountApi(http),

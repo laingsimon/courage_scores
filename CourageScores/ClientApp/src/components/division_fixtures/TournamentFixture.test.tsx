@@ -14,7 +14,6 @@ import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {ITournamentFixtureProps, TournamentFixture} from "./TournamentFixture";
-import {ITournamentApi} from "../../api/tournament";
 import {IEditTournamentGameDto} from "../../interfaces/models/dtos/Game/IEditTournamentGameDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ITournamentGameDto} from "../../interfaces/models/dtos/Game/ITournamentGameDto";
@@ -29,6 +28,7 @@ import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {playerBuilder} from "../../helpers/builders/players";
+import {ITournamentGameApi} from "../../interfaces/apis/TournamentGameApi";
 
 describe('TournamentFixture', () => {
     let context: TestContext;
@@ -38,7 +38,7 @@ describe('TournamentFixture', () => {
     let deletedId: string;
     let apiResponse: IClientActionResultDto<ITournamentGameDto>;
 
-    const tournamentApi = api<ITournamentApi>({
+    const tournamentApi = api<ITournamentGameApi>({
         update: async (data: IEditTournamentGameDto, lastUpdated?: string) => {
             savedTournament = {data, lastUpdated};
             return apiResponse || {success: true};

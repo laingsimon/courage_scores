@@ -16,7 +16,6 @@ import {createTemporaryId} from "../../../helpers/projection";
 import {any, toMap} from "../../../helpers/collections";
 import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoundMatch";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {ITournamentApi} from "../../../api/tournament";
 import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
@@ -40,6 +39,8 @@ import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../hel
 import {playerBuilder} from "../../../helpers/builders/players";
 import {matchOptionsBuilder} from "../../../helpers/builders/games";
 import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
+import {ICreateTournamentSaygDto} from "../../../interfaces/models/dtos/Game/ICreateTournamentSaygDto";
 
 interface ISaygDataLookup extends IClientActionResultDto<ITournamentGameDto> {
     match: ITournamentMatchDto;
@@ -53,15 +54,15 @@ describe('TournamentRoundMatch', () => {
     let hiChecks: {player: ITournamentPlayerDto, notes: number}[];
     let oneEighties: ITournamentPlayerDto[];
     let updatedSaygData: IUpdateRecordedScoreAsYouGoDto;
-    let createdSaygSessions: {tournamentId: string, matchId: string, matchOptions: IGameMatchOptionDto}[];
+    let createdSaygSessions: {tournamentId: string, request: ICreateTournamentSaygDto}[];
     let addSaygLookup: ISaygDataLookup[];
     let saygApiData: { [id: string]: IRecordedScoreAsYouGoDto };
     let tournamentApiResponse: IClientActionResultDto<ITournamentGameDto>;
     let deletedSayg: { tournamentId: string, matchId: string };
-    const tournamentApi = api<ITournamentApi>({
-        addSayg: async (tournamentId: string, matchId: string, matchOptions: IGameMatchOptionDto): Promise<IClientActionResultDto<ITournamentGameDto>> => {
-            createdSaygSessions.push({tournamentId, matchId, matchOptions});
-            const responseData: ISaygDataLookup = addSaygLookup.filter((l: ISaygDataLookup) => l.match.id === matchId)[0];
+    const tournamentApi = api<ITournamentGameApi>({
+        addSayg: async (tournamentId: string, request: ICreateTournamentSaygDto): Promise<IClientActionResultDto<ITournamentGameDto>> => {
+            createdSaygSessions.push({tournamentId, request});
+            const responseData: ISaygDataLookup = addSaygLookup.filter((l: ISaygDataLookup) => l.match.id === request.matchId)[0];
 
             if (!responseData) {
                 throw new Error('Did not expect match to have sayg session created');
@@ -761,8 +762,8 @@ describe('TournamentRoundMatch', () => {
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
             expect(createdSaygSessions.length).toEqual(1);
-            expect(createdSaygSessions[0].matchId).toEqual(match.id);
-            expect(createdSaygSessions[0].matchOptions).toEqual(matchOptions);
+            expect(createdSaygSessions[0].request.matchId).toEqual(match.id);
+            expect(createdSaygSessions[0].request.matchOptions).toEqual(matchOptions);
         });
 
         it('handles error when opening sayg dialog', async () => {

@@ -15,7 +15,6 @@ import React from "react";
 import {Tournament} from "./Tournament";
 import {any, DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
-import {ITournamentApi} from "../../../api/tournament";
 import {IDataApi} from "../../../api/data";
 import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
@@ -48,6 +47,7 @@ import {ISaygApi} from "../../../interfaces/apis/SaygApi";
 import {IDivisionApi} from "../../../interfaces/apis/DivisionApi";
 import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
 import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
 
 interface IScenario {
     account?: IUserDto;
@@ -61,7 +61,7 @@ describe('Tournament', () => {
     let reportedError: ErrorState;
     let divisionDataLookup: { [key: string]: IDivisionDataDto };
     let tournamentDataLookup: { [id: string]: ITournamentGameDto & IDivisionTournamentFixtureDetailsDto };
-    let updatedTournamentData: {data: IEditTournamentGameDto, lastUpdated?: string }[];
+    let updatedTournamentData: IEditTournamentGameDto[];
     let patchedTournamentData: {id: string, data: IPatchTournamentDto}[];
     let saygDataLookup: { [id: string]: IRecordedScoreAsYouGoDto };
     let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto};
@@ -79,7 +79,7 @@ describe('Tournament', () => {
             throw new Error('Unexpected request for division data: ' + key);
         }
     });
-    const tournamentApi = api<ITournamentApi>({
+    const tournamentApi = api<ITournamentGameApi>({
         get: async (id: string) => {
             if (any(Object.keys(tournamentDataLookup), k => k === id)) {
                 return tournamentDataLookup[id];
@@ -87,8 +87,8 @@ describe('Tournament', () => {
 
             throw new Error('Unexpected request for tournament data: ' + id);
         },
-        update: async (data: IEditTournamentGameDto, lastUpdated?: string) => {
-            updatedTournamentData.push({data, lastUpdated});
+        update: async (data: IEditTournamentGameDto) => {
+            updatedTournamentData.push(data);
             return apiResponse || {success: true, result: data};
         },
         patch: async (id: string, data: IPatchTournamentDto) => {
@@ -187,8 +187,8 @@ describe('Tournament', () => {
         expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         const update = updatedTournamentData.shift();
         expect(update.lastUpdated).toEqual(existingData.updated || '<updated> not defined in existing data');
-        expect(update.data).toEqual(
-            Object.assign({}, existingData, expectedChange));
+        expect(update).toEqual(
+            Object.assign({ lastUpdated: update.lastUpdated }, existingData, expectedChange));
     }
 
     const division: IDivisionDto = divisionBuilder('DIVISION').build();
@@ -961,7 +961,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].data.round;
+            const round = updatedTournamentData[0].round;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
         });
 
@@ -996,7 +996,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toBeFalsy();
-            const round = updatedTournamentData[0].data.round;
+            const round = updatedTournamentData[0].round;
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 

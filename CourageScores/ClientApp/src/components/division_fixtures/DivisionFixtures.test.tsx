@@ -14,7 +14,6 @@ import React from "react";
 import {toMap} from "../../helpers/collections";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {ITournamentApi} from "../../api/tournament";
 import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
 import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
@@ -32,6 +31,7 @@ import {ITournamentBuilder, ITournamentSideBuilder} from "../../helpers/builders
 import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
 import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
 import {INoteApi} from "../../interfaces/apis/NoteApi";
+import {ITournamentGameApi} from "../../interfaces/apis/TournamentGameApi";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
@@ -49,7 +49,7 @@ describe('DivisionFixtures', () => {
             return {success: true};
         },
     });
-    const tournamentApi = api<ITournamentApi>({
+    const tournamentApi = api<ITournamentGameApi>({
         update: async () => {
             return {success: true};
         },

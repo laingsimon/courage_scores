@@ -13,7 +13,6 @@ import {
 import React from "react";
 import {ITournamentRoundProps, TournamentRound} from "./TournamentRound";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {ITournamentApi} from "../../../api/tournament";
 import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
@@ -34,6 +33,7 @@ import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {createTemporaryId} from "../../../helpers/projection";
 import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
 
 describe('TournamentRound', () => {
     let context: TestContext;
@@ -44,7 +44,7 @@ describe('TournamentRound', () => {
     let warnBeforeSave: string;
     let patchedData: { patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound?: boolean };
     let saygApiData: { [id: string]: IRecordedScoreAsYouGoDto };
-    const tournamentApi = api<ITournamentApi>({
+    const tournamentApi = api<ITournamentGameApi>({
         addSayg: async () => {
             return {
                 success: true,

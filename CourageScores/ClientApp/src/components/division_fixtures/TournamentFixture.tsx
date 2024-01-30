@@ -45,7 +45,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
                 address: tournament.address,
                 divisionId: divisionId,
                 seasonId: season.id
-            }, null);
+            });
 
             if (response.success) {
                 await onTournamentChanged();

@@ -37,6 +37,7 @@ import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDt
 import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
 import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
 import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
+import {IEditTournamentGameDto} from "../../../interfaces/models/dtos/Game/IEditTournamentGameDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -172,7 +173,10 @@ export function Tournament() {
         }
 
         try {
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.update(tournamentData, tournamentData.updated);
+            const update: IEditTournamentGameDto = tournamentData;
+            update.lastUpdated = tournamentData.updated;
+
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.update(update);
             if (!response.success) {
                 setSaveError(response);
             } else {

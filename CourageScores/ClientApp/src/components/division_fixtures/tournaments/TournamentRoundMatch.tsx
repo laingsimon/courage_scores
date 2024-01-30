@@ -22,6 +22,7 @@ import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITourname
 import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
 import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
 import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
+import {ICreateTournamentSaygDto} from "../../../interfaces/models/dtos/Game/ICreateTournamentSaygDto";
 
 export interface ITournamentRoundMatchProps {
     readOnly?: boolean;
@@ -292,7 +293,11 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         try {
             setCreatingSayg(true);
 
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, match.id, matchOptions);
+            const request: ICreateTournamentSaygDto = {
+                matchOptions: matchOptions,
+                matchId: match.id,
+            };
+            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
                 await setTournamentData(response.result);
                 setSaygOpen(true);
