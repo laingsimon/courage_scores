@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
+using TypeScriptMapper;
 
 namespace CourageScores.Models.Dtos.Data;
 
@@ -24,6 +25,7 @@ public class ExportDataRequestDto
     public Dictionary<string, List<Guid>> Tables { get; set; } = new();
 
     [JsonIgnore]
+    [ExcludeFromTypeScript]
 #pragma warning disable CS0618
     public IDictionary<string, List<Guid>> CaseInsensitiveTables =>
         Tables.ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);

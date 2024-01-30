@@ -25,7 +25,7 @@ public class TypeScriptInterfaceFactory
             RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/" + GetTypeName(type, false) + ".d.ts",
             Name = GetTypeName(type, true),
             Members =
-                type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
+                type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
                 .Concat(type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateMethod).Select(m => new TypeScriptMethod(m, _helper, context)))
                 .ToList(),
             GenericArguments = type.GetGenericArguments().Select(ga => new TypeScriptGenericArgument(ga, _helper, context)).ToList(),

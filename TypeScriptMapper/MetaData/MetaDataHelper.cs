@@ -138,8 +138,12 @@ public class MetaDataHelper : IMetaDataHelper
 
         if (type.IsAssignableTo(typeof(IEnumerable)) && type != typeof(string))
         {
-            var elementType = type.GetElementType()!;
-            return new ArrayTypeScriptType(GetTypeScriptType(context, elementType));
+            var elementType = type.GetElementType();
+
+            if (elementType != null)
+            {
+                return new ArrayTypeScriptType(GetTypeScriptType(context, elementType));
+            }
         }
 
         var isPrimitive = TypeMap.TryGetValue(type, out var primitiveTypeName);

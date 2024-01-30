@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -6,6 +7,7 @@ namespace CourageScores.Models.Dtos.Game;
 /// The details of a team that are playing a game, and who they recorded as the player of the match
 /// </summary>
 [ExcludeFromCodeCoverage]
+[PropertyIsRequired(nameof(Id))]
 public class GameTeamDto : AuditedDto
 {
     /// <summary>
