@@ -15,7 +15,6 @@ import {toMap} from "../../../helpers/collections";
 import {EditSide, IEditSideProps} from "./EditSide";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {createTemporaryId} from "../../../helpers/projection";
-import {IPlayerApi} from "../../../api/player";
 import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
@@ -30,6 +29,7 @@ import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../../helpers/builders/tournaments";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
+import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
 
 describe('EditSide', () => {
     let context: TestContext;

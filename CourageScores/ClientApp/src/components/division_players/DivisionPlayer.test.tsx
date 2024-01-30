@@ -21,9 +21,9 @@ import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
 import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
 import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IPlayerApi} from "../../api/player";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
+import {IPlayerApi} from "../../interfaces/apis/PlayerApi";
 
 describe('DivisionPlayer', () => {
     let context: TestContext;
@@ -31,15 +31,15 @@ describe('DivisionPlayer', () => {
     let teamsReloaded: boolean;
     let divisionReloaded: boolean;
     let deletedPlayer: { seasonId: string, teamId: string, playerId: string };
-    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string};
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto};
     let apiResponse: IClientActionResultDto<ITeamDto>;
     const playerApi = api<IPlayerApi>({
         delete: async (seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<ITeamDto>> => {
             deletedPlayer = {seasonId, teamId, playerId};
             return apiResponse || {success: true};
         },
-        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto, lastUpdated: string): Promise<IClientActionResultDto<ITeamDto>> => {
-            updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
+        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto): Promise<IClientActionResultDto<ITeamDto>> => {
+            updatedPlayer = {seasonId, teamId, playerId, playerDetails};
             return apiResponse || {success: true};
         }
     });

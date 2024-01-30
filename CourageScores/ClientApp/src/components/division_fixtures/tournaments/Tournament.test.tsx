@@ -16,7 +16,6 @@ import {Tournament} from "./Tournament";
 import {any, DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 import {ITournamentApi} from "../../../api/tournament";
-import {IPlayerApi} from "../../../api/player";
 import {IDataApi} from "../../../api/data";
 import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
 import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
@@ -48,6 +47,7 @@ import {
 import {ISaygApi} from "../../../interfaces/apis/SaygApi";
 import {IDivisionApi} from "../../../interfaces/apis/DivisionApi";
 import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
+import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
 
 interface IScenario {
     account?: IUserDto;
