@@ -17,7 +17,9 @@ public class ControllerStrategy: IStrategy
 
     public async Task Execute(string outputDirectory, string? onlyType, CancellationToken token)
     {
-        var controllers = _assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(Controller)));
+        var controllers = _assembly.GetTypes()
+            .Where(t => t.IsAssignableTo(typeof(Controller)))
+            .Where(t => onlyType == null || t.Name.Contains(onlyType));
         var controllerMeta = controllers.Select(c => _metaDataFactory.Create(c)).ToList();
 
         if (!Directory.Exists(outputDirectory))
@@ -154,7 +156,7 @@ public class ControllerStrategy: IStrategy
     {
         await writer.WriteLineAsync("import {IHttp} from '../../api/http';");
 
-        foreach (var import in controller.Types.OfType<TypeScriptType>().Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath))
+        foreach (var import in controller.Types.OfType<IImportableType>().Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath))
         {
             if (token.IsCancellationRequested)
             {

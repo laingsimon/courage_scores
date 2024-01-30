@@ -1,6 +1,6 @@
 namespace TypeScriptMapper.MetaData;
 
-public class TypeScriptType : ITypeScriptType
+public class TypeScriptType : ITypeScriptType, IImportableType
 {
     /// <summary>
     /// The dotnet type this typescript type represents

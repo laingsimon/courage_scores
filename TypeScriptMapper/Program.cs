@@ -5,8 +5,14 @@ using TypeScriptMapper;
 using TypeScriptMapper.Controllers;
 using TypeScriptMapper.Dtos;
 
-var outputDirectory = args.ElementAtOrDefault(1) ?? "../../../../CourageScores/ClientApp/src/interfaces";
-var onlyType = args.ElementAtOrDefault(2);
+const string defaultOutputDir = "../../../../CourageScores/ClientApp/src/interfaces";
+var outputDirectory = args.ElementAtOrDefault(0) ?? defaultOutputDir;
+var onlyType = args.ElementAtOrDefault(1);
+
+if (outputDirectory == "-")
+{
+    outputDirectory = defaultOutputDir;
+}
 
 Console.WriteLine($"Working in {Environment.CurrentDirectory}");
 Console.WriteLine($"Output to {Path.GetFullPath(outputDirectory)} ({outputDirectory})");
