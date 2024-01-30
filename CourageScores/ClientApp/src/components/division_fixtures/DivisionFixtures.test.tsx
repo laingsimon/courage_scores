@@ -14,7 +14,6 @@ import React from "react";
 import {toMap} from "../../helpers/collections";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {INoteApi} from "../../api/note";
 import {ITournamentApi} from "../../api/tournament";
 import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
 import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
@@ -32,20 +31,21 @@ import {
 import {ITournamentBuilder, ITournamentSideBuilder} from "../../helpers/builders/tournaments";
 import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
 import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
+import {INoteApi} from "../../interfaces/apis/NoteApi";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let newFixtures: IEditableDivisionFixtureDateDto[];
-    let updatedNote: {id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string};
+    let updatedNote: {id: string, note: IEditFixtureDateNoteDto};
     const seasonApi = {};
     const gameApi = {};
     const noteApi = api<INoteApi>({
         create: async () => {
             return {success: true};
         },
-        upsert: async (id: string, note: IEditFixtureDateNoteDto, lastUpdated?: string) => {
-            updatedNote = {id, note, lastUpdated};
+        upsert: async (id: string, note: IEditFixtureDateNoteDto) => {
+            updatedNote = {id, note};
             return {success: true};
         },
     });

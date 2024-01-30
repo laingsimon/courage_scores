@@ -42,8 +42,12 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps
 
         setSavingNote(true);
         try {
+            if (note.id) {
+                note.lastUpdated = note.updated;
+            }
+
             const response: IClientActionResultDto<IFixtureDateNoteDto> = note.id
-                ? await noteApi.upsert(note.id, note, note.updated)
+                ? await noteApi.upsert(note.id, note)
                 : await noteApi.create(note);
 
             if (response.success) {
