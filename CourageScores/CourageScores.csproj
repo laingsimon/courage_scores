@@ -49,7 +49,7 @@
         <Message Importance="high" Text="Removing existing typescript generated files..." Condition=" '$(Configuration)' == 'Debug' "/>
         <RemoveDir Directories="$(ProjectDir)$(SpaRoot)src/interfaces/dtos" Condition=" '$(Configuration)' == 'Debug' " />
         <RemoveDir Directories="$(ProjectDir)$(SpaRoot)src/interfaces/apis" Condition=" '$(Configuration)' == 'Debug' " />
-        <Exec WorkingDirectory="$(OutDir)" Command="dotnet TypeScriptMapper.dll -- $(ProjectDir)$(SpaRoot)src/interfaces"/>
+        <Exec WorkingDirectory="$(OutDir)" Command="dotnet TypeScriptMapper.dll $(ProjectDir)$(SpaRoot)src/interfaces"/>
     </Target>
 
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
