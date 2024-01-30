@@ -14,12 +14,12 @@ import {IErrorDetailDto} from "./interfaces/models/dtos/IErrorDetailDto";
 import {IDivisionDto} from "./interfaces/models/dtos/IDivisionDto";
 import {IBuild} from "./interfaces/IBuild";
 import {IClientActionResultDto} from "./interfaces/IClientActionResultDto";
-import {ISeasonApi} from "./api/season";
 import {ITeamApi} from "./api/team";
 import {divisionBuilder} from "./helpers/builders/divisions";
 import {IAccountApi} from "./interfaces/apis/AccountApi";
 import {IErrorApi} from "./interfaces/apis/ErrorApi";
 import {IDivisionApi} from "./interfaces/apis/DivisionApi";
+import {ISeasonApi} from "./interfaces/apis/SeasonApi";
 
 describe('App', () => {
     let context: TestContext;

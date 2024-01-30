@@ -17,9 +17,9 @@ import {IEditSeasonDto} from "../interfaces/models/dtos/Season/IEditSeasonDto";
 import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
-import {ISeasonApi} from "../api/season";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {seasonBuilder} from "../helpers/builders/seasons";
+import {ISeasonApi} from "../interfaces/apis/SeasonApi";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -33,15 +33,15 @@ describe('EditSeason', () => {
     let reportedError: ErrorState;
     let saved: boolean;
     let saveError: IClientActionResultDto<ISeasonDto>;
-    let updatedSeason: { data: IEditSeasonDto, lastUpdated?: string };
+    let updatedSeason: IEditSeasonDto;
     let alert: string;
     let confirm: string;
     let confirmResponse: boolean;
     let apiResponse: IClientActionResultDto<ISeasonDto>;
     let deletedId: string;
     const seasonApi = api<ISeasonApi>({
-        update: async (data: IEditSeasonDto, lastUpdated?: string): Promise<IClientActionResultDto<ISeasonDto>> => {
-            updatedSeason = {data, lastUpdated};
+        update: async (data: IEditSeasonDto): Promise<IClientActionResultDto<ISeasonDto>> => {
+            updatedSeason = data;
             return apiResponse;
         },
         delete: async (id: string): Promise<IClientActionResultDto<ISeasonDto>> => {

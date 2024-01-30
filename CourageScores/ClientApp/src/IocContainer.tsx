@@ -5,7 +5,6 @@ import {TeamApi} from "./api/team";
 import {TournamentApi} from "./api/tournament";
 import {DataApi} from "./api/data";
 import {PlayerApi} from "./api/player";
-import {SeasonApi} from "./api/season";
 import {IParentHeight, ParentHeight} from "./ParentHeight";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
@@ -20,6 +19,7 @@ import {DivisionApi} from "./interfaces/apis/DivisionApi";
 import {GameApi} from "./interfaces/apis/GameApi";
 import {LiveApi} from "./interfaces/apis/LiveApi";
 import {NoteApi} from "./interfaces/apis/NoteApi";
+import {SeasonApi} from "./interfaces/apis/SeasonApi";
 
 const DependenciesContext = createContext({});
 

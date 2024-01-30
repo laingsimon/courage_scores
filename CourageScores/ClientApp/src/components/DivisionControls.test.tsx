@@ -19,10 +19,10 @@ import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
 import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
 import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {ISeasonApi} from "../api/season";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {seasonBuilder} from "../helpers/builders/seasons";
 import {IDivisionApi} from "../interfaces/apis/DivisionApi";
+import {ISeasonApi} from "../interfaces/apis/SeasonApi";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -37,11 +37,11 @@ describe('DivisionControls', () => {
     let changedDivisionOrSeason: boolean;
     let reloadSeasonsCalled: boolean;
     let reloadDivisionsCalled: boolean;
-    let updatedSeason: {data: IEditSeasonDto, lastUpdated?: string};
+    let updatedSeason: IEditSeasonDto;
     let updatedDivision: IEditDivisionDto;
     const seasonApi = api<ISeasonApi>({
-        update: async (data: IEditSeasonDto, lastUpdated?: string): Promise<IClientActionResultDto<ISeasonDto>> => {
-            updatedSeason = {data, lastUpdated};
+        update: async (data: IEditSeasonDto): Promise<IClientActionResultDto<ISeasonDto>> => {
+            updatedSeason = data;
             return {
                 success: true,
             };

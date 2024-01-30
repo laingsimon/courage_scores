@@ -16,7 +16,6 @@ import {renderDate} from "../helpers/rendering";
 import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
 import {ISeasonHealthCheckResultDto} from "../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
 import {IGameDto} from "../interfaces/models/dtos/Game/IGameDto";
-import {ISeasonApi} from "../api/season";
 import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
 import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
 import {ITeamDto} from "../interfaces/models/dtos/Team/ITeamDto";
@@ -32,6 +31,7 @@ import {IFailedRequest} from "../interfaces/IFailedRequest";
 import {IDivisionApi} from "../interfaces/apis/DivisionApi";
 import {IDivisionDataFilter} from "../interfaces/models/dtos/Division/IDivisionDataFilter";
 import {IGameApi} from "../interfaces/apis/GameApi";
+import {ISeasonApi} from "../interfaces/apis/SeasonApi";
 
 describe('Division', () => {
     let context: TestContext;
