@@ -10,7 +10,6 @@ import {PlayerApi} from "./api/player";
 import {DivisionApi} from "./api/division";
 import {SeasonApi} from "./api/season";
 import {IParentHeight, ParentHeight} from "./ParentHeight";
-import {TemplateApi} from "./api/template";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
 import {LiveApi} from "./api/live";
@@ -20,6 +19,7 @@ import {AccountApi} from "./interfaces/apis/AccountApi";
 import {ErrorApi} from "./interfaces/apis/ErrorApi";
 import {ReportApi} from "./interfaces/apis/ReportApi";
 import {SaygApi} from "./interfaces/apis/SaygApi";
+import {SeasonTemplateApi} from "./interfaces/apis/SeasonTemplateApi";
 
 const DependenciesContext = createContext({});
 
@@ -54,7 +54,7 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
         playerApi: new PlayerApi(http),
         reportApi: new ReportApi(http),
         saygApi: new SaygApi(http),
-        templateApi: new TemplateApi(http),
+        templateApi: new SeasonTemplateApi(http),
         liveApi: new LiveApi(http),
         parentHeight: overrideParentHeight || new ParentHeight(25),
         webSocket: new LiveWebSocket({

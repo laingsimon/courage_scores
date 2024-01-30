@@ -9,9 +9,9 @@ import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
 import {IAccessDto} from "../../interfaces/models/dtos/Identity/IAccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IDataApi} from "../../api/data";
-import {ITemplateApi} from "../../api/template";
 import {ILiveApi} from "../../api/live";
 import {IAccountApi} from "../../interfaces/apis/AccountApi";
+import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
 
 describe('AdminHome', () => {
     let context: TestContext;
@@ -26,7 +26,7 @@ describe('AdminHome', () => {
             return [];
         }
     });
-    const templateApi = api<ITemplateApi>({
+    const templateApi = api<ISeasonTemplateApi>({
         getAll: async (): Promise<ITemplateDto[]> => {
             return [];
         }

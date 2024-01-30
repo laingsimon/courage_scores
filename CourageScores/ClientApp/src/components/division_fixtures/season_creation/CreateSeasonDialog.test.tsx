@@ -14,7 +14,6 @@ import {repeat, createTemporaryId} from "../../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog, ICreateSeasonDialogProps} from "./CreateSeasonDialog";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../../DivisionDataContainer";
-import {ITemplateApi} from "../../../api/template";
 import {IGameApi} from "../../../api/game";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
@@ -31,6 +30,7 @@ import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisi
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {divisionBuilder, fixtureDateBuilder, IDivisionFixtureBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
+import {ISeasonTemplateApi} from "../../../interfaces/apis/SeasonTemplateApi";
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;
@@ -44,7 +44,7 @@ describe('CreateSeasonDialog', () => {
     let updateFixtureApiResponse: (fixture: IEditGameDto) => Promise<IClientActionResultDto<IGameDto>>;
     let divisionReloaded: boolean;
 
-    const templateApi = api<ITemplateApi>({
+    const templateApi = api<ISeasonTemplateApi>({
         getCompatibility: (seasonId: string) => {
             return compatibilityResponses[seasonId] || {success: false};
         },

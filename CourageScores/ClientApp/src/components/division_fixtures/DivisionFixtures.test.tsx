@@ -16,7 +16,6 @@ import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {INoteApi} from "../../api/note";
 import {ITournamentApi} from "../../api/tournament";
-import {ITemplateApi} from "../../api/template";
 import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
 import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
@@ -32,6 +31,7 @@ import {
 } from "../../helpers/builders/divisions";
 import {ITournamentBuilder, ITournamentSideBuilder} from "../../helpers/builders/tournaments";
 import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
@@ -57,7 +57,7 @@ describe('DivisionFixtures', () => {
             return {success: true};
         }
     });
-    const templateApi = api<ITemplateApi>({
+    const templateApi = api<ISeasonTemplateApi>({
         getCompatibility: () => {
             return {success: false};
         }
