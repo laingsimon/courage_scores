@@ -164,7 +164,7 @@ public class ControllerStrategy: IStrategy
         var bodyParameter = parameters.SingleOrDefault(p => p.IsBodyParameter);
         if (bodyParameter != null)
         {
-            return bodyParameter.Name;
+            return ", " + bodyParameter.Name;
         }
 
         var dataParameters = parameters
