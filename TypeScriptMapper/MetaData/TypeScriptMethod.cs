@@ -34,6 +34,7 @@ public class TypeScriptMethod : ITypeScriptMember
 
     private string GetReturnTypeDefinition()
     {
+        // TODO: Include nullability in return type
         return _helper.GetTypeScriptType(_context, _method.ReturnType).GetTypeScriptDefinition();
     }
 
