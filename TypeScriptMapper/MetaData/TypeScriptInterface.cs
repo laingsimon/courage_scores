@@ -33,5 +33,8 @@ public class TypeScriptInterface
     /// <summary>
     /// The typescript types required in any part of this interface
     /// </summary>
-    public HashSet<ITypeScriptType> Types => Members.SelectMany(m => m.Types).Concat(GenericArguments.Select(ga => ga.Type)).ToHashSet();
+    public HashSet<ITypeScriptType> Types => Members
+        .Where(m => !m.IsExcluded)
+        .SelectMany(m => m.Types)
+        .Concat(GenericArguments.Select(ga => ga.Type)).ToHashSet();
 }

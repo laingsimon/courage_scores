@@ -17,6 +17,8 @@ public class TypeScriptProperty : ITypeScriptMember
 
     public HashSet<ITypeScriptType> Types => new [] { _helper.GetTypeScriptType(_context, _property.PropertyType) }.ToHashSet();
 
+    public bool IsExcluded => _property.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() != null;
+
     public string Name => _property.Name.ToCamelCase();
 
     public List<TypeScriptParameter> Parameters => new();

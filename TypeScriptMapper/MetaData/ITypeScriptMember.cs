@@ -18,6 +18,11 @@ public interface ITypeScriptMember
     List<TypeScriptParameter> Parameters { get; }
 
     /// <summary>
+    /// Should this member be excluded from the typescript API?
+    /// </summary>
+    bool IsExcluded { get; }
+
+    /// <summary>
     /// Get a typescript representation of this member
     /// </summary>
     /// <returns></returns>

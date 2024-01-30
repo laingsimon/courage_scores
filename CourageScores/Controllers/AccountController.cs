@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper;
 
 namespace CourageScores.Controllers;
 
@@ -20,6 +21,7 @@ public class AccountController : Controller
         _userService = userService;
     }
 
+    [ExcludeFromTypeScript]
     [HttpGet("/api/Account/Login")]
     public IActionResult Login(string redirectUrl = "/")
     {
@@ -30,6 +32,7 @@ public class AccountController : Controller
         return Challenge(properties, GoogleDefaults.AuthenticationScheme);
     }
 
+    [ExcludeFromTypeScript]
     [HttpGet("/api/Account/Logout")]
     public async Task<RedirectResult> Logout(string redirectUrl = "/")
     {
