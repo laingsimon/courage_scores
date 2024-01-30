@@ -104,13 +104,13 @@ public class ControllerStrategy: IStrategy
         var url = attribute.Template!.Replace("{", "${").Replace("?", "");
         var requiresBody = httpMethod != "GET";
         var body = requiresBody
-            ? ", " + GetBodyParameter(method.Parameters)
+            ? GetBodyParameter(method.Parameters, attribute.Template)
             : "";
 
         return $"return this.http.{httpMethod.ToLower()}(`{url}`{body});";
     }
 
-    private static string GetBodyParameter(IReadOnlyCollection<TypeScriptParameter> parameters)
+    private static string GetBodyParameter(IReadOnlyCollection<TypeScriptParameter> parameters, string urlTemplate)
     {
         var bodyParameter = parameters.SingleOrDefault(p => p.IsBodyParameter);
         if (bodyParameter != null)
@@ -118,10 +118,13 @@ public class ControllerStrategy: IStrategy
             return bodyParameter.Name;
         }
 
-        var dataParameters = parameters.Where(p => !p.IsCancellationToken).ToArray();
+        var dataParameters = parameters
+            .Where(p => !p.IsCancellationToken)
+            .Where(p => !urlTemplate.Contains("{" + p.Name + "}"))
+            .ToArray();
         return dataParameters.Length == 1
-            ? dataParameters[0].Name
-            : "/* no appropriate parameter found */";
+            ? ", " + dataParameters[0].Name
+            : "";
     }
 
     private static async Task WriteInterface(TextWriter writer, TypeScriptInterface controller, string name, CancellationToken token)
