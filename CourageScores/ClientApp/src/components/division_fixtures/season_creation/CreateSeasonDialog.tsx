@@ -222,7 +222,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
                 isKnockout: false,
                 seasonId: seasonId,
                 accoladesCount: true,
-            }, null);
+            });
             setSaveResults(saveResults.concat(result));
         } catch (e) {
             const error: Error = e as Error;

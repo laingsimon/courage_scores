@@ -232,7 +232,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 isKnockout: fixture.isKnockout,
                 seasonId: season.id,
                 accoladesCount: fixture.accoladesCount,
-            }, null);
+            });
 
             if (result.success) {
                 await doReloadDivision();

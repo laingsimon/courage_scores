@@ -14,7 +14,6 @@ import {repeat, createTemporaryId} from "../../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog, ICreateSeasonDialogProps} from "./CreateSeasonDialog";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../../DivisionDataContainer";
-import {IGameApi} from "../../../api/game";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
 import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
@@ -31,6 +30,7 @@ import {teamBuilder} from "../../../helpers/builders/teams";
 import {divisionBuilder, fixtureDateBuilder, IDivisionFixtureBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {ISeasonTemplateApi} from "../../../interfaces/apis/SeasonTemplateApi";
+import {IGameApi} from "../../../interfaces/apis/GameApi";
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;
@@ -54,7 +54,7 @@ describe('CreateSeasonDialog', () => {
         },
     });
     const gameApi = api<IGameApi>({
-        update: async (fixture: IEditGameDto, _?: string) => {
+        update: async (fixture: IEditGameDto) => {
             updatedFixtures.push(fixture);
             return updateFixtureApiResponse
                 ? await updateFixtureApiResponse(fixture)

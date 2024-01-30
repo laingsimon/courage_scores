@@ -14,7 +14,6 @@ import {DataMap, toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionFixture, IDivisionFixtureProps} from "./DivisionFixture";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {IGameApi} from "../../api/game";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IEditGameDto} from "../../interfaces/models/dtos/Game/IEditGameDto";
 import {IGameDto} from "../../interfaces/models/dtos/Game/IGameDto";
@@ -33,6 +32,7 @@ import {
 } from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
+import {IGameApi} from "../../interfaces/apis/GameApi";
 
 describe('DivisionFixture', () => {
     let context: TestContext;
@@ -40,13 +40,13 @@ describe('DivisionFixture', () => {
     let divisionReloaded: boolean;
     let updatedFixtures: (x: IEditableDivisionFixtureDateDto[]) => IDivisionFixtureDateDto[];
     let beforeReloadDivisionCalled: boolean;
-    let savedFixture: {fixture: IEditGameDto, lastUpdated?: string};
+    let savedFixture: IEditGameDto;
     let deletedFixture: string;
     let apiResponse: IClientActionResultDto<IGameDto>;
 
     const gameApi = api<IGameApi>({
-        update: async (fixture: IEditGameDto, lastUpdated?: string) => {
-            savedFixture = {fixture, lastUpdated};
+        update: async (fixture: IEditGameDto) => {
+            savedFixture = fixture;
             return apiResponse || {success: true};
         },
         delete: async (id: string) => {

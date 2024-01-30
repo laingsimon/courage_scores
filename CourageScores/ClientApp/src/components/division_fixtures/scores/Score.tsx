@@ -319,7 +319,7 @@ export function Score() {
 
         try {
             setSaving(true);
-            const response: IClientActionResultDto<IGameDto> = await gameApi.updateScores(fixtureId, fixtureData, fixtureData.updated);
+            const response: IClientActionResultDto<IGameDto> = await gameApi.updateScores(fixtureId, fixtureData);
 
             if (!response.success) {
                 setSaveError(response);

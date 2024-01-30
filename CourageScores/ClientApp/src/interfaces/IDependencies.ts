@@ -4,7 +4,6 @@ import {ISettings} from "../api/settings";
 import {IParentHeight} from "../ParentHeight";
 import {ITournamentApi} from "../api/tournament";
 import {IDataApi} from "../api/data";
-import {IGameApi} from "../api/game";
 import {INoteApi} from "../api/note";
 import {IPlayerApi} from "../api/player";
 import {ILiveApi} from "../api/live";
@@ -15,6 +14,7 @@ import {IReportApi} from "./apis/ReportApi";
 import {ISaygApi} from "./apis/SaygApi";
 import {ISeasonTemplateApi} from "./apis/SeasonTemplateApi";
 import {IDivisionApi} from "./apis/DivisionApi";
+import {IGameApi} from "./apis/GameApi";
 
 export interface IDependencies {
     divisionApi: IDivisionApi;

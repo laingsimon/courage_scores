@@ -15,7 +15,6 @@ import React from "react";
 import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {Score} from "./Score";
-import {IGameApi} from "../../../api/game";
 import {IPlayerApi} from "../../../api/player";
 import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
 import {IRecordScoresDto} from "../../../interfaces/models/dtos/Game/IRecordScoresDto";
@@ -36,6 +35,7 @@ import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {fixtureBuilder, matchBuilder} from "../../../helpers/builders/games";
 import {IFailedRequest} from "../../../interfaces/IFailedRequest";
+import {IGameApi} from "../../../interfaces/apis/GameApi";
 
 interface ICreatedPlayer {
     divisionId: string;
