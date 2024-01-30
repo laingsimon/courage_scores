@@ -1,4 +1,4 @@
-namespace TypeScriptMapper;
+namespace TypeScriptMapper.Dtos;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class PropertyIsOptional : Attribute

@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using TypeScriptMapper;
+using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Season;
 
