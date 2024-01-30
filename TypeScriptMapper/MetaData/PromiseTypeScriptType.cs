@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class PromiseTypeScriptType : ITypeScriptType
 {
     private readonly ITypeScriptType _taskType;

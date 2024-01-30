@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using TypeScriptMapper.MetaData;
 
 namespace TypeScriptMapper.Dtos;
 
+[ExcludeFromCodeCoverage]
 public class DtoStrategy: IStrategy
 {
     private readonly string _dtosNamespace;

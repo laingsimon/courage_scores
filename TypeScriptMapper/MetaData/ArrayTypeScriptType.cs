@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class ArrayTypeScriptType : ITypeScriptType
 {
     private readonly ITypeScriptType _itemType;

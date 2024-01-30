@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TypeScriptMapper.MetaData;
 
 /// <summary>
 /// The meta data for a dotnet type in typescript terms
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TypeScriptInterface
 {
     /// <summary>

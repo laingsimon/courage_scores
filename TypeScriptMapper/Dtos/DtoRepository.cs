@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace TypeScriptMapper.Dtos;
 
+[ExcludeFromCodeCoverage]
 public class DtoRepository
 {
     private readonly Assembly _assembly;

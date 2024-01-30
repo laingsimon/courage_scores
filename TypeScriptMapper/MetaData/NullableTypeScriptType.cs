@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class NullableTypeScriptType : ITypeScriptType
 {
     private readonly ITypeScriptType _type;

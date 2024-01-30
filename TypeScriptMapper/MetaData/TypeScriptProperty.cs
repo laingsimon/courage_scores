@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using TypeScriptMapper.Dtos;
 
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class TypeScriptProperty : ITypeScriptMember
 {
     private readonly PropertyInfo _property;

@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class TypeScriptMethod : IRouteMethod
 {
     public const string FileListParameterName = "file";

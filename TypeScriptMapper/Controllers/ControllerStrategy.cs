@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using TypeScriptMapper.MetaData;
 
 namespace TypeScriptMapper.Controllers;
 
+[ExcludeFromCodeCoverage]
 public class ControllerStrategy: IStrategy
 {
     private readonly Assembly _assembly;

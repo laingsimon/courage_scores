@@ -1,9 +1,11 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class MetaDataHelper : IMetaDataHelper
 {
     private static readonly ITypeScriptType Any = new TypeScriptType

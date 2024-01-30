@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class TypeScriptInterfaceFactory
 {
     private readonly IMetaDataHelper _helper;

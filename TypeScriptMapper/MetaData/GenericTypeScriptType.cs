@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class GenericTypeScriptType : ITypeScriptType
 {
     public ITypeScriptType OuterType { get; init; } = null!;

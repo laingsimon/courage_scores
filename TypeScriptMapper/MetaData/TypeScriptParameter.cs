@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TypeScriptMapper.MetaData;
 
+[ExcludeFromCodeCoverage]
 public class TypeScriptParameter
 {
     private readonly ParameterInfo _parameterInfo;
