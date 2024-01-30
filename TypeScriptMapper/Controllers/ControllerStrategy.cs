@@ -156,7 +156,7 @@ public class ControllerStrategy: IStrategy
     {
         await writer.WriteLineAsync("import {IHttp} from '../../api/http';");
 
-        foreach (var import in controller.Types.OfType<IImportableType>().Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath))
+        foreach (var import in controller.Types.OfType<IImportableType>().Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath).OrderBy(i => i.Name))
         {
             if (token.IsCancellationRequested)
             {
