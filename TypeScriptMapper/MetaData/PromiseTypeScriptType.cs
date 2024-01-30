@@ -1,14 +1,12 @@
 namespace TypeScriptMapper.MetaData;
 
-public class PromiseTypeScriptType : ITypeScriptType, IImportableType
+public class PromiseTypeScriptType : ITypeScriptType
 {
     private readonly ITypeScriptType _taskType;
-    private readonly IImportableType? _importableType;
 
     public PromiseTypeScriptType(ITypeScriptType taskType)
     {
         _taskType = taskType;
-        _importableType = taskType as IImportableType;
     }
 
     public string GetTypeScriptDefinition()
@@ -16,6 +14,11 @@ public class PromiseTypeScriptType : ITypeScriptType, IImportableType
         return $"Promise<{_taskType.GetTypeScriptDefinition()}>";
     }
 
-    public string Name => _importableType?.Name ?? "Promise<any>";
-    public string? RelativePath => _importableType?.RelativePath;
+    public IEnumerable<IImportableType> GetImports()
+    {
+        foreach (var import in _taskType.GetImports())
+        {
+            yield return import;
+        }
+    }
 }

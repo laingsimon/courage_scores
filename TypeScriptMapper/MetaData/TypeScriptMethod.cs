@@ -21,7 +21,7 @@ public class TypeScriptMethod : ITypeScriptMember
 
     public bool IsExcluded => _method.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() != null;
 
-    public HashSet<ITypeScriptType> Types => new[] { _helper.GetTypeScriptType(_context, _method.ReturnType) }.Concat(Parameters.Select(p => p.Type)).ToHashSet();
+    public IEnumerable<ITypeScriptType> Types => new[] { _helper.GetTypeScriptType(_context, _method.ReturnType) }.Concat(Parameters.Select(p => p.Type));
 
     public string Name => _method.Name.ToCamelCase();
 

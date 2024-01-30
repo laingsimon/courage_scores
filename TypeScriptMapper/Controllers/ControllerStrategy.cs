@@ -70,7 +70,7 @@ public class ControllerStrategy: IStrategy
         await writer.WriteLineAsync("        this.http = http;");
         await writer.WriteLineAsync("    }");
 
-        foreach (var member in controller.Members.OfType<TypeScriptMethod>())
+        foreach (var member in controller.Members.OfType<TypeScriptMethod>().OrderBy(m => m.Name))
         {
             if (token.IsCancellationRequested)
             {
@@ -133,7 +133,7 @@ public class ControllerStrategy: IStrategy
     {
         await writer.WriteLineAsync($"export interface I{name} {{");
 
-        foreach (var member in controller.Members)
+        foreach (var member in controller.Members.OrderBy(m => m.Name))
         {
             if (token.IsCancellationRequested)
             {
@@ -156,7 +156,7 @@ public class ControllerStrategy: IStrategy
     {
         await writer.WriteLineAsync("import {IHttp} from '../../api/http';");
 
-        foreach (var import in controller.Types.OfType<IImportableType>().Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath).OrderBy(i => i.Name))
+        foreach (var import in controller.Types.SelectMany(t => t.GetImports()).Where(i => i.RelativePath != null).DistinctBy(t => t.RelativePath).OrderBy(i => i.Name))
         {
             if (token.IsCancellationRequested)
             {

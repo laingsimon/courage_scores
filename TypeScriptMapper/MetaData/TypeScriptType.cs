@@ -26,4 +26,9 @@ public class TypeScriptType : ITypeScriptType, IImportableType
     {
         return Name;
     }
+
+    public IEnumerable<IImportableType> GetImports()
+    {
+        yield return this;
+    }
 }

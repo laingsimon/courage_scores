@@ -5,7 +5,7 @@ public interface ITypeScriptMember
     /// <summary>
     /// The typescript types references by this type
     /// </summary>
-    HashSet<ITypeScriptType> Types { get; }
+    IEnumerable<ITypeScriptType> Types { get; }
 
     /// <summary>
     /// The name of this member, e.g. getUser

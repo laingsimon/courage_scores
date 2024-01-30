@@ -1,14 +1,12 @@
 namespace TypeScriptMapper.MetaData;
 
-public class ArrayTypeScriptType : ITypeScriptType, IImportableType
+public class ArrayTypeScriptType : ITypeScriptType
 {
     private readonly ITypeScriptType _itemType;
-    private readonly IImportableType? _importableType;
 
     public ArrayTypeScriptType(ITypeScriptType itemType)
     {
         _itemType = itemType;
-        _importableType = itemType as IImportableType;
     }
 
     public string GetTypeScriptDefinition()
@@ -16,6 +14,11 @@ public class ArrayTypeScriptType : ITypeScriptType, IImportableType
         return _itemType.GetTypeScriptDefinition() + "[]";
     }
 
-    public string Name => _importableType?.Name ?? "any[]";
-    public string? RelativePath => _importableType?.RelativePath;
+    public IEnumerable<IImportableType> GetImports()
+    {
+        foreach (var import in _itemType.GetImports())
+        {
+            yield return import;
+        }
+    }
 }
