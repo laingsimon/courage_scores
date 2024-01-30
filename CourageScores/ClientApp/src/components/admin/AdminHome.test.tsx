@@ -9,9 +9,9 @@ import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
 import {IAccessDto} from "../../interfaces/models/dtos/Identity/IAccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IDataApi} from "../../api/data";
-import {ILiveApi} from "../../api/live";
 import {IAccountApi} from "../../interfaces/apis/AccountApi";
 import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
+import {ILiveApi} from "../../interfaces/apis/LiveApi";
 
 describe('AdminHome', () => {
     let context: TestContext;

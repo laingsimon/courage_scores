@@ -10,7 +10,6 @@ import {SeasonApi} from "./api/season";
 import {IParentHeight, ParentHeight} from "./ParentHeight";
 import socketFactory from "./api/socketFactory";
 import {LiveWebSocket} from "./LiveWebSocket";
-import {LiveApi} from "./api/live";
 import {IDependencies} from "./interfaces/IDependencies";
 import {ISubscriptions} from "./interfaces/ISubscriptions";
 import {AccountApi} from "./interfaces/apis/AccountApi";
@@ -20,6 +19,7 @@ import {SaygApi} from "./interfaces/apis/SaygApi";
 import {SeasonTemplateApi} from "./interfaces/apis/SeasonTemplateApi";
 import {DivisionApi} from "./interfaces/apis/DivisionApi";
 import {GameApi} from "./interfaces/apis/GameApi";
+import {LiveApi} from "./interfaces/apis/LiveApi";
 
 const DependenciesContext = createContext({});
 

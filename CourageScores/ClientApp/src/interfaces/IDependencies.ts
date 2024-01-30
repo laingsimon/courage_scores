@@ -6,7 +6,6 @@ import {ITournamentApi} from "../api/tournament";
 import {IDataApi} from "../api/data";
 import {INoteApi} from "../api/note";
 import {IPlayerApi} from "../api/player";
-import {ILiveApi} from "../api/live";
 import {ILiveWebSocket} from "../LiveWebSocket";
 import {IAccountApi} from "./apis/AccountApi";
 import {IErrorApi} from "./apis/ErrorApi";
@@ -15,6 +14,7 @@ import {ISaygApi} from "./apis/SaygApi";
 import {ISeasonTemplateApi} from "./apis/SeasonTemplateApi";
 import {IDivisionApi} from "./apis/DivisionApi";
 import {IGameApi} from "./apis/GameApi";
+import {ILiveApi} from "./apis/LiveApi";
 
 export interface IDependencies {
     divisionApi: IDivisionApi;
