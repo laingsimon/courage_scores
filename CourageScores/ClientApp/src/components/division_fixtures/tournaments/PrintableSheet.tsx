@@ -14,7 +14,7 @@ import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournam
 import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
 import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {ILayoutDataForMatch, ILayoutDataForRound} from "../../../helpers/tournaments";
+import {getUnplayedLayoutData, ILayoutDataForMatch, ILayoutDataForRound} from "../../../helpers/tournaments";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -254,41 +254,6 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         }
 
         return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map((b: ILayoutDataForMatch) => b.sideA)), round.nextRound, depth + 1));
-    }
-
-    function getUnplayedLayoutData(sideLength: number, depth: number): ILayoutDataForRound[] {
-        if (sideLength <= 1) {
-            return [];
-        }
-
-        const hasBye: boolean = sideLength % 2 !== 0;
-        const layoutDataForRound: ILayoutDataForRound = {
-            name: null,
-            matches: repeat(Math.floor(sideLength / 2), (_: number): ILayoutDataForMatch => {
-                return {
-                    sideA: {id: null, name: null, link: null},
-                    sideB: {id: null, name: null, link: null},
-                    scoreA: null,
-                    scoreB: null,
-                    bye: false,
-                    winner: null,
-                    saygId: null,
-                };
-            }),
-        };
-        if (hasBye) {
-            layoutDataForRound.matches.push({
-                sideA: {id: null, name: null, link: null},
-                sideB: {id: null, name: null, link: null},
-                scoreA: null,
-                scoreB: null,
-                bye: true,
-                winner: null,
-                saygId: null,
-            });
-        }
-
-        return [layoutDataForRound].concat(getUnplayedLayoutData(Math.floor(sideLength / 2) + (hasBye ? 1 : 0), depth + 1));
     }
 
     function render180s() {

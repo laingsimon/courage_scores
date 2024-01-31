@@ -1,3 +1,5 @@
+import {repeat} from "./projection";
+
 export interface ILayoutDataForSide {
     id: string;
     name: string;
@@ -62,3 +64,37 @@ export function sideSelection(side: { id: string, name: string}) {
     };
 }
 
+export function getUnplayedLayoutData(noOfSides: number, depth: number): ILayoutDataForRound[] {
+    if (noOfSides <= 1) {
+        return [];
+    }
+
+    const hasBye: boolean = noOfSides % 2 !== 0;
+    const layoutDataForRound: ILayoutDataForRound = {
+        name: null,
+        matches: repeat(Math.floor(noOfSides / 2), (_: number): ILayoutDataForMatch => {
+            return {
+                sideA: {id: null, name: null, link: null},
+                sideB: {id: null, name: null, link: null},
+                scoreA: null,
+                scoreB: null,
+                bye: false,
+                winner: null,
+                saygId: null,
+            };
+        }),
+    };
+    if (hasBye) {
+        layoutDataForRound.matches.push({
+            sideA: {id: null, name: null, link: null},
+            sideB: {id: null, name: null, link: null},
+            scoreA: null,
+            scoreB: null,
+            bye: true,
+            winner: null,
+            saygId: null,
+        });
+    }
+
+    return [layoutDataForRound].concat(getUnplayedLayoutData(Math.floor(noOfSides / 2) + (hasBye ? 1 : 0), depth + 1));
+}
