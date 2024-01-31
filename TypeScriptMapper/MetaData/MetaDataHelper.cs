@@ -165,13 +165,40 @@ public class MetaDataHelper : IMetaDataHelper
 
     public string GetRelativePath(HelperContext context, string ns)
     {
-        const string rootNamespace = "CourageScores";
-        var relativeNamespace = ns.Replace(rootNamespace, "");
-        relativeNamespace = relativeNamespace.Replace("Dtos", "dtos");
-        relativeNamespace = relativeNamespace.Replace("Models", "models");
-        relativeNamespace = relativeNamespace.Replace("Controllers", "apis");
+        var contextNamespaces = context.Namespace.Split('.').ToList();
+        var relativeNamespaces = ns.Split('.').ToList();
+        var navigation = new List<string>();
 
-        return GetPathToRoot(context) + relativeNamespace.Replace(".", "/");
+        while (contextNamespaces.Any() && relativeNamespaces.Any() && contextNamespaces.First() == relativeNamespaces.First())
+        {
+            contextNamespaces.RemoveAt(0);
+            relativeNamespaces.RemoveAt(0);
+        }
+
+        if (!contextNamespaces.Any() && !relativeNamespaces.Any())
+        {
+            return ".";
+        }
+
+        var prefixWithCurrentDirectory = true;
+        while (contextNamespaces.Any())
+        {
+            prefixWithCurrentDirectory = false;
+            navigation.Add("..");
+            contextNamespaces.RemoveAt(0);
+        }
+        while (relativeNamespaces.Any())
+        {
+            var nsToAdd = relativeNamespaces[0];
+            nsToAdd = nsToAdd.Replace("Dtos", "dtos");
+            nsToAdd = nsToAdd.Replace("Models", "models");
+            nsToAdd = nsToAdd.Replace("Controllers", "apis");
+
+            navigation.Add(nsToAdd);
+            relativeNamespaces.RemoveAt(0);
+        }
+
+        return (prefixWithCurrentDirectory ? "./" : "") + string.Join("/", navigation);
     }
 
     private static string GetTypeName(Type type)
