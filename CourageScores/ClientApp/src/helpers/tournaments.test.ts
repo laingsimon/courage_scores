@@ -87,9 +87,10 @@ describe('tournaments', () => {
         interface ILayoutMatchBuilderProps {
             a: string;
             vs?: string;
+            m?: string;
         }
 
-        function layoutMatchBuilder({ a, vs }: ILayoutMatchBuilderProps) {
+        function layoutMatchBuilder({ a, vs, m }: ILayoutMatchBuilderProps) {
             const bye: boolean = !vs;
 
             return {
@@ -108,6 +109,7 @@ describe('tournaments', () => {
                     link: null,
                     mnemonic: vs || null,
                 },
+                mnemonic: m || null,
             }
         }
 
@@ -117,14 +119,14 @@ describe('tournaments', () => {
             expect(layout.length).toEqual(2);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
-                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B', m: 'M1' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D', m: 'M2' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A/B', vs: 'C/D' }),
+                    layoutMatchBuilder({ a: 'winner(M1)', vs: 'winner(M2)', m: 'M3' }),
                 ],
                 name: null,
             });
@@ -136,22 +138,22 @@ describe('tournaments', () => {
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
-                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B', m: 'M1' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D', m: 'M2' }),
                     layoutMatchBuilder({ a: 'E' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({  a: 'E', vs: 'A/B' }),
-                    layoutMatchBuilder({  a: 'C/D' }),
+                    layoutMatchBuilder({  a: 'E', vs: 'winner(M1)', m: 'M3' }),
+                    layoutMatchBuilder({  a: 'winner(M2)' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({  a: 'C/D', vs: 'A/B/E' }),
+                    layoutMatchBuilder({  a: 'winner(M2)', vs: 'winner(M3)', m: 'M4' }),
                 ],
                 name: null,
             });
@@ -163,22 +165,22 @@ describe('tournaments', () => {
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({  a: 'A', vs: 'B' }),
-                    layoutMatchBuilder({  a: 'C', vs: 'D' }),
-                    layoutMatchBuilder({  a: 'E', vs: 'F' }),
+                    layoutMatchBuilder({  a: 'A', vs: 'B', m: 'M1' }),
+                    layoutMatchBuilder({  a: 'C', vs: 'D', m: 'M2' }),
+                    layoutMatchBuilder({  a: 'E', vs: 'F', m: 'M3' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({  a: 'A/B', vs: 'C/D' }),
-                    layoutMatchBuilder({  a: 'E/F' }),
+                    layoutMatchBuilder({  a: 'winner(M1)', vs: 'winner(M2)', m: 'M4' }),
+                    layoutMatchBuilder({  a: 'winner(M3)' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'E/F', vs: 'A/B/C/D' }),
+                    layoutMatchBuilder({ a: 'winner(M3)', vs: 'winner(M4)', m: 'M5' }),
                 ],
                 name: null,
             });
@@ -190,23 +192,23 @@ describe('tournaments', () => {
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
-                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
-                    layoutMatchBuilder({ a: 'E', vs: 'F' }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B', m: 'M1' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D', m: 'M2' }),
+                    layoutMatchBuilder({ a: 'E', vs: 'F', m: 'M3' }),
                     layoutMatchBuilder({ a: 'G' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'G', vs: 'A/B' }),
-                    layoutMatchBuilder({ a: 'C/D', vs: 'E/F' }),
+                    layoutMatchBuilder({ a: 'G', vs: 'winner(M1)', m: 'M4' }),
+                    layoutMatchBuilder({ a: 'winner(M2)', vs: 'winner(M3)', m: 'M5' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A/B/G', vs: 'C/D/E/F' }),
+                    layoutMatchBuilder({ a: 'winner(M4)', vs: 'winner(M5)', m: 'M6' }),
                 ],
                 name: null,
             });
@@ -218,23 +220,23 @@ describe('tournaments', () => {
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
-                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
-                    layoutMatchBuilder({ a: 'E', vs: 'F' }),
-                    layoutMatchBuilder({ a: 'G', vs: 'H' }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B', m: 'M1' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D', m: 'M2' }),
+                    layoutMatchBuilder({ a: 'E', vs: 'F', m: 'M3' }),
+                    layoutMatchBuilder({ a: 'G', vs: 'H', m: 'M4' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A/B', vs: 'C/D' }),
-                    layoutMatchBuilder({ a: 'E/F', vs: 'G/H' }),
+                    layoutMatchBuilder({ a: 'winner(M1)', vs: 'winner(M2)', m: 'M5' }),
+                    layoutMatchBuilder({ a: 'winner(M3)', vs: 'winner(M4)', m: 'M6' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A/B/C/D', vs: 'E/F/G/H' }),
+                    layoutMatchBuilder({ a: 'winner(M5)', vs: 'winner(M6)', m: 'M7' }),
                 ],
                 name: null,
             });
@@ -246,32 +248,32 @@ describe('tournaments', () => {
             expect(layout.length).toEqual(4);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
-                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
-                    layoutMatchBuilder({ a: 'E', vs: 'F' }),
-                    layoutMatchBuilder({ a: 'G', vs: 'H' }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B', m: 'M1' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D', m: 'M2' }),
+                    layoutMatchBuilder({ a: 'E', vs: 'F', m: 'M3' }),
+                    layoutMatchBuilder({ a: 'G', vs: 'H', m: 'M4' }),
                     layoutMatchBuilder({ a: 'I' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'I', vs: 'A/B' }),
-                    layoutMatchBuilder({ a: 'C/D', vs: 'E/F' }),
-                    layoutMatchBuilder({ a: 'G/H' }),
+                    layoutMatchBuilder({ a: 'I', vs: 'winner(M1)', m: 'M5' }),
+                    layoutMatchBuilder({ a: 'winner(M2)', vs: 'winner(M3)', m: 'M6' }),
+                    layoutMatchBuilder({ a: 'winner(M4)' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'G/H', vs: 'A/B/I' }),
-                    layoutMatchBuilder({ a: 'C/D/E/F' }),
+                    layoutMatchBuilder({ a: 'winner(M4)', vs: 'winner(M5)', m: 'M7' }),
+                    layoutMatchBuilder({ a: 'winner(M6)' }), // TODO: 728 This is a bye-to-the-final
                 ],
                 name: null,
             });
             expect(layout[3]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ a: 'C/D/E/F', vs: 'A/B/G/H/I' }),
+                    layoutMatchBuilder({ a: 'winner(M6)', vs: 'winner(M7)', m: 'M8' }),
                 ],
                 name: null,
             });

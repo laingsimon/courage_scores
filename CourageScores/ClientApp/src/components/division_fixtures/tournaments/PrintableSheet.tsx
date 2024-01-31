@@ -165,10 +165,11 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         };
     }
 
-    function getPlayedLayoutData(sides: ITournamentSideDto[], round: ITournamentRoundDto, depth: number): ILayoutDataForRound[] {
+    function getPlayedLayoutData(sides: ITournamentSideDto[], round: ITournamentRoundDto, depth: number, matchMnemonic?: number): ILayoutDataForRound[] {
         if (!round) {
             return [];
         }
+        matchMnemonic = matchMnemonic || 0;
 
         const winnersFromThisRound: ITournamentSideDto[] = [];
         const playedInThisRound: ITournamentSideDto[] = [];
@@ -198,6 +199,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                     bye: false,
                     winner: winner,
                     saygId: m.saygId,
+                    mnemonic: 'M' + (++matchMnemonic),
                 };
             }),
         };
@@ -226,19 +228,18 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         if (!any(winnersFromThisRound)) {
             // partially played tournament... project the remaining rounds as unplayed...
             const mnemonics: string[] = layoutDataForRound.matches.map((m: ILayoutDataForMatch) => {
-                const sides: string[] = [ m.sideA.name ];
                 if (m.sideB) {
-                    sides.push(m.sideB.name);
+                    return `winner(${m.mnemonic})`;
                 }
 
-                return sides.sort().join('/');
+                return m.sideA.name;
             });
-            const byes: string[] = byesFromThisRound.map((m: ILayoutDataForMatch) => m.sideA.name);
 
-            return [layoutDataForRound].concat(getUnplayedLayoutDataForSides(mnemonics, byes));
+            const byes: string[] = byesFromThisRound.map((m: ILayoutDataForMatch) => m.sideA.name);
+            return [layoutDataForRound].concat(getUnplayedLayoutDataForSides(mnemonics, byes, matchMnemonic));
         }
 
-        return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map((b: ILayoutDataForMatch) => b.sideA)), round.nextRound, depth + 1));
+        return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map((b: ILayoutDataForMatch) => b.sideA)), round.nextRound, depth + 1, matchMnemonic));
     }
 
     function render180s() {
@@ -354,7 +355,8 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                         {index === layoutData.length - 1 ? render180s() : null}
                         <h5 datatype="round-name">{roundData.name}</h5>
                         {roundData.matches.map((matchData: ILayoutDataForMatch, index: number) => (
-                            <div key={index} datatype="match" className={`p-0 border-solid border-1 m-1 ${matchData.bye ? 'opacity-50 position-relative' : ''}`}>
+                            <div key={index} datatype="match" className={`p-0 border-solid border-1 m-1 position-relative ${matchData.bye ? 'opacity-50' : ''}`}>
+                                {matchData.mnemonic ? (<span className="position-absolute-bottom-right text-danger">{matchData.mnemonic}</span>) : null}
                                 {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
                                 <div datatype="sideA"
                                      className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>

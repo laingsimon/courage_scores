@@ -281,8 +281,8 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'A/B',
-                        sideBname: 'C/D',
+                        sideAname: 'winner(M1)',
+                        sideBname: 'winner(M2)',
                         sideAwinner: false,
                         sideBwinner: false,
                         scoreA: '',
@@ -291,7 +291,7 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'E/F',
+                        sideAname: 'winner(M3)',
                         sideBname: null,
                         sideAwinner: false,
                         sideBwinner: null,
@@ -308,8 +308,8 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'E/F',
-                        sideBname: 'A/B/C/D',
+                        sideAname: 'winner(M3)',
+                        sideBname: 'winner(M4)',
                         sideAwinner: false,
                         sideBwinner: false,
                         scoreA: '',

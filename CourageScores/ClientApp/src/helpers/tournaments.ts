@@ -17,6 +17,7 @@ export interface ILayoutDataForMatch {
     bye?: boolean;
     winner?: string;
     saygId?: string;
+    mnemonic?: string;
 }
 
 export interface ILayoutDataForRound {
@@ -62,9 +63,10 @@ export function getUnplayedLayoutData(noOfSides: number): ILayoutDataForRound[] 
     return getUnplayedLayoutDataForSides(sideMnemonics, []);
 }
 
-export function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes: string[]): ILayoutDataForRound[] {
+export function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes: string[], matchMnemonic?: number): ILayoutDataForRound[] {
     const mnemonicsToCreateMatchesFor: string[] = previousByes.concat(mnemonics.sort().filter((m: string) => !any(previousByes, (b: string) => b === m)));
     // any mnemonics with byes first then the remaining mnemonics in alphabetical order
+    matchMnemonic = matchMnemonic || 0;
 
     const matches: ILayoutDataForMatch[] = [];
     const byes: string[] = [];
@@ -80,10 +82,11 @@ export function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes:
             bye,
             scoreA: null,
             scoreB: null,
+            mnemonic: bye ? null : 'M' + (++matchMnemonic),
         };
 
         if (match.sideB) {
-            followOnMnemonics.push(mergeMnemonics(match.sideA.mnemonic, match.sideB.mnemonic));
+            followOnMnemonics.push(`winner(${match.mnemonic})`);
         } else {
             byes.push(match.sideA.mnemonic);
         }
@@ -100,7 +103,7 @@ export function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes:
         return [round];
     }
 
-    return [round].concat(getUnplayedLayoutDataForSides(followOnMnemonics.concat(byes), byes));
+    return [round].concat(getUnplayedLayoutDataForSides(followOnMnemonics.concat(byes), byes, matchMnemonic));
 }
 
 export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
