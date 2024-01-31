@@ -85,190 +85,193 @@ describe('tournaments', () => {
 
     describe('getUnplayedLayoutData', () => {
         interface ILayoutMatchBuilderProps {
-            bye?: boolean;
+            a: string;
+            vs?: string;
         }
 
-        function layoutMatchBuilder({ bye }: ILayoutMatchBuilderProps) {
+        function layoutMatchBuilder({ a, vs }: ILayoutMatchBuilderProps) {
+            const bye: boolean = !vs;
+
             return {
                 bye: bye || false,
-                saygId: null,
                 scoreA: null,
                 scoreB: null,
                 sideA: {
                     id: null,
                     name: null,
                     link: null,
+                    mnemonic: a || null,
                 },
-                sideB: {
+                sideB: bye ? null : {
                     id: null,
                     name: null,
                     link: null,
+                    mnemonic: vs || null,
                 },
-                winner: null,
             }
         }
 
         it('4 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(4, 1);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(4);
 
             expect(layout.length).toEqual(2);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'A/B', vs: 'C/D' }),
                 ],
                 name: null,
             });
         });
 
         it('5 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(5, 1);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(5);
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ bye: true }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
+                    layoutMatchBuilder({ a: 'E' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ bye: true }), // TODO: #728 this makes for an unfair tournament
+                    layoutMatchBuilder({  a: 'E', vs: 'A/B' }),
+                    layoutMatchBuilder({  a: 'C/D' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({  a: 'C/D', vs: 'A/B/E' }),
                 ],
                 name: null,
             });
         });
 
         it('6 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(6, 1);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(6);
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({  a: 'A', vs: 'B' }),
+                    layoutMatchBuilder({  a: 'C', vs: 'D' }),
+                    layoutMatchBuilder({  a: 'E', vs: 'F' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ bye: true }), // TODO: #728 this makes for an unfair tournament
+                    layoutMatchBuilder({  a: 'A/B', vs: 'C/D' }),
+                    layoutMatchBuilder({  a: 'E/F' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'E/F', vs: 'A/B/C/D' }),
                 ],
                 name: null,
             });
         });
 
         it('7 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(7, 1);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(7);
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ bye: true }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
+                    layoutMatchBuilder({ a: 'E', vs: 'F' }),
+                    layoutMatchBuilder({ a: 'G' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'G', vs: 'A/B' }),
+                    layoutMatchBuilder({ a: 'C/D', vs: 'E/F' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'A/B/G', vs: 'C/D/E/F' }),
                 ],
                 name: null,
             });
         });
 
         it('8 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(8, 1);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(8);
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
+                    layoutMatchBuilder({ a: 'E', vs: 'F' }),
+                    layoutMatchBuilder({ a: 'G', vs: 'H' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'A/B', vs: 'C/D' }),
+                    layoutMatchBuilder({ a: 'E/F', vs: 'G/H' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'A/B/C/D', vs: 'E/F/G/H' }),
                 ],
                 name: null,
             });
         });
 
         it('9 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(9, 1);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(9);
 
             expect(layout.length).toEqual(4);
             expect(layout[0]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ bye: true }),
+                    layoutMatchBuilder({ a: 'A', vs: 'B' }),
+                    layoutMatchBuilder({ a: 'C', vs: 'D' }),
+                    layoutMatchBuilder({ a: 'E', vs: 'F' }),
+                    layoutMatchBuilder({ a: 'G', vs: 'H' }),
+                    layoutMatchBuilder({ a: 'I' }),
                 ],
                 name: null,
             });
             expect(layout[1]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ bye: true }), // TODO: #728 this makes for an unfair tournament
+                    layoutMatchBuilder({ a: 'I', vs: 'A/B' }),
+                    layoutMatchBuilder({ a: 'C/D', vs: 'E/F' }),
+                    layoutMatchBuilder({ a: 'G/H' }),
                 ],
                 name: null,
             });
             expect(layout[2]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
-                    layoutMatchBuilder({ bye: true }), // TODO: #728 this makes for an unfair tournament
+                    layoutMatchBuilder({ a: 'G/H', vs: 'A/B/I' }),
+                    layoutMatchBuilder({ a: 'C/D/E/F' }),
                 ],
                 name: null,
             });
             expect(layout[3]).toEqual({
                 matches: [
-                    layoutMatchBuilder({ }),
+                    layoutMatchBuilder({ a: 'C/D/E/F', vs: 'A/B/G/H/I' }),
                 ],
                 name: null,
             });
@@ -277,42 +280,42 @@ describe('tournaments', () => {
 
     describe('setRoundNames', () => {
         it('4 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(4, 1));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(4));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Semi-Final', 'Final' ]);
         });
 
         it('5 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(5, 1));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(5));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('6 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(6, 1));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(6));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('7 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(7, 1));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(7));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('8 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(8, 1));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(8));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('9 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(9, 1));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(9));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Round 1',  'Quarter-Final', 'Semi-Final', 'Final' ]);

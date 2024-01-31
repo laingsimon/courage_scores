@@ -15,9 +15,9 @@ import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournam
 import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
 import {
-    getUnplayedLayoutData,
+    getUnplayedLayoutData, getUnplayedLayoutDataForSides,
     ILayoutDataForMatch,
-    ILayoutDataForRound,
+    ILayoutDataForRound, ILayoutDataForSide,
     setRoundNames
 } from "../../../helpers/tournaments";
 
@@ -40,7 +40,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
     const {tournamentData, season, division, matchOptionDefaults} = useTournament();
     const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
-        : getUnplayedLayoutData(tournamentData.sides.length, 1));
+        : getUnplayedLayoutData(tournamentData.sides.length));
     const [wiggle, setWiggle] = useState<boolean>(!printOnly);
     const winner = getWinner();
 
@@ -225,7 +225,17 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
 
         if (!any(winnersFromThisRound)) {
             // partially played tournament... project the remaining rounds as unplayed...
-            return [layoutDataForRound].concat(getUnplayedLayoutData(Math.ceil(playedInThisRound.length / 2), depth + 1));
+            const mnemonics: string[] = layoutDataForRound.matches.map((m: ILayoutDataForMatch) => {
+                const sides: string[] = [ m.sideA.name ];
+                if (m.sideB) {
+                    sides.push(m.sideB.name);
+                }
+
+                return sides.sort().join('/');
+            });
+            const byes: string[] = byesFromThisRound.map((m: ILayoutDataForMatch) => m.sideA.name);
+
+            return [layoutDataForRound].concat(getUnplayedLayoutDataForSides(mnemonics, byes));
         }
 
         return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map((b: ILayoutDataForMatch) => b.sideA)), round.nextRound, depth + 1));
@@ -317,6 +327,13 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         return null;
     }
 
+    function renderSide(side: ILayoutDataForSide, type: string) {
+        return <div className="no-wrap pe-3" datatype={type + 'name'}>
+            {side.link || (<span>&nbsp;</span>)}
+            {side.mnemonic ? <span className="text-secondary-50 opacity-75">{side.mnemonic}</span> : null}
+        </div>
+    }
+
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
             {winner ? null : (<div className="float-end">
@@ -326,10 +343,8 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
                 <span className="d-print-none margin-left">
-                    <ShareButton
-                        text={`${name}: ${tournamentData.type} at ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
-                        <button className="btn btn-sm margin-left btn-outline-primary"
-                                onClick={window.print}>🖨️</button>
+                    <ShareButton text={`${name}: ${tournamentData.type} at ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
+                    <button className="btn btn-sm margin-left btn-outline-primary" onClick={window.print}>🖨️</button>
                 </span>
             </div>
             <div datatype="rounds-and-players"
@@ -338,30 +353,28 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                     <div key={index} datatype={`round-${index}`} className="d-flex flex-column p-3">
                         {index === layoutData.length - 1 ? render180s() : null}
                         <h5 datatype="round-name">{roundData.name}</h5>
-                        {roundData.matches.map((matchData: any, index: number) => (<div key={index} datatype="match"
-                                                                           className={`p-0 border-solid border-1 m-1 ${matchData.bye ? 'opacity-50 position-relative' : ''}`}>
-                            {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
-                            <div datatype="sideA"
-                                 className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
-                                <div className="no-wrap pe-3" datatype="sideAname">{matchData.sideA.link || (
-                                    <span>&nbsp;</span>)}</div>
-                                <div datatype="scoreA">{matchData.scoreA || ''}</div>
-                            </div>
-                            {matchData.bye ? null : (<div className="text-center dotted-line-through">
-                                <span className="px-3 bg-white position-relative">
-                                    vs
-                                    {matchData.saygId ? (<a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer" className="margin-left no-underline">👁️</a>) : null}
-                                </span>
-                            </div>)}
-                            {matchData.bye
-                                ? null
-                                : (<div datatype="sideB"
-                                        className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
-                                    <div className="no-wrap pe-3" datatype="sideBname">{matchData.sideB.link || (
-                                        <span>&nbsp;</span>)}</div>
-                                    <div datatype="scoreB">{matchData.scoreB || ''}</div>
+                        {roundData.matches.map((matchData: ILayoutDataForMatch, index: number) => (
+                            <div key={index} datatype="match" className={`p-0 border-solid border-1 m-1 ${matchData.bye ? 'opacity-50 position-relative' : ''}`}>
+                                {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
+                                <div datatype="sideA"
+                                     className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
+                                    {renderSide(matchData.sideA, 'sideA')}
+                                    <div datatype="scoreA">{matchData.scoreA || ''}</div>
+                                </div>
+                                {matchData.bye ? null : (<div className="text-center dotted-line-through">
+                                    <span className="px-3 bg-white position-relative">
+                                        vs
+                                        {matchData.saygId ? (<a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer" className="margin-left no-underline">👁️</a>) : null}
+                                    </span>
                                 </div>)}
-                        </div>))}
+                                {matchData.bye
+                                    ? null
+                                    : (<div datatype="sideB"
+                                            className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
+                                        {renderSide(matchData.sideB, 'sideB')}
+                                        <div datatype="scoreB">{matchData.scoreB || ''}</div>
+                                    </div>)}
+                            </div>))}
                         {index === layoutData.length - 1 ? renderHiChecks() : null}
                     </div>))}
                 {any(tournamentData.sides) ? (<div>
