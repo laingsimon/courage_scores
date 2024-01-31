@@ -51,9 +51,10 @@
       "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js"
     },
     "collectCoverageFrom": [
-      "!src/api/**/*.ts",
       "!src/tests/**/*.ts",
-      "!coverage/**/*.js"
+      "!coverage/**/*.js",
+      "!src/interfaces/apis/**/*.ts",
+      "!src/interfaces/models/**/*.ts"
     ]
   },
   "scripts": {
