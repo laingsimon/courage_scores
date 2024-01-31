@@ -14,6 +14,7 @@ import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournam
 import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
 import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {ILayoutDataForMatch, ILayoutDataForRound} from "../../../helpers/tournaments";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -26,27 +27,6 @@ interface IMovement {
 interface IWiggler {
     handle?: number;
     movements: IMovement[];
-}
-
-interface ILayoutDataForSide {
-    id: string;
-    name: string;
-    link: JSX.Element;
-}
-
-interface ILayoutDataForMatch {
-    sideA: ILayoutDataForSide;
-    sideB: ILayoutDataForSide;
-    scoreA: string;
-    scoreB: string;
-    bye?: boolean;
-    winner?: string;
-    saygId?: string;
-}
-
-interface ILayoutDataForRound {
-    name: string;
-    matches: ILayoutDataForMatch[];
 }
 
 export function PrintableSheet({printOnly}: IPrintableSheetProps) {

@@ -1,3 +1,24 @@
+export interface ILayoutDataForSide {
+    id: string;
+    name: string;
+    link: JSX.Element;
+}
+
+export interface ILayoutDataForMatch {
+    sideA: ILayoutDataForSide;
+    sideB: ILayoutDataForSide;
+    scoreA: string;
+    scoreB: string;
+    bye?: boolean;
+    winner?: string;
+    saygId?: string;
+}
+
+export interface ILayoutDataForRound {
+    name: string;
+    matches: ILayoutDataForMatch[];
+}
+
 export function getRoundNameFromSides(round: { name?: string | null }, sideLength: number, depth: number) {
     if (round.name) {
         return round.name;
