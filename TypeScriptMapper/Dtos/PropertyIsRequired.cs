@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TypeScriptMapper.Dtos;
 
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Class)]
 public class PropertyIsRequired : Attribute
 {
