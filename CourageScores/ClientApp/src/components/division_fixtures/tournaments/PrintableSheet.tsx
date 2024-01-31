@@ -331,7 +331,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
     function renderSide(side: ILayoutDataForSide, type: string) {
         return <div className="no-wrap pe-3" datatype={type + 'name'}>
             {side.link || (<span>&nbsp;</span>)}
-            {side.mnemonic ? <span className="text-secondary-50 opacity-75">{side.mnemonic}</span> : null}
+            {side.mnemonic ? <span className="text-secondary-50 opacity-75 small">{side.mnemonic}</span> : null}
         </div>
     }
 
@@ -356,7 +356,9 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                         <h5 datatype="round-name">{roundData.name}</h5>
                         {roundData.matches.map((matchData: ILayoutDataForMatch, index: number) => (
                             <div key={index} datatype="match" className={`p-0 border-solid border-1 m-1 position-relative ${matchData.bye ? 'opacity-50' : ''}`}>
-                                {matchData.mnemonic ? (<span className="position-absolute-bottom-right text-danger">{matchData.mnemonic}</span>) : null}
+                                {matchData.mnemonic && roundData.matches.length > 1 ? (<span className="position-absolute right-0 opacity-75">
+                                    <span className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute" style={{ left: -10, top: -10 }}>{matchData.mnemonic}</span>
+                                </span>) : null}
                                 {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
                                 <div datatype="sideA"
                                      className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
