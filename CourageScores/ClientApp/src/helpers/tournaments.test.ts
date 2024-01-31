@@ -1,7 +1,6 @@
 ﻿// noinspection JSUnresolvedReference
 
 import {
-    getRoundNameFromMatches,
     getRoundNameFromSides,
     getUnplayedLayoutData,
     hasScore,
@@ -66,38 +65,6 @@ describe('tournaments', () => {
             ];
 
             expect(distinct(names)).toEqual(['Round: 1']);
-        });
-    });
-
-    describe('getRoundNameFromMatches', () => {
-        it('returns Final if 1 match', () => {
-            const name = getRoundNameFromMatches(1, 1);
-
-            expect(name).toEqual('Final');
-        });
-
-        it('returns Semi-Final if 2 matches', () => {
-            const name = getRoundNameFromMatches(2, 1);
-
-            expect(name).toEqual('Semi-Final');
-        });
-
-        it('returns Quarter-Final if 3 or 4 matches', () => {
-            const name3 = getRoundNameFromMatches(3, 1);
-            const name4 = getRoundNameFromMatches(4, 1);
-
-            expect(distinct([name3, name4])).toEqual(['Quarter-Final']);
-        });
-
-        it('returns depth if unimportant number of matches', () => {
-            const names = [
-                getRoundNameFromMatches(0, 1),
-                getRoundNameFromMatches(5, 1),
-                getRoundNameFromMatches(6, 1),
-                getRoundNameFromMatches(7, 1),
-            ];
-
-            expect(distinct(names)).toEqual(['Round: 2']);
         });
     });
 

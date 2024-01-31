@@ -38,20 +38,6 @@ export function getRoundNameFromSides(round: { name?: string | null }, sideLengt
     return `Round: ${depth}`;
 }
 
-export function getRoundNameFromMatches(matches: number, depth: number) {
-    if (matches === 1) {
-        return 'Final';
-    }
-    if (matches === 2) {
-        return 'Semi-Final';
-    }
-    if (matches === 3 || matches === 4) {
-        return 'Quarter-Final';
-    }
-
-    return `Round: ${depth + 1}`;
-}
-
 export function hasScore(score?: number | null) {
     return score !== null && score !== undefined;
 }
