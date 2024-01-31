@@ -118,8 +118,10 @@ public class ControllerStrategy: IStrategy
         var body = requiresBody
             ? GetBodyParameter(method.Parameters, attribute.Template)
             : "";
+        var queryParameter = method.Parameters.SingleOrDefault(p => p.IsQueryStringParameter);
+        var queryStringSuffix = queryParameter != null ? $"?${{new URLSearchParams({queryParameter.Name} as any).toString()}}" : "";
 
-        return $"return this.http.{httpMethod.ToLower()}(`{url}`{body});";
+        return $"return this.http.{httpMethod.ToLower()}(`{url}{queryStringSuffix}`{body});";
     }
 
     private static string GetFileUploadImplementation(IRouteMethod method)
