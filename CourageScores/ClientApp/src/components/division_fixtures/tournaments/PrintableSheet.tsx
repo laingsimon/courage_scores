@@ -14,7 +14,12 @@ import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournam
 import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
 import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
 import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {getUnplayedLayoutData, ILayoutDataForMatch, ILayoutDataForRound} from "../../../helpers/tournaments";
+import {
+    getUnplayedLayoutData,
+    ILayoutDataForMatch,
+    ILayoutDataForRound,
+    setRoundNames
+} from "../../../helpers/tournaments";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -110,36 +115,6 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             movements(0.1, 0.05, 10),
             movements(0.05, 0.0, 10),
         ].flatMap((movements: IMovement[]) => movements);
-    }
-
-    function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
-        const layoutDataCopy: ILayoutDataForRound[] = layoutData.filter(_ => true);
-        const newLayoutData: ILayoutDataForRound[] = [];
-        let unnamedRoundNumber: number = layoutDataCopy.length - 3;
-
-        while (any(layoutDataCopy)) {
-            const lastRound: ILayoutDataForRound = layoutDataCopy.pop();
-            let roundName = null;
-            switch (newLayoutData.length) {
-                case 0:
-                    roundName = 'Final';
-                    break;
-                case 1:
-                    roundName = 'Semi-Final';
-                    break;
-                case 2:
-                    roundName = 'Quarter-Final';
-                    break;
-                default:
-                    roundName = `Round ${unnamedRoundNumber--}`;
-                    break;
-            }
-
-            lastRound.name = lastRound.name || roundName;
-            newLayoutData.unshift(lastRound);
-        }
-
-        return newLayoutData;
     }
 
     function getLinkToSide(side: ITournamentSideDto) {

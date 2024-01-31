@@ -4,7 +4,7 @@ import {
     getRoundNameFromSides,
     getUnplayedLayoutData,
     hasScore,
-    ILayoutDataForRound
+    ILayoutDataForRound, setRoundNames
 } from "./tournaments";
 import {distinct} from "./collections";
 
@@ -272,6 +272,50 @@ describe('tournaments', () => {
                 ],
                 name: null,
             });
+        });
+    });
+
+    describe('setRoundNames', () => {
+        it('4 sides', () => {
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(4, 1));
+
+            const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
+            expect(roundNames).toEqual([ 'Semi-Final', 'Final' ]);
+        });
+
+        it('5 sides', () => {
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(5, 1));
+
+            const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
+            expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+        });
+
+        it('6 sides', () => {
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(6, 1));
+
+            const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
+            expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+        });
+
+        it('7 sides', () => {
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(7, 1));
+
+            const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
+            expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+        });
+
+        it('8 sides', () => {
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(8, 1));
+
+            const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
+            expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+        });
+
+        it('9 sides', () => {
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(9, 1));
+
+            const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
+            expect(roundNames).toEqual([ 'Round 1',  'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
     });
 });

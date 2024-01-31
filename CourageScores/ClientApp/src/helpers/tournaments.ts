@@ -1,4 +1,5 @@
 import {repeat} from "./projection";
+import {any} from "./collections";
 
 export interface ILayoutDataForSide {
     id: string;
@@ -83,4 +84,34 @@ export function getUnplayedLayoutData(noOfSides: number, depth: number): ILayout
     }
 
     return [layoutDataForRound].concat(getUnplayedLayoutData(Math.floor(noOfSides / 2) + (hasBye ? 1 : 0), depth + 1));
+}
+
+export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
+    const layoutDataCopy: ILayoutDataForRound[] = layoutData.filter(_ => true);
+    const newLayoutData: ILayoutDataForRound[] = [];
+    let unnamedRoundNumber: number = layoutDataCopy.length - 3;
+
+    while (any(layoutDataCopy)) {
+        const lastRound: ILayoutDataForRound = layoutDataCopy.pop();
+        let roundName = null;
+        switch (newLayoutData.length) {
+            case 0:
+                roundName = 'Final';
+                break;
+            case 1:
+                roundName = 'Semi-Final';
+                break;
+            case 2:
+                roundName = 'Quarter-Final';
+                break;
+            default:
+                roundName = `Round ${unnamedRoundNumber--}`;
+                break;
+        }
+
+        lastRound.name = lastRound.name || roundName;
+        newLayoutData.unshift(lastRound);
+    }
+
+    return newLayoutData;
 }
