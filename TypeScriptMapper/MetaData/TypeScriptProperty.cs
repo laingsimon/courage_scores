@@ -22,6 +22,8 @@ public class TypeScriptProperty : ITypeScriptMember
 
     public string Name => _property.Name.ToCamelCase();
 
+    public ObsoleteAttribute? ObsoleteAnnotation => _property.GetCustomAttribute<ObsoleteAttribute>();
+
     public string GetDefinition()
     {
         return $"{Name}{(IsOptional() ? "?" : "")}: {_helper.GetTypeScriptType(_context, _property.PropertyType).GetTypeScriptDefinition()}";

@@ -193,8 +193,14 @@ public class ControllerStrategy: IStrategy
                 break;
             }
 
-            var definition = member.GetDefinition();
-            await writer.WriteLineAsync($"    {definition};");
+            var obsolete = member.ObsoleteAnnotation;
+            if (obsolete != null)
+            {
+                await writer.WriteLineAsync($"    /**");
+                await writer.WriteLineAsync($"    /* @deprecated {obsolete.Message}");
+                await writer.WriteLineAsync($"    */");
+            }
+            await writer.WriteLineAsync($"    {member.GetDefinition()};");
         }
 
         await writer.WriteLineAsync("}");

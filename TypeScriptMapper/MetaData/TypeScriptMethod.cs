@@ -33,6 +33,8 @@ public class TypeScriptMethod : IRouteMethod
 
     public string? FileUploadPropertyName => _parameters.Select(p => ParameterRequiresFileUpload(p.ParameterType)).SingleOrDefault(name => name != null);
 
+    public ObsoleteAttribute? ObsoleteAnnotation => _method.GetCustomAttribute<ObsoleteAttribute>();
+
     public string GetDefinition()
     {
         return $"{Name}({string.Join(", ", GetParameterDefinition())}): {GetReturnTypeDefinition()}";

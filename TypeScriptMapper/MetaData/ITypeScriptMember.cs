@@ -19,4 +19,9 @@ public interface ITypeScriptMember
     string GetDefinition();
 
     bool IsImplementationOf(ITypeScriptMember member);
+
+    /// <summary>
+    /// Is this member marked as obsolete?
+    /// </summary>
+    ObsoleteAttribute? ObsoleteAnnotation { get; }
 }
