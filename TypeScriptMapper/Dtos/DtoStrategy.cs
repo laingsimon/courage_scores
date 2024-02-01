@@ -52,7 +52,7 @@ public class DtoStrategy: IStrategy
             Namespace = _dtosNamespace,
         };
         var relativePath = _metaDataHelper.GetRelativePath(context, type.DotNetType.Namespace!) + "/" + Path.GetFileName(type.RelativePath);
-        var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath));
+        var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath + ".d.ts"));
         await Console.Out.WriteLineAsync($"Writing {type.Name} to {path}...");
 
         if (!Directory.Exists(Path.GetDirectoryName(path)))
@@ -116,7 +116,7 @@ public class DtoStrategy: IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath!.Replace(".d.ts", "")}';");
+            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
             importWritten = true;
         }
 
@@ -127,13 +127,13 @@ public class DtoStrategy: IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{I{interfaceType.Name}}} from '{interfaceType.RelativePath.Replace(".d.ts", "")}';");
+            await writer.WriteLineAsync($"import {{I{interfaceType.Name}}} from '{interfaceType.RelativePath}';");
             importWritten = true;
         }
 
         if (type.BaseType != null)
         {
-            await writer.WriteLineAsync($"import {{I{type.BaseType.Name}}} from '{type.BaseType.RelativePath.Replace(".d.ts", "")}';");
+            await writer.WriteLineAsync($"import {{I{type.BaseType.Name}}} from '{type.BaseType.RelativePath}';");
             importWritten = true;
         }
 

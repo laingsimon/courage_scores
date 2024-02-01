@@ -50,7 +50,7 @@ public class ControllerStrategy: IStrategy
         var name = controller.Name.Replace("Controller", "Api");
         controller.RelativePath = controller.RelativePath.Replace("Controller", "Api");
 
-        var path = Path.GetFullPath(Path.Combine(outputDirectory, controller.RelativePath.Replace(".d.ts", ".ts")));
+        var path = Path.GetFullPath(Path.Combine(outputDirectory, controller.RelativePath + ".ts"));
         using (var writer = new StreamWriter(File.Create(path)))
         {
             await Console.Out.WriteLineAsync($"Writing {controller.Name} to {path}...");
@@ -214,7 +214,7 @@ public class ControllerStrategy: IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{{import.Name}}} from '{Path.ChangeExtension(import.RelativePath!.Replace(".d.ts", ".ts"), null)}';");
+            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
         }
     }
 
