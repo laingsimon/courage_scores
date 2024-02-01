@@ -23,6 +23,7 @@ import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
 import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
+import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 
 describe('MatchStatistics', () => {
     let context: TestContext;
@@ -32,14 +33,14 @@ describe('MatchStatistics', () => {
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
-        get: () => {
+        get: async (): Promise<RecordedScoreAsYouGoDto | null> => {
             return saygData;
         },
-        upsert: (data: UpdateRecordedScoreAsYouGoDto) => {
+        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             updatedSayg = data;
             return {
                 success: true,
-                result: data,
+                result: data as RecordedScoreAsYouGoDto,
             };
         },
     });

@@ -22,7 +22,7 @@ describe('LiveSayg', () => {
     let reportedError: ErrorState;
     let socketFactory: MockSocketFactory;
     const saygApi = api<ISaygApi>({
-        get: (id: string) => {
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             requestedSaygId = id;
             return saygData;
         }

@@ -41,18 +41,18 @@ describe('SaygLoadingContainer', () => {
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
-        get: async (id: string) => {
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             if (!any(Object.keys(saygDataMap), key => key === id)) {
                 throw new Error('Unexpected request for sayg data');
             }
 
             return saygDataMap[id];
         },
-        upsert: async (data: UpdateRecordedScoreAsYouGoDto) => {
+        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             upsertedData = data;
             return apiResponse || {
                 success: true,
-                result: Object.assign({id: 'NEW_ID'}, data),
+                result: Object.assign({id: 'NEW_ID', yourName: ''}, data),
             };
         },
     });

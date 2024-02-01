@@ -45,10 +45,10 @@ describe('CreateSeasonDialog', () => {
     let divisionReloaded: boolean;
 
     const templateApi = api<ISeasonTemplateApi>({
-        getCompatibility: (seasonId: string) => {
+        getCompatibility: async (seasonId: string) => {
             return compatibilityResponses[seasonId] || {success: false};
         },
-        propose: (request: ProposalRequestDto) => {
+        propose: async (request: ProposalRequestDto) => {
             proposalRequest = request;
             return apiResponse || {success: false, errors: [], warnings: [], messages: []};
         },

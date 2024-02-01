@@ -67,12 +67,12 @@ describe('Score', () => {
             return saveGameApiResult || {
                 success: true,
                 messages: ['Fixture updated'],
-                result: fixtureData,
+                result: fixtureData as GameDto,
             }
         }
     });
     const playerApi = api<IPlayerApi>({
-        create: (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto) => {
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto) => {
             const newPlayer = Object.assign(playerBuilder().build(), playerDetails);
             createdPlayer = {divisionId, seasonId, teamId, playerDetails, newPlayer};
             if (!newPlayerApiResult) {

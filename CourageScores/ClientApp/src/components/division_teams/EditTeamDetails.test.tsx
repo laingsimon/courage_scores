@@ -31,9 +31,9 @@ describe('EditTeamDetails', () => {
     let canceled: boolean;
 
     const teamApi = api<ITeamApi>({
-        update: async (team: EditTeamDto) => {
+        update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedTeam = team;
-            return apiResponse || {success: true, result: team};
+            return apiResponse || {success: true, result: team as TeamDto};
         }
     });
 

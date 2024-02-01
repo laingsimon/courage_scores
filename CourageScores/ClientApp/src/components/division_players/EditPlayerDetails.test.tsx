@@ -35,7 +35,7 @@ describe('EditPlayerDetails', () => {
     let cumulativeCreatedPlayers: EditTeamPlayerDto[];
 
     const playerApi = api<IPlayerApi>({
-        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto) => {
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             createdPlayers.push({divisionId, seasonId, teamId, playerDetails});
             cumulativeCreatedPlayers.push(playerDetails);
 
@@ -48,12 +48,14 @@ describe('EditPlayerDetails', () => {
                     id: teamId,
                     seasons: [{
                         seasonId: seasonId,
-                        players: cumulativeCreatedPlayers,
-                    }]
+                        players: cumulativeCreatedPlayers as TeamPlayerDto[],
+                    }],
+                    name: '',
+                    address: '',
                 }
             };
         },
-        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto) => {
+        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails};
             return apiResponse || {success: true};
         }

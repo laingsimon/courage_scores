@@ -117,17 +117,17 @@ describe('Tournament', () => {
         }
     });
     const saygApi = api<ISaygApi>({
-        get: async (id: string) => {
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             if (any(Object.keys(saygDataLookup), k => k === id)) {
                 return saygDataLookup[id];
             }
 
             throw new Error('Unexpected request for sayg data: ' + id);
         },
-        upsert: async (data: UpdateRecordedScoreAsYouGoDto) => {
+        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             return {
                 success: true,
-                result: data,
+                result: data as RecordedScoreAsYouGoDto,
             };
         },
     });

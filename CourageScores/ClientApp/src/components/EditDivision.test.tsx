@@ -39,11 +39,11 @@ describe('EditDivision', () => {
     let deletedId: string;
     let updatedData: DivisionDataDto;
     const divisionApi = api<IDivisionApi>({
-        update: (data: EditDivisionDto) => {
+        update: async (data: EditDivisionDto) => {
             updatedDivision = data;
             return apiResponse;
         },
-        delete: (id: string) => {
+        delete: async (id: string) => {
             deletedId = id;
             return apiResponse;
         }

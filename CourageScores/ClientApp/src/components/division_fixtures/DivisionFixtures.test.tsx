@@ -32,6 +32,9 @@ import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/Divi
 import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 import {INoteApi} from "../../interfaces/apis/INoteApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
+import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;
@@ -50,15 +53,12 @@ describe('DivisionFixtures', () => {
         },
     });
     const tournamentApi = api<ITournamentGameApi>({
-        update: async () => {
+        update: async (): Promise<IClientActionResultDto<TournamentGameDto>> => {
             return {success: true};
         },
-        create: async () => {
-            return {success: true};
-        }
     });
     const templateApi = api<ISeasonTemplateApi>({
-        getCompatibility: () => {
+        getCompatibility: async (): Promise<IClientActionResultDto<IClientActionResultDto<TemplateDto>[]>> => {
             return {success: false};
         }
     });

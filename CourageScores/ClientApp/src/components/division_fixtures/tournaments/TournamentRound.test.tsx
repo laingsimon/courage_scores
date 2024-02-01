@@ -34,6 +34,7 @@ import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../hel
 import {createTemporaryId} from "../../../helpers/projection";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
+import {CreateTournamentSaygDto} from "../../../interfaces/models/dtos/Game/CreateTournamentSaygDto";
 
 describe('TournamentRound', () => {
     let context: TestContext;
@@ -45,15 +46,18 @@ describe('TournamentRound', () => {
     let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean };
     let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
     const tournamentApi = api<ITournamentGameApi>({
-        addSayg: async () => {
+        addSayg: async (id: string, _: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> => {
             return {
                 success: true,
-                result: { /* tournament data */}
+                result: {
+                    id,
+                    address: '',
+                }
             };
         }
     });
     const saygApi = api<ISaygApi>({
-        get: async (id: string) => {
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             return saygApiData[id];
         },
         upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {

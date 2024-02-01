@@ -31,9 +31,9 @@ describe('DivisionTeam', () => {
     let apiResponse: IClientActionResultDto<TeamDto>;
 
     const teamApi = api<ITeamApi>({
-        update: async (team: EditTeamDto) => {
+        update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedTeam = team;
-            return apiResponse || {success: true, result: team};
+            return apiResponse || {success: true, result: team as TeamDto};
         }
     });
 

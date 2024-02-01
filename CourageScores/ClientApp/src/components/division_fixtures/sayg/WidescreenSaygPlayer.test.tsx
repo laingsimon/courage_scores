@@ -23,8 +23,12 @@ describe('WidescreenSaygPlayer', () => {
     let reportedError: ErrorState;
     let newStatisticsView: boolean;
     const saygApi = api<ISaygApi>({
-        get: () => {
-            return {};
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
+            return {
+                id: id,
+                legs: {},
+                yourName: '',
+            };
         }
     })
 

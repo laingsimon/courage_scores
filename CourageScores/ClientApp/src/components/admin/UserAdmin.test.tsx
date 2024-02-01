@@ -25,7 +25,7 @@ describe('UserAdmin', () => {
     let apiResponse: IClientActionResultDto<UserDto>;
 
     const accountApi = api<IAccountApi>({
-        update: (update: UpdateAccessDto) => {
+        update: async (update: UpdateAccessDto) => {
             updatedAccess = update;
             return apiResponse || {success: true};
         }
