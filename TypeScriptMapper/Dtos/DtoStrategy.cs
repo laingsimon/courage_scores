@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using TypeScriptMapper.MetaData;
 
 namespace TypeScriptMapper.Dtos;
@@ -24,7 +25,7 @@ public class DtoStrategy: IStrategy
     {
         var typeScriptTypes = _dtoRepository
             .GetTypes(_dtosNamespace)
-            .Where(t => onlyType == null || t.Name.Contains(onlyType));
+            .Where(t => onlyType == null || Regex.IsMatch(t.Name, onlyType));
 
         var typeMeta = typeScriptTypes.Select(c => _metaDataFactory.Create(c));
 

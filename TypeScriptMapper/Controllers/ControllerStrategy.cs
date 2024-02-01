@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using TypeScriptMapper.MetaData;
 
@@ -22,7 +23,7 @@ public class ControllerStrategy: IStrategy
     {
         var controllers = _assembly.GetTypes()
             .Where(t => t.IsAssignableTo(typeof(Controller)))
-            .Where(t => onlyType == null || t.Name.Contains(onlyType));
+            .Where(t => onlyType == null || Regex.IsMatch(t.Name, onlyType));
         var controllerMeta = controllers.Select(c => _metaDataFactory.Create(c)).ToList();
 
         if (!Directory.Exists(outputDirectory))
