@@ -38,8 +38,8 @@ import {
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {matchOptionsBuilder} from "../../../helpers/builders/games";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
-import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
 import {ICreateTournamentSaygDto} from "../../../interfaces/models/dtos/Game/ICreateTournamentSaygDto";
 
 interface ISaygDataLookup extends IClientActionResultDto<ITournamentGameDto> {

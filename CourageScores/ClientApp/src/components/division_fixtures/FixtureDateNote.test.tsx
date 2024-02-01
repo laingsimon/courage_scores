@@ -17,7 +17,7 @@ import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
 import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 import {createTemporaryId} from "../../helpers/projection";
-import {INoteApi} from "../../interfaces/apis/NoteApi";
+import {INoteApi} from "../../interfaces/apis/INoteApi";
 
 describe('FixtureDateNote', () => {
     let context: TestContext;

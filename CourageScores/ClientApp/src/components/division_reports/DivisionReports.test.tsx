@@ -18,7 +18,7 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {IReportDto} from "../../interfaces/models/dtos/Report/IReportDto";
 import {IReportCollectionDto} from "../../interfaces/models/dtos/Report/IReportCollectionDto";
 import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IReportApi} from "../../interfaces/apis/ReportApi";
+import {IReportApi} from "../../interfaces/apis/IReportApi";
 
 describe('DivisionReports', () => {
     let context: TestContext;

@@ -21,7 +21,7 @@ import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
 import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
-import {ITeamApi} from "../../interfaces/apis/TeamApi";
+import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 
 describe('DivisionTeams', () => {
     let context: TestContext;

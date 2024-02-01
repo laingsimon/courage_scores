@@ -21,8 +21,8 @@ import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {seasonBuilder} from "../helpers/builders/seasons";
-import {IDivisionApi} from "../interfaces/apis/DivisionApi";
-import {ISeasonApi} from "../interfaces/apis/SeasonApi";
+import {IDivisionApi} from "../interfaces/apis/IDivisionApi";
+import {ISeasonApi} from "../interfaces/apis/ISeasonApi";
 
 const mockedUsedNavigate = jest.fn();
 

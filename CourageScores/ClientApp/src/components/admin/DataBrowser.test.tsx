@@ -18,7 +18,7 @@ import {IAppContainerProps} from "../../AppContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IError} from "../../interfaces/IError";
 import {IFailedRequest} from "../../interfaces/IFailedRequest";
-import {IDataApi} from "../../interfaces/apis/DataApi";
+import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 const mockedUsedNavigate = jest.fn();
 

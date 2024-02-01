@@ -15,7 +15,7 @@ import {AdminContainer} from "./AdminContainer";
 import {IUpdateAccessDto} from "../../interfaces/models/dtos/Identity/IUpdateAccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IAccountApi} from "../../interfaces/apis/AccountApi";
+import {IAccountApi} from "../../interfaces/apis/IAccountApi";
 
 describe('UserAdmin', () => {
     let context: TestContext;

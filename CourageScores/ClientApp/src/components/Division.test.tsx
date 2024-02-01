@@ -28,10 +28,10 @@ import {teamBuilder} from "../helpers/builders/teams";
 import {IPlayerPerformanceBuilder, playerBuilder} from "../helpers/builders/players";
 import {IFixtureBuilder} from "../helpers/builders/games";
 import {IFailedRequest} from "../interfaces/IFailedRequest";
-import {IDivisionApi} from "../interfaces/apis/DivisionApi";
+import {IDivisionApi} from "../interfaces/apis/IDivisionApi";
 import {IDivisionDataFilter} from "../interfaces/models/dtos/Division/IDivisionDataFilter";
-import {IGameApi} from "../interfaces/apis/GameApi";
-import {ISeasonApi} from "../interfaces/apis/SeasonApi";
+import {IGameApi} from "../interfaces/apis/IGameApi";
+import {ISeasonApi} from "../interfaces/apis/ISeasonApi";
 
 describe('Division', () => {
     let context: TestContext;

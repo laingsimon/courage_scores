@@ -5,7 +5,7 @@ import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
 import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
 import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IDataApi} from "../../interfaces/apis/DataApi";
+import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ExportDataButton', () => {
     let context: TestContext;

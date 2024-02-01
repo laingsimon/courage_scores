@@ -4,7 +4,7 @@ import {DivisionHealth} from "./DivisionHealth";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
-import {ISeasonApi} from "../../interfaces/apis/SeasonApi";
+import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
 
 describe('DivisionHealth', () => {
     let context: TestContext;

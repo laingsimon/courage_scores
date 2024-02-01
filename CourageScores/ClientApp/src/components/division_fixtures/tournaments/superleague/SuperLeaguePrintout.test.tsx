@@ -23,7 +23,7 @@ import {
     tournamentBuilder
 } from "../../../../helpers/builders/tournaments";
 import {divisionBuilder} from "../../../../helpers/builders/divisions";
-import {ISaygApi} from "../../../../interfaces/apis/SaygApi";
+import {ISaygApi} from "../../../../interfaces/apis/ISaygApi";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;

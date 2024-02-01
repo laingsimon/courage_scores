@@ -16,7 +16,7 @@ import {LiveContainer} from "../LiveContainer";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('WidescreenSaygPlayer', () => {
     let context: TestContext;

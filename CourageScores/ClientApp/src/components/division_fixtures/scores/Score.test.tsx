@@ -34,8 +34,8 @@ import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {fixtureBuilder, matchBuilder} from "../../../helpers/builders/games";
 import {IFailedRequest} from "../../../interfaces/IFailedRequest";
-import {IGameApi} from "../../../interfaces/apis/GameApi";
-import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
+import {IGameApi} from "../../../interfaces/apis/IGameApi";
+import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
 
 interface ICreatedPlayer {
     divisionId: string;

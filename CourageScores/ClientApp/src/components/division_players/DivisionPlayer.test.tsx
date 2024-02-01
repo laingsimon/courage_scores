@@ -23,7 +23,7 @@ import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisio
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IPlayerApi} from "../../interfaces/apis/PlayerApi";
+import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 
 describe('DivisionPlayer', () => {
     let context: TestContext;

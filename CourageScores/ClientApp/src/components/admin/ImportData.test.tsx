@@ -18,7 +18,7 @@ import {ImportData} from "./ImportData";
 import {IImportDataRequestDto} from "../../interfaces/models/dtos/Data/IImportDataRequestDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IImportDataResultDto} from "../../interfaces/models/dtos/Data/IImportDataResultDto";
-import {IDataApi} from "../../interfaces/apis/DataApi";
+import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ImportData', () => {
     let context: TestContext;

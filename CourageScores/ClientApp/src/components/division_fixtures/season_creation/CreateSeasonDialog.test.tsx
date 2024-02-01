@@ -29,8 +29,8 @@ import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisi
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {divisionBuilder, fixtureDateBuilder, IDivisionFixtureBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
-import {ISeasonTemplateApi} from "../../../interfaces/apis/SeasonTemplateApi";
-import {IGameApi} from "../../../interfaces/apis/GameApi";
+import {ISeasonTemplateApi} from "../../../interfaces/apis/ISeasonTemplateApi";
+import {IGameApi} from "../../../interfaces/apis/IGameApi";
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;

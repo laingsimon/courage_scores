@@ -16,7 +16,7 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {IErrorDetailDto} from "../../interfaces/models/dtos/IErrorDetailDto";
-import {IErrorApi} from "../../interfaces/apis/ErrorApi";
+import {IErrorApi} from "../../interfaces/apis/IErrorApi";
 
 describe('Errors', () => {
     let context: TestContext;

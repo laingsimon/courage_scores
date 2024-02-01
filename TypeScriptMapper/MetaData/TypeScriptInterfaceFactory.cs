@@ -24,7 +24,7 @@ public class TypeScriptInterfaceFactory
         return new TypeScriptInterface
         {
             DotNetType = type,
-            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/" + GetTypeName(type, false) + ".d.ts",
+            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/I" + GetTypeName(type, false) + ".d.ts",
             Name = GetTypeName(type, true),
             Members =
                 type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))

@@ -18,7 +18,7 @@ import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Say
 import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../helpers/builders/sayg";
-import {ISaygApi} from "../interfaces/apis/SaygApi";
+import {ISaygApi} from "../interfaces/apis/ISaygApi";
 
 describe('Practice', () => {
     let context: TestContext;

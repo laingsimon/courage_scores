@@ -16,7 +16,7 @@ import {ExportData} from "./ExportData";
 import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
 import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IDataApi} from "../../interfaces/apis/DataApi";
+import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ExportData', () => {
     let context: TestContext;

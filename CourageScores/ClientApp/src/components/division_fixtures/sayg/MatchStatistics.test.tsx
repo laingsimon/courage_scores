@@ -22,7 +22,7 @@ import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
 import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('MatchStatistics', () => {
     let context: TestContext;

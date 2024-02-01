@@ -32,7 +32,7 @@ import {
 } from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IGameApi} from "../../interfaces/apis/GameApi";
+import {IGameApi} from "../../interfaces/apis/IGameApi";
 
 describe('DivisionFixture', () => {
     let context: TestContext;

@@ -15,11 +15,11 @@ import {IDivisionDto} from "./interfaces/models/dtos/IDivisionDto";
 import {IBuild} from "./interfaces/IBuild";
 import {IClientActionResultDto} from "./interfaces/IClientActionResultDto";
 import {divisionBuilder} from "./helpers/builders/divisions";
-import {IAccountApi} from "./interfaces/apis/AccountApi";
-import {IErrorApi} from "./interfaces/apis/ErrorApi";
-import {IDivisionApi} from "./interfaces/apis/DivisionApi";
-import {ISeasonApi} from "./interfaces/apis/SeasonApi";
-import {ITeamApi} from "./interfaces/apis/TeamApi";
+import {IAccountApi} from "./interfaces/apis/IAccountApi";
+import {IErrorApi} from "./interfaces/apis/IErrorApi";
+import {IDivisionApi} from "./interfaces/apis/IDivisionApi";
+import {ISeasonApi} from "./interfaces/apis/ISeasonApi";
+import {ITeamApi} from "./interfaces/apis/ITeamApi";
 
 describe('App', () => {
     let context: TestContext;

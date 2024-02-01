@@ -17,7 +17,7 @@ import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITempla
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
 import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
-import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
+import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 
 describe('Templates', () => {
     let context: TestContext;

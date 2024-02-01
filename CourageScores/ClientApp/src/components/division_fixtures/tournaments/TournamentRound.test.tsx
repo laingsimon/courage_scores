@@ -32,8 +32,8 @@ import {
 import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {createTemporaryId} from "../../../helpers/projection";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
-import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
 
 describe('TournamentRound', () => {
     let context: TestContext;

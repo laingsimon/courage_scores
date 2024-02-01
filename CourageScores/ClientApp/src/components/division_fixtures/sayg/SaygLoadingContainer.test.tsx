@@ -27,7 +27,7 @@ import {ISubscriptions} from "../../../interfaces/ISubscriptions";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
 import {IAppContainerProps} from "../../../AppContainer";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;

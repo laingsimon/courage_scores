@@ -42,12 +42,12 @@ import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../hel
 import {
     IDivisionTournamentFixtureDetailsDto
 } from "../../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
-import {IDivisionApi} from "../../../interfaces/apis/DivisionApi";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
+import {IDivisionApi} from "../../../interfaces/apis/IDivisionApi";
 import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
-import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
-import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
-import {IDataApi} from "../../../interfaces/apis/DataApi";
+import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
+import {IDataApi} from "../../../interfaces/apis/IDataApi";
 
 interface IScenario {
     account?: IUserDto;

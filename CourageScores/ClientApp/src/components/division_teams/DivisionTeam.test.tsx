@@ -22,7 +22,7 @@ import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionD
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
-import {ITeamApi} from "../../interfaces/apis/TeamApi";
+import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 
 describe('DivisionTeam', () => {
     let context: TestContext;

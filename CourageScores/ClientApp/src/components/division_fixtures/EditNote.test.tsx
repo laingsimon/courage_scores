@@ -18,7 +18,7 @@ import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
 import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder, noteBuilder} from "../../helpers/builders/divisions";
-import {INoteApi} from "../../interfaces/apis/NoteApi";
+import {INoteApi} from "../../interfaces/apis/INoteApi";
 
 describe('EditNote', () => {
     let context: TestContext;

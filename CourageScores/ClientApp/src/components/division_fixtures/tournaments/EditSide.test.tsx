@@ -29,7 +29,7 @@ import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../../helpers/builders/tournaments";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
-import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
+import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
 
 describe('EditSide', () => {
     let context: TestContext;

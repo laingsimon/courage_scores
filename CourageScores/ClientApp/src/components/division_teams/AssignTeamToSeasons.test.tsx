@@ -22,7 +22,7 @@ import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {createTemporaryId} from "../../helpers/projection";
-import {ITeamApi} from "../../interfaces/apis/TeamApi";
+import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 import {IModifyTeamSeasonDto} from "../../interfaces/models/dtos/Team/IModifyTeamSeasonDto";
 
 describe('AssignTeamToSeasons', () => {

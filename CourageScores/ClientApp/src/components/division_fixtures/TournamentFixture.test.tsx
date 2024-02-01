@@ -28,7 +28,7 @@ import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {playerBuilder} from "../../helpers/builders/players";
-import {ITournamentGameApi} from "../../interfaces/apis/TournamentGameApi";
+import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 
 describe('TournamentFixture', () => {
     let context: TestContext;

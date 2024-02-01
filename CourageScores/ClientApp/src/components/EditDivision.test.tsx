@@ -17,7 +17,7 @@ import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
 import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
-import {IDivisionApi} from "../interfaces/apis/DivisionApi";
+import {IDivisionApi} from "../interfaces/apis/IDivisionApi";
 
 const mockedUsedNavigate = jest.fn();
 

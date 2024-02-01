@@ -29,9 +29,9 @@ import {
 } from "../../helpers/builders/divisions";
 import {ITournamentBuilder, ITournamentSideBuilder} from "../../helpers/builders/tournaments";
 import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
-import {ISeasonTemplateApi} from "../../interfaces/apis/SeasonTemplateApi";
-import {INoteApi} from "../../interfaces/apis/NoteApi";
-import {ITournamentGameApi} from "../../interfaces/apis/TournamentGameApi";
+import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
+import {INoteApi} from "../../interfaces/apis/INoteApi";
+import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 
 describe('DivisionFixtures', () => {
     let context: TestContext;

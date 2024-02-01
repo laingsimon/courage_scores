@@ -21,7 +21,7 @@ import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {playerBuilder} from "../../helpers/builders/players";
-import {IPlayerApi} from "../../interfaces/apis/PlayerApi";
+import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 
 describe('EditPlayerDetails', () => {
     let context: TestContext;
