@@ -1,5 +1,5 @@
 import {elementAt} from "./collections";
-import {IGameMatchOptionDto} from "../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {GameMatchOptionDto} from "../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 export interface IMultiMatchOptions {
     [legIndex: number]: number
@@ -20,7 +20,7 @@ export function getMatchDefaults() {
     };
 }
 
-export function getMatchOptionDefaults(legIndex: number, matchOptions: IMatchOptionsLookup): IGameMatchOptionDto {
+export function getMatchOptionDefaults(legIndex: number, matchOptions: IMatchOptionsLookup): GameMatchOptionDto {
     return {
         playerCount: matchOptions.playerCount[legIndex],
         startingScore: matchOptions.startingScore[legIndex],
@@ -28,7 +28,7 @@ export function getMatchOptionDefaults(legIndex: number, matchOptions: IMatchOpt
     };
 }
 
-export function getMatchOptionsLookup(matchOptions: IGameMatchOptionDto[]): IMatchOptionsLookup {
+export function getMatchOptionsLookup(matchOptions: GameMatchOptionDto[]): IMatchOptionsLookup {
     return {
         playerCount: {
             0: elementAt(matchOptions, 0, op => op.playerCount) || 1,

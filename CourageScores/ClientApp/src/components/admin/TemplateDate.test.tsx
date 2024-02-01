@@ -11,12 +11,12 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {ITemplateDateProps, TemplateDate} from "./TemplateDate";
-import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 describe('TemplateDate', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: IDateTemplateDto;
+    let update: DateTemplateDto;
     let deleted: boolean;
 
     afterEach(() => {
@@ -29,7 +29,7 @@ describe('TemplateDate', () => {
         deleted = null;
     });
 
-    async function onUpdate(value: IDateTemplateDto) {
+    async function onUpdate(value: DateTemplateDto) {
         update = value;
     }
 

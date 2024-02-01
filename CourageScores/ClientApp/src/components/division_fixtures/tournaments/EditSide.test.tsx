@@ -15,26 +15,26 @@ import {toMap} from "../../../helpers/collections";
 import {EditSide, IEditSideProps} from "./EditSide";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {createTemporaryId} from "../../../helpers/projection";
-import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
+import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../../helpers/builders/tournaments";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
-import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
+import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
 
 describe('EditSide', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: ITournamentSideDto;
+    let updatedData: TournamentSideDto;
     let closed: boolean;
     let applied: boolean;
     let deleted: boolean;
@@ -43,17 +43,17 @@ describe('EditSide', () => {
         divisionId: string,
         seasonId: string,
         teamId: string,
-        playerDetails: IEditTeamPlayerDto,
+        playerDetails: EditTeamPlayerDto,
     };
     const playerApi = api<IPlayerApi>({
-        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto): Promise<IClientActionResultDto<ITeamDto>> => {
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             createdPlayer = {
                 divisionId,
                 seasonId,
                 teamId,
                 playerDetails,
             };
-            const playerDetailsAsTeamPlayer = playerDetails as ITeamPlayerDto;
+            const playerDetailsAsTeamPlayer = playerDetails as TeamPlayerDto;
             playerDetailsAsTeamPlayer.id = createTemporaryId();
             return {
                 success: true,
@@ -84,7 +84,7 @@ describe('EditSide', () => {
         createdPlayer = null;
     });
 
-    async function onChange(newData: ITournamentSideDto) {
+    async function onChange(newData: TournamentSideDto) {
         updatedData = newData;
     }
 
@@ -104,7 +104,7 @@ describe('EditSide', () => {
         teamsReloaded = true;
     }
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: IEditSideProps, teams?: ITeamDto[], account?: IUserDto) {
+    async function renderComponent(containerProps: ITournamentContainerProps, props: IEditSideProps, teams?: TeamDto[], account?: UserDto) {
         context = await renderApp(
             iocProps({playerApi}),
             brandingProps(),
@@ -118,27 +118,27 @@ describe('EditSide', () => {
             </TournamentContainer>));
     }
 
-    function alreadyPlaying(player: ITeamPlayerDto): { [playerId: string]: ITeamPlayerDto } {
-        const playing: { [playerId: string]: ITeamPlayerDto } = {};
+    function alreadyPlaying(player: TeamPlayerDto): { [playerId: string]: TeamPlayerDto } {
+        const playing: { [playerId: string]: TeamPlayerDto } = {};
         playing[player.id] = player;
         return playing;
     }
 
     describe('renders', () => {
-        const player: ITeamPlayerDto = playerBuilder('PLAYER').build();
-        const anotherPlayer: ITeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const tournamentData: ITournamentGameDto = tournamentBuilder()
+        const player: TeamPlayerDto = playerBuilder('PLAYER').build();
+        const anotherPlayer: TeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
             .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const team: ITeamDto = teamBuilder('TEAM')
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const team: TeamDto = teamBuilder('TEAM')
             .forSeason(season, tournamentData.divisionId, [ player, anotherPlayer ])
             .build();
 
         it('new side', async () => {
-            const side: ITournamentSideDto = sideBuilder().build();
+            const side: TournamentSideDto = sideBuilder().build();
 
             await renderComponent({
                 tournamentData,
@@ -154,7 +154,7 @@ describe('EditSide', () => {
         });
 
         it('side with players', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
 
@@ -173,7 +173,7 @@ describe('EditSide', () => {
         });
 
         it('filtered players', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
             await renderComponent({
@@ -190,9 +190,9 @@ describe('EditSide', () => {
         });
 
         it('players with common name with their team name', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
-            const playerWithSameNameInDifferentTeam: ITeamPlayerDto = playerBuilder(player.name).build();
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
+            const playerWithSameNameInDifferentTeam: TeamPlayerDto = playerBuilder(player.name).build();
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .forSeason(season, tournamentData.divisionId, [ playerWithSameNameInDifferentTeam ])
                 .build();
 
@@ -211,7 +211,7 @@ describe('EditSide', () => {
         });
 
         it('side with teamId', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .build();
 
@@ -230,7 +230,7 @@ describe('EditSide', () => {
         });
 
         it('side which did not show', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .noShow()
                 .build();
@@ -247,7 +247,7 @@ describe('EditSide', () => {
         });
 
         it('side which did show', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .build();
 
@@ -263,13 +263,13 @@ describe('EditSide', () => {
         });
 
         it('when team is not registered to season', async () => {
-            const teamNotInSeason: ITeamDto = teamBuilder('TEAM')
+            const teamNotInSeason: TeamDto = teamBuilder('TEAM')
                 .forSeason(
                     seasonBuilder('ANOTHER SEASON').build(),
                     tournamentData.divisionId,
                     [playerBuilder('NOT IN SEASON PLAYER').build()])
                 .build();
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(teamNotInSeason.id)
                 .build();
 
@@ -285,8 +285,8 @@ describe('EditSide', () => {
         });
 
         it('excludes players from another division when for a division', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
-            const otherDivisionTeam: ITeamDto = teamBuilder('OTHER DIVISION TEAM')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
+            const otherDivisionTeam: TeamDto = teamBuilder('OTHER DIVISION TEAM')
                 .forSeason(
                     season,
                     divisionBuilder('ANOTHER DIVISION').build(),
@@ -305,8 +305,8 @@ describe('EditSide', () => {
         });
 
         it('includes players from another division when cross-divisional', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
-            const otherDivisionTeam: ITeamDto = teamBuilder('OTHER DIVISION TEAM')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
+            const otherDivisionTeam: TeamDto = teamBuilder('OTHER DIVISION TEAM')
                 .forSeason(
                     season,
                     divisionBuilder('ANOTHER DIVISION').build(),
@@ -326,7 +326,7 @@ describe('EditSide', () => {
         });
 
         it('warning about players that are selected in another tournament', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
 
             await renderComponent({
                 tournamentData,
@@ -340,7 +340,7 @@ describe('EditSide', () => {
         });
 
         it('unselectable players when selected in another side', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
 
             await renderComponent({
                 tournamentData,
@@ -366,7 +366,7 @@ describe('EditSide', () => {
         });
 
         it('delete button when side exists', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .build();
 
@@ -382,7 +382,7 @@ describe('EditSide', () => {
         });
 
         it('no delete button when side is new', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').id(undefined).build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').id(undefined).build();
 
             await renderComponent({
                 tournamentData,
@@ -395,10 +395,10 @@ describe('EditSide', () => {
         });
 
         it('add player button when permitted and new side', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .id(undefined)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 emailAddress: '',
                 givenName: '',
@@ -418,8 +418,8 @@ describe('EditSide', () => {
         });
 
         it('add player button when permitted and editing side', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
-            const account: IUserDto = {
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
+            const account: UserDto = {
                 emailAddress: '',
                 name: '',
                 givenName: '',
@@ -439,10 +439,10 @@ describe('EditSide', () => {
         });
 
         it('no add player button when not permitted', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 emailAddress: '',
                 givenName: '',
@@ -462,10 +462,10 @@ describe('EditSide', () => {
         });
 
         it('no add player button when permitted and team side', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 emailAddress: '',
                 givenName: '',
@@ -486,19 +486,19 @@ describe('EditSide', () => {
     });
 
     describe('interactivity', () => {
-        const player: ITeamPlayerDto = playerBuilder('PLAYER').build();
-        const anotherPlayer: ITeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
-        const tournamentData: ITournamentGameDto = tournamentBuilder()
+        const player: TeamPlayerDto = playerBuilder('PLAYER').build();
+        const anotherPlayer: TeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
+        const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(divisionBuilder('DIVISION').build())
             .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const team: ITeamDto = teamBuilder('TEAM')
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const team: TeamDto = teamBuilder('TEAM')
             .forSeason(season, tournamentData.divisionId, [ player, anotherPlayer ])
             .build();
 
         it('can change side name', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .build();
             await renderComponent({
                 tournamentData,
@@ -517,7 +517,7 @@ describe('EditSide', () => {
         });
 
         it('can change noShow', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .build();
             await renderComponent({
                 tournamentData,
@@ -537,7 +537,7 @@ describe('EditSide', () => {
         });
 
         it('can change team id', async () => {
-            const side: ITournamentSideDto = sideBuilder().build();
+            const side: TournamentSideDto = sideBuilder().build();
             await renderComponent({
                 tournamentData,
                 season,
@@ -556,7 +556,7 @@ describe('EditSide', () => {
         });
 
         it('can unset team id', async () => {
-            const side: ITournamentSideDto = sideBuilder('TEAM')
+            const side: TournamentSideDto = sideBuilder('TEAM')
                 .teamId(team.id)
                 .build();
             await renderComponent({
@@ -577,7 +577,7 @@ describe('EditSide', () => {
         });
 
         it('can select player', async () => {
-            const side: ITournamentSideDto = sideBuilder('')
+            const side: TournamentSideDto = sideBuilder('')
                 .build();
             await renderComponent({
                 tournamentData,
@@ -600,7 +600,7 @@ describe('EditSide', () => {
         });
 
         it('sets side name to player name when player selected for new side', async () => {
-            const side: ITournamentSideDto = sideBuilder(undefined)
+            const side: TournamentSideDto = sideBuilder(undefined)
                 .build();
             await renderComponent({
                 tournamentData,
@@ -623,7 +623,7 @@ describe('EditSide', () => {
         });
 
         it('can select player and team name does not change', async () => {
-            const side: ITournamentSideDto = sideBuilder('OTHER NAME')
+            const side: TournamentSideDto = sideBuilder('OTHER NAME')
                 .build();
             await renderComponent({
                 tournamentData,
@@ -646,10 +646,10 @@ describe('EditSide', () => {
         });
 
         it('can select another player', async () => {
-            const side: ITournamentSideDto = sideBuilder('PLAYER')
+            const side: TournamentSideDto = sideBuilder('PLAYER')
                 .withPlayer(player)
                 .build();
-            const noSidesTournamentData: ITournamentGameDto = tournamentBuilder()
+            const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
             await renderComponent({
@@ -677,10 +677,10 @@ describe('EditSide', () => {
         });
 
         it('can select another player and team name does not change', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const noSidesTournamentData: ITournamentGameDto = tournamentBuilder()
+            const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
             await renderComponent({
@@ -708,11 +708,11 @@ describe('EditSide', () => {
         });
 
         it('can deselect player', async () => {
-            const side: ITournamentSideDto = sideBuilder('ANOTHER PLAYER, PLAYER')
+            const side: TournamentSideDto = sideBuilder('ANOTHER PLAYER, PLAYER')
                 .withPlayer(player)
                 .withPlayer(anotherPlayer)
                 .build();
-            const noSidesTournamentData: ITournamentGameDto = tournamentBuilder()
+            const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
             await renderComponent({
@@ -733,7 +733,7 @@ describe('EditSide', () => {
         });
 
         it('can delete side', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             await renderComponent({
                 tournamentData,
                 season,
@@ -753,7 +753,7 @@ describe('EditSide', () => {
         });
 
         it('does not delete side when rejected', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             await renderComponent({
                 tournamentData,
                 season,
@@ -773,7 +773,7 @@ describe('EditSide', () => {
         });
 
         it('cannot save side if no name', async () => {
-            const side: ITournamentSideDto = sideBuilder('')
+            const side: TournamentSideDto = sideBuilder('')
                 .teamId(team.id)
                 .build();
             await renderComponent({
@@ -794,7 +794,7 @@ describe('EditSide', () => {
         });
 
         it('cannot save side if no teamId and no players', async () => {
-            const side: ITournamentSideDto = sideBuilder('').build();
+            const side: TournamentSideDto = sideBuilder('').build();
             await renderComponent({
                 tournamentData,
                 season,
@@ -813,7 +813,7 @@ describe('EditSide', () => {
         });
 
         it('can save side', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
             await renderComponent({
@@ -829,7 +829,7 @@ describe('EditSide', () => {
         });
 
         it('can close', async () => {
-            const side: ITournamentSideDto = sideBuilder('')
+            const side: TournamentSideDto = sideBuilder('')
                 .withPlayer(player)
                 .build();
             await renderComponent({
@@ -846,7 +846,7 @@ describe('EditSide', () => {
         });
 
         it('can select players that are selected in another tournament', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .build();
             await renderComponent({
                 tournamentData,
@@ -873,7 +873,7 @@ describe('EditSide', () => {
         });
 
         it('cannot select players that are selected in another side', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME').build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             await renderComponent({
                 tournamentData,
                 season,
@@ -892,10 +892,10 @@ describe('EditSide', () => {
         });
 
         it('can open add player dialog', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -916,10 +916,10 @@ describe('EditSide', () => {
         });
 
         it('can close add player dialog', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -940,10 +940,10 @@ describe('EditSide', () => {
         });
 
         it('can add player', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -966,10 +966,10 @@ describe('EditSide', () => {
         });
 
         it('selects newly created player', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -1001,10 +1001,10 @@ describe('EditSide', () => {
         });
 
         it('reloads teams after player added', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -1027,10 +1027,10 @@ describe('EditSide', () => {
         });
 
         it('closes dialog after adding a player', async () => {
-            const side: ITournamentSideDto = sideBuilder('SIDE NAME')
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',

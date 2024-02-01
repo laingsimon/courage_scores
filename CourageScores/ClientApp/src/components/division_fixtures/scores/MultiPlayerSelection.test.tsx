@@ -11,7 +11,7 @@ import {
 } from "../../../helpers/tests";
 import {IMultiPlayerSelectionProps, MultiPlayerSelection} from "./MultiPlayerSelection";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {playerBuilder} from "../../../helpers/builders/players";
@@ -39,7 +39,7 @@ describe('MultiPlayerSelection', () => {
         removedPlayer = null;
     });
 
-    async function renderComponent(props: IMultiPlayerSelectionProps, allTeams?: ITeamDto[]) {
+    async function renderComponent(props: IMultiPlayerSelectionProps, allTeams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),

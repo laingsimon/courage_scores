@@ -15,16 +15,20 @@ import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../hel
 import {LiveContainer} from "../LiveContainer";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('WidescreenSaygPlayer', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let newStatisticsView: boolean;
     const saygApi = api<ISaygApi>({
-        get: () => {
-            return {};
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
+            return {
+                id: id,
+                legs: {},
+                yourName: '',
+            };
         }
     })
 
@@ -64,7 +68,7 @@ describe('WidescreenSaygPlayer', () => {
     }
 
     describe('renders', () => {
-        let sayg: IRecordedScoreAsYouGoDto;
+        let sayg: RecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -378,7 +382,7 @@ describe('WidescreenSaygPlayer', () => {
     });
 
     describe('interactivity', () => {
-        let sayg: IRecordedScoreAsYouGoDto;
+        let sayg: RecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()

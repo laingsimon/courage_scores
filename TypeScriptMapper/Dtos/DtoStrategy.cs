@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using TypeScriptMapper.MetaData;
 
 namespace TypeScriptMapper.Dtos;
@@ -24,7 +25,7 @@ public class DtoStrategy: IStrategy
     {
         var typeScriptTypes = _dtoRepository
             .GetTypes(_dtosNamespace)
-            .Where(t => onlyType == null || t.Name.Contains(onlyType));
+            .Where(t => onlyType == null || Regex.IsMatch(t.Name, onlyType));
 
         var typeMeta = typeScriptTypes.Select(c => _metaDataFactory.Create(c));
 
@@ -50,9 +51,12 @@ public class DtoStrategy: IStrategy
         {
             Namespace = _dtosNamespace,
         };
-        var relativePath = _metaDataHelper.GetRelativePath(context, type.DotNetType.Namespace!) + "/I" + Path.GetFileName(type.RelativePath);
-        var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath));
+        var relativePath = _metaDataHelper.GetRelativePath(context, type.DotNetType.Namespace!) + "/" + Path.GetFileName(type.RelativePath);
+        var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath + ".d.ts"));
+
+#if DEBUG
         await Console.Out.WriteLineAsync($"Writing {type.Name} to {path}...");
+#endif
 
         if (!Directory.Exists(Path.GetDirectoryName(path)))
         {
@@ -70,13 +74,30 @@ public class DtoStrategy: IStrategy
 
     private static async Task WriteInterface(TextWriter writer, TypeScriptInterface type, string name, CancellationToken token)
     {
-        await writer.WriteLineAsync($"export interface I{name} {{");
+        var extendsTypes = type.Interfaces.Concat(new[]
+        {
+            type.BaseType
+        }).Where(t => t != null).ToArray();
+
+        var extends = extendsTypes.Any()
+            ? " extends " + string.Join(", ", extendsTypes.Select(t => type.PartialExtensions.Contains(t!.DotNetType.Name)
+                ? $"Partial<{t.Name}>"
+                : t.Name))
+            : "";
+
+        await writer.WriteLineAsync($"export interface {name}{extends} {{");
 
         foreach (var member in type.Members.OfType<TypeScriptProperty>().OrderBy(m => m.Name))
         {
             if (token.IsCancellationRequested)
             {
                 break;
+            }
+
+            var isImplementationOfInterfaceMember = type.Interfaces.Any(i => i.Members.Any(m => member.IsImplementationOf(m)));
+            if (isImplementationOfInterfaceMember)
+            {
+                continue;
             }
 
             var definition = member.GetDefinition();
@@ -99,6 +120,23 @@ public class DtoStrategy: IStrategy
             }
 
             await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
+            importWritten = true;
+        }
+
+        foreach (var interfaceType in type.Interfaces)
+        {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
+
+            await writer.WriteLineAsync($"import {{{interfaceType.Name}}} from '{interfaceType.RelativePath}';");
+            importWritten = true;
+        }
+
+        if (type.BaseType != null)
+        {
+            await writer.WriteLineAsync($"import {{{type.BaseType.Name}}} from '{type.BaseType.RelativePath}';");
             importWritten = true;
         }
 

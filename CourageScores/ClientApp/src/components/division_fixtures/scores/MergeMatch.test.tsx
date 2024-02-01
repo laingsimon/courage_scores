@@ -10,15 +10,15 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {IMergeMatchProps, MergeMatch} from "./MergeMatch";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, matchBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
 
 describe('MergeMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: IGameDto;
+    let updatedData: GameDto;
 
     afterEach(() => {
         cleanUp(context);
@@ -29,7 +29,7 @@ describe('MergeMatch', () => {
         updatedData = null;
     });
 
-    async function setFixtureData(data: IGameDto) {
+    async function setFixtureData(data: GameDto) {
         updatedData = data;
     }
 
@@ -67,7 +67,7 @@ describe('MergeMatch', () => {
         });
 
         it('when home and away submissions match', async () => {
-            const match: IGameMatchDto = matchBuilder().build();
+            const match: GameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
                 .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
@@ -94,7 +94,7 @@ describe('MergeMatch', () => {
         });
 
         it('when home and away submissions match and readonly', async () => {
-            const match: IGameMatchDto = matchBuilder().build();
+            const match: GameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
                 .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')
@@ -122,7 +122,7 @@ describe('MergeMatch', () => {
         });
 
         it('when home but no away submission match', async () => {
-            const match: IGameMatchDto = matchBuilder().build();
+            const match: GameMatchDto = matchBuilder().build();
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
                 .homeSubmission((s: IFixtureBuilder) => s
                     .playing('HOME', 'AWAY')

@@ -15,24 +15,24 @@ import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionTeams} from "./DivisionTeams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
-import {ITeamApi} from "../../interfaces/apis/TeamApi";
+import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
+import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 
 describe('DivisionTeams', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let divisionReloaded: boolean = false;
-    let account: IUserDto;
+    let account: UserDto;
     const teamApi = api<ITeamApi>({
-        update: async (team: IEditTeamDto): Promise<IClientActionResultDto<ITeamDto>> => {
+        update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
             return {
                 success: true,
-                result: team as ITeamDto,
+                result: team as TeamDto,
             };
         }
     });
@@ -46,7 +46,7 @@ describe('DivisionTeams', () => {
         divisionReloaded = false;
     });
 
-    async function renderComponent(divisionData: IDivisionDataContainerProps, divisions?: IDivisionDto[]) {
+    async function renderComponent(divisionData: IDivisionDataContainerProps, divisions?: DivisionDto[]) {
         context = await renderApp(
             iocProps({teamApi}),
             brandingProps(),
@@ -59,7 +59,7 @@ describe('DivisionTeams', () => {
             </DivisionDataContainer>));
     }
 
-    function createDivisionData(divisionId: string): IDivisionDataDto {
+    function createDivisionData(divisionId: string): DivisionDataDto {
         const season = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')

@@ -11,35 +11,35 @@ import {
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails, IEditPlayerDetailsProps} from "./EditPlayerDetails";
-import {IEditTeamPlayerDto} from "../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {playerBuilder} from "../../helpers/builders/players";
-import {IPlayerApi} from "../../interfaces/apis/PlayerApi";
+import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 
 describe('EditPlayerDetails', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let createdPlayers: {divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto}[];
-    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto};
-    let saved: {result: ITeamDto, newPlayers: ITeamPlayerDto[] | null};
+    let createdPlayers: {divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto}[];
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto};
+    let saved: {result: TeamDto, newPlayers: TeamPlayerDto[] | null};
     let change: {name: string, value: string};
     let canceled: boolean;
-    let apiResponse: IClientActionResultDto<ITeamDto>;
-    let cumulativeCreatedPlayers: IEditTeamPlayerDto[];
+    let apiResponse: IClientActionResultDto<TeamDto>;
+    let cumulativeCreatedPlayers: EditTeamPlayerDto[];
 
     const playerApi = api<IPlayerApi>({
-        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto) => {
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             createdPlayers.push({divisionId, seasonId, teamId, playerDetails});
             cumulativeCreatedPlayers.push(playerDetails);
 
-            const teamPlayer: ITeamPlayerDto = playerDetails as ITeamPlayerDto;
+            const teamPlayer: TeamPlayerDto = playerDetails as TeamPlayerDto;
             teamPlayer.id = createTemporaryId();
 
             return apiResponse || {
@@ -48,18 +48,20 @@ describe('EditPlayerDetails', () => {
                     id: teamId,
                     seasons: [{
                         seasonId: seasonId,
-                        players: cumulativeCreatedPlayers,
-                    }]
+                        players: cumulativeCreatedPlayers as TeamPlayerDto[],
+                    }],
+                    name: '',
+                    address: '',
                 }
             };
         },
-        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto) => {
+        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails};
             return apiResponse || {success: true};
         }
     });
 
-    async function onSaved(result: ITeamDto, newPlayers: ITeamPlayerDto[] | null) {
+    async function onSaved(result: TeamDto, newPlayers: TeamPlayerDto[] | null) {
         saved = { result, newPlayers };
     }
 
@@ -86,7 +88,7 @@ describe('EditPlayerDetails', () => {
         cumulativeCreatedPlayers = [];
     });
 
-    async function renderComponent(props: IEditPlayerDetailsProps, teams: ITeamDto[], divisions: IDivisionDto[]) {
+    async function renderComponent(props: IEditPlayerDetailsProps, teams: TeamDto[], divisions: DivisionDto[]) {
         context = await renderApp(
             iocProps({playerApi}),
             brandingProps(),
@@ -115,11 +117,11 @@ describe('EditPlayerDetails', () => {
     }
 
     describe('renders', () => {
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const team: ITeamDto = teamBuilder('TEAM')
+        const team: TeamDto = teamBuilder('TEAM')
             .forSeason(season, division)
             .build();
 
@@ -249,15 +251,15 @@ describe('EditPlayerDetails', () => {
     });
 
     describe('interactivity', () => {
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const otherDivision: IDivisionDto = divisionBuilder('OTHER DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const otherDivision: DivisionDto = divisionBuilder('OTHER DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const team: ITeamDto = teamBuilder('TEAM')
+        const team: TeamDto = teamBuilder('TEAM')
             .forSeason(season, division)
             .build();
-        const otherTeam: ITeamDto = teamBuilder('OTHER TEAM')
+        const otherTeam: TeamDto = teamBuilder('OTHER TEAM')
             .forSeason(season, division)
             .build();
         let alert: string;

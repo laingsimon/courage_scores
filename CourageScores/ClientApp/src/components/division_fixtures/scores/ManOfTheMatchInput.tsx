@@ -2,24 +2,24 @@ import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerS
 import React from "react";
 import {distinct, sortBy} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
 
 export interface IManOfTheMatchInputProps {
-    fixtureData: IGameDto;
+    fixtureData: GameDto;
     access: string;
     saving: boolean;
-    setFixtureData: (newData: IGameDto) => Promise<any>;
+    setFixtureData: (newData: GameDto) => Promise<any>;
     disabled?: boolean;
 }
 
 export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData, disabled}: IManOfTheMatchInputProps) {
     const {account, onError} = useApp();
 
-    async function manOfTheMatchChanged(player: IGamePlayerDto, team: 'home' | 'away') {
+    async function manOfTheMatchChanged(player: GamePlayerDto, team: 'home' | 'away') {
         try {
-            const newFixtureData: IGameDto = Object.assign({}, fixtureData);
+            const newFixtureData: GameDto = Object.assign({}, fixtureData);
             newFixtureData[team].manOfTheMatch = player ? player.id : undefined;
 
             await setFixtureData(newFixtureData);
@@ -32,10 +32,10 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
     function applicablePlayers(side: string): ISelectablePlayer[] {
         const property: string = side + 'Players';
 
-        const players: ISelectablePlayer[] = fixtureData.matches.flatMap((match: IGameMatchDto) => {
+        const players: ISelectablePlayer[] = fixtureData.matches.flatMap((match: GameMatchDto) => {
             const matchPlayers: ISelectablePlayer[] = [];
 
-            (match[property] || []).forEach((player: IGamePlayerDto) => {
+            (match[property] || []).forEach((player: GamePlayerDto) => {
                 matchPlayers.push(player as ISelectablePlayer);
             });
 

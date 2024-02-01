@@ -13,13 +13,13 @@ import {Division, IRequestedDivisionDataDto} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
 import {renderDate} from "../helpers/rendering";
-import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
-import {ISeasonHealthCheckResultDto} from "../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
-import {IGameDto} from "../interfaces/models/dtos/Game/IGameDto";
-import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
-import {ITeamDto} from "../interfaces/models/dtos/Team/ITeamDto";
-import {ITeamPlayerDto} from "../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {DivisionDataDto} from "../interfaces/models/dtos/Division/DivisionDataDto";
+import {SeasonHealthCheckResultDto} from "../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
+import {GameDto} from "../interfaces/models/dtos/Game/GameDto";
+import {DivisionDto} from "../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../interfaces/models/dtos/Season/SeasonDto";
+import {TeamDto} from "../interfaces/models/dtos/Team/TeamDto";
+import {TeamPlayerDto} from "../interfaces/models/dtos/Team/TeamPlayerDto";
 import {IApp} from "../interfaces/IApp";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {seasonBuilder} from "../helpers/builders/seasons";
@@ -28,10 +28,10 @@ import {teamBuilder} from "../helpers/builders/teams";
 import {IPlayerPerformanceBuilder, playerBuilder} from "../helpers/builders/players";
 import {IFixtureBuilder} from "../helpers/builders/games";
 import {IFailedRequest} from "../interfaces/IFailedRequest";
-import {IDivisionApi} from "../interfaces/apis/DivisionApi";
-import {IDivisionDataFilter} from "../interfaces/models/dtos/Division/IDivisionDataFilter";
-import {IGameApi} from "../interfaces/apis/GameApi";
-import {ISeasonApi} from "../interfaces/apis/SeasonApi";
+import {IDivisionApi} from "../interfaces/apis/IDivisionApi";
+import {DivisionDataFilter} from "../interfaces/models/dtos/Division/DivisionDataFilter";
+import {IGameApi} from "../interfaces/apis/IGameApi";
+import {ISeasonApi} from "../interfaces/apis/ISeasonApi";
 
 describe('Division', () => {
     let context: TestContext;
@@ -40,7 +40,7 @@ describe('Division', () => {
     let dataRequested: {divisionId: string, seasonId?: string}[];
 
     const divisionApi = api<IDivisionApi>({
-        data: async (divisionId: string, filter: IDivisionDataFilter): Promise<IDivisionDataDto> => {
+        data: async (divisionId: string, filter: DivisionDataFilter): Promise<DivisionDataDto> => {
             const seasonId = filter.seasonId;
             const key = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
 
@@ -53,15 +53,15 @@ describe('Division', () => {
         },
     });
     const seasonApi = api<ISeasonApi>({
-        getHealth: async (): Promise<ISeasonHealthCheckResultDto> => {
+        getHealth: async (): Promise<SeasonHealthCheckResultDto> => {
             return {success: true, checks: {}, messages: [], warnings: [], errors: []};
         },
     });
     const gameApi = api<IGameApi>({
-        update: async (): Promise<IClientActionResultDto<IGameDto>> => {
+        update: async (): Promise<IClientActionResultDto<GameDto>> => {
             return ({success: true});
         },
-        delete: async (): Promise<IClientActionResultDto<IGameDto>> => {
+        delete: async (): Promise<IClientActionResultDto<GameDto>> => {
             return ({success: true});
         }
     });
@@ -126,14 +126,14 @@ describe('Division', () => {
     });
 
     describe('when in season', () => {
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .starting('2023-01-01')
             .ending('2023-06-01')
             .withDivision(division)
             .build();
-        const team: ITeamDto = teamBuilder('TEAM_NAME').build();
-        const player: ITeamPlayerDto = playerBuilder('PLAYER_NAME')
+        const team: TeamDto = teamBuilder('TEAM_NAME').build();
+        const player: TeamPlayerDto = playerBuilder('PLAYER_NAME')
             .team(team)
             .singles((a: IPlayerPerformanceBuilder) => a.matchesPlayed(1))
             .build();
@@ -805,8 +805,8 @@ describe('Division', () => {
     });
 
     describe('rendering options', () => {
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .starting('2023-01-01')
             .ending('2023-06-01')
             .withDivision(division)

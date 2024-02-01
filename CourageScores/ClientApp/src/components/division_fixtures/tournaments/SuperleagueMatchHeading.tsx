@@ -1,9 +1,9 @@
 import React from "react";
 import {useSayg} from "../sayg/SaygLoadingContainer";
-import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 export interface ISuperleagueMatchHeadingProps {
-    match: ITournamentMatchDto;
+    match: TournamentMatchDto;
 }
 
 export function SuperleagueMatchHeading({ match }: ISuperleagueMatchHeadingProps) {

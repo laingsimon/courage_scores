@@ -1,33 +1,33 @@
 import {TemplateDate} from "./TemplateDate";
 import {renderDate} from "../../helpers/rendering";
-import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 export interface ITemplateDatesProps {
-    dates: IDateTemplateDto[];
-    onUpdate: (newDates: IDateTemplateDto[]) => Promise<any>;
+    dates: DateTemplateDto[];
+    onUpdate: (newDates: DateTemplateDto[]) => Promise<any>;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
 }
 
 export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templateSharedAddresses }: ITemplateDatesProps) {
-    async function updateDate(update: IDateTemplateDto, updateIndex: number) {
-        await onUpdate(dates.map((a: IDateTemplateDto, index: number) => index === updateIndex ? update : a));
+    async function updateDate(update: DateTemplateDto, updateIndex: number) {
+        await onUpdate(dates.map((a: DateTemplateDto, index: number) => index === updateIndex ? update : a));
     }
 
     async function addDate() {
-        const newDate: IDateTemplateDto = {
+        const newDate: DateTemplateDto = {
             fixtures: [],
         };
         await onUpdate(dates.concat([ newDate ]));
     }
 
     async function deleteDate(index: number) {
-        await onUpdate(dates.filter((_: IDateTemplateDto, i: number) => index !== i));
+        await onUpdate(dates.filter((_: DateTemplateDto, i: number) => index !== i));
     }
 
     async function moveDate(index: number, movement: number) {
         const date = dates[index];
-        const newDates = dates.flatMap((d: IDateTemplateDto, i: number) => {
+        const newDates = dates.flatMap((d: DateTemplateDto, i: number) => {
             if (i === index + movement) {
                 return movement > 0
                     ? [ d, date ]

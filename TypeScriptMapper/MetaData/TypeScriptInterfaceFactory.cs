@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using TypeScriptMapper.Dtos;
 
 namespace TypeScriptMapper.MetaData;
 
@@ -14,23 +15,31 @@ public class TypeScriptInterfaceFactory
         _helper = helper;
     }
 
-    public TypeScriptInterface Create(Type type)
+    public TypeScriptInterface Create(Type type, Type? from = null)
     {
         var context = new HelperContext
         {
-            Namespace = type.Namespace!,
+            Namespace = (from ?? type).Namespace!,
         };
 
         return new TypeScriptInterface
         {
             DotNetType = type,
-            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/" + GetTypeName(type, false) + ".d.ts",
+            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/" + GetTypeName(type, false),
             Name = GetTypeName(type, true),
             Members =
-                type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
+                type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
                 .Concat(type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateMethod).Select(m => new TypeScriptMethod(m, _helper, context)))
                 .ToList(),
             GenericArguments = type.GetGenericArguments().Select(ga => new TypeScriptGenericArgument(ga, _helper, context)).ToList(),
+            BaseType = type.BaseType != null && type.BaseType.Namespace?.StartsWith("CourageScores") == true
+                ? Create(type.BaseType!, type)
+                : null,
+            Interfaces = type.GetInterfaces()
+                .Where(i => i.Namespace?.StartsWith("CourageScores") == true)
+                .Select(t => Create(t, type))
+                .ToList(),
+            PartialExtensions = type.GetCustomAttribute<PartialExtensionAttribute>()?.TypeNames.ToList() ?? new List<string>(),
         };
     }
 
@@ -50,14 +59,21 @@ public class TypeScriptInterfaceFactory
 
     private static string GetTypeName(Type type, bool includeGenericArguments)
     {
+        var typeName = type.Name;
+        if (typeName.EndsWith("Controller"))
+        {
+            typeName = typeName.Replace("Controller", "Api");
+            typeName = "I" + typeName;
+        }
+
         if (type.GetGenericArguments().Any())
         {
-            var name = Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
+            var name = Regex.Match(typeName, "^(.+?)`.+$").Groups[1].Value;
             return includeGenericArguments
                 ? $"{name}<{string.Join(", ", type.GetGenericArguments().Select(ga => ga.Name))}>"
                 : name;
         }
 
-        return type.Name;
+        return typeName;
     }
 }

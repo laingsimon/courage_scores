@@ -1,12 +1,12 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {IPlayerPerformanceDto} from "../../interfaces/models/dtos/Division/IPlayerPerformanceDto";
-import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
-import {INotablePlayerDto} from "../../interfaces/models/dtos/Game/INotablePlayerDto";
+import {PlayerPerformanceDto} from "../../interfaces/models/dtos/Division/PlayerPerformanceDto";
+import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
 import {ISelectablePlayer} from "../../components/division_players/PlayerSelection";
 import {createTemporaryId} from "../projection";
 
-export interface IPlayerBuilder extends IAddableBuilder<ITeamPlayerDto & IDivisionPlayerDto & INotablePlayerDto & ISelectablePlayer> {
+export interface IPlayerBuilder extends IAddableBuilder<TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer> {
     captain: () => IPlayerBuilder;
     notes: (notes?: string) => IPlayerBuilder;
     noId: () => IPlayerBuilder;
@@ -16,7 +16,7 @@ export interface IPlayerBuilder extends IAddableBuilder<ITeamPlayerDto & IDivisi
 }
 
 export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
-    const player: ITeamPlayerDto & IDivisionPlayerDto & INotablePlayerDto & ISelectablePlayer = {
+    const player: TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer = {
         id: id || createTemporaryId(),
         name,
         team: null,
@@ -48,7 +48,7 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
             player.teamId = team.id ? team.id : team;
             return builder;
         },
-        singles: (metricsFunc: (metricsBuilder: IPlayerPerformanceBuilder) => IPlayerPerformanceDto) => {
+        singles: (metricsFunc: (metricsBuilder: IPlayerPerformanceBuilder) => PlayerPerformanceDto) => {
             player.singles = metricsFunc(playerPerformanceBuilder());
             return builder;
         },
@@ -57,12 +57,12 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
     return builder;
 }
 
-export interface IPlayerPerformanceBuilder extends IBuilder<IPlayerPerformanceDto> {
+export interface IPlayerPerformanceBuilder extends IBuilder<PlayerPerformanceDto> {
     matchesPlayed: (count: number) => IPlayerPerformanceBuilder;
 }
 
 export function playerPerformanceBuilder(): IPlayerPerformanceBuilder {
-    const metrics: IPlayerPerformanceDto = {
+    const metrics: PlayerPerformanceDto = {
     };
 
     const builder: IPlayerPerformanceBuilder = {

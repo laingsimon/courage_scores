@@ -2,12 +2,12 @@ import {api, appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, Tes
 import React from "react";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('WidescreenMatchStatistics', () => {
     let context: TestContext;
-    let saygData: { [id: string]: IRecordedScoreAsYouGoDto };
+    let saygData: { [id: string]: RecordedScoreAsYouGoDto };
     const saygApi = api<ISaygApi>({
         get: async (id: string) => {
             return saygData[id];
@@ -33,7 +33,7 @@ describe('WidescreenMatchStatistics', () => {
     }
 
     describe('single player', () => {
-        let sayg: IRecordedScoreAsYouGoDto;
+        let sayg: RecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -130,7 +130,7 @@ describe('WidescreenMatchStatistics', () => {
     });
 
     describe('multi player', () => {
-        let sayg: IRecordedScoreAsYouGoDto;
+        let sayg: RecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -327,7 +327,7 @@ describe('WidescreenMatchStatistics', () => {
     });
 
     describe('interactivity', () => {
-        let sayg: IRecordedScoreAsYouGoDto;
+        let sayg: RecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()

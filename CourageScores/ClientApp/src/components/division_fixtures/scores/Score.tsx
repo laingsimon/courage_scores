@@ -32,18 +32,18 @@ import {
 import {PageError} from "../../common/PageError";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {DebugOptions} from "../../common/DebugOptions";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 import {IFailedRequest} from "../../../interfaces/IFailedRequest";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
-import {IGameTeamDto} from "../../../interfaces/models/dtos/Game/IGameTeamDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {GameTeamDto} from "../../../interfaces/models/dtos/Game/GameTeamDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
+import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
 
 export interface ICreatePlayerFor {
@@ -56,7 +56,7 @@ interface IRenamedPlayer {
     renamed?: boolean;
 }
 
-interface ICaptainMatchPlayer extends IGamePlayerDto {
+interface ICaptainMatchPlayer extends GamePlayerDto {
     captain?: boolean;
 }
 
@@ -65,26 +65,26 @@ export function Score() {
     const {gameApi} = useDependencies();
     const {appLoading, account, divisions, seasons, onError, teams, reloadTeams} = useApp();
     const [loading, setLoading] = useState('init');
-    const [data, setData] = useState<IGameDto | null>(null);
-    const [fixtureData, setFixtureData] = useState<IGameDto | null>(null);
-    const [homeTeam, setHomeTeam] = useState<(ITeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]>([]);
-    const [awayTeam, setAwayTeam] = useState<(ITeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]>([]);
+    const [data, setData] = useState<GameDto | null>(null);
+    const [fixtureData, setFixtureData] = useState<GameDto | null>(null);
+    const [homeTeam, setHomeTeam] = useState<(TeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]>([]);
+    const [awayTeam, setAwayTeam] = useState<(TeamPlayerDto & ISelectablePlayer & IRenamedPlayer)[]>([]);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
     const [saving, setSaving] = useState(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<IGameDto> | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<GameDto> | null>(null);
     const [submission, setSubmission] = useState<string | null>(null);
     const [createPlayerFor, setCreatePlayerFor] = useState<ICreatePlayerFor | null>(null);
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const access = getAccess();
 
     function renderCreatePlayerDialog() {
-        const team: IGameTeamDto = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
+        const team: GameTeamDto = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
 
-        async function playerCreated(updatedTeamDetails: ITeamDto) {
+        async function playerCreated(updatedTeamDetails: TeamDto) {
             await reloadTeams();
 
             try {
-                const updatedTeamSeason: ITeamSeasonDto = updatedTeamDetails.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === fixtureData.seasonId)[0];
+                const updatedTeamSeason: TeamSeasonDto = updatedTeamDetails.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === fixtureData.seasonId)[0];
                 if (!updatedTeamSeason) {
                     /* istanbul ignore next */
                     console.log(updatedTeamDetails);
@@ -92,7 +92,7 @@ export function Score() {
                     return;
                 }
 
-                const newPlayers: ITeamPlayerDto[] = updatedTeamSeason.players.filter((p: ITeamPlayerDto) => p.name === newPlayerDetails.name);
+                const newPlayers: TeamPlayerDto[] = updatedTeamSeason.players.filter((p: TeamPlayerDto) => p.name === newPlayerDetails.name);
                 if (!any(newPlayers)) {
                     /* istanbul ignore next */
                     console.log(updatedTeamSeason);
@@ -100,15 +100,15 @@ export function Score() {
                     return;
                 }
 
-                const newPlayer: ITeamPlayerDto = newPlayers[0];
-                const match: IGameMatchDto = fixtureData.matches[createPlayerFor.matchIndex];
-                const newMatch: IGameMatchDto = Object.assign({}, match);
+                const newPlayer: TeamPlayerDto = newPlayers[0];
+                const match: GameMatchDto = fixtureData.matches[createPlayerFor.matchIndex];
+                const newMatch: GameMatchDto = Object.assign({}, match);
                 newMatch[createPlayerFor.side + 'Players'][createPlayerFor.index] = {
                     id: newPlayer.id,
                     name: newPlayer.name
                 };
 
-                const newFixtureData: IGameDto = Object.assign({}, fixtureData);
+                const newFixtureData: GameDto = Object.assign({}, fixtureData);
                 fixtureData.matches[createPlayerFor.matchIndex] = newMatch;
                 setFixtureData(newFixtureData);
             } catch (e) {
@@ -190,8 +190,8 @@ export function Score() {
         // eslint-disable-next-line
         [appLoading, seasons, teams, divisions]);
 
-    function loadTeamPlayers(teamId: string, seasonId: string, teamType: string, matches: IGameMatchDto[]): (ITeamPlayerDto & ISelectablePlayer)[] {
-        const teamData: ITeamDto = teams[teamId];
+    function loadTeamPlayers(teamId: string, seasonId: string, teamType: string, matches: GameMatchDto[]): (TeamPlayerDto & ISelectablePlayer)[] {
+        const teamData: TeamDto = teams[teamId];
 
         if (!teamData) {
             onError(`${teamType} team could not be found - ${teamId}`);
@@ -203,19 +203,19 @@ export function Score() {
             return;
         }
 
-        const teamSeasons: { [p: string]: ITeamSeasonDto } = Object.fromEntries(teamData.seasons.map((season: ITeamSeasonDto) => [season.seasonId, season]));
+        const teamSeasons: { [p: string]: TeamSeasonDto } = Object.fromEntries(teamData.seasons.map((season: TeamSeasonDto) => [season.seasonId, season]));
 
         if (!teamSeasons[seasonId]) {
             onError(`${teamType} team has not registered for this season: ${seasonId}`);
             return;
         }
 
-        const players: (ISelectablePlayer & IRenamedPlayer)[] = teamSeasons[seasonId].players.map((p: ITeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer); // copy the players list
+        const players: (ISelectablePlayer & IRenamedPlayer)[] = teamSeasons[seasonId].players.map((p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer); // copy the players list
 
-        matches.forEach((match: IGameMatchDto) => {
+        matches.forEach((match: GameMatchDto) => {
             const matchPlayers: ICaptainMatchPlayer[] = match[teamType + 'Players'];
             matchPlayers.forEach((matchPlayer: ICaptainMatchPlayer) => {
-                const correspondingPlayer: ITeamPlayerDto & ISelectablePlayer & IRenamedPlayer = players.filter((p: ITeamPlayerDto & ISelectablePlayer & IRenamedPlayer) => p.id === matchPlayer.id)[0];
+                const correspondingPlayer: TeamPlayerDto & ISelectablePlayer & IRenamedPlayer = players.filter((p: TeamPlayerDto & ISelectablePlayer & IRenamedPlayer) => p.id === matchPlayer.id)[0];
                 if (correspondingPlayer && correspondingPlayer.name !== matchPlayer.name && !correspondingPlayer.renamed) {
                     correspondingPlayer.name = `${correspondingPlayer.name} (nee ${matchPlayer.name})`;
                     correspondingPlayer.renamed = true;
@@ -242,22 +242,22 @@ export function Score() {
         // eslint-disable-next-line
         [teams]);
 
-    function loadPlayerData(gameData: IGameDto) {
-        const homeTeamPlayers: (ITeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches) || [];
-        const awayTeamPlayers: (ITeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches) || [];
+    function loadPlayerData(gameData: GameDto) {
+        const homeTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches) || [];
+        const awayTeamPlayers: (TeamPlayerDto & ISelectablePlayer)[] = loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches) || [];
 
         setHomeTeam(homeTeamPlayers);
         setAwayTeam(awayTeamPlayers);
 
         const allPlayers: ISelectablePlayer[] = homeTeamPlayers
             .concat(awayTeamPlayers)
-            .filter((p: ITeamPlayerDto) => p.id !== NEW_PLAYER)
+            .filter((p: TeamPlayerDto) => p.id !== NEW_PLAYER)
         allPlayers.sort(sortBy('name'));
         setAllPlayers(allPlayers);
     }
 
     async function loadFixtureData() {
-        const gameData: IGameDto = await gameApi.get(fixtureId);
+        const gameData: GameDto = await gameApi.get(fixtureId);
 
         try {
             if (!gameData) {
@@ -319,7 +319,7 @@ export function Score() {
 
         try {
             setSaving(true);
-            const response: IClientActionResultDto<IGameDto> = await gameApi.updateScores(fixtureId, fixtureData);
+            const response: IClientActionResultDto<GameDto> = await gameApi.updateScores(fixtureId, fixtureData);
 
             if (!response.success) {
                 setSaveError(response);
@@ -345,7 +345,7 @@ export function Score() {
         try {
             setSaving(true);
 
-            const newData: IGameDto = Object.assign({}, data);
+            const newData: GameDto = Object.assign({}, data);
             newData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
             newData.home.manOfTheMatch = null;
             newData.away.manOfTheMatch = null;
@@ -369,21 +369,21 @@ export function Score() {
     }
 
     function renderMatchPlayerSelection(index: number, _: number, playerCount: number) {
-        const matchesExceptIndex: IGameMatchDto[] = fixtureData.matches.filter((_: IGameMatchDto, matchIndex: number) => {
-            let matchOptions: IGameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
+        const matchesExceptIndex: GameMatchDto[] = fixtureData.matches.filter((_: GameMatchDto, matchIndex: number) => {
+            let matchOptions: GameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
 
             return matchIndex !== index && matchOptions.playerCount === playerCount;
         });
 
-        function onMatchChanged(newMatch: IGameMatchDto, index: number) {
-            const newFixtureData: IGameDto = Object.assign({}, fixtureData);
+        function onMatchChanged(newMatch: GameMatchDto, index: number) {
+            const newFixtureData: GameDto = Object.assign({}, fixtureData);
             newFixtureData.matches[index] = newMatch;
 
             setFixtureData(newFixtureData);
         }
 
-        async function onMatchOptionsChanged(newMatchOptions: IGameMatchOptionDto) {
-            const newFixtureData: IGameDto = Object.assign({}, fixtureData);
+        async function onMatchOptionsChanged(newMatchOptions: GameMatchOptionDto) {
+            const newFixtureData: GameDto = Object.assign({}, fixtureData);
             newFixtureData.matchOptions[index] = newMatchOptions;
 
             setFixtureData(newFixtureData);
@@ -405,7 +405,7 @@ export function Score() {
         return (<MatchTypeContainer {...matchTypeProps}>
             <MatchPlayerSelection
                 match={fixtureData.matches[index]}
-                onMatchChanged={async (newMatch: IGameMatchDto) => onMatchChanged(newMatch, index)}
+                onMatchChanged={async (newMatch: GameMatchDto) => onMatchChanged(newMatch, index)}
                 onMatchOptionsChanged={onMatchOptionsChanged}
                 on180={add180(fixtureData, async (data) => setFixtureData(data))}
                 onHiCheck={addHiCheck(fixtureData, async (data) => setFixtureData(data))} />
@@ -420,7 +420,7 @@ export function Score() {
                 matches={fixtureData.matches}
                 homeSubmission={fixtureData.homeSubmission}
                 awaySubmission={fixtureData.awaySubmission}
-                setFixtureData={async (data: IGameDto) => setFixtureData(data)}
+                setFixtureData={async (data: GameDto) => setFixtureData(data)}
                 fixtureData={fixtureData}/>);
         }
 
@@ -434,7 +434,7 @@ export function Score() {
                 saving={saving}
                 access={access}
                 disabled={access === 'admin' && !!submission}
-                setFixtureData={async (data: IGameDto) => setFixtureData(data)}/>);
+                setFixtureData={async (data: GameDto) => setFixtureData(data)}/>);
         }
 
         return null;
@@ -445,12 +445,12 @@ export function Score() {
             return null;
         }
 
-        function hasManOfTheMatch(data: IGameDto, side: string): string {
+        function hasManOfTheMatch(data: GameDto, side: string): string {
             if (!data) {
                 return null;
             }
 
-            const dataSide: IGameTeamDto = data[side] || {};
+            const dataSide: GameTeamDto = data[side] || {};
             return dataSide.manOfTheMatch;
         }
 
@@ -458,7 +458,7 @@ export function Score() {
             && access === 'admin'
             && (data.homeSubmission || data.awaySubmission)
             && ((!hasManOfTheMatch(data, 'home') && hasManOfTheMatch(data.homeSubmission, 'home')) || (!hasManOfTheMatch(data, 'away') && hasManOfTheMatch(data.awaySubmission, 'away')))) {
-            return (<MergeManOfTheMatch data={data} setData={async (data: IGameDto) => setData(data)} allPlayers={allPlayers}/>);
+            return (<MergeManOfTheMatch data={data} setData={async (data: GameDto) => setData(data)} allPlayers={allPlayers}/>);
         }
 
         return null;
@@ -469,12 +469,12 @@ export function Score() {
             saving={saving || (access === 'admin' && !!submission)}
             access={access}
             fixtureData={fixtureData}
-            setFixtureData={async (data: IGameDto) => setFixtureData(data)} />);
+            setFixtureData={async (data: GameDto) => setFixtureData(data)} />);
     }
 
     function renderMerge180sAndHiCheck() {
         if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
-            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={async (data: IGameDto) => setFixtureData(data)}/>);
+            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={async (data: GameDto) => setFixtureData(data)}/>);
         }
 
         return null;
@@ -488,11 +488,11 @@ export function Score() {
         return (<PageError error="Unable to load score card, fixture data not loaded"/>);
     }
 
-    const hasBeenPlayed: boolean = any(fixtureData.matches, (m: IGameMatchDto) => m.homeScore + m.awayScore > 0);
+    const hasBeenPlayed: boolean = any(fixtureData.matches, (m: GameMatchDto) => m.homeScore + m.awayScore > 0);
 
     try {
-        const season: ISeasonDto = seasons[fixtureData.seasonId] || {id: EMPTY_ID, name: 'Not found'};
-        const division: IDivisionDto = divisions[fixtureData.divisionId] || {id: EMPTY_ID, name: 'Not found'};
+        const season: SeasonDto = seasons[fixtureData.seasonId] || {id: EMPTY_ID, name: 'Not found'};
+        const division: DivisionDto = divisions[fixtureData.divisionId] || {id: EMPTY_ID, name: 'Not found'};
 
         const editable: boolean = !saving && ((access === 'admin' && !submission) || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData: ILeagueFixtureContainerProps = {
@@ -530,11 +530,11 @@ export function Score() {
             <LeagueFixtureContainer {...leagueFixtureData}>
                 <div className="content-background p-3 overflow-auto">
                     {fixtureData.address || access === 'admin'
-                        ? (<GameDetails saving={saving} setFixtureData={async (data: IGameDto) => setFixtureData(data)} access={access}
+                        ? (<GameDetails saving={saving} setFixtureData={async (data: GameDto) => setFixtureData(data)} access={access}
                                         fixtureData={fixtureData}/>)
                         : null}
                     <table className={`table${(access === 'admin' && !submission) || access === 'clerk' ? ' minimal-padding' : ''}`}>
-                        <ScoreCardHeading access={access} data={data} setSubmission={async (value: string) => setSubmission(value)} setFixtureData={async (value: IGameDto) => setFixtureData(value)} submission={submission} />
+                        <ScoreCardHeading access={access} data={data} setSubmission={async (value: string) => setSubmission(value)} setFixtureData={async (value: GameDto) => setFixtureData(value)} submission={submission} />
                         {hasBeenPlayed || access === 'admin' || (account && access === 'clerk' && ((data.away && account.teamId === data.away.id) || (account.teamId === data.home.id))) ? (
                             <tbody>
                             <tr>

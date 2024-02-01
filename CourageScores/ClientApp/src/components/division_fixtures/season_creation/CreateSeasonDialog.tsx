@@ -13,13 +13,13 @@ import {ReviewProposalHealth} from "./ReviewProposalHealth";
 import {ConfirmSave} from "./ConfirmSave";
 import {AssignPlaceholders, IPlaceholderMappings} from "./AssignPlaceholders";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
-import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
-import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
-import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {IDivisionFixtureDto} from "../../../interfaces/models/dtos/Division/IDivisionFixtureDto";
-import {IDivisionFixtureDateDto} from "../../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {ActionResultDto} from "../../../interfaces/models/dtos/ActionResultDto";
+import {ProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/ProposalResultDto";
+import {DivisionDataDto} from "../../../interfaces/models/dtos/Division/DivisionDataDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {DivisionFixtureDto} from "../../../interfaces/models/dtos/Division/DivisionFixtureDto";
+import {DivisionFixtureDateDto} from "../../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;
@@ -27,9 +27,9 @@ export interface ICreateSeasonDialogProps {
 }
 
 export interface IFixtureToSave {
-    fixture: IDivisionFixtureDto;
-    date: IDivisionFixtureDateDto;
-    division: IDivisionDataDto;
+    fixture: DivisionFixtureDto;
+    date: DivisionFixtureDateDto;
+    division: DivisionDataDto;
 }
 
 export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps) {
@@ -37,16 +37,16 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
     const {onError, divisions, reloadAll} = useApp();
     const {id, setDivisionData, onReloadDivision} = useDivisionData();
     const [loading, setLoading] = useState<boolean>(false);
-    const [templates, setTemplates] = useState<IClientActionResultDto<IActionResultDto<ITemplateDto>[]> | null>(null);
-    const [selectedTemplate, setSelectedTemplate] = useState<IActionResultDto<ITemplateDto> | null>(null);
+    const [templates, setTemplates] = useState<IClientActionResultDto<ActionResultDto<TemplateDto>[]> | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<ActionResultDto<TemplateDto> | null>(null);
     const [proposing, setProposing] = useState<boolean>(false);
     const [stage, setStage] = useState<string>('1-pick');
-    const [response, setResponse] = useState<IClientActionResultDto<IProposalResultDto> | null>(null);
+    const [response, setResponse] = useState<IClientActionResultDto<ProposalResultDto> | null>(null);
     const [selectedDivisionId, setSelectedDivisionId] = useState<string>(id);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
     const [fixturesToSave, setFixturesToSave] = useState<IFixtureToSave[]>([]);
     const [savingProposal, setSavingProposal] = useState<boolean>(false);
-    const [saveResults, setSaveResults] = useState<IClientActionResultDto<IGameDto>[]>([]);
+    const [saveResults, setSaveResults] = useState<IClientActionResultDto<GameDto>[]>([]);
     const [placeholderMappings, setPlaceholderMappings] = useState<IPlaceholderMappings | null>(null);
 
     async function loadTemplateCompatibility() {
@@ -58,7 +58,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
 
         setLoading(true);
         try {
-            const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = await templateApi.getCompatibility(seasonId);
+            const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> = await templateApi.getCompatibility(seasonId);
             setTemplates(response);
         } catch (e) {
             /* istanbul ignore next */
@@ -110,7 +110,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
                 return;
             case '4-review-proposals':
                 const toSave: IFixtureToSave[] = response.result.divisions
-                    .flatMap((d: IDivisionDataDto) => d.fixtures.flatMap((fd: IDivisionFixtureDateDto) => fd.fixtures.map((f: IDivisionFixtureDto) => {
+                    .flatMap((d: DivisionDataDto) => d.fixtures.flatMap((fd: DivisionFixtureDateDto) => fd.fixtures.map((f: DivisionFixtureDto) => {
                         return {fixture: f, date: fd, division: d}
                     })))
                     .filter((f: IFixtureToSave) => f.fixture.proposal && f.fixture.awayTeam);
@@ -142,7 +142,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
 
         setProposing(true);
         try {
-            const response: IClientActionResultDto<IProposalResultDto> = await templateApi.propose({
+            const response: IClientActionResultDto<ProposalResultDto> = await templateApi.propose({
                 templateId: selectedTemplate.result.id,
                 seasonId: seasonId,
                 placeholderMappings: placeholderMappings || {},
@@ -159,7 +159,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
 
     async function changeVisibleDivision(id: string) {
         setSelectedDivisionId(id);
-        const newDivision: IDivisionDataDto = response.result.divisions.filter((d: IDivisionDataDto) => d.id === id)[0];
+        const newDivision: DivisionDataDto = response.result.divisions.filter((d: DivisionDataDto) => d.id === id)[0];
         await setDivisionData(newDivision);
     }
 
@@ -212,7 +212,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
             const division = fixtureToSave.division;
 
             setSaveMessage(`Saving - ${division.name}: ${renderDate(date.date)}, ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`);
-            const result: IClientActionResultDto<IGameDto> = await gameApi.update({
+            const result: IClientActionResultDto<GameDto> = await gameApi.update({
                 id: undefined,
                 address: fixture.homeTeam.address,
                 divisionId: division.id,
@@ -254,7 +254,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
             selectedDivisionId={selectedDivisionId} />);
     }
 
-    async function changeTemplate(selectedTemplate: IActionResultDto<ITemplateDto>) {
+    async function changeTemplate(selectedTemplate: ActionResultDto<TemplateDto>) {
         setSelectedTemplate(selectedTemplate);
         setPlaceholderMappings(null);
     }

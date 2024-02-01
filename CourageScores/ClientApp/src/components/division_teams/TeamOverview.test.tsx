@@ -3,11 +3,11 @@ import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {TeamOverview} from "./TeamOverview";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {divisionDataBuilder, fixtureDateBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
@@ -16,7 +16,7 @@ import {IFixtureBuilder} from "../../helpers/builders/games";
 describe('TeamOverview', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let account: IUserDto;
+    let account: UserDto;
 
     afterEach(() => {
         cleanUp(context);
@@ -26,7 +26,7 @@ describe('TeamOverview', () => {
         reportedError = new ErrorState();
     });
 
-    async function renderComponent(divisionData: IDivisionDataContainerProps, teams: ITeamDto[], teamId: string) {
+    async function renderComponent(divisionData: IDivisionDataContainerProps, teams: TeamDto[], teamId: string) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -40,7 +40,7 @@ describe('TeamOverview', () => {
     }
 
     function createDivisionData(divisionId: string): IDivisionDataContainerProps {
-        const season: ISeasonDto = seasonBuilder('A season')
+        const season: SeasonDto = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .build();
@@ -50,13 +50,13 @@ describe('TeamOverview', () => {
             .build();
     }
 
-    function createTeam(teamId: string): ITeamDto {
+    function createTeam(teamId: string): TeamDto {
         return teamBuilder('A team', teamId)
             .address('An address')
             .build();
     }
 
-    function createPlayer(team: ITeamDto): IDivisionPlayerDto {
+    function createPlayer(team: TeamDto): DivisionPlayerDto {
         return {
             id: createTemporaryId(),
             teamId: team.id,
@@ -74,16 +74,16 @@ describe('TeamOverview', () => {
         }
     }
 
-    function createHomeAndAwayFixtureDates(team: ITeamDto) {
-        const homeFixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2001-02-03T04:05:06.000Z')
+    function createHomeAndAwayFixtureDates(team: TeamDto) {
+        const homeFixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2001-02-03T04:05:06.000Z')
             .withFixture((f: IFixtureBuilder) => f.playing(team, teamBuilder('Another team')))
             .build();
 
-        const byeFixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2001-02-04T04:05:06.000Z')
+        const byeFixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2001-02-04T04:05:06.000Z')
             .withFixture((f: IFixtureBuilder) => f.bye(team.address))
             .build();
 
-        const awayFixtureDate: IDivisionFixtureDateDto = fixtureDateBuilder('2001-02-05T04:05:06.000Z')
+        const awayFixtureDate: DivisionFixtureDateDto = fixtureDateBuilder('2001-02-05T04:05:06.000Z')
             .withFixture((f: IFixtureBuilder) => f.playing(teamBuilder('Another team'), team))
             .build();
 

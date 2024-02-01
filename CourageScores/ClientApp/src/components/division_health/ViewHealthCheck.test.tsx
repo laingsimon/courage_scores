@@ -1,7 +1,7 @@
 import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {ViewHealthCheck} from "./ViewHealthCheck";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
+import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
 
 describe('DivisionHealth', () => {
     let context: TestContext;
@@ -15,7 +15,7 @@ describe('DivisionHealth', () => {
         reportedError = new ErrorState();
     });
 
-    async function renderComponent(result: ISeasonHealthCheckResultDto) {
+    async function renderComponent(result: SeasonHealthCheckResultDto) {
         context = await renderApp(
             iocProps(),
             brandingProps(),

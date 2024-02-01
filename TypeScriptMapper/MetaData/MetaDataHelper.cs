@@ -117,7 +117,7 @@ public class MetaDataHelper : IMetaDataHelper
                     DotNetType = type,
                     Name = "IClientActionResultDto",
                     IsPrimitive = false,
-                    RelativePath = GetPathToRoot(context) + "/IClientActionResultDto.ts",
+                    RelativePath = GetPathToRoot(context) + "/IClientActionResultDto",
                 };
             }
             else
@@ -127,7 +127,7 @@ public class MetaDataHelper : IMetaDataHelper
                     DotNetType = type,
                     Name = type.Name,
                     IsPrimitive = false,
-                    RelativePath = GetRelativePath(context, type.Namespace!) + "/I" + type.Name + ".d.ts",
+                    RelativePath = GetRelativePath(context, type.Namespace!) + "/I" + type.Name,
                 };
             }
 
@@ -159,7 +159,7 @@ public class MetaDataHelper : IMetaDataHelper
             IsPrimitive = isPrimitive || isCustomPrimitive || isDotnetNativeType,
             RelativePath = isPrimitive || isCustomPrimitive || isDotnetNativeType
                 ? null
-                : GetRelativePath(context, type.Namespace!) + "/I" + type.Name + ".d.ts",
+                : GetRelativePath(context, type.Namespace!) + "/" + type.Name,
         };
     }
 
@@ -205,10 +205,10 @@ public class MetaDataHelper : IMetaDataHelper
     {
         if (type.GetGenericArguments().Any())
         {
-            return "I" + Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
+            return Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
         }
 
-        return "I" + type.Name;
+        return type.Name;
     }
 
     private static string GetPathToRoot(HelperContext context)

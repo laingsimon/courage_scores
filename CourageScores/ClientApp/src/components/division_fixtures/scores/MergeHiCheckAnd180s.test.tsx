@@ -10,14 +10,14 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {IMergeHiCheckAnd180sProps, MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 import {fixtureBuilder, IFixtureBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
 
 describe('MergeHiCheckAnd180s', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: IGameDto;
+    let updatedData: GameDto;
 
     afterEach(() => {
         cleanUp(context);
@@ -28,7 +28,7 @@ describe('MergeHiCheckAnd180s', () => {
         updatedData = null;
     });
 
-    async function setFixtureData(newData: IGameDto) {
+    async function setFixtureData(newData: GameDto) {
         updatedData = newData;
     }
 

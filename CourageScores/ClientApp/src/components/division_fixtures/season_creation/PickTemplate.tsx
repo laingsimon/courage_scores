@@ -4,14 +4,14 @@ import React from "react";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
-import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {ActionResultDto} from "../../../interfaces/models/dtos/ActionResultDto";
+import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";
 
 export interface IPickTemplateProps {
-    selectedTemplate: IActionResultDto<ITemplateDto> | null;
+    selectedTemplate: ActionResultDto<TemplateDto> | null;
     loading: boolean;
-    setSelectedTemplate: (template: IActionResultDto<ITemplateDto>) => Promise<any>;
-    templates: IClientActionResultDto<IActionResultDto<ITemplateDto>[]>;
+    setSelectedTemplate: (template: ActionResultDto<TemplateDto>) => Promise<any>;
+    templates: IClientActionResultDto<ActionResultDto<TemplateDto>[]>;
 }
 
 export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, templates }: IPickTemplateProps) {
@@ -19,7 +19,7 @@ export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, t
         ? templates.result.map(getTemplateOption)
         : [];
 
-    function getTemplateOption(compatibility: IActionResultDto<ITemplateDto>): IBootstrapDropdownItem {
+    function getTemplateOption(compatibility: ActionResultDto<TemplateDto>): IBootstrapDropdownItem {
         let text = compatibility.success
             ? <div>{compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
             : <div>🚫 {compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
@@ -49,7 +49,7 @@ export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, t
                 ? (<LoadingSpinnerSmall/>)
                 : (<BootstrapDropdown options={templateOptions}
                                       value={selectedTemplate ? selectedTemplate.result.id : null}
-                                      onChange={value => setSelectedTemplate(templates.result.filter((t: IActionResultDto<ITemplateDto>) => t.result.id === value)[0])}/>)}
+                                      onChange={value => setSelectedTemplate(templates.result.filter((t: ActionResultDto<TemplateDto>) => t.result.id === value)[0])}/>)}
         </div>
         {selectedTemplate ? (<div className={`alert mt-3 ${selectedTemplate.success ? 'alert-success' : 'alert-warning'}`}>
             {selectedTemplate.success ? (<h4>✔ Compatible with this season</h4>) : (

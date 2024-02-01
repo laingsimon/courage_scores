@@ -7,7 +7,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 
 export interface ITeamOverviewProps {
     teamId: string;
@@ -43,7 +43,7 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
         return score;
     }
 
-    function renderFixtureAndDate(fixtureDate: IDivisionFixtureDateDto) {
+    function renderFixtureAndDate(fixtureDate: DivisionFixtureDateDto) {
         const fixture = fixtureDate.fixtures[0];
 
         return (<tr key={fixture.id}>

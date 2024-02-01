@@ -18,26 +18,26 @@ import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {ExportDataButton} from "../../common/ExportDataButton";
 import {PrintableSheet} from "./PrintableSheet";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
-import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
-import {IDivisionFixtureDateDto} from "../../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
-import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
+import {DivisionDataDto} from "../../../interfaces/models/dtos/Division/DivisionDataDto";
+import {DivisionFixtureDateDto} from "../../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
-import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
-import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
-import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
-import {IEditTournamentGameDto} from "../../../interfaces/models/dtos/Game/IEditTournamentGameDto";
+import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {DivisionDataFilter} from "../../../interfaces/models/dtos/Division/DivisionDataFilter";
+import {EditTournamentGameDto} from "../../../interfaces/models/dtos/Game/EditTournamentGameDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -54,14 +54,14 @@ export function Tournament() {
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
     const [canSave, setCanSave] = useState<boolean>(true);
-    const [tournamentData, setTournamentData] = useState<ITournamentGameDto | null>(null);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<ITournamentGameDto> | null>(null);
+    const [tournamentData, setTournamentData] = useState<TournamentGameDto | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState<ITournamentPlayerMap | null>(null);
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
-    const [newPlayerDetails, setNewPlayerDetails] = useState<IEditTeamPlayerDto>({name: '', captain: false});
+    const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
-    const division: IDivisionDto = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
+    const division: DivisionDto = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
     const genderOptions: IBootstrapDropdownItem[] = [
         {text: <>&nbsp;</>, value: null},
         {text: 'Men', value: 'men'},
@@ -94,7 +94,7 @@ export function Tournament() {
 
     async function loadFixtureData() {
         try {
-            const tournamentData: ITournamentGameDto = await tournamentApi.get(tournamentId);
+            const tournamentData: TournamentGameDto = await tournamentApi.get(tournamentId);
 
             if (!tournamentData) {
                 onError('Tournament could not be found');
@@ -105,12 +105,12 @@ export function Tournament() {
 
             const tournamentPlayerMap: ITournamentPlayerMap = {};
             if (canManageTournaments) {
-                const filter: IDivisionDataFilter = {
+                const filter: DivisionDataFilter = {
                     seasonId: tournamentData.seasonId,
                 };
 
-                const divisionData: IDivisionDataDto = await divisionApi.data(EMPTY_ID, filter);
-                const fixtureDate: IDivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
+                const divisionData: DivisionDataDto = await divisionApi.data(EMPTY_ID, filter);
+                const fixtureDate: DivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
                 const tournamentPlayerIds: string[] = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
                 tournamentPlayerIds.forEach((id: string) => tournamentPlayerMap[id] = {});
             }
@@ -123,19 +123,19 @@ export function Tournament() {
         }
     }
 
-    function getMatchOptionDefaults(tournamentData: ITournamentGameDto): IGameMatchOptionDto {
+    function getMatchOptionDefaults(tournamentData: TournamentGameDto): GameMatchOptionDto {
         return {
             startingScore: 501,
             numberOfLegs: tournamentData.bestOf || 5,
         };
     }
 
-    function getAllPlayers(tournamentData: ITournamentGameDto): ISelectablePlayer[] {
+    function getAllPlayers(tournamentData: TournamentGameDto): ISelectablePlayer[] {
         const selectedTournamentPlayers: ISelectablePlayer[] = tournamentData.sides
             ? tournamentData.sides
-                .filter((s: ITournamentSideDto) => !s.noShow)
-                .flatMap((side: ITournamentSideDto) => side.players)
-                .map((p: ITournamentPlayerDto) => p as ISelectablePlayer)
+                .filter((s: TournamentSideDto) => !s.noShow)
+                .flatMap((side: TournamentSideDto) => side.players)
+                .map((p: TournamentPlayerDto) => p as ISelectablePlayer)
             : [];
 
         if (any(selectedTournamentPlayers)) {
@@ -143,19 +143,19 @@ export function Tournament() {
         }
 
         const selectedTournamentTeams: string[] = tournamentData.sides
-            ? tournamentData.sides.filter((s: ITournamentSideDto) => !s.noShow).map((side: ITournamentSideDto) => side.teamId)
+            ? tournamentData.sides.filter((s: TournamentSideDto) => !s.noShow).map((side: TournamentSideDto) => side.teamId)
             : [];
 
         const players: ISelectablePlayer[] = teams
-            .filter((t: ITeamDto) => any(selectedTournamentTeams, (id: string) => id === t.id))
-            .map((t: ITeamDto) => t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === tournamentData.seasonId)[0])
-            .filter((teamSeasonDto: ITeamSeasonDto) => teamSeasonDto)
-            .flatMap((teamSeason: ITeamSeasonDto) => teamSeason.players.map((p: ITeamPlayerDto) => p as ISelectablePlayer));
+            .filter((t: TeamDto) => any(selectedTournamentTeams, (id: string) => id === t.id))
+            .map((t: TeamDto) => t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId)[0])
+            .filter((teamSeasonDto: TeamSeasonDto) => teamSeasonDto)
+            .flatMap((teamSeason: TeamSeasonDto) => teamSeason.players.map((p: TeamPlayerDto) => p as ISelectablePlayer));
 
         return players.sort(sortBy('name'));
     }
 
-    async function saveTournament(preventLoading?: boolean | React.MouseEvent): Promise<ITournamentGameDto> {
+    async function saveTournament(preventLoading?: boolean | React.MouseEvent): Promise<TournamentGameDto> {
         /* istanbul ignore next */
         if (saving || patching) {
             /* istanbul ignore next */
@@ -173,10 +173,10 @@ export function Tournament() {
         }
 
         try {
-            const update: IEditTournamentGameDto = tournamentData;
+            const update: EditTournamentGameDto = tournamentData;
             update.lastUpdated = tournamentData.updated;
 
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.update(update);
+            const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.update(update);
             if (!response.success) {
                 setSaveError(response);
             } else {
@@ -191,7 +191,7 @@ export function Tournament() {
         }
     }
 
-    async function applyPatch(patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound: boolean) {
+    async function applyPatch(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound: boolean) {
         /* istanbul ignore next */
         if (saving || patching) {
             /* istanbul ignore next */
@@ -201,9 +201,9 @@ export function Tournament() {
         setPatching(true);
 
         try {
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.patch(
+            const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.patch(
                 tournamentId,
-                nestInRound ? ({round: patch} as IPatchTournamentDto) : patch as IPatchTournamentDto);
+                nestInRound ? ({round: patch} as PatchTournamentDto) : patch as PatchTournamentDto);
 
             if (!response.success) {
                 setSaveError(response);
@@ -216,13 +216,13 @@ export function Tournament() {
         }
     }
 
-    async function publishLiveUpdate(data: ITournamentGameDto) {
+    async function publishLiveUpdate(data: TournamentGameDto) {
         if (canSave) {
             await webSocket.publish(tournamentId, data);
         }
     }
 
-    function renderCreatePlayerDialog(season: ISeasonDto) {
+    function renderCreatePlayerDialog(season: SeasonDto) {
         return (<Dialog title={`Add a player...`}>
             <EditPlayerDetails
                 player={newPlayerDetails}
@@ -246,7 +246,7 @@ export function Tournament() {
         let teamIds = [];
         let round = tournamentData.round;
         while (round) {
-            saygDataIds = saygDataIds.concat(round.matches.map((m: ITournamentMatchDto) => m.saygId).filter((id: string) => id));
+            saygDataIds = saygDataIds.concat(round.matches.map((m: TournamentMatchDto) => m.saygId).filter((id: string) => id));
             round = round.nextRound;
         }
 
@@ -283,14 +283,14 @@ export function Tournament() {
         return exportRequest;
     }
 
-    function getTeamIdForPlayer(player: ITournamentPlayerDto) {
-        const teamToSeasonMaps = teams.map((t: ITeamDto) => {
+    function getTeamIdForPlayer(player: TournamentPlayerDto) {
+        const teamToSeasonMaps = teams.map((t: TeamDto) => {
             return {
                 teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0],
                 team: t,
             }
         });
-        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, (p: ITeamPlayerDto) => p.id === player.id));
+        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, (p: TeamPlayerDto) => p.id === player.id));
 
         if (any(teamsWithPlayer)) {
             return teamsWithPlayer[0].team.id
@@ -299,7 +299,7 @@ export function Tournament() {
         return null;
     }
 
-    async function updateTournamentData(newData: ITournamentGameDto) {
+    async function updateTournamentData(newData: TournamentGameDto) {
         setTournamentData(newData);
         setAllPlayers(getAllPlayers(newData));
     }
@@ -309,7 +309,7 @@ export function Tournament() {
     }
 
     try {
-        const season: ISeasonDto = tournamentData ? seasons[tournamentData.seasonId] : {id: EMPTY_ID, name: 'Not found'};
+        const season: SeasonDto = tournamentData ? seasons[tournamentData.seasonId] : {id: EMPTY_ID, name: 'Not found'};
         if (!season) {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');

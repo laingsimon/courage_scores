@@ -15,46 +15,46 @@ import React from "react";
 import {CreateSeasonDialog, ICreateSeasonDialogProps} from "./CreateSeasonDialog";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../../DivisionDataContainer";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
-import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
-import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
-import {IProposalRequestDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalRequestDto";
-import {IEditGameDto} from "../../../interfaces/models/dtos/Game/IEditGameDto";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {ActionResultDto} from "../../../interfaces/models/dtos/ActionResultDto";
+import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {ProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/ProposalResultDto";
+import {ProposalRequestDto} from "../../../interfaces/models/dtos/Season/Creation/ProposalRequestDto";
+import {EditGameDto} from "../../../interfaces/models/dtos/Game/EditGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 import {IAppContainerProps} from "../../../AppContainer";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {IDivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
-import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {DivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+import {DivisionDataDto} from "../../../interfaces/models/dtos/Division/DivisionDataDto";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {divisionBuilder, fixtureDateBuilder, IDivisionFixtureBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
-import {ISeasonTemplateApi} from "../../../interfaces/apis/SeasonTemplateApi";
-import {IGameApi} from "../../../interfaces/apis/GameApi";
+import {ISeasonTemplateApi} from "../../../interfaces/apis/ISeasonTemplateApi";
+import {IGameApi} from "../../../interfaces/apis/IGameApi";
 
 describe('CreateSeasonDialog', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let closed: boolean;
-    let compatibilityResponses: { [ seasonId: string]: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> };
+    let compatibilityResponses: { [ seasonId: string]: IClientActionResultDto<ActionResultDto<TemplateDto>[]> };
     let allDataReloaded: boolean;
-    let apiResponse: IClientActionResultDto<IProposalResultDto>;
-    let proposalRequest: IProposalRequestDto;
-    let updatedFixtures: IEditGameDto[];
-    let updateFixtureApiResponse: (fixture: IEditGameDto) => Promise<IClientActionResultDto<IGameDto>>;
+    let apiResponse: IClientActionResultDto<ProposalResultDto>;
+    let proposalRequest: ProposalRequestDto;
+    let updatedFixtures: EditGameDto[];
+    let updateFixtureApiResponse: (fixture: EditGameDto) => Promise<IClientActionResultDto<GameDto>>;
     let divisionReloaded: boolean;
 
     const templateApi = api<ISeasonTemplateApi>({
-        getCompatibility: (seasonId: string) => {
+        getCompatibility: async (seasonId: string) => {
             return compatibilityResponses[seasonId] || {success: false};
         },
-        propose: (request: IProposalRequestDto) => {
+        propose: async (request: ProposalRequestDto) => {
             proposalRequest = request;
             return apiResponse || {success: false, errors: [], warnings: [], messages: []};
         },
     });
     const gameApi = api<IGameApi>({
-        update: async (fixture: IEditGameDto) => {
+        update: async (fixture: EditGameDto) => {
             updatedFixtures.push(fixture);
             return updateFixtureApiResponse
                 ? await updateFixtureApiResponse(fixture)
@@ -101,21 +101,21 @@ describe('CreateSeasonDialog', () => {
             </DivisionDataContainer>));
     }
 
-    function addCompatibleResponse(seasonId: string, templateId: string): IClientActionResultDto<IActionResultDto<ITemplateDto>[]> {
-        const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = getCompatibleResponse(seasonId, templateId);
+    function addCompatibleResponse(seasonId: string, templateId: string): IClientActionResultDto<ActionResultDto<TemplateDto>[]> {
+        const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> = getCompatibleResponse(seasonId, templateId);
         compatibilityResponses[seasonId] = response;
         return response;
     }
 
-    function addIncompatibleResponse(seasonId: string, templateId: string): IClientActionResultDto<IActionResultDto<ITemplateDto>[]> {
-        const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = getCompatibleResponse(seasonId, templateId);
+    function addIncompatibleResponse(seasonId: string, templateId: string): IClientActionResultDto<ActionResultDto<TemplateDto>[]> {
+        const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> = getCompatibleResponse(seasonId, templateId);
         response.result[0].success = false;
         compatibilityResponses[seasonId] = response;
         return response;
     }
 
-    function getCompatibleResponse(_: string, templateId: string): IClientActionResultDto<IActionResultDto<ITemplateDto>[]> {
-        const template: ITemplateDto = Object.assign(
+    function getCompatibleResponse(_: string, templateId: string): IClientActionResultDto<ActionResultDto<TemplateDto>[]> {
+        const template: TemplateDto = Object.assign(
             getEmptyTemplate(templateId, 2),
             {
                 name: 'TEMPLATE',
@@ -156,7 +156,7 @@ describe('CreateSeasonDialog', () => {
         };
     }
 
-    function getEmptyTemplate(templateId: string, noOfDivisions: number): ITemplateDto {
+    function getEmptyTemplate(templateId: string, noOfDivisions: number): TemplateDto {
         return {
             name: 'EMPTY',
             id: templateId,
@@ -196,10 +196,10 @@ describe('CreateSeasonDialog', () => {
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
             const anotherDivisionId = createTemporaryId();
-            const team1: ITeamDto = teamBuilder('TEAM 1')
+            const team1: TeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2: ITeamDto = teamBuilder('TEAM 2')
+            const team2: TeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
 
@@ -264,11 +264,11 @@ describe('CreateSeasonDialog', () => {
     describe('interactivity', () => {
         describe('1- pick', () => {
             const seasonId = createTemporaryId();
-            const division: IDivisionDto = divisionBuilder('DIVISION 1').build();
-            const team1: ITeamDto = teamBuilder('TEAM 1')
+            const division: DivisionDto = divisionBuilder('DIVISION 1').build();
+            const team1: TeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, division)
                 .build();
-            const team2: ITeamDto = teamBuilder('TEAM 2')
+            const team2: TeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, createTemporaryId())
                 .build();
 
@@ -339,30 +339,30 @@ describe('CreateSeasonDialog', () => {
         describe('2- assign placeholders', () => {
             const seasonId = createTemporaryId();
             const templateId = createTemporaryId();
-            const division: IDivisionDto = divisionBuilder('DIVISION 1').build();
-            const anotherDivision: IDivisionDto = divisionBuilder('ANOTHER DIVISION').build();
-            const team1: ITeamDto = teamBuilder('TEAM 1')
+            const division: DivisionDto = divisionBuilder('DIVISION 1').build();
+            const anotherDivision: DivisionDto = divisionBuilder('ANOTHER DIVISION').build();
+            const team1: TeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, division)
                 .address('TEAM 1')
                 .build();
-            const team2: ITeamDto = teamBuilder('TEAM 2')
+            const team2: TeamDto = teamBuilder('TEAM 2')
                 .address('SHARED')
                 .forSeason(seasonId, anotherDivision)
                 .build();
-            const team3: ITeamDto = teamBuilder('TEAM 3')
+            const team3: TeamDto = teamBuilder('TEAM 3')
                 .address('SHARED')
                 .forSeason(seasonId, anotherDivision)
                 .build();
-            const team4: ITeamDto = teamBuilder('TEAM 4')
+            const team4: TeamDto = teamBuilder('TEAM 4')
                 .address('TEAM 4')
                 .forSeason(seasonId, division)
                 .build();
 
             beforeEach(async () => {
-                const response: IClientActionResultDto<IActionResultDto<ITemplateDto>[]> = addCompatibleResponse(seasonId, templateId);
-                const template: ITemplateDto = response.result[0].result;
-                const anotherDivisionTemplate: IDivisionTemplateDto = template.divisions[0];
-                const division1Template: IDivisionTemplateDto = template.divisions[1];
+                const response: IClientActionResultDto<ActionResultDto<TemplateDto>[]> = addCompatibleResponse(seasonId, templateId);
+                const template: TemplateDto = response.result[0].result;
+                const anotherDivisionTemplate: DivisionTemplateDto = template.divisions[0];
+                const division1Template: DivisionTemplateDto = template.divisions[1];
                 template.sharedAddresses = [ [ 'A', 'B' ] ];
                 anotherDivisionTemplate.sharedAddresses = [ [ 'A', 'C' ] ];
                 anotherDivisionTemplate.dates = [
@@ -421,13 +421,13 @@ describe('CreateSeasonDialog', () => {
             const seasonId = createTemporaryId();
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
-            const team1: ITeamDto = teamBuilder('TEAM 1')
+            const team1: TeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2: ITeamDto = teamBuilder('TEAM 2')
+            const team2: TeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, divisionId)
                 .build();
-            let divisionDataSetTo: IDivisionDataDto;
+            let divisionDataSetTo: DivisionDataDto;
 
             beforeEach(async () => {
                 divisionDataSetTo = null;
@@ -491,10 +491,10 @@ describe('CreateSeasonDialog', () => {
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
             const anotherDivisionId = createTemporaryId();
-            const team1: ITeamDto = teamBuilder('TEAM 1')
+            const team1: TeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2: ITeamDto = teamBuilder('TEAM 2')
+            const team2: TeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
 
@@ -575,13 +575,13 @@ describe('CreateSeasonDialog', () => {
             const templateId = createTemporaryId();
             const divisionId = createTemporaryId();
             const anotherDivisionId = createTemporaryId();
-            const team1: ITeamDto = teamBuilder('TEAM 1')
+            const team1: TeamDto = teamBuilder('TEAM 1')
                 .forSeason(seasonId, divisionId)
                 .build();
-            const team2: ITeamDto = teamBuilder('TEAM 2')
+            const team2: TeamDto = teamBuilder('TEAM 2')
                 .forSeason(seasonId, anotherDivisionId)
                 .build();
-            let divisionDataSetTo: IDivisionDataDto;
+            let divisionDataSetTo: DivisionDataDto;
 
             beforeEach(async () => {
                 divisionDataSetTo = null;
@@ -749,7 +749,7 @@ describe('CreateSeasonDialog', () => {
             it('can close the dialog', async () => {
                 const seasonId = createTemporaryId();
                 const templateId = createTemporaryId();
-                let divisionDataResetTo: IDivisionDataDto;
+                let divisionDataResetTo: DivisionDataDto;
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(appProps({
                     divisions: [],

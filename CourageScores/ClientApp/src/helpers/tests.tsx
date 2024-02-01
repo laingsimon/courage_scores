@@ -57,7 +57,7 @@ export interface TestContext {
     user: UserEvent,
 }
 
-export function api<T>(methods: any): T {
+export function api<T>(methods: Partial<T>): T {
     return Object.assign({}, methods) as T;
 }
 

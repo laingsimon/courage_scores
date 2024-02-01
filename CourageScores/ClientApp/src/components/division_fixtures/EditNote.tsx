@@ -7,19 +7,19 @@ import {useApp} from "../../AppContainer";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
-import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
+import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
+import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 
 export interface IEditNoteProps {
-    note: IEditFixtureDateNoteDto;
-    onNoteChanged: (newNote: IFixtureDateNoteDto) => Promise<any>;
+    note: EditFixtureDateNoteDto;
+    onNoteChanged: (newNote: FixtureDateNoteDto) => Promise<any>;
     onClose: () => Promise<any>;
     onSaved?: () => Promise<any>;
 }
 
 export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps) {
     const [savingNote, setSavingNote] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<IEditFixtureDateNoteDto>>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<EditFixtureDateNoteDto>>(null);
     const {noteApi} = useDependencies();
     const {divisions, seasons, onError} = useApp();
 
@@ -46,7 +46,7 @@ export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps
                 note.lastUpdated = note.updated;
             }
 
-            const response: IClientActionResultDto<IFixtureDateNoteDto> = note.id
+            const response: IClientActionResultDto<FixtureDateNoteDto> = note.id
                 ? await noteApi.upsert(note.id, note)
                 : await noteApi.create(note);
 

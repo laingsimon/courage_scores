@@ -1,22 +1,22 @@
 import {SharedAddresses} from "./SharedAddresses";
 import {TemplateDivisions} from "./TemplateDivisions";
-import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
-import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
+import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 
 export interface ITemplateVisualEditorProps {
-    template: IEditTemplateDto;
-    onUpdate: (template: IEditTemplateDto) => Promise<any>;
+    template: EditTemplateDto;
+    onUpdate: (template: EditTemplateDto) => Promise<any>;
 }
 
 export function TemplateVisualEditor({ template, onUpdate }: ITemplateVisualEditorProps) {
     async function updateTemplateSharedAddress(updatedAddresses: string[][]) {
-        const newTemplate: IEditTemplateDto = Object.assign({}, template);
+        const newTemplate: EditTemplateDto = Object.assign({}, template);
         newTemplate.sharedAddresses = updatedAddresses;
         await onUpdate(newTemplate);
     }
 
-    async function updateDivisions(updatedDivisions: IDivisionTemplateDto[]) {
-        const newTemplate: IEditTemplateDto = Object.assign({}, template);
+    async function updateDivisions(updatedDivisions: DivisionTemplateDto[]) {
+        const newTemplate: EditTemplateDto = Object.assign({}, template);
         newTemplate.divisions = updatedDivisions;
         await onUpdate(newTemplate);
     }

@@ -15,45 +15,45 @@ import React from "react";
 import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {Score} from "./Score";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {IRecordScoresDto} from "../../../interfaces/models/dtos/Game/IRecordScoresDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {RecordScoresDto} from "../../../interfaces/models/dtos/Game/RecordScoresDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
+import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
 import {IAppContainerProps} from "../../../AppContainer";
 import {IDatedDivisionFixtureDto} from "../../../interfaces/IDatedDivisionFixtureDto";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {fixtureBuilder, matchBuilder} from "../../../helpers/builders/games";
 import {IFailedRequest} from "../../../interfaces/IFailedRequest";
-import {IGameApi} from "../../../interfaces/apis/GameApi";
-import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
+import {IGameApi} from "../../../interfaces/apis/IGameApi";
+import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
 
 interface ICreatedPlayer {
     divisionId: string;
     seasonId: string;
     teamId: string;
-    playerDetails: IEditTeamPlayerDto;
-    newPlayer: ITeamPlayerDto;
+    playerDetails: EditTeamPlayerDto;
+    newPlayer: TeamPlayerDto;
 }
 
 describe('Score', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let fixtureDataMap: { [fixtureId: string]: IDatedDivisionFixtureDto & IGameDto } = {};
-    let updatedFixtures: { [fixtureId: string]: IRecordScoresDto };
+    let fixtureDataMap: { [fixtureId: string]: IDatedDivisionFixtureDto & GameDto } = {};
+    let updatedFixtures: { [fixtureId: string]: RecordScoresDto };
     let createdPlayer: ICreatedPlayer;
     let teamsReloaded: boolean;
-    let newPlayerApiResult: (createdPlayer: ICreatedPlayer) => IClientActionResultDto<ITeamDto>;
-    let saveGameApiResult: IClientActionResultDto<IGameDto>;
+    let newPlayerApiResult: (createdPlayer: ICreatedPlayer) => IClientActionResultDto<TeamDto>;
+    let saveGameApiResult: IClientActionResultDto<GameDto>;
     const gameApi = api<IGameApi>({
         get: async (fixtureId: string) => {
             if (any(Object.keys(fixtureDataMap), (key: string) => key === fixtureId)) {
@@ -62,17 +62,17 @@ describe('Score', () => {
 
             throw new Error('Unexpected request for fixture data');
         },
-        updateScores: async (fixtureId: string, fixtureData: IRecordScoresDto) => {
+        updateScores: async (fixtureId: string, fixtureData: RecordScoresDto) => {
             updatedFixtures[fixtureId] = fixtureData;
             return saveGameApiResult || {
                 success: true,
                 messages: ['Fixture updated'],
-                result: fixtureData,
+                result: fixtureData as GameDto,
             }
         }
     });
     const playerApi = api<IPlayerApi>({
-        create: (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto) => {
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto) => {
             const newPlayer = Object.assign(playerBuilder().build(), playerDetails);
             createdPlayer = {divisionId, seasonId, teamId, playerDetails, newPlayer};
             if (!newPlayerApiResult) {
@@ -112,19 +112,19 @@ describe('Score', () => {
             '/' + id);
     }
 
-    function getDefaultAppData(account?: IUserDto): IAppContainerProps {
-        const division: IDivisionDto = divisionBuilder('A division').build();
-        const season: ISeasonDto = seasonBuilder('A season')
+    function getDefaultAppData(account?: UserDto): IAppContainerProps {
+        const division: DivisionDto = divisionBuilder('A division').build();
+        const season: SeasonDto = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .withDivision(division)
             .build();
-        const homePlayer: ITeamPlayerDto = playerBuilder('Home player').build();
-        const awayPlayer: ITeamPlayerDto = playerBuilder('Away player').build();
-        const homeTeam: ITeamDto = teamBuilder('Home team', account?.teamId)
+        const homePlayer: TeamPlayerDto = playerBuilder('Home player').build();
+        const awayPlayer: TeamPlayerDto = playerBuilder('Away player').build();
+        const homeTeam: TeamDto = teamBuilder('Home team', account?.teamId)
             .forSeason(season, division, [ homePlayer ])
             .build();
-        const awayTeam: ITeamDto = teamBuilder('Away team')
+        const awayTeam: TeamDto = teamBuilder('Away team')
             .forSeason(season, division, [ awayPlayer ])
             .build();
 
@@ -150,23 +150,23 @@ describe('Score', () => {
     }
 
     function getPlayedFixtureData(appData: IAppContainerProps) {
-        const homeTeam: ITeamDto = appData.teams.filter((t: ITeamDto) => t.name === 'Home team')[0];
-        const awayTeam: ITeamDto = appData.teams.filter((t: ITeamDto) => t.name === 'Away team')[0];
+        const homeTeam: TeamDto = appData.teams.filter((t: TeamDto) => t.name === 'Home team')[0];
+        const awayTeam: TeamDto = appData.teams.filter((t: TeamDto) => t.name === 'Away team')[0];
 
-        const firstDivision: IDivisionDto = appData.divisions.filter((_: IDivisionDto) => true)[0];
-        const firstSeason: ISeasonDto = appData.seasons.filter((_: ISeasonDto) => true)[0];
+        const firstDivision: DivisionDto = appData.divisions.filter((_: DivisionDto) => true)[0];
+        const firstSeason: SeasonDto = appData.seasons.filter((_: SeasonDto) => true)[0];
 
-        function findPlayer(team: ITeamDto, name: string): ITeamPlayerDto {
+        function findPlayer(team: TeamDto, name: string): TeamPlayerDto {
             if (!firstSeason || !team || !team.seasons) {
                 return { name, id: createTemporaryId() };
             }
 
-            const teamSeason: ITeamSeasonDto = team.seasons.filter((s: ITeamSeasonDto) => s.seasonId === firstSeason.id)[0];
-            const player: ITeamPlayerDto = teamSeason.players.filter((p: ITeamPlayerDto) => p.name === name)[0];
+            const teamSeason: TeamSeasonDto = team.seasons.filter((s: TeamSeasonDto) => s.seasonId === firstSeason.id)[0];
+            const player: TeamPlayerDto = teamSeason.players.filter((p: TeamPlayerDto) => p.name === name)[0];
             return player || { name: name + ' Not found', id: createTemporaryId() };
         }
 
-        function createMatch(homeScore: number, awayScore: number): IGameMatchDto {
+        function createMatch(homeScore: number, awayScore: number): GameMatchDto {
             return matchBuilder()
                 .withHome(findPlayer(homeTeam, 'Home player'))
                 .withAway(findPlayer(awayTeam, 'Away player'))
@@ -333,7 +333,7 @@ describe('Score', () => {
     });
 
     describe('when logged in', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             emailAddress: '',
             givenName: '',
@@ -448,7 +448,7 @@ describe('Score', () => {
         it('renders when team is not registered to season', async () => {
             const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            appData.teams = toMap(appData.teams.map((t: ITeamDto) => {
+            appData.teams = toMap(appData.teams.map((t: TeamDto) => {
                 if (t.name === 'Home team') {
                     t.seasons = [];
                 }
@@ -462,7 +462,7 @@ describe('Score', () => {
 
         it('renders when team not found', async () => {
             const appData = getDefaultAppData(account);
-            appData.teams = toMap(appData.teams.filter((t: ITeamDto) => t.name !== 'Home team'));
+            appData.teams = toMap(appData.teams.filter((t: TeamDto) => t.name !== 'Home team'));
             const fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
@@ -500,7 +500,7 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
-                existingTeam.seasons = existingTeam.seasons.map((ts: ITeamSeasonDto) => {
+                existingTeam.seasons = existingTeam.seasons.map((ts: TeamSeasonDto) => {
                     const newTeamSeason = Object.assign({}, ts);
 
                     if (ts.seasonId === createdPlayer.seasonId) {
@@ -541,7 +541,7 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
-                existingTeam.seasons = existingTeam.seasons.filter((_: ITeamSeasonDto) => false); // return no team seasons
+                existingTeam.seasons = existingTeam.seasons.filter((_: TeamSeasonDto) => false); // return no team seasons
 
                 return {
                     success: true,
@@ -572,7 +572,7 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
-                existingTeam.seasons = existingTeam.seasons.map((ts: ITeamSeasonDto) => {
+                existingTeam.seasons = existingTeam.seasons.map((ts: TeamSeasonDto) => {
                     return Object.assign({}, ts);
                 });
 
@@ -823,7 +823,7 @@ describe('Score', () => {
     });
 
     describe('when logged in as a home clerk', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
@@ -890,7 +890,7 @@ describe('Score', () => {
     });
 
     describe('when logged in as an away clerk', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             emailAddress: '',
             givenName: '',

@@ -8,12 +8,12 @@ import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";
 import {useBranding} from "../../../BrandingContainer";
 import {RefreshControl} from "../RefreshControl";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
-import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
-import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
-import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {
     getUnplayedLayoutData, getUnplayedLayoutDataForSides,
     ILayoutDataForMatch,
@@ -117,7 +117,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         ].flatMap((movements: IMovement[]) => movements);
     }
 
-    function getLinkToSide(side: ITournamentSideDto) {
+    function getLinkToSide(side: TournamentSideDto) {
         if (side && side.teamId && division) {
             const team = teams[side.teamId];
 
@@ -136,14 +136,14 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
     }
 
-    function findTeamAndDivisionForPlayer(player: ITournamentPlayerDto) {
+    function findTeamAndDivisionForPlayer(player: TournamentPlayerDto) {
         const teamAndDivisionMapping = teams.map(t => {
             const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
             if (!teamSeason) {
                 return null;
             }
 
-            const hasPlayer = any(teamSeason.players, (p: ITeamPlayerDto) => p.id === player.id);
+            const hasPlayer = any(teamSeason.players, (p: TeamPlayerDto) => p.id === player.id);
             return hasPlayer ? {team: t, divisionId: teamSeason.divisionId} : null;
         }).filter(a => a !== null)[0];
 
@@ -165,22 +165,22 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         };
     }
 
-    function getPlayedLayoutData(sides: ITournamentSideDto[], round: ITournamentRoundDto, depth: number, matchMnemonic?: number): ILayoutDataForRound[] {
+    function getPlayedLayoutData(sides: TournamentSideDto[], round: TournamentRoundDto, depth: number, matchMnemonic?: number): ILayoutDataForRound[] {
         if (!round) {
             return [];
         }
         matchMnemonic = matchMnemonic || 0;
 
-        const winnersFromThisRound: ITournamentSideDto[] = [];
-        const playedInThisRound: ITournamentSideDto[] = [];
+        const winnersFromThisRound: TournamentSideDto[] = [];
+        const playedInThisRound: TournamentSideDto[] = [];
 
         const layoutDataForRound: ILayoutDataForRound = {
             name: round.name,
-            matches: round.matches.map((m: ITournamentMatchDto, index: number): ILayoutDataForMatch => {
+            matches: round.matches.map((m: TournamentMatchDto, index: number): ILayoutDataForMatch => {
                 let winner = null;
                 playedInThisRound.push(m.sideA);
                 playedInThisRound.push(m.sideB);
-                const matchOptions: IGameMatchOptionDto = round.matchOptions[index] || matchOptionDefaults;
+                const matchOptions: GameMatchOptionDto = round.matchOptions[index] || matchOptionDefaults;
                 const numberOfLegs: number = matchOptions.numberOfLegs;
 
                 if (m.scoreA > (numberOfLegs / 2.0)) {
@@ -205,9 +205,9 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         };
 
         const byesFromThisRound: ILayoutDataForMatch[] = sides
-            .filter((side: ITournamentSideDto) => !side.noShow)
-            .filter((side: ITournamentSideDto) => !any(playedInThisRound, (s: ITournamentSideDto) => s.id === side.id))
-            .map((side: ITournamentSideDto): ILayoutDataForMatch => {
+            .filter((side: TournamentSideDto) => !side.noShow)
+            .filter((side: TournamentSideDto) => !any(playedInThisRound, (s: TournamentSideDto) => s.id === side.id))
+            .map((side: TournamentSideDto): ILayoutDataForMatch => {
                 return {
                     sideA: {
                         id: side.id,

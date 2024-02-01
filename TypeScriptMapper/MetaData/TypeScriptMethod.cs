@@ -75,4 +75,17 @@ public class TypeScriptMethod : IRouteMethod
     {
         return parameterType.GetProperties().SingleOrDefault(p => p.PropertyType == typeof(IFormFile))?.Name;
     }
+
+    public bool IsImplementationOf(ITypeScriptMember member)
+    {
+        var otherMethod = member as TypeScriptMethod;
+
+        if (otherMethod == null)
+        {
+            return false;
+        }
+
+        return otherMethod._method.Name == _method.Name
+               && otherMethod._method.GetParameters().SequenceEqual(_method.GetParameters());
+    }
 }

@@ -1,12 +1,12 @@
 import React from "react";
 import {useApp} from "../../../AppContainer";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
 
 export interface IMergeManOfTheMatchProps {
-    data: IGameDto;
-    setData: (newData: IGameDto) => Promise<any>;
-    allPlayers: ITeamPlayerDto[];
+    data: GameDto;
+    setData: (newData: GameDto) => Promise<any>;
+    allPlayers: TeamPlayerDto[];
 }
 
 export function MergeManOfTheMatch({data, setData, allPlayers}: IMergeManOfTheMatchProps) {
@@ -14,7 +14,7 @@ export function MergeManOfTheMatch({data, setData, allPlayers}: IMergeManOfTheMa
 
     async function setManOfMatch(team: 'home' | 'away', id: string) {
         try {
-            const newData: IGameDto = Object.assign({}, data);
+            const newData: GameDto = Object.assign({}, data);
             newData[team].manOfTheMatch = id;
 
             await setData(newData);
@@ -25,7 +25,7 @@ export function MergeManOfTheMatch({data, setData, allPlayers}: IMergeManOfTheMa
     }
 
     function getName(playerId: string): string {
-        const player: ITeamPlayerDto = allPlayers.filter(p => p.id === playerId)[0];
+        const player: TeamPlayerDto = allPlayers.filter(p => p.id === playerId)[0];
         return player.name;
     }
 

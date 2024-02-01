@@ -4,16 +4,16 @@ import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {renderDate} from "../../../helpers/rendering";
 import {count} from "../../../helpers/collections";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
+import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 export interface IScoreCardHeadingProps {
-    data: IGameDto;
+    data: GameDto;
     access: string;
     submission?: string;
     setSubmission: (submissionToShow: string) => Promise<any>;
-    setFixtureData: (data: IGameDto) => Promise<any>;
+    setFixtureData: (data: GameDto) => Promise<any>;
 }
 
 export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {
@@ -46,14 +46,14 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
         }
     }
 
-    function canShowSubmissionToggle(submission: IGameDto) {
+    function canShowSubmissionToggle(submission: GameDto) {
         return submission
             && (access === 'admin' || (account && submission && account.teamId === submission.id && access === 'clerk'));
     }
 
-    function getScore(data: IGameDto, side: string): number {
-        function sideWonMatch(match: IGameMatchDto, index: number): boolean {
-            const matchOptions: IGameMatchOptionDto = data.matchOptions[index];
+    function getScore(data: GameDto, side: string): number {
+        function sideWonMatch(match: GameMatchDto, index: number): boolean {
+            const matchOptions: GameMatchOptionDto = data.matchOptions[index];
             const defaultNumberOfLegs: number = 5;
             const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : defaultNumberOfLegs;
 

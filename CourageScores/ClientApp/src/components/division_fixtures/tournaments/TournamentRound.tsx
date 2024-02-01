@@ -4,35 +4,35 @@ import {all, any, DataMap, elementAt, isEmpty, toMap} from "../../../helpers/col
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
 import {useTournament} from "./TournamentContainer";
-import {ITournamentMatchDto} from "../../../interfaces/models/dtos/Game/ITournamentMatchDto";
-import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
-import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
-import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {createTemporaryId} from "../../../helpers/projection";
 
 export interface ITournamentRoundProps {
-    round: ITournamentRoundDto;
-    onChange?: (newRound: ITournamentRoundDto) => Promise<any>;
-    sides: ITournamentSideDto[];
+    round: TournamentRoundDto;
+    onChange?: (newRound: TournamentRoundDto) => Promise<any>;
+    sides: TournamentSideDto[];
     readOnly?: boolean;
     depth: number;
-    onHiCheck: (player: ITournamentPlayerDto, score: number) => Promise<any>;
-    on180: (player: ITournamentPlayerDto) => Promise<any>;
-    patchData: (patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
+    onHiCheck: (player: TournamentPlayerDto, score: number) => Promise<any>;
+    on180: (player: TournamentPlayerDto) => Promise<any>;
+    patchData: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
     allowNextRound?: boolean;
 }
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData, allowNextRound }: ITournamentRoundProps) {
-    const [newMatch, setNewMatch] = useState<ITournamentMatchDto>(createNewMatch());
-    const allMatchesHaveAScore: boolean = round.matches && all(round.matches, (current: ITournamentMatchDto) => hasScore(current.scoreA) && hasScore(current.scoreB));
-    const sideMap: DataMap<ITournamentSideDto> = toMap(sides);
+    const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
+    const allMatchesHaveAScore: boolean = round.matches && all(round.matches, (current: TournamentMatchDto) => hasScore(current.scoreA) && hasScore(current.scoreB));
+    const sideMap: DataMap<TournamentSideDto> = toMap(sides);
     const {setWarnBeforeSave, matchOptionDefaults} = useTournament();
 
     async function setNewSide(sideId: string, property: string) {
-        const newNewMatch: ITournamentMatchDto = Object.assign({}, newMatch);
+        const newNewMatch: TournamentMatchDto = Object.assign({}, newMatch);
         newNewMatch[property] = sideMap[sideId];
         setNewMatch(newNewMatch);
         await setWarnBeforeSave(`Add the (new) match before saving, otherwise it would be lost.
@@ -40,7 +40,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
 ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newNewMatch.sideB.name : ''}`);
     }
 
-    function createNewMatch(): ITournamentMatchDto {
+    function createNewMatch(): TournamentMatchDto {
         return {
             sideA: null,
             sideB: null,
@@ -48,7 +48,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         };
     }
 
-    function exceptSelected(side: ITournamentSideDto, matchIndex: number, property: string): boolean {
+    function exceptSelected(side: TournamentSideDto, matchIndex: number, property: string): boolean {
         let allowedSideId = null;
 
         if (matchIndex === undefined) {
@@ -66,7 +66,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         }
 
         if (round.matches) {
-            if (any(round.matches, (match: ITournamentMatchDto) => (match.sideA && match.sideA.id === side.id) || (match.sideB && match.sideB.id === side.id))) {
+            if (any(round.matches, (match: TournamentMatchDto) => (match.sideA && match.sideA.id === side.id) || (match.sideB && match.sideB.id === side.id))) {
                 return false;
             }
         }
@@ -80,7 +80,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
             return;
         }
 
-        const newRound: ITournamentRoundDto = Object.assign({}, round);
+        const newRound: TournamentRoundDto = Object.assign({}, round);
         newRound.matches = round.matches || [];
         newRound.matches.push(newMatch);
         newRound.matchOptions = newRound.matchOptions || [];
@@ -93,8 +93,8 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         }
     }
 
-    async function subRoundChange(subRound: ITournamentRoundDto) {
-        const newRound: ITournamentRoundDto = Object.assign({}, round);
+    async function subRoundChange(subRound: TournamentRoundDto) {
+        const newRound: TournamentRoundDto = Object.assign({}, round);
         newRound.nextRound = subRound;
 
         if (onChange) {
@@ -102,16 +102,16 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         }
     }
 
-    function sidesForTheNextRound(): ITournamentSideDto[] {
-        const sidesForTheNextRound: ITournamentSideDto[] = sides.filter((side: ITournamentSideDto) => {
-            const isPlaying: boolean = any(round.matches, (m: ITournamentMatchDto) => m.sideA.id === side.id || m.sideB.id === side.id);
+    function sidesForTheNextRound(): TournamentSideDto[] {
+        const sidesForTheNextRound: TournamentSideDto[] = sides.filter((side: TournamentSideDto) => {
+            const isPlaying: boolean = any(round.matches, (m: TournamentMatchDto) => m.sideA.id === side.id || m.sideB.id === side.id);
             return !isPlaying;
         });
 
-        return sidesForTheNextRound.concat(round.matches.flatMap((match: ITournamentMatchDto, index: number) => {
+        return sidesForTheNextRound.concat(round.matches.flatMap((match: TournamentMatchDto, index: number) => {
             const scoreA: number = match.scoreA;
             const scoreB: number = match.scoreB;
-            const matchOptions: IGameMatchOptionDto = round.matchOptions[index];
+            const matchOptions: GameMatchOptionDto = round.matchOptions[index];
             const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : 5;
 
             if (scoreA > (numberOfLegs / 2.0)) {
@@ -124,16 +124,16 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         }));
     }
 
-    async function thisRoundPatch(patch: IPatchTournamentDto, nestInRound?: boolean) {
+    async function thisRoundPatch(patch: PatchTournamentDto, nestInRound?: boolean) {
         await patchData(patch, nestInRound);
     }
 
-    async function nestedRoundPatch(patch: IPatchTournamentRoundDto, nestInRound?: boolean) {
+    async function nestedRoundPatch(patch: PatchTournamentRoundDto, nestInRound?: boolean) {
         await patchData(nestInRound ? {nextRound: patch} : patch, nestInRound);
     }
 
-    async function onMatchOptionsChanged(newMatchOptions: IGameMatchOptionDto, matchIndex: number) {
-        const newRound: ITournamentRoundDto = Object.assign({}, round);
+    async function onMatchOptionsChanged(newMatchOptions: GameMatchOptionDto, matchIndex: number) {
+        const newRound: TournamentRoundDto = Object.assign({}, round);
         newRound.matchOptions[matchIndex] = newMatchOptions;
 
         if (onChange) {
@@ -152,7 +152,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         <strong>{getRoundNameFromSides(round, sides.length, depth)}</strong>
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}>
             <tbody>
-            {(round.matches || []).map((match: ITournamentMatchDto, matchIndex: number) => {
+            {(round.matches || []).map((match: TournamentMatchDto, matchIndex: number) => {
                 return (<TournamentRoundMatch
                     key={matchIndex}
                     hasNextRound={hasNextRound}
@@ -164,7 +164,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
                     matchIndex={matchIndex}
                     onChange={onChange}
                     matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
-                    onMatchOptionsChanged={async (newMatchOptions: IGameMatchOptionDto) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
+                    onMatchOptionsChanged={async (newMatchOptions: GameMatchOptionDto) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
                     on180={on180}
                     onHiCheck={onHiCheck}
                     patchData={thisRoundPatch}/>);

@@ -14,26 +14,26 @@ import {
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails, IEditTeamDetailsProps} from "./EditTeamDetails";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {divisionBuilder} from "../../helpers/builders/divisions";
-import {ITeamApi} from "../../interfaces/apis/TeamApi";
+import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 
 describe('EditTeamDetails', () => {
     let context: TestContext;
-    let updatedTeam: IEditTeamDto;
-    let apiResponse: IClientActionResultDto<ITeamDto>;
+    let updatedTeam: EditTeamDto;
+    let apiResponse: IClientActionResultDto<TeamDto>;
     let saved: boolean;
     let change: {name: string, value: string};
     let canceled: boolean;
 
     const teamApi = api<ITeamApi>({
-        update: async (team: IEditTeamDto) => {
+        update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedTeam = team;
-            return apiResponse || {success: true, result: team};
+            return apiResponse || {success: true, result: team as TeamDto};
         }
     });
 
@@ -60,7 +60,7 @@ describe('EditTeamDetails', () => {
         canceled = false;
     });
 
-    async function renderComponent(props: IEditTeamDetailsProps, divisions: IDivisionDto[]) {
+    async function renderComponent(props: IEditTeamDetailsProps, divisions: DivisionDto[]) {
         context = await renderApp(
             iocProps({teamApi}),
             brandingProps(),
@@ -261,7 +261,7 @@ describe('EditTeamDetails', () => {
             const division = divisionBuilder('DIVISION').build();
             const otherDivision = divisionBuilder('OTHER DIVISION').build();
             const updated = '2023-07-01T00:00:00';
-            const team: IEditTeamDto = teamBuilder('TEAM')
+            const team: EditTeamDto = teamBuilder('TEAM')
                 .address('ADDRESS')
                 .division(division)
                 .season(createTemporaryId())

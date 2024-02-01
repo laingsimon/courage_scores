@@ -14,11 +14,11 @@ import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionFixtureDate, IDivisionFixtureDateProps} from "./DivisionFixtureDate";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {
     divisionBuilder,
     divisionDataBuilder,
@@ -35,7 +35,7 @@ describe('DivisionFixtureDate', () => {
     let reportedError: ErrorState;
     let startingToAddNote: string;
     let showPlayers: { [date: string]: boolean };
-    let newFixtures: IDivisionFixtureDateDto[];
+    let newFixtures: DivisionFixtureDateDto[];
 
     async function startAddNote(date: string) {
         startingToAddNote = date;
@@ -47,7 +47,7 @@ describe('DivisionFixtureDate', () => {
 
     async function setEditNote() {}
 
-    async function setNewFixtures(updatedFixtures: IDivisionFixtureDateDto[]) {
+    async function setNewFixtures(updatedFixtures: DivisionFixtureDateDto[]) {
         newFixtures = updatedFixtures;
     }
 
@@ -64,7 +64,7 @@ describe('DivisionFixtureDate', () => {
         showPlayers = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureDateProps, divisionData: IDivisionDataContainerProps, account: IUserDto, excludeControls?: boolean, teams?: ITeamDto[]) {
+    async function renderComponent(props: IDivisionFixtureDateProps, divisionData: IDivisionDataContainerProps, account: UserDto, excludeControls?: boolean, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -85,9 +85,9 @@ describe('DivisionFixtureDate', () => {
     }
 
     describe('when logged out', () => {
-        const team: ITeamDto = teamBuilder('TEAM').build();
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
+        const team: TeamDto = teamBuilder('TEAM').build();
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
         const account = null;
 
         it('renders league fixtures', async () => {
@@ -468,17 +468,17 @@ describe('DivisionFixtureDate', () => {
     });
 
     describe('when logged in', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const team: ITeamDto = teamBuilder('TEAM')
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const team: TeamDto = teamBuilder('TEAM')
             .address('ADDRESS')
             .forSeason(season, division)
             .build();
-        const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+        const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
             .address('ANOTHER ADDRESS')
             .forSeason(season, division)
             .build();
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',

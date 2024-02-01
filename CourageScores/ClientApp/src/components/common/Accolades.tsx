@@ -1,15 +1,15 @@
-import {IGamePlayerDto} from "../../interfaces/models/dtos/Game/IGamePlayerDto";
-import {ITournamentPlayerDto} from "../../interfaces/models/dtos/Game/ITournamentPlayerDto";
-import {INotablePlayerDto} from "../../interfaces/models/dtos/Game/INotablePlayerDto";
-import {INotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/INotableTournamentPlayerDto";
+import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
+import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
+import {NotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 
 export interface IAccoladeFixtureData {
-    oneEighties?: (IGamePlayerDto | ITournamentPlayerDto)[];
-    over100Checkouts?: (INotablePlayerDto | INotableTournamentPlayerDto)[];
+    oneEighties?: (GamePlayerDto | TournamentPlayerDto)[];
+    over100Checkouts?: (NotablePlayerDto | NotableTournamentPlayerDto)[];
 }
 
-export function add180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: INotablePlayerDto | INotableTournamentPlayerDto) => Promise<any> {
-    return async (player: IGamePlayerDto | ITournamentPlayerDto) => {
+export function add180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto) => Promise<any> {
+    return async (player: GamePlayerDto | TournamentPlayerDto) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
         if (!newFixtureData.oneEighties) {
@@ -35,8 +35,8 @@ export function remove180<T extends IAccoladeFixtureData>(fixtureData: T, setFix
     }
 }
 
-export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: INotablePlayerDto | INotableTournamentPlayerDto, notes: string) => Promise<any> {
-    return async (player: INotablePlayerDto | INotableTournamentPlayerDto, notes: string) => {
+export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto, notes: string) => Promise<any> {
+    return async (player: NotablePlayerDto | NotableTournamentPlayerDto, notes: string) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
         if (!newFixtureData.over100Checkouts) {

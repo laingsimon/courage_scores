@@ -4,16 +4,16 @@ import {any, distinct, sortBy} from "../../../helpers/collections";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
 
 export interface IHiCheckAnd180sProps {
     access: string;
     saving: boolean;
-    fixtureData: IGameDto;
-    setFixtureData: (newData: IGameDto) => Promise<any>;
+    fixtureData: GameDto;
+    setFixtureData: (newData: GameDto) => Promise<any>;
 }
 
 export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IHiCheckAnd180sProps) {
@@ -21,14 +21,14 @@ export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IH
     const {division, season} = useLeagueFixture();
 
     function getApplicablePlayers(): ISelectablePlayer[] {
-        const players: IGamePlayerDto[] = fixtureData.matches.flatMap((match: IGameMatchDto) => {
-            const matchPlayers: IGamePlayerDto[] = [];
+        const players: GamePlayerDto[] = fixtureData.matches.flatMap((match: GameMatchDto) => {
+            const matchPlayers: GamePlayerDto[] = [];
 
-            (match.homePlayers || []).forEach((player: IGamePlayerDto) => {
+            (match.homePlayers || []).forEach((player: GamePlayerDto) => {
                 matchPlayers.push(player);
             });
 
-            (match.awayPlayers || []).forEach((player: IGamePlayerDto) => {
+            (match.awayPlayers || []).forEach((player: GamePlayerDto) => {
                 matchPlayers.push(player);
             });
 

@@ -6,14 +6,14 @@ import {useApp} from "../../AppContainer";
 import {sortBy} from "../../helpers/collections";
 import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IEditTeamPlayerDto} from "../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
+import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 
 export interface IEditPlayerDetailsProps {
-    onSaved: (team: ITeamDto, newPlayers: ITeamPlayerDto[] | null) => Promise<any>;
+    onSaved: (team: TeamDto, newPlayers: TeamPlayerDto[] | null) => Promise<any>;
     onChange: (name: string, value: string) => Promise<any>;
     onCancel: () => Promise<any>;
     seasonId: string;
@@ -36,18 +36,18 @@ export interface IEditPlayerDetailsPlayer {
     updated?: string;
 }
 
-interface ICreatedPlayerResponse extends IClientActionResultDto<ITeamDto> {
+interface ICreatedPlayerResponse extends IClientActionResultDto<TeamDto> {
     playerDetails?: IEditPlayerDetailsPlayer;
 }
 
-interface IMultiPlayerCreationResult extends IClientActionResultDto<ITeamDto> {
+interface IMultiPlayerCreationResult extends IClientActionResultDto<TeamDto> {
     playerDetails: IEditPlayerDetailsPlayer[];
 }
 
 export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, player }: IEditPlayerDetailsProps) {
     const [saving, setSaving] = useState<boolean>(false);
     const [multiple, setMultiple] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<ITeamDto> | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<TeamDto> | null>(null);
     const {playerApi} = useDependencies();
     const {teams, divisions, onError} = useApp();
 
@@ -74,7 +74,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         setSaving(true);
 
         try {
-            const playerDetails: IEditTeamPlayerDto = {
+            const playerDetails: EditTeamPlayerDto = {
                 name: player.name,
                 captain: player.captain,
                 emailAddress: player.emailAddress,
@@ -90,7 +90,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 playerDetails.gameId = gameId;
             }
 
-            const response: IClientActionResultDto<ITeamDto> = player.id
+            const response: IClientActionResultDto<TeamDto> = player.id
                 ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails)
                 : await createMultiple();
 
@@ -113,7 +113,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         }
     }
 
-    function getNewPlayers(response: IClientActionResultDto<ITeamDto> | IMultiPlayerCreationResult): ITeamPlayerDto[] {
+    function getNewPlayers(response: IClientActionResultDto<TeamDto> | IMultiPlayerCreationResult): TeamPlayerDto[] {
 
         try {
             const multiCreationResponse: IMultiPlayerCreationResult = response as IMultiPlayerCreationResult;
@@ -122,12 +122,12 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 return [];
             }
 
-            const teamSeason: ITeamSeasonDto = response.result.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === seasonId)[0];
-            const newPlayers: ITeamPlayerDto[] = multiCreationResponse.playerDetails.map((request: IEditPlayerDetailsPlayer) => {
-                return teamSeason.players.filter((p: ITeamPlayerDto) => p.name === request.name)[0];
+            const teamSeason: TeamSeasonDto = response.result.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId)[0];
+            const newPlayers: TeamPlayerDto[] = multiCreationResponse.playerDetails.map((request: IEditPlayerDetailsPlayer) => {
+                return teamSeason.players.filter((p: TeamPlayerDto) => p.name === request.name)[0];
             });
 
-            return newPlayers.filter((p: ITeamPlayerDto) => p); // filter out any players that could not be found
+            return newPlayers.filter((p: TeamPlayerDto) => p); // filter out any players that could not be found
         } catch (e) {
             onError(e);
             return [];
@@ -171,12 +171,12 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         return teams
             .filter(teamSeasonForSameDivision)
             .sort(sortBy('name'))
-            .map((t: ITeamDto): IBootstrapDropdownItem => {
+            .map((t: TeamDto): IBootstrapDropdownItem => {
                 return {value: t.id, text: t.name}
             });
     }
 
-    function teamSeasonForSameDivision(team: ITeamDto): boolean {
+    function teamSeasonForSameDivision(team: TeamDto): boolean {
         const teamSeason = team.seasons.filter(ts => ts.seasonId === seasonId)[0];
         if (!teamSeason) {
             return false;

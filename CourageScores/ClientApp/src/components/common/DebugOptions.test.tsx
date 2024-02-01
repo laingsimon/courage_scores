@@ -1,7 +1,7 @@
 import React from "react";
 import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {DebugOptions} from "./DebugOptions";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 
 describe('DebugOptions', () => {
     let context: TestContext;
@@ -10,7 +10,7 @@ describe('DebugOptions', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(account: IUserDto | null, children: React.ReactNode) {
+    async function renderComponent(account: UserDto | null, children: React.ReactNode) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -28,7 +28,7 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when no access', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -42,7 +42,7 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when not permitted', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -58,7 +58,7 @@ describe('DebugOptions', () => {
     });
 
     it('does not render when permitted', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -74,7 +74,7 @@ describe('DebugOptions', () => {
     });
 
     it('can expand dropdown', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -90,7 +90,7 @@ describe('DebugOptions', () => {
     });
 
     it('can collapse dropdown', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',

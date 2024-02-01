@@ -11,11 +11,11 @@ import {
 import React from "react";
 import {IPlayLegProps, PlayLeg} from "./PlayLeg";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('PlayLeg', () => {
     let context: TestContext;
-    let changedLeg: ILegDto;
+    let changedLeg: LegDto;
 
     afterEach(() => {
         cleanUp(context);
@@ -25,7 +25,7 @@ describe('PlayLeg', () => {
         changedLeg = null;
     });
 
-    async function onChange(newLeg: ILegDto) {
+    async function onChange(newLeg: LegDto) {
         changedLeg = newLeg;
     }
 

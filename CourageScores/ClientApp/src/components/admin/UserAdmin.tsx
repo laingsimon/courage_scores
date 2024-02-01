@@ -6,19 +6,19 @@ import {useApp} from "../../AppContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IUpdateAccessDto} from "../../interfaces/models/dtos/Identity/IUpdateAccessDto";
-import {IAccessDto} from "../../interfaces/models/dtos/Identity/IAccessDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {UpdateAccessDto} from "../../interfaces/models/dtos/Identity/UpdateAccessDto";
+import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 
 export function UserAdmin() {
     const {account, onError, reloadAccount} = useApp();
     const {accountApi} = useDependencies();
     const {accounts} = useAdmin();
     const [saving, setSaving] = useState<boolean>(false);
-    const [userAccount, setUserAccount] = useState<IUserDto | null>(null);
+    const [userAccount, setUserAccount] = useState<UserDto | null>(null);
     const [emailAddress, setEmailAddress] = useState<string>(account.emailAddress);
     const [loading, setLoading] = useState<boolean>(true);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<IUserDto> | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<UserDto> | null>(null);
     const [showEmailAddress, setShowEmailAddress] = useState<boolean>(false);
 
     useEffect(() => {
@@ -42,7 +42,7 @@ export function UserAdmin() {
 
     function valueChanged(event: React.ChangeEvent<HTMLInputElement>) {
         try {
-            const currentAccount: IUserDto = Object.assign({}, userAccount);
+            const currentAccount: UserDto = Object.assign({}, userAccount);
             const value: string | boolean = event.target.type === 'checkbox'
                 ? event.target.checked
                 : event.target.value;
@@ -75,11 +75,11 @@ export function UserAdmin() {
 
         setSaving(true);
         try {
-            const update: IUpdateAccessDto = {
+            const update: UpdateAccessDto = {
                 emailAddress: emailAddress,
                 access: userAccount.access,
             };
-            const result: IClientActionResultDto<IUserDto> = await accountApi.update(update);
+            const result: IClientActionResultDto<UserDto> = await accountApi.update(update);
             if (!result.success) {
                 setSaveError(result);
             } else if (account.emailAddress === update.emailAddress) {
@@ -99,13 +99,13 @@ export function UserAdmin() {
         showAccess(accounts, emailAddress);
     }
 
-    function showAccess(accounts: IUserDto[], emailAddress: string) {
-        const userAccount: IUserDto = accounts.filter(a => a.emailAddress === emailAddress)[0];
+    function showAccess(accounts: UserDto[], emailAddress: string) {
+        const userAccount: UserDto = accounts.filter(a => a.emailAddress === emailAddress)[0];
         setUserAccount(userAccount);
     }
 
     function renderAccessOption(name: string, description: string) {
-        const access: IAccessDto = (userAccount ? userAccount : {}).access || {};
+        const access: AccessDto = (userAccount ? userAccount : {}).access || {};
 
         return (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
@@ -116,7 +116,7 @@ export function UserAdmin() {
         </div>);
     }
 
-    function toOption(acc: IUserDto): IBootstrapDropdownItem {
+    function toOption(acc: UserDto): IBootstrapDropdownItem {
         const name: string = acc.emailAddress === account.emailAddress
             ? `You`
             : acc.name;

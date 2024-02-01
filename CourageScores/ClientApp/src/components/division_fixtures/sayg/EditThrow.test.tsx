@@ -12,12 +12,12 @@ import React from "react";
 import {EditThrow, IEditThrowProps} from "./EditThrow";
 import {toDictionary} from "../../../helpers/collections";
 import {valueChanged} from "../../../helpers/events";
-import {ILegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
+import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 
 describe('EditThrow', () => {
     let context: TestContext;
     let closed: boolean;
-    let changed: { [key: string]: ILegThrowDto };
+    let changed: { [key: string]: LegThrowDto };
     let saved: boolean;
 
     afterEach(() => {

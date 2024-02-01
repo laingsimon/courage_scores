@@ -4,7 +4,7 @@ using TypeScriptMapper.Dtos;
 namespace CourageScores.Models.Dtos;
 
 [ExcludeFromCodeCoverage]
-[PropertyIsOptional(nameof(Id))]
+[PartialExtension(nameof(FixtureDateNoteDto))]
 public class EditFixtureDateNoteDto : FixtureDateNoteDto, IIntegrityCheckDto
 {
     public DateTime? LastUpdated { get; set; }

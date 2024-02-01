@@ -4,12 +4,12 @@ import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {any, sortBy} from "../../helpers/collections";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
+import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
 
 export function SocketAdmin() {
     const {liveApi} = useDependencies();
     const {onError} = useApp();
-    const [sockets, setSockets] = useState<IWebSocketDto[] | null>(null);
+    const [sockets, setSockets] = useState<WebSocketDto[] | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
@@ -31,7 +31,7 @@ export function SocketAdmin() {
         setLoading(true);
 
         try {
-            const response: IClientActionResultDto<IWebSocketDto[]> = await liveApi.getAll();
+            const response: IClientActionResultDto<WebSocketDto[]> = await liveApi.getAll();
             if (response.success) {
                 setSockets(response.result);
             } else {
@@ -48,7 +48,7 @@ export function SocketAdmin() {
         }
 
         try {
-            const response: IClientActionResultDto<IWebSocketDto> = await liveApi.close(id);
+            const response: IClientActionResultDto<WebSocketDto> = await liveApi.close(id);
             if (response.success) {
                 await loadSockets();
             } else {

@@ -2,7 +2,7 @@ import {cleanUp, renderApp, doClick, iocProps, brandingProps, appProps, TestCont
 import React from "react";
 import {IWidescreenSaygPlayerStatisticProps, WidescreenSaygPlayerStatistic} from "./WidescreenSaygPlayerStatistic";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('WidescreenSaygPlayerStatistic', () => {
     let context: TestContext;
@@ -29,7 +29,7 @@ describe('WidescreenSaygPlayerStatistic', () => {
     }
 
     describe('renders', () => {
-        let legs: { [legKey: number]: ILegDto };
+        let legs: { [legKey: number]: LegDto };
 
         beforeEach(() => {
             const sayg = saygBuilder()

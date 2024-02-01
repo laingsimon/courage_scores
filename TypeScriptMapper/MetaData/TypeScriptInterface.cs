@@ -39,4 +39,9 @@ public class TypeScriptInterface
     public IEnumerable<ITypeScriptType> Types => Members
         .SelectMany(m => m.Types)
         .Concat(GenericArguments.Select(ga => ga.Type));
+
+    public List<string> PartialExtensions { get; set; } = null!;
+
+    public List<TypeScriptInterface> Interfaces { get; init; } = null!;
+    public TypeScriptInterface? BaseType { get; init; }
 }

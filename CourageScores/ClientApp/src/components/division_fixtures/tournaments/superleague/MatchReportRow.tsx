@@ -9,11 +9,11 @@ import {
     playerOverallAverage
 } from "../../../../helpers/superleague";
 import {ifNaN, round2dp} from "../../../../helpers/rendering";
-import {IScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
 
 export interface IMatchReportRowProps {
     matchIndex: number;
-    saygData: IScoreAsYouGoDto;
+    saygData: ScoreAsYouGoDto;
     noOfThrows: number;
     noOfLegs: number;
     showWinner: boolean;

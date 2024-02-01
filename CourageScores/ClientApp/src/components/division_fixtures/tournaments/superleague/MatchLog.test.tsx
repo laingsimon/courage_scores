@@ -9,7 +9,7 @@ import {
 } from "../../../../helpers/tests";
 import React from "react";
 import {IMatchLogProps, MatchLog} from "./MatchLog";
-import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
 import {tournamentMatchBuilder} from "../../../../helpers/builders/tournaments";
@@ -34,7 +34,7 @@ describe('MatchLog', () => {
             (<MatchLog {...props} />));
     }
 
-    function createLeg(homeScore: number, awayScore: number): ILegDto {
+    function createLeg(homeScore: number, awayScore: number): LegDto {
         return legBuilder()
             .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore, false, 3).noOfDarts(3))
             .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore, false, 3).noOfDarts(3))

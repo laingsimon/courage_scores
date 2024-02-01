@@ -1,19 +1,19 @@
 import {round2dp} from "../../../helpers/rendering";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {ILegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
-import {ILegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import {LegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 
 export interface IPreviousPlayerScoreProps {
     home: string;
     away: string;
-    leg: ILegDto;
+    leg: LegDto;
     undoLastThrow: () => Promise<any>;
 }
 
 export function PreviousPlayerScore({home, away, leg, undoLastThrow}: IPreviousPlayerScoreProps) {
     const opponent: 'home' | 'away' = opposite(leg.currentThrow);
-    const accumulator: ILegCompetitorScoreDto = leg[opponent];
-    const lastThrow: ILegThrowDto = accumulator.throws[accumulator.throws.length - 1];
+    const accumulator: LegCompetitorScoreDto = leg[opponent];
+    const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
     const playerLookup: { home: string, away: string } = {
         home: home,
         away: away

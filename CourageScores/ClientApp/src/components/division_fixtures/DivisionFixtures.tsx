@@ -16,21 +16,21 @@ import {
 } from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "./season_creation/CreateSeasonDialog";
-import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
-import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
+import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
+import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
-import {IDivisionFixtureDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {IFilter} from "../../interfaces/IFilter";
 import {
-    IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
-import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
+    DivisionTournamentFixtureDetailsDto
+} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 
 export interface IDivisionFixturesProps {
-    setNewFixtures: (fixtures: IDivisionFixtureDateDto[]) => Promise<any>;
+    setNewFixtures: (fixtures: DivisionFixtureDateDto[]) => Promise<any>;
 }
 
 export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
@@ -43,7 +43,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     const [newDateDialogOpen, setNewDateDialogOpen] = useState<boolean>(false);
     const [isKnockout, setIsKnockout] = useState<boolean>(false);
     const [filter, setFilter] = useState<IInitialisedFilters>(initFilter(location));
-    const [editNote, setEditNote] = useState<IEditFixtureDateNoteDto | null>(null);
+    const [editNote, setEditNote] = useState<EditFixtureDateNoteDto | null>(null);
     const [showPlayers, setShowPlayers] = useState<{ [date: string]: boolean }>(getPlayersToShow());
     const [createFixturesDialogOpen, setCreateFixturesDialogOpen] = useState<boolean>(false);
 
@@ -62,7 +62,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     }
 
     async function onTournamentChanged() {
-        const divisionData: IDivisionDataDto = await onReloadDivision();
+        const divisionData: DivisionDataDto = await onReloadDivision();
         await setNewFixtures(divisionData.fixtures);
         setNewDate('');
     }
@@ -73,7 +73,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             date={fixtureDate}
             showPlayers={showPlayers}
             startAddNote={startAddNote}
-            setEditNote={async (note: IEditFixtureDateNoteDto) => setEditNote(note)}
+            setEditNote={async (note: EditFixtureDateNoteDto) => setEditNote(note)}
             setShowPlayers={async (players: { [p: string]: boolean }) => setShowPlayers(players)}
             setNewFixtures={setNewFixtures}
             onTournamentChanged={onTournamentChanged}
@@ -81,15 +81,15 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     }
 
     function getNewFixtureDate(date: string, isKnockout: boolean): IEditableDivisionFixtureDateDto {
-        const seasonalTeams: ITeamDto[] = teams.filter((t: ITeamDto) => {
-            return t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === season.id && ts.divisionId === divisionId).length > 0;
+        const seasonalTeams: TeamDto[] = teams.filter((t: TeamDto) => {
+            return t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && ts.divisionId === divisionId).length > 0;
         });
 
         return {
             isNew: true,
             isKnockout: isKnockout,
             date: date,
-            fixtures: seasonalTeams.map((team: ITeamDto): IDivisionFixtureDto => {
+            fixtures: seasonalTeams.map((team: TeamDto): DivisionFixtureDto => {
                 return {
                     id: team.id,
                     homeTeam: {
@@ -103,7 +103,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                     fixturesUsingAddress: [],
                 };
             }),
-            tournamentFixtures: seasonalTeams.map((team: ITeamDto): IDivisionTournamentFixtureDetailsDto => {
+            tournamentFixtures: seasonalTeams.map((team: TeamDto): DivisionTournamentFixtureDetailsDto => {
                 return {
                     id: null,
                     address: team.address,
@@ -126,7 +126,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     function renderEditNote() {
         return (<EditNote
             note={editNote}
-            onNoteChanged={async (note: IFixtureDateNoteDto) => setEditNote(note)}
+            onNoteChanged={async (note: FixtureDateNoteDto) => setEditNote(note)}
             onClose={async () => setEditNote(null)}
             onSaved={async () => {
                 setNewDate('');
@@ -157,7 +157,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
         const utcDate: string = newDate + 'T00:00:00';
 
         try {
-            if (any(fixtures, (fd: IDivisionFixtureDateDto) => fd.date === utcDate)) {
+            if (any(fixtures, (fd: DivisionFixtureDateDto) => fd.date === utcDate)) {
                 return;
             }
 
@@ -191,17 +191,17 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
         </Dialog>);
     }
 
-    function applyFixtureFilters(fixtureDate: IDivisionFixtureDateDto, fixtureFilters: IFilter<IFixtureMapping>): IDivisionFixtureDateDto {
-        const filteredFixtureDate: IDivisionFixtureDateDto = Object.assign({}, fixtureDate);
-        filteredFixtureDate.tournamentFixtures = fixtureDate.tournamentFixtures.filter((f: IDivisionTournamentFixtureDetailsDto) => fixtureFilters.apply({
+    function applyFixtureFilters(fixtureDate: DivisionFixtureDateDto, fixtureFilters: IFilter<IFixtureMapping>): DivisionFixtureDateDto {
+        const filteredFixtureDate: DivisionFixtureDateDto = Object.assign({}, fixtureDate);
+        filteredFixtureDate.tournamentFixtures = fixtureDate.tournamentFixtures.filter((f: DivisionTournamentFixtureDetailsDto) => fixtureFilters.apply({
             date: fixtureDate.date,
             fixture: null,
             tournamentFixture: f,
         } as IFixtureMapping));
-        const hasFixtures: boolean = any(fixtureDate.fixtures, (f: IDivisionFixtureDto) => f.id !== f.homeTeam.id);
+        const hasFixtures: boolean = any(fixtureDate.fixtures, (f: DivisionFixtureDto) => f.id !== f.homeTeam.id);
         filteredFixtureDate.fixtures = (!isAdmin && !hasFixtures)
             ? []
-            : fixtureDate.fixtures.filter((f: IDivisionFixtureDto) => fixtureFilters.apply({
+            : fixtureDate.fixtures.filter((f: DivisionFixtureDto) => fixtureFilters.apply({
                 date: fixtureDate.date,
                 fixture: f,
                 tournamentFixture: null,
@@ -211,12 +211,12 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     }
 
     try {
-        const fixtureDateFilters: IFilter<IDivisionFixtureDateDto> = getFixtureDateFilters(filter, {}, fixtures);
+        const fixtureDateFilters: IFilter<DivisionFixtureDateDto> = getFixtureDateFilters(filter, {}, fixtures);
         const fixtureFilters: IFilter<IFixtureMapping> = getFixtureFilters(filter);
         const resultsToRender = fixtures
-            .filter((fd: IDivisionFixtureDateDto) => fixtureDateFilters.apply(fd))
-            .map((fd: IDivisionFixtureDateDto) => applyFixtureFilters(fd, fixtureFilters))
-            .filter((fd: IDivisionFixtureDateDto) => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
+            .filter((fd: DivisionFixtureDateDto) => fixtureDateFilters.apply(fd))
+            .map((fd: DivisionFixtureDateDto) => applyFixtureFilters(fd, fixtureFilters))
+            .filter((fd: DivisionFixtureDateDto) => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
             .map(renderFixtureDate);
         return (<div className="content-background p-3">
             {controls

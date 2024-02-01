@@ -1,16 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
-using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Season;
 
 [ExcludeFromCodeCoverage]
-[PropertyIsOptional(nameof(Id))]
 public class EditSeasonDto : IIntegrityCheckDto
 {
     /// <summary>
     /// The id for the entity
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     /// <summary>
     /// When the season starts

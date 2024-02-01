@@ -3,7 +3,7 @@ import React from "react";
 import {DataError} from "./DataError";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
 import {createTemporaryId} from "../helpers/projection";
-import {IDataErrorDto} from "../interfaces/models/dtos/Division/IDataErrorDto";
+import {DataErrorDto} from "../interfaces/models/dtos/Division/DataErrorDto";
 
 describe('DataError', () => {
     let context: TestContext;
@@ -20,7 +20,7 @@ describe('DataError', () => {
         return null;
     }
 
-    async function renderComponent(containerProps: IDivisionDataContainerProps, dataError: IDataErrorDto) {
+    async function renderComponent(containerProps: IDivisionDataContainerProps, dataError: DataErrorDto) {
         context = await renderApp(
             iocProps(),
             brandingProps(),

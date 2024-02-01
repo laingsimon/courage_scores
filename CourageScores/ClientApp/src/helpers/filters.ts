@@ -3,13 +3,13 @@ import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
 import {isInFuture, isInPast, isToday} from "./dates";
 import {IFilter} from "../interfaces/IFilter";
 import {
-    IDivisionTournamentFixtureDetailsDto
-} from "../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
-import {IDivisionFixtureDto} from "../interfaces/models/dtos/Division/IDivisionFixtureDto";
-import {IDivisionFixtureDateDto} from "../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
-import {IFixtureDateNoteDto} from "../interfaces/models/dtos/IFixtureDateNoteDto";
+    DivisionTournamentFixtureDetailsDto
+} from "../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {DivisionFixtureDto} from "../interfaces/models/dtos/Division/DivisionFixtureDto";
+import {DivisionFixtureDateDto} from "../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {FixtureDateNoteDto} from "../interfaces/models/dtos/FixtureDateNoteDto";
 import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
-import {ITournamentSideDto} from "../interfaces/models/dtos/Game/ITournamentSideDto";
+import {TournamentSideDto} from "../interfaces/models/dtos/Game/TournamentSideDto";
 
 export interface IRenderContext {
     lastFixtureDateBeforeToday?: string;
@@ -18,8 +18,8 @@ export interface IRenderContext {
 
 export interface IFixtureMapping {
     date?: string;
-    fixture?: IDivisionFixtureDto;
-    tournamentFixture?: IDivisionTournamentFixtureDetailsDto;
+    fixture?: DivisionFixtureDto;
+    tournamentFixture?: DivisionTournamentFixtureDetailsDto;
 }
 
 export function isLastFixtureBeforeToday(renderContext: IRenderContext, fixtures: any, date: any): boolean {
@@ -48,7 +48,7 @@ export function isNextFixtureAfterToday(renderContext: IRenderContext, date: str
     return false;
 }
 
-export function optionallyInvertFilter<T>(getFilter: (constraint: string, context: IRenderContext, fixtures: any) => IFilter<T>, filterInput?: string, renderContext?: any, fixtures?: IDivisionFixtureDateDto[]): IFilter<T> {
+export function optionallyInvertFilter<T>(getFilter: (constraint: string, context: IRenderContext, fixtures: any) => IFilter<T>, filterInput?: string, renderContext?: any, fixtures?: DivisionFixtureDateDto[]): IFilter<T> {
     if (filterInput && filterInput.indexOf('not(') === 0) {
         const withoutNot: string = filterInput.substring(4, filterInput.length - 1);
         const positiveFilter: IFilter<T> = getFilter(withoutNot, renderContext, fixtures);
@@ -60,22 +60,22 @@ export function optionallyInvertFilter<T>(getFilter: (constraint: string, contex
     return getFilter(filterInput, renderContext, fixtures) ?? new NullFilter<T>();
 }
 
-export function getDateFilter(date: string, renderContext: IRenderContext, fixtures: IDivisionFixtureDateDto[]): IFilter<IEditableDivisionFixtureDateDto> {
+export function getDateFilter(date: string, renderContext: IRenderContext, fixtures: DivisionFixtureDateDto[]): IFilter<IEditableDivisionFixtureDateDto> {
     switch (date) {
         case 'past':
-            return new Filter<IEditableDivisionFixtureDateDto>((c: IDivisionFixtureDateDto) => isInPast(c.date));
+            return new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => isInPast(c.date));
         case 'future':
-            return new Filter<IEditableDivisionFixtureDateDto>((c: IDivisionFixtureDateDto) => isInFuture(c.date));
+            return new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => isInFuture(c.date));
         case 'last+next':
             return new OrFilter<IEditableDivisionFixtureDateDto>([
-                new Filter<IEditableDivisionFixtureDateDto>((c: IDivisionFixtureDateDto) => isToday(c.date)),
-                new Filter<IEditableDivisionFixtureDateDto>((c: IDivisionFixtureDateDto) => isLastFixtureBeforeToday(renderContext, fixtures, c.date)),
-                new Filter<IEditableDivisionFixtureDateDto>((c: IDivisionFixtureDateDto) => isNextFixtureAfterToday(renderContext, c.date))
+                new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => isToday(c.date)),
+                new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => isLastFixtureBeforeToday(renderContext, fixtures, c.date)),
+                new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => isNextFixtureAfterToday(renderContext, c.date))
             ]);
         default:
             if (date && all(date.split(','), (d: string) => !!d.match(/\d{4}-\d{2}/))) {
                 const splitDates: string[] = date.split(',');
-                return new Filter<IEditableDivisionFixtureDateDto>((c: IDivisionFixtureDateDto) => any(
+                return new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => any(
                     splitDates,
                     (date: string) => c.date.indexOf(date) === 0));
             }
@@ -108,7 +108,7 @@ export function getTeamFilter(name: string): IFilter<IFixtureMapping> {
     return new OrFilter<IFixtureMapping>([
         new Filter<IFixtureMapping>((c: IFixtureMapping) => c.fixture && c.fixture.homeTeam && (c.fixture.homeTeam.id === name || c.fixture.homeTeam.name.toLowerCase() === name.toLowerCase())),
         new Filter<IFixtureMapping>((c: IFixtureMapping) => c.fixture && c.fixture.awayTeam && (c.fixture.awayTeam.id === name || c.fixture.awayTeam.name.toLowerCase() === name.toLowerCase())),
-        new Filter<IFixtureMapping>((c: IFixtureMapping) => c.tournamentFixture && any(c.tournamentFixture.sides, (s: ITournamentSideDto) => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
+        new Filter<IFixtureMapping>((c: IFixtureMapping) => c.tournamentFixture && any(c.tournamentFixture.sides, (s: TournamentSideDto) => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
     ]);
 }
 
@@ -119,13 +119,13 @@ export function getNotesFilter(notesFilter: string): IFilter<IEditableDivisionFi
 
     switch (notesFilter) {
         case 'only-with-fixtures':
-            return new Filter<IEditableDivisionFixtureDateDto>((fd: IDivisionFixtureDateDto) => any(fd.fixtures) || any(fd.tournamentFixtures));
+            return new Filter<IEditableDivisionFixtureDateDto>((fd: DivisionFixtureDateDto) => any(fd.fixtures) || any(fd.tournamentFixtures));
         default:
             const notes: string[] = notesFilter.split(';');
             return new OrFilter<IEditableDivisionFixtureDateDto>(
-                notes.map((note: string) => new Filter<IEditableDivisionFixtureDateDto>((fd: IDivisionFixtureDateDto) => any(
+                notes.map((note: string) => new Filter<IEditableDivisionFixtureDateDto>((fd: DivisionFixtureDateDto) => any(
                     fd.notes,
-                    (n: IFixtureDateNoteDto) => n.note.toLowerCase().indexOf(note.toLowerCase()) === 0)))
+                    (n: FixtureDateNoteDto) => n.note.toLowerCase().indexOf(note.toLowerCase()) === 0)))
             );
     }
 }
@@ -137,7 +137,7 @@ export function getFixtureFilters(filter: any): IFilter<IFixtureMapping> {
     ]);
 }
 
-export function getFixtureDateFilters(filter: { date?: string, notes?: string }, renderContext: IRenderContext, fixtures: IDivisionFixtureDateDto[]): IFilter<IEditableDivisionFixtureDateDto> {
+export function getFixtureDateFilters(filter: { date?: string, notes?: string }, renderContext: IRenderContext, fixtures: DivisionFixtureDateDto[]): IFilter<IEditableDivisionFixtureDateDto> {
     return new AndFilter<IEditableDivisionFixtureDateDto>([
         new Filter<IEditableDivisionFixtureDateDto>((fd: IEditableDivisionFixtureDateDto) => any(fd.fixtures) || any(fd.tournamentFixtures) || any(fd.notes) || fd.isNew),
         optionallyInvertFilter<IEditableDivisionFixtureDateDto>(getDateFilter, filter.date, renderContext, fixtures),

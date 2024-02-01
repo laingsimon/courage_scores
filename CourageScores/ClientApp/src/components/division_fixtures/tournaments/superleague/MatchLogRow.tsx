@@ -3,12 +3,12 @@ import {sum} from "../../../../helpers/collections";
 import {round2dp} from "../../../../helpers/rendering";
 import {useApp} from "../../../../AppContainer";
 import {countLegThrowsBetween, isLegWinner, legTons} from "../../../../helpers/superleague";
-import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
-import {ILegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
+import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {LegCompetitorScoreDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
+import {LegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 
 export interface IMatchLogRowProps {
-    leg: ILegDto;
+    leg: LegDto;
     legNo: number;
     accumulatorName: string;
     player: string;
@@ -21,8 +21,8 @@ export interface IMatchLogRowProps {
 
 export function MatchLogRow({leg, legNo, accumulatorName, player, noOfThrows, playerOverallAverage, noOfLegs, showWinner, teamAverage}: IMatchLogRowProps) {
     const {onError} = useApp();
-    const accumulator: ILegCompetitorScoreDto = leg[accumulatorName];
-    const lastThrow: ILegThrowDto = accumulator.throws[accumulator.throws.length - 1];
+    const accumulator: LegCompetitorScoreDto = leg[accumulatorName];
+    const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
     const winner: boolean = isLegWinner(leg, accumulatorName);
 
     if (!accumulator.noOfDarts) {

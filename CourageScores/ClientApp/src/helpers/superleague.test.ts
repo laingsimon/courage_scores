@@ -19,8 +19,8 @@ import {
     playerOverallAverage,
     sumOverThrows
 } from "./superleague";
-import {IScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
-import {ILegDto} from "../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {ScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
+import {LegDto} from "../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
 
 describe('superleague', () => {
@@ -32,7 +32,7 @@ describe('superleague', () => {
         });
 
         it('calculates correct average for home', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -93,7 +93,7 @@ describe('superleague', () => {
         });
 
         it('should return count of scores greater-than-or-equal 100 and less than 140', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -138,7 +138,7 @@ describe('superleague', () => {
         });
 
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -183,7 +183,7 @@ describe('superleague', () => {
         });
 
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -226,7 +226,7 @@ describe('superleague', () => {
         });
 
         it('should return count of scores greater-than-or-equal 140 and less than 180', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -268,7 +268,7 @@ describe('superleague', () => {
         });
 
         it('should return no of legs with scores', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -347,7 +347,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of props', () => {
-            const legs: { [key: number]: ILegDto } = {
+            const legs: { [key: number]: LegDto } = {
                 0: {
                     home: {
                         throws: [{
@@ -378,7 +378,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of non-bust props', () => {
-            const legs: { [key: number]: ILegDto } = {
+            const legs: { [key: number]: LegDto } = {
                 0: {
                     home: {
                         throws: [{
@@ -409,7 +409,7 @@ describe('superleague', () => {
         });
 
         it('should return sum of bust and non-bust props', () => {
-            const legs: { [key: number]: ILegDto } = {
+            const legs: { [key: number]: LegDto } = {
                 0: {
                     home: {
                         throws: [{
@@ -535,7 +535,7 @@ describe('superleague', () => {
 
     describe('getMatchWinner', () => {
         it('should return home when home checkout', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -575,7 +575,7 @@ describe('superleague', () => {
         });
 
         it('should return away when away checkout', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -615,7 +615,7 @@ describe('superleague', () => {
         });
 
         it('should return empty when no checkout', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -654,7 +654,7 @@ describe('superleague', () => {
 
     describe('isLegWinner', () => {
         it('returns true if winner set to accumulator name', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [],
                     noOfDarts: 0,
@@ -673,7 +673,7 @@ describe('superleague', () => {
         });
 
         it('returns true if accumulator has checkout score', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         {score: 100, bust: false, noOfDarts: 0},
@@ -698,7 +698,7 @@ describe('superleague', () => {
         });
 
         it('returns false if accumulator not checked out', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         {score: 100, bust: false, noOfDarts: 0},
@@ -734,14 +734,14 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no legs for data', () => {
-            const saygData: IScoreAsYouGoDto = {legs: null!};
+            const saygData: ScoreAsYouGoDto = {legs: null!};
             const result = legsWon([{saygData}], 'home');
 
             expect(result).toEqual(0);
         });
 
         it('should return number of won legs for side', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -776,7 +776,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 if not won any legs', () => {
-            const saygData: IScoreAsYouGoDto = {
+            const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: {
                         home: {
@@ -813,7 +813,7 @@ describe('superleague', () => {
 
     describe('countLegThrowsBetween', () => {
         it('should return 0 when no accumulator', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [],
                     noOfDarts: 0,
@@ -831,7 +831,7 @@ describe('superleague', () => {
         });
 
         it('should return 0 when no throws', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [],
                     noOfDarts: 0,
@@ -849,7 +849,7 @@ describe('superleague', () => {
         });
 
         it('should return count of valid throws within range', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         /* valid */
@@ -878,7 +878,7 @@ describe('superleague', () => {
 
     describe('legTons', () => {
         it('should return correctly', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         /* valid */
@@ -909,7 +909,7 @@ describe('superleague', () => {
 
     describe('legTonsSplit', () => {
         it('should return 100s+180s', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         /* valid */
@@ -938,7 +938,7 @@ describe('superleague', () => {
         });
 
         it('should return 100s when no 180s', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         /* valid */
@@ -968,7 +968,7 @@ describe('superleague', () => {
 
     describe('legActualDarts', () => {
         it('returns 0 if no accumulator', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [],
                     noOfDarts: 0,
@@ -985,7 +985,7 @@ describe('superleague', () => {
         });
 
         it('returns 0 if no throws', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: null!,
                     noOfDarts: 0,
@@ -1003,7 +1003,7 @@ describe('superleague', () => {
         });
 
         it('returns no of darts', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         {noOfDarts: 3, score: 0, bust: false},
@@ -1026,7 +1026,7 @@ describe('superleague', () => {
 
     describe('legGameShot', () => {
         it('returns null if no accumulator', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [],
                     noOfDarts: 0,
@@ -1043,7 +1043,7 @@ describe('superleague', () => {
         });
 
         it('returns null if no throws', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: null!,
                     noOfDarts: 0,
@@ -1061,7 +1061,7 @@ describe('superleague', () => {
         });
 
         it('returns null if not the winner of the leg', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         {score: 100, bust: false, noOfDarts: 0},
@@ -1084,7 +1084,7 @@ describe('superleague', () => {
         });
 
         it('returns last score if the winner of the leg', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         {score: 100, bust: false, noOfDarts: 0},
@@ -1110,7 +1110,7 @@ describe('superleague', () => {
 
     describe('legScoreLeft', () => {
         it('returns null if no accumulator', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [],
                     noOfDarts: 0,
@@ -1127,7 +1127,7 @@ describe('superleague', () => {
         });
 
         it('returns null if no throws', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: null!,
                     noOfDarts: 0,
@@ -1145,7 +1145,7 @@ describe('superleague', () => {
         });
 
         it('returns remaining score if not the winner of the leg', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         {score: 100, bust: false, noOfDarts: 0},
@@ -1169,7 +1169,7 @@ describe('superleague', () => {
         });
 
         it('returns null if the winner of the leg', () => {
-            const leg: ILegDto = {
+            const leg: LegDto = {
                 home: {
                     throws: [
                         {score: 100, bust: false, noOfDarts: 0},

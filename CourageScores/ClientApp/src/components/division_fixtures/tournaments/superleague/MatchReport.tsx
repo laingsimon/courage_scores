@@ -3,10 +3,10 @@ import {legsWon} from "../../../../helpers/superleague";
 import {repeat} from "../../../../helpers/projection";
 import {MatchReportRow} from "./MatchReportRow";
 import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
-import {IDivisionDto} from "../../../../interfaces/models/dtos/IDivisionDto";
+import {DivisionDto} from "../../../../interfaces/models/dtos/DivisionDto";
 
 export interface IMatchReportProps {
-    division: IDivisionDto;
+    division: DivisionDto;
     showWinner: boolean;
     noOfThrows: number;
     noOfLegs: number;

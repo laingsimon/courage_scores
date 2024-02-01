@@ -3,11 +3,11 @@ import {any} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import React, {useState} from "react";
 import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
-import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
-import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
+import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
+import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
-export interface IExportDataButtonProps extends IExportDataRequestDto {
+export interface IExportDataButtonProps extends ExportDataRequestDto {
     tables?: { [key: string]: string[] };
 }
 
@@ -33,13 +33,13 @@ export function ExportDataButton({tables}: IExportDataButtonProps) {
 
         setExporting(true);
         try {
-            const request: IExportDataRequestDto = {
+            const request: ExportDataRequestDto = {
                 password: '',
                 includeDeletedEntries: false,
                 tables,
             };
 
-            const response: IClientActionResultDto<IExportDataResultDto> = await dataApi.export(request);
+            const response: IClientActionResultDto<ExportDataResultDto> = await dataApi.export(request);
             if (response.success) {
                 window.open(`data:application/zip;base64,${response.result.zip}`);
             } else {

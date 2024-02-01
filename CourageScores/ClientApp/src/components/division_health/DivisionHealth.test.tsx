@@ -3,16 +3,16 @@ import React from "react";
 import {DivisionHealth} from "./DivisionHealth";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
-import {ISeasonApi} from "../../interfaces/apis/SeasonApi";
+import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
+import {SeasonApi} from "../../interfaces/apis/ISeasonApi";
 
 describe('DivisionHealth', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let apiResponse: (id: string) => ISeasonHealthCheckResultDto;
+    let apiResponse: (id: string) => SeasonHealthCheckResultDto;
 
-    const seasonApi = api<ISeasonApi>({
-        getHealth: async (id: string): Promise<ISeasonHealthCheckResultDto> => {
+    const seasonApi = api<SeasonApi>({
+        getHealth: async (id: string): Promise<SeasonHealthCheckResultDto> => {
             return apiResponse(id);
         }
     });
@@ -26,7 +26,7 @@ describe('DivisionHealth', () => {
     }
 
     beforeEach(() => {
-        apiResponse = (_: string): ISeasonHealthCheckResultDto => {
+        apiResponse = (_: string): SeasonHealthCheckResultDto => {
             return {
                 checks: {},
                 success: true,
@@ -93,7 +93,7 @@ describe('DivisionHealth', () => {
     });
 
     it('when success and no errors or warnings should show healthy', async () => {
-        apiResponse = (): ISeasonHealthCheckResultDto => {
+        apiResponse = (): SeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: [],
@@ -119,7 +119,7 @@ describe('DivisionHealth', () => {
     });
 
     it('when success and some errors should show unhealthy', async () => {
-        apiResponse = (): ISeasonHealthCheckResultDto => {
+        apiResponse = (): SeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: ['some error'],
@@ -145,7 +145,7 @@ describe('DivisionHealth', () => {
     });
 
     it('when success and some warnings should show unhealthy', async () => {
-        apiResponse = (): ISeasonHealthCheckResultDto => {
+        apiResponse = (): SeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: [],
@@ -171,7 +171,7 @@ describe('DivisionHealth', () => {
     });
 
     it('when success and some messages should show healthy', async () => {
-        apiResponse = (): ISeasonHealthCheckResultDto => {
+        apiResponse = (): SeasonHealthCheckResultDto => {
             return {
                 success: true,
                 errors: [],
@@ -197,7 +197,7 @@ describe('DivisionHealth', () => {
     });
 
     it('when unsuccess and no errors, warnings or messages should show unhealthy', async () => {
-        apiResponse = (): ISeasonHealthCheckResultDto => {
+        apiResponse = (): SeasonHealthCheckResultDto => {
             return {
                 success: false,
                 errors: [],

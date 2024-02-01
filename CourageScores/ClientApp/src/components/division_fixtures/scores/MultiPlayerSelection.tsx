@@ -3,17 +3,17 @@ import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerS
 import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {INotablePlayerDto} from "../../../interfaces/models/dtos/Game/INotablePlayerDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {NotablePlayerDto} from "../../../interfaces/models/dtos/Game/NotablePlayerDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
 
 export interface IMultiPlayerSelectionProps {
     onAddPlayer?: (player: ISelectablePlayer, notes: string) => Promise<any>;
-    players?: INotablePlayerDto[] | ITeamPlayerDto[] | IGamePlayerDto[];
+    players?: NotablePlayerDto[] | TeamPlayerDto[] | GamePlayerDto[];
     disabled?: boolean;
     allPlayers: ISelectablePlayer[];
     onRemovePlayer?: (playerId: string, playerIndex: number) => Promise<any>;
@@ -22,8 +22,8 @@ export interface IMultiPlayerSelectionProps {
     notesClassName?: string;
     dropdownClassName?: string;
     placeholder?: string;
-    season?: ISeasonDto;
-    division?: IDivisionDto;
+    season?: SeasonDto;
+    division?: DivisionDto;
 }
 
 export function MultiPlayerSelection({
@@ -57,9 +57,9 @@ export function MultiPlayerSelection({
         }
     }
 
-    function playerName(player: INotablePlayerDto) {
+    function playerName(player: NotablePlayerDto) {
         const notes: string = player.notes;
-        player = allPlayers.filter((p: INotablePlayerDto) => p.id === player.id)[0] || player
+        player = allPlayers.filter((p: NotablePlayerDto) => p.id === player.id)[0] || player
 
         if (showNotes) {
             return `${player.name} (${notes})`;
@@ -68,7 +68,7 @@ export function MultiPlayerSelection({
         return player.name;
     }
 
-    function renderLinkToPlayer(p: INotablePlayerDto) {
+    function renderLinkToPlayer(p: NotablePlayerDto) {
         if (division && season) {
             const teamName: string = getTeamName(p.id);
             const playerLink: string = teamName ? `${p.name}@${teamName}` : p.id;
@@ -81,13 +81,13 @@ export function MultiPlayerSelection({
     }
 
     function getTeamName(playerId: string): string {
-        const team: ITeamDto = teams.filter(t => {
-            const teamSeason: ITeamSeasonDto = t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === season.id)[0];
+        const team: TeamDto = teams.filter(t => {
+            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
             if (!teamSeason) {
                 return null;
             }
 
-            return any(teamSeason.players, (p: ITeamPlayerDto) => p.id === playerId);
+            return any(teamSeason.players, (p: TeamPlayerDto) => p.id === playerId);
         })[0];
 
         return team ? team.name : null;
@@ -96,7 +96,7 @@ export function MultiPlayerSelection({
     try {
         return (<div>
             <ol className="no-list-indent mb-0">
-                {(players || []).map((p: INotablePlayerDto, playerIndex: number) => {
+                {(players || []).map((p: NotablePlayerDto, playerIndex: number) => {
                     return (<li key={playerIndex}>{disabled ? renderLinkToPlayer(p) : (<button
                         disabled={disabled || readOnly}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}

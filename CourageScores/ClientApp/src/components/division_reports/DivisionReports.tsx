@@ -9,12 +9,12 @@ import {ReportGenerationMessages} from "./ReportGenerationMessages";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useApp} from "../../AppContainer";
-import {IReportCollectionDto} from "../../interfaces/models/dtos/Report/IReportCollectionDto";
-import {IReportDto} from "../../interfaces/models/dtos/Report/IReportDto";
+import {ReportCollectionDto} from "../../interfaces/models/dtos/Report/ReportCollectionDto";
+import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
 
 export function DivisionReports() {
     const {id: divisionId, season} = useDivisionData();
-    const [reportData, setReportData] = useState<IReportCollectionDto | null>(null);
+    const [reportData, setReportData] = useState<ReportCollectionDto | null>(null);
     const [gettingData, setGettingData] = useState<boolean>(false);
     const [topCount, setTopCount] = useState<number>(15);
     const [activeReport, setActiveReport] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function DivisionReports() {
             const result = await reportApi.getReport(request);
             setReportData(result);
             if (result.reports && any(result.reports)) {
-                const selectedReportExists = any(result.reports, (r: IReportDto) => r.name === activeReport);
+                const selectedReportExists = any(result.reports, (r: ReportDto) => r.name === activeReport);
                 if (!selectedReportExists) {
                     setActiveReport(result.reports[0].name);
                 }
@@ -67,7 +67,7 @@ export function DivisionReports() {
         </div>);
     }
 
-    const report: IReportDto | null = activeReport ? reportData.reports.filter(r => r.name === activeReport)[0] : null;
+    const report: ReportDto | null = activeReport ? reportData.reports.filter(r => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
         <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly}/>
         <div className="input-group d-print-none">

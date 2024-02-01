@@ -6,21 +6,21 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
-import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 
 export function DivisionTeams() {
     const {id: divisionId, season, teams, onReloadDivision} = useDivisionData();
     const {account} = useApp();
     const isAdmin = account && account.access && account.access.manageTeams;
     const [newTeam, setNewTeam] = useState<boolean>(false);
-    const [teamDetails, setTeamDetails] = useState<IEditTeamDto>({
+    const [teamDetails, setTeamDetails] = useState<EditTeamDto>({
         name: '',
         address: '',
         newDivisionId: divisionId,
     });
 
     async function onChange(name: string, value: string) {
-        const newTeamDetails: IEditTeamDto = Object.assign({}, teamDetails);
+        const newTeamDetails: EditTeamDto = Object.assign({}, teamDetails);
         newTeamDetails[name] = value;
         setTeamDetails(newTeamDetails);
     }

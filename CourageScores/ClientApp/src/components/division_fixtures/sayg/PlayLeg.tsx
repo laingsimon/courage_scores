@@ -2,13 +2,13 @@ import React from "react";
 import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 export interface IPlayLegProps {
-    leg?: ILegDto;
+    leg?: LegDto;
     home: string;
     away: string;
-    onChange: (newLeg: ILegDto) => Promise<any>;
+    onChange: (newLeg: LegDto) => Promise<any>;
     onLegComplete: (accumulatorName: string) => Promise<any>;
     on180?: (accumulatorName: string) => Promise<any>;
     onHiCheck?: (accumulatorName: string, score: number) => Promise<any>;
@@ -26,7 +26,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     async function firstPlayerChanged(firstPlayerName: string) {
-        const newLeg: ILegDto = Object.assign({}, leg);
+        const newLeg: LegDto = Object.assign({}, leg);
 
         const players: IBootstrapDropdownItem[] = playerOptions();
         const firstPlayer: IBootstrapDropdownItem = players.filter(p => p.value === firstPlayerName)[0];
@@ -39,7 +39,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
 
     async function undoLastThrow() {
         const oppositePlayer: string = leg.currentThrow === 'home' ? 'away' : 'home';
-        const newLeg: ILegDto = Object.assign({}, leg);
+        const newLeg: LegDto = Object.assign({}, leg);
 
         const removedThrow = newLeg[oppositePlayer].throws.pop();
         newLeg.currentThrow = oppositePlayer;

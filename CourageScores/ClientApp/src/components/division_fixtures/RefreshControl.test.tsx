@@ -12,7 +12,7 @@ import React from "react";
 import {RefreshControl} from "./RefreshControl";
 import {LiveContainer, useLive} from "./LiveContainer";
 import {createTemporaryId} from "../../helpers/projection";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {ILive} from "../../interfaces/ILive";
 import {act} from "@testing-library/react";
 
@@ -30,7 +30,7 @@ describe('RefreshControl', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(id: string, account?: IUserDto) {
+    async function renderComponent(id: string, account?: UserDto) {
         context = await renderApp(
             iocProps({socketFactory: socketFactory.createSocket}),
             brandingProps(),
@@ -45,7 +45,7 @@ describe('RefreshControl', () => {
     }
 
     describe('renders', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -105,7 +105,7 @@ describe('RefreshControl', () => {
     });
 
     describe('interactivity', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',

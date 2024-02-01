@@ -2,12 +2,12 @@
 
 import {add180, addHiCheck, IAccoladeFixtureData, remove180, removeHiCheck} from "./Accolades";
 import {playerBuilder} from "../../helpers/builders/players";
-import {IGamePlayerDto} from "../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 
 describe('Accolades', () => {
-    const player1: IGamePlayerDto = playerBuilder('PLAYER 1').build();
-    const player2: IGamePlayerDto = playerBuilder('PLAYER 2').build();
-    const player3: IGamePlayerDto = playerBuilder('PLAYER 3').build();
+    const player1: GamePlayerDto = playerBuilder('PLAYER 1').build();
+    const player2: GamePlayerDto = playerBuilder('PLAYER 2').build();
+    const player3: GamePlayerDto = playerBuilder('PLAYER 3').build();
 
     describe('add180', () => {
         it('will add player to a null set', async () => {

@@ -20,9 +20,29 @@ public class DtoRepository
             // ReSharper disable once MergeIntoPattern
             .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface && t.GetCustomAttribute<CompilerGeneratedAttribute>() == null) // non-abstract manually created classes
             .Where(t => t.GetGenericArguments().Length == 0) // non-generic classes
-            .Where(t => t.Namespace?.StartsWith(rootNamespace) == true); // within the given namespace
+            .Where(t => t.Namespace?.StartsWith(rootNamespace) == true)
+            .SelectMany(AndAnyCourageScoresClassesOrInterfaces)
+            .ToHashSet(); // within the given namespace
 
         return GetAdditionalTypes().Concat(types);
+    }
+
+    private static IEnumerable<Type> AndAnyCourageScoresClassesOrInterfaces(Type dtoType)
+    {
+        yield return dtoType;
+
+        if (dtoType.BaseType != null && dtoType.BaseType.Namespace != null && dtoType.BaseType!.Namespace.StartsWith("CourageScores"))
+        {
+            foreach (var baseTypes in AndAnyCourageScoresClassesOrInterfaces(dtoType.BaseType!))
+            {
+                yield return baseTypes;
+            }
+        }
+
+        foreach (var interfaceType in dtoType.GetInterfaces().Where(t => t.Namespace != null && t.Namespace.StartsWith("CourageScores")))
+        {
+            yield return interfaceType;
+        }
     }
 
     private IEnumerable<Type> GetAdditionalTypes()

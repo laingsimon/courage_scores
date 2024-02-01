@@ -1,9 +1,9 @@
 import {useApp} from "../../../../AppContainer";
 import {renderDate} from "../../../../helpers/rendering";
-import {ITournamentMatchDto} from "../../../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {TournamentMatchDto} from "../../../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 export interface IMasterDrawProps {
-    matches: ITournamentMatchDto[];
+    matches: TournamentMatchDto[];
     host: string;
     opponent: string;
     gender: string;
@@ -29,7 +29,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes}: IMast
                         </tr>
                         </thead>
                         <tbody>
-                        {matches.map((m: ITournamentMatchDto, index: number) => {
+                        {matches.map((m: TournamentMatchDto, index: number) => {
                             return (<tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{m.sideA.name}</td>

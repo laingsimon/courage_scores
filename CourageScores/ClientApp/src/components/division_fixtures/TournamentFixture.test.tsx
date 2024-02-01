@@ -14,32 +14,32 @@ import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {ITournamentFixtureProps, TournamentFixture} from "./TournamentFixture";
-import {IEditTournamentGameDto} from "../../interfaces/models/dtos/Game/IEditTournamentGameDto";
+import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTournamentGameDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITournamentGameDto} from "../../interfaces/models/dtos/Game/ITournamentGameDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
-import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
-import {ITournamentPlayerDto} from "../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {playerBuilder} from "../../helpers/builders/players";
-import {ITournamentGameApi} from "../../interfaces/apis/TournamentGameApi";
+import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 
 describe('TournamentFixture', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let tournamentChanged: boolean;
-    let savedTournament: { data: IEditTournamentGameDto, lastUpdated?: string };
+    let savedTournament: { data: EditTournamentGameDto, lastUpdated?: string };
     let deletedId: string;
-    let apiResponse: IClientActionResultDto<ITournamentGameDto>;
+    let apiResponse: IClientActionResultDto<TournamentGameDto>;
 
     const tournamentApi = api<ITournamentGameApi>({
-        update: async (data: IEditTournamentGameDto, lastUpdated?: string) => {
+        update: async (data: EditTournamentGameDto, lastUpdated?: string) => {
             savedTournament = {data, lastUpdated};
             return apiResponse || {success: true};
         },
@@ -69,7 +69,7 @@ describe('TournamentFixture', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(props: ITournamentFixtureProps, divisionData: IDivisionDataContainerProps, account?: IUserDto, teams?: ITeamDto[]) {
+    async function renderComponent(props: ITournamentFixtureProps, divisionData: IDivisionDataContainerProps, account?: UserDto, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps({tournamentApi}),
             brandingProps(),
@@ -86,19 +86,19 @@ describe('TournamentFixture', () => {
     }
 
     describe('when logged out', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const player: IDivisionPlayerDto = playerBuilder('PLAYER').build();
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const player: DivisionPlayerDto = playerBuilder('PLAYER').build();
         const account = null;
 
-        function assertPlayerDisplayWithPlayerLinks(playersCell: Element, ordinal: number, players: ITournamentPlayerDto[]) {
+        function assertPlayerDisplayWithPlayerLinks(playersCell: Element, ordinal: number, players: TournamentPlayerDto[]) {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
             assertPlayersAndLinks(side, players);
         }
 
-        function assertPlayerDisplayWithSideNameAndTeamLink(playersCell: Element, ordinal: number, sideName: string, teamId: string, players: ITournamentPlayerDto[]) {
+        function assertPlayerDisplayWithSideNameAndTeamLink(playersCell: Element, ordinal: number, sideName: string, teamId: string, players: TournamentPlayerDto[]) {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
@@ -106,7 +106,7 @@ describe('TournamentFixture', () => {
             assertPlayersAndLinks(side, players);
         }
 
-        function assertSinglePlayerDisplay(playersCell: Element, ordinal: number, _: string, player: ITournamentPlayerDto) {
+        function assertSinglePlayerDisplay(playersCell: Element, ordinal: number, _: string, player: TournamentPlayerDto) {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
@@ -120,7 +120,7 @@ describe('TournamentFixture', () => {
             expect(link.href).toEqual(href);
         }
 
-        function assertPlayersAndLinks(side: Element, players: ITournamentPlayerDto[]) {
+        function assertPlayersAndLinks(side: Element, players: TournamentPlayerDto[]) {
             const links = Array.from(side.querySelectorAll('label a')) as HTMLAnchorElement[];
             expect(links.length).toEqual(players.length);
             players.forEach((player: { name: string }, index: number) => {
@@ -249,7 +249,7 @@ describe('TournamentFixture', () => {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: side1.players.concat(side2.players).concat(side3.players).concat(side4.players) as IDivisionPlayerDto[],
+                    players: side1.players.concat(side2.players).concat(side3.players).concat(side4.players) as DivisionPlayerDto[],
                     onReloadDivision,
                     setDivisionData: noop,
                 },
@@ -265,10 +265,10 @@ describe('TournamentFixture', () => {
     });
 
     describe('when logged in', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const player: IDivisionPlayerDto = playerBuilder('PLAYER').build();
-        const account: IUserDto = {
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const player: DivisionPlayerDto = playerBuilder('PLAYER').build();
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',

@@ -10,20 +10,20 @@ import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {useMatchType} from "./MatchTypeContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IGameTeamDto} from "../../../interfaces/models/dtos/Game/IGameTeamDto";
-import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
+import {GameTeamDto} from "../../../interfaces/models/dtos/Game/GameTeamDto";
+import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
 export interface IMatchPlayerSelectionProps {
-    match: IGameMatchDto;
-    onMatchChanged?: (newMatch: IGameMatchDto) => Promise<any>;
-    onMatchOptionsChanged: (newOptions: IGameMatchOptionDto) => Promise<any>;
-    on180: (player: IGamePlayerDto) => Promise<any>;
-    onHiCheck: (player: IGamePlayerDto, score: string) => Promise<any>;
+    match: GameMatchDto;
+    onMatchChanged?: (newMatch: GameMatchDto) => Promise<any>;
+    onMatchOptionsChanged: (newOptions: GameMatchOptionDto) => Promise<any>;
+    on180: (player: GamePlayerDto) => Promise<any>;
+    onHiCheck: (player: GamePlayerDto, score: string) => Promise<any>;
 }
 
 export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}: IMatchPlayerSelectionProps) {
@@ -33,8 +33,8 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState<boolean>(false);
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
 
-    function player(index: number, side: 'home' | 'away'): IGamePlayerDto {
-        const matchPlayers: IGamePlayerDto[] = match[side + 'Players'];
+    function player(index: number, side: 'home' | 'away'): GamePlayerDto {
+        const matchPlayers: GamePlayerDto[] = match[side + 'Players'];
 
         if (!matchPlayers || index >= matchPlayers.length) {
             return {id: null, name: null};
@@ -43,8 +43,8 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         return matchPlayers[index] || {id: null, name: null};
     }
 
-    function linkToPlayer(index: number, side: 'home' | 'away', team: IGameTeamDto) {
-        const playerData: IGamePlayerDto = player(index, side);
+    function linkToPlayer(index: number, side: 'home' | 'away', team: GameTeamDto) {
+        const playerData: GamePlayerDto = player(index, side);
 
         return (<EmbedAwareLink
             to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
@@ -63,9 +63,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                 return;
             }
 
-            const emptyMatch: IGameMatchDto = {};
+            const emptyMatch: GameMatchDto = {};
             emptyMatch[side + 'Players'] = [];
-            const newMatch: IGameMatchDto = Object.assign(emptyMatch, match);
+            const newMatch: GameMatchDto = Object.assign(emptyMatch, match);
             const players = newMatch[side + 'Players'];
             const existingPlayer = players[index];
             if (player) {
@@ -93,7 +93,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
 
             const oppositeSide = side === 'home' ? 'away' : 'home';
             const oppositeScore = match[oppositeSide + 'Score'];
-            const newMatch: IGameMatchDto = Object.assign({}, match);
+            const newMatch: GameMatchDto = Object.assign({}, match);
             const numberOfLegs: number = matchOptions.numberOfLegs;
             const intScore: number = newScore ? Math.min(Number.parseInt(newScore), numberOfLegs) : null;
 
@@ -114,23 +114,23 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
 
     function exceptPlayers(playerIndex: number, side: 'home' | 'away'): string[] {
         const propertyName: string = side + 'Players';
-        const selectedPlayer: IGamePlayerDto = player(playerIndex, side);
+        const selectedPlayer: GamePlayerDto = player(playerIndex, side);
         const exceptPlayerIds: string[] = distinct((otherMatches || [])
-            .flatMap((otherMatch: IGameMatchDto) => {
+            .flatMap((otherMatch: GameMatchDto) => {
                 return (otherMatch[propertyName] || [])
-                    .filter((p?: IGamePlayerDto) => p || false)
-                    .map((player: IGamePlayerDto) => player ? player.id : null);
+                    .filter((p?: GamePlayerDto) => p || false)
+                    .map((player: GamePlayerDto) => player ? player.id : null);
             }))
             .filter(id => id !== selectedPlayer.id); // dont exclude the currently selected player
 
-        const playerList: IGamePlayerDto[] = match[propertyName];
+        const playerList: GamePlayerDto[] = match[propertyName];
         if (!playerList) {
             return exceptPlayerIds;
         }
 
         const additionalPlayers: string[] = playerList
-            .filter((_: IGamePlayerDto, index: number) => index !== playerIndex)
-            .map((player: IGamePlayerDto) => player.id);
+            .filter((_: GamePlayerDto, index: number) => index !== playerIndex)
+            .map((player: GamePlayerDto) => player.id);
 
         return exceptPlayerIds
             .concat(additionalPlayers)
@@ -144,17 +144,17 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     }
 
     async function add180(sideName: 'home' | 'away') {
-        const players: IGamePlayerDto[] = match[sideName + 'Players'];
+        const players: GamePlayerDto[] = match[sideName + 'Players'];
         await on180(players[0]);
     }
 
     async function addHiCheck(sideName: 'home' | 'away', score: number) {
-        const players: IGamePlayerDto[] = match[sideName + 'Players'];
+        const players: GamePlayerDto[] = match[sideName + 'Players'];
         await onHiCheck(players[0], score.toString());
     }
 
     async function updateMatchScore(homeScore: number, awayScore: number) {
-        const newMatch: IGameMatchDto = Object.assign({}, match);
+        const newMatch: GameMatchDto = Object.assign({}, match);
         newMatch.homeScore = homeScore;
         newMatch.awayScore = awayScore;
 
@@ -164,10 +164,10 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     }
 
     function renderSaygDialog() {
-        const home: string = match.homePlayers.reduce((current: string, next: IGamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
-        const away: string = match.awayPlayers.reduce((current: string, next: IGamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
+        const home: string = match.homePlayers.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
+        const away: string = match.awayPlayers.reduce((current: string, next: GamePlayerDto) => current ? current + ' & ' + next.name : next.name, '');
         const singlePlayerMatch: boolean = match.homePlayers.length === 1 && match.awayPlayers.length === 1;
-        const defaultSaygData: IUpdateRecordedScoreAsYouGoDto = {
+        const defaultSaygData: UpdateRecordedScoreAsYouGoDto = {
             legs: {},
             yourName: ''
         };
@@ -175,7 +175,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
                         onClose={async () => setSaygOpen(false)} className="text-start">
             <ScoreAsYouGo
-                data={(match.sayg as IUpdateRecordedScoreAsYouGoDto) || defaultSaygData}
+                data={(match.sayg as UpdateRecordedScoreAsYouGoDto) || defaultSaygData}
                 home={home}
                 away={away}
                 onChange={propChanged(match, onMatchChanged, 'sayg')}

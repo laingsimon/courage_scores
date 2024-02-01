@@ -13,18 +13,18 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {ExportData} from "./ExportData";
-import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
-import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
+import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
+import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IDataApi} from "../../interfaces/apis/DataApi";
+import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ExportData', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let exportRequest: IExportDataRequestDto;
-    let apiResponse: IClientActionResultDto<IExportDataResultDto>;
+    let exportRequest: ExportDataRequestDto;
+    let apiResponse: IClientActionResultDto<ExportDataResultDto>;
     const dataApi = api<IDataApi>({
-        export: async (request: IExportDataRequestDto): Promise<IClientActionResultDto<IExportDataResultDto>> => {
+        export: async (request: ExportDataRequestDto): Promise<IClientActionResultDto<ExportDataResultDto>> => {
             exportRequest = request;
             return apiResponse || {success: true, result: {zip: ''}};
         }

@@ -13,12 +13,12 @@ import {
 import {DataBrowser} from "./DataBrowser";
 import {createTemporaryId, repeat} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
-import {ISingleDataResultDto} from "../../interfaces/models/dtos/Data/ISingleDataResultDto";
+import {SingleDataResultDto} from "../../interfaces/models/dtos/Data/SingleDataResultDto";
 import {IAppContainerProps} from "../../AppContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IError} from "../../interfaces/IError";
 import {IFailedRequest} from "../../interfaces/IFailedRequest";
-import {IDataApi} from "../../interfaces/apis/DataApi";
+import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -30,27 +30,28 @@ jest.mock('react-router-dom', () => ({
 describe('DataBrowser', () => {
     let context: TestContext;
     let requestedData: { table: string, id?: string };
-    let apiResult: IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>;
+    let singleApiResult: IClientActionResultDto<SingleDataResultDto>;
+    let multiApiResult: IClientActionResultDto<SingleDataResultDto[]>;
     let apiException: IError;
     const dataApi = api<IDataApi>({
-        getRecord: async (table: string, id: string): Promise<IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>> => {
+        getRecord: async (table: string, id: string): Promise<IClientActionResultDto<SingleDataResultDto>> => {
             requestedData = { table, id };
             if (apiException) {
                 throw apiException;
             }
 
-            return apiResult || {
+            return singleApiResult || {
                 success: true,
                 result: { id }
             };
         },
-        getRows: async (table: string): Promise<IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>> => {
+        getRows: async (table: string): Promise<IClientActionResultDto<SingleDataResultDto[]>> => {
             requestedData = { table, id: null };
             if (apiException) {
                 throw apiException;
             }
 
-            return apiResult || {
+            return multiApiResult || {
                 success: true,
                 result: [],
             };
@@ -64,7 +65,8 @@ describe('DataBrowser', () => {
     beforeEach(() => {
         apiException = null;
         requestedData = null;
-        apiResult = null;
+        singleApiResult = null;
+        multiApiResult = null;
     });
 
     async function renderComponent(props: IAppContainerProps, queryString?: string) {
@@ -113,7 +115,7 @@ describe('DataBrowser', () => {
         it('list of records', async () => {
             const game1 = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
             const game2 = {id: createTemporaryId(), date: '2023-10-20T00:00:00',name:'GAME 2'};
-            apiResult = {
+            multiApiResult = {
                 success: true,
                 result: [game1, game2],
             };
@@ -134,14 +136,14 @@ describe('DataBrowser', () => {
 
         it('single record', async () => {
             const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
-            apiResult = {
+            singleApiResult = {
                 success: true,
                 result: game,
             };
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game,id=' + game.id);
+            }), '?table=game&id=' + game.id);
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
@@ -151,7 +153,7 @@ describe('DataBrowser', () => {
         });
 
         it('error when fetching', async () => {
-            apiResult = {
+            multiApiResult = {
                 success: false,
                 errors: ['SOME ERROR'],
             };
@@ -173,7 +175,7 @@ describe('DataBrowser', () => {
                 title: 'One or more validation errors occurred.',
                 status: 400,
             };
-            apiResult = error as any;
+            singleApiResult = error as any;
 
             await renderComponent(appProps({
                 account: {}
@@ -193,7 +195,7 @@ describe('DataBrowser', () => {
         });
 
         it('results from a given page', async () => {
-            apiResult = {
+            multiApiResult = {
                 success: true,
                 result: repeat(25, index => {
                     return { id: `id ${index}`};
@@ -267,7 +269,7 @@ describe('DataBrowser', () => {
         });
 
         it('does not re-fetch when changing page', async () => {
-            apiResult = {
+            multiApiResult = {
                 success: true,
                 result: repeat(25, index => {
                     return { id: createTemporaryId(), name: `ITEM ${index}`};

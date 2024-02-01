@@ -15,15 +15,15 @@ import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IReportDto} from "../../interfaces/models/dtos/Report/IReportDto";
-import {IReportCollectionDto} from "../../interfaces/models/dtos/Report/IReportCollectionDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IReportApi} from "../../interfaces/apis/ReportApi";
+import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
+import {ReportCollectionDto} from "../../interfaces/models/dtos/Report/ReportCollectionDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {IReportApi} from "../../interfaces/apis/IReportApi";
 
 describe('DivisionReports', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let returnReport: IReportCollectionDto;
+    let returnReport: ReportCollectionDto;
     // noinspection JSUnusedGlobalSymbols
     const reportApi = api<IReportApi>({
         getReport: async () => {
@@ -39,7 +39,7 @@ describe('DivisionReports', () => {
         reportedError = new ErrorState();
     });
 
-    async function renderComponent(account: IUserDto, divisionData: IDivisionDataContainerProps) {
+    async function renderComponent(account: UserDto, divisionData: IDivisionDataContainerProps) {
         context = await renderApp(
             iocProps({reportApi}),
             brandingProps(),
@@ -72,7 +72,7 @@ describe('DivisionReports', () => {
     }
 
     describe('when logged in', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
@@ -119,7 +119,7 @@ describe('DivisionReports', () => {
                 Exception: {
                     Message: 'Some server side error',
                 },
-            } as IReportCollectionDto;
+            } as ReportCollectionDto;
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
@@ -127,13 +127,13 @@ describe('DivisionReports', () => {
         });
 
         it('remembers selected report after subsequent fetch', async () => {
-            const report1: IReportDto = {
+            const report1: ReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
                 valueHeading: 'Value',
                 rows: []
             };
-            const report2: IReportDto = {
+            const report2: ReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
                 valueHeading: 'Value',
@@ -156,13 +156,13 @@ describe('DivisionReports', () => {
         });
 
         it('selects first report if selected report not available on subsequent fetch', async () => {
-            const report1: IReportDto = {
+            const report1: ReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
                 valueHeading: 'Value',
                 rows: []
             };
-            const report2: IReportDto = {
+            const report2: ReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
                 valueHeading: 'Value',
@@ -189,13 +189,13 @@ describe('DivisionReports', () => {
         });
 
         it('selects no report if no reports returned on subsequent fetch', async () => {
-            const report1: IReportDto = {
+            const report1: ReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
                 valueHeading: 'Value',
                 rows: []
             };
-            const report2: IReportDto = {
+            const report2: ReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
                 valueHeading: 'Value',

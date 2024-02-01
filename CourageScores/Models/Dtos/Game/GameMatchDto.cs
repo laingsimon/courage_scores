@@ -8,7 +8,7 @@ namespace CourageScores.Models.Dtos.Game;
 /// The record of a series of legs of a match between two players
 /// </summary>
 [ExcludeFromCodeCoverage]
-[PropertyIsOptional(nameof(Id))]
+[PartialExtension(nameof(AuditedDto))] // to make Id optional
 public class GameMatchDto : AuditedDto
 {
     /// <summary>

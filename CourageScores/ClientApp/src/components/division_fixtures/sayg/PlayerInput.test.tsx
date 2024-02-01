@@ -11,11 +11,11 @@ import {
 import React from "react";
 import {IPlayerInputProps, PlayerInput} from "./PlayerInput";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('PlayerInput', () => {
     let context: TestContext;
-    let changedLegs: ILegDto[];
+    let changedLegs: LegDto[];
     let reportedError: ErrorState;
     const home = 'home-player';
     const away = 'away-player';
@@ -35,7 +35,7 @@ describe('PlayerInput', () => {
     async function onHiCheck(_: string, __: number) {
     }
 
-    async function onChange(leg: ILegDto) {
+    async function onChange(leg: LegDto) {
         changedLegs.push(leg);
     }
 

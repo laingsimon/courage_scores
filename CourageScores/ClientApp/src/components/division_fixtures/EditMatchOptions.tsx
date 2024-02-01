@@ -1,10 +1,10 @@
 import {valueChanged} from "../../helpers/events";
 import React from "react";
-import {IGameMatchOptionDto} from "../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 export interface IEditMatchOptionsProps {
-    matchOptions: IGameMatchOptionDto;
-    onMatchOptionsChanged: (newOptions: IGameMatchOptionDto) => Promise<any>;
+    matchOptions: GameMatchOptionDto;
+    onMatchOptionsChanged: (newOptions: GameMatchOptionDto) => Promise<any>;
     hideNumberOfPlayers?: boolean;
 }
 

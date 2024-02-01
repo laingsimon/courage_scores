@@ -4,14 +4,14 @@ import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {DivisionPlayers, IDivisionPlayersProps} from "./DivisionPlayers";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 
 describe('DivisionPlayers', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let account: IUserDto;
+    let account: UserDto;
     const playerApi = {};
 
     afterEach(() => {
@@ -35,8 +35,8 @@ describe('DivisionPlayers', () => {
             </DivisionDataContainer>));
     }
 
-    function createDivisionData(divisionId: string): IDivisionDataDto {
-        const season: ISeasonDto = seasonBuilder('A season')
+    function createDivisionData(divisionId: string): DivisionDataDto {
+        const season: SeasonDto = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .build();

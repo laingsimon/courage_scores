@@ -7,16 +7,16 @@ import {useSayg} from "./SaygLoadingContainer";
 import {RefreshControl} from "../RefreshControl";
 import {useLive} from "../LiveContainer";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 export interface IMatchStatisticsProps {
-    legs: { [key: number]: ILegDto };
+    legs: { [key: number]: LegDto };
     homeScore: number;
     awayScore: number;
     home: string;
     away?: string;
     singlePlayer?: boolean;
-    legChanged?: (leg: ILegDto, index: number) => Promise<any>;
+    legChanged?: (leg: LegDto, index: number) => Promise<any>;
     numberOfLegs: number;
     changeStatisticsView: (widescreen: boolean) => Promise<any>;
 }
@@ -36,7 +36,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
         ? getLegDisplayOptions(legs, true)
         : legDisplayOptionsState;
 
-    function getLegDisplayOptions(legs: { [key: number]: ILegDto }, showThrowsOnLastLeg?: boolean): ILegDisplayOptionsLookup {
+    function getLegDisplayOptions(legs: { [key: number]: LegDto }, showThrowsOnLastLeg?: boolean): ILegDisplayOptionsLookup {
         const options: ILegDisplayOptionsLookup = {};
         let lastLegIndex = null;
         Object.keys(legs).forEach((legIndex: string) => {
@@ -66,7 +66,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     }
 
     function sumOf(player: 'home' | 'away', prop: string) {
-        return sum(Object.values(legs), (leg: ILegDto) => leg[player][prop]);
+        return sum(Object.values(legs), (leg: LegDto) => leg[player][prop]);
     }
 
     return (<div>
@@ -107,7 +107,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                     oneDartAverage={oneDartAverage}
                     legDisplayOptions={legDisplayOptions[legKey] || getLegDisplayOptions(legs)[legKey]}
                     updateLegDisplayOptions={isSubscribed && !finished ? null : async (options: ILegDisplayOptions) => updateLegDisplayOptions(legKey, options)}
-                    onChangeLeg={legChanged ? ((newLeg: ILegDto) => legChanged(newLeg, legKey)) : null}
+                    onChangeLeg={legChanged ? ((newLeg: LegDto) => legChanged(newLeg, legKey)) : null}
                 />);
             })}
             </tbody>

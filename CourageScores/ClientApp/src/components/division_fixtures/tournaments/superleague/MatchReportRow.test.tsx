@@ -9,9 +9,9 @@
 } from "../../../../helpers/tests";
 import React from "react";
 import {IMatchReportRowProps, MatchReportRow} from "./MatchReportRow";
-import {ILegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
-import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {LegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {RecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../../helpers/builders/sayg";
 
 describe('MatchReportRow', () => {
@@ -41,15 +41,15 @@ describe('MatchReportRow', () => {
         return Array.from(row.querySelectorAll('td')).map(th => th.textContent);
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): ILegDto {
-        const winningThrows: ILegThrowDto[] = [
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+        const winningThrows: LegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 100, bust: false, noOfDarts: 3},
             {score: 110, bust: false, noOfDarts: 3},
             {score: 120, bust: false, noOfDarts: 3},
             {score: 81, bust: false, noOfDarts: 3},
         ];
-        const notWinningThrows: ILegThrowDto[] = [
+        const notWinningThrows: LegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
@@ -102,7 +102,7 @@ describe('MatchReportRow', () => {
         });
 
         it('for the given number of legs', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg())
                 .withLeg(1, createLeg())
                 .withLeg(2, createLeg())
@@ -124,7 +124,7 @@ describe('MatchReportRow', () => {
         });
 
         it('first leg', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
 
@@ -148,7 +148,7 @@ describe('MatchReportRow', () => {
         });
 
         it('second leg', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(false, true))
                 .withLeg(1, createLeg(false, true))
                 .build();
@@ -172,7 +172,7 @@ describe('MatchReportRow', () => {
         });
 
         it('ignores bust scores', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
             saygData.legs[0].home.throws.forEach((thr, index) => thr.bust = index % 2 === 0);
@@ -198,7 +198,7 @@ describe('MatchReportRow', () => {
         });
 
         it('highlights 100+ scores', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
             saygData.legs[0].home.throws.forEach((thr, index) => thr.score = 100 + (index * 10));
@@ -223,7 +223,7 @@ describe('MatchReportRow', () => {
         });
 
         it('highlights 180 scores', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
             saygData.legs[0].home.throws.forEach(thr => thr.score = 180);
@@ -248,7 +248,7 @@ describe('MatchReportRow', () => {
         });
 
         it('shows non-180-tons correctly', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
             saygData.legs[0].home.throws.forEach(thr => thr.score = 120);
@@ -273,7 +273,7 @@ describe('MatchReportRow', () => {
         });
 
         it('shows 180-tons correctly', async () => {
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .build();
             saygData.legs[0].home.throws.forEach(thr => thr.score = 180);

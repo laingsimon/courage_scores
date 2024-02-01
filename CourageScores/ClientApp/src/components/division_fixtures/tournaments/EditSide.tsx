@@ -6,26 +6,26 @@ import {useApp} from "../../../AppContainer";
 import {any, sortBy} from "../../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
-import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
 
 export interface IEditSideProps {
-    side: ITournamentSideDto;
-    onChange?: (side: ITournamentSideDto) => Promise<any>;
+    side: TournamentSideDto;
+    onChange?: (side: TournamentSideDto) => Promise<any>;
     onClose: () => Promise<any>;
     onApply: () => Promise<any>;
-    onDelete?: (side: ITournamentSideDto) => Promise<any>;
+    onDelete?: (side: TournamentSideDto) => Promise<any>;
 }
 
 interface ITeamPlayerMap {
     id: string;
     name: string;
-    team: ITeamDto;
+    team: TeamDto;
 }
 
 export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSideProps) {
@@ -33,18 +33,18 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     const {tournamentData, season, alreadyPlaying} = useTournament();
     const [playerFilter, setPlayerFilter] = useState('');
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
-    const [newPlayerDetails, setNewPlayerDetails] = useState<IEditTeamPlayerDto>({name: '', captain: false});
+    const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
     const divisionId: string = tournamentData.divisionId;
     const selectATeam: IBootstrapDropdownItem = {value: '', text: 'Select team', className: 'text-warning'};
-    const teamOptions: IBootstrapDropdownItem[] = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map((t: ITeamDto) => {
+    const teamOptions: IBootstrapDropdownItem[] = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map((t: TeamDto) => {
         return {value: t.id, text: t.name};
     }).sort(sortBy('text')));
     const allPossiblePlayers: ITeamPlayerMap[] = teamMap
-        .filter((_: ITeamDto) => true) // turn the map back into an array
-        .flatMap((t: ITeamDto) => {
-            const teamSeason: ITeamSeasonDto = t.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === season.id)[0];
+        .filter((_: TeamDto) => true) // turn the map back into an array
+        .flatMap((t: TeamDto) => {
+            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
-                return teamSeason.players.map((p: ITeamPlayerDto): ITeamPlayerMap => {
+                return teamSeason.players.map((p: TeamPlayerDto): ITeamPlayerMap => {
                     return {id: p.id, name: p.name, team: t}
                 }) || [];
             }
@@ -53,8 +53,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         });
     const canAddPlayers: boolean = account.access.managePlayers && !side.teamId;
 
-    function teamSeasonForSameDivision(team: ITeamDto): boolean {
-        const teamSeason: ITeamSeasonDto = team.seasons.filter((ts: ITeamSeasonDto) => ts.seasonId === season.id)[0];
+    function teamSeasonForSameDivision(team: TeamDto): boolean {
+        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
         if (!teamSeason) {
             return false;
         }
@@ -62,18 +62,18 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         return isTeamSeasonForDivision(teamSeason);
     }
 
-    function isTeamSeasonForDivision(teamSeason: ITeamSeasonDto): boolean {
+    function isTeamSeasonForDivision(teamSeason: TeamSeasonDto): boolean {
         return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== divisionId);
     }
 
-    function getOtherSidePlayerSelectedIn(player: ITournamentPlayerDto): ITournamentSideDto {
-        return tournamentData.sides.flatMap((s: ITournamentSideDto) => {
+    function getOtherSidePlayerSelectedIn(player: TournamentPlayerDto): TournamentSideDto {
+        return tournamentData.sides.flatMap((s: TournamentSideDto) => {
             if (s.id === side.id) {
                 // same side as being edited
                 return [];
             }
 
-            return any(s.players || [], (p: ITournamentPlayerDto) => p.id === player.id)
+            return any(s.players || [], (p: TournamentPlayerDto) => p.id === player.id)
                 ? [s]
                 : [];
         })[0];
@@ -93,17 +93,17 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         }
     }
 
-    async function onSelectPlayer(player: ITournamentPlayerDto, preventOnChange?: boolean, sideOverride?: ITournamentSideDto): Promise<ITournamentSideDto> {
-        const newSide: ITournamentSideDto = Object.assign({}, sideOverride || side);
+    async function onSelectPlayer(player: TournamentPlayerDto, preventOnChange?: boolean, sideOverride?: TournamentSideDto): Promise<TournamentSideDto> {
+        const newSide: TournamentSideDto = Object.assign({}, sideOverride || side);
         newSide.players = (newSide.players || []).concat({
             id: player.id,
             name: player.name,
             divisionId: player.divisionId
         });
 
-        const oldSidePlayerName: string = (side.players || []).sort(sortBy('name')).map((p: ITournamentPlayerDto) => p.name).join(', ');
+        const oldSidePlayerName: string = (side.players || []).sort(sortBy('name')).map((p: TournamentPlayerDto) => p.name).join(', ');
         if ((side.name || '') === oldSidePlayerName) {
-            newSide.name = newSide.players.sort(sortBy('name')).map((p: ITournamentPlayerDto) => p.name).join(', ');
+            newSide.name = newSide.players.sort(sortBy('name')).map((p: TournamentPlayerDto) => p.name).join(', ');
         }
 
         if (onChange && !preventOnChange) {
@@ -114,7 +114,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     }
 
     async function updateTeamId(teamId: string) {
-        const newSide: ITournamentSideDto = Object.assign({}, side);
+        const newSide: TournamentSideDto = Object.assign({}, side);
         if (teamId) {
             newSide.name = newSide.name || teamMap[teamId].name;
         } else {
@@ -128,13 +128,13 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         }
     }
 
-    async function togglePlayer(player: ITournamentPlayerDto) {
-        if (any(side.players || [], (p: ITournamentPlayerDto) => p.id === player.id)) {
+    async function togglePlayer(player: TournamentPlayerDto) {
+        if (any(side.players || [], (p: TournamentPlayerDto) => p.id === player.id)) {
             await onDeselectPlayer(player.id);
             return;
         }
 
-        const otherSidePlayerSelectedIn: ITournamentSideDto = getOtherSidePlayerSelectedIn(player);
+        const otherSidePlayerSelectedIn: TournamentSideDto = getOtherSidePlayerSelectedIn(player);
         if (!otherSidePlayerSelectedIn) {
             await onSelectPlayer(player);
         }
@@ -162,7 +162,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         await onApply();
     }
 
-    function matchesPlayerFilter(player: ITournamentPlayerDto): boolean {
+    function matchesPlayerFilter(player: TournamentPlayerDto): boolean {
         if (!playerFilter) {
             return true;
         }
@@ -170,7 +170,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         return player.name.toLowerCase().indexOf(playerFilter.toLowerCase()) !== -1;
     }
 
-    function renderCreatePlayerDialog(season: ISeasonDto) {
+    function renderCreatePlayerDialog(season: SeasonDto) {
         return (<Dialog title={`Add a player...`}>
             <EditPlayerDetails
                 player={newPlayerDetails}
@@ -183,12 +183,12 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         </Dialog>);
     }
 
-    async function reloadPlayers(_: ITeamDto, newPlayers: ITeamPlayerDto[]) {
+    async function reloadPlayers(_: TeamDto, newPlayers: TeamPlayerDto[]) {
         await reloadTeams();
         setAddPlayerDialogOpen(false);
         setNewPlayerDetails({name: '', captain: false});
 
-        let newSide: ITournamentSideDto = side;
+        let newSide: TournamentSideDto = side;
         // select the new players
         for (let playerIndex in newPlayers) {
             const player = newPlayers[playerIndex];
@@ -241,9 +241,9 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                 <div className="max-scroll-height overflow-auto height-250">
                     <ol className="list-group mb-3">
                         {filteredPlayers.sort(sortBy('name')).map((player: ITeamPlayerMap) => {
-                            const selected: boolean = any(side.players || [], (p: ITournamentPlayerDto) => p.id === player.id);
+                            const selected: boolean = any(side.players || [], (p: TournamentPlayerDto) => p.id === player.id);
                             const playingInAnotherTournament = alreadyPlaying[player.id];
-                            const selectedInAnotherSide: ITournamentSideDto = getOtherSidePlayerSelectedIn(player);
+                            const selectedInAnotherSide: TournamentSideDto = getOtherSidePlayerSelectedIn(player);
                             const hasSameNameAsAnotherPlayer: boolean = allPossiblePlayers.filter((p: ITeamPlayerMap) => p.name === player.name).length > 1;
 
                             return (<li key={player.id}

@@ -8,13 +8,13 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
 import {useLocation} from "react-router-dom";
-import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
-import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
+import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
+import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 
 export function Templates() {
-    const EMPTY_TEMPLATE: IEditTemplateDto = {
+    const EMPTY_TEMPLATE: EditTemplateDto = {
         name: '',
         sharedAddresses: [],
         divisions: [],
@@ -22,27 +22,27 @@ export function Templates() {
 
     const {templateApi} = useDependencies();
     const {onError} = useApp();
-    const [templates, setTemplates] = useState<ITemplateDto[] | null>(null);
+    const [templates, setTemplates] = useState<TemplateDto[] | null>(null);
     const [loading, setLoading] = useState<boolean | null>(null);
-    const [selected, setSelected] = useState<IEditTemplateDto | null>(null);
+    const [selected, setSelected] = useState<EditTemplateDto | null>(null);
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
     const [valid, setValid] = useState<boolean | null>(null);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<ITemplateDto> | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<TemplateDto> | null>(null);
     const [editorFormat, setEditorFormat] = useState<string>('visual');
     const [shouldRefreshHealth, setShouldRefreshHealth] = useState<boolean>(false);
     const location = useLocation();
 
     async function loadTemplates() {
         try {
-            const templates: ITemplateDto[] = await templateApi.getAll();
+            const templates: TemplateDto[] = await templateApi.getAll();
             setTemplates(templates);
             setLoading(false);
 
             const search = new URLSearchParams(location.search);
             const idish: string | null = search.has('select') ? search.get('select') : null;
             if (!selected && idish) {
-                const templateToSelect: ITemplateDto = templates.filter(t => t.id === idish || t.name === idish)[0];
+                const templateToSelect: TemplateDto = templates.filter(t => t.id === idish || t.name === idish)[0];
                 if (templateToSelect) {
                     setSelected(templateToSelect);
                 }
@@ -80,16 +80,16 @@ export function Templates() {
 
     async function refreshHealth() {
         setShouldRefreshHealth(false);
-        const response: IClientActionResultDto<ISeasonHealthCheckResultDto> = await templateApi.health(selected);
+        const response: IClientActionResultDto<SeasonHealthCheckResultDto> = await templateApi.health(selected);
 
         if (selected && response && response.result) {
-            const newTemplate: IEditTemplateDto = Object.assign({}, selected);
+            const newTemplate: EditTemplateDto = Object.assign({}, selected);
             newTemplate.templateHealth = response.result;
             setSelected(newTemplate);
         }
     }
 
-    function toggleSelected(t: ITemplateDto) {
+    function toggleSelected(t: TemplateDto) {
         return () => {
             if (isSelected(t)) {
                 setSelected(null);
@@ -101,12 +101,12 @@ export function Templates() {
         }
     }
 
-    function setEditingTemplate(t: IEditTemplateDto) {
+    function setEditingTemplate(t: EditTemplateDto) {
         setValid(true);
         setSelected(Object.assign({}, t));
     }
 
-    function isSelected(t: ITemplateDto) {
+    function isSelected(t: TemplateDto) {
         if (!selected) {
             return false;
         }
@@ -128,7 +128,7 @@ export function Templates() {
         </ul>);
     }
 
-    function renderBadge(templateHealth?: ISeasonHealthCheckResultDto) {
+    function renderBadge(templateHealth?: SeasonHealthCheckResultDto) {
         if (!templateHealth) {
             return null;
         }
@@ -154,9 +154,9 @@ export function Templates() {
         setSaving(true);
 
         try {
-            const template: IEditTemplateDto = Object.assign({}, selected);
+            const template: EditTemplateDto = Object.assign({}, selected);
             template.lastUpdated = selected.updated;
-            const result: IClientActionResultDto<ITemplateDto> = await templateApi.update(template);
+            const result: IClientActionResultDto<TemplateDto> = await templateApi.update(template);
             if (result.success) {
                 setSelected(null);
                 await loadTemplates();
@@ -199,7 +199,7 @@ export function Templates() {
         }
     }
 
-    async function updateTemplate(newTemplate: ITemplateDto) {
+    async function updateTemplate(newTemplate: TemplateDto) {
         setSelected(newTemplate);
         setShouldRefreshHealth(true);
     }

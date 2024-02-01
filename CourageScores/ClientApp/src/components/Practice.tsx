@@ -1,13 +1,13 @@
 import React, {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
-import {SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContainer";
+import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContainer";
 import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";
 import {Loading} from "./common/Loading";
 import {ILiveOptions} from "../interfaces/ILiveOptions";
-import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
-interface IPracticeScoreAsYouGoDto extends IUpdateRecordedScoreAsYouGoDto {
+interface IPracticeScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     loaded: boolean;
 }
 
@@ -64,7 +64,7 @@ export function Practice() {
                 onHiCheck={noop}
                 defaultData={defaultSaygData}
                 autoSave={false}
-                onSaved={async (data) => {
+                onSaved={async (data: ILoadedScoreAsYouGoDto) => {
                     if (location.hash !== `#${data.id}`) {
                         navigate(`/practice#${data.id}`);
                     }

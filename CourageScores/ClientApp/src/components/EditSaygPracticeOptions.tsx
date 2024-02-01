@@ -2,13 +2,13 @@ import {valueChanged} from "../helpers/events";
 import {ShareButton} from "./common/ShareButton";
 import React from "react";
 import {useSayg} from "./division_fixtures/sayg/SaygLoadingContainer";
-import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
 export function EditSaygPracticeOptions() {
     const {sayg, setSayg, saveDataAndGetId} = useSayg();
 
     async function restart() {
-        const newSayg: IUpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg);
+        const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg);
         newSayg.legs = {};
         newSayg.homeScore = 0;
         newSayg.awayScore = 0;

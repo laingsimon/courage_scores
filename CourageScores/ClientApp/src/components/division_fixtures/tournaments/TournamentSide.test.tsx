@@ -13,11 +13,11 @@ import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {ITournamentSideProps, TournamentSide} from "./TournamentSide";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {teamBuilder} from "../../../helpers/builders/teams";
@@ -26,7 +26,7 @@ import {sideBuilder, tournamentBuilder} from "../../../helpers/builders/tourname
 describe('TournamentSide', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: ITournamentSideDto;
+    let updatedData: TournamentSideDto;
     let removed: boolean;
 
     afterEach(() => {
@@ -39,7 +39,7 @@ describe('TournamentSide', () => {
         removed = false;
     });
 
-    async function onChange(newData: ITournamentSideDto) {
+    async function onChange(newData: TournamentSideDto) {
         updatedData = newData;
     }
 
@@ -47,7 +47,7 @@ describe('TournamentSide', () => {
         removed = true;
     }
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentSideProps, teams?: ITeamDto[]) {
+    async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentSideProps, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -63,9 +63,9 @@ describe('TournamentSide', () => {
     }
 
     describe('renders', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const team: ITeamDto = teamBuilder('TEAM').build();
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const team: TeamDto = teamBuilder('TEAM').build();
 
         it('single player (with not found division id) side', async () => {
             await renderComponent({season, tournamentData: null}, {
@@ -302,11 +302,11 @@ describe('TournamentSide', () => {
     });
 
     describe('interactivity', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const team: ITeamDto = teamBuilder('TEAM').build();
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const team: TeamDto = teamBuilder('TEAM').build();
 
         it('can edit side', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder().build();
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent({season, tournamentData}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
@@ -340,7 +340,7 @@ describe('TournamentSide', () => {
 
         it('can apply side changes', async () => {
             const sideId = createTemporaryId();
-            const tournamentData: ITournamentGameDto = tournamentBuilder().build();
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent({season, tournamentData}, {
                 side: sideBuilder('SIDE NAME', sideId)
                     .teamId(team.id)
@@ -367,7 +367,7 @@ describe('TournamentSide', () => {
         });
 
         it('can close edit side dialog', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder().build();
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent({season, tournamentData}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
@@ -387,7 +387,7 @@ describe('TournamentSide', () => {
         });
 
         it('can delete side', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder().build();
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent({season, tournamentData}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)

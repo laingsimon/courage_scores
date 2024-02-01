@@ -12,7 +12,7 @@ import React from "react";
 import {ILegStatisticsProps, LegStatistics} from "./LegStatistics";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('LegStatistics', () => {
     let context: TestContext;
@@ -589,7 +589,7 @@ describe('LegStatistics', () => {
         });
 
         it('can change throw', async () => {
-            let newLeg: ILegDto;
+            let newLeg: LegDto;
             await renderComponent({
                 leg: legBuilder()
                     .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
@@ -602,7 +602,7 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: true,
-                onChangeLeg: async (value: ILegDto) => newLeg = value,
+                onChangeLeg: async (value: LegDto) => newLeg = value,
                 legDisplayOptions: {
                     showThrows: true,
                     showAverage: false,
@@ -628,7 +628,7 @@ describe('LegStatistics', () => {
         });
 
         it('removes throw when noOfDarts set to 0', async () => {
-            let newLeg: ILegDto;
+            let newLeg: LegDto;
             await renderComponent({
                 leg: legBuilder()
                     .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(3).score(100).withThrow(100, false, 3))
@@ -641,7 +641,7 @@ describe('LegStatistics', () => {
                 legNumber: 1,
                 singlePlayer: false,
                 oneDartAverage: true,
-                onChangeLeg: async (value: ILegDto) => newLeg = value,
+                onChangeLeg: async (value: LegDto) => newLeg = value,
                 legDisplayOptions: {
                     showThrows: true,
                     showAverage: false,

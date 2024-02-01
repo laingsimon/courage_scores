@@ -15,19 +15,19 @@ import React from "react";
 import {Tournament} from "./Tournament";
 import {any, DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
-import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
-import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
-import {IEditTournamentGameDto} from "../../../interfaces/models/dtos/Game/IEditTournamentGameDto";
-import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
+import {DivisionDataDto} from "../../../interfaces/models/dtos/Division/DivisionDataDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {EditTournamentGameDto} from "../../../interfaces/models/dtos/Game/EditTournamentGameDto";
+import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IEditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
-import {IExportDataRequestDto} from "../../../interfaces/models/dtos/Data/IExportDataRequestDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
+import {EditTeamPlayerDto} from "../../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {ExportDataRequestDto} from "../../../interfaces/models/dtos/Data/ExportDataRequestDto";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
 import {divisionBuilder, divisionDataBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {
@@ -40,36 +40,36 @@ import {playerBuilder} from "../../../helpers/builders/players";
 import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {
-    IDivisionTournamentFixtureDetailsDto
-} from "../../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
-import {ISaygApi} from "../../../interfaces/apis/SaygApi";
-import {IDivisionApi} from "../../../interfaces/apis/DivisionApi";
-import {IDivisionDataFilter} from "../../../interfaces/models/dtos/Division/IDivisionDataFilter";
-import {IPlayerApi} from "../../../interfaces/apis/PlayerApi";
-import {ITournamentGameApi} from "../../../interfaces/apis/TournamentGameApi";
-import {IDataApi} from "../../../interfaces/apis/DataApi";
+    DivisionTournamentFixtureDetailsDto
+} from "../../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
+import {IDivisionApi} from "../../../interfaces/apis/IDivisionApi";
+import {DivisionDataFilter} from "../../../interfaces/models/dtos/Division/DivisionDataFilter";
+import {IPlayerApi} from "../../../interfaces/apis/IPlayerApi";
+import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
+import {IDataApi} from "../../../interfaces/apis/IDataApi";
 
 interface IScenario {
-    account?: IUserDto;
-    seasons: DataMap<ISeasonDto>;
-    teams: DataMap<ITeamDto>;
-    divisions: IDivisionDto[];
+    account?: UserDto;
+    seasons: DataMap<SeasonDto>;
+    teams: DataMap<TeamDto>;
+    divisions: DivisionDto[];
 }
 
 describe('Tournament', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let divisionDataLookup: { [key: string]: IDivisionDataDto };
-    let tournamentDataLookup: { [id: string]: ITournamentGameDto & IDivisionTournamentFixtureDetailsDto };
-    let updatedTournamentData: IEditTournamentGameDto[];
-    let patchedTournamentData: {id: string, data: IPatchTournamentDto}[];
-    let saygDataLookup: { [id: string]: IRecordedScoreAsYouGoDto };
-    let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto};
-    let exportRequest: IExportDataRequestDto;
+    let divisionDataLookup: { [key: string]: DivisionDataDto };
+    let tournamentDataLookup: { [id: string]: TournamentGameDto & DivisionTournamentFixtureDetailsDto };
+    let updatedTournamentData: EditTournamentGameDto[];
+    let patchedTournamentData: {id: string, data: PatchTournamentDto}[];
+    let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
+    let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto};
+    let exportRequest: ExportDataRequestDto;
     let apiResponse: IClientActionResultDto<any>;
 
     const divisionApi = api<IDivisionApi>({
-        data: async (divisionId: string, filter: IDivisionDataFilter) => {
+        data: async (divisionId: string, filter: DivisionDataFilter) => {
             const seasonId = filter.seasonId;
             const key: string = `${divisionId}_${seasonId}`;
             if (any(Object.keys(divisionDataLookup), k => k === key)) {
@@ -87,17 +87,17 @@ describe('Tournament', () => {
 
             throw new Error('Unexpected request for tournament data: ' + id);
         },
-        update: async (data: IEditTournamentGameDto) => {
+        update: async (data: EditTournamentGameDto) => {
             updatedTournamentData.push(data);
             return apiResponse || {success: true, result: data};
         },
-        patch: async (id: string, data: IPatchTournamentDto) => {
+        patch: async (id: string, data: PatchTournamentDto) => {
             patchedTournamentData.push({id, data});
             return apiResponse || {success: true, result: data};
         },
     });
     const playerApi = api<IPlayerApi>({
-        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: IEditTeamPlayerDto) => {
+        create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto) => {
             createdPlayer = {divisionId, seasonId, teamId, playerDetails};
             return apiResponse || {
                 success: true,
@@ -111,28 +111,28 @@ describe('Tournament', () => {
         }
     });
     const dataApi = api<IDataApi>({
-        export: async (request: IExportDataRequestDto) => {
+        export: async (request: ExportDataRequestDto) => {
             exportRequest = request;
             return {success: true, result: {zip: 'content'}};
         }
     });
     const saygApi = api<ISaygApi>({
-        get: async (id: string) => {
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             if (any(Object.keys(saygDataLookup), k => k === id)) {
                 return saygDataLookup[id];
             }
 
             throw new Error('Unexpected request for sayg data: ' + id);
         },
-        upsert: async (data: IUpdateRecordedScoreAsYouGoDto) => {
+        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             return {
                 success: true,
-                result: data,
+                result: data as RecordedScoreAsYouGoDto,
             };
         },
     });
 
-    function expectDivisionDataRequest(divisionId: string, seasonId: string, data: IDivisionDataDto) {
+    function expectDivisionDataRequest(divisionId: string, seasonId: string, data: DivisionDataDto) {
         if (!divisionDataLookup) {
             divisionDataLookup = {};
         }
@@ -182,7 +182,7 @@ describe('Tournament', () => {
             '/test/' + tournamentId);
     }
 
-    async function assertDataChange(existingData: ITournamentGameDto, expectedChange: ITournamentGameDto) {
+    async function assertDataChange(existingData: TournamentGameDto, expectedChange: TournamentGameDto) {
         await doClick(findButton(context.container, 'Save'));
         expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         const update = updatedTournamentData.shift();
@@ -191,8 +191,8 @@ describe('Tournament', () => {
             Object.assign({ lastUpdated: update.lastUpdated }, existingData, expectedChange));
     }
 
-    const division: IDivisionDto = divisionBuilder('DIVISION').build();
-    const season: ISeasonDto = seasonBuilder('SEASON')
+    const division: DivisionDto = divisionBuilder('DIVISION').build();
+    const season: SeasonDto = seasonBuilder('SEASON')
         .starting('2023-01-02T00:00:00')
         .ending('2023-05-02T00:00:00')
         .withDivision(division)
@@ -208,7 +208,7 @@ describe('Tournament', () => {
             });
 
             it('error when no seasons', async () => {
-                const tournamentData: ITournamentGameDto = tournamentBuilder()
+                const tournamentData: TournamentGameDto = tournamentBuilder()
                     .forSeason(season)
                     .forDivision(division)
                     .date('2023-01-02T00:00:00')
@@ -218,7 +218,7 @@ describe('Tournament', () => {
                     .accoladesCount()
                     .addTo(tournamentDataLookup)
                     .build();
-                const divisionData: IDivisionDataDto = divisionDataBuilder().build();
+                const divisionData: DivisionDataDto = divisionDataBuilder().build();
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -399,7 +399,7 @@ describe('Tournament', () => {
         });
 
         describe('when logged in', () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -611,7 +611,7 @@ describe('Tournament', () => {
     });
 
     describe('interactivity', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             emailAddress: '',
             givenName: '',
@@ -621,7 +621,7 @@ describe('Tournament', () => {
                 recordScoresAsYouGo: true,
             }
         };
-        const canExportAccount: IUserDto = {
+        const canExportAccount: UserDto = {
             name: '',
             emailAddress: '',
             givenName: '',

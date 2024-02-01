@@ -5,12 +5,12 @@ import {useApp} from "../../AppContainer";
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
-import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
+import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
+import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 
 export interface IFixtureDateNoteProps {
-    note: IEditFixtureDateNoteDto;
-    setEditNote?: (note: IEditFixtureDateNoteDto) => Promise<any>;
+    note: EditFixtureDateNoteDto;
+    setEditNote?: (note: EditFixtureDateNoteDto) => Promise<any>;
     preventDelete?: boolean;
 }
 
@@ -34,7 +34,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
 
         setDeletingNote(true);
         try {
-            const response: IClientActionResultDto<IFixtureDateNoteDto> = await noteApi.delete(note.id);
+            const response: IClientActionResultDto<FixtureDateNoteDto> = await noteApi.delete(note.id);
 
             if (response.success) {
                 await onReloadDivision();

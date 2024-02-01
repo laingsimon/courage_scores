@@ -12,12 +12,12 @@ import {
 } from "../../helpers/tests";
 import {ITemplateTextEditorProps, TemplateTextEditor} from "./TemplateTextEditor";
 import {createTemporaryId} from "../../helpers/projection";
-import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 
 describe('TemplateTextEditor', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: ITemplateDto;
+    let update: TemplateDto;
     let valid: boolean;
 
     afterEach(() => {
@@ -30,7 +30,7 @@ describe('TemplateTextEditor', () => {
         valid = null;
     });
 
-    async function onUpdate(value: ITemplateDto) {
+    async function onUpdate(value: TemplateDto) {
         update = value;
     }
     async function setValid(value: boolean) {

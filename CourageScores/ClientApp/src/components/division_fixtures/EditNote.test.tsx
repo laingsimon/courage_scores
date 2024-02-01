@@ -11,36 +11,36 @@ import {
 } from "../../helpers/tests";
 import React from "react";
 import {EditNote} from "./EditNote";
-import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
+import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder, noteBuilder} from "../../helpers/builders/divisions";
-import {INoteApi} from "../../interfaces/apis/NoteApi";
+import {INoteApi} from "../../interfaces/apis/INoteApi";
 
 describe('EditNote', () => {
     let context: TestContext;
-    let savedNote: { id: string, note: IEditFixtureDateNoteDto };
-    let createdNote: IEditFixtureDateNoteDto;
-    let changedNote: IFixtureDateNoteDto;
+    let savedNote: { id: string, note: EditFixtureDateNoteDto };
+    let createdNote: EditFixtureDateNoteDto;
+    let changedNote: FixtureDateNoteDto;
     let closed: boolean;
     let saved: boolean;
-    let saveResult: IClientActionResultDto<IFixtureDateNoteDto>;
+    let saveResult: IClientActionResultDto<FixtureDateNoteDto>;
 
     const noteApi = api<INoteApi>({
-        create: async (note: IEditFixtureDateNoteDto): Promise<IClientActionResultDto<IFixtureDateNoteDto>> => {
+        create: async (note: EditFixtureDateNoteDto): Promise<IClientActionResultDto<FixtureDateNoteDto>> => {
             createdNote = note;
             return saveResult || {success: true};
         },
-        upsert: async (id: string, note: IEditFixtureDateNoteDto): Promise<IClientActionResultDto<IFixtureDateNoteDto>> => {
+        upsert: async (id: string, note: EditFixtureDateNoteDto): Promise<IClientActionResultDto<FixtureDateNoteDto>> => {
             savedNote = {id, note};
             return saveResult || {success: true};
         },
     });
 
-    async function onNoteChanged(note: IFixtureDateNoteDto) {
+    async function onNoteChanged(note: FixtureDateNoteDto) {
         changedNote = note;
     }
 
@@ -64,7 +64,7 @@ describe('EditNote', () => {
         saved = false;
     });
 
-    async function renderComponent(note: IFixtureDateNoteDto, divisions: IDivisionDto[], seasons: ISeasonDto[]) {
+    async function renderComponent(note: FixtureDateNoteDto, divisions: DivisionDto[], seasons: SeasonDto[]) {
         context = await renderApp(
             iocProps({noteApi}),
             brandingProps(),

@@ -1,16 +1,16 @@
-import {ISeasonDto} from "./models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "./models/dtos/IDivisionDto";
-import {ITeamPlayerDto} from "./models/dtos/Team/ITeamPlayerDto";
-import {IGameTeamDto} from "./models/dtos/Game/IGameTeamDto";
+import {SeasonDto} from "./models/dtos/Season/SeasonDto";
+import {DivisionDto} from "./models/dtos/DivisionDto";
+import {TeamPlayerDto} from "./models/dtos/Team/TeamPlayerDto";
+import {GameTeamDto} from "./models/dtos/Game/GameTeamDto";
 import {ISelectablePlayer} from "../components/division_players/PlayerSelection";
 
 export interface ILeagueFixture {
-    season: ISeasonDto;
-    division: IDivisionDto;
-    homePlayers: (ITeamPlayerDto & ISelectablePlayer)[];
-    awayPlayers: (ITeamPlayerDto & ISelectablePlayer)[];
+    season: SeasonDto;
+    division: DivisionDto;
+    homePlayers: (TeamPlayerDto & ISelectablePlayer)[];
+    awayPlayers: (TeamPlayerDto & ISelectablePlayer)[];
     readOnly: boolean;
     disabled: boolean;
-    home: IGameTeamDto;
-    away: IGameTeamDto;
+    home: GameTeamDto;
+    away: GameTeamDto;
 }

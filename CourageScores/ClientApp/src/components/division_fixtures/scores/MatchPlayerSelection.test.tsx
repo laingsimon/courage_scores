@@ -14,14 +14,14 @@ import {
 import {IMatchPlayerSelectionProps, MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {ILeagueFixtureContainerProps, LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {IMatchTypeContainerProps, MatchTypeContainer} from "./MatchTypeContainer";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
-import {IGameMatchOptionDto} from "../../../interfaces/models/dtos/Game/IGameMatchOptionDto";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
+import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
 import {ICreatePlayerFor} from "./Score";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {ISelectablePlayer} from "../../division_players/PlayerSelection";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {matchBuilder, matchOptionsBuilder} from "../../../helpers/builders/games";
@@ -34,22 +34,22 @@ import {createTemporaryId} from "../../../helpers/projection";
 describe('MatchPlayerSelection', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedMatch: IGameMatchDto;
-    let updatedMatchOptions: IGameMatchOptionDto;
-    let additional180: IGamePlayerDto;
-    let additionalHiCheck: {notablePlayer: IGamePlayerDto, score: string};
+    let updatedMatch: GameMatchDto;
+    let updatedMatchOptions: GameMatchOptionDto;
+    let additional180: GamePlayerDto;
+    let additionalHiCheck: {notablePlayer: GamePlayerDto, score: string};
     let createPlayerFor: ICreatePlayerFor;
 
-    async function onMatchChanged(newMatch: IGameMatchDto){
+    async function onMatchChanged(newMatch: GameMatchDto){
         updatedMatch = newMatch;
     }
-    async function onMatchOptionsChanged(newMatchOptions: IGameMatchOptionDto){
+    async function onMatchOptionsChanged(newMatchOptions: GameMatchOptionDto){
         updatedMatchOptions = newMatchOptions;
     }
-    async function on180(player: IGamePlayerDto){
+    async function on180(player: GamePlayerDto){
         additional180 = player;
     }
-    async function onHiCheck(notablePlayer: IGamePlayerDto, score: string){
+    async function onHiCheck(notablePlayer: GamePlayerDto, score: string){
         additionalHiCheck = {notablePlayer, score};
     }
     async function setCreatePlayerFor(opts: ICreatePlayerFor){
@@ -69,7 +69,7 @@ describe('MatchPlayerSelection', () => {
         createPlayerFor = null;
     });
 
-    async function renderComponent(account: IUserDto, props: IMatchPlayerSelectionProps, containerProps: ILeagueFixtureContainerProps, matchTypeProps: IMatchTypeContainerProps) {
+    async function renderComponent(account: UserDto, props: IMatchPlayerSelectionProps, containerProps: ILeagueFixtureContainerProps, matchTypeProps: IMatchTypeContainerProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -114,17 +114,17 @@ describe('MatchPlayerSelection', () => {
     }
 
     describe('renders', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const account: IUserDto = {
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const account: UserDto = {
             emailAddress: '',
             givenName: '',
             name: '',
             access: {},
         };
-        const homePlayer: ITeamPlayerDto & ISelectablePlayer = playerBuilder('HOME').build();
-        const awayPlayer: ITeamPlayerDto & ISelectablePlayer = playerBuilder('AWAY').build();
-        const newPlayer: ITeamPlayerDto & ISelectablePlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
+        const homePlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder('HOME').build();
+        const awayPlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder('AWAY').build();
+        const newPlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
         const defaultMatchType: IMatchTypeContainerProps = {
             otherMatches: [],
             matchOptions: matchOptionsBuilder().numberOfLegs(5).playerCount(1).build(),
@@ -430,7 +430,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 emailAddress: '',
                 name: '',
                 givenName: '',
@@ -458,7 +458,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -476,9 +476,9 @@ describe('MatchPlayerSelection', () => {
     });
 
     describe('interactivity', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const account: IUserDto = {
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
@@ -486,9 +486,9 @@ describe('MatchPlayerSelection', () => {
                 managePlayers: true
             },
         };
-        const homePlayer: ITeamPlayerDto & ISelectablePlayer = playerBuilder('HOME').build();
-        const awayPlayer: ITeamPlayerDto & ISelectablePlayer = playerBuilder('AWAY').build();
-        const newPlayer: ITeamPlayerDto & ISelectablePlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
+        const homePlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder('HOME').build();
+        const awayPlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder('AWAY').build();
+        const newPlayer: TeamPlayerDto & ISelectablePlayer = playerBuilder('Add a player...', NEW_PLAYER).build();
         const defaultMatchType: IMatchTypeContainerProps = {
             otherMatches: [],
             matchOptions: matchOptionsBuilder().playerCount(1).numberOfLegs(5).build(),
@@ -1108,7 +1108,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -1145,7 +1145,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -1188,7 +1188,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -1231,7 +1231,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -1280,7 +1280,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',
@@ -1322,7 +1322,7 @@ describe('MatchPlayerSelection', () => {
                 onMatchChanged,
                 onMatchOptionsChanged,
             };
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',

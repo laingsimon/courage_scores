@@ -2,15 +2,15 @@ import {any, distinct, sortBy} from "../../../helpers/collections";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
 import React from "react";
 import {useApp} from "../../../AppContainer";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
-import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
-import {IDivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
-import {IDateTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IFixtureTemplateDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {ProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/ProposalResultDto";
+import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {DivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+import {DateTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+import {FixtureTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 
 export interface IReviewProposalsFloatingDialogProps {
-    proposalResult: IProposalResultDto;
+    proposalResult: ProposalResultDto;
     changeVisibleDivision: (id: string) => Promise<any>;
     selectedDivisionId: string;
     onPrevious: () => Promise<any>;
@@ -21,18 +21,18 @@ export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDiv
     const {divisions} = useApp();
 
     const divisionOptions: IBootstrapDropdownItem[] = divisions
-        .filter((d: IDivisionDto) => any(proposalResult.divisions, proposedDivision => proposedDivision.id === d.id))
+        .filter((d: DivisionDto) => any(proposalResult.divisions, proposedDivision => proposedDivision.id === d.id))
         .sort(sortBy('name'))
-        .map((d: IDivisionDto) => {
+        .map((d: DivisionDto) => {
             return {value: d.id, text: d.name};
         });
 
-    const template: ITemplateDto = proposalResult.template;
+    const template: TemplateDto = proposalResult.template;
     const selectedDivisionIndex: number = divisionOptions.map((o: IBootstrapDropdownItem) => o.value).indexOf(selectedDivisionId);
-    const templateDivision: IDivisionTemplateDto = template.divisions[selectedDivisionIndex];
+    const templateDivision: DivisionTemplateDto = template.divisions[selectedDivisionIndex];
     const placeholdersToRender: string[] = distinct(templateDivision.dates
-        .flatMap((d: IDateTemplateDto) => d.fixtures
-            .flatMap((f: IFixtureTemplateDto) => [f.home, f.away])
+        .flatMap((d: DateTemplateDto) => d.fixtures
+            .flatMap((f: FixtureTemplateDto) => [f.home, f.away])
             .filter((p: string) => p)));
     const templateSharedAddresses: string[] = template.sharedAddresses.flatMap((a: string[]) => a);
     const divisionSharedAddresses: string[] = templateDivision.sharedAddresses.flatMap((a: string[]) => a);

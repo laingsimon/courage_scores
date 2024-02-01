@@ -14,30 +14,30 @@ import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionTeam} from "./DivisionTeam";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
-import {IDivisionDataDto} from "../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
+import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
-import {ITeamApi} from "../../interfaces/apis/TeamApi";
+import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 
 describe('DivisionTeam', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedTeam: IEditTeamDto;
-    let apiResponse: IClientActionResultDto<ITeamDto>;
+    let updatedTeam: EditTeamDto;
+    let apiResponse: IClientActionResultDto<TeamDto>;
 
     const teamApi = api<ITeamApi>({
-        update: async (team: IEditTeamDto) => {
+        update: async (team: EditTeamDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedTeam = team;
-            return apiResponse || {success: true, result: team};
+            return apiResponse || {success: true, result: team as TeamDto};
         }
     });
 
-    async function onReloadDivision(): Promise<IDivisionDataDto | null> {
+    async function onReloadDivision(): Promise<DivisionDataDto | null> {
         return null;
     }
 
@@ -50,7 +50,7 @@ describe('DivisionTeam', () => {
         updatedTeam = null;
     });
 
-    async function renderComponent(team: IDivisionTeamDto, account: IUserDto, divisionData: IDivisionDataContainerProps, teams?: ITeamDto[]) {
+    async function renderComponent(team: DivisionTeamDto, account: UserDto, divisionData: IDivisionDataContainerProps, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps({teamApi}),
             brandingProps(),
@@ -75,7 +75,7 @@ describe('DivisionTeam', () => {
             .build();
 
         it('renders team details', async () => {
-            const team: IDivisionTeamDto = {
+            const team: DivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -104,7 +104,7 @@ describe('DivisionTeam', () => {
         });
 
         it('does not render editing controls', async () => {
-            const team: IDivisionTeamDto = {
+            const team: DivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -126,7 +126,7 @@ describe('DivisionTeam', () => {
     });
 
     describe('when logged in', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -140,7 +140,7 @@ describe('DivisionTeam', () => {
             .build();
 
         it('can edit team', async () => {
-            const team: IDivisionTeamDto = {
+            const team: DivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -164,7 +164,7 @@ describe('DivisionTeam', () => {
         });
 
         it('can change team details', async () => {
-            const team: IDivisionTeamDto = {
+            const team: DivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -192,7 +192,7 @@ describe('DivisionTeam', () => {
         });
 
         it('can close edit dialog', async () => {
-            const team: IDivisionTeamDto = {
+            const team: DivisionTeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -215,7 +215,7 @@ describe('DivisionTeam', () => {
         });
 
         it('can show add to season dialog', async () => {
-            const team: IDivisionTeamDto & ITeamDto = {
+            const team: DivisionTeamDto & TeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,
@@ -240,7 +240,7 @@ describe('DivisionTeam', () => {
         });
 
         it('can close add to season dialog', async () => {
-            const team: IDivisionTeamDto & ITeamDto = {
+            const team: DivisionTeamDto & TeamDto = {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 played: 1,

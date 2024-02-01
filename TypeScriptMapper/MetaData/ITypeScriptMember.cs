@@ -17,4 +17,6 @@ public interface ITypeScriptMember
     /// </summary>
     /// <returns></returns>
     string GetDefinition();
+
+    bool IsImplementationOf(ITypeScriptMember member);
 }
