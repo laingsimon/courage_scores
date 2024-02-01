@@ -10,7 +10,6 @@ import {
     brandingProps, appProps, ErrorState, api
 } from "../helpers/tests";
 import {Division, IRequestedDivisionDataDto} from "./Division";
-import React from "react";
 import {any, toMap} from "../helpers/collections";
 import {renderDate} from "../helpers/rendering";
 import {DivisionDataDto} from "../interfaces/models/dtos/Division/DivisionDataDto";

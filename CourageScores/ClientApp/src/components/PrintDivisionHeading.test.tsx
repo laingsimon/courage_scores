@@ -1,5 +1,4 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../helpers/tests";
-import React from "react";
 import {IPrintDivisionHeadingProps, PrintDivisionHeading} from "./PrintDivisionHeading";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
 import {divisionDataBuilder} from "../helpers/builders/divisions";

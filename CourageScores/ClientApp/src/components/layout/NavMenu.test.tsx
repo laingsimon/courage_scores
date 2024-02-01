@@ -1,5 +1,4 @@
 import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import React from "react";
 import {NavMenu} from "./NavMenu";
 import {ISettings} from "../../api/settings";
 import {IBrandingContainerProps} from "../../BrandingContainer";

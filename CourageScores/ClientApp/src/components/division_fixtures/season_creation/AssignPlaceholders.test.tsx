@@ -8,7 +8,6 @@ import {
     TestContext
 } from "../../../helpers/tests";
 import {toMap} from "../../../helpers/collections";
-import React from "react";
 import {AssignPlaceholders, IAssignPlaceholdersProps, IPlaceholderMappings} from "./AssignPlaceholders";
 import {IAppContainerProps} from "../../../AppContainer";
 import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";

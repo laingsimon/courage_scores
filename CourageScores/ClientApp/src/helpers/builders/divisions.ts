@@ -7,7 +7,6 @@ import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/Divi
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import React from "react";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {teamBuilder} from "./teams";
 import {playerBuilder} from "./players";

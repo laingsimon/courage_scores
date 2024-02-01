@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
 import {ILoadedScoreAsYouGoDto, SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContainer";

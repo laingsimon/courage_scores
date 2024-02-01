@@ -1,5 +1,4 @@
 import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerSelection";
-import React from "react";
 import {distinct, sortBy} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";

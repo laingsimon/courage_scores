@@ -8,7 +8,6 @@ import {
     iocProps, MockSocketFactory,
     renderApp, TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrintout";
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {act} from "@testing-library/react";

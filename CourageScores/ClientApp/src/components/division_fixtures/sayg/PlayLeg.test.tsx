@@ -8,7 +8,6 @@ import {
     renderApp,
     TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {IPlayLegProps, PlayLeg} from "./PlayLeg";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
 import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";

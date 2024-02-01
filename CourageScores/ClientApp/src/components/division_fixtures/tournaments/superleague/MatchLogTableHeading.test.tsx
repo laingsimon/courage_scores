@@ -7,7 +7,6 @@
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {IMatchLogTableHeadingProps, MatchLogTableHeading} from "./MatchLogTableHeading";
 
 describe('MatchLogTableHeading', () => {

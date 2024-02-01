@@ -1,5 +1,4 @@
 import {Dialog} from "../../common/Dialog";
-import React from "react";
 
 export interface IEditThrowProps {
     score?: number;

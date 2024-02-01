@@ -1,5 +1,4 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../../helpers/tests";
-import React from "react";
 import {ISavingProposalsProps, SavingProposals} from "./SavingProposals";
 
 describe('SavingProposals', () => {

@@ -1,4 +1,3 @@
-import React from "react";
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {NotPermitted} from "./NotPermitted";
 import {IAppContainerProps} from "../../AppContainer";

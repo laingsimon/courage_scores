@@ -9,7 +9,6 @@
     iocProps,
     renderApp, TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";
 import {UpdateAccessDto} from "../../interfaces/models/dtos/Identity/UpdateAccessDto";

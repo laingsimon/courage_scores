@@ -1,6 +1,5 @@
 import {appProps, cleanUp, iocProps, renderApp, TestContext} from "../helpers/tests";
 import {renderDate} from "../helpers/rendering";
-import React from "react";
 import {About} from "./About";
 import {IBuild} from "../interfaces/IBuild";
 import {IBrandingContainerProps} from "../BrandingContainer";

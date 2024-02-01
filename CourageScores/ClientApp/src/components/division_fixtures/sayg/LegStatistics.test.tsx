@@ -8,7 +8,6 @@ import {
     brandingProps,
     appProps, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {ILegStatisticsProps, LegStatistics} from "./LegStatistics";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";

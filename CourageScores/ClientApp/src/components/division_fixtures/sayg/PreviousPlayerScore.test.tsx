@@ -8,7 +8,6 @@ import {
     appProps,
     TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {IPreviousPlayerScoreProps, PreviousPlayerScore} from "./PreviousPlayerScore";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
 

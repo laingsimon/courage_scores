@@ -1,7 +1,7 @@
 import {isEmpty, sum} from "../../../helpers/collections";
 import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {valueChanged} from "../../../helpers/events";
-import React, {useState} from "react";
+import {useState} from "react";
 import {EditThrow} from "./EditThrow";
 import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";

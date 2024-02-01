@@ -1,4 +1,3 @@
-import React from "react";
 import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {BootstrapDropdown, IBootstrapDropdownItem, IBootstrapDropdownProps} from "./BootstrapDropdown";
 import {toDictionary} from "../../helpers/collections";

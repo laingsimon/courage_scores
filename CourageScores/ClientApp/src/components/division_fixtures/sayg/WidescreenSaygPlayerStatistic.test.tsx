@@ -1,5 +1,4 @@
 import {cleanUp, renderApp, doClick, iocProps, brandingProps, appProps, TestContext} from "../../../helpers/tests";
-import React from "react";
 import {IWidescreenSaygPlayerStatisticProps, WidescreenSaygPlayerStatistic} from "./WidescreenSaygPlayerStatistic";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";

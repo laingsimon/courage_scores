@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {all, any, DataMap, elementAt, isEmpty, toMap} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";

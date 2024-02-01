@@ -1,7 +1,7 @@
 import {useApp} from "../../AppContainer";
 import {any} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
-import React, {useState} from "react";
+import {useState} from "react";
 import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
 import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";

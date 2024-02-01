@@ -1,5 +1,4 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../helpers/tests";
-import React from "react";
 import {DataError} from "./DataError";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "./DivisionDataContainer";
 import {createTemporaryId} from "../helpers/projection";

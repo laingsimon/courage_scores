@@ -4,7 +4,6 @@ import {MemoryRouter, Route, Routes} from "react-router-dom";
 import {IocContainer, IIocContainerProps} from "../IocContainer";
 import {AppContainer, IAppContainerProps} from "../AppContainer";
 import ReactDOM from "react-dom/client";
-import React from "react";
 import {BrandingContainer, IBrandingContainerProps} from "../BrandingContainer";
 import {UserEvent} from "@testing-library/user-event/setup/setup";
 import {IError} from "../interfaces/IError";

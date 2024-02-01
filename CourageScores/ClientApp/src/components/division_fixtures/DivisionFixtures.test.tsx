@@ -10,7 +10,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {toMap} from "../../helpers/collections";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";

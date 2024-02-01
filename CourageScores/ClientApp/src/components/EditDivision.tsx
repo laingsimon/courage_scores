@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {valueChanged} from "../helpers/events";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";

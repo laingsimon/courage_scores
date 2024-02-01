@@ -15,6 +15,7 @@
     "strict": false,
     "strictBindCallApply": false,
     "strictFunctionTypes": false,
+    "noUnusedLocals": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
     "useUnknownInCatchVariables": true,

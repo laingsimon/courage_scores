@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Collapse, Navbar, NavbarBrand, NavLink} from 'reactstrap';
 import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';

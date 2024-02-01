@@ -8,7 +8,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {IPlayerInputProps, PlayerInput} from "./PlayerInput";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../helpers/builders/sayg";
 import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";

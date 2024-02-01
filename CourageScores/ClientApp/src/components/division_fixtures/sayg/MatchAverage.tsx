@@ -1,6 +1,5 @@
 import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
-import React from "react";
 
 export interface IMatchAverageProps {
     homeAverage: number;

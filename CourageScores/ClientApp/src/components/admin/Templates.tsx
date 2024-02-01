@@ -1,5 +1,5 @@
 import {useDependencies} from "../../IocContainer";
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useApp} from "../../AppContainer";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";

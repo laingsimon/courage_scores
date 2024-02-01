@@ -1,4 +1,3 @@
-import React from "react";
 
 /* istanbul ignore file */
 export function ReportNotFound() {

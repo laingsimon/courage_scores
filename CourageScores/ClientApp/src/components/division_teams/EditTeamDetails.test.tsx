@@ -11,7 +11,6 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails, IEditTeamDetailsProps} from "./EditTeamDetails";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";

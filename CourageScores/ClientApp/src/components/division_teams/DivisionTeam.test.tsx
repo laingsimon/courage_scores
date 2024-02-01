@@ -10,7 +10,6 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionTeam} from "./DivisionTeam";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";

@@ -9,7 +9,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {toMap} from "../../../helpers/collections";
 import {EditTournament, IEditTournamentProps} from "./EditTournament";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";

@@ -1,4 +1,3 @@
-import React from "react";
 import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";

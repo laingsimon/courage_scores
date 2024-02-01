@@ -7,7 +7,6 @@ import {
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../../helpers/rendering";
 import {tournamentMatchBuilder} from "../../../../helpers/builders/tournaments";

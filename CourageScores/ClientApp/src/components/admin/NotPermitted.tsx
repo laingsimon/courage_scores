@@ -1,4 +1,3 @@
-import React from 'react';
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useLocation} from "react-router-dom";

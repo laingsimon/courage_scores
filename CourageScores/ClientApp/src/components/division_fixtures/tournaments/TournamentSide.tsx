@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {EditSide} from "./EditSide";
 import {count, isEmpty} from "../../../helpers/collections";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";

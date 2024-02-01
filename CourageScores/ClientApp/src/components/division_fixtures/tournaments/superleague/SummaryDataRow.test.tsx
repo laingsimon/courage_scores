@@ -7,7 +7,6 @@ import {
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {ISummaryDataRowProps, SummaryDataRow} from "./SummaryDataRow";
 import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";

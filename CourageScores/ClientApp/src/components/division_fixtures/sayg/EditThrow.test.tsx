@@ -8,7 +8,6 @@ import {
     brandingProps,
     appProps, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {EditThrow, IEditThrowProps} from "./EditThrow";
 import {toDictionary} from "../../../helpers/collections";
 import {valueChanged} from "../../../helpers/events";

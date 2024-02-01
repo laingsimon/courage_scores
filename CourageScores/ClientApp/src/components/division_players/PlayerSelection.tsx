@@ -1,4 +1,3 @@
-import React from 'react';
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 
 export interface ISelectablePlayer {

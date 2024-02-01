@@ -11,7 +11,6 @@ import {
 } from "../../../helpers/tests";
 import {toMap} from "../../../helpers/collections";
 import {repeat, createTemporaryId} from "../../../helpers/projection";
-import React from "react";
 import {CreateSeasonDialog, ICreateSeasonDialogProps} from "./CreateSeasonDialog";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../../DivisionDataContainer";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";

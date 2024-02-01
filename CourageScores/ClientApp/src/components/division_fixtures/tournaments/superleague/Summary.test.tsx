@@ -7,7 +7,6 @@ import {
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {ISummaryProps, Summary} from "./Summary";
 import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";

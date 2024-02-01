@@ -8,7 +8,6 @@
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {ITableSelectionProps, TableSelection} from "./TableSelection";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 

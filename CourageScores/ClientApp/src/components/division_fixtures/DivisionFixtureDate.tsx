@@ -3,7 +3,6 @@ import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {DivisionFixture, IEditableDivisionFixtureDto} from "./DivisionFixture";
 import {TournamentFixture} from "./TournamentFixture";
-import React from "react";
 import {useApp} from "../../AppContainer";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";

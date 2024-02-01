@@ -1,5 +1,4 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import React from "react";
 import {EmbedAwareLink} from "./EmbedAwareLink";
 
 describe('EmbedAwareLink', () => {

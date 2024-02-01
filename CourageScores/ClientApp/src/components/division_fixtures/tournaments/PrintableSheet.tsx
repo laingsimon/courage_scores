@@ -2,7 +2,7 @@ import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../../helpers/projection";
 import {any, count, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 import {ShareButton} from "../../common/ShareButton";

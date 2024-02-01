@@ -10,7 +10,6 @@ import {
     noop,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {createTemporaryId} from "../../../helpers/projection";

@@ -1,5 +1,4 @@
 import {appProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import React from "react";
 import {Heading} from "./Heading";
 import {IBuild} from "../../interfaces/IBuild";
 import {IBrandingContainerProps} from "../../BrandingContainer";

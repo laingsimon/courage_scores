@@ -1,6 +1,5 @@
 import {any} from "../../../helpers/collections";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
-import React from "react";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 

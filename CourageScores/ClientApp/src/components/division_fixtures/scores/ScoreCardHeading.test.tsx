@@ -1,4 +1,3 @@
-import React from "react";
 import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../../helpers/tests";
 import {toMap} from "../../../helpers/collections";
 import {IScoreCardHeadingProps, ScoreCardHeading} from "./ScoreCardHeading";

@@ -8,7 +8,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {IScoreAsYouGoProps, ScoreAsYouGo} from "./ScoreAsYouGo";
 import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {ILiveContainerProps, LiveContainer} from "../LiveContainer";

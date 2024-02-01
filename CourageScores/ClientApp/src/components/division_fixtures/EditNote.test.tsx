@@ -9,7 +9,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {EditNote} from "./EditNote";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";

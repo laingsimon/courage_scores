@@ -1,5 +1,4 @@
-﻿import React from "react";
-import {AdminHome} from "./AdminHome";
+﻿import {AdminHome} from "./AdminHome";
 import {AdminContainer} from "./AdminContainer";
 import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";

@@ -1,4 +1,3 @@
-import React from "react";
 import {useSayg} from "../sayg/SaygLoadingContainer";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import {DivisionPlayers} from "./DivisionPlayers";
 import {ShareButton} from "../common/ShareButton";
 import {any} from "../../helpers/collections";

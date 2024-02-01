@@ -11,7 +11,6 @@ import {
     renderApp,
     TestContext
 } from "../helpers/tests";
-import React from "react";
 import {EditSeason, IEditSeasonProps} from "./EditSeason";
 import {EditSeasonDto} from "../interfaces/models/dtos/Season/EditSeasonDto";
 import {SeasonDto} from "../interfaces/models/dtos/Season/SeasonDto";

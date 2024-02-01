@@ -10,7 +10,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {ITournamentRoundProps, TournamentRound} from "./TournamentRound";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";

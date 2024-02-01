@@ -11,7 +11,6 @@ import {
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
 import {DataMap, toMap} from "../../helpers/collections";
-import React from "react";
 import {DivisionFixture, IDivisionFixtureProps} from "./DivisionFixture";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";

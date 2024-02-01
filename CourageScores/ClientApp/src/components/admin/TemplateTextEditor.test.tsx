@@ -1,5 +1,4 @@
 ﻿import {AdminContainer} from "./AdminContainer";
-import React from "react";
 import {
     cleanUp,
     renderApp,

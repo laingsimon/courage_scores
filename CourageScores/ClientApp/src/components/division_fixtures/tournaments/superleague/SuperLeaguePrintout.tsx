@@ -2,7 +2,7 @@ import {MasterDraw} from "./MasterDraw";
 import {MatchLog} from "./MatchLog";
 import {Summary} from "./Summary";
 import {MatchReport} from "./MatchReport";
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {any, max} from "../../../../helpers/collections";
 import {useDependencies} from "../../../../IocContainer";
 import {useApp} from "../../../../AppContainer";

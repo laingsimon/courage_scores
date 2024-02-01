@@ -10,7 +10,6 @@ import {
     renderApp,
     TestContext
 } from "../helpers/tests";
-import React from "react";
 import {Practice} from "./Practice";
 import {createTemporaryId} from "../helpers/projection";
 import {RecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Link, useParams} from "react-router-dom";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {NavLink} from "reactstrap";

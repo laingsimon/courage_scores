@@ -7,7 +7,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {IPickTemplateProps, PickTemplate} from "./PickTemplate";
 import {createTemporaryId} from "../../../helpers/projection";
 import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";

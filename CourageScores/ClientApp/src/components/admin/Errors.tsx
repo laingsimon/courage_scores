@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";

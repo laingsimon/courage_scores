@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Link, useParams} from "react-router-dom";
 import {NavLink} from "reactstrap";
 import {DivisionTeams} from "./division_teams/DivisionTeams";

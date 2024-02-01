@@ -7,7 +7,6 @@ import {
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {IMatchReportProps, MatchReport} from "./MatchReport";
 import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";

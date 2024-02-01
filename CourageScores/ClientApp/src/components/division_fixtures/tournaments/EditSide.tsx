@@ -1,5 +1,5 @@
 import {propChanged, stateChanged, valueChanged} from "../../../helpers/events";
-import React, {useState} from "react";
+import {useState} from "react";
 import {Dialog} from "../../common/Dialog";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
 import {useApp} from "../../../AppContainer";

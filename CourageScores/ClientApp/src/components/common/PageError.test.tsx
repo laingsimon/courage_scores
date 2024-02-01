@@ -8,7 +8,6 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {PageError} from "./PageError";
 import {IError} from "../../interfaces/IError";
 

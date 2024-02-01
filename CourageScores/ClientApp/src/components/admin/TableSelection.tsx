@@ -1,4 +1,3 @@
-import React from 'react';
 import {any, sortBy} from "../../helpers/collections";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 

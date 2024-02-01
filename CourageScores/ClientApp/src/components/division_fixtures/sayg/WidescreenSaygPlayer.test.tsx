@@ -9,7 +9,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {IWidescreenSaygPlayerProps, WidescreenSaygPlayer} from "./WidescreenSaygPlayer";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {LiveContainer} from "../LiveContainer";

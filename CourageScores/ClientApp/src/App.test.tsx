@@ -1,5 +1,4 @@
 import {api, cleanUp, doClick, findButton, iocProps, noop, TestContext} from "./helpers/tests";
-import React from "react";
 import {App} from "./App";
 import {act} from "@testing-library/react";
 import {MemoryRouter, Route} from "react-router-dom";

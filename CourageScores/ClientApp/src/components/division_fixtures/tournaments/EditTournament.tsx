@@ -4,7 +4,7 @@ import {TournamentSide} from "./TournamentSide";
 import {TournamentRound} from "./TournamentRound";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
-import React, {useState} from "react";
+import {useState} from "react";
 import {useApp} from "../../../AppContainer";
 import {useTournament} from "./TournamentContainer";
 import {EditSide} from "./EditSide";

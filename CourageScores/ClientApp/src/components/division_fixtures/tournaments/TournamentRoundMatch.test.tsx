@@ -11,7 +11,6 @@ import {
     noop,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {any, toMap} from "../../../helpers/collections";
 import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoundMatch";

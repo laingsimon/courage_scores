@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {EditTeamDetails} from "./EditTeamDetails";
 import {Dialog} from "../common/Dialog";
 import {propChanged} from "../../helpers/events";

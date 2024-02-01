@@ -1,6 +1,5 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
-import React from "react";
 import {FilterFixtures, IFilterFixturesProps} from "./FilterFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {teamBuilder} from "../../helpers/builders/teams";

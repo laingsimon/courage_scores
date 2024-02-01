@@ -1,6 +1,5 @@
 import {any} from "../../../helpers/collections";
 import {ViewHealthCheck} from "../../division_health/ViewHealthCheck";
-import React from "react";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";

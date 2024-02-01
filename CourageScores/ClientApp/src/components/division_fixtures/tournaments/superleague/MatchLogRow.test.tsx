@@ -7,7 +7,6 @@
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {IMatchLogRowProps, MatchLogRow} from "./MatchLogRow";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../../helpers/builders/sayg";
 import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";

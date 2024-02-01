@@ -11,7 +11,6 @@ import {
     noop,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {Score} from "./Score";

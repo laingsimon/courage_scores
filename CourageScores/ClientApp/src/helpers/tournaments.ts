@@ -136,14 +136,6 @@ export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataFor
     return newLayoutData;
 }
 
-function mergeMnemonics(current: string, additional: string): string {
-    if (!current) {
-        return additional;
-    }
-
-    return current.split('/').concat(additional.split('/')).sort().join('/');
-}
-
 function getMnemonicForIndex(ordinal: number): string {
     const mnemonics = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     return mnemonics[ordinal];

@@ -11,7 +11,6 @@ import {
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {toMap} from "../../helpers/collections";
-import React from "react";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {ITournamentFixtureProps, TournamentFixture} from "./TournamentFixture";
 import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTournamentGameDto";

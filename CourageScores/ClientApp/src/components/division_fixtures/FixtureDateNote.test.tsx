@@ -9,7 +9,6 @@
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {FixtureDateNote, IFixtureDateNoteProps} from "./FixtureDateNote";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {noteBuilder} from "../../helpers/builders/divisions";

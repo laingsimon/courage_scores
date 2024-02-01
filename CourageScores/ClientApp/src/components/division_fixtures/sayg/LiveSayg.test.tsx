@@ -9,7 +9,6 @@ import {
     renderApp,
     TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {LiveSayg} from "./LiveSayg";
 import {saygBuilder} from "../../../helpers/builders/sayg";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";

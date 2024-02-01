@@ -1,4 +1,3 @@
-import React from "react";
 import {ShareButton} from "../../common/ShareButton";
 import {valueChanged} from "../../../helpers/events";
 import {useBranding} from "../../../BrandingContainer";

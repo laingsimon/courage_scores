@@ -7,7 +7,6 @@ import {
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {IMatchLogProps, MatchLog} from "./MatchLog";
 import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ISuperleagueSaygMatchMapping} from "../../../../interfaces/ISuperleagueSaygMatchMapping";

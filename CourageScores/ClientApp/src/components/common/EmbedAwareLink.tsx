@@ -1,6 +1,5 @@
 import {Link} from "react-router-dom";
 import {useApp} from "../../AppContainer";
-import React from "react";
 
 export interface IEmbedAwareLinkProps {
     children: React.ReactNode;

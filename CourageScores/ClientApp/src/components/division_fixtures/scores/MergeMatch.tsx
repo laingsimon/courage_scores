@@ -1,4 +1,3 @@
-import React from 'react';
 import {useApp} from "../../../AppContainer";
 import {matchEquals} from "./MatchComparer";
 import {repeat} from "../../../helpers/projection";

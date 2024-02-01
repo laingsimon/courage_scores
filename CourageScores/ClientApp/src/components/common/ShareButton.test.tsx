@@ -8,7 +8,6 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import React from "react";
 import {IShareButtonProps, ShareButton} from "./ShareButton";
 
 describe('ShareButton', () => {

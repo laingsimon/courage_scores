@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, count, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";

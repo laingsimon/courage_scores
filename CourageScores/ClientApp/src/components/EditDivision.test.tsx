@@ -10,7 +10,6 @@ import {
     renderApp,
     TestContext
 } from "../helpers/tests";
-import React from "react";
 import {EditDivision, IEditDivisionProps} from "./EditDivision";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {EditDivisionDto} from "../interfaces/models/dtos/EditDivisionDto";

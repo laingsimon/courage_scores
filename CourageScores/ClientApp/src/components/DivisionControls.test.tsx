@@ -10,7 +10,6 @@ import {
     renderApp,
     TestContext
 } from "../helpers/tests";
-import React from "react";
 import {DivisionControls, IDivisionControlsProps} from "./DivisionControls";
 import {renderDate} from "../helpers/rendering";
 import {EditSeasonDto} from "../interfaces/models/dtos/Season/EditSeasonDto";

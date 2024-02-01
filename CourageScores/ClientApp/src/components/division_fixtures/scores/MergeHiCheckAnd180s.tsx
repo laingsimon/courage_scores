@@ -1,4 +1,3 @@
-import React from "react";
 import {any, isEmpty} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";

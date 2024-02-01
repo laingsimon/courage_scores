@@ -1,6 +1,5 @@
 import {any, distinct, sortBy} from "../../../helpers/collections";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
-import React from "react";
 import {useApp} from "../../../AppContainer";
 import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
 import {ProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/ProposalResultDto";

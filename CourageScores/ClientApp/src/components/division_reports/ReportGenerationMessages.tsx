@@ -1,5 +1,4 @@
 import {isEmpty} from "../../helpers/collections";
-import React from "react";
 
 export interface IReportGenerationMessagesProps {
     messages: string[];

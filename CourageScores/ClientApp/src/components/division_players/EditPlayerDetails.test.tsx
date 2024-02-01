@@ -8,7 +8,6 @@ import {
     TestContext,
     iocProps, brandingProps, appProps, ErrorState, api
 } from "../../helpers/tests";
-import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails, IEditPlayerDetailsProps} from "./EditPlayerDetails";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";

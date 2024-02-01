@@ -1,5 +1,4 @@
 import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../../helpers/tests";
-import React from "react";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {IPrintableSheetProps, PrintableSheet} from "./PrintableSheet";
 import {renderDate} from "../../../helpers/rendering";

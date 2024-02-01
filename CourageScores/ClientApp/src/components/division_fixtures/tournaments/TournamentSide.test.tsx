@@ -8,7 +8,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";

@@ -1,4 +1,3 @@
-import React from "react";
 import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {IBootstrapDropdownItem} from "../../common/BootstrapDropdown";

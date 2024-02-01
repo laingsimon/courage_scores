@@ -7,7 +7,6 @@
     renderApp,
     TestContext
 } from "../../../../helpers/tests";
-import React from "react";
 import {IMatchReportRowProps, MatchReportRow} from "./MatchReportRow";
 import {LegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";

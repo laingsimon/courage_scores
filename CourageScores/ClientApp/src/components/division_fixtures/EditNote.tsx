@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {valueChanged} from "../../helpers/events";

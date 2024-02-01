@@ -10,7 +10,6 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {act} from "@testing-library/react";
-import React from "react";
 import {
     ILoadedScoreAsYouGoDto,
     ISaygLoadingContainerProps,

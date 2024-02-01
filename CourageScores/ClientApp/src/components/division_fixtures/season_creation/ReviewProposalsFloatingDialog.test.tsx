@@ -8,7 +8,6 @@ import {
     brandingProps,
     appProps, TestContext
 } from "../../../helpers/tests";
-import React from "react";
 import {IReviewProposalsFloatingDialogProps, ReviewProposalsFloatingDialog} from "./ReviewProposalsFloatingDialog";
 import {toDictionary} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";

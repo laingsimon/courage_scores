@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {ISelectablePlayer, PlayerSelection} from "../../division_players/PlayerSelection";
 import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";

@@ -1,5 +1,4 @@
 import {AdminContainer, IAdminContainerProps} from "./AdminContainer";
-import React from "react";
 import {
     api,
     appProps,

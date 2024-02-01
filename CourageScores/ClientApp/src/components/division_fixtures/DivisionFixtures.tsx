@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {FilterFixtures} from "./FilterFixtures";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
