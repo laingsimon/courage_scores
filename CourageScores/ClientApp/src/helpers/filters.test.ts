@@ -17,7 +17,7 @@ import {IFilter} from "../interfaces/IFilter";
 import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder} from "./builders/divisions";
 import {ITournamentSideBuilder, tournamentBuilder} from "./builders/tournaments";
 import {teamBuilder} from "./builders/teams";
-import {IDivisionFixtureDateDto} from "../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {DivisionFixtureDateDto} from "../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {Filter, NullFilter} from "../Filter";
 import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
 import {fixtureBuilder} from "./builders/games";
@@ -131,10 +131,10 @@ describe('filters', () => {
     describe('optionallyInvertFilter', () => {
         it('returns filter if empty', () => {
             const context: IRenderContext = {futureDateShown: '1'};
-            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
+            const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
             const stubFilter = new NullFilter<string>();
-            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
-            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
+            let call: {filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
@@ -150,10 +150,10 @@ describe('filters', () => {
 
         it('returns filter if it does not start with not(', () => {
             const context: IRenderContext = {futureDateShown: '1'};
-            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
+            const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
             const stubFilter = new NullFilter<string>();
-            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
-            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
+            let call: {filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };
@@ -169,9 +169,9 @@ describe('filters', () => {
 
         it('returns null filter if no filter created and filter start with not(', () => {
             const context: IRenderContext = {futureDateShown: '1'};
-            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
-            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
-            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
+            const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
+            let call: {filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return null;
             };
@@ -187,10 +187,10 @@ describe('filters', () => {
 
         it('returns inverted filter if filter created and filter start with not(', () => {
             const context: IRenderContext = {futureDateShown: '1'};
-            const fixtures: IDivisionFixtureDateDto[] = [{ date: '2' }];
+            const fixtures: DivisionFixtureDateDto[] = [{ date: '2' }];
             const stubFilter = new Filter<string>(_ => true);
-            let call: {filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]};
-            const getFilter = (filter: string, context: IRenderContext, fixtures: IDivisionFixtureDateDto[]) => {
+            let call: {filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]};
+            const getFilter = (filter: string, context: IRenderContext, fixtures: DivisionFixtureDateDto[]) => {
                 call = {filter, context, fixtures};
                 return stubFilter;
             };

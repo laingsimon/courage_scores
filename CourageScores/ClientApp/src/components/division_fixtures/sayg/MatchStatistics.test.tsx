@@ -15,27 +15,27 @@ import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../help
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {createTemporaryId} from "../../../helpers/projection";
 import {act} from "@testing-library/react";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IAppContainerProps} from "../../../AppContainer";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('MatchStatistics', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let saygData: IRecordedScoreAsYouGoDto;
-    let updatedSayg: IUpdateRecordedScoreAsYouGoDto;
+    let saygData: RecordedScoreAsYouGoDto;
+    let updatedSayg: UpdateRecordedScoreAsYouGoDto;
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
         get: () => {
             return saygData;
         },
-        upsert: (data: IUpdateRecordedScoreAsYouGoDto) => {
+        upsert: (data: UpdateRecordedScoreAsYouGoDto) => {
             updatedSayg = data;
             return {
                 success: true,
@@ -54,7 +54,7 @@ describe('MatchStatistics', () => {
         socketFactory = new MockSocketFactory();
     });
 
-    async function renderComponent(saygContainerProps: ISaygLoadingContainerProps, data?: IRecordedScoreAsYouGoDto, appContainerProps?: IAppContainerProps) {
+    async function renderComponent(saygContainerProps: ISaygLoadingContainerProps, data?: RecordedScoreAsYouGoDto, appContainerProps?: IAppContainerProps) {
         saygData = data;
         context = await renderApp(
             iocProps({saygApi, socketFactory: socketFactory.createSocket}),
@@ -278,7 +278,7 @@ describe('MatchStatistics', () => {
             .opponentName('AWAY')
             .numberOfLegs(3)
             .build();
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             givenName: '',
             name: '',
@@ -418,7 +418,7 @@ describe('MatchStatistics', () => {
     });
 
     it('enables live updates by default', async () => {
-        const leg: ILegDto = legBuilder()
+        const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home((c: ILegCompetitorScoreBuilder) => c)
@@ -429,14 +429,14 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [id],
         };
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             emailAddress: '',
             givenName: '',
             access: { useWebSockets: true },
         };
         console.log = noop;
-        const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+        const saygData: RecordedScoreAsYouGoDto = saygBuilder()
             .withLeg(0, leg)
             .scores(0, 0)
             .yourName('HOME')
@@ -455,7 +455,7 @@ describe('MatchStatistics', () => {
     });
 
     it('does not enable live updates by default', async () => {
-        const leg: ILegDto = legBuilder()
+        const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home((c: ILegCompetitorScoreBuilder) => c)
@@ -465,7 +465,7 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [],
         };
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             emailAddress: '',
             givenName: '',
@@ -473,7 +473,7 @@ describe('MatchStatistics', () => {
                 useWebSockets: true,
             },
         }
-        const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+        const saygData: RecordedScoreAsYouGoDto = saygBuilder()
             .withLeg(0, leg)
             .scores(0, 0)
             .yourName('HOME')
@@ -496,7 +496,7 @@ describe('MatchStatistics', () => {
     });
 
     it('shows throws on last leg when not finished', async () => {
-        const leg: ILegDto = legBuilder()
+        const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
@@ -507,14 +507,14 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [id],
         };
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             name: '',
             emailAddress: '',
             access: { useWebSockets: true },
         };
         console.log = noop;
-        const saygData: IRecordedScoreAsYouGoDto = saygBuilder(id)
+        const saygData: RecordedScoreAsYouGoDto = saygBuilder(id)
             .withLeg(0, leg)
             .scores(0, 0)
             .yourName('HOME')
@@ -545,7 +545,7 @@ describe('MatchStatistics', () => {
     });
 
     it('closes socket when live updates are canceled', async () => {
-        const leg: ILegDto = legBuilder()
+        const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
@@ -556,7 +556,7 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [saygId],
         };
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
@@ -564,7 +564,7 @@ describe('MatchStatistics', () => {
                 useWebSockets: true
             },
         };
-        const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+        const saygData: RecordedScoreAsYouGoDto = saygBuilder()
             .withLeg(0, leg)
             .scores(1)
             .yourName('HOME')
@@ -589,7 +589,7 @@ describe('MatchStatistics', () => {
     });
 
     it('shows widescreen statistics', async () => {
-        const leg: ILegDto = legBuilder()
+        const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
@@ -600,13 +600,13 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [saygId],
         };
-        const saygData: IRecordedScoreAsYouGoDto = saygBuilder(saygId)
+        const saygData: RecordedScoreAsYouGoDto = saygBuilder(saygId)
             .withLeg(0, leg)
             .scores(1)
             .yourName('HOME')
             .numberOfLegs(3)
             .build();
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -633,7 +633,7 @@ describe('MatchStatistics', () => {
     });
 
     it('collapses all legs when final leg played', async () => {
-        const leg: ILegDto = legBuilder()
+        const leg: LegDto = legBuilder()
             .currentThrow('home')
             .startingScore(501)
             .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100).noOfDarts(3))
@@ -650,13 +650,13 @@ describe('MatchStatistics', () => {
             canSubscribe: true,
             subscribeAtStartup: [id],
         };
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             name: '',
             emailAddress: '',
             access: { useWebSockets: true },
         };
-        const saygData: IRecordedScoreAsYouGoDto = saygBuilder(id)
+        const saygData: RecordedScoreAsYouGoDto = saygBuilder(id)
             .withLeg(0, leg)
             .scores(0, 0)
             .yourName('HOME')

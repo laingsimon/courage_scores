@@ -11,12 +11,12 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {ITemplateDatesProps, TemplateDates} from "./TemplateDates";
-import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 describe('TemplateDates', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: IDateTemplateDto[];
+    let update: DateTemplateDto[];
 
     afterEach(() => {
         cleanUp(context);
@@ -27,7 +27,7 @@ describe('TemplateDates', () => {
         update = null;
     });
 
-    async function onUpdate(value: IDateTemplateDto[]) {
+    async function onUpdate(value: DateTemplateDto[]) {
         update = value;
     }
 

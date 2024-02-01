@@ -9,17 +9,17 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {IManOfTheMatchInputProps, ManOfTheMatchInput} from "./ManOfTheMatchInput";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
 import {fixtureBuilder, IMatchBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
 
 describe('ManOfTheMatchInput', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedFixtureData: IGameDto;
+    let updatedFixtureData: GameDto;
 
-    async function setFixtureData(newFixtureData: IGameDto) {
+    async function setFixtureData(newFixtureData: GameDto) {
         updatedFixtureData = newFixtureData;
     }
 
@@ -32,7 +32,7 @@ describe('ManOfTheMatchInput', () => {
         updatedFixtureData = null;
     });
 
-    async function renderComponent(account: IUserDto, props: IManOfTheMatchInputProps) {
+    async function renderComponent(account: UserDto, props: IManOfTheMatchInputProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -136,7 +136,7 @@ describe('ManOfTheMatchInput', () => {
     });
 
     describe('when logged in', () => {
-        let account: IUserDto = {
+        let account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',

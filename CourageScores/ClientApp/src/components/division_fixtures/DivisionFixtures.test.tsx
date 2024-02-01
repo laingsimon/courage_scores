@@ -14,10 +14,10 @@ import React from "react";
 import {toMap} from "../../helpers/collections";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {IEditFixtureDateNoteDto} from "../../interfaces/models/dtos/IEditFixtureDateNoteDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
+import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
@@ -28,7 +28,7 @@ import {
     INoteBuilder
 } from "../../helpers/builders/divisions";
 import {ITournamentBuilder, ITournamentSideBuilder} from "../../helpers/builders/tournaments";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 import {INoteApi} from "../../interfaces/apis/INoteApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
@@ -37,14 +37,14 @@ describe('DivisionFixtures', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let newFixtures: IEditableDivisionFixtureDateDto[];
-    let updatedNote: {id: string, note: IEditFixtureDateNoteDto};
+    let updatedNote: {id: string, note: EditFixtureDateNoteDto};
     const seasonApi = {};
     const gameApi = {};
     const noteApi = api<INoteApi>({
         create: async () => {
             return {success: true};
         },
-        upsert: async (id: string, note: IEditFixtureDateNoteDto) => {
+        upsert: async (id: string, note: EditFixtureDateNoteDto) => {
             updatedNote = {id, note};
             return {success: true};
         },
@@ -63,7 +63,7 @@ describe('DivisionFixtures', () => {
         }
     });
 
-    async function setNewFixtures(updatedFixtures: IDivisionFixtureDateDto[]) {
+    async function setNewFixtures(updatedFixtures: DivisionFixtureDateDto[]) {
         newFixtures = updatedFixtures
     }
 
@@ -85,7 +85,7 @@ describe('DivisionFixtures', () => {
         updatedNote = null;
     });
 
-    async function renderComponent(divisionData: IDivisionDataContainerProps, account: IUserDto, route?: string, path?: string, excludeControls?: boolean, teams?: ITeamDto[]) {
+    async function renderComponent(divisionData: IDivisionDataContainerProps, account: UserDto, route?: string, path?: string, excludeControls?: boolean, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps({seasonApi, gameApi, noteApi, tournamentApi, templateApi}),
             brandingProps(),
@@ -104,11 +104,11 @@ describe('DivisionFixtures', () => {
     }
 
     function getInSeasonDivisionData(): IDivisionDataContainerProps {
-        const season: ISeasonDto = seasonBuilder('A season')
+        const season: SeasonDto = seasonBuilder('A season')
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .build();
-        const team: ITeamDto = teamBuilder('A team').build();
+        const team: TeamDto = teamBuilder('A team').build();
 
         return divisionDataBuilder()
             .season(season)
@@ -119,7 +119,7 @@ describe('DivisionFixtures', () => {
             .build();
     }
 
-    function assertFixture(tr: Element, home: string, homeScore: string, awayScore: string, away: string, account?: IUserDto) {
+    function assertFixture(tr: Element, home: string, homeScore: string, awayScore: string, away: string, account?: UserDto) {
         const columns = tr.querySelectorAll('td');
         expect(columns.length).toEqual(5 + (account ? 1 : 0));
         expect(columns[0].textContent).toEqual(home);
@@ -135,7 +135,7 @@ describe('DivisionFixtures', () => {
         }
     }
 
-    function assertTournament(tr: Element, text: string, winner?: string, account?: IUserDto) {
+    function assertTournament(tr: Element, text: string, winner?: string, account?: UserDto) {
         const columns = tr.querySelectorAll('td');
         expect(columns.length).toEqual((winner ? 2 : 1) + (account ? 1 : 0));
         expect(columns[0].textContent).toEqual(text);
@@ -144,7 +144,7 @@ describe('DivisionFixtures', () => {
         }
     }
 
-    function getFixtureDateElement(index: number, account?: IUserDto): Element {
+    function getFixtureDateElement(index: number, account?: UserDto): Element {
         const fixtureElements = Array.from(context.container.querySelectorAll('div.content-background > div')) as HTMLElement[];
         expect(fixtureElements.length).toEqual(2 + (account ? 1 : 0));
         const fixtureDatesContainer = fixtureElements[1];
@@ -404,7 +404,7 @@ describe('DivisionFixtures', () => {
     });
 
     describe('when logged in', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',

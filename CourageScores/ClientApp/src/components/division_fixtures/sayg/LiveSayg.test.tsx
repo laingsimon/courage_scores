@@ -12,13 +12,13 @@ import {
 import React from "react";
 import {LiveSayg} from "./LiveSayg";
 import {saygBuilder} from "../../../helpers/builders/sayg";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('LiveSayg', () => {
     let context: TestContext;
     let requestedSaygId: string;
-    let saygData: IRecordedScoreAsYouGoDto;
+    let saygData: RecordedScoreAsYouGoDto;
     let reportedError: ErrorState;
     let socketFactory: MockSocketFactory;
     const saygApi = api<ISaygApi>({

@@ -4,12 +4,12 @@ import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IErrorDetailDto} from "../../interfaces/models/dtos/IErrorDetailDto";
+import {ErrorDetailDto} from "../../interfaces/models/dtos/ErrorDetailDto";
 
 export function Errors() {
     const [since, setSince] = useState<string>(new Date().toISOString().substring(0, 10));
     const [loading, setLoading] = useState<boolean>(false);
-    const [errors, setErrors] = useState<IErrorDetailDto[]>([]);
+    const [errors, setErrors] = useState<ErrorDetailDto[]>([]);
     const [focusedError, setFocusedError] = useState<string | null>(null);
     const {errorApi} = useDependencies();
     const {onError} = useApp();

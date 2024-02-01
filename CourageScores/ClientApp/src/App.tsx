@@ -15,10 +15,10 @@ import {mapError, mapForLogging} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 import {LiveSayg} from "./components/division_fixtures/sayg/LiveSayg";
 import {IApp} from "./interfaces/IApp";
-import {IDivisionDto} from "./interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "./interfaces/models/dtos/Season/ISeasonDto";
-import {ITeamDto} from "./interfaces/models/dtos/Team/ITeamDto";
-import {IUserDto} from "./interfaces/models/dtos/Identity/IUserDto";
+import {DivisionDto} from "./interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "./interfaces/models/dtos/Season/SeasonDto";
+import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
+import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
 
 export interface IAppProps {
     embed: boolean;
@@ -28,10 +28,10 @@ export interface IAppProps {
 
 export function App({embed, controls, testRoute}: IAppProps) {
     const {divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight} = useDependencies();
-    const [account, setAccount] = useState<IUserDto | null>(null);
-    const [divisions, setDivisions] = useState<DataMap<IDivisionDto>>(toMap([]));
-    const [seasons, setSeasons] = useState<DataMap<ISeasonDto>>(toMap([]));
-    const [teams, setTeams] = useState<DataMap<ITeamDto>>(toMap([]));
+    const [account, setAccount] = useState<UserDto | null>(null);
+    const [divisions, setDivisions] = useState<DataMap<DivisionDto>>(toMap([]));
+    const [seasons, setSeasons] = useState<DataMap<SeasonDto>>(toMap([]));
+    const [teams, setTeams] = useState<DataMap<TeamDto>>(toMap([]));
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<any | null>(null);
 

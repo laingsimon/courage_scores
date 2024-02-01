@@ -15,7 +15,7 @@ import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../../hel
 import {LiveContainer} from "../LiveContainer";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
 describe('WidescreenSaygPlayer', () => {
@@ -64,7 +64,7 @@ describe('WidescreenSaygPlayer', () => {
     }
 
     describe('renders', () => {
-        let sayg: IRecordedScoreAsYouGoDto;
+        let sayg: RecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()
@@ -378,7 +378,7 @@ describe('WidescreenSaygPlayer', () => {
     });
 
     describe('interactivity', () => {
-        let sayg: IRecordedScoreAsYouGoDto;
+        let sayg: RecordedScoreAsYouGoDto;
 
         beforeEach(() => {
             sayg = saygBuilder()

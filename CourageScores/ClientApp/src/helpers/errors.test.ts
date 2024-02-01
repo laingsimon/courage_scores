@@ -2,7 +2,7 @@
 
 import {mapError, mapForLogging} from "./errors";
 import {noop} from "./tests";
-import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
+import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
 
 describe('errors', () => {
     describe('mapError', () => {
@@ -33,7 +33,7 @@ describe('errors', () => {
 
     describe('mapForLogging', () => {
         it('maps basic properties', () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: 'NAME',
                 emailAddress: '',
                 givenName: '',
@@ -52,7 +52,7 @@ describe('errors', () => {
         });
 
         it('accepts null stack', () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: 'NAME',
                 emailAddress: '',
                 givenName: '',
@@ -70,7 +70,7 @@ describe('errors', () => {
         });
 
         it('accepts no type', () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: 'NAME',
                 emailAddress: '',
                 givenName: '',

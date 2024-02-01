@@ -8,23 +8,23 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IDivisionFixtureDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDto";
+import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IGameDto} from "../../interfaces/models/dtos/Game/IGameDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
-import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
     date: string;
     readOnly?: boolean;
-    onUpdateFixtures: (adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => IDivisionFixtureDateDto[]) => Promise<any>;
+    onUpdateFixtures: (adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]) => Promise<any>;
     beforeReloadDivision?: () => Promise<any>;
 }
 
-export interface IEditableDivisionFixtureDto extends IDivisionFixtureDto {
+export interface IEditableDivisionFixtureDto extends DivisionFixtureDto {
     originalAwayTeamId?: string;
 }
 
@@ -38,7 +38,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<IGameDto> | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<GameDto> | null>(null);
     const [clipCellRegion, setClipCellRegion] = useState<boolean>(true);
     const {gameApi} = useDependencies();
     const awayTeamId: string = fixture.awayTeam ? fixture.awayTeam.id : '';
@@ -51,34 +51,34 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         await onReloadDivision();
     }
 
-    function isSelectedInAnotherFixtureOnThisDate(t: IDivisionTeamDto): IDivisionFixtureDto {
-        const fixturesForThisDate: IDivisionFixtureDateDto = fixtures.filter((f: IDivisionFixtureDateDto) => f.date === date)[0];
+    function isSelectedInAnotherFixtureOnThisDate(t: DivisionTeamDto): DivisionFixtureDto {
+        const fixturesForThisDate: DivisionFixtureDateDto = fixtures.filter((f: DivisionFixtureDateDto) => f.date === date)[0];
         if (!fixturesForThisDate || !fixturesForThisDate.fixtures) {
             return null;
         }
 
         // intentionally looks at qualifier games
-        const realFixtures: IDivisionFixtureDto[] = fixturesForThisDate.fixtures.filter((f: IDivisionFixtureDto) => f.awayTeam && f.homeTeam && f.id !== fixture.id);
-        const selected: IDivisionFixtureDto[] = realFixtures.filter((f: IDivisionFixtureDto) => f.homeTeam.id === t.id || f.awayTeam.id === t.id);
+        const realFixtures: DivisionFixtureDto[] = fixturesForThisDate.fixtures.filter((f: DivisionFixtureDto) => f.awayTeam && f.homeTeam && f.id !== fixture.id);
+        const selected: DivisionFixtureDto[] = realFixtures.filter((f: DivisionFixtureDto) => f.homeTeam.id === t.id || f.awayTeam.id === t.id);
         return any(selected)
             ? selected[0]
             : null;
     }
 
-    function isSelectedInSameFixtureOnAnotherDate(t: IDivisionTeamDto): string {
-        const matching: IDivisionFixtureDateDto[] = fixtures.filter((fixtureDate: IDivisionFixtureDateDto) => {
+    function isSelectedInSameFixtureOnAnotherDate(t: DivisionTeamDto): string {
+        const matching: DivisionFixtureDateDto[] = fixtures.filter((fixtureDate: DivisionFixtureDateDto) => {
             if (fixtureDate.date === date) {
                 return null;
             }
 
-            return any(fixtureDate.fixtures, (f: IDivisionFixtureDto) => !f.isKnockout && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
+            return any(fixtureDate.fixtures, (f: DivisionFixtureDto) => !f.isKnockout && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
         });
 
         return any(matching) ? matching[0].date : null;
     }
 
-    function getUnavailableReason(t: IDivisionTeamDto): string {
-        let otherFixtureSameDate: IDivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
+    function getUnavailableReason(t: DivisionTeamDto): string {
+        let otherFixtureSameDate: DivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
         if (otherFixtureSameDate) {
             return otherFixtureSameDate.awayTeam.id === t.id
                 ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
@@ -97,8 +97,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             return;
         }
 
-        await onUpdateFixtures((currentFixtureDates: IDivisionFixtureDateDto[]) => {
-            const fixtureDate: IDivisionFixtureDateDto = currentFixtureDates.filter(fd => fd.date === date)[0];
+        await onUpdateFixtures((currentFixtureDates: DivisionFixtureDateDto[]) => {
+            const fixtureDate: DivisionFixtureDateDto = currentFixtureDates.filter(fd => fd.date === date)[0];
 
             // istanbul ignore next
             if (!fixtureDate) {
@@ -112,7 +112,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 return null;
             }
 
-            const fixtureDateFixture: IDivisionFixtureDto = fixtureDate.fixtures.filter((f: IDivisionFixtureDto) => f.id === fixture.id)[0];
+            const fixtureDateFixture: DivisionFixtureDto = fixtureDate.fixtures.filter((f: DivisionFixtureDto) => f.id === fixture.id)[0];
             // istanbul ignore next
             if (!fixtureDateFixture) {
                 onError(`Could not find fixture with id ${fixture.id}`);
@@ -121,11 +121,11 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
             const newFixture: IEditableDivisionFixtureDto = Object.assign({}, fixtureDateFixture) as IEditableDivisionFixtureDto;
             newFixture.originalAwayTeamId = newFixture.originalAwayTeamId || (newFixture.awayTeam ? newFixture.awayTeam.id : 'unset');
-            const team: IDivisionTeamDto = teams.filter((t: IDivisionTeamDto) => t.id === teamId)[0];
+            const team: DivisionTeamDto = teams.filter((t: DivisionTeamDto) => t.id === teamId)[0];
             newFixture.awayTeam = teamId
                 ? {id: teamId, name: team ? team.name : '<unknown>'}
                 : null;
-            fixtureDate.fixtures = fixtureDate.fixtures.filter((f: IDivisionFixtureDto) => f.id !== fixture.id).concat([newFixture]).sort(sortBy('homeTeam.name'));
+            fixtureDate.fixtures = fixtureDate.fixtures.filter((f: DivisionFixtureDto) => f.id !== fixture.id).concat([newFixture]).sort(sortBy('homeTeam.name'));
 
             return currentFixtureDates;
         });
@@ -133,10 +133,10 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
     function renderKnockoutAwayTeams() {
         const options: IBootstrapDropdownItem[] = allTeams
-            .filter((t: ITeamDto) => t.id !== fixture.homeTeam.id)
-            .filter((t: ITeamDto) => any(t.seasons, ts => ts.seasonId === season.id))
-            .map((t: ITeamDto) => {
-                const otherFixtureSameDate: IDivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
+            .filter((t: TeamDto) => t.id !== fixture.homeTeam.id)
+            .filter((t: TeamDto) => any(t.seasons, ts => ts.seasonId === season.id))
+            .map((t: TeamDto) => {
+                const otherFixtureSameDate: DivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
                 const unavailableReason: string = otherFixtureSameDate
                     ? otherFixtureSameDate.awayTeam.id === t.id
                         ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
@@ -163,8 +163,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     function renderLeagueAwayTeams() {
         const byeOption: IBootstrapDropdownItem[] = fixture.id !== fixture.homeTeam.id ? [] : [bye];
         const options: IBootstrapDropdownItem[] = byeOption.concat(teams
-            .filter((t: IDivisionTeamDto) => t.id !== fixture.homeTeam.id)
-            .map((t: IDivisionTeamDto) => {
+            .filter((t: DivisionTeamDto) => t.id !== fixture.homeTeam.id)
+            .map((t: DivisionTeamDto) => {
                 const unavailableReason: string = getUnavailableReason(t);
 
                 return {
@@ -222,7 +222,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             }
 
             setSaving(true);
-            const result: IClientActionResultDto<IGameDto> = await gameApi.update({
+            const result: IClientActionResultDto<GameDto> = await gameApi.update({
                 id: undefined,
                 address: fixture.homeTeam.address,
                 divisionId: divisionId,
@@ -258,7 +258,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
             setDeleting(true);
             try {
-                const result: IClientActionResultDto<IGameDto> = await gameApi.delete(fixture.id);
+                const result: IClientActionResultDto<GameDto> = await gameApi.delete(fixture.id);
                 if (result.success) {
                     await doReloadDivision();
                 } else {

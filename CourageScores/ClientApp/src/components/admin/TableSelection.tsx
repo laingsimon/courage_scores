@@ -1,9 +1,9 @@
 import React from 'react';
 import {any, sortBy} from "../../helpers/collections";
-import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
+import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 
 export interface ITableSelectionProps {
-    allTables?: ITableDto[];
+    allTables?: TableDto[];
     selected: string[];
     onTableChange?: (tables: string[]) => Promise<any>;
     requireCanExport?: boolean;
@@ -11,7 +11,7 @@ export interface ITableSelectionProps {
 }
 
 export function TableSelection({allTables, selected, onTableChange, requireCanExport, requireCanImport}: ITableSelectionProps) {
-    async function toggleTable(table: ITableDto) {
+    async function toggleTable(table: TableDto) {
         if (!onTableChange) {
             return;
         }
@@ -25,7 +25,7 @@ export function TableSelection({allTables, selected, onTableChange, requireCanEx
         }
     }
 
-    function renderTable(table: ITableDto) {
+    function renderTable(table: TableDto) {
         if ((requireCanExport && !table.canExport) || (requireCanImport && !table.canImport)) {
             return (<li key={table.name} className="list-group-item disabled">
                 {table.name}

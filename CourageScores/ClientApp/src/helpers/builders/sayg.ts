@@ -1,11 +1,11 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {IRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {createTemporaryId} from "../projection";
-import {ILegDto} from "../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
-export interface IRecordedSaygBuilder extends IAddableBuilder<IRecordedScoreAsYouGoDto & IUpdateRecordedScoreAsYouGoDto> {
+export interface IRecordedSaygBuilder extends IAddableBuilder<RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto> {
     scores: (home: number, away?: number) => IRecordedSaygBuilder;
     withLeg: (id: number, legOrBuilderFunc: any) => IRecordedSaygBuilder;
     yourName: (name: string) => IRecordedSaygBuilder;
@@ -18,7 +18,7 @@ export interface IRecordedSaygBuilder extends IAddableBuilder<IRecordedScoreAsYo
 }
 
 export function saygBuilder(id?: string): IRecordedSaygBuilder {
-    const sayg: IRecordedScoreAsYouGoDto & IUpdateRecordedScoreAsYouGoDto = {
+    const sayg: RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto = {
         id: id || createTemporaryId(),
         legs: {},
         yourName: null,
@@ -75,7 +75,7 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
     return builder;
 }
 
-export interface ILegBuilder extends IBuilder<ILegDto> {
+export interface ILegBuilder extends IBuilder<LegDto> {
     startingScore: (score: number) => ILegBuilder;
     currentThrow: (homeOrAway: string) => ILegBuilder;
     playerSequence: (homeOrAway: string, awayOrHome: string) => ILegBuilder;
@@ -86,7 +86,7 @@ export interface ILegBuilder extends IBuilder<ILegDto> {
 }
 
 export function legBuilder(): ILegBuilder {
-    const leg: ILegDto = {
+    const leg: LegDto = {
         home: null,
         away: null,
         isLastLeg: false,
@@ -136,7 +136,7 @@ export function legBuilder(): ILegBuilder {
     return builder;
 }
 
-export interface ILegCompetitorScoreBuilder extends IBuilder<ILegCompetitorScoreDto> {
+export interface ILegCompetitorScoreBuilder extends IBuilder<LegCompetitorScoreDto> {
     withThrow: (score: number, bust?: boolean, noOfDarts?: number) => ILegCompetitorScoreBuilder;
     score: (score: number) => ILegCompetitorScoreBuilder;
     noOfDarts: (noOfDarts: number) => ILegCompetitorScoreBuilder;
@@ -144,7 +144,7 @@ export interface ILegCompetitorScoreBuilder extends IBuilder<ILegCompetitorScore
 }
 
 export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {
-    const competitor: ILegCompetitorScoreDto = {
+    const competitor: LegCompetitorScoreDto = {
         throws: [],
         score: 0,
         bust: false,

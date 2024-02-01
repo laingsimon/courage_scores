@@ -25,7 +25,7 @@ public class TypeScriptInterfaceFactory
         return new TypeScriptInterface
         {
             DotNetType = type,
-            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/I" + GetTypeName(type, false),
+            RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/" + GetTypeName(type, false),
             Name = GetTypeName(type, true),
             Members =
                 type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
@@ -59,14 +59,21 @@ public class TypeScriptInterfaceFactory
 
     private static string GetTypeName(Type type, bool includeGenericArguments)
     {
+        var typeName = type.Name;
+        if (typeName.EndsWith("Controller"))
+        {
+            typeName = typeName.Replace("Controller", "Api");
+            typeName = "I" + typeName;
+        }
+
         if (type.GetGenericArguments().Any())
         {
-            var name = Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
+            var name = Regex.Match(typeName, "^(.+?)`.+$").Groups[1].Value;
             return includeGenericArguments
                 ? $"{name}<{string.Join(", ", type.GetGenericArguments().Select(ga => ga.Name))}>"
                 : name;
         }
 
-        return type.Name;
+        return typeName;
     }
 }

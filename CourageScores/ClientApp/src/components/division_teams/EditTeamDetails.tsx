@@ -5,18 +5,18 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {handleChange} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
-import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IEditTeamDetailsProps {
     divisionId: string;
-    onSaved: (team: ITeamDto) => Promise<any>;
+    onSaved: (team: TeamDto) => Promise<any>;
     onChange?: (name: string, value: string) => Promise<any>;
     onCancel: () => Promise<any>;
     seasonId: string;
-    team: IEditTeamDto;
+    team: EditTeamDto;
     lastUpdated?: string;
 }
 
@@ -25,7 +25,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
     const {teamApi} = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<any>(null);
-    const divisionOptions: IBootstrapDropdownItem[] = divisions.map((division: IDivisionDto) => {
+    const divisionOptions: IBootstrapDropdownItem[] = divisions.map((division: DivisionDto) => {
         return {value: division.id, text: division.name};
     });
 
@@ -44,7 +44,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
         setSaving(true);
 
         try {
-            const response: IClientActionResultDto<ITeamDto> = await teamApi.update({
+            const response: IClientActionResultDto<TeamDto> = await teamApi.update({
                 id: team.id || undefined,
                 name: team.name,
                 address: team.address,

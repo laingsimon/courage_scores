@@ -159,7 +159,7 @@ public class MetaDataHelper : IMetaDataHelper
             IsPrimitive = isPrimitive || isCustomPrimitive || isDotnetNativeType,
             RelativePath = isPrimitive || isCustomPrimitive || isDotnetNativeType
                 ? null
-                : GetRelativePath(context, type.Namespace!) + "/I" + type.Name,
+                : GetRelativePath(context, type.Namespace!) + "/" + type.Name,
         };
     }
 
@@ -205,10 +205,10 @@ public class MetaDataHelper : IMetaDataHelper
     {
         if (type.GetGenericArguments().Any())
         {
-            return "I" + Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
+            return Regex.Match(type.Name, "^(.+?)`.+$").Groups[1].Value;
         }
 
-        return "I" + type.Name;
+        return type.Name;
     }
 
     private static string GetPathToRoot(HelperContext context)

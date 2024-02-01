@@ -15,16 +15,16 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {IErrorDetailDto} from "../../interfaces/models/dtos/IErrorDetailDto";
+import {ErrorDetailDto} from "../../interfaces/models/dtos/ErrorDetailDto";
 import {IErrorApi} from "../../interfaces/apis/IErrorApi";
 
 describe('Errors', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let errorToThrow = null;
-    const recentMap: { [key: string]: IErrorDetailDto[] } = {};
+    const recentMap: { [key: string]: ErrorDetailDto[] } = {};
     const errorApi = api<IErrorApi>({
-        getRecent: async (since: string): Promise<IErrorDetailDto[]> => {
+        getRecent: async (since: string): Promise<ErrorDetailDto[]> => {
             if (errorToThrow) {
                 throw errorToThrow;
             }
@@ -53,7 +53,7 @@ describe('Errors', () => {
             </AdminContainer>));
     }
 
-    async function clickRefresh(since: string, apiResults: IErrorDetailDto[]) {
+    async function clickRefresh(since: string, apiResults: ErrorDetailDto[]) {
         recentMap[since] = apiResults;
         await doClick(findButton(context.container, 'Refresh'));
     }
@@ -71,7 +71,7 @@ describe('Errors', () => {
         });
     }
 
-    interface IAssertionProps extends IErrorDetailDto {
+    interface IAssertionProps extends ErrorDetailDto {
         // assertions
         time: string;
         url: string;

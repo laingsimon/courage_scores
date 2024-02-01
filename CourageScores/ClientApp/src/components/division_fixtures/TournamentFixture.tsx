@@ -6,16 +6,16 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {ITournamentGameDto} from "../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ITournamentSideDto} from "../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ITournamentPlayerDto} from "../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {
-    IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+    DivisionTournamentFixtureDetailsDto
+} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 
 export interface ITournamentFixtureProps {
-    tournament: IDivisionTournamentFixtureDetailsDto;
+    tournament: DivisionTournamentFixtureDetailsDto;
     onTournamentChanged: () => Promise<any>;
     date: string;
     expanded: boolean;
@@ -26,7 +26,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
     const {account, teams} = useApp();
     const [creating, setCreating] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<ITournamentGameDto> | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const isAdmin: boolean = account && account.access && account.access.manageTournaments;
     const {tournamentApi} = useDependencies();
 
@@ -40,7 +40,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         try {
             setCreating(true);
 
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.update({
+            const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.update({
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
@@ -71,7 +71,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         try {
             setDeleting(true);
 
-            const response: IClientActionResultDto<ITournamentGameDto> = await tournamentApi.delete(tournament.id);
+            const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.delete(tournament.id);
 
             if (response.success) {
                 await onTournamentChanged();
@@ -83,7 +83,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         }
     }
 
-    function renderLinkToPlayer(player: ITournamentPlayerDto) {
+    function renderLinkToPlayer(player: TournamentPlayerDto) {
         return (<EmbedAwareLink key={player.id} to={`/division/${divisionName}/player:${player.name}/${season.name}`}>
             {player.name}
         </EmbedAwareLink>);
@@ -93,7 +93,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         tournament.sides.sort(sortBy('name'));
 
         return (<div className="px-3">
-            {tournament.sides.map((side: ITournamentSideDto) => {
+            {tournament.sides.map((side: TournamentSideDto) => {
                 if (side.teamId && count(side.players) !== 1) {
                     return (<div key={side.id}>
                         <EmbedAwareLink to={`/division/${divisionName}/team:${side.teamId}/${season.name}`}>
@@ -113,7 +113,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         </div>);
     }
 
-    function renderWinner(winningSide: ITournamentSideDto) {
+    function renderWinner(winningSide: TournamentSideDto) {
         if (winningSide.teamId) {
             const team = teams[winningSide.teamId];
 

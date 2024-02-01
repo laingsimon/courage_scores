@@ -13,9 +13,9 @@ import {
 import React from "react";
 import {Practice} from "./Practice";
 import {createTemporaryId} from "../helpers/projection";
-import {IRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
+import {RecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../helpers/builders/sayg";
 import {ISaygApi} from "../interfaces/apis/ISaygApi";
@@ -23,22 +23,22 @@ import {ISaygApi} from "../interfaces/apis/ISaygApi";
 describe('Practice', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let saygData: { [key: string]: IRecordedScoreAsYouGoDto };
+    let saygData: { [key: string]: RecordedScoreAsYouGoDto };
     let shareData: ShareData | null;
-    let apiResultFunc: ((data: IUpdateRecordedScoreAsYouGoDto) => IClientActionResultDto<IRecordedScoreAsYouGoDto>);
+    let apiResultFunc: ((data: UpdateRecordedScoreAsYouGoDto) => IClientActionResultDto<RecordedScoreAsYouGoDto>);
 
     const saygApi = api<ISaygApi>({
-        get: async (id: string): Promise<IRecordedScoreAsYouGoDto | null> => {
+        get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             return saygData[id];
         },
-        upsert: async (data: IUpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
+        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             if (!data.id) {
                 data.id = createTemporaryId();
             }
-            saygData[data.id] = data as IRecordedScoreAsYouGoDto;
+            saygData[data.id] = data as RecordedScoreAsYouGoDto;
             return apiResultFunc(data);
         },
-        delete: async (id: string): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
+        delete: async (id: string): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
             delete saygData[id];
             return {
                 success: true,
@@ -53,18 +53,18 @@ describe('Practice', () => {
     beforeEach(() => {
         saygData = {};
         reportedError = new ErrorState();
-        apiResultFunc = (data: IUpdateRecordedScoreAsYouGoDto) => {
+        apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto) => {
             return {
                 result: data,
                 success: true,
-            } as IClientActionResultDto<IRecordedScoreAsYouGoDto>
+            } as IClientActionResultDto<RecordedScoreAsYouGoDto>
         };
         shareData = null;
         // noinspection JSValidateTypes
         (navigator as any).share = (data: ShareData) => shareData = data;
     });
 
-    async function renderComponent(account: IUserDto, hash?: string, appLoading?: boolean) {
+    async function renderComponent(account: UserDto, hash?: string, appLoading?: boolean) {
         context = await renderApp(
             iocProps({saygApi}),
             brandingProps(),
@@ -155,7 +155,7 @@ describe('Practice', () => {
         });
 
         it('renders given valid unfinished json data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
                 .withLeg(0, (l: ILegBuilder) => l
@@ -179,7 +179,7 @@ describe('Practice', () => {
         });
 
         it('renders given valid finished json data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = {
+            const jsonData: RecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},
@@ -205,7 +205,7 @@ describe('Practice', () => {
         });
 
         it('can save unfinished practice data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
                 .withLeg(0, (l: ILegBuilder) => l
@@ -232,7 +232,7 @@ describe('Practice', () => {
         });
 
         it('can save finished practice data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = {
+            const jsonData: RecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},
@@ -299,7 +299,7 @@ describe('Practice', () => {
         });
 
         it('can restart practice', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = {
+            const jsonData: RecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},
@@ -368,7 +368,7 @@ describe('Practice', () => {
     });
 
     describe('logged in', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: 'GIVEN NAME',
             name: 'NAME',
             emailAddress: '',
@@ -386,7 +386,7 @@ describe('Practice', () => {
         });
 
         it('renders given valid unfinished json data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const jsonData: RecordedScoreAsYouGoDto = saygBuilder()
                 .startingScore(123)
                 .numberOfLegs(2)
                 .withLeg(0, (l: ILegBuilder) => l
@@ -410,7 +410,7 @@ describe('Practice', () => {
         });
 
         it('renders given valid completed json data', async () => {
-            const jsonData: IRecordedScoreAsYouGoDto = {
+            const jsonData: RecordedScoreAsYouGoDto = {
                 startingScore: 123,
                 numberOfLegs: 1,
                 legs: {},

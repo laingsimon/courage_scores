@@ -11,7 +11,7 @@ import {
     renderApp, TestContext
 } from "../../../helpers/tests";
 import {HiCheckAnd180s, IHiCheckAnd180sProps} from "./HiCheckAnd180s";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {fixtureBuilder, IMatchBuilder} from "../../../helpers/builders/games";
@@ -19,9 +19,9 @@ import {playerBuilder} from "../../../helpers/builders/players";
 
 describe('HiCheckAnd180s', () => {
     let context: TestContext;
-    let updatedFixtureData: IGameDto;
+    let updatedFixtureData: GameDto;
 
-    async function setFixtureData(newFixtureData: IGameDto) {
+    async function setFixtureData(newFixtureData: GameDto) {
         updatedFixtureData = newFixtureData;
     }
 

@@ -10,7 +10,7 @@
 import React from "react";
 import {IMatchLogRowProps, MatchLogRow} from "./MatchLogRow";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../../../helpers/builders/sayg";
-import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 describe('MatchLogRow', () => {
     let context: TestContext;
@@ -36,7 +36,7 @@ describe('MatchLogRow', () => {
     }
 
     describe('renders', () => {
-        const homeWinningLeg: ILegDto = legBuilder()
+        const homeWinningLeg: LegDto = legBuilder()
             .home((c: ILegCompetitorScoreBuilder) => c
                 .withThrow(140, false, 3)
                 .withThrow(60, false, 3)

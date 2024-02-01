@@ -14,12 +14,12 @@ import React from "react";
 import {DivisionPlayer, IDivisionPlayerProps} from "./DivisionPlayer";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
-import {IEditTeamPlayerDto} from "../../interfaces/models/dtos/Team/IEditTeamPlayerDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
+import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
@@ -31,14 +31,14 @@ describe('DivisionPlayer', () => {
     let teamsReloaded: boolean;
     let divisionReloaded: boolean;
     let deletedPlayer: { seasonId: string, teamId: string, playerId: string };
-    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto};
-    let apiResponse: IClientActionResultDto<ITeamDto>;
+    let updatedPlayer: {seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto};
+    let apiResponse: IClientActionResultDto<TeamDto>;
     const playerApi = api<IPlayerApi>({
-        delete: async (seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<ITeamDto>> => {
+        delete: async (seasonId: string, teamId: string, playerId: string): Promise<IClientActionResultDto<TeamDto>> => {
             deletedPlayer = {seasonId, teamId, playerId};
             return apiResponse || {success: true};
         },
-        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: IEditTeamPlayerDto): Promise<IClientActionResultDto<ITeamDto>> => {
+        update: async (seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails};
             return apiResponse || {success: true};
         }
@@ -64,7 +64,7 @@ describe('DivisionPlayer', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(props: IDivisionPlayerProps, divisionData: IDivisionDataContainerProps, account?: IUserDto) {
+    async function renderComponent(props: IDivisionPlayerProps, divisionData: IDivisionDataContainerProps, account?: UserDto) {
         context = await renderApp(
             iocProps({playerApi}),
             brandingProps(),
@@ -86,12 +86,12 @@ describe('DivisionPlayer', () => {
     }
 
     describe('when logged out', () => {
-        const account: IUserDto = null;
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const account: UserDto = null;
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const player: IDivisionPlayerDto = {
+        const player: DivisionPlayerDto = {
             id: createTemporaryId(),
             rank: 1,
             name: 'NAME',
@@ -282,7 +282,7 @@ describe('DivisionPlayer', () => {
     });
 
     describe('when logged in', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
@@ -290,11 +290,11 @@ describe('DivisionPlayer', () => {
                 managePlayers: true,
             }
         };
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const player: IDivisionPlayerDto = {
+        const player: DivisionPlayerDto = {
             id: createTemporaryId(),
             rank: 1,
             name: 'NAME',

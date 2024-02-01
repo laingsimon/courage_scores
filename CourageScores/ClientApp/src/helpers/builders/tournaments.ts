@@ -1,15 +1,15 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {ITournamentGameDto} from "../../interfaces/models/dtos/Game/ITournamentGameDto";
+import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {
-    IDivisionTournamentFixtureDetailsDto
-} from "../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+    DivisionTournamentFixtureDetailsDto
+} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {createTemporaryId} from "../projection";
-import {ITournamentSideDto} from "../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ITournamentRoundDto} from "../../interfaces/models/dtos/Game/ITournamentRoundDto";
-import {ITournamentMatchDto} from "../../interfaces/models/dtos/Game/ITournamentMatchDto";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {matchOptionsBuilder} from "./games";
 
-export interface ITournamentBuilder extends IAddableBuilder<ITournamentGameDto & IDivisionTournamentFixtureDetailsDto> {
+export interface ITournamentBuilder extends IAddableBuilder<TournamentGameDto & DivisionTournamentFixtureDetailsDto> {
     type: (type: string) => ITournamentBuilder;
     address: (address: string) => ITournamentBuilder;
     winner: (name: string, id?: string, teamId?: string) => ITournamentBuilder;
@@ -33,7 +33,7 @@ export interface ITournamentBuilder extends IAddableBuilder<ITournamentGameDto &
 }
 
 export function tournamentBuilder(id?: string): ITournamentBuilder {
-    const tournament: ITournamentGameDto & IDivisionTournamentFixtureDetailsDto = {
+    const tournament: TournamentGameDto & DivisionTournamentFixtureDetailsDto = {
         id: id || createTemporaryId(),
         sides: [],
         oneEighties: [],
@@ -166,7 +166,7 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
     return builder;
 }
 
-export interface ITournamentSideBuilder extends IBuilder<ITournamentSideDto> {
+export interface ITournamentSideBuilder extends IBuilder<TournamentSideDto> {
     id: (id: string) => ITournamentSideBuilder;
     name: (name: string) => ITournamentSideBuilder;
     teamId: (id: string) => ITournamentSideBuilder;
@@ -175,7 +175,7 @@ export interface ITournamentSideBuilder extends IBuilder<ITournamentSideDto> {
 }
 
 export function sideBuilder(name?: string, id?: string): ITournamentSideBuilder {
-    const side: ITournamentSideDto = {
+    const side: TournamentSideDto = {
         id: id || createTemporaryId(),
         name: name,
         players: [],
@@ -213,14 +213,14 @@ export function sideBuilder(name?: string, id?: string): ITournamentSideBuilder 
     return builder;
 }
 
-export interface ITournamentRoundBuilder extends IBuilder<ITournamentRoundDto> {
+export interface ITournamentRoundBuilder extends IBuilder<TournamentRoundDto> {
     withMatch: (matchOrBuilderFunc: any, id?: string) => ITournamentRoundBuilder;
     round: (roundOrBuilderFunc: any) => ITournamentRoundBuilder;
     withMatchOption: (matchOptionOrBuilderFunc: any) => ITournamentRoundBuilder;
 }
 
 export function roundBuilder(): ITournamentRoundBuilder {
-    const round: ITournamentRoundDto = {
+    const round: TournamentRoundDto = {
         matches: [],
         matchOptions: [],
         nextRound: null,
@@ -254,7 +254,7 @@ export function roundBuilder(): ITournamentRoundBuilder {
     return builder;
 }
 
-export interface ITournamentMatchBuilder extends IBuilder<ITournamentMatchDto> {
+export interface ITournamentMatchBuilder extends IBuilder<TournamentMatchDto> {
     sideA: (side: any, score?: number) => ITournamentMatchBuilder;
     sideB: (side: any, score?: number) => ITournamentMatchBuilder;
     saygId: (id: string) => ITournamentMatchBuilder;
@@ -262,7 +262,7 @@ export interface ITournamentMatchBuilder extends IBuilder<ITournamentMatchDto> {
 }
 
 export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
-    const match: ITournamentMatchDto = {
+    const match: TournamentMatchDto = {
         id: id || createTemporaryId(),
         sideA: null,
         sideB: null,

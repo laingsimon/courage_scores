@@ -13,32 +13,32 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
-import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {ISeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/ISeasonHealthCheckResultDto";
-import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
+import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
+import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 
 describe('Templates', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let templates: ITemplateDto[];
+    let templates: TemplateDto[];
     let apiResponse: IClientActionResultDto<any>;
     let deleted: string;
-    let updated: IEditTemplateDto;
+    let updated: EditTemplateDto;
     const templateApi = api<ISeasonTemplateApi>({
-        getAll: async (): Promise<ITemplateDto[]> => {
+        getAll: async (): Promise<TemplateDto[]> => {
             return templates;
         },
-        delete: async (id: string): Promise<IClientActionResultDto<ITemplateDto>> => {
+        delete: async (id: string): Promise<IClientActionResultDto<TemplateDto>> => {
             deleted = id;
             return apiResponse || {success: true};
         },
-        update: async (data: IEditTemplateDto): Promise<IClientActionResultDto<ITemplateDto>> => {
+        update: async (data: EditTemplateDto): Promise<IClientActionResultDto<TemplateDto>> => {
             updated = data;
             return apiResponse || {success: true};
         },
-        health: async (): Promise<IClientActionResultDto<ISeasonHealthCheckResultDto>> => {
+        health: async (): Promise<IClientActionResultDto<SeasonHealthCheckResultDto>> => {
             return apiResponse || {success: true, result: { checks: {}, errors: [], warnings: [], messages: [] } };
         },
     });
@@ -71,7 +71,7 @@ describe('Templates', () => {
 
     describe('renders', () => {
         it('renders templates', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 description: 'DESCRIPTION',
@@ -90,7 +90,7 @@ describe('Templates', () => {
         });
 
         it('renders selected template by id', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 description: 'DESCRIPTION',
@@ -107,7 +107,7 @@ describe('Templates', () => {
         });
 
         it('renders selected template by name', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 description: 'DESCRIPTION',
@@ -124,7 +124,7 @@ describe('Templates', () => {
         });
 
         it('renders templates without description', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
             };
@@ -142,7 +142,7 @@ describe('Templates', () => {
         });
 
         it('template with some errors', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -163,7 +163,7 @@ describe('Templates', () => {
         });
 
         it('template with some check errors', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -190,7 +190,7 @@ describe('Templates', () => {
         });
 
         it('template with an unsuccessful check', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -217,7 +217,7 @@ describe('Templates', () => {
         });
 
         it('template with an successful check', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 templateHealth: {
@@ -246,7 +246,7 @@ describe('Templates', () => {
 
     describe('interactivity', () => {
         it('can select template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -265,7 +265,7 @@ describe('Templates', () => {
         });
 
         it('can deselect template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -285,7 +285,7 @@ describe('Templates', () => {
         });
 
         it('can save template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -310,7 +310,7 @@ describe('Templates', () => {
         });
 
         it('can update template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -328,7 +328,7 @@ describe('Templates', () => {
         });
 
         it('updates health as template changes', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -339,7 +339,7 @@ describe('Templates', () => {
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
             await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
-            const health: ISeasonHealthCheckResultDto = {
+            const health: SeasonHealthCheckResultDto = {
                 checks: {},
                 errors: [],
                 warnings: [],
@@ -358,7 +358,7 @@ describe('Templates', () => {
         });
 
         it('prevents saving an invalid template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
@@ -377,7 +377,7 @@ describe('Templates', () => {
         });
 
         it('does not delete template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -394,7 +394,7 @@ describe('Templates', () => {
         });
 
         it('can delete template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -417,7 +417,7 @@ describe('Templates', () => {
         });
 
         it('can add template', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -450,7 +450,7 @@ describe('Templates', () => {
         });
 
         it('an empty template does not exit editing', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],
@@ -480,7 +480,7 @@ describe('Templates', () => {
         });
 
         it('handles error during delete', async () => {
-            const template: ITemplateDto = {
+            const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 sharedAddresses: [],

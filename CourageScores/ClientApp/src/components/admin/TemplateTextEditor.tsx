@@ -1,20 +1,20 @@
 import React, {useState} from "react";
 import {stateChanged} from "../../helpers/events";
-import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IFixtureTemplateDto";
-import {IEditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IEditTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
+import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 
 export interface ITemplateTextEditorProps {
-    template: IEditTemplateDto;
+    template: EditTemplateDto;
     setValid: (valid: boolean) => Promise<any>;
-    onUpdate: (update: IEditTemplateDto) => Promise<any>;
+    onUpdate: (update: EditTemplateDto) => Promise<any>;
 }
 
 export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTextEditorProps) {
     const [ editing, setEditing ] = useState<string>(formatTemplateAsSingleLine(template));
     const [fixtureToFormat, setFixtureToFormat] = useState<string>('');
 
-    function formatTemplateAsSingleLine(t: IEditTemplateDto): string {
+    function formatTemplateAsSingleLine(t: EditTemplateDto): string {
         let jsonString = JSON.stringify(t, excludePropertiesFromEdit, '  ');
 
         // fixture inlining
@@ -75,7 +75,7 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
     function formatFixtureLine(excelLine: string): string {
         const fixtures: string[] = excelLine.split(/\s+/);
 
-        const toFormat: IDateTemplateDto = {
+        const toFormat: DateTemplateDto = {
             fixtures: []
         };
         let fixtureBatch: string[] = [];
@@ -87,7 +87,7 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
 
             fixtureBatch.push(fixture);
             if (fixtureBatch.length === 2) {
-                const fixture: IFixtureTemplateDto = {
+                const fixture: FixtureTemplateDto = {
                     home: fixtureBatch[0],
                 };
                 if (fixtureBatch[1] !== '-') {

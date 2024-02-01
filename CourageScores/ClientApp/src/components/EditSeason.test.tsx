@@ -13,10 +13,10 @@ import {
 } from "../helpers/tests";
 import React from "react";
 import {EditSeason, IEditSeasonProps} from "./EditSeason";
-import {IEditSeasonDto} from "../interfaces/models/dtos/Season/IEditSeasonDto";
-import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
+import {EditSeasonDto} from "../interfaces/models/dtos/Season/EditSeasonDto";
+import {SeasonDto} from "../interfaces/models/dtos/Season/SeasonDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
+import {DivisionDto} from "../interfaces/models/dtos/DivisionDto";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {seasonBuilder} from "../helpers/builders/seasons";
 import {ISeasonApi} from "../interfaces/apis/ISeasonApi";
@@ -32,19 +32,19 @@ describe('EditSeason', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saved: boolean;
-    let saveError: IClientActionResultDto<ISeasonDto>;
-    let updatedSeason: IEditSeasonDto;
+    let saveError: IClientActionResultDto<SeasonDto>;
+    let updatedSeason: EditSeasonDto;
     let alert: string;
     let confirm: string;
     let confirmResponse: boolean;
-    let apiResponse: IClientActionResultDto<ISeasonDto>;
+    let apiResponse: IClientActionResultDto<SeasonDto>;
     let deletedId: string;
     const seasonApi = api<ISeasonApi>({
-        update: async (data: IEditSeasonDto): Promise<IClientActionResultDto<ISeasonDto>> => {
+        update: async (data: EditSeasonDto): Promise<IClientActionResultDto<SeasonDto>> => {
             updatedSeason = data;
             return apiResponse;
         },
-        delete: async (id: string): Promise<IClientActionResultDto<ISeasonDto>> => {
+        delete: async (id: string): Promise<IClientActionResultDto<SeasonDto>> => {
             deletedId = id;
             return apiResponse;
         }
@@ -58,11 +58,11 @@ describe('EditSeason', () => {
         saved = true;
     }
 
-    async function setSaveError(err: IClientActionResultDto<ISeasonDto>) {
+    async function setSaveError(err: IClientActionResultDto<SeasonDto>) {
         saveError = err;
     }
 
-    async function onUpdateData(_: IEditSeasonDto) {
+    async function onUpdateData(_: EditSeasonDto) {
 
     }
 
@@ -91,7 +91,7 @@ describe('EditSeason', () => {
         };
     });
 
-    async function renderComponent(props: IEditSeasonProps, seasons: ISeasonDto[], divisions: IDivisionDto[]) {
+    async function renderComponent(props: IEditSeasonProps, seasons: SeasonDto[], divisions: DivisionDto[]) {
         context = await renderApp(
             iocProps({seasonApi}),
             brandingProps(),
@@ -113,10 +113,10 @@ describe('EditSeason', () => {
     const divisions = [division1, division2];
 
     it('updates season name', async () => {
-        let updatedData: IEditSeasonDto;
+        let updatedData: EditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: async (update: IEditSeasonDto) => {
+            onUpdateData: async (update: EditSeasonDto) => {
                 updatedData = update;
             },
             setSaveError,
@@ -133,10 +133,10 @@ describe('EditSeason', () => {
     });
 
     it('updates season dates', async () => {
-        let updatedData: IEditSeasonDto;
+        let updatedData: EditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: async (update: IEditSeasonDto) => {
+            onUpdateData: async (update: EditSeasonDto) => {
                 updatedData = update;
             },
             setSaveError,
@@ -157,10 +157,10 @@ describe('EditSeason', () => {
     });
 
     it('can select a division', async () => {
-        let updatedData: IEditSeasonDto;
+        let updatedData: EditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: async (update: IEditSeasonDto) => {
+            onUpdateData: async (update: EditSeasonDto) => {
                 updatedData = update;
             },
             setSaveError,
@@ -180,10 +180,10 @@ describe('EditSeason', () => {
     });
 
     it('can unselect a division', async () => {
-        let updatedData: IEditSeasonDto;
+        let updatedData: EditSeasonDto;
         await renderComponent({
             data: season,
-            onUpdateData: async (update: IEditSeasonDto) => {
+            onUpdateData: async (update: EditSeasonDto) => {
                 updatedData = update;
             },
             setSaveError,
@@ -206,10 +206,10 @@ describe('EditSeason', () => {
         const seasonWithoutId = Object.assign({}, season);
         seasonWithoutId.id = null;
         const otherSeason = seasonBuilder('OTHER SEASON').build();
-        let updatedData: IEditSeasonDto;
+        let updatedData: EditSeasonDto;
         await renderComponent({
             data: seasonWithoutId,
-            onUpdateData: async (update: IEditSeasonDto) => {
+            onUpdateData: async (update: EditSeasonDto) => {
                 updatedData = update;
             },
             setSaveError,

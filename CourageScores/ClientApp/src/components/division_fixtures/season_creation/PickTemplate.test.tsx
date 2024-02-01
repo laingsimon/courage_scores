@@ -10,16 +10,16 @@ import {
 import React from "react";
 import {IPickTemplateProps, PickTemplate} from "./PickTemplate";
 import {createTemporaryId} from "../../../helpers/projection";
-import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
+import {ActionResultDto} from "../../../interfaces/models/dtos/ActionResultDto";
 
 describe('PickTemplate', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let selectedTemplate: IActionResultDto<ITemplateDto>;
+    let selectedTemplate: ActionResultDto<TemplateDto>;
 
-    async function setSelectedTemplate(template: IActionResultDto<ITemplateDto>) {
+    async function setSelectedTemplate(template: ActionResultDto<TemplateDto>) {
         selectedTemplate = template;
     }
 
@@ -41,7 +41,7 @@ describe('PickTemplate', () => {
     }
 
     describe('renders', () => {
-        const compatibleTemplate: IClientActionResultDto<ITemplateDto> = {
+        const compatibleTemplate: IClientActionResultDto<TemplateDto> = {
             success: true,
             errors: ['ERROR'],
             warnings: ['WARNING'],
@@ -58,7 +58,7 @@ describe('PickTemplate', () => {
                 },
             },
         };
-        const incompatibleTemplate: IClientActionResultDto<ITemplateDto> = {
+        const incompatibleTemplate: IClientActionResultDto<TemplateDto> = {
             success: false,
             errors: ['ERROR'],
             warnings: ['WARNING'],
@@ -163,7 +163,7 @@ describe('PickTemplate', () => {
         });
 
         it('when selected template has no errors, warnings or messages', async () => {
-            const quietTemplate: IClientActionResultDto<ITemplateDto> = {
+            const quietTemplate: IClientActionResultDto<TemplateDto> = {
                 success: true,
                 errors: [],
                 warnings: [],
@@ -199,7 +199,7 @@ describe('PickTemplate', () => {
     });
 
     describe('interactivity', () => {
-        const compatibleTemplate: IClientActionResultDto<ITemplateDto> = {
+        const compatibleTemplate: IClientActionResultDto<TemplateDto> = {
             success: true,
             errors: ['ERROR'],
             warnings: ['WARNING'],
@@ -216,7 +216,7 @@ describe('PickTemplate', () => {
                 },
             },
         };
-        const incompatibleTemplate: IClientActionResultDto<ITemplateDto> = {
+        const incompatibleTemplate: IClientActionResultDto<TemplateDto> = {
             success: false,
             errors: ['ERROR'],
             warnings: ['WARNING'],

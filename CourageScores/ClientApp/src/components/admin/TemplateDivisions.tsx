@@ -1,19 +1,19 @@
 import {TemplateDivision} from "./TemplateDivision";
-import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
+import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
 
 export interface ITemplateDivisionsProps {
-    divisions: IDivisionTemplateDto[];
-    onUpdate: (a: IDivisionTemplateDto[]) => Promise<any>;
+    divisions: DivisionTemplateDto[];
+    onUpdate: (a: DivisionTemplateDto[]) => Promise<any>;
     templateSharedAddresses: string[];
 }
 
 export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses }: ITemplateDivisionsProps) {
-    async function updateDivision(update: IDivisionTemplateDto, updateIndex: number) {
-        await onUpdate(divisions.map((a: IDivisionTemplateDto, index: number) => index === updateIndex ? update : a));
+    async function updateDivision(update: DivisionTemplateDto, updateIndex: number) {
+        await onUpdate(divisions.map((a: DivisionTemplateDto, index: number) => index === updateIndex ? update : a));
     }
 
     async function addDivision() {
-        const newDivision: IDivisionTemplateDto = {
+        const newDivision: DivisionTemplateDto = {
             sharedAddresses: [],
             dates: [],
         };
@@ -21,17 +21,17 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
     }
 
     async function deleteDivision(index: number) {
-        await onUpdate(divisions.filter((_: IDivisionTemplateDto, i: number) => index !== i));
+        await onUpdate(divisions.filter((_: DivisionTemplateDto, i: number) => index !== i));
     }
 
     return (<ul className="list-group mb-3">
         <li className="list-group-item bg-light">Divisions</li>
-        {divisions.map((d: IDivisionTemplateDto, index: number) => <li className="list-group-item" key={index}>
+        {divisions.map((d: DivisionTemplateDto, index: number) => <li className="list-group-item" key={index}>
             <TemplateDivision
                 divisionNo={index+1}
                 division={d}
                 onDelete={() => deleteDivision(index)}
-                onUpdate={(update: IDivisionTemplateDto) => updateDivision(update, index)}
+                onUpdate={(update: DivisionTemplateDto) => updateDivision(update, index)}
                 templateSharedAddresses={templateSharedAddresses} />
         </li>)}
         <button className="list-group-item btn-primary small" onClick={addDivision}>

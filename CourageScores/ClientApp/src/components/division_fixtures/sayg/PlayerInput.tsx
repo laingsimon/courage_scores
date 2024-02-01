@@ -2,8 +2,8 @@ import {round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {useApp} from "../../../AppContainer";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {ILegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {LegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 
 export interface IPlayerInputProps {
     home: string;
@@ -12,9 +12,9 @@ export interface IPlayerInputProps {
     awayScore?: number;
     on180?: (accumulatorName: string) => Promise<any>;
     onHiCheck: (accumulatorName: string, score: number) => Promise<any>;
-    onChange: (leg: ILegDto) => Promise<any>;
+    onChange: (leg: LegDto) => Promise<any>;
     onLegComplete: (accumulatorName: string) => Promise<any>;
-    leg: ILegDto;
+    leg: LegDto;
     singlePlayer?: boolean;
 }
 
@@ -22,7 +22,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const [score, setScore] = useState('');
     const {onError} = useApp();
     const [focusEventHandle, setFocusEventHandle] = useState<number>(null);
-    const accumulator: ILegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
+    const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const playerLookup: { home: string, away: string } = {
@@ -88,8 +88,8 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
             setSavingInput(true);
             const accumulatorName = leg.currentThrow as 'home' | 'away';
-            const newLeg: ILegDto = Object.assign({}, leg);
-            const accumulator: ILegCompetitorScoreDto = newLeg[accumulatorName];
+            const newLeg: LegDto = Object.assign({}, leg);
+            const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
             accumulator.throws.push({
                 score,
                 noOfDarts,

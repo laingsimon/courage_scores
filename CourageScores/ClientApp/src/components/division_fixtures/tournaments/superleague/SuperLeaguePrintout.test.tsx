@@ -12,10 +12,10 @@ import React from "react";
 import {ISuperLeaguePrintoutProps, SuperLeaguePrintout} from "./SuperLeaguePrintout";
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
 import {act} from "@testing-library/react";
-import {IRecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {ITournamentGameDto} from "../../../../interfaces/models/dtos/Game/ITournamentGameDto";
-import {IDivisionDto} from "../../../../interfaces/models/dtos/IDivisionDto";
+import {RecordedScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {TournamentGameDto} from "../../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {DivisionDto} from "../../../../interfaces/models/dtos/DivisionDto";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
 import {
     ITournamentMatchBuilder,
@@ -28,12 +28,12 @@ import {ISaygApi} from "../../../../interfaces/apis/ISaygApi";
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let saygApiResponseMap: { [id: string]: IRecordedScoreAsYouGoDto } = {};
+    let saygApiResponseMap: { [id: string]: RecordedScoreAsYouGoDto } = {};
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
         get: async (id: string) => {
-            const data: IRecordedScoreAsYouGoDto = saygApiResponseMap[id];
+            const data: RecordedScoreAsYouGoDto = saygApiResponseMap[id];
             if (data) {
                 return data;
             }
@@ -71,7 +71,7 @@ describe('SuperLeaguePrintout', () => {
             </TournamentContainer>));
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): ILegDto {
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90, false, 3)
@@ -99,15 +99,15 @@ describe('SuperLeaguePrintout', () => {
 
     describe('renders', () => {
         it('print out', async () => {
-            const saygData1: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .withLeg(1, createLeg(true, false))
                 .build();
-            const saygData2: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData2: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(false, true))
                 .withLeg(1, createLeg(false, true))
                 .build();
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
                         .sideA('A', 1)
@@ -116,7 +116,7 @@ describe('SuperLeaguePrintout', () => {
                         .sideA('C', 3)
                         .sideB('D', 4)))
                 .build();
-            const division: IDivisionDto = divisionBuilder('DIVISION').build();
+            const division: DivisionDto = divisionBuilder('DIVISION').build();
             saygApiResponseMap = {};
             saygApiResponseMap[saygData1.id] = saygData1;
             saygApiResponseMap[saygData2.id] = saygData2;
@@ -136,15 +136,15 @@ describe('SuperLeaguePrintout', () => {
     describe('interactivity', () => {
         describe('live updates', () => {
             it('can start live updates', async () => {
-                const saygData1: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(true, false))
                     .withLeg(1, createLeg(true, false))
                     .build();
-                const saygData2: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData2: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(false, true))
                     .withLeg(1, createLeg(false, true))
                     .build();
-                const tournamentData: ITournamentGameDto = tournamentBuilder()
+                const tournamentData: TournamentGameDto = tournamentBuilder()
                     .round((r: ITournamentRoundBuilder) => r
                         .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
                             .sideA('A', 1)
@@ -153,7 +153,7 @@ describe('SuperLeaguePrintout', () => {
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
-                const division: IDivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto = divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
@@ -167,15 +167,15 @@ describe('SuperLeaguePrintout', () => {
             });
 
             it('can handle live updates', async () => {
-                const saygData1: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(true, false))
                     .withLeg(1, createLeg(true, false))
                     .build();
-                const saygData2: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData2: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(false, true))
                     .withLeg(1, createLeg(false, true))
                     .build();
-                const tournamentData: ITournamentGameDto = tournamentBuilder()
+                const tournamentData: TournamentGameDto = tournamentBuilder()
                     .round((r: ITournamentRoundBuilder) => r
                         .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
                             .sideA('A', 1)
@@ -184,7 +184,7 @@ describe('SuperLeaguePrintout', () => {
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
-                const division: IDivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto = divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
@@ -217,15 +217,15 @@ describe('SuperLeaguePrintout', () => {
             });
 
             it('can stop live updates', async () => {
-                const saygData1: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(true, false))
                     .withLeg(1, createLeg(true, false))
                     .build();
-                const saygData2: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData2: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(false, true))
                     .withLeg(1, createLeg(false, true))
                     .build();
-                const tournamentData: ITournamentGameDto = tournamentBuilder()
+                const tournamentData: TournamentGameDto = tournamentBuilder()
                     .round((r: ITournamentRoundBuilder) => r
                         .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
                             .sideA('A', 1)
@@ -234,7 +234,7 @@ describe('SuperLeaguePrintout', () => {
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
-                const division: IDivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto = divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;
@@ -249,15 +249,15 @@ describe('SuperLeaguePrintout', () => {
             });
 
             it('can stop then restart live updates', async () => {
-                const saygData1: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(true, false))
                     .withLeg(1, createLeg(true, false))
                     .build();
-                const saygData2: IRecordedScoreAsYouGoDto = saygBuilder()
+                const saygData2: RecordedScoreAsYouGoDto = saygBuilder()
                     .withLeg(0, createLeg(false, true))
                     .withLeg(1, createLeg(false, true))
                     .build();
-                const tournamentData: ITournamentGameDto = tournamentBuilder()
+                const tournamentData: TournamentGameDto = tournamentBuilder()
                     .round((r: ITournamentRoundBuilder) => r
                         .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
                             .sideA('A', 1)
@@ -266,7 +266,7 @@ describe('SuperLeaguePrintout', () => {
                             .sideA('C', 3)
                             .sideB('D', 4)))
                     .build();
-                const division: IDivisionDto = divisionBuilder('DIVISION').build();
+                const division: DivisionDto = divisionBuilder('DIVISION').build();
                 saygApiResponseMap = {};
                 saygApiResponseMap[saygData1.id] = saygData1;
                 saygApiResponseMap[saygData2.id] = saygData2;

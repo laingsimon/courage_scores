@@ -4,12 +4,12 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
-import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 
 export interface IDivisionPlayersProps {
     hideVenue?: boolean;
     hideHeading?: boolean;
-    players?: IDivisionPlayerDto[];
+    players?: DivisionPlayerDto[];
 }
 
 export function DivisionPlayers({hideVenue, hideHeading, players}: IDivisionPlayersProps) {

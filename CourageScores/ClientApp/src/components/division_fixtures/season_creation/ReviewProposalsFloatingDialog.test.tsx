@@ -13,10 +13,10 @@ import {IReviewProposalsFloatingDialogProps, ReviewProposalsFloatingDialog} from
 import {toDictionary} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";
 import {IAppContainerProps} from "../../../AppContainer";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/IProposalResultDto";
-import {IDivisionDataDto} from "../../../interfaces/models/dtos/Division/IDivisionDataDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {ProposalResultDto} from "../../../interfaces/models/dtos/Season/Creation/ProposalResultDto";
+import {DivisionDataDto} from "../../../interfaces/models/dtos/Division/DivisionDataDto";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {teamBuilder} from "../../../helpers/builders/teams";
 
@@ -54,9 +54,9 @@ describe('ReviewProposalsFloatingDialog', () => {
             (<ReviewProposalsFloatingDialog {...props} />));
     }
 
-    function getProposalResult(divisions: IDivisionDto[]): IProposalResultDto {
+    function getProposalResult(divisions: DivisionDto[]): ProposalResultDto {
         return {
-            divisions: divisions.map((d: IDivisionDto): IDivisionDataDto => {
+            divisions: divisions.map((d: DivisionDto): DivisionDataDto => {
                 return {
                     id: d.id,
                     name: d.name,
@@ -78,13 +78,13 @@ describe('ReviewProposalsFloatingDialog', () => {
     }
 
     describe('renders', () => {
-        const division1: IDivisionDto = divisionBuilder('DIVISION 1').build();
-        const division2: IDivisionDto = divisionBuilder('DIVISION 2').build();
-        const division3: IDivisionDto = divisionBuilder('DIVISION 3').build();
-        const teamA: ITeamDto = teamBuilder('TEAM A').build();
-        const teamB: ITeamDto = teamBuilder('TEAM B').build();
-        const teamC: ITeamDto = teamBuilder('TEAM C').build();
-        const teamD: ITeamDto = teamBuilder('TEAM D').build();
+        const division1: DivisionDto = divisionBuilder('DIVISION 1').build();
+        const division2: DivisionDto = divisionBuilder('DIVISION 2').build();
+        const division3: DivisionDto = divisionBuilder('DIVISION 3').build();
+        const teamA: TeamDto = teamBuilder('TEAM A').build();
+        const teamB: TeamDto = teamBuilder('TEAM B').build();
+        const teamC: TeamDto = teamBuilder('TEAM C').build();
+        const teamD: TeamDto = teamBuilder('TEAM D').build();
 
         it('all proposed divisions in dropdown in order', async () => {
             await renderComponent(appProps({

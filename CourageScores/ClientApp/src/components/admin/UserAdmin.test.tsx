@@ -12,20 +12,20 @@
 import React from "react";
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";
-import {IUpdateAccessDto} from "../../interfaces/models/dtos/Identity/IUpdateAccessDto";
+import {UpdateAccessDto} from "../../interfaces/models/dtos/Identity/UpdateAccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IAccountApi} from "../../interfaces/apis/IAccountApi";
 
 describe('UserAdmin', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let accountReloaded: boolean;
-    let updatedAccess: IUpdateAccessDto;
-    let apiResponse: IClientActionResultDto<IUserDto>;
+    let updatedAccess: UpdateAccessDto;
+    let apiResponse: IClientActionResultDto<UserDto>;
 
     const accountApi = api<IAccountApi>({
-        update: (update: IUpdateAccessDto) => {
+        update: (update: UpdateAccessDto) => {
             updatedAccess = update;
             return apiResponse || {success: true};
         }
@@ -42,7 +42,7 @@ describe('UserAdmin', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(accounts: IUserDto[], account: IUserDto) {
+    async function renderComponent(accounts: UserDto[], account: UserDto) {
         context = await renderApp(
             iocProps({accountApi}),
             brandingProps(),
@@ -64,7 +64,7 @@ describe('UserAdmin', () => {
     }
 
     it('renders when no user selected', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Test 1',
@@ -78,7 +78,7 @@ describe('UserAdmin', () => {
     });
 
     it('renders user email addresses', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Test 1',
@@ -92,7 +92,7 @@ describe('UserAdmin', () => {
     });
 
     it('renders user with no access', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
@@ -100,7 +100,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        const otherAccount: IUserDto = {
+        const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Test 1',
@@ -115,7 +115,7 @@ describe('UserAdmin', () => {
     });
 
     it('renders user with access', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
@@ -123,7 +123,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        const otherAccount: IUserDto = {
+        const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
@@ -141,7 +141,7 @@ describe('UserAdmin', () => {
     });
 
     it('can save change to access', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
@@ -149,7 +149,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        const otherAccount: IUserDto = {
+        const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
@@ -174,7 +174,7 @@ describe('UserAdmin', () => {
     });
 
     it('handles error during save', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
@@ -182,7 +182,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        const otherAccount: IUserDto = {
+        const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
@@ -203,7 +203,7 @@ describe('UserAdmin', () => {
     });
 
     it('can close error dialog after save failure', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
@@ -211,7 +211,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        const otherAccount: IUserDto = {
+        const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',
@@ -232,7 +232,7 @@ describe('UserAdmin', () => {
     });
 
     it('can change access for self', async () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             givenName: '',
             emailAddress: 'a@b.com',
             name: 'Admin',
@@ -240,7 +240,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        const otherAccount: IUserDto = {
+        const otherAccount: UserDto = {
             givenName: '',
             emailAddress: 'c@d.com',
             name: 'Other user',

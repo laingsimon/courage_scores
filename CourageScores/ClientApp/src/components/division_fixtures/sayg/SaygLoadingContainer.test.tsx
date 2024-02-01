@@ -20,12 +20,12 @@ import {
 import {any} from "../../../helpers/collections";
 import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {useLive} from "../LiveContainer";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {ISubscriptions} from "../../../interfaces/ISubscriptions";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
 import {IAppContainerProps} from "../../../AppContainer";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 
@@ -35,9 +35,9 @@ describe('SaygLoadingContainer', () => {
     let changedScore: {homeScore: number, awayScore: number};
     let saved: ILoadedScoreAsYouGoDto;
     let loadError: string;
-    let saygDataMap: { [id: string]: IRecordedScoreAsYouGoDto };
-    let apiResponse: IClientActionResultDto<IRecordedScoreAsYouGoDto>;
-    let upsertedData: IUpdateRecordedScoreAsYouGoDto;
+    let saygDataMap: { [id: string]: RecordedScoreAsYouGoDto };
+    let apiResponse: IClientActionResultDto<RecordedScoreAsYouGoDto>;
+    let upsertedData: UpdateRecordedScoreAsYouGoDto;
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
@@ -48,7 +48,7 @@ describe('SaygLoadingContainer', () => {
 
             return saygDataMap[id];
         },
-        upsert: async (data: IUpdateRecordedScoreAsYouGoDto) => {
+        upsert: async (data: UpdateRecordedScoreAsYouGoDto) => {
             upsertedData = data;
             return apiResponse || {
                 success: true,
@@ -402,8 +402,8 @@ describe('SaygLoadingContainer', () => {
             });
             apiResponse = {
                 success: true,
-                result: ('SOMETHING THAT WILL TRIGGER AN EXCEPTION' as unknown) as IRecordedScoreAsYouGoDto,
-            } as IClientActionResultDto<IRecordedScoreAsYouGoDto>;
+                result: ('SOMETHING THAT WILL TRIGGER AN EXCEPTION' as unknown) as RecordedScoreAsYouGoDto,
+            } as IClientActionResultDto<RecordedScoreAsYouGoDto>;
             let result: string;
 
             await act(async () => {
@@ -514,14 +514,14 @@ describe('SaygLoadingContainer', () => {
     describe('live updates', () => {
         it('given sayg, when enabling, creates a socket', async () => {
             let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
                     .home((c: ILegCompetitorScoreBuilder) => c)
                     .away((c: ILegCompetitorScoreBuilder) => c))
                 .addTo(saygDataMap)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 emailAddress: '',
                 name: '',
                 givenName: '',
@@ -552,14 +552,14 @@ describe('SaygLoadingContainer', () => {
 
         it('given error live message type, shows error', async () => {
             let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
                     .home((c: ILegCompetitorScoreBuilder) => c)
                     .away((c: ILegCompetitorScoreBuilder) => c))
                 .addTo(saygDataMap)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -601,8 +601,8 @@ describe('SaygLoadingContainer', () => {
 
         it('given update live message type, updates sayg data', async () => {
             let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
-            let renderedData: IUpdateRecordedScoreAsYouGoDto;
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            let renderedData: UpdateRecordedScoreAsYouGoDto;
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
                     .home((c: ILegCompetitorScoreBuilder) => c)
@@ -615,7 +615,7 @@ describe('SaygLoadingContainer', () => {
                     .home((c: ILegCompetitorScoreBuilder) => c)
                     .away((c: ILegCompetitorScoreBuilder) => c))
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 emailAddress: '',
                 name: '',
                 givenName: '',
@@ -659,7 +659,7 @@ describe('SaygLoadingContainer', () => {
 
         it('given no socket, when disabling, does nothing', async () => {
             let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
                     .home((c: ILegCompetitorScoreBuilder) => c)
@@ -690,14 +690,14 @@ describe('SaygLoadingContainer', () => {
 
         it('given an open socket, when disabling, closes socket', async () => {
             let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
-            const saygData: IRecordedScoreAsYouGoDto = saygBuilder()
+            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
                     .home((c: ILegCompetitorScoreBuilder) => c)
                     .away((c: ILegCompetitorScoreBuilder) => c))
                 .addTo(saygDataMap)
                 .build();
-            const account: IUserDto = {
+            const account: UserDto = {
                 emailAddress: '',
                 name: '',
                 givenName: '',

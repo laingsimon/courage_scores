@@ -7,11 +7,11 @@ import {IocContainer, IIocContainerProps} from "./IocContainer";
 import ReactDOM from "react-dom/client";
 import {useApp} from "./AppContainer";
 import {BrandingContainer} from "./BrandingContainer";
-import {IUserDto} from "./interfaces/models/dtos/Identity/IUserDto";
-import {ISeasonDto} from "./interfaces/models/dtos/Season/ISeasonDto";
-import {ITeamDto} from "./interfaces/models/dtos/Team/ITeamDto";
-import {IErrorDetailDto} from "./interfaces/models/dtos/IErrorDetailDto";
-import {IDivisionDto} from "./interfaces/models/dtos/IDivisionDto";
+import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
+import {SeasonDto} from "./interfaces/models/dtos/Season/SeasonDto";
+import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
+import {ErrorDetailDto} from "./interfaces/models/dtos/ErrorDetailDto";
+import {DivisionDto} from "./interfaces/models/dtos/DivisionDto";
 import {IBuild} from "./interfaces/IBuild";
 import {IClientActionResultDto} from "./interfaces/IClientActionResultDto";
 import {divisionBuilder} from "./helpers/builders/divisions";
@@ -24,14 +24,14 @@ import {ITeamApi} from "./interfaces/apis/ITeamApi";
 describe('App', () => {
     let context: TestContext;
     let allDivisions: any = [];
-    let account: IUserDto | null = null;
-    let allSeasons: ISeasonDto[] = [];
-    let allTeams: ITeamDto[] = [];
-    let reportedError: IErrorDetailDto | null;
+    let account: UserDto | null = null;
+    let allSeasons: SeasonDto[] = [];
+    let allTeams: TeamDto[] = [];
+    let reportedError: ErrorDetailDto | null;
     let settings: any;
 
     const divisionApi = api<IDivisionApi>({
-        getAll: async (): Promise<IDivisionDto[]> => {
+        getAll: async (): Promise<DivisionDto[]> => {
             if (allDivisions.length || allDivisions.length === 0) {
                 return allDivisions;
             }
@@ -40,16 +40,16 @@ describe('App', () => {
         }
     });
     const accountApi = api<IAccountApi>({
-        account: async (): Promise<IUserDto | null> => account
+        account: async (): Promise<UserDto | null> => account
     });
     const seasonApi = api<ISeasonApi>({
-        getAll: async (): Promise<ISeasonDto[]> => allSeasons
+        getAll: async (): Promise<SeasonDto[]> => allSeasons
     });
     const teamApi = api<ITeamApi>({
-        getAll: async (): Promise<ITeamDto[]> => allTeams
+        getAll: async (): Promise<TeamDto[]> => allTeams
     });
     const errorApi = api<IErrorApi>({
-        add: async (error: IErrorDetailDto): Promise<IClientActionResultDto<IErrorDetailDto>> => {
+        add: async (error: ErrorDetailDto): Promise<IClientActionResultDto<ErrorDetailDto>> => {
             reportedError = error;
             return { success: true };
         }
@@ -145,7 +145,7 @@ describe('App', () => {
         expect(header).toBeTruthy();
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
         const menuItemText = menuItems.map(li => li.textContent);
-        const divisionMenuItems = loading ? [] : allDivisions.map((d: IDivisionDto) => d.name);
+        const divisionMenuItems = loading ? [] : allDivisions.map((d: DivisionDto) => d.name);
         const expectedMenuItemsAfterDivisions = [];
 
         if (!loading) {
@@ -234,7 +234,7 @@ describe('App', () => {
         });
 
         it('when still loading', async () => {
-            allDivisions = new Promise<IDivisionDto[]>(() => {});
+            allDivisions = new Promise<DivisionDto[]>(() => {});
 
             await renderComponent();
 

@@ -1,18 +1,18 @@
-import {ITournamentGameDto} from "./models/dtos/Game/ITournamentGameDto";
-import {IDivisionDto} from "./models/dtos/IDivisionDto";
-import {IGameMatchOptionDto} from "./models/dtos/Game/IGameMatchOptionDto";
+import {TournamentGameDto} from "./models/dtos/Game/TournamentGameDto";
+import {DivisionDto} from "./models/dtos/DivisionDto";
+import {GameMatchOptionDto} from "./models/dtos/Game/GameMatchOptionDto";
 import {ITournamentPlayerMap} from "../components/division_fixtures/tournaments/Tournament";
-import {ISeasonDto} from "./models/dtos/Season/ISeasonDto";
+import {SeasonDto} from "./models/dtos/Season/SeasonDto";
 import {ISelectablePlayer} from "../components/division_players/PlayerSelection";
 
 export interface ITournament {
-    tournamentData: ITournamentGameDto;
-    setTournamentData?: (newData: ITournamentGameDto) => Promise<any>;
-    season?: ISeasonDto;
-    division?: IDivisionDto;
+    tournamentData: TournamentGameDto;
+    setTournamentData?: (newData: TournamentGameDto) => Promise<any>;
+    season?: SeasonDto;
+    division?: DivisionDto;
     alreadyPlaying?: ITournamentPlayerMap;
     allPlayers?: ISelectablePlayer[];
-    saveTournament?: (preventLoading?: boolean) => Promise<ITournamentGameDto>;
+    saveTournament?: (preventLoading?: boolean) => Promise<TournamentGameDto>;
     setWarnBeforeSave?: (warning: string) => Promise<any>;
-    matchOptionDefaults?: IGameMatchOptionDto;
+    matchOptionDefaults?: GameMatchOptionDto;
 }

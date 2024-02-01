@@ -15,13 +15,13 @@ import React from "react";
 import {DivisionFixture, IDivisionFixtureProps} from "./DivisionFixture";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IEditGameDto} from "../../interfaces/models/dtos/Game/IEditGameDto";
-import {IGameDto} from "../../interfaces/models/dtos/Game/IGameDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionDto} from "../../interfaces/models/dtos/IDivisionDto";
+import {EditGameDto} from "../../interfaces/models/dtos/Game/EditGameDto";
+import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {IDatedDivisionFixtureDto} from "../../interfaces/IDatedDivisionFixtureDto";
 import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
 import {
@@ -38,14 +38,14 @@ describe('DivisionFixture', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let divisionReloaded: boolean;
-    let updatedFixtures: (x: IEditableDivisionFixtureDateDto[]) => IDivisionFixtureDateDto[];
+    let updatedFixtures: (x: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[];
     let beforeReloadDivisionCalled: boolean;
-    let savedFixture: IEditGameDto;
+    let savedFixture: EditGameDto;
     let deletedFixture: string;
-    let apiResponse: IClientActionResultDto<IGameDto>;
+    let apiResponse: IClientActionResultDto<GameDto>;
 
     const gameApi = api<IGameApi>({
-        update: async (fixture: IEditGameDto) => {
+        update: async (fixture: EditGameDto) => {
             savedFixture = fixture;
             return apiResponse || {success: true};
         },
@@ -69,7 +69,7 @@ describe('DivisionFixture', () => {
         beforeReloadDivisionCalled = true;
     }
 
-    async function onUpdateFixtures(data: (x: IEditableDivisionFixtureDateDto[]) => IDivisionFixtureDateDto[]): Promise<IDivisionFixtureDateDto[]> {
+    async function onUpdateFixtures(data: (x: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): Promise<DivisionFixtureDateDto[]> {
         updatedFixtures = data;
         return [];
     }
@@ -88,7 +88,7 @@ describe('DivisionFixture', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: IUserDto, teams: DataMap<ITeamDto>) {
+    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: UserDto, teams: DataMap<TeamDto>) {
         context = await renderApp(
             iocProps({gameApi}),
             brandingProps(),
@@ -105,10 +105,10 @@ describe('DivisionFixture', () => {
     }
 
     describe('when logged out', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const team: ITeamDto = teamBuilder('TEAM').build();
-        const account: IUserDto = null;
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const team: TeamDto = teamBuilder('TEAM').build();
+        const account: UserDto = null;
 
         it('renders unplayed fixture', async () => {
             const date = '2023-05-06T00:00:00';
@@ -214,17 +214,17 @@ describe('DivisionFixture', () => {
     });
 
     describe('when logged in', () => {
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const homeTeam: ITeamDto = teamBuilder('HOME')
+        const season: SeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const homeTeam: TeamDto = teamBuilder('HOME')
             .address('HOME ADDRESS')
             .forSeason(season, division)
             .build();
-        const awayTeam: ITeamDto = teamBuilder('AWAY')
+        const awayTeam: TeamDto = teamBuilder('AWAY')
             .address('AWAY ADDRESS')
             .forSeason(season, division)
             .build();
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -329,7 +329,7 @@ describe('DivisionFixture', () => {
 
         it('renders selectable away team with same address (league fixture)', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeamAtHomeAddress: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeamAtHomeAddress: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('HOME ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -427,7 +427,7 @@ describe('DivisionFixture', () => {
                 .bye(homeTeam)
                 .knockout()
                 .build();
-            const anotherTeamAtHomeAddress: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeamAtHomeAddress: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('HOME ADDRESS')
                 .forSeason(season, division)
                 .build();
@@ -543,7 +543,7 @@ describe('DivisionFixture', () => {
 
         it('can change away team', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -582,7 +582,7 @@ describe('DivisionFixture', () => {
 
         it('can change away team for qualifiers', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -622,7 +622,7 @@ describe('DivisionFixture', () => {
 
         it('can save league fixture change', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -651,7 +651,7 @@ describe('DivisionFixture', () => {
 
         it('can save qualifier change', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -681,7 +681,7 @@ describe('DivisionFixture', () => {
 
         it('handles error during save', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -714,7 +714,7 @@ describe('DivisionFixture', () => {
 
         it('can delete league fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -748,7 +748,7 @@ describe('DivisionFixture', () => {
 
         it('cannot delete fixture if readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -776,7 +776,7 @@ describe('DivisionFixture', () => {
 
         it('does not delete league fixture', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -805,7 +805,7 @@ describe('DivisionFixture', () => {
 
         it('handles error during delete', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -837,7 +837,7 @@ describe('DivisionFixture', () => {
 
         it('can close error dialog from deletion failure', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -866,7 +866,7 @@ describe('DivisionFixture', () => {
 
         it('can delete qualifier', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -901,7 +901,7 @@ describe('DivisionFixture', () => {
 
         it('cannot save when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -925,7 +925,7 @@ describe('DivisionFixture', () => {
 
         it('cannot delete when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
@@ -948,7 +948,7 @@ describe('DivisionFixture', () => {
 
         it('cannot change away team when readonly', async () => {
             const date = '2023-05-06T00:00:00';
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM')
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('ANOTHER ADDRESS')
                 .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)

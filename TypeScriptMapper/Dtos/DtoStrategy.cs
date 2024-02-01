@@ -77,12 +77,12 @@ public class DtoStrategy: IStrategy
         }).Where(t => t != null).ToArray();
 
         var extends = extendsTypes.Any()
-            ? " extends " + string.Join(", ", extendsTypes.Select(t => type.PartialExtensions.Contains(t!.Name)
-                ? $"Partial<I{t.Name}>"
-                : "I" + t.Name))
+            ? " extends " + string.Join(", ", extendsTypes.Select(t => type.PartialExtensions.Contains(t!.DotNetType.Name)
+                ? $"Partial<{t.Name}>"
+                : t.Name))
             : "";
 
-        await writer.WriteLineAsync($"export interface I{name}{extends} {{");
+        await writer.WriteLineAsync($"export interface {name}{extends} {{");
 
         foreach (var member in type.Members.OfType<TypeScriptProperty>().OrderBy(m => m.Name))
         {
@@ -127,13 +127,13 @@ public class DtoStrategy: IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{I{interfaceType.Name}}} from '{interfaceType.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{interfaceType.Name}}} from '{interfaceType.RelativePath}';");
             importWritten = true;
         }
 
         if (type.BaseType != null)
         {
-            await writer.WriteLineAsync($"import {{I{type.BaseType.Name}}} from '{type.BaseType.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{type.BaseType.Name}}} from '{type.BaseType.RelativePath}';");
             importWritten = true;
         }
 

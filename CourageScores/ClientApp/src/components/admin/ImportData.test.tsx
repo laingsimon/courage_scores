@@ -15,18 +15,18 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {ImportData} from "./ImportData";
-import {IImportDataRequestDto} from "../../interfaces/models/dtos/Data/IImportDataRequestDto";
+import {ImportDataRequestDto} from "../../interfaces/models/dtos/Data/ImportDataRequestDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IImportDataResultDto} from "../../interfaces/models/dtos/Data/IImportDataResultDto";
+import {ImportDataResultDto} from "../../interfaces/models/dtos/Data/ImportDataResultDto";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ImportData', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let importRequest: IImportDataRequestDto;
-    let apiResponse: IClientActionResultDto<IImportDataResultDto>;
+    let importRequest: ImportDataRequestDto;
+    let apiResponse: IClientActionResultDto<ImportDataResultDto>;
     const dataApi = api<IDataApi>({
-        import: async (request: IImportDataRequestDto): Promise<IClientActionResultDto<IImportDataResultDto>> => {
+        import: async (request: ImportDataRequestDto): Promise<IClientActionResultDto<ImportDataResultDto>> => {
             importRequest = request;
             return apiResponse || {
                 success: true,

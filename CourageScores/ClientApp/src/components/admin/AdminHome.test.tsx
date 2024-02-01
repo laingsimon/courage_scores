@@ -2,37 +2,37 @@
 import {AdminHome} from "./AdminHome";
 import {AdminContainer} from "./AdminContainer";
 import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
-import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
-import {IAccessDto} from "../../interfaces/models/dtos/Identity/IAccessDto";
+import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
+import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IAccountApi} from "../../interfaces/apis/IAccountApi";
-import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
+import {AccountApi} from "../../interfaces/apis/IAccountApi";
+import {SeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 import {ILiveApi} from "../../interfaces/apis/ILiveApi";
-import {IDataApi} from "../../interfaces/apis/IDataApi";
+import {DataApi} from "../../interfaces/apis/IDataApi";
 
 describe('AdminHome', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    const dataApi = api<IDataApi>({
-        tables: async (): Promise<ITableDto[]> => {
+    const dataApi = api<DataApi>({
+        tables: async (): Promise<TableDto[]> => {
             return [];
         }
     });
-    const accountApi = api<IAccountApi>({
-        getAll: async (): Promise<IUserDto[]> => {
+    const accountApi = api<AccountApi>({
+        getAll: async (): Promise<UserDto[]> => {
             return [];
         }
     });
-    const templateApi = api<ISeasonTemplateApi>({
-        getAll: async (): Promise<ITemplateDto[]> => {
+    const templateApi = api<SeasonTemplateApi>({
+        getAll: async (): Promise<TemplateDto[]> => {
             return [];
         }
     });
     const liveApi = api<ILiveApi>({
-        getAll: async (): Promise<IClientActionResultDto<IWebSocketDto[]>> => {
+        getAll: async (): Promise<IClientActionResultDto<WebSocketDto[]>> => {
             return {
                 success: true,
                 result: [],
@@ -48,8 +48,8 @@ describe('AdminHome', () => {
         reportedError = new ErrorState();
     });
 
-    async function assertTab(access: IAccessDto, href: string, exists: boolean) {
-        const account: IUserDto = {
+    async function assertTab(access: AccessDto, href: string, exists: boolean) {
+        const account: UserDto = {
             access: access,
             name: '',
             givenName: '',
@@ -75,8 +75,8 @@ describe('AdminHome', () => {
         }
     }
 
-    async function assertContent(access: IAccessDto, address: string, expectContent: string) {
-        const account: IUserDto = {
+    async function assertContent(access: AccessDto, address: string, expectContent: string) {
+        const account: UserDto = {
             access: access,
             name: '',
             emailAddress: '',

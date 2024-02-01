@@ -5,15 +5,15 @@ import {useSayg} from "./SaygLoadingContainer";
 import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
 import {Location, useLocation} from "react-router-dom";
 import {useState} from "react";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
-import {IScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {ScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
 
 export interface IScoreAsYouGoProps {
-    data: IUpdateRecordedScoreAsYouGoDto;
+    data: UpdateRecordedScoreAsYouGoDto;
     home: string;
     away?: string;
-    onChange: (data: IScoreAsYouGoDto) => Promise<any>;
+    onChange: (data: ScoreAsYouGoDto) => Promise<any>;
     onLegComplete: (homeScore: number, awayScore: number) => Promise<any>;
     startingScore: number;
     numberOfLegs: number;
@@ -38,8 +38,8 @@ export function ScoreAsYouGo({
         return location.search.indexOf('widescreen=true') !== -1;
     }
 
-    function getLeg(legIndex: number): ILegDto {
-        const leg: ILegDto = data.legs[legIndex];
+    function getLeg(legIndex: number): LegDto {
+        const leg: LegDto = data.legs[legIndex];
         if (leg) {
             return leg;
         }
@@ -47,8 +47,8 @@ export function ScoreAsYouGo({
         return addLeg(legIndex).legs[legIndex];
     }
 
-    function addLeg(legIndex: number): IScoreAsYouGoDto {
-        const newData: IScoreAsYouGoDto = Object.assign({}, data);
+    function addLeg(legIndex: number): ScoreAsYouGoDto {
+        const newData: ScoreAsYouGoDto = Object.assign({}, data);
         newData.legs[legIndex] = {
             playerSequence: singlePlayer ? [{value: 'home', text: home}, {
                 value: 'away',
@@ -63,8 +63,8 @@ export function ScoreAsYouGo({
         return newData;
     }
 
-    async function legChanged(newLeg: ILegDto, legIndex: number): Promise<IScoreAsYouGoDto> {
-        const newData: IScoreAsYouGoDto = Object.assign({}, data);
+    async function legChanged(newLeg: LegDto, legIndex: number): Promise<ScoreAsYouGoDto> {
+        const newData: ScoreAsYouGoDto = Object.assign({}, data);
         if (data.legs) {
             newData.legs = Object.assign({}, data.legs);
         }
@@ -73,8 +73,8 @@ export function ScoreAsYouGo({
         return newData;
     }
 
-    async function saveChangedLeg(newLeg: ILegDto, legIndex: number): Promise<any> {
-        const newData: IScoreAsYouGoDto = await legChanged(newLeg, legIndex);
+    async function saveChangedLeg(newLeg: LegDto, legIndex: number): Promise<any> {
+        const newData: ScoreAsYouGoDto = await legChanged(newLeg, legIndex);
         await saveDataAndGetId(newData);
     }
 
@@ -88,8 +88,8 @@ export function ScoreAsYouGo({
 
             const unbeatable = newHomeScore > (numberOfLegs / 2) || newAwayScore > (numberOfLegs / 2);
             if (!currentLeg.isLastLeg && !unbeatable) {
-                const newData: IScoreAsYouGoDto = addLeg(currentLegIndex + 1);
-                const newLeg: ILegDto = newData.legs[currentLegIndex + 1];
+                const newData: ScoreAsYouGoDto = addLeg(currentLegIndex + 1);
+                const newLeg: LegDto = newData.legs[currentLegIndex + 1];
 
                 if (!singlePlayer) {
                     newLeg.playerSequence = [currentLeg.playerSequence[1], currentLeg.playerSequence[0]];
@@ -138,13 +138,13 @@ export function ScoreAsYouGo({
             changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)} />
     }
 
-    const leg: ILegDto = getLeg(legIndex);
+    const leg: LegDto = getLeg(legIndex);
 
     return (<PlayLeg
             leg={leg}
             home={home}
             away={away}
-            onChange={(newLeg: ILegDto) => legChanged(newLeg, legIndex)}
+            onChange={(newLeg: LegDto) => legChanged(newLeg, legIndex)}
             onLegComplete={recordWinner}
             on180={on180}
             onHiCheck={onHiCheck}

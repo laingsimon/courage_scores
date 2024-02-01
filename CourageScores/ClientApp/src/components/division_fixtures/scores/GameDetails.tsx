@@ -2,13 +2,13 @@ import React from "react";
 import {ShareButton} from "../../common/ShareButton";
 import {valueChanged} from "../../../helpers/events";
 import {useBranding} from "../../../BrandingContainer";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 
 export interface IGameDetailsProps {
     saving: boolean;
     access: string;
-    fixtureData: IGameDto;
-    setFixtureData: (newData: IGameDto) => Promise<any>;
+    fixtureData: GameDto;
+    setFixtureData: (newData: GameDto) => Promise<any>;
 }
 
 export function GameDetails({saving, access, fixtureData, setFixtureData}: IGameDetailsProps) {

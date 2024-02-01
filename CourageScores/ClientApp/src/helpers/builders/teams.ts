@@ -1,13 +1,13 @@
 ﻿import {IAddableBuilder} from "./builders";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
-import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
-import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
+import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {createTemporaryId} from "../projection";
-import {ITeamSeasonDto} from "../../interfaces/models/dtos/Team/ITeamSeasonDto";
-import {IGameTeamDto} from "../../interfaces/models/dtos/Game/IGameTeamDto";
+import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
 
-export interface ITeamBuilder extends IAddableBuilder<ITeamDto & IEditTeamDto & IGameTeamDto> {
-    forSeason: (seasonOrId: any, divisionOrId?: any, players?: ITeamPlayerDto[]) => ITeamBuilder;
+export interface ITeamBuilder extends IAddableBuilder<TeamDto & EditTeamDto & GameTeamDto> {
+    forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[]) => ITeamBuilder;
     address: (address: string) => ITeamBuilder;
     season: (seasonOrId: any) => ITeamBuilder;
     division: (divisionOrId: any) => ITeamBuilder;
@@ -17,7 +17,7 @@ export interface ITeamBuilder extends IAddableBuilder<ITeamDto & IEditTeamDto & 
 }
 
 export function teamBuilder(name?: string, id?: string): ITeamBuilder {
-    const team: ITeamDto & IEditTeamDto & IGameTeamDto = {
+    const team: TeamDto & EditTeamDto & GameTeamDto = {
         id: id || createTemporaryId(),
         name,
         address: '',
@@ -30,8 +30,8 @@ export function teamBuilder(name?: string, id?: string): ITeamBuilder {
             map[team.id] = team;
             return builder;
         },
-        forSeason: (seasonOrId: any, divisionOrId?: any, players?: ITeamPlayerDto[]) => {
-            const teamSeason: ITeamSeasonDto = {
+        forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[]) => {
+            const teamSeason: TeamSeasonDto = {
                 seasonId: seasonOrId && seasonOrId.id ? seasonOrId.id : seasonOrId,
                 divisionId: divisionOrId && divisionOrId.id ? divisionOrId.id : divisionOrId,
                 players: players || [],

@@ -1,7 +1,7 @@
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
 
-export function matchEquals(x?: IGameMatchDto, y?: IGameMatchDto): boolean {
+export function matchEquals(x?: GameMatchDto, y?: GameMatchDto): boolean {
     if (!x && !y) {
         return true;
     }
@@ -16,7 +16,7 @@ export function matchEquals(x?: IGameMatchDto, y?: IGameMatchDto): boolean {
         && playersEqual(x.awayPlayers, y.awayPlayers);
 }
 
-function playersEqual(xPlayers?: IGamePlayerDto[], yPlayers?: IGamePlayerDto[]): boolean {
+function playersEqual(xPlayers?: GamePlayerDto[], yPlayers?: GamePlayerDto[]): boolean {
     if (!xPlayers && !yPlayers) {
         return true;
     }
@@ -30,8 +30,8 @@ function playersEqual(xPlayers?: IGamePlayerDto[], yPlayers?: IGamePlayerDto[]):
     }
 
     for (let index = 0; index < xPlayers.length; index++) {
-        const xPlayer: IGamePlayerDto = xPlayers[index];
-        const yPlayer: IGamePlayerDto = yPlayers[index];
+        const xPlayer: GamePlayerDto = xPlayers[index];
+        const yPlayer: GamePlayerDto = yPlayers[index];
 
         if (xPlayer.id !== yPlayer.id) {
             return false;

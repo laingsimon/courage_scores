@@ -5,12 +5,12 @@ import {IPrintableSheetProps, PrintableSheet} from "./PrintableSheet";
 import {renderDate} from "../../../helpers/rendering";
 import {DataMap, toMap} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {
     ITournamentMatchBuilder, ITournamentRoundBuilder,
     ITournamentSideBuilder,
@@ -22,8 +22,8 @@ import {playerBuilder} from "../../../helpers/builders/players";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
-import {INotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/INotableTournamentPlayerDto";
-import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
+import {NotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
+import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
 
 describe('PrintableSheet', () => {
     let context: TestContext;
@@ -37,7 +37,7 @@ describe('PrintableSheet', () => {
         reportedError = new ErrorState();
     });
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, teams?: DataMap<ITeamDto>, divisions?: IDivisionDto[]) {
+    async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, teams?: DataMap<TeamDto>, divisions?: DivisionDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -50,7 +50,7 @@ describe('PrintableSheet', () => {
             </TournamentContainer>));
     }
 
-    function createSide(name: string, players?: ITeamPlayerDto[]): ITournamentSideDto {
+    function createSide(name: string, players?: TeamPlayerDto[]): TournamentSideDto {
         let side: ITournamentSideBuilder = sideBuilder(name);
 
         if (players && players.length === 1) {
@@ -139,25 +139,25 @@ describe('PrintableSheet', () => {
     }
 
     describe('played tournament', () => {
-        const sideA: ITournamentSideDto = createSide('A');
-        const sideB: ITournamentSideDto = createSide('B');
-        const sideC: ITournamentSideDto = createSide('C');
-        const sideD: ITournamentSideDto = createSide('D');
-        const sideE: ITournamentSideDto = createSide('E');
-        const sideF: ITournamentSideDto = createSide('F');
-        const sideG: ITournamentSideDto = createSide('G');
-        const sideH: ITournamentSideDto = createSide('H');
-        const sideI: ITournamentSideDto = createSide('I');
-        const sideJ: ITournamentSideDto = createSide('J');
-        const sideK: ITournamentSideDto = createSide('K');
-        const sideL: ITournamentSideDto = createSide('L');
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const sideA: TournamentSideDto = createSide('A');
+        const sideB: TournamentSideDto = createSide('B');
+        const sideC: TournamentSideDto = createSide('C');
+        const sideD: TournamentSideDto = createSide('D');
+        const sideE: TournamentSideDto = createSide('E');
+        const sideF: TournamentSideDto = createSide('F');
+        const sideG: TournamentSideDto = createSide('G');
+        const sideH: TournamentSideDto = createSide('H');
+        const sideI: TournamentSideDto = createSide('I');
+        const sideJ: TournamentSideDto = createSide('J');
+        const sideK: TournamentSideDto = createSide('K');
+        const sideL: TournamentSideDto = createSide('L');
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
 
         it('renders tournament with one round', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
@@ -190,7 +190,7 @@ describe('PrintableSheet', () => {
 
         it('renders tournament with sayg id', async () => {
             const saygId = createTemporaryId();
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2).saygId(saygId))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
@@ -222,7 +222,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders incomplete tournament with six sides and one round', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 0).sideB(sideB, 0))
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 0).sideB(sideD, 0))
@@ -322,7 +322,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 2 rounds', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
@@ -386,7 +386,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 3 rounds', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
@@ -490,7 +490,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders tournament with 4 rounds', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
@@ -687,11 +687,11 @@ describe('PrintableSheet', () => {
         });
 
         it('does not render winner when insufficient legs played', async () => {
-            const player1: ITeamPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITeamPlayerDto = playerBuilder('PLAYER 2').build();
-            const sideASinglePlayer: ITournamentSideDto = createSide('A', [player1]);
-            const sideBSinglePlayer: ITournamentSideDto = createSide('B', [player2]);
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
+            const sideASinglePlayer: TournamentSideDto = createSide('A', [player1]);
+            const sideBSinglePlayer: TournamentSideDto = createSide('B', [player2]);
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .sideA(sideASinglePlayer, 1)
@@ -700,11 +700,11 @@ describe('PrintableSheet', () => {
                 .withSide(sideASinglePlayer)
                 .withSide(sideBSinglePlayer)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap<ITeamDto>([
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
                     .build()]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
@@ -717,16 +717,16 @@ describe('PrintableSheet', () => {
         });
 
         it('does not render winner when 2 matches in final round (semi final is last round so far)', async () => {
-            const player1: ITeamPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITeamPlayerDto = playerBuilder('PLAYER 2').build();
-            const player3: ITeamPlayerDto = playerBuilder('PLAYER 3').build();
-            const player4: ITeamPlayerDto = playerBuilder('PLAYER 4').build();
-            const player5: ITeamPlayerDto = playerBuilder('PLAYER 5').build();
-            const sideASinglePlayer: ITournamentSideDto = createSide('A', [player1]);
-            const sideBSinglePlayer: ITournamentSideDto = createSide('B', [player2]);
-            const sideCSinglePlayer: ITournamentSideDto = createSide('C', [player3]);
-            const sideDSinglePlayer: ITournamentSideDto = createSide('D', [player4]);
-            const sideESinglePlayer: ITournamentSideDto = createSide('E', [player5]);
+            const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
+            const player3: TeamPlayerDto = playerBuilder('PLAYER 3').build();
+            const player4: TeamPlayerDto = playerBuilder('PLAYER 4').build();
+            const player5: TeamPlayerDto = playerBuilder('PLAYER 5').build();
+            const sideASinglePlayer: TournamentSideDto = createSide('A', [player1]);
+            const sideBSinglePlayer: TournamentSideDto = createSide('B', [player2]);
+            const sideCSinglePlayer: TournamentSideDto = createSide('C', [player3]);
+            const sideDSinglePlayer: TournamentSideDto = createSide('D', [player4]);
+            const sideESinglePlayer: TournamentSideDto = createSide('E', [player5]);
             const tournamentData = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
@@ -743,11 +743,11 @@ describe('PrintableSheet', () => {
                 .withSide(sideDSinglePlayer)
                 .withSide(sideESinglePlayer)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap<ITeamDto>([
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
                     .build()]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
@@ -760,11 +760,11 @@ describe('PrintableSheet', () => {
         });
 
         it('renders winner', async () => {
-            const player1: ITeamPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITeamPlayerDto = playerBuilder('PLAYER 2').build();
-            const sideASinglePlayer: ITournamentSideDto = createSide('A', [player1]);
-            const sideBSinglePlayer: ITournamentSideDto = createSide('B', [player2]);
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
+            const sideASinglePlayer: TournamentSideDto = createSide('A', [player1]);
+            const sideBSinglePlayer: TournamentSideDto = createSide('B', [player2]);
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .sideA(sideASinglePlayer, 1)
@@ -773,11 +773,11 @@ describe('PrintableSheet', () => {
                 .withSide(sideASinglePlayer)
                 .withSide(sideBSinglePlayer)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap<ITeamDto>([
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
                     .build()]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
@@ -788,21 +788,21 @@ describe('PrintableSheet', () => {
         });
 
         it('renders winner when cross-divisional', async () => {
-            const player1: ITeamPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITeamPlayerDto = playerBuilder('PLAYER 2').build();
+            const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
             const sideASinglePlayer = createSide('A', [player1]);
             const sideBSinglePlayer = createSide('B', [player2]);
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideASinglePlayer, 1).sideB(sideBSinglePlayer, 2))
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .withSide(sideASinglePlayer).withSide(sideBSinglePlayer)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap<ITeamDto>([
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
                     .build()]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
@@ -813,17 +813,17 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing (singles)', async () => {
-            const player1: ITeamPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITeamPlayerDto = playerBuilder('PLAYER 2').build();
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
                 .build();
-            const teams: DataMap<ITeamDto> = toMap<ITeamDto>([
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
@@ -833,20 +833,20 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing (teams)', async () => {
-            const team: ITeamDto = teamBuilder('TEAM')
+            const team: TeamDto = teamBuilder('TEAM')
                 .forSeason(season, division)
                 .build();
-            const anotherTeam: ITeamDto = teamBuilder('ANOTHER TEAM').build();
-            const sideA: ITournamentSideDto = createSide('A');
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM').build();
+            const sideA: TournamentSideDto = createSide('A');
             sideA.teamId = team.id;
-            const sideB: ITournamentSideDto = createSide('B');
+            const sideB: TournamentSideDto = createSide('B');
             sideB.teamId = anotherTeam.id;
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap<ITeamDto>([team]);
-            const divisions: IDivisionDto[] = [division];
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([team]);
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
@@ -858,16 +858,16 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing when cross-divisional', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
-            const season: ISeasonDto = seasonBuilder('SEASON').build();
-            const teams: DataMap<ITeamDto> = toMap([ teamBuilder('TEAM')
+            const season: SeasonDto = seasonBuilder('SEASON').build();
+            const teams: DataMap<TeamDto> = toMap([ teamBuilder('TEAM')
                 .forSeason(season, division)
                 .build()
             ]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
@@ -877,20 +877,20 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing when team not found', async () => {
-            const player1: ITeamPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITeamPlayerDto = playerBuilder('PLAYER 2').build();
-            const sideASinglePlayer: ITournamentSideDto = createSide('A', [player1]);
-            const sideBSinglePlayer: ITournamentSideDto = createSide('B', [player2]);
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
+            const sideASinglePlayer: TournamentSideDto = createSide('A', [player1]);
+            const sideBSinglePlayer: TournamentSideDto = createSide('B', [player2]);
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideASinglePlayer)
                 .withSide(sideBSinglePlayer)
                 .build();
-            const anotherSeason: ISeasonDto = seasonBuilder('SEASON').build();
-            const teams: DataMap<ITeamDto> = toMap([ teamBuilder('TEAM')
+            const anotherSeason: SeasonDto = seasonBuilder('SEASON').build();
+            const teams: DataMap<TeamDto> = toMap([ teamBuilder('TEAM')
                 .forSeason(anotherSeason, division, [ player1, player2 ])
                 .build()
             ]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
@@ -900,13 +900,13 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing with no shows', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
                 .withSide(Object.assign({}, sideC, {noShow: true}))
                 .build();
-            const teams: DataMap<ITeamDto> = toMap([]);
-            const divisions: IDivisionDto[] = [division];
+            const teams: DataMap<TeamDto> = toMap([]);
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
@@ -916,7 +916,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders heading', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .type('TYPE')
                 .notes('NOTES')
                 .address('ADDRESS')
@@ -931,9 +931,9 @@ describe('PrintableSheet', () => {
         });
 
         it('renders 180s', async () => {
-            const player1: ITournamentPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITournamentPlayerDto = playerBuilder('PLAYER 2').build();
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: TournamentPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TournamentPlayerDto = playerBuilder('PLAYER 2').build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
                 .withOneEighty(player1)
@@ -941,12 +941,12 @@ describe('PrintableSheet', () => {
                 .withOneEighty(player1)
                 .withOneEighty(player1)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap([
+            const teams: DataMap<TeamDto> = toMap([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
             ]);
-            const divisions: IDivisionDto[] = [division];
+            const divisions: DivisionDto[] = [division];
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
@@ -957,9 +957,9 @@ describe('PrintableSheet', () => {
         });
 
         it('renders 180s when cross-divisional', async () => {
-            const player1: ITournamentPlayerDto = playerBuilder('PLAYER 1').build();
-            const player2: ITournamentPlayerDto = playerBuilder('PLAYER 2').build();
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: TournamentPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TournamentPlayerDto = playerBuilder('PLAYER 2').build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
                 .withOneEighty(player1)
@@ -967,7 +967,7 @@ describe('PrintableSheet', () => {
                 .withOneEighty(player1)
                 .withOneEighty(player1)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap([
+            const teams: DataMap<TeamDto> = toMap([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
@@ -982,15 +982,15 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks', async () => {
-            const player1: INotableTournamentPlayerDto = playerBuilder('PLAYER 1').notes('100').build();
-            const player2: INotableTournamentPlayerDto = playerBuilder('PLAYER 2').notes('120').build();
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: NotableTournamentPlayerDto = playerBuilder('PLAYER 1').notes('100').build();
+            const player2: NotableTournamentPlayerDto = playerBuilder('PLAYER 2').notes('120').build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
                 .withHiCheck(player1)
                 .withHiCheck(player2)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap([
+            const teams: DataMap<TeamDto> = toMap([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
@@ -1006,15 +1006,15 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks when cross-divisional', async () => {
-            const player1: INotableTournamentPlayerDto = playerBuilder('PLAYER 1').notes('100').build();
-            const player2: INotableTournamentPlayerDto = playerBuilder('PLAYER 2').notes('120').build();
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const player1: NotableTournamentPlayerDto = playerBuilder('PLAYER 1').notes('100').build();
+            const player2: NotableTournamentPlayerDto = playerBuilder('PLAYER 2').notes('120').build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
                 .withHiCheck(player1)
                 .withHiCheck(player2)
                 .build();
-            const teams: DataMap<ITeamDto> = toMap([
+            const teams: DataMap<TeamDto> = toMap([
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
@@ -1030,15 +1030,15 @@ describe('PrintableSheet', () => {
     });
 
     describe('unplayed tournament', () => {
-        const sideA: ITournamentSideDto = createSide('A');
-        const sideB: ITournamentSideDto = createSide('B');
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const sideA: TournamentSideDto = createSide('A');
+        const sideB: TournamentSideDto = createSide('B');
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
 
         it('renders tournament with 2 sides', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
@@ -1068,7 +1068,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
@@ -1080,7 +1080,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing when cross-divisional', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
@@ -1092,7 +1092,7 @@ describe('PrintableSheet', () => {
         });
 
         it('renders heading', async () => {
-            const tournamentData: ITournamentGameDto = tournamentBuilder()
+            const tournamentData: TournamentGameDto = tournamentBuilder()
                 .type('TYPE')
                 .notes('NOTES')
                 .address('ADDRESS')

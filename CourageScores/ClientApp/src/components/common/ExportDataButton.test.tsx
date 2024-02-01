@@ -1,19 +1,19 @@
 import {api, appProps, cleanUp, doClick, iocProps, noop, renderApp, TestContext} from "../../helpers/tests";
 import React from "react";
 import {ExportDataButton, IExportDataButtonProps} from "./ExportDataButton";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
-import {IExportDataRequestDto} from "../../interfaces/models/dtos/Data/IExportDataRequestDto";
-import {IExportDataResultDto} from "../../interfaces/models/dtos/Data/IExportDataResultDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
+import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ExportDataButton', () => {
     let context: TestContext;
-    let exportRequest: IExportDataRequestDto;
-    let apiResult: IClientActionResultDto<IExportDataResultDto>;
+    let exportRequest: ExportDataRequestDto;
+    let apiResult: IClientActionResultDto<ExportDataResultDto>;
 
     const dataApi = api<IDataApi>({
-        export: async (request: IExportDataRequestDto): Promise<IClientActionResultDto<IExportDataResultDto>> => {
+        export: async (request: ExportDataRequestDto): Promise<IClientActionResultDto<ExportDataResultDto>> => {
             exportRequest = request;
             return apiResult || {success: false};
         },
@@ -23,7 +23,7 @@ describe('ExportDataButton', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props: IExportDataButtonProps, account: IUserDto) {
+    async function renderComponent(props: IExportDataButtonProps, account: UserDto) {
         exportRequest = null;
         apiResult = null;
         context = await renderApp(
@@ -34,7 +34,7 @@ describe('ExportDataButton', () => {
     }
 
     describe('when logged out', () => {
-        const account: IUserDto = null;
+        const account: UserDto = null;
 
         it('renders nothing', async () => {
             await renderComponent({}, account);
@@ -44,7 +44,7 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, not permitted to export', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',
@@ -61,7 +61,7 @@ describe('ExportDataButton', () => {
     });
 
     describe('when logged in, permitted to export', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',

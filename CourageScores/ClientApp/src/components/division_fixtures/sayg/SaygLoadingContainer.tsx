@@ -9,7 +9,7 @@ import {LiveContainer} from "../LiveContainer";
 import {IBaseSayg, ISayg} from "../../../interfaces/ISayg";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
 import {ILiveOptions} from "../../../interfaces/ILiveOptions";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
 const SaygContext = createContext({});
 
@@ -32,7 +32,7 @@ export interface ISaygLoadingContainerProps extends IBaseSayg {
     onScoreChange?: (homeScore: number, awayScore: number) => Promise<any>;
 }
 
-export interface ILoadedScoreAsYouGoDto extends IUpdateRecordedScoreAsYouGoDto {
+export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     lastUpdated?: string;
 }
 
@@ -83,7 +83,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    async function saveDataAndGetId(useData?: IUpdateRecordedScoreAsYouGoDto) {
+    async function saveDataAndGetId(useData?: UpdateRecordedScoreAsYouGoDto) {
         try {
             const response: IClientActionResultDto<ILoadedScoreAsYouGoDto> = await saygApi.upsert(useData || sayg);
             if (response.success) {
@@ -122,8 +122,8 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         }
     }
 
-    async function updateSayg(newData: IUpdateRecordedScoreAsYouGoDto): Promise<IUpdateRecordedScoreAsYouGoDto> {
-        const newSayg: IUpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg, newData);
+    async function updateSayg(newData: UpdateRecordedScoreAsYouGoDto): Promise<UpdateRecordedScoreAsYouGoDto> {
+        const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg, newData);
         setSayg(newSayg);
         if (liveOptions.publish) {
             await webSocket.publish(id, newSayg);
@@ -163,7 +163,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                         data={sayg}
                         singlePlayer={!sayg.opponentName}
                         onLegComplete={async (homeScore: number, awayScore: number) => {
-                            const sayg = await updateSayg({homeScore, awayScore} as IUpdateRecordedScoreAsYouGoDto);
+                            const sayg = await updateSayg({homeScore, awayScore} as UpdateRecordedScoreAsYouGoDto);
                             if (autoSave) {
                                 await saveDataAndGetId(sayg);
                             }

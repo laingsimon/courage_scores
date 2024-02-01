@@ -1,13 +1,13 @@
 import {SharedAddresses} from "./SharedAddresses";
 import {TemplateDates} from "./TemplateDates";
 import {useState} from "react";
-import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
-import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
+import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 export interface ITemplateDivisionProps {
     divisionNo: number;
-    division: IDivisionTemplateDto;
-    onUpdate: (update: IDivisionTemplateDto) => Promise<any>;
+    division: DivisionTemplateDto;
+    onUpdate: (update: DivisionTemplateDto) => Promise<any>;
     onDelete: () => Promise<any>;
     templateSharedAddresses: string[];
 }
@@ -16,13 +16,13 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
     const [ expanded, setExpanded ] = useState<boolean>(true);
 
     async function updateSharedAddresses(updatedAddresses: string[][]) {
-        const newDivision: IDivisionTemplateDto = Object.assign({}, division);
+        const newDivision: DivisionTemplateDto = Object.assign({}, division);
         newDivision.sharedAddresses = updatedAddresses;
         await onUpdate(newDivision);
     }
 
-    async function updateDates(updatedDates: IDateTemplateDto[]) {
-        const newDivision: IDivisionTemplateDto = Object.assign({}, division);
+    async function updateDates(updatedDates: DateTemplateDto[]) {
+        const newDivision: DivisionTemplateDto = Object.assign({}, division);
         newDivision.dates = updatedDates;
         await onUpdate(newDivision);
     }

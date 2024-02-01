@@ -13,16 +13,16 @@ import {
 import React from "react";
 import {ITournamentRoundProps, TournamentRound} from "./TournamentRound";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {IUpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IUpdateRecordedScoreAsYouGoDto";
+import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
-import {ITournamentSideDto} from "../../../interfaces/models/dtos/Game/ITournamentSideDto";
-import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
-import {ITournamentPlayerDto} from "../../../interfaces/models/dtos/Game/ITournamentPlayerDto";
-import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
-import {ITournamentRoundDto} from "../../../interfaces/models/dtos/Game/ITournamentRoundDto";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {
     ITournamentMatchBuilder, ITournamentRoundBuilder,
     roundBuilder,
@@ -38,12 +38,12 @@ import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
 describe('TournamentRound', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let oneEighty: ITournamentPlayerDto;
-    let hiCheck: {player: ITournamentPlayerDto, note: number};
-    let updatedRound: ITournamentRoundDto;
+    let oneEighty: TournamentPlayerDto;
+    let hiCheck: {player: TournamentPlayerDto, note: number};
+    let updatedRound: TournamentRoundDto;
     let warnBeforeSave: string;
-    let patchedData: { patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound?: boolean };
-    let saygApiData: { [id: string]: IRecordedScoreAsYouGoDto };
+    let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean };
+    let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
     const tournamentApi = api<ITournamentGameApi>({
         addSayg: async () => {
             return {
@@ -56,15 +56,15 @@ describe('TournamentRound', () => {
         get: async (id: string) => {
             return saygApiData[id];
         },
-        upsert: async (data: IUpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<IRecordedScoreAsYouGoDto>> => {
-            const result: IUpdateRecordedScoreAsYouGoDto = Object.assign({}, data);
+        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
+            const result: UpdateRecordedScoreAsYouGoDto = Object.assign({}, data);
             if (!result.id) {
                 result.id = createTemporaryId();
             }
 
             return {
                 success: true,
-                result: result as IRecordedScoreAsYouGoDto,
+                result: result as RecordedScoreAsYouGoDto,
             };
         },
     });
@@ -83,22 +83,22 @@ describe('TournamentRound', () => {
         patchedData = null;
     });
 
-    async function onChange(newRound: ITournamentRoundDto) {
+    async function onChange(newRound: TournamentRoundDto) {
         updatedRound = newRound;
     }
 
-    async function onHiCheck(player: ITournamentPlayerDto, score: number) {
+    async function onHiCheck(player: TournamentPlayerDto, score: number) {
         hiCheck = {player, note: score};
     }
 
-    async function on180(player: ITournamentPlayerDto) {
+    async function on180(player: TournamentPlayerDto) {
         oneEighty = player
     }
 
     async function setTournamentData() {
     }
 
-    async function patchData(patch: IPatchTournamentDto | IPatchTournamentRoundDto, nestInRound?: boolean) {
+    async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
         patchedData = { patch, nestInRound }
     }
 
@@ -110,7 +110,7 @@ describe('TournamentRound', () => {
         return null;
     }
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundProps, account?: IUserDto) {
+    async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundProps, account?: UserDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
             brandingProps(),
@@ -144,12 +144,12 @@ describe('TournamentRound', () => {
     }
 
     describe('when logged out (readonly)', () => {
-        const side1: ITournamentSideDto = sideBuilder('SIDE 1').build();
-        const side2: ITournamentSideDto = sideBuilder('SIDE 2').build();
-        const side3: ITournamentSideDto = sideBuilder('SIDE 3').build();
-        const side4: ITournamentSideDto = sideBuilder('SIDE 4').build();
+        const side1: TournamentSideDto = sideBuilder('SIDE 1').build();
+        const side2: TournamentSideDto = sideBuilder('SIDE 2').build();
+        const side3: TournamentSideDto = sideBuilder('SIDE 3').build();
+        const side4: TournamentSideDto = sideBuilder('SIDE 4').build();
         const readOnly: boolean = true;
-        const emptyTournamentGame: ITournamentGameDto = tournamentBuilder().build();
+        const emptyTournamentGame: TournamentGameDto = tournamentBuilder().build();
         const defaultTournamentContainerProps: ITournamentContainerProps = {
             tournamentData: emptyTournamentGame,
             setTournamentData,
@@ -249,10 +249,10 @@ describe('TournamentRound', () => {
         });
 
         it('final round (when all sides have a score)', async () => {
-            const side5: ITournamentSideDto = sideBuilder('SIDE 5').build();
-            const side6: ITournamentSideDto = sideBuilder('SIDE 6').build();
-            const side7: ITournamentSideDto = sideBuilder('SIDE 7').build();
-            const side8: ITournamentSideDto = sideBuilder('SIDE 8').build();
+            const side5: TournamentSideDto = sideBuilder('SIDE 5').build();
+            const side6: TournamentSideDto = sideBuilder('SIDE 6').build();
+            const side7: TournamentSideDto = sideBuilder('SIDE 7').build();
+            const side8: TournamentSideDto = sideBuilder('SIDE 8').build();
 
             await renderComponent(defaultTournamentContainerProps, {
                 allowNextRound: true,
@@ -337,12 +337,12 @@ describe('TournamentRound', () => {
     });
 
     describe('when logged in', () => {
-        const side1: ITournamentSideDto = sideBuilder('SIDE 1').withPlayer('PLAYER').build();
-        const side2: ITournamentSideDto = sideBuilder('SIDE 2').withPlayer('PLAYER').build();
-        const side3: ITournamentSideDto = sideBuilder('SIDE 3').build();
-        const side4: ITournamentSideDto = sideBuilder('SIDE 4').build();
+        const side1: TournamentSideDto = sideBuilder('SIDE 1').withPlayer('PLAYER').build();
+        const side2: TournamentSideDto = sideBuilder('SIDE 2').withPlayer('PLAYER').build();
+        const side3: TournamentSideDto = sideBuilder('SIDE 3').build();
+        const side4: TournamentSideDto = sideBuilder('SIDE 4').build();
         const readOnly: boolean = false;
-        const emptyTournamentGame: ITournamentGameDto = tournamentBuilder().build();
+        const emptyTournamentGame: TournamentGameDto = tournamentBuilder().build();
         const defaultTournamentContainerProps: ITournamentContainerProps = {
             tournamentData: emptyTournamentGame,
             setTournamentData: setTournamentData,
@@ -674,7 +674,7 @@ describe('TournamentRound', () => {
 
             it('cannot open sayg when not permitted', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                const permittedAccount: IUserDto = {
+                const permittedAccount: UserDto = {
                     name: '',
                     givenName: '',
                     emailAddress: '',
@@ -708,7 +708,7 @@ describe('TournamentRound', () => {
 
             it('can change open sayg', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                const permittedAccount: IUserDto = {
+                const permittedAccount: UserDto = {
                     name: '',
                     emailAddress: '',
                     givenName: '',
@@ -1001,7 +1001,7 @@ describe('TournamentRound', () => {
                         .currentThrow('home'))
                     .numberOfLegs(3)
                     .build();
-                const permittedAccount: IUserDto = {
+                const permittedAccount: UserDto = {
                     name: '',
                     givenName: '',
                     emailAddress: '',
@@ -1050,7 +1050,7 @@ describe('TournamentRound', () => {
                         .currentThrow('home'))
                     .numberOfLegs(3)
                     .build();
-                const permittedAccount: IUserDto = {
+                const permittedAccount: UserDto = {
                     name: '',
                     givenName: '',
                     emailAddress: '',
@@ -1101,7 +1101,7 @@ describe('TournamentRound', () => {
                     .scores(0, 0)
                     .startingScore(501)
                     .build();
-                const permittedAccount: IUserDto = {
+                const permittedAccount: UserDto = {
                     name: '',
                     givenName: '',
                     emailAddress: '',
@@ -1176,7 +1176,7 @@ describe('TournamentRound', () => {
                     .scores(0, 0)
                     .startingScore(501)
                     .build();
-                const permittedAccount: IUserDto = {
+                const permittedAccount: UserDto = {
                     name: '',
                     givenName: '',
                     emailAddress: '',

@@ -13,8 +13,8 @@ import {AdminContainer} from "./AdminContainer";
 import {Templates} from "./Templates";
 import {SocketAdmin} from "./SocketAdmin";
 import {DataBrowser} from "./DataBrowser";
-import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 
 export function AdminHome() {
     const {mode} = useParams();
@@ -22,8 +22,8 @@ export function AdminHome() {
     const {account, appLoading, onError} = useApp();
     const effectiveTab = mode || 'user';
     const access = (account ? account.access : null) || {};
-    const [dataTables, setDataTables] = useState<ITableDto[] | null>(null);
-    const [accounts, setAccounts] = useState<IUserDto[] | null>(null);
+    const [dataTables, setDataTables] = useState<TableDto[] | null>(null);
+    const [accounts, setAccounts] = useState<UserDto[] | null>(null);
     const [adminLoading, setAdminLoading] = useState<boolean>(true);
 
     async function loadTables() {

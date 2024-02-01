@@ -13,16 +13,16 @@ import {
 } from "../../helpers/tests";
 import {SocketAdmin} from "./SocketAdmin";
 import {createTemporaryId} from "../../helpers/projection";
-import {IWebSocketDto} from "../../interfaces/models/dtos/Live/IWebSocketDto";
+import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {ILiveApi} from "../../interfaces/apis/ILiveApi";
 
 describe('SocketAdmin', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let allSockets: IWebSocketDto[];
+    let allSockets: WebSocketDto[];
     let closedSocket: string;
-    let apiResult: IClientActionResultDto<IWebSocketDto>;
+    let apiResult: IClientActionResultDto<WebSocketDto>;
 
     const liveApi = api<ILiveApi>({
         getAll: async () => {

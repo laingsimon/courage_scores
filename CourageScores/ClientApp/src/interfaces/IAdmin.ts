@@ -1,7 +1,7 @@
-import {ITableDto} from "./models/dtos/Data/ITableDto";
-import {IUserDto} from "./models/dtos/Identity/IUserDto";
+import {TableDto} from "./models/dtos/Data/TableDto";
+import {UserDto} from "./models/dtos/Identity/UserDto";
 
 export interface IAdmin {
-    tables: ITableDto[] | null;
-    accounts: IUserDto[] | null;
+    tables: TableDto[] | null;
+    accounts: UserDto[] | null;
 }

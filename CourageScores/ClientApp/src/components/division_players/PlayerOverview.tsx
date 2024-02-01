@@ -6,11 +6,11 @@ import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
-import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
-import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
-import {IDivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDateDto";
-import {IDivisionFixtureDto} from "../../interfaces/models/dtos/Division/IDivisionFixtureDto";
-import {IDivisionTournamentFixtureDetailsDto} from "../../interfaces/models/dtos/Division/IDivisionTournamentFixtureDetailsDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
+import {DivisionTournamentFixtureDetailsDto} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 
 export interface IPlayerOverviewProps {
     playerId: string;
@@ -19,13 +19,13 @@ export interface IPlayerOverviewProps {
 export function PlayerOverview({playerId}: IPlayerOverviewProps) {
     const {name} = useBranding();
     const {players, teams, fixtures: divisionDataFixtures, season, name: divisionName} = useDivisionData();
-    const player: IDivisionPlayerDto = players.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}, teamId: null, team: 'Unknown'};
-    const team: IDivisionTeamDto = teams.filter(t => t.id === player.teamId)[0] || {id: null, name: 'Unknown', address: ''};
+    const player: DivisionPlayerDto = players.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}, teamId: null, team: 'Unknown'};
+    const team: DivisionTeamDto = teams.filter(t => t.id === player.teamId)[0] || {id: null, name: 'Unknown', address: ''};
     const fixtures = divisionDataFixtures.map(fixtureDate => {
         const fixtureId: string = player.fixtures[fixtureDate.date];
-        const tournamentFixtures: IDivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
-            .filter((tournament: IDivisionTournamentFixtureDetailsDto) => !tournament.proposed)
-            .filter((tournament: IDivisionTournamentFixtureDetailsDto) => {
+        const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
+            .filter((tournament: DivisionTournamentFixtureDetailsDto) => !tournament.proposed)
+            .filter((tournament: DivisionTournamentFixtureDetailsDto) => {
                 return any(tournament.players, (id: string) => id === playerId);
             });
 
@@ -48,16 +48,16 @@ export function PlayerOverview({playerId}: IPlayerOverviewProps) {
         return score;
     }
 
-    function renderFixtureAndDate(fixtureDate: IDivisionFixtureDateDto) {
-        const fixture: IDivisionFixtureDto = fixtureDate.fixtures[0];
-        const tournamentFixture: IDivisionTournamentFixtureDetailsDto = fixtureDate.tournamentFixtures[0];
+    function renderFixtureAndDate(fixtureDate: DivisionFixtureDateDto) {
+        const fixture: DivisionFixtureDto = fixtureDate.fixtures[0];
+        const tournamentFixture: DivisionTournamentFixtureDetailsDto = fixtureDate.tournamentFixtures[0];
 
         return fixture
             ? renderLeagueFixture(fixture, fixtureDate.date)
             : renderTournamentFixture(tournamentFixture, fixtureDate.date);
     }
 
-    function renderLeagueFixture(fixture: IDivisionFixtureDto, date: string) {
+    function renderLeagueFixture(fixture: DivisionFixtureDto, date: string) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
@@ -86,7 +86,7 @@ export function PlayerOverview({playerId}: IPlayerOverviewProps) {
         </tr>);
     }
 
-    function renderTournamentFixture(tournament: IDivisionTournamentFixtureDetailsDto, date: string) {
+    function renderTournamentFixture(tournament: DivisionTournamentFixtureDetailsDto, date: string) {
         return (<tr key={tournament.id}>
             <td>
                 <div className="position-absolute">

@@ -1,12 +1,12 @@
-import {ITeamPlayerDto} from "./models/dtos/Team/ITeamPlayerDto";
-import {IGameMatchDto} from "./models/dtos/Game/IGameMatchDto";
-import {IGameMatchOptionDto} from "./models/dtos/Game/IGameMatchOptionDto";
+import {TeamPlayerDto} from "./models/dtos/Team/TeamPlayerDto";
+import {GameMatchDto} from "./models/dtos/Game/GameMatchDto";
+import {GameMatchOptionDto} from "./models/dtos/Game/GameMatchOptionDto";
 import {ICreatePlayerFor} from "../components/division_fixtures/scores/Score";
 
 export interface IMatchType {
-    matchOptions: IGameMatchOptionDto;
-    otherMatches: IGameMatchDto[];
+    matchOptions: GameMatchOptionDto;
+    otherMatches: GameMatchDto[];
     setCreatePlayerFor: (index: ICreatePlayerFor) => Promise<any>;
-    homePlayers: ITeamPlayerDto[];
-    awayPlayers: ITeamPlayerDto[];
+    homePlayers: TeamPlayerDto[];
+    awayPlayers: TeamPlayerDto[];
 }

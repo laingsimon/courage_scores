@@ -9,12 +9,12 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {EMPTY_ID} from "../../helpers/projection";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IDivisionPlayerDto} from "../../interfaces/models/dtos/Division/IDivisionPlayerDto";
-import {ITeamDto} from "../../interfaces/models/dtos/Team/ITeamDto";
+import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export interface IDivisionPlayerProps {
-    player: IDivisionPlayerDto;
+    player: DivisionPlayerDto;
     hideVenue: boolean;
 }
 
@@ -24,9 +24,9 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
     const [playerDetails, setPlayerDetails] = useState(Object.assign({}, player));
     const [editPlayer, setEditPlayer] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<IClientActionResultDto<ITeamDto> | null>(null);
+    const [saveError, setSaveError] = useState<IClientActionResultDto<TeamDto> | null>(null);
     const isAdmin: boolean = account && account.access && account.access.managePlayers;
-    const team: ITeamDto = {
+    const team: TeamDto = {
         id: player.teamId,
         name: player.team,
         address: '',
@@ -71,7 +71,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
 
         setDeleting(true);
         try {
-            const response: IClientActionResultDto<ITeamDto> = await playerApi.delete(season.id, player.teamId, player.id);
+            const response: IClientActionResultDto<TeamDto> = await playerApi.delete(season.id, player.teamId, player.id);
             if (response.success) {
                 await onReloadDivision();
                 await reloadTeams();

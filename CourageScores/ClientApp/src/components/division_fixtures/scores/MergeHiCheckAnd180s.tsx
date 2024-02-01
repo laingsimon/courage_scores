@@ -1,19 +1,19 @@
 import React from "react";
 import {any, isEmpty} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 
 export interface IMergeHiCheckAnd180sProps {
-    fixtureData: IGameDto;
-    data: IGameDto;
-    setFixtureData: (data: IGameDto) => Promise<any>;
+    fixtureData: GameDto;
+    data: GameDto;
+    setFixtureData: (data: GameDto) => Promise<any>;
 }
 
 export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeHiCheckAnd180sProps) {
     const {onError} = useApp();
 
     function getRecordsToMerge(team: string, record: string): any[] {
-        const submission: IGameDto = data[team + 'Submission'];
+        const submission: GameDto = data[team + 'Submission'];
         if (!submission) {
             return [];
         }
@@ -23,8 +23,8 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
 
     async function mergeRecords(team: string, record: string) {
         try {
-            const newFixtureData: IGameDto = Object.assign({}, fixtureData);
-            const submission: IGameDto = data[team + 'Submission'];
+            const newFixtureData: GameDto = Object.assign({}, fixtureData);
+            const submission: GameDto = data[team + 'Submission'];
 
             newFixtureData[record] = submission[record];
 

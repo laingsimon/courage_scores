@@ -6,15 +6,15 @@ import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
-import {IDivisionDataSeasonDto} from "../interfaces/models/dtos/Division/IDivisionDataSeasonDto";
-import {IEditSeasonDto} from "../interfaces/models/dtos/Season/IEditSeasonDto";
+import {DivisionDataSeasonDto} from "../interfaces/models/dtos/Division/DivisionDataSeasonDto";
+import {EditSeasonDto} from "../interfaces/models/dtos/Season/EditSeasonDto";
 
 export interface IEditSeasonProps {
     onClose: () => Promise<any>;
     onSave: () => Promise<any>;
     setSaveError: (error: any) => Promise<any>;
-    data: IEditSeasonDto & IDivisionDataSeasonDto;
-    onUpdateData: (season: IEditSeasonDto) => Promise<any>;
+    data: EditSeasonDto & DivisionDataSeasonDto;
+    onUpdateData: (season: EditSeasonDto) => Promise<any>;
 }
 
 export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: IEditSeasonProps) {

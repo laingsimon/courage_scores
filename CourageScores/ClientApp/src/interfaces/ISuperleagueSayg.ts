@@ -1,5 +1,5 @@
-import {IScoreAsYouGoDto} from "./models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {ScoreAsYouGoDto} from "./models/dtos/Game/Sayg/ScoreAsYouGoDto";
 
 export interface ISuperleagueSayg {
-    saygData?: IScoreAsYouGoDto | null;
+    saygData?: ScoreAsYouGoDto | null;
 }

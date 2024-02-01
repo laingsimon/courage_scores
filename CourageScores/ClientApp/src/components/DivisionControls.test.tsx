@@ -13,11 +13,11 @@ import {
 import React from "react";
 import {DivisionControls, IDivisionControlsProps} from "./DivisionControls";
 import {renderDate} from "../helpers/rendering";
-import {IEditSeasonDto} from "../interfaces/models/dtos/Season/IEditSeasonDto";
-import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
-import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
-import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
-import {IUserDto} from "../interfaces/models/dtos/Identity/IUserDto";
+import {EditSeasonDto} from "../interfaces/models/dtos/Season/EditSeasonDto";
+import {SeasonDto} from "../interfaces/models/dtos/Season/SeasonDto";
+import {EditDivisionDto} from "../interfaces/models/dtos/EditDivisionDto";
+import {DivisionDto} from "../interfaces/models/dtos/DivisionDto";
+import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
 import {divisionBuilder} from "../helpers/builders/divisions";
 import {seasonBuilder} from "../helpers/builders/seasons";
@@ -37,10 +37,10 @@ describe('DivisionControls', () => {
     let changedDivisionOrSeason: boolean;
     let reloadSeasonsCalled: boolean;
     let reloadDivisionsCalled: boolean;
-    let updatedSeason: IEditSeasonDto;
-    let updatedDivision: IEditDivisionDto;
+    let updatedSeason: EditSeasonDto;
+    let updatedDivision: EditDivisionDto;
     const seasonApi = api<ISeasonApi>({
-        update: async (data: IEditSeasonDto): Promise<IClientActionResultDto<ISeasonDto>> => {
+        update: async (data: EditSeasonDto): Promise<IClientActionResultDto<SeasonDto>> => {
             updatedSeason = data;
             return {
                 success: true,
@@ -48,7 +48,7 @@ describe('DivisionControls', () => {
         }
     });
     const divisionApi = api<IDivisionApi>({
-        update: async (data: IEditDivisionDto): Promise<IClientActionResultDto<IDivisionDto>> => {
+        update: async (data: EditDivisionDto): Promise<IClientActionResultDto<DivisionDto>> => {
             updatedDivision = data;
             return {
                 success: true
@@ -73,7 +73,7 @@ describe('DivisionControls', () => {
         changedDivisionOrSeason = x;
     }
 
-    async function renderComponent(props: IDivisionControlsProps, account: IUserDto, seasons: ISeasonDto[], divisions: IDivisionDto[], route?: string, currentPath?: string) {
+    async function renderComponent(props: IDivisionControlsProps, account: UserDto, seasons: SeasonDto[], divisions: DivisionDto[], route?: string, currentPath?: string) {
         context = await renderApp(
             iocProps({seasonApi, divisionApi}),
             brandingProps(),
@@ -121,7 +121,7 @@ describe('DivisionControls', () => {
         return date.toISOString();
     }
 
-    function seasonDates(season: ISeasonDto) {
+    function seasonDates(season: SeasonDto) {
         return `(${renderDate(season.startDate)} - ${renderDate(season.endDate)})`;
     }
 
@@ -147,15 +147,15 @@ describe('DivisionControls', () => {
 
     describe('when logged out', () => {
         const account = null;
-        const division1: IDivisionDto = divisionBuilder('Division 1').build();
-        const division2: IDivisionDto = divisionBuilder('Division 2').build();
-        const season1: ISeasonDto = seasonBuilder('Season 1')
+        const division1: DivisionDto = divisionBuilder('Division 1').build();
+        const division2: DivisionDto = divisionBuilder('Division 2').build();
+        const season1: SeasonDto = seasonBuilder('Season 1')
             .starting(getDate(-1))
             .ending(getDate(2))
             .withDivision(division1)
             .withDivision(division2)
             .build();
-        const season2: ISeasonDto = seasonBuilder('Season 2')
+        const season2: SeasonDto = seasonBuilder('Season 2')
             .starting(getDate(2))
             .ending(getDate(4))
             .withDivision(division1)
@@ -269,7 +269,7 @@ describe('DivisionControls', () => {
     });
 
     describe('when logged in', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
@@ -278,15 +278,15 @@ describe('DivisionControls', () => {
                 manageSeasons: true,
             }
         };
-        const division3: IDivisionDto = divisionBuilder('Division 3').build();
-        const division4: IDivisionDto = divisionBuilder('Division 4').build();
-        const season3: ISeasonDto = seasonBuilder('Season 3')
+        const division3:DivisionDto = divisionBuilder('Division 3').build();
+        const division4: DivisionDto = divisionBuilder('Division 4').build();
+        const season3: SeasonDto = seasonBuilder('Season 3')
             .starting(getDate(-1))
             .ending(getDate(2))
             .withDivision(division3)
             .withDivision(division4)
             .build();
-        const season4: ISeasonDto = seasonBuilder('Season 4')
+        const season4: SeasonDto = seasonBuilder('Season 4')
             .starting(getDate(2))
             .ending(getDate(4))
             .withDivision(division3)
@@ -404,15 +404,15 @@ describe('DivisionControls', () => {
     });
 
     describe('interactivity', () => {
-        const division5: IDivisionDto = divisionBuilder('Division 5').build();
-        const division6: IDivisionDto = divisionBuilder('Division 6').build();
-        const season5: ISeasonDto = seasonBuilder('Season 5')
+        const division5: DivisionDto = divisionBuilder('Division 5').build();
+        const division6: DivisionDto = divisionBuilder('Division 6').build();
+        const season5: SeasonDto = seasonBuilder('Season 5')
             .starting(getDate(-1))
             .ending(getDate(2))
             .withDivision(division5)
             .withDivision(division6)
             .build();
-        const season6: ISeasonDto = seasonBuilder('Season 6')
+        const season6: SeasonDto = seasonBuilder('Season 6')
             .starting(getDate(2))
             .ending(getDate(4))
             .withDivision(division5)
@@ -548,7 +548,7 @@ describe('DivisionControls', () => {
         });
 
         describe('when logged in', () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 name: '',
                 givenName: '',
                 emailAddress: '',

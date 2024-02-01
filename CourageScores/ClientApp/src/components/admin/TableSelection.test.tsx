@@ -10,7 +10,7 @@
 } from "../../helpers/tests";
 import React from "react";
 import {ITableSelectionProps, TableSelection} from "./TableSelection";
-import {ITableDto} from "../../interfaces/models/dtos/Data/ITableDto";
+import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 
 describe('TableSelection', () => {
     let context: TestContext;
@@ -38,21 +38,21 @@ describe('TableSelection', () => {
             (<TableSelection {...props} />));
     }
 
-    const tableA: ITableDto = {
+    const tableA: TableDto = {
         name: 'A',
         canImport: true,
         canExport: true,
         environmentalName: '',
         partitionKey: '',
     };
-    const tableB: ITableDto = {
+    const tableB: TableDto = {
         name: 'B',
         canImport: true,
         canExport: true,
         environmentalName: '',
         partitionKey: '',
     };
-    const tableC: ITableDto = {
+    const tableC: TableDto = {
         name: 'C',
         canImport: false,
         canExport: false,

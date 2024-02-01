@@ -4,12 +4,12 @@ import {toMap} from "../../../helpers/collections";
 import {IScoreCardHeadingProps, ScoreCardHeading} from "./ScoreCardHeading";
 import {ILeagueFixtureContainerProps, LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {renderDate} from "../../../helpers/rendering";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {IGameTeamDto} from "../../../interfaces/models/dtos/Game/IGameTeamDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {GameTeamDto} from "../../../interfaces/models/dtos/Game/GameTeamDto";
 import {fixtureBuilder, IFixtureBuilder, IMatchBuilder, IMatchOptionsBuilder} from "../../../helpers/builders/games";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
@@ -17,9 +17,9 @@ import {teamBuilder} from "../../../helpers/builders/teams";
 
 describe('ScoreCardHeading', () => {
     let context: TestContext;
-    let updatedFixtureData: IGameDto;
+    let updatedFixtureData: GameDto;
     let updatedSubmission: string;
-    async function setFixtureData(newFixtureData: IGameDto){
+    async function setFixtureData(newFixtureData: GameDto){
         updatedFixtureData = newFixtureData;
     }
     async function setSubmission(newSubmission: string) {
@@ -35,7 +35,7 @@ describe('ScoreCardHeading', () => {
         updatedSubmission = null;
     });
 
-    async function renderComponent(containerProps: ILeagueFixtureContainerProps, props: IScoreCardHeadingProps, account: IUserDto, teams?: ITeamDto[]) {
+    async function renderComponent(containerProps: ILeagueFixtureContainerProps, props: IScoreCardHeadingProps, account: UserDto, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -68,7 +68,7 @@ describe('ScoreCardHeading', () => {
         expect(toggleButton.textContent).toContain(text);
     }
 
-    async function assertRevertToFixtureData(home: boolean, data: IGameDto) {
+    async function assertRevertToFixtureData(home: boolean, data: GameDto) {
         const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
         expect(heading).toBeTruthy();
 
@@ -78,7 +78,7 @@ describe('ScoreCardHeading', () => {
         expect(updatedFixtureData).toEqual(data);
     }
 
-    async function assertDisplayOfSubmissionData(home: boolean, data: IGameDto) {
+    async function assertDisplayOfSubmissionData(home: boolean, data: GameDto) {
         const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
         expect(heading).toBeTruthy();
 
@@ -105,8 +105,8 @@ describe('ScoreCardHeading', () => {
         }
     }
 
-    function assertLinkAddress(home: boolean, data: IGameDto, fixtureData: ILeagueFixtureContainerProps) {
-        const team: IGameTeamDto = home ? data.home : data.away;
+    function assertLinkAddress(home: boolean, data: GameDto, fixtureData: ILeagueFixtureContainerProps) {
+        const team: GameTeamDto = home ? data.home : data.away;
         const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
         expect(heading).toBeTruthy();
         const linkToTeam = heading.querySelector('a');
@@ -125,8 +125,8 @@ describe('ScoreCardHeading', () => {
     describe('when logged out', () => {
         const access = '';
         const account = null;
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON').build();
 
         describe('when no winner', () => {
             const submissionData = fixtureBuilder()
@@ -314,15 +314,15 @@ describe('ScoreCardHeading', () => {
 
     describe('when an admin', () => {
         const access = 'admin';
-        const team: ITeamDto = teamBuilder('TEAM').build();
-        const account: IUserDto = {
+        const team: TeamDto = teamBuilder('TEAM').build();
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
             teamId: team.id,
         };
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON').build();
 
         describe('when no home or away submission', () => {
             const submissionData = fixtureBuilder()
@@ -547,15 +547,15 @@ describe('ScoreCardHeading', () => {
 
     describe('when a clerk', () => {
         const access = 'clerk';
-        const team: ITeamDto = teamBuilder('TEAM').build();
-        const account: IUserDto = {
+        const team: TeamDto = teamBuilder('TEAM').build();
+        const account: UserDto = {
             name: '',
             givenName: '',
             emailAddress: '',
             teamId: team.id,
         };
-        const division: IDivisionDto = divisionBuilder('DIVISION').build();
-        const season: ISeasonDto = seasonBuilder('SEASON').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON').build();
 
         describe('for a different team', () => {
             describe('when no home or away submission', () => {

@@ -11,14 +11,14 @@ import {
 } from "../../../helpers/tests";
 import {GameDetails, IGameDetailsProps} from "./GameDetails";
 import {fixtureBuilder} from "../../../helpers/builders/games";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 
 describe('GameDetails', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedFixtureData: IGameDto;
+    let updatedFixtureData: GameDto;
 
-    async function setFixtureData(newFixtureData: IGameDto) {
+    async function setFixtureData(newFixtureData: GameDto) {
         updatedFixtureData = newFixtureData;
     }
 
@@ -41,7 +41,7 @@ describe('GameDetails', () => {
 
     describe('when not logged in', () => {
         it('when postponed = false and isKnockout=true', async () => {
-            const fixtureData: IGameDto = fixtureBuilder()
+            const fixtureData: GameDto = fixtureBuilder()
                 .knockout()
                 .address('ADDRESS')
                 .playing('HOME', 'AWAY')
@@ -59,7 +59,7 @@ describe('GameDetails', () => {
         });
 
         it('when postponed=true and isKnockout=false', async () => {
-            const fixtureData: IGameDto = fixtureBuilder()
+            const fixtureData: GameDto = fixtureBuilder()
                 .postponed()
                 .address('ADDRESS')
                 .playing('HOME', 'AWAY')
@@ -77,7 +77,7 @@ describe('GameDetails', () => {
         });
 
         it('when postponed=true and isKnockout=true', async () => {
-            const fixtureData: IGameDto = fixtureBuilder()
+            const fixtureData: GameDto = fixtureBuilder()
                 .knockout()
                 .postponed()
                 .address('ADDRESS')
@@ -96,7 +96,7 @@ describe('GameDetails', () => {
         });
 
         it('when away is unset', async () => {
-            const fixtureData: IGameDto = fixtureBuilder()
+            const fixtureData: GameDto = fixtureBuilder()
                 .knockout()
                 .postponed()
                 .address('ADDRESS')
@@ -115,7 +115,7 @@ describe('GameDetails', () => {
         });
 
         it('when home and away are set', async () => {
-            const fixtureData: IGameDto = fixtureBuilder()
+            const fixtureData: GameDto = fixtureBuilder()
                 .knockout()
                 .postponed()
                 .address('ADDRESS')
@@ -139,7 +139,7 @@ describe('GameDetails', () => {
     describe('when an admin', () => {
         describe('renders', () => {
             it('date', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -157,7 +157,7 @@ describe('GameDetails', () => {
             });
 
             it('address', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -175,7 +175,7 @@ describe('GameDetails', () => {
             });
 
             it('postponed', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .postponed()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -194,7 +194,7 @@ describe('GameDetails', () => {
             });
 
             it('isKnockout', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .knockout()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -213,7 +213,7 @@ describe('GameDetails', () => {
             });
 
             it('accoladesCount', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .postponed()
                     .accoladesCount()
                     .address('ADDRESS')
@@ -235,7 +235,7 @@ describe('GameDetails', () => {
 
         describe('changes', () => {
             it('date', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -253,7 +253,7 @@ describe('GameDetails', () => {
             });
 
             it('address', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
                     .build();
@@ -271,7 +271,7 @@ describe('GameDetails', () => {
             });
 
             it('postponed', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .postponed()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -290,7 +290,7 @@ describe('GameDetails', () => {
             });
 
             it('isKnockout', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .knockout()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')
@@ -309,7 +309,7 @@ describe('GameDetails', () => {
             });
 
             it('accoladesCount', async () => {
-                const fixtureData: IGameDto = fixtureBuilder('2023-04-01T20:30:00')
+                const fixtureData: GameDto = fixtureBuilder('2023-04-01T20:30:00')
                     .accoladesCount()
                     .address('ADDRESS')
                     .playing('HOME', 'AWAY')

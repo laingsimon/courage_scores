@@ -1,12 +1,12 @@
 import React, {useState} from "react";
 import {any} from "../../helpers/collections";
 import {valueChanged} from "../../helpers/events";
-import {IDateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IFixtureTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 
 export interface ITemplateDateProps {
-    date: IDateTemplateDto;
-    onUpdate: (newDate: IDateTemplateDto) => Promise<any>;
+    date: DateTemplateDto;
+    onUpdate: (newDate: DateTemplateDto) => Promise<any>;
     onDelete: () => Promise<any>;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
@@ -15,19 +15,19 @@ export interface ITemplateDateProps {
 }
 
 export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }: ITemplateDateProps) {
-    const [ newFixture, setNewFixture ] = useState<IFixtureTemplateDto>({
+    const [ newFixture, setNewFixture ] = useState<FixtureTemplateDto>({
         home: null,
         away: null,
     });
 
-    async function updateFixtures(update: IFixtureTemplateDto[]) {
-        const newDate: IDateTemplateDto = Object.assign({}, date);
+    async function updateFixtures(update: FixtureTemplateDto[]) {
+        const newDate: DateTemplateDto = Object.assign({}, date);
         newDate.fixtures = update;
         await onUpdate(newDate);
     }
 
     async function deleteFixture(index: number) {
-        await updateFixtures(date.fixtures.filter((_: IFixtureTemplateDto, i: number) => i !== index));
+        await updateFixtures(date.fixtures.filter((_: FixtureTemplateDto, i: number) => i !== index));
     }
 
     async function addFixture() {

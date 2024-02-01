@@ -1,14 +1,14 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
 import {IDatedDivisionFixtureDto} from "../../interfaces/IDatedDivisionFixtureDto";
-import {IGameDto} from "../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {createTemporaryId} from "../projection";
-import {IGameMatchDto} from "../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IGameMatchOptionDto} from "../../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
+import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {playerBuilder} from "./players";
 import {saygBuilder} from "./sayg";
-import {ITeamPlayerDto} from "../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 
-export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto & IGameDto> {
+export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto & GameDto> {
     playing: (home?: any, away?: any) => IFixtureBuilder;
     bye: (venue: any, id?: string) => IFixtureBuilder;
     manOfTheMatch: (homePlayerOrId: any, awayPlayerOrId?: any) => IFixtureBuilder;
@@ -29,7 +29,7 @@ export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDt
 }
 
 export function fixtureBuilder(date?: string, id?: string, omitSubmission?: boolean): IFixtureBuilder {
-    const fixture: IDatedDivisionFixtureDto & IGameDto = {
+    const fixture: IDatedDivisionFixtureDto & GameDto = {
         id: id || createTemporaryId(),
         date: date,
         oneEighties: [],
@@ -73,9 +73,9 @@ export function fixtureBuilder(date?: string, id?: string, omitSubmission?: bool
             fixture.awayTeam = null;
             return builder;
         },
-        manOfTheMatch: (homePlayerOrId: string | ITeamPlayerDto | null, awayPlayerOrId: string | ITeamPlayerDto | null) => {
-            function getId(playerOrId: string | ITeamPlayerDto): string {
-                const player: ITeamPlayerDto = playerOrId as ITeamPlayerDto;
+        manOfTheMatch: (homePlayerOrId: string | TeamPlayerDto | null, awayPlayerOrId: string | TeamPlayerDto | null) => {
+            function getId(playerOrId: string | TeamPlayerDto): string {
+                const player: TeamPlayerDto = playerOrId as TeamPlayerDto;
                 if (player.id) {
                     return player.id;
                 }
@@ -177,7 +177,7 @@ export function fixtureBuilder(date?: string, id?: string, omitSubmission?: bool
     return builder;
 }
 
-export interface IMatchBuilder extends IBuilder<IGameMatchDto> {
+export interface IMatchBuilder extends IBuilder<GameMatchDto> {
     withHome: (playerOrName?: any) => IMatchBuilder;
     withAway: (playerOrName?: any) => IMatchBuilder;
     scores: (home: any, away: any) => IMatchBuilder;
@@ -185,7 +185,7 @@ export interface IMatchBuilder extends IBuilder<IGameMatchDto> {
 }
 
 export function matchBuilder(): IMatchBuilder {
-    const match: IGameMatchDto = {};
+    const match: GameMatchDto = {};
 
     const builder: IMatchBuilder = {
         build: () => match,
@@ -222,14 +222,14 @@ export function matchBuilder(): IMatchBuilder {
     return builder;
 }
 
-export interface IMatchOptionsBuilder extends IBuilder<IGameMatchOptionDto>{
+export interface IMatchOptionsBuilder extends IBuilder<GameMatchOptionDto>{
     numberOfLegs: (legs: number) => IMatchOptionsBuilder;
     startingScore: (score: number) => IMatchOptionsBuilder;
     playerCount: (count: number) => IMatchOptionsBuilder;
 }
 
 export function matchOptionsBuilder(): IMatchOptionsBuilder {
-    const options: IGameMatchOptionDto = {
+    const options: GameMatchOptionDto = {
         startingScore: null,
         numberOfLegs: null,
     };

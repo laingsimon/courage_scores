@@ -3,24 +3,24 @@ import {ifNaN, round2dp} from "../../../helpers/rendering";
 import {valueChanged} from "../../../helpers/events";
 import React, {useState} from "react";
 import {EditThrow} from "./EditThrow";
-import {ILegDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {ILegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
-import {ILegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/ILegCompetitorScoreDto";
+import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import {LegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {ILegDisplayOptions} from "../../../interfaces/ILegDisplayOptions";
 
 export interface ILegStatisticsProps {
-    leg: ILegDto;
+    leg: LegDto;
     home: string;
     away?: string;
     legNumber: number;
     singlePlayer?: boolean;
     oneDartAverage?: boolean;
-    onChangeLeg?: (newLeg: ILegDto) => Promise<any>;
+    onChangeLeg?: (newLeg: LegDto) => Promise<any>;
     updateLegDisplayOptions: (options: ILegDisplayOptions) => Promise<any>;
     legDisplayOptions: ILegDisplayOptions;
 }
 
-interface IEditableLegThrowDto extends ILegThrowDto {
+interface IEditableLegThrowDto extends LegThrowDto {
     index: number;
     competitor: 'home' | 'away';
 }
@@ -38,19 +38,19 @@ interface ILegStatisticsDetail {
 }
 
 export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDartAverage, onChangeLeg, updateLegDisplayOptions, legDisplayOptions }: ILegStatisticsProps) {
-    const homeStats: ILegCompetitorScoreDto = leg.home;
-    const awayStats: ILegCompetitorScoreDto = leg.away;
+    const homeStats: LegCompetitorScoreDto = leg.home;
+    const awayStats: LegCompetitorScoreDto = leg.away;
     const [throwUnderEdit, setThrowUnderEdit] = useState<IEditableLegThrowDto>(null);
 
     if (homeStats.noOfDarts + awayStats.noOfDarts === 0) {
         return null;
     }
 
-    function getLegStatistics(throws: ILegThrowDto[]): ILegStatisticsDetail[] {
+    function getLegStatistics(throws: LegThrowDto[]): ILegStatisticsDetail[] {
         let score: number = 0;
         let noOfDarts: number = 0;
 
-        return throws.map((thr: ILegThrowDto) => {
+        return throws.map((thr: LegThrowDto) => {
             score += thr.bust ? 0 : thr.score;
             noOfDarts += thr.noOfDarts;
             const threeDartAverage = score / (noOfDarts / 3);
@@ -83,24 +83,24 @@ export function LegStatistics({leg, home, away, legNumber, singlePlayer, oneDart
     }
 
     async function saveThrowChange() {
-        const newLeg: ILegDto = Object.assign({}, leg);
-        const competitor: ILegCompetitorScoreDto = Object.assign({}, leg[throwUnderEdit.competitor]);
+        const newLeg: LegDto = Object.assign({}, leg);
+        const competitor: LegCompetitorScoreDto = Object.assign({}, leg[throwUnderEdit.competitor]);
         const newThrow: IEditableLegThrowDto = Object.assign({}, throwUnderEdit);
         delete newThrow.competitor;
         delete newThrow.index;
 
         newLeg[throwUnderEdit.competitor] = competitor;
         competitor.throws = competitor.throws
-            .map((thr: ILegThrowDto, index: number) => index === throwUnderEdit.index ? newThrow : thr)
-            .filter((thr: ILegThrowDto) => thr.noOfDarts > 0);
-        competitor.score = sum(competitor.throws, (thr: ILegThrowDto) => thr.score);
-        competitor.noOfDarts = sum(competitor.throws, (thr: ILegThrowDto) => thr.noOfDarts);
+            .map((thr: LegThrowDto, index: number) => index === throwUnderEdit.index ? newThrow : thr)
+            .filter((thr: LegThrowDto) => thr.noOfDarts > 0);
+        competitor.score = sum(competitor.throws, (thr: LegThrowDto) => thr.score);
+        competitor.noOfDarts = sum(competitor.throws, (thr: LegThrowDto) => thr.noOfDarts);
 
         await onChangeLeg(newLeg);
         setThrowUnderEdit(null);
     }
 
-    function renderThrows(throws: ILegThrowDto[], competitor: string) {
+    function renderThrows(throws: LegThrowDto[], competitor: string) {
         if (isEmpty(throws)) {
             return (<p>No throws</p>);
         }

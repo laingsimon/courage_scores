@@ -1,9 +1,9 @@
 import {Link} from "react-router-dom";
 import {useDivisionData} from "./DivisionDataContainer";
-import {IDataErrorDto} from "../interfaces/models/dtos/Division/IDataErrorDto";
+import {DataErrorDto} from "../interfaces/models/dtos/Division/DataErrorDto";
 
 export interface IDataErrorProps {
-    dataError: IDataErrorDto
+    dataError: DataErrorDto
 }
 
 export function DataError({ dataError }: IDataErrorProps) {

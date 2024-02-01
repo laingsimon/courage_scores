@@ -1,8 +1,8 @@
 ﻿import {IBuild} from "./IBuild";
-import {IDivisionDto} from "./models/dtos/IDivisionDto";
-import {ISeasonDto} from "./models/dtos/Season/ISeasonDto";
-import {ITeamDto} from "./models/dtos/Team/ITeamDto";
-import {IUserDto} from "./models/dtos/Identity/IUserDto";
+import {DivisionDto} from "./models/dtos/DivisionDto";
+import {SeasonDto} from "./models/dtos/Season/SeasonDto";
+import {TeamDto} from "./models/dtos/Team/TeamDto";
+import {UserDto} from "./models/dtos/Identity/UserDto";
 import {DataMap} from "../helpers/collections";
 import {IError} from "./IError";
 
@@ -11,10 +11,10 @@ export interface IApp {
     onError: (error: any) => void;
     embed?: boolean;
 
-    divisions: DataMap<IDivisionDto>,
-    seasons: DataMap<ISeasonDto>,
-    teams: DataMap<ITeamDto>,
-    account?: IUserDto | null,
+    divisions: DataMap<DivisionDto>,
+    seasons: DataMap<SeasonDto>,
+    teams: DataMap<TeamDto>,
+    account?: UserDto | null,
     appLoading?: boolean,
     controls?: boolean,
     reloadDivisions: () => Promise<any>,

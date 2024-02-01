@@ -47,9 +47,6 @@ public class ControllerStrategy: IStrategy
         string outputDirectory,
         CancellationToken token)
     {
-        var name = controller.Name.Replace("Controller", "Api");
-        controller.RelativePath = controller.RelativePath.Replace("Controller", "Api");
-
         var path = Path.GetFullPath(Path.Combine(outputDirectory, controller.RelativePath + ".ts"));
         using (var writer = new StreamWriter(File.Create(path)))
         {
@@ -59,15 +56,17 @@ public class ControllerStrategy: IStrategy
             await writer.WriteLineAsync("");
             await WriteImports(writer, controller, token);
             await writer.WriteLineAsync("");
-            await WriteInterface(writer, controller, name, token);
+            await WriteInterface(writer, controller, token);
             await writer.WriteLineAsync("");
-            await WriteImplementation(writer, controller, name, token);
+            await WriteImplementation(writer, controller, token);
         }
     }
 
-    private static async Task WriteImplementation(TextWriter writer, TypeScriptInterface controller, string name, CancellationToken token)
+    private static async Task WriteImplementation(TextWriter writer, TypeScriptInterface controller, CancellationToken token)
     {
-        await writer.WriteLineAsync($"export class {name} implements I{name} {{");
+        var nameWithoutIPrefix = controller.Name.Substring(1);
+
+        await writer.WriteLineAsync($"export class {nameWithoutIPrefix} implements {controller.Name} {{");
 
         await writer.WriteLineAsync("    private http: IHttp;");
         await writer.WriteLineAsync("    constructor(http: IHttp) {");
@@ -181,9 +180,9 @@ public class ControllerStrategy: IStrategy
             : "";
     }
 
-    private static async Task WriteInterface(TextWriter writer, TypeScriptInterface controller, string name, CancellationToken token)
+    private static async Task WriteInterface(TextWriter writer, TypeScriptInterface controller, CancellationToken token)
     {
-        await writer.WriteLineAsync($"export interface I{name} {{");
+        await writer.WriteLineAsync($"export interface {controller.Name} {{");
 
         foreach (var member in controller.Members.OfType<IRouteMethod>().OrderBy(m => m.Name))
         {

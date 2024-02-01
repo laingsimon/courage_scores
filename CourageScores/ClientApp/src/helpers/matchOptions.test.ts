@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedReference
 
 import {getMatchOptionDefaults, getMatchOptionsLookup} from "./matchOptions";
-import {IGameMatchOptionDto} from "../interfaces/models/dtos/Game/IGameMatchOptionDto";
+import {GameMatchOptionDto} from "../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 describe('matchOptions', () => {
     describe('getMatchOptionsDefaults', () => {
@@ -48,7 +48,7 @@ describe('matchOptions', () => {
         });
 
         it('with match options, returns correctly', () => {
-            const matchOptions: IGameMatchOptionDto[] = [];
+            const matchOptions: GameMatchOptionDto[] = [];
             const result = getMatchOptionsLookup(matchOptions);
 
             expect(result).toBeTruthy();

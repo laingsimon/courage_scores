@@ -11,13 +11,13 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {ITemplateVisualEditorProps, TemplateVisualEditor} from "./TemplateVisualEditor";
-import {ITemplateDto} from "../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {createTemporaryId} from "../../helpers/projection";
 
 describe('TemplateVisualEditor', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: ITemplateDto;
+    let update: TemplateDto;
 
     afterEach(() => {
         cleanUp(context);
@@ -28,7 +28,7 @@ describe('TemplateVisualEditor', () => {
         update = null;
     });
 
-    async function onUpdate(value: ITemplateDto) {
+    async function onUpdate(value: TemplateDto) {
         update = value;
     }
 

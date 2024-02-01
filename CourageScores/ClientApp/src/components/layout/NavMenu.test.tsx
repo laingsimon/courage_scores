@@ -5,7 +5,7 @@ import {ISettings} from "../../api/settings";
 import {IBrandingContainerProps} from "../../BrandingContainer";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IAppContainerProps} from "../../AppContainer";
 
 describe('NavMenu', () => {
@@ -66,7 +66,7 @@ describe('NavMenu', () => {
         }
         const seasons = [currentSeason, otherSeason];
         const divisions = [division];
-        const account: IUserDto = null;
+        const account: UserDto = null;
 
         it('when app loading', async () => {
             await renderComponent(settings, appProps({
@@ -383,7 +383,7 @@ describe('NavMenu', () => {
             currentSeason,
             seasonBuilder('OTHER SEASON').withDivision(division).build()];
         const divisions = [division];
-        const account: IUserDto = {
+        const account: UserDto = {
             name: '',
             emailAddress: '',
             access: {
@@ -393,7 +393,7 @@ describe('NavMenu', () => {
         };
 
         it('should not show admin link', async () => {
-            const nonAdminAccount: IUserDto = {
+            const nonAdminAccount: UserDto = {
                 name: '',
                 emailAddress: '',
                 access: {},

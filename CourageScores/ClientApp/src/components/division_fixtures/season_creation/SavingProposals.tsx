@@ -2,12 +2,12 @@ import {any} from "../../../helpers/collections";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 import React from "react";
 import {IClientActionResultDto} from "../../../interfaces/IClientActionResultDto";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
 
 export interface ISavingProposalsProps {
     saveMessage: string;
     noOfFixturesToSave: number;
-    saveResults: IClientActionResultDto<IGameDto>[];
+    saveResults: IClientActionResultDto<GameDto>[];
     saving: boolean;
 }
 
@@ -41,8 +41,8 @@ export function SavingProposals({ saveMessage, noOfFixturesToSave, saveResults, 
             <div className="progress-bar progress-bar-striped" style={{width: getPercentageComplete() + '%'}}
                  role="progressbar" aria-valuenow={75} aria-valuemin={0} aria-valuemax={100}></div>
         </div>
-        {any(saveResults, (r: IClientActionResultDto<IGameDto>) => !r.success) ? (<div className="overflow-auto max-height-250">
-            {saveResults.filter((r: IClientActionResultDto<IGameDto>) => !r.success).map((r: IClientActionResultDto<IGameDto>, index: number) => (<div key={index}>
+        {any(saveResults, (r: IClientActionResultDto<GameDto>) => !r.success) ? (<div className="overflow-auto max-height-250">
+            {saveResults.filter((r: IClientActionResultDto<GameDto>) => !r.success).map((r: IClientActionResultDto<GameDto>, index: number) => (<div key={index}>
                 {any(r.errors)
                     ? (<ol>{r.errors.map(renderError)}</ol>)
                     : null}

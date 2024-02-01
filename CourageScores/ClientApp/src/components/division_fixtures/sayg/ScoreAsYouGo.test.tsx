@@ -12,11 +12,11 @@ import React from "react";
 import {IScoreAsYouGoProps, ScoreAsYouGo} from "./ScoreAsYouGo";
 import {ILegBuilder, ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../helpers/builders/sayg";
 import {ILiveContainerProps, LiveContainer} from "../LiveContainer";
-import {IRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/IRecordedScoreAsYouGoDto";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 
 describe('ScoreAsYouGo', () => {
     let context: TestContext;
-    let changedLegs: IRecordedScoreAsYouGoDto[];
+    let changedLegs: RecordedScoreAsYouGoDto[];
     let completedLegs: {homeScore: number, awayScore: number}[];
     let reportedError: ErrorState;
 
@@ -36,7 +36,7 @@ describe('ScoreAsYouGo', () => {
     async function onHiCheck(_: string, __: number) {
     }
 
-    async function onChange(leg: IRecordedScoreAsYouGoDto) {
+    async function onChange(leg: RecordedScoreAsYouGoDto) {
         changedLegs.push(leg);
     }
 

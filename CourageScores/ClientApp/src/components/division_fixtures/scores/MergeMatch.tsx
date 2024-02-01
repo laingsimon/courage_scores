@@ -2,32 +2,32 @@ import React from 'react';
 import {useApp} from "../../../AppContainer";
 import {matchEquals} from "./MatchComparer";
 import {repeat} from "../../../helpers/projection";
-import {IGameMatchDto} from "../../../interfaces/models/dtos/Game/IGameMatchDto";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {IGamePlayerDto} from "../../../interfaces/models/dtos/Game/IGamePlayerDto";
+import {GameMatchDto} from "../../../interfaces/models/dtos/Game/GameMatchDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {GamePlayerDto} from "../../../interfaces/models/dtos/Game/GamePlayerDto";
 
 export interface IMergeMatchProps {
     readOnly?: boolean;
-    matches?: IGameMatchDto[];
+    matches?: GameMatchDto[];
     matchIndex: number;
-    homeSubmission?: IGameDto;
-    awaySubmission?: IGameDto;
-    setFixtureData: (newData: IGameDto) => Promise<any>;
-    fixtureData: IGameDto;
+    homeSubmission?: GameDto;
+    awaySubmission?: GameDto;
+    setFixtureData: (newData: GameDto) => Promise<any>;
+    fixtureData: GameDto;
 }
 
 export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData}: IMergeMatchProps) {
     const {onError} = useApp();
-    const homeSubmissionMatch: IGameMatchDto = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
-    const awaySubmissionMatch: IGameMatchDto = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
-    const publishedMatch: IGameMatchDto = matches && matches[matchIndex];
+    const homeSubmissionMatch: GameMatchDto = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
+    const awaySubmissionMatch: GameMatchDto = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
+    const publishedMatch: GameMatchDto = matches && matches[matchIndex];
     const isPublished: boolean = publishedMatch && ((!!publishedMatch.homeScore) || (!!publishedMatch.awayScore));
     const submissionsMatch: boolean = matchEquals(homeSubmissionMatch, awaySubmissionMatch);
 
-    async function acceptSubmission(match: IGameMatchDto) {
+    async function acceptSubmission(match: GameMatchDto) {
         try {
-            const newFixtureData: IGameDto = Object.assign({}, fixtureData);
-            const matchOnlyProperties: IGameMatchDto = Object.assign({}, match);
+            const newFixtureData: GameDto = Object.assign({}, fixtureData);
+            const matchOnlyProperties: GameMatchDto = Object.assign({}, match);
 
             newFixtureData.matches[matchIndex] = Object.assign({}, matchOnlyProperties, newFixtureData.matches[matchIndex]);
 
@@ -38,7 +38,7 @@ export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awayS
         }
     }
 
-    function combinePlayers(homePlayers: IGamePlayerDto[], awayPlayers: IGamePlayerDto[]): {homePlayer: IGamePlayerDto, awayPlayer: IGamePlayerDto}[] {
+    function combinePlayers(homePlayers: GamePlayerDto[], awayPlayers: GamePlayerDto[]): {homePlayer: GamePlayerDto, awayPlayer: GamePlayerDto}[] {
         return repeat(
             Math.max(homePlayers.length, awayPlayers.length),
             (index: number) => {
@@ -46,7 +46,7 @@ export function MergeMatch({readOnly, matches, matchIndex, homeSubmission, awayS
             });
     }
 
-    function renderSubmissionMatch(match: IGameMatchDto) {
+    function renderSubmissionMatch(match: GameMatchDto) {
         if (!match) {
             return (<span className="text-danger">No match</span>);
         }

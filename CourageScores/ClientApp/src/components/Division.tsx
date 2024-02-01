@@ -18,16 +18,16 @@ import {isGuid} from "../helpers/projection";
 import {EmbedAwareLink} from "./common/EmbedAwareLink";
 import {DivisionHealth} from "./division_health/DivisionHealth";
 import {DataError} from "./DataError";
-import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
-import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../interfaces/models/dtos/Season/ISeasonDto";
-import {IDivisionTeamDto} from "../interfaces/models/dtos/Division/IDivisionTeamDto";
-import {IDivisionPlayerDto} from "../interfaces/models/dtos/Division/IDivisionPlayerDto";
-import {IDataErrorDto} from "../interfaces/models/dtos/Division/IDataErrorDto";
+import {DivisionDataDto} from "../interfaces/models/dtos/Division/DivisionDataDto";
+import {DivisionDto} from "../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionTeamDto} from "../interfaces/models/dtos/Division/DivisionTeamDto";
+import {DivisionPlayerDto} from "../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {DataErrorDto} from "../interfaces/models/dtos/Division/DataErrorDto";
 import {IFailedRequest} from "../interfaces/IFailedRequest";
-import {IDivisionDataFilter} from "../interfaces/models/dtos/Division/IDivisionDataFilter";
+import {DivisionDataFilter} from "../interfaces/models/dtos/Division/DivisionDataFilter";
 
-export interface IRequestedDivisionDataDto extends IDivisionDataDto, IFailedRequest {
+export interface IRequestedDivisionDataDto extends DivisionDataDto, IFailedRequest {
     requested?: { divisionId: string, seasonId: string };
 }
 
@@ -37,11 +37,11 @@ export function Division() {
     const {account, onError, error, divisions, seasons, controls} = useApp();
     const {divisionId: divisionIdish, mode, seasonId: seasonIdish} = useParams();
     const [divisionData, setDivisionData] = useState<IRequestedDivisionDataDto | null>(null);
-    const [overrideDivisionData, setOverrideDivisionData] = useState<IDivisionDataDto | null>(null);
+    const [overrideDivisionData, setOverrideDivisionData] = useState<DivisionDataDto | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [dataRequested, setDataRequested] = useState(false);
     const effectiveTab = mode || 'teams';
-    const [dataErrors, setDataErrors] = useState<IDataErrorDto[] | null>(null);
+    const [dataErrors, setDataErrors] = useState<DataErrorDto[] | null>(null);
     const divisionId = getDivisionId(divisionIdish);
     const seasonId = getSeasonId(seasonIdish);
 
@@ -54,7 +54,7 @@ export function Division() {
             return null;
         }
 
-        const division = divisions.filter((d: IDivisionDto) => d.name.toLowerCase() === idish.toLowerCase())[0];
+        const division = divisions.filter((d: DivisionDto) => d.name.toLowerCase() === idish.toLowerCase())[0];
         return division ? division.id : INVALID;
     }
 
@@ -67,7 +67,7 @@ export function Division() {
             return null;
         }
 
-        const season = seasons.filter((s: ISeasonDto) => s.name.toLowerCase() === idish.toLowerCase())[0];
+        const season = seasons.filter((s: SeasonDto) => s.name.toLowerCase() === idish.toLowerCase())[0];
         return season ? season.id : INVALID;
     }
 
@@ -89,13 +89,13 @@ export function Division() {
         const playerName = match[1];
         const teamName = match[2];
 
-        const team = divisionData.teams.filter((t: IDivisionTeamDto) => t.name.toLowerCase() === teamName.toLowerCase())[0];
+        const team = divisionData.teams.filter((t: DivisionTeamDto) => t.name.toLowerCase() === teamName.toLowerCase())[0];
         if (!team) {
             // team not found
             return idish;
         }
 
-        const teamPlayer = divisionData.players.filter((p: IDivisionPlayerDto) => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
+        const teamPlayer = divisionData.players.filter((p: DivisionPlayerDto) => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
         return teamPlayer ? teamPlayer.id : INVALID;
     }
 
@@ -108,7 +108,7 @@ export function Division() {
             return null;
         }
 
-        const team = divisionData.teams.filter((t: IDivisionTeamDto) => t.name.toLowerCase() === idish.toLowerCase())[0];
+        const team = divisionData.teams.filter((t: DivisionTeamDto) => t.name.toLowerCase() === idish.toLowerCase())[0];
         return team ? team.id : INVALID;
     }
 
@@ -121,7 +121,7 @@ export function Division() {
                 }
             }
 
-            const filter: IDivisionDataFilter = {
+            const filter: DivisionDataFilter = {
                 seasonId: seasonId
             };
             const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(divisionId, filter);
@@ -272,7 +272,7 @@ export function Division() {
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
             </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData}
-                                              setDivisionData={async (data: IDivisionDataDto) => setOverrideDivisionData(data)}>
+                                              setDivisionData={async (data: DivisionDataDto) => setOverrideDivisionData(data)}>
                 {effectiveTab === 'teams' && divisionDataToUse.season
                     ? (<DivisionTeams/>)
                     : null}

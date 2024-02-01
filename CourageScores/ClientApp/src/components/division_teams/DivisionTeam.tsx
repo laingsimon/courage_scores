@@ -6,17 +6,17 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
-import {IDivisionTeamDto} from "../../interfaces/models/dtos/Division/IDivisionTeamDto";
-import {IEditTeamDto} from "../../interfaces/models/dtos/Team/IEditTeamDto";
+import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
+import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 
 export interface IDivisionTeamProps {
-    team: IDivisionTeamDto;
+    team: DivisionTeamDto;
 }
 
 export function DivisionTeam({team}: IDivisionTeamProps) {
     const {id: divisionId, season, onReloadDivision, name: divisionName} = useDivisionData();
     const {account, onError} = useApp();
-    const [teamDetails, setTeamDetails] = useState<IEditTeamDto>(Object.assign({newDivisionId: divisionId}, team));
+    const [teamDetails, setTeamDetails] = useState<EditTeamDto>(Object.assign({newDivisionId: divisionId}, team));
     const [editTeam, setEditTeam] = useState<boolean>(false);
     const [addTeamToSeason, setAddTeamToSeason] = useState<boolean>(false);
     const isAdmin = account && account.access && account.access.manageTeams;

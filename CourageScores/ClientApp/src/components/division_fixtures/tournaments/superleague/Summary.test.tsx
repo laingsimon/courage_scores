@@ -9,7 +9,7 @@ import {
 } from "../../../../helpers/tests";
 import React from "react";
 import {ISummaryProps, Summary} from "./Summary";
-import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
+import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../../../helpers/builders/sayg";
 import {tournamentMatchBuilder} from "../../../../helpers/builders/tournaments";
 
@@ -37,7 +37,7 @@ describe('Summary', () => {
         return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent);
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): ILegDto {
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
         function winningThrows(c: ILegCompetitorScoreBuilder) {
             return c
                 .withThrow(90, false, 3)

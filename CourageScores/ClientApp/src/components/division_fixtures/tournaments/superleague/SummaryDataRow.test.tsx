@@ -9,9 +9,9 @@ import {
 } from "../../../../helpers/tests";
 import React from "react";
 import {ISummaryDataRowProps, SummaryDataRow} from "./SummaryDataRow";
-import {ILegDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegDto";
-import {ILegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/ILegThrowDto";
-import {IScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/IScoreAsYouGoDto";
+import {LegDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {LegThrowDto} from "../../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import {ScoreAsYouGoDto} from "../../../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
 import {saygBuilder} from "../../../../helpers/builders/sayg";
 
 describe('SummaryDataRow', () => {
@@ -41,15 +41,15 @@ describe('SummaryDataRow', () => {
         return Array.from(row.querySelectorAll(tagName)).map(th => th.textContent);
     }
 
-    function createLeg(homeWinner?: boolean, awayWinner?: boolean): ILegDto {
-        const winningThrows: ILegThrowDto[] = [
+    function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
+        const winningThrows: LegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 100, bust: false, noOfDarts: 3},
             {score: 110, bust: false, noOfDarts: 3},
             {score: 120, bust: false, noOfDarts: 3},
             {score: 81, bust: false, noOfDarts: 3},
         ];
-        const notWinningThrows: ILegThrowDto[] = [
+        const notWinningThrows: LegThrowDto[] = [
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
             {score: 90, bust: false, noOfDarts: 3},
@@ -70,7 +70,7 @@ describe('SummaryDataRow', () => {
 
     describe('renders', () => {
         it('match data', async () => {
-            const saygData: IScoreAsYouGoDto = saygBuilder()
+            const saygData: ScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .withLeg(1, createLeg(true, false))
                 .build();
@@ -94,7 +94,7 @@ describe('SummaryDataRow', () => {
         });
 
         it('host winner', async () => {
-            const saygData: IScoreAsYouGoDto = saygBuilder()
+            const saygData: ScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(true, false))
                 .withLeg(1, createLeg(true, false))
                 .build();
@@ -117,7 +117,7 @@ describe('SummaryDataRow', () => {
         });
 
         it('opponent winner', async () => {
-            const saygData: IScoreAsYouGoDto = saygBuilder()
+            const saygData: ScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, createLeg(false, true))
                 .withLeg(1, createLeg(false, true))
                 .build();

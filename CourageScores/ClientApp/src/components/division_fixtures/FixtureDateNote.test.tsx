@@ -14,16 +14,16 @@ import {FixtureDateNote, IFixtureDateNoteProps} from "./FixtureDateNote";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {noteBuilder} from "../../helpers/builders/divisions";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IFixtureDateNoteDto} from "../../interfaces/models/dtos/IFixtureDateNoteDto";
-import {IUserDto} from "../../interfaces/models/dtos/Identity/IUserDto";
+import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {createTemporaryId} from "../../helpers/projection";
 import {INoteApi} from "../../interfaces/apis/INoteApi";
 
 describe('FixtureDateNote', () => {
     let context: TestContext;
-    let editNote: IFixtureDateNoteDto;
+    let editNote: FixtureDateNoteDto;
     let deletedNoteId: string;
-    let deleteResult: IClientActionResultDto<IFixtureDateNoteDto>;
+    let deleteResult: IClientActionResultDto<FixtureDateNoteDto>;
 
     const noteApi = api<INoteApi>({
         delete: async (id: string) => {
@@ -32,7 +32,7 @@ describe('FixtureDateNote', () => {
         }
     });
 
-    async function setEditNote(note: IFixtureDateNoteDto) {
+    async function setEditNote(note: FixtureDateNoteDto) {
         editNote = note;
     }
 
@@ -53,7 +53,7 @@ describe('FixtureDateNote', () => {
         return null;
     }
 
-    async function renderComponent(props: IFixtureDateNoteProps, account?: IUserDto) {
+    async function renderComponent(props: IFixtureDateNoteProps, account?: UserDto) {
         context = await renderApp(
             iocProps({noteApi}),
             brandingProps(),
@@ -78,7 +78,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to delete', async () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -99,7 +99,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, with ability to delete', async () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -120,7 +120,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('when logged in, without ability to edit', async () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -141,7 +141,7 @@ describe('FixtureDateNote', () => {
 
     describe('interactivity', () => {
         it('can delete note', async () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -164,7 +164,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('prevents delete if user does not agree', async () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -187,7 +187,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('alerts if unable to delete', async () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',
@@ -208,7 +208,7 @@ describe('FixtureDateNote', () => {
         });
 
         it('can edit note', async () => {
-            const account: IUserDto = {
+            const account: UserDto = {
                 givenName: '',
                 name: '',
                 emailAddress: '',

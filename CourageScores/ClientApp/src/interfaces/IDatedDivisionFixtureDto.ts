@@ -1,5 +1,5 @@
-﻿import {IDivisionFixtureDto} from "./models/dtos/Division/IDivisionFixtureDto";
+﻿import {DivisionFixtureDto} from "./models/dtos/Division/DivisionFixtureDto";
 
-export interface IDatedDivisionFixtureDto extends IDivisionFixtureDto {
+export interface IDatedDivisionFixtureDto extends DivisionFixtureDto {
     date: string;
 }

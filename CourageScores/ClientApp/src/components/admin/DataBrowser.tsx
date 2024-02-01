@@ -5,7 +5,7 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useDependencies} from "../../IocContainer";
 import {renderDate} from "../../helpers/rendering";
 import {repeat} from "../../helpers/projection";
-import {ISingleDataResultDto} from "../../interfaces/models/dtos/Data/ISingleDataResultDto";
+import {SingleDataResultDto} from "../../interfaces/models/dtos/Data/SingleDataResultDto";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 
 export function DataBrowser() {
@@ -16,7 +16,7 @@ export function DataBrowser() {
     const [table, setTable] = useState<string>(search.has('table') ? search.get('table') : '');
     const [id, setId] = useState<string>(search.has('id') ? search.get('id') : '');
     const [loading, setLoading] = useState<boolean>(false);
-    const [response, setResponse] = useState<IClientActionResultDto<ISingleDataResultDto[]> | IClientActionResultDto<ISingleDataResultDto> | null>(null);
+    const [response, setResponse] = useState<IClientActionResultDto<SingleDataResultDto[]> | IClientActionResultDto<SingleDataResultDto> | null>(null);
     const pageSize = 10;
     const [lastRequest, setLastRequest] = useState<{ table: string, id: string } | null>(null);
 
@@ -53,7 +53,7 @@ export function DataBrowser() {
         setLoading(true);
         try {
             setResponse(null);
-            const response: IClientActionResultDto<ISingleDataResultDto> | IClientActionResultDto<ISingleDataResultDto[]> = id
+            const response: IClientActionResultDto<SingleDataResultDto> | IClientActionResultDto<SingleDataResultDto[]> = id
                 ? await dataApi.getRecord(table, id)
                 : await dataApi.getRows(table);
             setResponse(response);
@@ -69,7 +69,7 @@ export function DataBrowser() {
     }
 
     function getPages() {
-        const noOfItems = (response as IClientActionResultDto<ISingleDataResultDto[]>).result.length;
+        const noOfItems = (response as IClientActionResultDto<SingleDataResultDto[]>).result.length;
         const noOfPages = Math.ceil(noOfItems / pageSize);
 
         return repeat(noOfPages);
@@ -93,7 +93,7 @@ export function DataBrowser() {
         return value;
     }
 
-    function renderItem(data: ISingleDataResultDto) {
+    function renderItem(data: SingleDataResultDto) {
         return (<table className="table table-sm">
             <tbody>
             {Object.keys(data).map((key: string) => (<tr key={key}>
@@ -105,18 +105,18 @@ export function DataBrowser() {
     }
 
     function renderResponse() {
-        if ((response as IClientActionResultDto<ISingleDataResultDto>).result.id) {
-            return renderItem((response as IClientActionResultDto<ISingleDataResultDto>).result);
+        if ((response as IClientActionResultDto<SingleDataResultDto>).result.id) {
+            return renderItem((response as IClientActionResultDto<SingleDataResultDto>).result);
         }
 
         const pageIndex = search.has('page') ? Number.parseInt(search.get('page')) : 0;
         const minIndexInclusive = pageIndex * pageSize;
         const maxIndexExclusive = minIndexInclusive + pageSize;
-        const allItems = response as IClientActionResultDto<ISingleDataResultDto[]>;
+        const allItems = response as IClientActionResultDto<SingleDataResultDto[]>;
 
         return (<>
             <ul className="list-group">
-                {allItems.result.map((item: ISingleDataResultDto, index: number) => index >= minIndexInclusive && index < maxIndexExclusive ? (<Link to={`/admin/browser?table=${table}&id=${item.id}`} key={item.id} className="list-group-item d-flex justify-content-between" onClick={() => updateSearch(id)}>
+                {allItems.result.map((item: SingleDataResultDto, index: number) => index >= minIndexInclusive && index < maxIndexExclusive ? (<Link to={`/admin/browser?table=${table}&id=${item.id}`} key={item.id} className="list-group-item d-flex justify-content-between" onClick={() => updateSearch(id)}>
                     <span>{item.id}</span>
                     {item.name ? (<span>{item.name}</span>) : null}
                     {item.date ? (<span>{renderDate(item.date)}</span>) : null}

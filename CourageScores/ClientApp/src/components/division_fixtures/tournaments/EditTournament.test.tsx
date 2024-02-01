@@ -13,11 +13,11 @@ import React from "react";
 import {toMap} from "../../../helpers/collections";
 import {EditTournament, IEditTournamentProps} from "./EditTournament";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
-import {ITournamentGameDto} from "../../../interfaces/models/dtos/Game/ITournamentGameDto";
-import {IUserDto} from "../../../interfaces/models/dtos/Identity/IUserDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {IPatchTournamentDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentDto";
-import {IPatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/IPatchTournamentRoundDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {
     ITournamentMatchBuilder,
@@ -32,16 +32,16 @@ import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
 describe('EditTournament', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: ITournamentGameDto;
+    let updatedData: TournamentGameDto;
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function setTournamentData(newData: ITournamentGameDto) {
+    async function setTournamentData(newData: TournamentGameDto) {
         updatedData = newData;
     }
-    async function applyPatch(_: IPatchTournamentDto | IPatchTournamentRoundDto, __?: boolean) {
+    async function applyPatch(_: PatchTournamentDto | PatchTournamentRoundDto, __?: boolean) {
     }
 
     beforeEach(() => {
@@ -49,7 +49,7 @@ describe('EditTournament', () => {
         updatedData = null;
     });
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: IEditTournamentProps, account?: IUserDto, teams?: ITeamDto[]) {
+    async function renderComponent(containerProps: ITournamentContainerProps, props: IEditTournamentProps, account?: UserDto, teams?: TeamDto[]) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -270,7 +270,7 @@ describe('EditTournament', () => {
     });
 
     describe('interactivity', () => {
-        const account: IUserDto = {
+        const account: UserDto = {
             emailAddress: '',
             name: '',
             givenName: '',

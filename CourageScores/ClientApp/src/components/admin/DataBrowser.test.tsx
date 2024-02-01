@@ -13,7 +13,7 @@ import {
 import {DataBrowser} from "./DataBrowser";
 import {createTemporaryId, repeat} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
-import {ISingleDataResultDto} from "../../interfaces/models/dtos/Data/ISingleDataResultDto";
+import {SingleDataResultDto} from "../../interfaces/models/dtos/Data/SingleDataResultDto";
 import {IAppContainerProps} from "../../AppContainer";
 import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
 import {IError} from "../../interfaces/IError";
@@ -30,10 +30,10 @@ jest.mock('react-router-dom', () => ({
 describe('DataBrowser', () => {
     let context: TestContext;
     let requestedData: { table: string, id?: string };
-    let apiResult: IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>;
+    let apiResult: IClientActionResultDto<SingleDataResultDto | SingleDataResultDto[]>;
     let apiException: IError;
     const dataApi = api<IDataApi>({
-        getRecord: async (table: string, id: string): Promise<IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>> => {
+        getRecord: async (table: string, id: string): Promise<IClientActionResultDto<SingleDataResultDto | SingleDataResultDto[]>> => {
             requestedData = { table, id };
             if (apiException) {
                 throw apiException;
@@ -44,7 +44,7 @@ describe('DataBrowser', () => {
                 result: { id }
             };
         },
-        getRows: async (table: string): Promise<IClientActionResultDto<ISingleDataResultDto | ISingleDataResultDto[]>> => {
+        getRows: async (table: string): Promise<IClientActionResultDto<SingleDataResultDto | SingleDataResultDto[]>> => {
             requestedData = { table, id: null };
             if (apiException) {
                 throw apiException;

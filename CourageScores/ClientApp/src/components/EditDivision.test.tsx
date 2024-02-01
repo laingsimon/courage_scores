@@ -13,10 +13,10 @@ import {
 import React from "react";
 import {EditDivision, IEditDivisionProps} from "./EditDivision";
 import {divisionBuilder} from "../helpers/builders/divisions";
-import {IEditDivisionDto} from "../interfaces/models/dtos/IEditDivisionDto";
-import {IDivisionDto} from "../interfaces/models/dtos/IDivisionDto";
+import {EditDivisionDto} from "../interfaces/models/dtos/EditDivisionDto";
+import {DivisionDto} from "../interfaces/models/dtos/DivisionDto";
 import {IClientActionResultDto} from "../interfaces/IClientActionResultDto";
-import {IDivisionDataDto} from "../interfaces/models/dtos/Division/IDivisionDataDto";
+import {DivisionDataDto} from "../interfaces/models/dtos/Division/DivisionDataDto";
 import {IDivisionApi} from "../interfaces/apis/IDivisionApi";
 
 const mockedUsedNavigate = jest.fn();
@@ -30,16 +30,16 @@ describe('EditDivision', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let saved: boolean;
-    let saveError: IClientActionResultDto<IDivisionDto>;
-    let updatedDivision: IEditDivisionDto;
+    let saveError: IClientActionResultDto<DivisionDto>;
+    let updatedDivision: EditDivisionDto;
     let alert: string;
     let confirm: string;
     let confirmResponse: boolean;
-    let apiResponse: IClientActionResultDto<IDivisionDto>;
+    let apiResponse: IClientActionResultDto<DivisionDto>;
     let deletedId: string;
-    let updatedData: IDivisionDataDto;
+    let updatedData: DivisionDataDto;
     const divisionApi = api<IDivisionApi>({
-        update: (data: IEditDivisionDto) => {
+        update: (data: EditDivisionDto) => {
             updatedDivision = data;
             return apiResponse;
         },
@@ -83,11 +83,11 @@ describe('EditDivision', () => {
         saved = true;
     }
 
-    async function setSaveError(err: IClientActionResultDto<IDivisionDto>) {
+    async function setSaveError(err: IClientActionResultDto<DivisionDto>) {
         saveError = err;
     }
 
-    async function onUpdateData(update: IDivisionDataDto) {
+    async function onUpdateData(update: DivisionDataDto) {
         updatedData = update;
     }
 

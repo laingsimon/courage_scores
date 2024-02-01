@@ -11,10 +11,10 @@ import {toMap} from "../../../helpers/collections";
 import React from "react";
 import {AssignPlaceholders, IAssignPlaceholdersProps, IPlaceholderMappings} from "./AssignPlaceholders";
 import {IAppContainerProps} from "../../../AppContainer";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {teamBuilder} from "../../../helpers/builders/teams";
@@ -45,29 +45,29 @@ describe('AssignPlaceholders', () => {
     }
 
     describe('renders', () => {
-        const division1: IDivisionDto = divisionBuilder('DIVISION 1').build();
-        const division2: IDivisionDto = divisionBuilder('DIVISION 2').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const division1: DivisionDto = divisionBuilder('DIVISION 1').build();
+        const division2: DivisionDto = divisionBuilder('DIVISION 2').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division2)
             .withDivision(division1)
             .build();
-        const teamA: ITeamDto = teamBuilder('TEAM A')
+        const teamA: TeamDto = teamBuilder('TEAM A')
             .address('ADDRESS A')
             .forSeason(season, division1, [])
             .build();
-        const teamAA: ITeamDto = teamBuilder('TEAM AA')
+        const teamAA: TeamDto = teamBuilder('TEAM AA')
             .address('ADDRESS A')
             .forSeason(season, division1, [])
             .build();
-        const teamB: ITeamDto = teamBuilder('TEAM B')
+        const teamB: TeamDto = teamBuilder('TEAM B')
             .address('ADDRESS B')
             .forSeason(season, division2, [])
             .build();
-        const teamC: ITeamDto = teamBuilder('TEAM C')
+        const teamC: TeamDto = teamBuilder('TEAM C')
             .address('ADDRESS C')
             .forSeason(season, division1, [])
             .build();
-        const template: ITemplateDto = {
+        const template: TemplateDto = {
             id: createTemporaryId(),
             name: 'TEMPLATE 1',
             sharedAddresses: [],
@@ -128,7 +128,7 @@ describe('AssignPlaceholders', () => {
         });
 
         it('template shared address placeholders', async () => {
-            const templateWithSharedAddresses: ITemplateDto = {
+            const templateWithSharedAddresses: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE 2',
                 sharedAddresses: [ [ 'A', 'D' ] ],
@@ -169,7 +169,7 @@ describe('AssignPlaceholders', () => {
         });
 
         it('division shared address placeholders', async () => {
-            const templateWithSharedAddresses: ITemplateDto = {
+            const templateWithSharedAddresses: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE 3',
                 sharedAddresses: [],
@@ -251,21 +251,21 @@ describe('AssignPlaceholders', () => {
     });
 
     describe('interactivity', () => {
-        const division1: IDivisionDto = divisionBuilder('DIVISION 1').build();
-        const division2: IDivisionDto = divisionBuilder('DIVISION 2').build();
-        const season: ISeasonDto = seasonBuilder('SEASON')
+        const division1: DivisionDto = divisionBuilder('DIVISION 1').build();
+        const division2: DivisionDto = divisionBuilder('DIVISION 2').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division2)
             .withDivision(division1)
             .build();
-        const teamA: ITeamDto = teamBuilder('TEAM A')
+        const teamA: TeamDto = teamBuilder('TEAM A')
             .address('ADDRESS A')
             .forSeason(season, division1, [])
             .build();
-        const teamC: ITeamDto = teamBuilder('TEAM C')
+        const teamC: TeamDto = teamBuilder('TEAM C')
             .address('ADDRESS C')
             .forSeason(season, division1, [])
             .build();
-        const template: ITemplateDto = {
+        const template: TemplateDto = {
             id: createTemporaryId(),
             name: 'TEMPLATE 3',
             sharedAddresses: [],

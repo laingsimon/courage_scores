@@ -1,9 +1,9 @@
 ﻿import {IAddableBuilder} from "./builders";
-import {ISeasonDto} from "../../interfaces/models/dtos/Season/ISeasonDto";
-import {IEditSeasonDto} from "../../interfaces/models/dtos/Season/IEditSeasonDto";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 import {createTemporaryId} from "../projection";
 
-export interface ISeasonBuilder extends IAddableBuilder<ISeasonDto & IEditSeasonDto> {
+export interface ISeasonBuilder extends IAddableBuilder<SeasonDto & EditSeasonDto> {
     withDivision: (divisionOrId: any) => ISeasonBuilder;
     starting: (date: string) => ISeasonBuilder;
     ending: (date: string) => ISeasonBuilder;
@@ -12,7 +12,7 @@ export interface ISeasonBuilder extends IAddableBuilder<ISeasonDto & IEditSeason
 }
 
 export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
-    const season: ISeasonDto & IEditSeasonDto = {
+    const season: SeasonDto & EditSeasonDto = {
         id: id || createTemporaryId(),
         name,
         divisions: [],

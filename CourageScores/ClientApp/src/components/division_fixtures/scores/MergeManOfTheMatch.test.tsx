@@ -11,14 +11,14 @@ import {
 } from "../../../helpers/tests";
 import {IMergeManOfTheMatchProps, MergeManOfTheMatch} from "./MergeManOfTheMatch";
 import {playerBuilder} from "../../../helpers/builders/players";
-import {IGameDto} from "../../../interfaces/models/dtos/Game/IGameDto";
-import {ITeamPlayerDto} from "../../../interfaces/models/dtos/Team/ITeamPlayerDto";
+import {GameDto} from "../../../interfaces/models/dtos/Game/GameDto";
+import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {fixtureBuilder, IFixtureBuilder} from "../../../helpers/builders/games";
 
 describe('MergeManOfTheMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedData: IGameDto;
+    let updatedData: GameDto;
 
     afterEach(() => {
         cleanUp(context);
@@ -29,7 +29,7 @@ describe('MergeManOfTheMatch', () => {
         updatedData = null;
     });
 
-    async function setData(data: IGameDto) {
+    async function setData(data: GameDto) {
         updatedData = data;
     }
 
@@ -45,11 +45,11 @@ describe('MergeManOfTheMatch', () => {
     }
 
     describe('renders', () => {
-        const player: ITeamPlayerDto = playerBuilder('MOM').build();
-        const allPlayers: ITeamPlayerDto[] = [player];
+        const player: TeamPlayerDto = playerBuilder('MOM').build();
+        const allPlayers: TeamPlayerDto[] = [player];
 
         it('when home merged', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .manOfTheMatch(player)
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
@@ -63,7 +63,7 @@ describe('MergeManOfTheMatch', () => {
         });
 
         it('when away merged', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .manOfTheMatch(null, player)
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
@@ -77,7 +77,7 @@ describe('MergeManOfTheMatch', () => {
         });
 
         it('when nothing to merge for home', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
                 .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
@@ -90,7 +90,7 @@ describe('MergeManOfTheMatch', () => {
         });
 
         it('when nothing to merge for away', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
                 .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
@@ -103,7 +103,7 @@ describe('MergeManOfTheMatch', () => {
         });
 
         it('when home unmerged', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(player))
                 .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
@@ -116,7 +116,7 @@ describe('MergeManOfTheMatch', () => {
         });
 
         it('when away unmerged', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
                 .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(null, player))
@@ -134,7 +134,7 @@ describe('MergeManOfTheMatch', () => {
         const allPlayers = [player];
 
         it('can change home man of match', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(player))
                 .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
@@ -149,7 +149,7 @@ describe('MergeManOfTheMatch', () => {
         });
 
         it('can change away man of match', async () => {
-            const data: IGameDto = fixtureBuilder()
+            const data: GameDto = fixtureBuilder()
                 .playing('HOME', 'AWAY')
                 .homeSubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY'))
                 .awaySubmission((s: IFixtureBuilder) => s.playing('HOME', 'AWAY').manOfTheMatch(null, player))

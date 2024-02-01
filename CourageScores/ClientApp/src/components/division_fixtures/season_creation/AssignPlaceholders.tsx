@@ -1,15 +1,15 @@
 import {useApp} from "../../../AppContainer";
 import {any, distinct, sortBy} from "../../../helpers/collections";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
-import {IActionResultDto} from "../../../interfaces/models/dtos/IActionResultDto";
-import {ITemplateDto} from "../../../interfaces/models/dtos/Season/Creation/ITemplateDto";
-import {IDivisionDto} from "../../../interfaces/models/dtos/IDivisionDto";
-import {IDivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
-import {IDateTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IDateTemplateDto";
-import {IFixtureTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/IFixtureTemplateDto";
-import {ITeamDto} from "../../../interfaces/models/dtos/Team/ITeamDto";
-import {ITeamSeasonDto} from "../../../interfaces/models/dtos/Team/ITeamSeasonDto";
-import {ISeasonDto} from "../../../interfaces/models/dtos/Season/ISeasonDto";
+import {ActionResultDto} from "../../../interfaces/models/dtos/ActionResultDto";
+import {TemplateDto} from "../../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {DivisionTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+import {DateTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+import {FixtureTemplateDto} from "../../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
 
 export interface IPlaceholderMappings {
     [placeholder: string]: string;
@@ -17,26 +17,26 @@ export interface IPlaceholderMappings {
 
 export interface IAssignPlaceholdersProps {
     seasonId: string;
-    selectedTemplate: IActionResultDto<ITemplateDto>;
+    selectedTemplate: ActionResultDto<TemplateDto>;
     placeholderMappings: IPlaceholderMappings;
     setPlaceholderMappings: (newMappings: IPlaceholderMappings) => Promise<any>;
 }
 
 export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMappings, setPlaceholderMappings }: IAssignPlaceholdersProps) {
     const {divisions, seasons, teams} = useApp();
-    const season: ISeasonDto = seasons[seasonId];
-    const applicableDivisions: IDivisionDto[] = divisions.filter((division: IDivisionDto) => any(season.divisions, (d: IDivisionDto) => d.id === division.id));
-    const template: ITemplateDto = selectedTemplate.result;
+    const season: SeasonDto = seasons[seasonId];
+    const applicableDivisions: DivisionDto[] = divisions.filter((division: DivisionDto) => any(season.divisions, (d: DivisionDto) => d.id === division.id));
+    const template: TemplateDto = selectedTemplate.result;
     const templateSharedAddresses: string[] = template.sharedAddresses.flatMap((a: string[]) => a);
 
-    function getPlaceholdersForTemplateDivision(templateDivision: IDivisionTemplateDto): string[] {
-        return distinct(templateDivision.dates.flatMap((d: IDateTemplateDto) => d.fixtures.flatMap((f: IFixtureTemplateDto) => [ f.home, f.away ]).filter((placeholder: string) => placeholder)));
+    function getPlaceholdersForTemplateDivision(templateDivision: DivisionTemplateDto): string[] {
+        return distinct(templateDivision.dates.flatMap((d: DateTemplateDto) => d.fixtures.flatMap((f: FixtureTemplateDto) => [ f.home, f.away ]).filter((placeholder: string) => placeholder)));
     }
 
-    function getTeamsWithUniqueAddresses(division: IDivisionDto): IBootstrapDropdownItem[] {
-        const teamsInDivision: ITeamDto[] = teams.filter((t: ITeamDto) => any(t.seasons, (ts: ITeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id));
+    function getTeamsWithUniqueAddresses(division: DivisionDto): IBootstrapDropdownItem[] {
+        const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id));
         const addressCounts: { [address: string]: number } = {};
-        teamsInDivision.forEach((team: ITeamDto) => {
+        teamsInDivision.forEach((team: TeamDto) => {
             if (addressCounts[team.address] === undefined) {
                 addressCounts[team.address] = 1;
             } else {
@@ -44,7 +44,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
             }
         });
         const randomlyAssign: IBootstrapDropdownItem = { value: '', text: '🎲 Randomly assign' };
-        return [randomlyAssign].concat(teamsInDivision.sort(sortBy('name')).map((t: ITeamDto) => {
+        return [randomlyAssign].concat(teamsInDivision.sort(sortBy('name')).map((t: TeamDto) => {
             const hasUniqueAddress: boolean = addressCounts[t.address] === 1;
             const text: string = hasUniqueAddress
                 ? t.name
@@ -65,8 +65,8 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
     }
 
     return (<div>
-        {applicableDivisions.sort(sortBy('name')).map((division: IDivisionDto, index: number) => {
-            const templateDivision: IDivisionTemplateDto = template.divisions[index];
+        {applicableDivisions.sort(sortBy('name')).map((division: DivisionDto, index: number) => {
+            const templateDivision: DivisionTemplateDto = template.divisions[index];
             const templatePlaceholders: string[] = getPlaceholdersForTemplateDivision(templateDivision);
             const availableTeams: IBootstrapDropdownItem[] = getTeamsWithUniqueAddresses(division);
 

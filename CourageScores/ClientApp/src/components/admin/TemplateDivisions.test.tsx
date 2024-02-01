@@ -11,12 +11,12 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {ITemplateDivisionsProps, TemplateDivisions} from "./TemplateDivisions";
-import {IDivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/IDivisionTemplateDto";
+import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
 
 describe('TemplateDivisions', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let update: IDivisionTemplateDto[];
+    let update: DivisionTemplateDto[];
 
     afterEach(() => {
         cleanUp(context);
@@ -27,7 +27,7 @@ describe('TemplateDivisions', () => {
         update = null;
     });
 
-    async function onUpdate(value: IDivisionTemplateDto[]) {
+    async function onUpdate(value: DivisionTemplateDto[]) {
         update = value;
     }
 
