@@ -196,7 +196,7 @@ describe('Score', () => {
             .withMatch(createMatch(3, 0))
             .withMatch(createMatch(3, 0))
             .with180(findPlayer(homeTeam, 'Home player'))
-            .withHiCheck(findPlayer(awayTeam, 'Away player'), '140')
+            .withHiCheck(findPlayer(awayTeam, 'Away player'), 140)
             .addTo(fixtureDataMap)
             .build();
     }

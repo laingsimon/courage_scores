@@ -982,13 +982,13 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks', async () => {
-            const player1: NotableTournamentPlayerDto = playerBuilder('PLAYER 1').notes('100').build();
-            const player2: NotableTournamentPlayerDto = playerBuilder('PLAYER 2').notes('120').build();
+            const player1: NotableTournamentPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: NotableTournamentPlayerDto = playerBuilder('PLAYER 2').build();
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
-                .withHiCheck(player1)
-                .withHiCheck(player2)
+                .withHiCheck(player1, 100)
+                .withHiCheck(player2, 120)
                 .build();
             const teams: DataMap<TeamDto> = toMap([
                 teamBuilder('TEAM')
@@ -1006,13 +1006,13 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks when cross-divisional', async () => {
-            const player1: NotableTournamentPlayerDto = playerBuilder('PLAYER 1').notes('100').build();
-            const player2: NotableTournamentPlayerDto = playerBuilder('PLAYER 2').notes('120').build();
+            const player1: NotableTournamentPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: NotableTournamentPlayerDto = playerBuilder('PLAYER 2').build();
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
-                .withHiCheck(player1)
-                .withHiCheck(player2)
+                .withHiCheck(player1, 100)
+                .withHiCheck(player2, 120)
                 .build();
             const teams: DataMap<TeamDto> = toMap([
                 teamBuilder('TEAM')

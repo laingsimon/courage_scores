@@ -23,7 +23,7 @@ export interface IMatchPlayerSelectionProps {
     onMatchChanged?: (newMatch: GameMatchDto) => Promise<any>;
     onMatchOptionsChanged: (newOptions: GameMatchOptionDto) => Promise<any>;
     on180: (player: GamePlayerDto) => Promise<any>;
-    onHiCheck: (player: GamePlayerDto, score: string) => Promise<any>;
+    onHiCheck: (player: GamePlayerDto, score: number) => Promise<any>;
 }
 
 export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}: IMatchPlayerSelectionProps) {
@@ -150,7 +150,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
 
     async function addHiCheck(sideName: 'home' | 'away', score: number) {
         const players: GamePlayerDto[] = match[sideName + 'Players'];
-        await onHiCheck(players[0], score.toString());
+        await onHiCheck(players[0], score);
     }
 
     async function updateMatchScore(homeScore: number, awayScore: number) {

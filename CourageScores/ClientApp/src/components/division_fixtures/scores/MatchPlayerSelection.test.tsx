@@ -37,7 +37,7 @@ describe('MatchPlayerSelection', () => {
     let updatedMatch: GameMatchDto;
     let updatedMatchOptions: GameMatchOptionDto;
     let additional180: GamePlayerDto;
-    let additionalHiCheck: {notablePlayer: GamePlayerDto, score: string};
+    let additionalHiCheck: {notablePlayer: GamePlayerDto, score: number};
     let createPlayerFor: ICreatePlayerFor;
 
     async function onMatchChanged(newMatch: GameMatchDto){
@@ -49,7 +49,7 @@ describe('MatchPlayerSelection', () => {
     async function on180(player: GamePlayerDto){
         additional180 = player;
     }
-    async function onHiCheck(notablePlayer: GamePlayerDto, score: string){
+    async function onHiCheck(notablePlayer: GamePlayerDto, score: number){
         additionalHiCheck = {notablePlayer, score};
     }
     async function setCreatePlayerFor(opts: ICreatePlayerFor){
@@ -1254,7 +1254,7 @@ describe('MatchPlayerSelection', () => {
                     id: homePlayer.id,
                     team: null,
                 },
-                score: '101',
+                score: 101,
             });
             expect(updatedMatch).toBeTruthy();
             expect(updatedMatch.homeScore).toEqual(1);
@@ -1303,7 +1303,7 @@ describe('MatchPlayerSelection', () => {
                     id: awayPlayer.id,
                     team: null,
                 },
-                score: '101',
+                score: 101,
             });
             expect(updatedMatch).toBeTruthy();
             expect(updatedMatch.homeScore).toEqual(0);

@@ -8,7 +8,11 @@ import {createTemporaryId} from "../projection";
 
 export interface IPlayerBuilder extends IAddableBuilder<TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer> {
     captain: () => IPlayerBuilder;
+    /**
+     * @deprecated Use score() instead
+     */
     notes: (notes?: string) => IPlayerBuilder;
+    score: (score: number) => IPlayerBuilder;
     noId: () => IPlayerBuilder;
     email: (email?: string) => IPlayerBuilder;
     team: (team: any) => IPlayerBuilder;
@@ -34,6 +38,10 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
         },
         notes: (notes?: string) => {
             player.notes = notes;
+            return builder;
+        },
+        score: (score: number) => {
+            player.score = score;
             return builder;
         },
         noId: () => {

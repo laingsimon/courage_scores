@@ -51,7 +51,7 @@ describe('TournamentRoundMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedRound: TournamentRoundDto;
-    let hiChecks: {player: TournamentPlayerDto, notes: number}[];
+    let hiChecks: {player: TournamentPlayerDto, score: number}[];
     let oneEighties: TournamentPlayerDto[];
     let updatedSaygData: UpdateRecordedScoreAsYouGoDto;
     let createdSaygSessions: {tournamentId: string, request: CreateTournamentSaygDto}[];
@@ -117,8 +117,8 @@ describe('TournamentRoundMatch', () => {
         deletedSayg = null;
     });
 
-    async function onHiCheck(player: TournamentPlayerDto, notes: number) {
-        hiChecks.push({player, notes});
+    async function onHiCheck(player: TournamentPlayerDto, score: number) {
+        hiChecks.push({player, score});
     }
 
     async function on180(player: TournamentPlayerDto) {
@@ -1366,7 +1366,7 @@ describe('TournamentRoundMatch', () => {
 
             expect(reportedError.hasError()).toEqual(false);
             expect(hiChecks).toEqual([{
-                notes: 151,
+                score: 151,
                 player: playerSideB,
             }]);
         });

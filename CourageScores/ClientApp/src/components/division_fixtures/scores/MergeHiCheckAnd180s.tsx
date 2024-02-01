@@ -96,7 +96,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                 </h6>
                                 <ol className="d-inline-block">
                                     {getRecordsToMerge('home', 'over100Checkouts').map(rec => (
-                                        <li key={rec.id}>{rec.name} ({rec.notes})</li>))}
+                                        <li key={rec.id}>{rec.name} ({rec.score})</li>))}
                                 </ol>
                             </div>) : null}
                         </td>
@@ -115,7 +115,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                 </h6>
                                 <ol className="d-inline-block">
                                     {getRecordsToMerge('away', 'over100Checkouts').map(rec => (
-                                        <li key={rec.id}>{rec.name} ({rec.notes})</li>))}
+                                        <li key={rec.id}>{rec.name} ({rec.score})</li>))}
                                 </ol>
                             </div>) : null}
                         </td>

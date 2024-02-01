@@ -20,6 +20,7 @@ import {
     ILayoutDataForRound, ILayoutDataForSide,
     setRoundNames
 } from "../../../helpers/tournaments";
+import {NotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -291,19 +292,19 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
     function renderHiChecks() {
         return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
             <h5>Hi-checks</h5>
-            {tournamentData.over100Checkouts.map((player, index) => {
+            {tournamentData.over100Checkouts.map((player: NotableTournamentPlayerDto, index: number) => {
                 const teamAndDivision = findTeamAndDivisionForPlayer(player);
 
                 if (teamAndDivision && teamAndDivision.division) {
                     return (<div key={index} className="p-1 no-wrap">
                         <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>
                             {player.name}
-                        </EmbedAwareLink> ({player.notes})
+                        </EmbedAwareLink> ({player.score})
                     </div>);
                 }
 
                 return (<div key={player.name} className="p-1 no-wrap">
-                    {player.name} ({player.notes})
+                    {player.name} ({player.score})
                 </div>);
             })}
         </div>);

@@ -72,7 +72,7 @@ export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IH
                     players={fixtureData.over100Checkouts || []}
                     onRemovePlayer={removeHiCheck(fixtureData, setFixtureData)}
                     onAddPlayer={addHiCheck(fixtureData, setFixtureData)}
-                    showNotes={true}
+                    showScore={true}
                     division={division}
                     season={season}
                     dropdownClassName="hi-check-player-dropdown"/>
