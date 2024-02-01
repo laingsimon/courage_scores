@@ -50,7 +50,9 @@ public class ControllerStrategy: IStrategy
         var path = Path.GetFullPath(Path.Combine(outputDirectory, controller.RelativePath + ".ts"));
         using (var writer = new StreamWriter(File.Create(path)))
         {
+#if DEBUG
             await Console.Out.WriteLineAsync($"Writing {controller.Name} to {path}...");
+#endif
 
             await WriteHeader(writer, controller);
             await writer.WriteLineAsync("");

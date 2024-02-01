@@ -53,7 +53,10 @@ public class DtoStrategy: IStrategy
         };
         var relativePath = _metaDataHelper.GetRelativePath(context, type.DotNetType.Namespace!) + "/" + Path.GetFileName(type.RelativePath);
         var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath + ".d.ts"));
+
+#if DEBUG
         await Console.Out.WriteLineAsync($"Writing {type.Name} to {path}...");
+#endif
 
         if (!Directory.Exists(Path.GetDirectoryName(path)))
         {
