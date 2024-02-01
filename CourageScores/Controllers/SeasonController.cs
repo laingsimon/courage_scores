@@ -40,7 +40,7 @@ public class SeasonController : Controller
     public async Task<ActionResultDto<SeasonDto>> Update(EditSeasonDto season, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateSeasonCommand>().WithData(season);
-        return await _seasonService.Upsert(season.Id, command, token);
+        return await _seasonService.Upsert(season.Id ?? Guid.NewGuid(), command, token);
     }
 
     [HttpDelete("/api/Season/{id}")]

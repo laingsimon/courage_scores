@@ -1,13 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
-using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Game;
 
 [ExcludeFromCodeCoverage]
-[PropertyIsOptional(nameof(Id))]
 public class EditTournamentGameDto : IIntegrityCheckDto
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public string? Address { get; set; }
     public DateTime Date { get; set; }
     public string? Notes { get; set; }

@@ -36,7 +36,7 @@ public class GameController : Controller
     public async Task<ActionResultDto<GameDto>> Update(EditGameDto game, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateGameCommand>().WithData(game);
-        return await _gameService.Upsert(game.Id, command, token);
+        return await _gameService.Upsert(game.Id ?? Guid.NewGuid(), command, token);
     }
 
     [HttpPut("/api/Scores/{id}")]
