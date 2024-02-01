@@ -199,6 +199,7 @@ describe('SaygLoadingContainer', () => {
             saygDataMap[id] = {
                 id,
                 yourName: '',
+                legs: null,
             };
             await renderComponent({
                 children: (<TestComponent onLoaded={noop} />),
