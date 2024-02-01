@@ -18,6 +18,7 @@ export interface ILayoutDataForMatch {
     winner?: string;
     saygId?: string;
     mnemonic?: string;
+    hideMnemonic?: boolean;
 }
 
 export interface ILayoutDataForRound {

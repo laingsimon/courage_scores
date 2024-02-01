@@ -201,6 +201,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                     winner: winner,
                     saygId: m.saygId,
                     mnemonic: 'M' + (++matchMnemonic),
+                    hideMnemonic: true,
                 };
             }),
         };
@@ -357,7 +358,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                         <h5 datatype="round-name">{roundData.name}</h5>
                         {roundData.matches.map((matchData: ILayoutDataForMatch, index: number) => (
                             <div key={index} datatype="match" className={`p-0 border-solid border-1 m-1 position-relative ${matchData.bye ? 'opacity-50' : ''}`}>
-                                {matchData.mnemonic && roundData.matches.length > 1 ? (<span className="position-absolute right-0 opacity-75">
+                                {matchData.mnemonic && roundData.matches.length > 1 && !matchData.hideMnemonic ? (<span className="position-absolute right-0 opacity-75">
                                     <span className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute" style={{ left: -10, top: -10 }}>{matchData.mnemonic}</span>
                                 </span>) : null}
                                 {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
