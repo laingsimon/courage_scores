@@ -20,10 +20,10 @@ import {teamBuilder} from "../../../helpers/builders/teams";
 describe('MultiPlayerSelection', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let addedPlayer: { player: ISelectablePlayer, notes: string };
+    let addedPlayer: { player: ISelectablePlayer, score: number };
     let removedPlayer: { id: string, index: number };
-    async function onAddPlayer(player: ISelectablePlayer, notes: string) {
-        addedPlayer = {player, notes};
+    async function onAddPlayer(player: ISelectablePlayer, score: number) {
+        addedPlayer = {player, score};
     }
     async function onRemovePlayer(id: string, index: number) {
         removedPlayer = {id, index};
@@ -58,7 +58,7 @@ describe('MultiPlayerSelection', () => {
         const season = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
-        const player = playerBuilder('PLAYER').notes('NOTES').build();
+        const player = playerBuilder('PLAYER').score(123).build();
 
         it('readonly component', async () => {
             await renderComponent({
@@ -135,7 +135,7 @@ describe('MultiPlayerSelection', () => {
             await renderComponent({
                 players: [player],
                 allPlayers: [player],
-                showNotes: true,
+                showScore: true,
                 onAddPlayer: onAddPlayer,
                 onRemovePlayer: onRemovePlayer,
             });
@@ -146,7 +146,7 @@ describe('MultiPlayerSelection', () => {
             const selectedPlayer = selectedPlayers[0];
             const removePlayerButton = selectedPlayer.querySelector('button');
             expect(removePlayerButton).toBeTruthy();
-            expect(removePlayerButton.textContent).toEqual('PLAYER (NOTES) 🗑');
+            expect(removePlayerButton.textContent).toEqual('PLAYER (123) 🗑');
             const addPlayerButton = context.container.querySelector('ol > li:last-child > button');
             expect(addPlayerButton).toBeTruthy();
             expect(addPlayerButton.textContent).toEqual('➕');
@@ -194,7 +194,7 @@ describe('MultiPlayerSelection', () => {
                 readOnly: true,
                 players: [player],
                 allPlayers: [player],
-                showNotes: true,
+                showScore: true,
                 division: division,
                 season: season,
                 onAddPlayer: onAddPlayer,
@@ -206,7 +206,7 @@ describe('MultiPlayerSelection', () => {
             expect(selectedPlayer).toBeTruthy();
             const selectedPlayerButton = selectedPlayer.querySelector('button');
             expect(selectedPlayerButton).toBeTruthy();
-            expect(selectedPlayerButton.textContent).toEqual('PLAYER (NOTES) 🗑');
+            expect(selectedPlayerButton.textContent).toEqual('PLAYER (123) 🗑');
             expect(selectedPlayerButton.disabled).toBeTruthy();
         });
 
@@ -276,7 +276,7 @@ describe('MultiPlayerSelection', () => {
                 disabled: true,
                 players: [player],
                 allPlayers: [player],
-                showNotes: true,
+                showScore: true,
                 division: division,
                 season: season,
                 onAddPlayer: onAddPlayer,
@@ -289,7 +289,7 @@ describe('MultiPlayerSelection', () => {
             const linkToPlayer = selectedPlayer.querySelector('a');
             expect(linkToPlayer).toBeTruthy();
             expect(linkToPlayer.href).toContain(`/division/${division.name}/player:${player.id}/${season.name}`);
-            expect(linkToPlayer.textContent).toEqual('PLAYER (NOTES)');
+            expect(linkToPlayer.textContent).toEqual('PLAYER (123)');
         });
 
         it('dropdown with dropdownClassName', async () => {
@@ -311,8 +311,8 @@ describe('MultiPlayerSelection', () => {
             await renderComponent({
                 players: [player],
                 allPlayers: [player],
-                notesClassName: 'NOTES-CLASS-NAME',
-                showNotes: true,
+                scoreClassName: 'NOTES-CLASS-NAME',
+                showScore: true,
                 onAddPlayer: onAddPlayer,
                 onRemovePlayer: onRemovePlayer,
             });
@@ -325,7 +325,7 @@ describe('MultiPlayerSelection', () => {
     });
 
     describe('interactivity', () => {
-        const player: ISelectablePlayer = playerBuilder('PLAYER').notes('NOTES').build();
+        const player: ISelectablePlayer = playerBuilder('PLAYER').score(123).build();
         let alert: string;
         window.alert = (message) => {
             alert = message;
@@ -362,7 +362,7 @@ describe('MultiPlayerSelection', () => {
 
             expect(addedPlayer).not.toBeNull();
             expect(addedPlayer.player).toEqual(player);
-            expect(addedPlayer.notes).toBeFalsy();
+            expect(addedPlayer.score).toBeFalsy();
         });
 
         it('players not added when no player selected', async () => {
@@ -385,7 +385,7 @@ describe('MultiPlayerSelection', () => {
             await renderComponent({
                 players: [],
                 allPlayers: [player],
-                showNotes: true,
+                showScore: true,
                 onAddPlayer: onAddPlayer,
                 onRemovePlayer: onRemovePlayer,
             });
@@ -397,14 +397,14 @@ describe('MultiPlayerSelection', () => {
 
             expect(addedPlayer).not.toBeNull();
             expect(addedPlayer.player).toEqual(player);
-            expect(addedPlayer.notes).toEqual('100');
+            expect(addedPlayer.score).toEqual(100);
         });
 
         it('players not added when notes are empty', async () => {
             await renderComponent({
                 players: [],
                 allPlayers: [player],
-                showNotes: true,
+                showScore: true,
                 onAddPlayer: onAddPlayer,
                 onRemovePlayer: onRemovePlayer,
             });
@@ -418,11 +418,29 @@ describe('MultiPlayerSelection', () => {
             expect(alert).toEqual('Enter the score first');
         });
 
+        it('players not added when notes are non numeric', async () => {
+            await renderComponent({
+                players: [],
+                allPlayers: [player],
+                showScore: true,
+                onAddPlayer: onAddPlayer,
+                onRemovePlayer: onRemovePlayer,
+            });
+            expect(reportedError.hasError()).toEqual(false);
+
+            await doClick(findButton(context.container, 'PLAYER'));
+            await doChange(context.container, 'ol > li:last-child > input[type="number"]', '.', context.user);
+            await doClick(findButton(context.container, '➕'));
+
+            expect(addedPlayer).toBeNull();
+            expect(alert).toEqual('Enter the score first');
+        });
+
         it('allows players to be removed', async () => {
             await renderComponent({
                 players: [player],
                 allPlayers: [player],
-                showNotes: false,
+                showScore: false,
                 onAddPlayer: onAddPlayer,
                 onRemovePlayer: onRemovePlayer,
             });

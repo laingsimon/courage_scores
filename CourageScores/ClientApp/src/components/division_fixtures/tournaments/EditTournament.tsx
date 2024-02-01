@@ -159,7 +159,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
                         players={tournamentData.over100Checkouts || []}
                         onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
                         onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
-                        showNotes={true}/>
+                        showScore={true}/>
                 </td>
             </tr>
             </tbody>

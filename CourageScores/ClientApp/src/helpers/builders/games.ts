@@ -19,7 +19,7 @@ export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDt
     forSeason: (seasonOrId: any) => IFixtureBuilder;
     forDivision: (divisionOrId: any) => IFixtureBuilder;
     with180: (playerOrName: any) => IFixtureBuilder;
-    withHiCheck: (playerOrName: any, score: string) => IFixtureBuilder;
+    withHiCheck: (playerOrName: any, score: number) => IFixtureBuilder;
     withMatch: (matchOrBuilderFunc: any) => IFixtureBuilder;
     withMatchOption: (matchOptionOrBuilderFunc: any) => IFixtureBuilder;
     editor: (name: string) => IFixtureBuilder;
@@ -122,13 +122,13 @@ export function fixtureBuilder(date?: string, id?: string, omitSubmission?: bool
             });
             return builder;
         },
-        withHiCheck: (playerOrName: any, score: string) => {
+        withHiCheck: (playerOrName: any, score: number) => {
             const player = !playerOrName || playerOrName.name ? playerOrName : {
                 id: createTemporaryId(),
                 name: playerOrName
             };
 
-            fixture.over100Checkouts.push(Object.assign({}, player, { notes: score }));
+            fixture.over100Checkouts.push(Object.assign({}, player, { score }));
             return builder;
         },
         withMatch: (matchOrBuilderFunc: any) => {

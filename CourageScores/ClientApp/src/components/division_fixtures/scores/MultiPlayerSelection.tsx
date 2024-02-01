@@ -12,14 +12,14 @@ import {SeasonDto} from "../../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
 
 export interface IMultiPlayerSelectionProps {
-    onAddPlayer?: (player: ISelectablePlayer, notes: string) => Promise<any>;
+    onAddPlayer?: (player: ISelectablePlayer, score: number) => Promise<any>;
     players?: NotablePlayerDto[] | TeamPlayerDto[] | GamePlayerDto[];
     disabled?: boolean;
     allPlayers: ISelectablePlayer[];
     onRemovePlayer?: (playerId: string, playerIndex: number) => Promise<any>;
     readOnly?: boolean;
-    showNotes?: boolean;
-    notesClassName?: string;
+    showScore?: boolean;
+    scoreClassName?: string;
     dropdownClassName?: string;
     placeholder?: string;
     season?: SeasonDto;
@@ -28,10 +28,10 @@ export interface IMultiPlayerSelectionProps {
 
 export function MultiPlayerSelection({
                                          onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly,
-                                         showNotes, notesClassName, dropdownClassName, placeholder, season, division
+                                         showScore, scoreClassName, dropdownClassName, placeholder, season, division
                                      }: IMultiPlayerSelectionProps) {
     const [player, setPlayer] = useState<ISelectablePlayer | null>(null);
-    const [notes, setNotes] = useState<string>('');
+    const [score, setScore] = useState<string>('');
     const {onError, teams} = useApp();
 
     async function addPlayer() {
@@ -40,17 +40,18 @@ export function MultiPlayerSelection({
             return;
         }
 
-        if (showNotes && !notes) {
+        const validScore = Number.parseInt(score);
+        if (showScore && (!score || !Number.isFinite(validScore))) {
             window.alert('Enter the score first');
             return;
         }
 
         try {
             if (onAddPlayer) {
-                await onAddPlayer(player, notes);
+                await onAddPlayer(player, validScore);
             }
             setPlayer(null);
-            setNotes('');
+            setScore('');
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -58,14 +59,13 @@ export function MultiPlayerSelection({
     }
 
     function playerName(player: NotablePlayerDto) {
-        const notes: string = player.notes;
-        player = allPlayers.filter((p: NotablePlayerDto) => p.id === player.id)[0] || player
+        const lookupPlayer = allPlayers.filter((p: NotablePlayerDto) => p.id === player.id)[0] || player
 
-        if (showNotes) {
-            return `${player.name} (${notes})`;
+        if (showScore) {
+            return `${lookupPlayer.name} (${player.score})`;
         }
 
-        return player.name;
+        return lookupPlayer.name;
     }
 
     function renderLinkToPlayer(p: NotablePlayerDto) {
@@ -105,12 +105,12 @@ export function MultiPlayerSelection({
                     </button>)}</li>);
                 })}
                 {disabled || readOnly ? null : (<li>
-                    {showNotes ? (<input
+                    {showScore ? (<input
                         disabled={disabled}
                         readOnly={readOnly}
-                        onChange={(elem) => setNotes(elem.target.value)}
-                        value={notes}
-                        className={`margin-right tri-character-input align-middle${notesClassName || ''}`}
+                        onChange={(elem) => setScore(elem.target.value)}
+                        value={score}
+                        className={`margin-right tri-character-input align-middle${scoreClassName || ''}`}
                         type="number"
                         min="100"
                         max="120"/>) : null}

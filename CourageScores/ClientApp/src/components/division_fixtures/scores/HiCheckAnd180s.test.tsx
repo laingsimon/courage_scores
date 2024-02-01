@@ -163,7 +163,7 @@ describe('HiCheckAnd180s', () => {
                 .forDivision(division)
                 .forSeason(season)
                 .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
-                .withHiCheck(homePlayer, '100')
+                .withHiCheck(homePlayer, 100)
                 .build();
 
             await renderComponent({
@@ -288,7 +288,7 @@ describe('HiCheckAnd180s', () => {
                     .forDivision(division)
                     .forSeason(season)
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
-                    .withHiCheck(homePlayer, '100')
+                    .withHiCheck(homePlayer, 100)
                     .build();
 
                 await renderComponent({
@@ -367,7 +367,7 @@ describe('HiCheckAnd180s', () => {
                     .forDivision(division)
                     .forSeason(season)
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
-                    .withHiCheck(homePlayer, '100')
+                    .withHiCheck(homePlayer, 100)
                     .build();
 
                 await renderComponent({
@@ -384,8 +384,8 @@ describe('HiCheckAnd180s', () => {
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.over100Checkouts).toEqual([
-                    {id: homePlayer.id, name: homePlayer.name, notes: '100', team: null},
-                    {id: awayPlayer.id, name: awayPlayer.name, notes: '140'}
+                    {id: homePlayer.id, name: homePlayer.name, score: 100, team: null},
+                    {id: awayPlayer.id, name: awayPlayer.name, score: 140}
                 ]);
             });
 
@@ -396,7 +396,7 @@ describe('HiCheckAnd180s', () => {
                     .forDivision(division)
                     .forSeason(season)
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
-                    .withHiCheck(homePlayer, '100')
+                    .withHiCheck(homePlayer, 100)
                     .build();
 
                 await renderComponent({

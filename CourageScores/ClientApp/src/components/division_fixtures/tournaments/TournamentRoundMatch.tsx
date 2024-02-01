@@ -242,7 +242,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             }
 
             await patchData({
-                additionalOver100Checkout: Object.assign({}, side.players[0], {notes: score.toString()}),
+                additionalOver100Checkout: Object.assign({}, side.players[0], {score}),
             });
         }
     }

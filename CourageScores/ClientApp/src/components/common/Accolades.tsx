@@ -35,8 +35,8 @@ export function remove180<T extends IAccoladeFixtureData>(fixtureData: T, setFix
     }
 }
 
-export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto, notes: string) => Promise<any> {
-    return async (player: NotablePlayerDto | NotableTournamentPlayerDto, notes: string) => {
+export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto, score: number) => Promise<any> {
+    return async (player: NotablePlayerDto | NotableTournamentPlayerDto, score: number) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
         if (!newFixtureData.over100Checkouts) {
@@ -46,7 +46,7 @@ export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFi
         newFixtureData.over100Checkouts.push({
             id: player.id,
             name: player.name,
-            notes: notes,
+            score,
         });
 
         setFixtureData(newFixtureData);

@@ -1464,7 +1464,7 @@ describe('Tournament', () => {
                     additionalOver100Checkout: {
                         id: playerA.id,
                         name: playerA.name,
-                        notes: '100',
+                        score: 100,
                         team: null,
                     },
                 },

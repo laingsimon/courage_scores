@@ -63,12 +63,12 @@ describe('Accolades', () => {
                 over100Checkouts: null,
             }, (u: IAccoladeFixtureData) => updated = u);
 
-            await sut(player1, '140');
+            await sut(player1, 140);
 
             expect(updated.over100Checkouts).toEqual([{
                 id: player1.id,
                 name: player1.name,
-                notes: '140',
+                score: 140,
             }]);
         });
 
@@ -79,12 +79,12 @@ describe('Accolades', () => {
                 over100Checkouts: [],
             }, (u: IAccoladeFixtureData) => updated = u);
 
-            await sut(player1, '140');
+            await sut(player1, 140);
 
             expect(updated.over100Checkouts).toEqual([{
                 id: player1.id,
                 name: player1.name,
-                notes: '140',
+                score: 140,
             }]);
         });
     });
