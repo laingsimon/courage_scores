@@ -13,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": false,
     "strict": false,
-    "strictBindCallApply": false,
+    "strictBindCallApply": true,
     "strictFunctionTypes": false,
     "noUnusedLocals": true,
     "strictNullChecks": false,
