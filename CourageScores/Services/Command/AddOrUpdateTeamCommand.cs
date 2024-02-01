@@ -111,7 +111,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         foreach (var gameUpdate in gamesToUpdate)
         {
             var command = _commandFactory.GetCommand<AddOrUpdateGameCommand>().WithData(gameUpdate);
-            await _gameService.Upsert(gameUpdate.Id, command, token);
+            await _gameService.Upsert(gameUpdate.Id ?? Guid.NewGuid(), command, token);
         }
 
         team.Name = update.Name;

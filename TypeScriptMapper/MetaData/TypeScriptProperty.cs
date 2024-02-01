@@ -30,15 +30,13 @@ public class TypeScriptProperty : ITypeScriptMember
     private bool IsOptional()
     {
         var reflectedType = _property.ReflectedType;
-        var optionalProperties = reflectedType!.GetCustomAttribute<PropertyIsOptional>() ?? new PropertyIsOptional();
         var requiredProperties = reflectedType!.GetCustomAttribute<PropertyIsRequired>() ?? new PropertyIsRequired();
 
         var context = new NullabilityInfoContext();
         var info = context.Create(_property);
         var optional = info.ReadState == NullabilityState.Nullable
             || HasDefaultValue()
-            || IsPrimitiveType()
-            || optionalProperties.PropertyNames.Contains(_property.Name);
+            || IsPrimitiveType();
 
         var required = requiredProperties.PropertyNames.Contains(_property.Name);
 
@@ -82,5 +80,17 @@ public class TypeScriptProperty : ITypeScriptMember
         }
 
         return false;
+    }
+
+    public bool IsImplementationOf(ITypeScriptMember member)
+    {
+        var otherProperty = member as TypeScriptProperty;
+        if (otherProperty == null)
+        {
+            return false;
+        }
+
+        return otherProperty._property.Name == _property.Name
+               && otherProperty._property.PropertyType == _property.PropertyType;
     }
 }

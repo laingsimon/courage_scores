@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using TypeScriptMapper.Dtos;
 
 namespace TypeScriptMapper.MetaData;
 
@@ -14,11 +15,11 @@ public class TypeScriptInterfaceFactory
         _helper = helper;
     }
 
-    public TypeScriptInterface Create(Type type)
+    public TypeScriptInterface Create(Type type, Type? from = null)
     {
         var context = new HelperContext
         {
-            Namespace = type.Namespace!,
+            Namespace = (from ?? type).Namespace!,
         };
 
         return new TypeScriptInterface
@@ -27,10 +28,18 @@ public class TypeScriptInterfaceFactory
             RelativePath = _helper.GetRelativePath(context, type.Namespace!) + "/I" + GetTypeName(type, false) + ".d.ts",
             Name = GetTypeName(type, true),
             Members =
-                type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
+                type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateProperty).Select(p => (ITypeScriptMember)new TypeScriptProperty(p, _helper, context))
                 .Concat(type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Where(AppropriateMethod).Select(m => new TypeScriptMethod(m, _helper, context)))
                 .ToList(),
             GenericArguments = type.GetGenericArguments().Select(ga => new TypeScriptGenericArgument(ga, _helper, context)).ToList(),
+            BaseType = type.BaseType != null && type.BaseType.Namespace?.StartsWith("CourageScores") == true
+                ? Create(type.BaseType!, type)
+                : null,
+            Interfaces = type.GetInterfaces()
+                .Where(i => i.Namespace?.StartsWith("CourageScores") == true)
+                .Select(t => Create(t, type))
+                .ToList(),
+            PartialExtensions = type.GetCustomAttribute<PartialExtensionAttribute>()?.TypeNames.ToList() ?? new List<string>(),
         };
     }
 

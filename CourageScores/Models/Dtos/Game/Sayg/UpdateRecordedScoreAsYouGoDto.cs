@@ -4,7 +4,7 @@ using TypeScriptMapper.Dtos;
 namespace CourageScores.Models.Dtos.Game.Sayg;
 
 [ExcludeFromCodeCoverage]
-[PropertyIsOptional(nameof(Id))]
+[PartialExtension(nameof(RecordedScoreAsYouGoDto))]
 public class UpdateRecordedScoreAsYouGoDto : RecordedScoreAsYouGoDto, IIntegrityCheckDto
 {
     public DateTime? LastUpdated { get; set; }

@@ -7,7 +7,7 @@ namespace CourageScores.Models.Dtos.Team;
 /// A record of a season that a team has played within
 /// </summary>
 [ExcludeFromCodeCoverage]
-[PropertyIsOptional(nameof(Id))]
+[PartialExtension(nameof(AuditedDto))] // to make Id optional
 public class TeamSeasonDto : AuditedDto
 {
     /// <summary>

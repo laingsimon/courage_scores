@@ -51,7 +51,7 @@ public class DtoStrategy: IStrategy
         {
             Namespace = _dtosNamespace,
         };
-        var relativePath = _metaDataHelper.GetRelativePath(context, type.DotNetType.Namespace!) + "/I" + Path.GetFileName(type.RelativePath);
+        var relativePath = _metaDataHelper.GetRelativePath(context, type.DotNetType.Namespace!) + "/" + Path.GetFileName(type.RelativePath);
         var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath));
         await Console.Out.WriteLineAsync($"Writing {type.Name} to {path}...");
 
@@ -71,13 +71,30 @@ public class DtoStrategy: IStrategy
 
     private static async Task WriteInterface(TextWriter writer, TypeScriptInterface type, string name, CancellationToken token)
     {
-        await writer.WriteLineAsync($"export interface I{name} {{");
+        var extendsTypes = type.Interfaces.Concat(new[]
+        {
+            type.BaseType
+        }).Where(t => t != null).ToArray();
+
+        var extends = extendsTypes.Any()
+            ? " extends " + string.Join(", ", extendsTypes.Select(t => type.PartialExtensions.Contains(t!.Name)
+                ? $"Partial<I{t.Name}>"
+                : "I" + t.Name))
+            : "";
+
+        await writer.WriteLineAsync($"export interface I{name}{extends} {{");
 
         foreach (var member in type.Members.OfType<TypeScriptProperty>().OrderBy(m => m.Name))
         {
             if (token.IsCancellationRequested)
             {
                 break;
+            }
+
+            var isImplementationOfInterfaceMember = type.Interfaces.Any(i => i.Members.Any(m => member.IsImplementationOf(m)));
+            if (isImplementationOfInterfaceMember)
+            {
+                continue;
             }
 
             var definition = member.GetDefinition();
@@ -99,7 +116,24 @@ public class DtoStrategy: IStrategy
                 break;
             }
 
-            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath}';");
+            await writer.WriteLineAsync($"import {{{import.Name}}} from '{import.RelativePath!.Replace(".d.ts", "")}';");
+            importWritten = true;
+        }
+
+        foreach (var interfaceType in type.Interfaces)
+        {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
+
+            await writer.WriteLineAsync($"import {{I{interfaceType.Name}}} from '{interfaceType.RelativePath.Replace(".d.ts", "")}';");
+            importWritten = true;
+        }
+
+        if (type.BaseType != null)
+        {
+            await writer.WriteLineAsync($"import {{I{type.BaseType.Name}}} from '{type.BaseType.RelativePath.Replace(".d.ts", "")}';");
             importWritten = true;
         }
 

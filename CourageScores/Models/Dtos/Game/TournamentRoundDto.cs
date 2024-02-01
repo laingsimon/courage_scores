@@ -7,7 +7,7 @@ namespace CourageScores.Models.Dtos.Game;
 /// Represents the matches within a round of a tournament game
 /// </summary>
 [ExcludeFromCodeCoverage]
-[PropertyIsOptional(nameof(Id))]
+[PartialExtension(nameof(AuditedDto))] // to make Id optional
 public class TournamentRoundDto : AuditedDto
 {
     /// <summary>
