@@ -47,6 +47,9 @@ public class EditTournamentGameDto : IIntegrityCheckDto
     [ExcludeFromCodeCoverage]
     public class TournamentOver100CheckoutDto : RecordTournamentScoresPlayerDto
     {
+        [Obsolete("Use " + nameof(Score) + " instead")]
         public string? Notes { get; set; }
+
+        public int? Score { get; set; }
     }
 }
