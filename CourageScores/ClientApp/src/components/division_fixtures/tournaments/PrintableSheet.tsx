@@ -259,7 +259,6 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                 players={tournamentData.oneEighties || []}
                 onRemovePlayer={remove180(tournamentData, setTournamentData)}
                 onAddPlayer={add180(tournamentData, setTournamentData)}/>
-
         </Dialog>
     }
 
@@ -366,7 +365,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                         </div>
                     </div>
                 </div>) : null}
-                {any(tournamentData.sides) ? (<div datatype="playing" className="ms-5">
+                {any(tournamentData.sides) || editable ? (<div datatype="playing" className="ms-5">
                     <h4>Playing</h4>
                     <ul className="list-group">
                         {tournamentData.sides.sort(sortBy('name')).map((side: TournamentSideDto, index: number) => <li
@@ -375,7 +374,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                             className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
                             {index + 1} - {getLinkToSide(side)}
                         </li>)}
-                        {editable ? (<li className="list-group-item text-secondary opacity-50" onClick={() => setNewSide({ id: createTemporaryId() })}>
+                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50" onClick={() => setNewSide({ id: createTemporaryId() })}>
                             Add a side
                         </li>) : null}
                     </ul>

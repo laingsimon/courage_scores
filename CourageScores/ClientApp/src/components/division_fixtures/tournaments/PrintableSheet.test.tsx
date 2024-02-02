@@ -1,4 +1,13 @@
-import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp, doChange,
+    doClick, doSelectOption,
+    ErrorState, findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../../helpers/tests";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {IPrintableSheetProps, PrintableSheet} from "./PrintableSheet";
 import {renderDate} from "../../../helpers/rendering";
@@ -23,6 +32,9 @@ import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {NotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {IAppContainerProps} from "../../../AppContainer";
+import {ISelectablePlayer} from "../../division_players/PlayerSelection";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
 
 interface ISideInfo {
     sideAwinner?: boolean;
@@ -40,6 +52,7 @@ interface ISideInfo {
 describe('PrintableSheet', () => {
     let context: TestContext;
     let reportedError: ErrorState;
+    let updatedTournament: TournamentGameDto;
 
     afterEach(() => {
         cleanUp(context);
@@ -47,16 +60,18 @@ describe('PrintableSheet', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
+        updatedTournament = null;
     });
 
-    async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, teams?: DataMap<TeamDto>, divisions?: DivisionDto[]) {
+    async function setTournamentData(update: TournamentGameDto) {
+        updatedTournament = update;
+    }
+
+    async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, appProps: IAppContainerProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
-            appProps({
-                teams,
-                divisions,
-            }, reportedError),
+            appProps,
             (<TournamentContainer {...containerProps}>
                 <PrintableSheet {...props} />
             </TournamentContainer>));
@@ -203,7 +218,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -235,7 +250,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -270,7 +285,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -352,7 +367,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -416,7 +431,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -522,7 +537,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideG).withSide(sideH).withSide(sideI).withSide(sideJ).withSide(sideK).withSide(sideL)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -682,7 +697,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -725,7 +740,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({teams, divisions}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -755,7 +770,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -780,7 +795,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -801,7 +816,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -824,7 +839,7 @@ describe('PrintableSheet', () => {
             const teams: DataMap<TeamDto> = toMap<TeamDto>([team]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -845,7 +860,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
@@ -868,7 +883,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
@@ -884,7 +899,7 @@ describe('PrintableSheet', () => {
             const teams: DataMap<TeamDto> = toMap([]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b', '-3 - c-']);
@@ -899,7 +914,7 @@ describe('PrintableSheet', () => {
                 .date('2023-06-01')
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('div[datatype="heading"]');
@@ -924,7 +939,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
@@ -950,7 +965,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
@@ -973,7 +988,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
@@ -997,11 +1012,301 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
             expect(getAccolades('hi-checks', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
+        });
+
+        it('cannot set match side a when not permitted', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: false}, appProps({}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const firstSideA = context.container.querySelector('div[datatype="sideA"]');
+
+            await doClick(firstSideA);
+
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeFalsy();
+        });
+
+        it('can edit match side a', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
+                .build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const firstSideA = context.container.querySelector('div[datatype="sideA"]');
+            await doClick(firstSideA);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(tournamentData.round.matches[0].sideA.id).toEqual(sideA.id);
+            expect(tournamentData.round.matches[0].scoreA).toEqual(1);
+
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.round.matches[0].sideA.id).toEqual(sideE.id);
+            expect(updatedTournament.round.matches[0].scoreA).toEqual(2);
+        });
+
+        it('can remove match side a', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const firstSideA = context.container.querySelector('div[datatype="sideA"]');
+            await doClick(firstSideA);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+
+            await doClick(findButton(context.container, 'Remove'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.round.matches[0].sideA.id).toBeFalsy();
+            expect(updatedTournament.round.matches[0].scoreA).toBeNull();
+        });
+
+        it('can edit match side b', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
+                .build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const firstSideA = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(firstSideA);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(tournamentData.round.matches[0].sideB.id).toEqual(sideB.id);
+            expect(tournamentData.round.matches[0].scoreB).toEqual(2);
+
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '3'); // score
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.round.matches[0].sideB.id).toEqual(sideE.id);
+            expect(updatedTournament.round.matches[0].scoreB).toEqual(3);
+        });
+
+        it('can remove match side b', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const firstSideA = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(firstSideA);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+
+            await doClick(findButton(context.container, 'Remove'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.round.matches[0].sideB.id).toBeFalsy();
+            expect(updatedTournament.round.matches[0].scoreB).toBeNull();
+        });
+
+        it('can edit 180s', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doSelectOption(dialog.querySelector('.dropdown-menu'), player1.name);
+            await doClick(findButton(dialog, '➕'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.oneEighties).toEqual([
+                { id: player1.id, name: player1.name }
+            ]);
+        });
+
+        it('can edit hi checks', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doSelectOption(dialog.querySelector('.dropdown-menu'), player1.name);
+            await doChange(dialog, 'input', '123', context.user);
+            await doClick(findButton(dialog, '➕'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.over100Checkouts).toEqual([
+                { id: player1.id, name: player1.name, score: 123 }
+            ]);
+        });
+
+        it('can edit side', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            sideA.players = [ player1 ];
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {}
+            }
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({account}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            const firstSide = playing.querySelector('li');
+            await doClick(firstSide);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doChange(dialog, 'input[name="name"]', 'NEW SIDE A', context.user);
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+                .toEqual([sideB.name, sideC.name, sideD.name, 'NEW SIDE A']);
+        });
+
+        it('can add a side', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2)))
+                .withSide(sideA).withSide(sideB)
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {}
+            }
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+                teamBuilder('TEAM')
+                    .forSeason(season, division, [player1])
+                    .build()]);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({account, teams}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const addSide = context.container.querySelector('li[datatype="add-side"]');
+            await doClick(addSide);
+            expect(reportedError.hasError()).toEqual(false);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
+            await doClick(dialog.querySelector('.list-group li.list-group-item')); // select a player
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+                .toEqual([sideA.name, sideB.name, 'NEW SIDE']);
+        });
+
+        it('can remove a side', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2)))
+                .withSide(sideA).withSide(sideB)
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {}
+            }
+            window.confirm = () => true;
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({account}, reportedError));
+            expect(reportedError.hasError()).toEqual(false);
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            const firstSide = playing.querySelector('li.list-group-item');
+            await doClick(firstSide);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Delete side'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+                .toEqual([sideB.name]);
         });
     });
 
@@ -1020,7 +1325,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -1046,7 +1351,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -1058,7 +1363,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -1072,11 +1377,105 @@ describe('PrintableSheet', () => {
                 .date('2023-06-01')
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
             expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('div[datatype="heading"]');
             expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
+        });
+
+        it('can set match side a', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide(sideA)
+                .withSide(sideB)
+                .build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            const firstSideA = context.container.querySelector('div[datatype="sideA"]');
+            await doClick(firstSideA);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.round.matches[0].sideA.id).toEqual(sideA.id);
+            expect(updatedTournament.round.matches[0].scoreA).toEqual(2);
+        });
+
+        it('can set match side b', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide(sideA)
+                .withSide(sideB)
+                .build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            const firstSideA = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(firstSideA);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideA.name); // side
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.round.matches[0].sideB.id).toEqual(sideA.id);
+            expect(updatedTournament.round.matches[0].scoreB).toEqual(2);
+        });
+
+        it('can add a side', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+                teamBuilder('TEAM')
+                    .forSeason(season, division, [player1])
+                    .build()]);
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {}
+            }
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({teams, account}, reportedError));
+            const addSideOption = context.container.querySelector('li[datatype="add-side"]');
+            await doClick(addSideOption);
+            expect(reportedError.error).toBeFalsy();
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+
+            await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
+            await doClick(dialog.querySelector('.list-group li.list-group-item')); // select a player
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name)).toEqual(['NEW SIDE']);
+        });
+
+        it('can remove a side', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide(sideA)
+                .withSide(sideB)
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {}
+            }
+            window.confirm = () => true;
+            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({account}, reportedError));
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            const firstSide = playing.querySelector('li.list-group-item');
+            await doClick(firstSide);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Delete side'));
+
+            expect(updatedTournament).not.toBeNull();
+            expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
+                .toEqual([sideB.name]);
         });
     });
 });
