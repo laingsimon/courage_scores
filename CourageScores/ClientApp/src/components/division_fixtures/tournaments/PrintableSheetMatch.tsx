@@ -35,12 +35,21 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
         text: side.name,
     }});
 
-    function changeSide(designation: 'A' | 'B') {
+    function beginEditSide(designation: 'A' | 'B') {
+        const side: ILayoutDataForSide = matchData['side' + designation];
         const editSide: IEditSide = {
-            sideId: designation === 'A' ? matchData.sideA.id : matchData.sideB.id,
+            sideId: side.id,
             score: designation === 'A' ? matchData.scoreA : matchData.scoreB,
             designation: designation,
         };
+
+        if (!editSide.sideId && side.mnemonic) {
+            // find the side with this name
+            const preSelectSide: IBootstrapDropdownItem = possibleSideOptions.filter(o => o.text === side.mnemonic)[0];
+            if (preSelectSide) {
+                editSide.sideId = preSelectSide.value;
+            }
+        }
 
         setEditSide(editSide);
     }
@@ -171,7 +180,7 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
                 : null}
             {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
             <div datatype="sideA"
-                 onClick={editable ? () => changeSide('A') : null}
+                 onClick={editable ? () => beginEditSide('A') : null}
                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
                 {renderSide(matchData.sideA, 'A')}
                 <div datatype="scoreA">{matchData.scoreA || ''}</div>
@@ -187,7 +196,7 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
             {matchData.bye
                 ? null
                 : (<div datatype="sideB"
-                        onClick={editable ? () => changeSide('B') : null}
+                        onClick={editable ? () => beginEditSide('B') : null}
                         className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
                     {renderSide(matchData.sideB, 'B')}
                     <div datatype="scoreB">{matchData.scoreB || ''}</div>
