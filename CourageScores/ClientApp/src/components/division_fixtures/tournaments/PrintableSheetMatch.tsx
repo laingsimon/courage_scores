@@ -1,45 +1,197 @@
 import {ILayoutDataForMatch, ILayoutDataForSide} from "../../../helpers/tournaments";
+import {useState} from "react";
+import {Dialog} from "../../common/Dialog";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
+import {propChanged, valueChanged} from "../../../helpers/events";
+import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
+import {useTournament} from "./TournamentContainer";
+import {sortBy} from "../../../helpers/collections";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {createTemporaryId} from "../../../helpers/projection";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
     noOfMatches: number;
+    roundIndex: number;
+    matchIndex: number;
+    possibleSides: TournamentSideDto[];
+    editable?: boolean;
 }
 
-export function PrintableSheetMatch({ matchData, noOfMatches } : IPrintableSheetMatchProps) {
-    function renderSide(side: ILayoutDataForSide, type: string) {
-        return <div className="no-wrap pe-3" datatype={type + 'name'}>
+interface IEditSide {
+    sideId: string;
+    score: string;
+    designation: 'A' | 'B';
+}
+
+export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matchIndex, editable } : IPrintableSheetMatchProps) {
+    const [ editSide, setEditSide ] = useState<IEditSide>(null);
+    const { tournamentData, setTournamentData, matchOptionDefaults } = useTournament();
+    const bestOf: number = tournamentData.bestOf || matchOptionDefaults.numberOfLegs || 5;
+    const possibleSideOptions: IBootstrapDropdownItem[] = possibleSides.sort(sortBy('name')).map((side: TournamentSideDto): IBootstrapDropdownItem => { return {
+        value: side.id,
+        text: side.name,
+    }});
+
+    function changeSide(designation: 'A' | 'B') {
+        const editSide: IEditSide = {
+            sideId: designation === 'A' ? matchData.sideA.id : matchData.sideB.id,
+            score: designation === 'A' ? matchData.scoreA : matchData.scoreB,
+            designation: designation,
+        };
+
+        setEditSide(editSide);
+    }
+
+    function renderSide(side: ILayoutDataForSide, type: 'A' | 'B') {
+        return <div className="no-wrap pe-3">
             {side.link ? (<span datatype={`side${type}name`}>{side.link}</span>) : (<span datatype={`side${type}name`}>&nbsp;</span>)}
             {side.mnemonic ? <span className="text-secondary-50 opacity-75 small" datatype={`side${type}mnemonic`}>{side.mnemonic}</span> : null}
         </div>
     }
 
-    return (<div datatype="match" className={`p-0 border-solid border-1 m-1 position-relative ${matchData.bye ? 'opacity-50' : ''}`}>
-        {matchData.mnemonic && noOfMatches > 1 && !matchData.hideMnemonic ? (
-            <span className="position-absolute right-0 opacity-75">
-                                    <span
-                                        className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute"
-                                        style={{left: -10, top: -10}}>{matchData.mnemonic}</span>
-                                </span>) : null}
-        {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
-        <div datatype="sideA"
-             className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
-            {renderSide(matchData.sideA, 'A')}
-            <div datatype="scoreA">{matchData.scoreA || ''}</div>
-        </div>
-        {matchData.bye ? null : (<div className="text-center dotted-line-through">
-                                    <span className="px-3 bg-white position-relative">
-                                        vs
-                                        {matchData.saygId ? (
-                                            <a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer"
-                                               className="margin-left no-underline">👁️</a>) : null}
-                                    </span>
-        </div>)}
-        {matchData.bye
-            ? null
-            : (<div datatype="sideB"
-                    className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
-                {renderSide(matchData.sideB, 'B')}
-                <div datatype="scoreB">{matchData.scoreB || ''}</div>
+    function getEmptyRound(): TournamentRoundDto {
+        return {
+            id: createTemporaryId(),
+            matches: [],
+            matchOptions: [],
+        };
+    }
+
+    async function onSave() {
+        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+        let newRound: TournamentRoundDto = newTournamentData.round || getEmptyRound();
+        newTournamentData.round = newRound;
+
+        for (let index = 0; index < roundIndex; index++) {
+            const nextRound: TournamentRoundDto = Object.assign({}, newRound.nextRound || getEmptyRound());
+            newRound.nextRound = nextRound;
+            newRound = nextRound;
+        }
+
+        let currentMatch: TournamentMatchDto;
+        if (matchIndex >= newRound.matches.length) {
+            currentMatch = {
+                id: createTemporaryId(),
+                sideB: { id: null, name: null },
+                sideA: { id: null, name: null },
+            };
+            newRound.matches.push(currentMatch);
+            newRound.matchOptions.push(matchOptionDefaults);
+        } else {
+            currentMatch = newRound.matches[matchIndex];
+        }
+        const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
+
+        newMatch['side' + editSide.designation] = possibleSides.filter((s: TournamentSideDto) => s.id === editSide.sideId)[0];
+        newMatch['score' + editSide.designation] = Number.parseInt(editSide.score);
+
+        newRound.matches[matchIndex] = newMatch;
+
+        await setTournamentData(newTournamentData);
+        setEditSide(null);
+    }
+
+    async function onRemove() {
+        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+        let newRound: TournamentRoundDto = newTournamentData.round || getEmptyRound();
+        newTournamentData.round = newRound;
+
+        for (let index = 0; index < roundIndex; index++) {
+            const nextRound: TournamentRoundDto = Object.assign({}, newRound.nextRound || getEmptyRound());
+            newRound.nextRound = nextRound;
+            newRound = nextRound;
+        }
+
+        let currentMatch: TournamentMatchDto = newRound.matches[matchIndex];
+        const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
+
+        newMatch['side' + editSide.designation] = { players: [] };
+        newMatch['score' + editSide.designation] = null;
+
+        if ((!newMatch.sideA || !newMatch.sideA.id) && (!newMatch.sideB || !newMatch.sideB.id)) {
+            // match is empty, it can be removed
+            newRound.matches = newRound.matches.filter((_: TournamentMatchDto, index: number) => index !== matchIndex);
+        } else {
+            newRound.matches[matchIndex] = newMatch;
+        }
+
+        await setTournamentData(newTournamentData);
+        setEditSide(null);
+    }
+
+    function renderEditSideDialog() {
+        const oppositeSideId = editSide.designation === 'A'
+            ? matchData.sideB ? matchData.sideB.id : null
+            : matchData.sideA ? matchData.sideA.id : null;
+
+        return (<Dialog title="Edit side">
+            <div className="form-group input-group mb-3 d-print-none">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Side</span>
+                </div>
+                <BootstrapDropdown
+                    value={editSide.sideId}
+                    options={possibleSideOptions.filter((s: IBootstrapDropdownItem) => s.value !== oppositeSideId)}
+                    onChange={propChanged(editSide, setEditSide, 'sideId')}
+                    className="margin-right" />
+
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Score</span>
+                </div>
+                <input className="form-control" type="number" min="0" max={Math.ceil(bestOf / 2)}
+                       value={editSide.score || ''} name="score" onChange={valueChanged(editSide, setEditSide)}/>
+            </div>
+            <div className="modal-footer px-0 pb-0 mt-3">
+                <div className="left-aligned mx-0">
+                    <button className="btn btn-secondary" onClick={() => setEditSide(null)}>Close</button>
+                </div>
+                {matchData['side' + editSide.designation] && matchData['side' + editSide.designation].id ? (<button className="btn btn-danger" onClick={onRemove}>
+                    Remove
+                </button>) : null}
+                <button className="btn btn-primary" onClick={onSave}>
+                    Save
+                </button>
+            </div>
+        </Dialog>)
+    }
+
+    return (<>
+        {editSide ? renderEditSideDialog() : null}
+        <div datatype="match"
+                     className={`p-0 border-solid border-1 m-1 position-relative ${matchData.bye ? 'opacity-50' : ''}`}>
+            {matchData.mnemonic && !matchData.hideMnemonic
+                ? (<span className="position-absolute right-0 opacity-75">
+                        <span className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute" style={{left: -10, top: -10}}>
+                            {matchData.mnemonic}
+                        </span>
+                    </span>)
+                : null}
+            {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
+            <div datatype="sideA"
+                 onClick={editable ? () => changeSide('A') : null}
+                 className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
+                {renderSide(matchData.sideA, 'A')}
+                <div datatype="scoreA">{matchData.scoreA || ''}</div>
+            </div>
+            {matchData.bye ? null : (<div className="text-center dotted-line-through">
+                                        <span className="px-3 bg-white position-relative">
+                                            vs
+                                            {matchData.saygId ? (
+                                                <a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer"
+                                                   className="margin-left no-underline">👁️</a>) : null}
+                                        </span>
             </div>)}
-    </div>);
+            {matchData.bye
+                ? null
+                : (<div datatype="sideB"
+                        onClick={editable ? () => changeSide('B') : null}
+                        className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
+                    {renderSide(matchData.sideB, 'B')}
+                    <div datatype="scoreB">{matchData.scoreB || ''}</div>
+                </div>)}
+        </div>
+    </>);
 }

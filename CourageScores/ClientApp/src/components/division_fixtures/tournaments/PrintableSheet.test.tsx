@@ -331,7 +331,7 @@ describe('PrintableSheet', () => {
                 matches: [
                     {
                         sideAmnemonic: 'winner(M3)',
-                        sideBmnemonic: 'winner(M4)',
+                        sideBmnemonic: 'winner(M1)',
                         bye: false,
                         saygLink: null,
                     },
@@ -445,7 +445,7 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'e',
+                        sideAmnemonic: 'A',
                         bye: true,
                         saygLink: null,
                     },
@@ -466,7 +466,7 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'c',
+                        sideAmnemonic: 'A',
                         bye: true,
                         saygLink: null,
                     },
@@ -612,13 +612,9 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'j',
-                        bye: true,
-                        saygLink: null,
-                    },
-                    {
-                        sideAname: 'l',
-                        bye: true,
+                        sideAmnemonic: 'A',
+                        sideBmnemonic: 'B',
+                        bye: false,
                         saygLink: null,
                     },
                 ],

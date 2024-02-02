@@ -5,6 +5,7 @@
     ILayoutDataForRound, setRoundNames
 } from "./tournaments";
 import {distinct} from "./collections";
+import {repeat} from "./projection";
 
 describe('tournaments', () => {
     describe('getRoundNameFromSides', () => {
@@ -112,7 +113,7 @@ describe('tournaments', () => {
         }
 
         it('4 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(4);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(repeat(4));
 
             expect(layout.length).toEqual(2);
             expect(layout[0]).toEqual({
@@ -121,17 +122,21 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'C', vs: 'D', m: 'M2' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[1]).toEqual({
                 matches: [
                     layoutMatchBuilder({ a: 'winner(M1)', vs: 'winner(M2)', m: 'M3' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
         });
 
         it('5 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(5);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(repeat(5));
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
@@ -141,6 +146,8 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'E' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[1]).toEqual({
                 matches: [
@@ -148,17 +155,21 @@ describe('tournaments', () => {
                     layoutMatchBuilder({  a: 'winner(M2)' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[2]).toEqual({
                 matches: [
                     layoutMatchBuilder({  a: 'winner(M2)', vs: 'winner(M3)', m: 'M4' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
         });
 
         it('6 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(6);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(repeat(6));
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
@@ -168,6 +179,8 @@ describe('tournaments', () => {
                     layoutMatchBuilder({  a: 'E', vs: 'F', m: 'M3' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[1]).toEqual({
                 matches: [
@@ -175,17 +188,21 @@ describe('tournaments', () => {
                     layoutMatchBuilder({  a: 'winner(M3)' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[2]).toEqual({
                 matches: [
                     layoutMatchBuilder({ a: 'winner(M3)', vs: 'winner(M4)', m: 'M5' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
         });
 
         it('7 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(7);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(repeat(7));
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
@@ -196,6 +213,8 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'G' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[1]).toEqual({
                 matches: [
@@ -203,17 +222,21 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'winner(M2)', vs: 'winner(M3)', m: 'M5' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[2]).toEqual({
                 matches: [
                     layoutMatchBuilder({ a: 'winner(M4)', vs: 'winner(M5)', m: 'M6' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
         });
 
         it('8 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(8);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(repeat(8));
 
             expect(layout.length).toEqual(3);
             expect(layout[0]).toEqual({
@@ -224,6 +247,8 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'G', vs: 'H', m: 'M4' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[1]).toEqual({
                 matches: [
@@ -231,17 +256,21 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'winner(M3)', vs: 'winner(M4)', m: 'M6' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[2]).toEqual({
                 matches: [
                     layoutMatchBuilder({ a: 'winner(M5)', vs: 'winner(M6)', m: 'M7' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
         });
 
         it('9 sides', () => {
-            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(9);
+            const layout: ILayoutDataForRound[] = getUnplayedLayoutData(repeat(9));
 
             expect(layout.length).toEqual(4);
             expect(layout[0]).toEqual({
@@ -253,6 +282,8 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'I' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[1]).toEqual({
                 matches: [
@@ -261,6 +292,8 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'winner(M4)' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[2]).toEqual({
                 matches: [
@@ -268,54 +301,58 @@ describe('tournaments', () => {
                     layoutMatchBuilder({ a: 'winner(M6)' }), // TODO: 728 This is a bye-to-the-final
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
             expect(layout[3]).toEqual({
                 matches: [
                     layoutMatchBuilder({ a: 'winner(M6)', vs: 'winner(M7)', m: 'M8' }),
                 ],
                 name: null,
+                alreadySelectedSides: expect.any(Array),
+                possibleSides: expect.any(Array),
             });
         });
     });
 
     describe('setRoundNames', () => {
         it('4 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(4));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(repeat(4)));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Semi-Final', 'Final' ]);
         });
 
         it('5 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(5));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(repeat(5)));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('6 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(6));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(repeat(6)));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('7 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(7));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(repeat(7)));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('8 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(8));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(repeat(8)));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
 
         it('9 sides', () => {
-            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(9));
+            const layoutData: ILayoutDataForRound[] = setRoundNames(getUnplayedLayoutData(repeat(9)));
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
             expect(roundNames).toEqual([ 'Round 1',  'Quarter-Final', 'Semi-Final', 'Final' ]);

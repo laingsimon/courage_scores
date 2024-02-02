@@ -1,5 +1,5 @@
 import {useTournament} from "./TournamentContainer";
-import {repeat} from "../../../helpers/projection";
+import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {any, count, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
 import {useEffect, useState} from "react";
@@ -10,24 +10,28 @@ import {useBranding} from "../../../BrandingContainer";
 import {RefreshControl} from "../RefreshControl";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
-import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
-import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TeamPlayerDto} from "../../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {
-    getUnplayedLayoutData, getUnplayedLayoutDataForSides,
+    addSide,
+    getPlayedLayoutData,
+    getUnplayedLayoutData,
     ILayoutDataForMatch,
-    ILayoutDataForRound,
-    setRoundNames
+    ILayoutDataForRound, removeSide,
+    setRoundNames, sideChanged
 } from "../../../helpers/tournaments";
 import {NotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {PrintableSheetMatch} from "./PrintableSheetMatch";
+import {EditSide} from "./EditSide";
 import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
-import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
 import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {Dialog} from "../../common/Dialog";
+import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
+import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
+    editable?: boolean;
 }
 
 interface IMovement {
@@ -39,14 +43,17 @@ interface IWiggler {
     movements: IMovement[];
 }
 
-export function PrintableSheet({printOnly}: IPrintableSheetProps) {
+export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
-    const {tournamentData, season, division, matchOptionDefaults} = useTournament();
+    const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers } = useTournament();
     const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
-        ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
-        : getUnplayedLayoutData(tournamentData.sides.length));
+        ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, { matchOptionDefaults, getLinkToSide })
+        : getUnplayedLayoutData(tournamentData.sides));
     const [wiggle, setWiggle] = useState<boolean>(!printOnly);
+    const [editSide, setEditSide] = useState<TournamentSideDto>(null);
+    const [newSide, setNewSide] = useState<TournamentSideDto>(null);
+    const [editAccolades, setEditAccolades] = useState<string>(null);
     const winner = getWinner();
 
     useEffect(() => {
@@ -59,6 +66,33 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         },
         // eslint-disable-next-line
         [wiggle]);
+
+    function renderEditSide() {
+        return (<EditSide
+            side={editSide}
+            onChange={async (side: TournamentSideDto) => setEditSide(side)}
+            onClose={async () => setEditSide(null)}
+            onApply={async () => {
+                const sideIndex: number = tournamentData.sides.map((side: TournamentSideDto, index: number) => side.id === editSide.id ? index : null).filter((index: number) => index !== null)[0];
+                await setTournamentData(sideChanged(tournamentData, editSide, sideIndex));
+                setEditSide(null);
+            }}
+            onDelete={async () => {
+                await setTournamentData(removeSide(tournamentData, editSide));
+                setEditSide(null);
+            }}/>);
+    }
+
+    function renderEditNewSide() {
+        return (<EditSide
+            side={newSide}
+            onChange={async (side: TournamentSideDto) => setNewSide(side)}
+            onClose={async () => setNewSide(null)}
+            onApply={async () => {
+                await setTournamentData(addSide(tournamentData, newSide));
+                setNewSide(null);
+            }}/>);
+    }
 
     function setupWiggle() {
         const wiggler: IWiggler = {
@@ -170,84 +204,6 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         };
     }
 
-    function getPlayedLayoutData(sides: TournamentSideDto[], round: TournamentRoundDto, depth: number, matchMnemonic?: number): ILayoutDataForRound[] {
-        if (!round) {
-            return [];
-        }
-        matchMnemonic = matchMnemonic || 0;
-
-        const winnersFromThisRound: TournamentSideDto[] = [];
-        const playedInThisRound: TournamentSideDto[] = [];
-
-        const layoutDataForRound: ILayoutDataForRound = {
-            name: round.name,
-            matches: round.matches.map((m: TournamentMatchDto, index: number): ILayoutDataForMatch => {
-                let winner = null;
-                playedInThisRound.push(m.sideA);
-                playedInThisRound.push(m.sideB);
-                const matchOptions: GameMatchOptionDto = round.matchOptions[index] || matchOptionDefaults;
-                const numberOfLegs: number = matchOptions.numberOfLegs;
-
-                if (m.scoreA > (numberOfLegs / 2.0)) {
-                    winnersFromThisRound.push(m.sideA);
-                    winner = 'sideA';
-                } else if (m.scoreB > (numberOfLegs / 2.0)) {
-                    winnersFromThisRound.push(m.sideB);
-                    winner = 'sideB';
-                }
-
-                return {
-                    sideA: {id: m.sideA.id, name: m.sideA.name, link: getLinkToSide(m.sideA)},
-                    sideB: {id: m.sideB.id, name: m.sideB.name, link: getLinkToSide(m.sideB)},
-                    scoreA: (m.scoreA ? m.scoreA.toString() : null) || '0',
-                    scoreB: (m.scoreB ? m.scoreB.toString() : null) || '0',
-                    bye: false,
-                    winner: winner,
-                    saygId: m.saygId,
-                    mnemonic: 'M' + (++matchMnemonic),
-                    hideMnemonic: true,
-                };
-            }),
-        };
-
-        const byesFromThisRound: ILayoutDataForMatch[] = sides
-            .filter((side: TournamentSideDto) => !side.noShow)
-            .filter((side: TournamentSideDto) => !any(playedInThisRound, (s: TournamentSideDto) => s.id === side.id))
-            .map((side: TournamentSideDto): ILayoutDataForMatch => {
-                return {
-                    sideA: {
-                        id: side.id,
-                        name: side.name,
-                        link: getLinkToSide(side),
-                    },
-                    sideB: null,
-                    scoreA: null,
-                    scoreB: null,
-                    bye: true,
-                    winner: null,
-                    saygId: null,
-                };
-            });
-
-        layoutDataForRound.matches = layoutDataForRound.matches.concat(byesFromThisRound);
-
-        if (!any(winnersFromThisRound)) {
-            // partially played tournament... project the remaining rounds as unplayed...
-            const mnemonics: string[] = layoutDataForRound.matches.map((m: ILayoutDataForMatch) => {
-                if (m.sideB) {
-                    return `winner(${m.mnemonic})`;
-                }
-
-                return m.sideA.name;
-            });
-
-            const byes: string[] = byesFromThisRound.map((m: ILayoutDataForMatch) => m.sideA.name);
-            return [layoutDataForRound].concat(getUnplayedLayoutDataForSides(mnemonics, byes, matchMnemonic));
-        }
-
-        return [layoutDataForRound].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map((b: ILayoutDataForMatch) => b.sideA)), round.nextRound, depth + 1, matchMnemonic));
-    }
-
     function render180s() {
         const oneEightyMap = {};
         const playerLookup = {};
@@ -264,9 +220,9 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             }
         });
 
-        return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5">
+        return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5" onClick={editable ? () => setEditAccolades('one-eighties') : null}>
             <h5>180s</h5>
-            {Object.keys(oneEightyMap).sort((aId, bId) => {
+            {Object.keys(oneEightyMap).sort((aId: string, bId: string) => {
                 if (oneEightyMap[aId] > oneEightyMap[bId]) {
                     return -1;
                 }
@@ -294,8 +250,21 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         </div>);
     }
 
+    function renderEdit180s() {
+        return <Dialog title="Edit 180s" onClose={async () => setEditAccolades(null)}>
+            <MultiPlayerSelection
+                allPlayers={allPlayers}
+                division={division}
+                season={season}
+                players={tournamentData.oneEighties || []}
+                onRemovePlayer={remove180(tournamentData, setTournamentData)}
+                onAddPlayer={add180(tournamentData, setTournamentData)}/>
+
+        </Dialog>
+    }
+
     function renderHiChecks() {
-        return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
+        return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5" onClick={editable ? () => setEditAccolades('hi-checks') : null}>
             <h5>Hi-checks</h5>
             {tournamentData.over100Checkouts.map((player: NotableTournamentPlayerDto, index: number) => {
                 const { team, division } = findTeamAndDivisionForPlayer(player);
@@ -313,6 +282,19 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                 </div>);
             })}
         </div>);
+    }
+
+    function renderEditHiChecks() {
+        return <Dialog title="Edit hi-hecks" onClose={async () => setEditAccolades(null)}>
+            <MultiPlayerSelection
+                allPlayers={allPlayers}
+                division={division}
+                season={season}
+                players={tournamentData.over100Checkouts || []}
+                onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
+                onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
+                showScore={true}/>
+        </Dialog>
     }
 
     function getWinner() {
@@ -334,6 +316,16 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         return null;
     }
 
+    function getPossibleSides(matchData: ILayoutDataForMatch, roundData: ILayoutDataForRound): TournamentSideDto[] {
+        const sideAId: string = matchData.sideA ? matchData.sideA.id : null;
+        const sideBId: string = matchData.sideB ? matchData.sideB.id : null;
+
+        return roundData.possibleSides.filter((s: TournamentSideDto) =>
+            s.id === sideAId ||
+            s.id === sideBId ||
+            !any(roundData.alreadySelectedSides, (alreadySelected: TournamentSideDto) => alreadySelected.id === s.id))
+    }
+
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
             {winner ? null : (<div className="float-end">
@@ -349,15 +341,19 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
             </div>
             <div datatype="rounds-and-players"
                  className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
-                {layoutData.map((roundData: ILayoutDataForRound, index: number) => (
-                    <div key={index} datatype={`round-${index}`} className="d-flex flex-column p-3">
-                        {index === layoutData.length - 1 ? render180s() : null}
+                {layoutData.map((roundData: ILayoutDataForRound, roundIndex: number) => (
+                    <div key={roundIndex} datatype={`round-${roundIndex}`} className="d-flex flex-column p-3">
+                        {roundIndex === layoutData.length - 1 ? render180s() : null}
                         <h5 datatype="round-name">{roundData.name}</h5>
-                        {roundData.matches.map((matchData: ILayoutDataForMatch, index: number) => <PrintableSheetMatch
-                            key={index}
+                        {roundData.matches.map((matchData: ILayoutDataForMatch, matchIndex: number) => <PrintableSheetMatch
+                            key={matchIndex}
                             matchData={matchData}
-                            noOfMatches={roundData.matches.length} />)}
-                        {index === layoutData.length - 1 ? renderHiChecks() : null}
+                            noOfMatches={roundData.matches.length}
+                            matchIndex={matchIndex}
+                            roundIndex={roundIndex}
+                            possibleSides={getPossibleSides(matchData, roundData)}
+                            editable={editable} />)}
+                        {roundIndex === layoutData.length - 1 ? renderHiChecks() : null}
                     </div>))}
                 {any(tournamentData.sides) ? (<div>
                     <h5>Venue winner</h5>
@@ -373,13 +369,21 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                 {any(tournamentData.sides) ? (<div datatype="playing" className="ms-5">
                     <h4>Playing</h4>
                     <ul className="list-group">
-                        {tournamentData.sides.sort(sortBy('name')).map((side, index) => <li
+                        {tournamentData.sides.sort(sortBy('name')).map((side: TournamentSideDto, index: number) => <li
                             key={side.id}
+                            onClick={editable ? () => setEditSide(side) : null}
                             className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
                             {index + 1} - {getLinkToSide(side)}
                         </li>)}
+                        {editable ? (<li className="list-group-item text-secondary opacity-50" onClick={() => setNewSide({ id: createTemporaryId() })}>
+                            Add a side
+                        </li>) : null}
                     </ul>
                 </div>) : null}
+                {editSide ? renderEditSide() : null}
+                {newSide ? renderEditNewSide() : null}
+                {editAccolades === 'hi-checks' ? renderEditHiChecks() : null}
+                {editAccolades === 'one-eighties' ? renderEdit180s() : null}
             </div>
         </div>);
     } catch (e) {

@@ -49,6 +49,7 @@ export function Tournament() {
     const {divisionApi, tournamentApi, webSocket} = useDependencies();
     const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
     const canManagePlayers: boolean = account && account.access && account.access.managePlayers;
+    const canEnterTournamentResults = account && account.access && account.access.enterTournamentResults;
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
@@ -436,9 +437,10 @@ export function Tournament() {
                     liveOptions={liveOptions}>
                     {canManageTournaments ? (<EditTournament canSave={true} saving={saving} applyPatch={applyPatch}/>) : null}
                     {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division}/>) : null}
-                    {tournamentData.singleRound && canManageTournaments ? (
-                        <div className="d-screen-none"><SuperLeaguePrintout division={division}/></div>) : null}
-                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canManageTournaments}/>) : null}
+                    {tournamentData.singleRound && canManageTournaments ? (<div className="d-screen-none">
+                        <SuperLeaguePrintout division={division}/>
+                    </div>) : null}
+                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canManageTournaments} editable={canEnterTournamentResults} />) : null}
                 </TournamentContainer>
                 {canManageTournaments ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
