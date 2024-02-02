@@ -110,6 +110,11 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
     }
 
     async function onSave() {
+        if (!editSide.sideId) {
+            window.alert('Select a side first');
+            return;
+        }
+
         const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
         const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
 
