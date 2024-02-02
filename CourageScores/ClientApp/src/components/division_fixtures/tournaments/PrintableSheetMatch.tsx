@@ -2,14 +2,14 @@ import {ILayoutDataForMatch, ILayoutDataForSide} from "../../../helpers/tourname
 import {useState} from "react";
 import {Dialog} from "../../common/Dialog";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapDropdown";
-import {propChanged, valueChanged} from "../../../helpers/events";
+import {propChanged} from "../../../helpers/events";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {useTournament} from "./TournamentContainer";
 import {sortBy} from "../../../helpers/collections";
 import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {createTemporaryId} from "../../../helpers/projection";
+import {createTemporaryId, repeat} from "../../../helpers/projection";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
@@ -34,6 +34,12 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
         value: side.id,
         text: side.name,
     }});
+    const possibleScoreOptions: IBootstrapDropdownItem[] = repeat(Math.ceil(bestOf / 2) + 1, (index: number): IBootstrapDropdownItem => {
+        return {
+            value: index,
+            text: index
+        };
+    })
 
     function beginEditSide(designation: 'A' | 'B') {
         const side: ILayoutDataForSide = matchData['side' + designation];
@@ -150,8 +156,14 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
                 <div className="input-group-prepend">
                     <span className="input-group-text">Score</span>
                 </div>
-                <input className="form-control" type="number" min="0" max={Math.ceil(bestOf / 2)}
-                       value={editSide.score || ''} name="score" onChange={valueChanged(editSide, setEditSide)}/>
+                <BootstrapDropdown
+                    value={editSide.score}
+                    options={possibleScoreOptions}
+                    slim={true}
+                    onChange={propChanged(editSide, setEditSide, 'score')} />
+            </div>
+            <div>
+                Best of {bestOf} legs
             </div>
             <div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
