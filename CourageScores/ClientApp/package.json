@@ -53,6 +53,7 @@
     "collectCoverageFrom": [
       "!src/tests/**/*.ts",
       "!coverage/**/*.js",
+      "!dist/**/*.*",
       "!src/interfaces/apis/**/*.ts",
       "!src/interfaces/models/**/*.ts"
     ]
