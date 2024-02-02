@@ -124,7 +124,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([team]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY']);
@@ -150,7 +150,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([team]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', 'P', 'vs', 'P', 'AWAY']);
@@ -176,7 +176,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([team]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY']);
@@ -201,7 +201,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([team]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'Bye']);
@@ -247,7 +247,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAYAWAY', '🗑']);
@@ -271,7 +271,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', 'P', 'vs', 'P', 'AWAYAWAY', '🗑']);
@@ -295,7 +295,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAYAWAY', '🗑']);
@@ -318,7 +318,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY', '']);
@@ -344,7 +344,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain('ANOTHER TEAM');
             expect(awayCell.textContent).not.toContain('🚫');
@@ -368,7 +368,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain('🚫 AWAY (Already playing against HOME)');
         });
@@ -391,7 +391,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain(`🚫 AWAY (Already playing same leg on ${renderDate(anotherFixture.date)})`);
         });
@@ -415,7 +415,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toEqual(`AWAY`);
         });
@@ -440,7 +440,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toEqual(`AWAYANOTHER TEAM`);
         });
@@ -465,7 +465,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toContain('🚫 AWAY (Already playing against HOME)');
         });
@@ -485,7 +485,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).not.toContain('🚫');
         });
@@ -507,7 +507,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.querySelector('.dropdown-menu')).toBeFalsy();
             expect(awayCell.textContent).toContain('🚫 HOME - SAME ADDRESS vs AWAY using this venue');
@@ -535,7 +535,7 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([homeTeam, awayTeam]));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
             expect(awayCell.textContent).toEqual('AWAY');
         });
@@ -561,7 +561,7 @@ describe('DivisionFixture', () => {
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedFixtures).not.toBeNull();
             expect(updatedFixtures([{date, fixtures: [fixture]}])).toEqual([{
                 date,
@@ -600,7 +600,7 @@ describe('DivisionFixture', () => {
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedFixtures).not.toBeNull();
             expect(updatedFixtures([{date, fixtures: [fixture], isKnockout: true}])).toEqual([{
                 date,
@@ -642,7 +642,7 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '💾'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(savedFixture).not.toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
@@ -672,7 +672,7 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '💾'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(savedFixture).not.toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(true);
             expect(divisionReloaded).toEqual(true);
@@ -703,7 +703,7 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '💾'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(savedFixture).not.toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(null);
             expect(divisionReloaded).toEqual(false);
@@ -738,7 +738,7 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(confirm).toEqual('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(true);
@@ -796,7 +796,7 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(deletedFixture).toBeNull();
             expect(beforeReloadDivisionCalled).toEqual(null);
             expect(divisionReloaded).toEqual(false);
@@ -826,7 +826,7 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(null);
             expect(divisionReloaded).toEqual(false);
@@ -891,7 +891,7 @@ describe('DivisionFixture', () => {
 
             await doClick(findButton(saveCell, '🗑'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(confirm).toEqual('Are you sure you want to delete this fixture?\n\nHOME vs AWAY');
             expect(deletedFixture).toEqual(fixture.id);
             expect(beforeReloadDivisionCalled).toEqual(true);
@@ -966,7 +966,7 @@ describe('DivisionFixture', () => {
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedFixtures).toBeNull();
         });
     });

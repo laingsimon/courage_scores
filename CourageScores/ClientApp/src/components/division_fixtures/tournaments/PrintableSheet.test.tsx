@@ -220,7 +220,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rounds = getRounds();
             expect(rounds.length).toEqual(1);
             expect(rounds[0]).toEqual({
@@ -252,7 +252,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rounds = getRounds();
             expect(rounds.length).toEqual(1);
             expect(rounds[0]).toEqual({
@@ -287,7 +287,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
             expect(rounds[0]).toEqual({
@@ -369,7 +369,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rounds = getRounds();
             expect(rounds.length).toEqual(2);
             expect(rounds[0]).toEqual({
@@ -433,7 +433,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
             expect(rounds[0]).toEqual({
@@ -539,7 +539,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rounds = getRounds();
             expect(rounds.length).toEqual(4);
             expect(rounds[0]).toEqual({
@@ -699,7 +699,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const winner = getWinner();
             expect(winner).toEqual({
                 link: null,
@@ -742,7 +742,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({teams, divisions}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const winner = getWinner();
             expect(winner).toEqual({
                 link: null,
@@ -772,7 +772,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const winner = getWinner();
             expect(winner.name).toEqual('B');
             expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`);
@@ -797,7 +797,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const winner = getWinner();
             expect(winner.name).toEqual('B');
             expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`);
@@ -818,7 +818,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`, null]);
         });
@@ -841,7 +841,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([
                 `http://localhost/division/${division.name}/team:TEAM/${season.name}`,
@@ -862,7 +862,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
@@ -885,7 +885,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
@@ -901,7 +901,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b', '-3 - c-']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null, null]);
         });
@@ -916,7 +916,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('div[datatype="heading"]');
             expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
         });
@@ -941,7 +941,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
             expect(getAccolades('180s', linkHref))
                 .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
@@ -967,7 +967,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
             expect(getAccolades('180s', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
         });
@@ -990,7 +990,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
             expect(getAccolades('hi-checks', linkHref))
                 .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
@@ -1014,7 +1014,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
             expect(getAccolades('hi-checks', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
         });
@@ -1032,7 +1032,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: false}, appProps({}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
 
             await doClick(firstSideA);
@@ -1054,7 +1054,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
             await doClick(firstSideA);
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1084,7 +1084,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
             await doClick(firstSideA);
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1110,7 +1110,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideB"]');
             await doClick(firstSideA);
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1140,7 +1140,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideB"]');
             await doClick(firstSideA);
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1168,7 +1168,7 @@ describe('PrintableSheet', () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('div[data-accolades="180s"]'));
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1197,7 +1197,7 @@ describe('PrintableSheet', () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1234,7 +1234,7 @@ describe('PrintableSheet', () => {
                 access: {}
             }
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({account}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playing = context.container.querySelector('div[datatype="playing"]');
             const firstSide = playing.querySelector('li');
             await doClick(firstSide);
@@ -1267,10 +1267,10 @@ describe('PrintableSheet', () => {
                     .forSeason(season, division, [player1])
                     .build()]);
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({account, teams}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const addSide = context.container.querySelector('li[datatype="add-side"]');
             await doClick(addSide);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('div.modal-dialog');
             expect(dialog).toBeTruthy();
             await doChange(dialog, 'input[name="name"]', 'NEW SIDE', context.user);
@@ -1296,7 +1296,7 @@ describe('PrintableSheet', () => {
             }
             window.confirm = () => true;
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({account}, reportedError));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playing = context.container.querySelector('div[datatype="playing"]');
             const firstSide = playing.querySelector('li.list-group-item');
             await doClick(firstSide);
@@ -1327,7 +1327,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rounds = getRounds();
             expect(rounds.length).toEqual(1);
             expect(rounds[0]).toEqual({
@@ -1353,7 +1353,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
         });
 
@@ -1365,7 +1365,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
         });
 
@@ -1379,7 +1379,7 @@ describe('PrintableSheet', () => {
 
             await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('div[datatype="heading"]');
             expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
         });
@@ -1441,7 +1441,7 @@ describe('PrintableSheet', () => {
             await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({teams, account}, reportedError));
             const addSideOption = context.container.querySelector('li[datatype="add-side"]');
             await doClick(addSideOption);
-            expect(reportedError.error).toBeFalsy();
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('div.modal-dialog');
             expect(dialog).toBeTruthy();
 

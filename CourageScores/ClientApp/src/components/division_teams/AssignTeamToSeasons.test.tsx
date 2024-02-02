@@ -86,7 +86,7 @@ describe('AssignTeamToSeasons', () => {
             const team = teamBuilder('TEAM').build();
             await renderComponent(team, [], [season], season);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('Team not found: TEAM');
         });
 
@@ -97,7 +97,7 @@ describe('AssignTeamToSeasons', () => {
                 .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('Associate TEAM with the following seasons');
             const seasons = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(seasons.length).toEqual(2);
@@ -119,14 +119,14 @@ describe('AssignTeamToSeasons', () => {
 
             await doClick(context.container, '.list-group .list-group-item'); // select the season
             await doClick(findButton(context.container, 'Apply changes'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(apiDeleted).toEqual([]);
             expect(apiAdded.length).toEqual(1);
             expect(apiAdded[0].copyPlayersFromSeasonId).toEqual(season.id);
 
             await doClick(context.container, 'input[id="copyTeamFromCurrentSeason"]');
             await doClick(findButton(context.container, 'Apply changes'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(apiDeleted).toEqual([]);
             expect(apiAdded.length).toEqual(2);
             expect(apiAdded[1].copyPlayersFromSeasonId).toEqual(null);
@@ -144,7 +144,7 @@ describe('AssignTeamToSeasons', () => {
             const items = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(items.map(i => i.className)).toEqual(['list-group-item', 'list-group-item bg-danger']);
             await doClick(findButton(context.container, 'Apply changes'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(apiAdded).toEqual([]);
             expect(apiDeleted).toEqual([{teamId: team.id, seasonId: season.id}]);
         });
@@ -161,7 +161,7 @@ describe('AssignTeamToSeasons', () => {
             const items = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(items.map(i => i.className)).toEqual(['list-group-item bg-success', 'list-group-item active']);
             await doClick(findButton(context.container, 'Apply changes'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(apiAdded).toEqual([{
                 id: team.id,
                 seasonId: otherSeason.id,
@@ -198,7 +198,7 @@ describe('AssignTeamToSeasons', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(closed).toEqual(true);
         });
     });

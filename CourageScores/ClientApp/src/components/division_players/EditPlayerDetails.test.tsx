@@ -137,7 +137,7 @@ describe('EditPlayerDetails', () => {
                 onChange,
             }, [team], [division]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
@@ -160,7 +160,7 @@ describe('EditPlayerDetails', () => {
                 onChange,
             }, [team], [division]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
@@ -182,7 +182,7 @@ describe('EditPlayerDetails', () => {
                 onChange,
             }, [team], [division]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(findInput('name').value).toEqual('NAME');
             expect(findInput('emailAddress').value).toEqual('EMAIL');
             expect(findInput('captain').checked).toEqual(true);
@@ -224,7 +224,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team], [division]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const multiAdd = context.container.querySelector('input[name="multiple"]');
             expect(multiAdd).toBeTruthy();
@@ -242,7 +242,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team], [division]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const multiAdd = context.container.querySelector('input[name="multiple"]');
             expect(multiAdd).toBeFalsy();
@@ -286,7 +286,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
             await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
@@ -308,7 +308,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
             await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
@@ -330,7 +330,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(context.container, 'input[name="multiple"]');
 
@@ -352,7 +352,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             await doClick(context.container, 'input[name="multiple"]');
             await doChange(context.container, 'textarea', 'NAME 1\nNAME 2', context.user);
 
@@ -376,7 +376,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findInput('captain'));
 
@@ -397,7 +397,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
@@ -418,7 +418,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
@@ -439,7 +439,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Add player'));
 
@@ -458,7 +458,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Add player'));
 
@@ -477,7 +477,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Add player'));
 
@@ -503,11 +503,11 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Add player'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(saved).not.toBeNull();
             expect(saved.newPlayers).toEqual([{
                 name: 'NAME',
@@ -530,7 +530,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             await doClick(context.container, 'input[name="multiple"]');
 
             await doClick(findButton(context.container, 'Add players'));
@@ -562,12 +562,12 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             await doClick(context.container, 'input[name="multiple"]');
 
             await doClick(findButton(context.container, 'Add players'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(saved).not.toBeNull();
             expect(saved.newPlayers).toEqual([{
                 id: expect.any(String),
@@ -597,11 +597,11 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Save player'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedPlayer).not.toBeNull();
             expect(updatedPlayer.playerId).toEqual(playerId);
             expect(updatedPlayer.seasonId).toEqual(season.id);
@@ -629,11 +629,11 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Save player'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedPlayer).not.toBeNull();
             expect(updatedPlayer.playerId).toEqual(playerId);
             expect(updatedPlayer.seasonId).toEqual(season.id);
@@ -659,7 +659,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             apiResponse = {success: false};
 
             await doClick(findButton(context.container, 'Save player'));
@@ -680,7 +680,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             apiResponse = {success: false};
             await doClick(findButton(context.container, 'Save player'));
             expect(context.container.textContent).toContain('Could not save player details');
@@ -702,7 +702,7 @@ describe('EditPlayerDetails', () => {
                 onSaved,
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             apiResponse = {success: false};
 
             await doClick(findButton(context.container, 'Cancel'));

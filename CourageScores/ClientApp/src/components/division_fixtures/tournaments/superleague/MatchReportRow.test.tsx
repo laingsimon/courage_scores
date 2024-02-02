@@ -79,7 +79,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(rows.length).toEqual(0);
         });
@@ -95,7 +95,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(rows.length).toEqual(0);
         });
@@ -117,7 +117,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(rows.length).toEqual(3);
         });
@@ -137,7 +137,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
@@ -162,7 +162,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[1])).toEqual([
                 '2', '90', '90', '90', '90', '15', '', '51', '0',
@@ -187,7 +187,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
@@ -213,7 +213,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 4 && index < 8);
             const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 14 && index < 18);
@@ -238,7 +238,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 4 && index < 8);
             const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((_, index) => index >= 14 && index < 18);
@@ -263,7 +263,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
             const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];
@@ -288,7 +288,7 @@ describe('MatchReportRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostTons = Array.from(rows[0].querySelectorAll('td'))[11];
             const opponentTons = Array.from(rows[0].querySelectorAll('td'))[21];

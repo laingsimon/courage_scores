@@ -124,7 +124,7 @@ describe('SuperLeaguePrintout', () => {
                 tournamentData,
             }, { division });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const headings = Array.from(context.container.querySelectorAll('h2'));
             expect(headings.map(h => h.textContent)).toEqual([
                 'Master draw', 'Match log', 'Summary', 'SOMERSET DARTS ORGANISATION'

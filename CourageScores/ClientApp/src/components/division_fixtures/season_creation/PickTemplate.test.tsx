@@ -83,7 +83,7 @@ describe('PickTemplate', () => {
                 setSelectedTemplate,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain('spinner-border spinner-border-sm');
         });
 
@@ -97,7 +97,7 @@ describe('PickTemplate', () => {
                 setSelectedTemplate,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dropdown = context.container.querySelector('.dropdown-menu');
             expect(dropdown).toBeTruthy();
             expect(dropdown.querySelector('.active')).toBeFalsy();
@@ -113,7 +113,7 @@ describe('PickTemplate', () => {
                 setSelectedTemplate,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dropdown = context.container.querySelector('.dropdown-menu');
             expect(dropdown).toBeTruthy();
             expect(dropdown.querySelector('.active').textContent).toEqual('COMPATIBLECOMPATIBLE DESCRIPTION');
@@ -129,7 +129,7 @@ describe('PickTemplate', () => {
                 setSelectedTemplate,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const alert = context.container.querySelector('.alert');
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
@@ -150,7 +150,7 @@ describe('PickTemplate', () => {
                 setSelectedTemplate,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const alert = context.container.querySelector('.alert');
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-warning');
@@ -189,7 +189,7 @@ describe('PickTemplate', () => {
                 setSelectedTemplate,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const alert = context.container.querySelector('.alert');
             expect(alert).toBeTruthy();
             expect(alert.className).toContain('alert-success');
@@ -243,11 +243,11 @@ describe('PickTemplate', () => {
                 setSelectedTemplate,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dropdown = context.container.querySelector('.dropdown-menu');
             await doSelectOption(dropdown, '🚫 INCOMPATIBLE');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(selectedTemplate).toEqual(incompatibleTemplate);
         });
     });

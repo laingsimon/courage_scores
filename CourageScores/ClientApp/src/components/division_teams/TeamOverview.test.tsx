@@ -112,7 +112,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, teams, teamId);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('.content-background > h3');
             const address = context.container.querySelector('.content-background > p');
             expect(heading).toBeTruthy();
@@ -129,7 +129,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, teams, createTemporaryId());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('Team could not be found');
         });
 
@@ -141,7 +141,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
@@ -160,7 +160,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
@@ -181,7 +181,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
@@ -201,7 +201,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const playersSection = tableSections[1];
@@ -220,7 +220,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, teams, teamId);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('.content-background > h3');
             const address = context.container.querySelector('.content-background > p');
             expect(heading).toBeTruthy();
@@ -236,7 +236,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
@@ -251,7 +251,7 @@ describe('TeamOverview', () => {
 
             await renderComponent(divisionData, [team], team.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tableSections = Array.from(context.container.querySelectorAll('.content-background > div.overflow-x-auto')) as HTMLElement[];
             expect(tableSections.length).toEqual(2);
             const playersSection = tableSections[1];

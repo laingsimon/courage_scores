@@ -46,7 +46,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
@@ -64,7 +64,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).toContain('Date: ' + renderDate('2023-05-06'));
@@ -81,7 +81,7 @@ describe('MasterDraw', () => {
                 notes: '',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).not.toContain('Notes:');

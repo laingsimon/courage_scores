@@ -142,7 +142,7 @@ describe('MergeManOfTheMatch', () => {
 
             await doClick(findButton(context.container.querySelector('td:nth-child(1)'), 'Use MOM'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).not.toBeNull();
             expect(updatedData.home.manOfTheMatch).toEqual(player.id);
         });
@@ -157,7 +157,7 @@ describe('MergeManOfTheMatch', () => {
 
             await doClick(findButton(context.container.querySelector('td:nth-child(3)'), 'Use MOM'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).not.toBeNull();
             expect(updatedData.away.manOfTheMatch).toEqual(player.id);
         });

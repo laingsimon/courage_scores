@@ -227,7 +227,7 @@ describe('PlayerInput', () => {
         await setScoreInput("50");
         await doClick(findButton(context.container, '📌📌📌'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -266,7 +266,7 @@ describe('PlayerInput', () => {
         await setScoreInput("100");
         await doClick(findButton(context.container, '📌📌'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -306,7 +306,7 @@ describe('PlayerInput', () => {
         await setScoreInput("50");
         await doClick(findButton(context.container, '📌'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -346,7 +346,7 @@ describe('PlayerInput', () => {
         await setScoreInput("180");
         await doClick(findButton(context.container, '💥💥💥'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -385,7 +385,7 @@ describe('PlayerInput', () => {
         await setScoreInput("120");
         await doClick(findButton(context.container, '💥💥'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -424,7 +424,7 @@ describe('PlayerInput', () => {
         await setScoreInput("60");
         await doClick(findButton(context.container, '💥'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
@@ -463,7 +463,7 @@ describe('PlayerInput', () => {
         await setScoreInput('');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([]);
     });
 
@@ -487,7 +487,7 @@ describe('PlayerInput', () => {
         await setScoreInput('.');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs).toEqual([]);
     });
 
@@ -511,7 +511,7 @@ describe('PlayerInput', () => {
         await setScoreInput('121');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs.length).toEqual(1);
     });
 
@@ -535,7 +535,7 @@ describe('PlayerInput', () => {
         await setScoreInput('50'); // could be bull (1 dart), 10, D20 (2 darts) or a range of 3-dart options
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs.length).toEqual(0);
     });
 
@@ -559,7 +559,7 @@ describe('PlayerInput', () => {
         await setScoreInput('200');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(changedLegs.length).toEqual(0);
     });
 });

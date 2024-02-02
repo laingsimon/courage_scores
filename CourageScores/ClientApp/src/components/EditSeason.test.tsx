@@ -122,11 +122,11 @@ describe('EditSeason', () => {
             onClose,
             onSave,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME', context.user);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.name).toEqual('NEW SEASON NAME');
     });
@@ -142,15 +142,15 @@ describe('EditSeason', () => {
             onClose,
             onSave,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doChange(context.container, 'input[name="startDate"]', '2023-06-01', context.user);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.startDate).toEqual('2023-06-01');
 
         await doChange(context.container, 'input[name="endDate"]', '2023-09-01', context.user);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.endDate).toEqual('2023-09-01');
     });
@@ -166,14 +166,14 @@ describe('EditSeason', () => {
             onClose,
             onSave,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
         const unselectedDivision = divisionOptions.filter(d => d.className.indexOf('active') === -1)[0];
         expect(unselectedDivision.textContent).toEqual(division2.name);
         await doClick(unselectedDivision);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.divisionIds).toEqual([division1.id, division2.id]);
     });
@@ -189,14 +189,14 @@ describe('EditSeason', () => {
             onClose,
             onSave,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
         const selectedDivision = divisionOptions.filter(d => d.className.indexOf('active') !== -1)[0];
         expect(selectedDivision.textContent).toEqual(division1.name);
         await doClick(selectedDivision);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.divisionIds).toEqual([]);
     });
@@ -215,11 +215,11 @@ describe('EditSeason', () => {
             onClose,
             onSave,
         }, [otherSeason], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedData.copyTeamsFromSeasonId).toEqual(otherSeason.id);
     });
 
@@ -248,11 +248,11 @@ describe('EditSeason', () => {
             onSave,
             onUpdateData,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doClick(findButton(context.container, 'Update season'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(alert).toBeNull();
         expect(saved).toEqual(true);
         expect(updatedSeason).not.toBeNull();
@@ -266,14 +266,14 @@ describe('EditSeason', () => {
             onSave,
             onUpdateData,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         apiResponse = {
             success: false
         };
 
         await doClick(findButton(context.container, 'Update season'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(saveError).toEqual(apiResponse);
     });
 
@@ -285,7 +285,7 @@ describe('EditSeason', () => {
             onSave,
             onUpdateData,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doClick(findButton(context.container, 'Delete season'));
 
@@ -301,12 +301,12 @@ describe('EditSeason', () => {
             onSave,
             onUpdateData,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete season'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(deletedId).toEqual(season.id);
     });
 
@@ -318,7 +318,7 @@ describe('EditSeason', () => {
             onSave,
             onUpdateData,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         confirmResponse = true;
         apiResponse = {
             success: false
@@ -326,7 +326,7 @@ describe('EditSeason', () => {
 
         await doClick(findButton(context.container, 'Delete season'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(deletedId).toEqual(season.id);
         expect(saveError).toEqual(apiResponse);
     });
@@ -339,7 +339,7 @@ describe('EditSeason', () => {
             onSave,
             onUpdateData,
         }, [season], divisions);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete season'));

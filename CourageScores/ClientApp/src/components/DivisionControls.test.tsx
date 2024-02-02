@@ -170,7 +170,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toContain('Season 1');
                 expect(seasonButton.textContent).toContain(seasonDates(season1));
@@ -183,7 +183,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
                     'Season 1 ' + seasonDates(season1)]);
@@ -196,7 +196,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('Division 1');
             });
@@ -208,7 +208,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 1',
                     'Division 2']);
@@ -223,7 +223,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toEqual('Select a season');
                 assertDropdownOpen(getSeasonButtonGroup(), true);
@@ -236,7 +236,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
                     'Season 1 ' + seasonDates(season1)]);
@@ -249,7 +249,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('All divisions');
             });
@@ -261,7 +261,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
@@ -301,7 +301,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toContain('Season 3');
                 expect(seasonButton.textContent).toContain(seasonDates(season3));
@@ -315,7 +315,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
@@ -329,7 +329,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('Division 3✏');
             });
@@ -341,7 +341,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 3',
                     'Division 4',
@@ -357,7 +357,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const seasonButton = getShownData(getSeasonButtonGroup());
                 expect(seasonButton.textContent).toEqual('Select a season');
                 assertDropdownOpen(getSeasonButtonGroup(), true);
@@ -370,7 +370,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
@@ -384,7 +384,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const divisionButton = getShownData(getDivisionButtonGroup());
                 expect(divisionButton.textContent).toEqual('All divisions');
             });
@@ -396,7 +396,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
@@ -428,7 +428,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const group = getSeasonButtonGroup();
                 assertDropdownOpen(group, false);
 
@@ -443,7 +443,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const group = getDivisionButtonGroup();
                 assertDropdownOpen(group, false);
 
@@ -458,7 +458,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const group = getSeasonButtonGroup();
                 assertDropdownOpen(group, false);
 
@@ -479,7 +479,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/OVERRIDE/${encodeURI(season6.name)}`);
 
@@ -499,7 +499,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/team:TEAM_ID/${encodeURI(season6.name)}`);
 
@@ -519,7 +519,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}/player:PLAYER_ID/${encodeURI(season6.name)}`);
 
@@ -539,7 +539,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions, route, currentPath);
 
                 const group = getSeasonButtonGroup();
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${encodeURI(division5.name)}`); // highlighting that division5 will be selected
                 expect(option.href).toContain(`/${encodeURI(season6.name)}`);
@@ -563,7 +563,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
@@ -578,7 +578,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 await doSelectOption(getSeasonButtonGroup().querySelector('.dropdown-menu'), '➕ New season');
 
@@ -593,12 +593,12 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
                 await doClick(findButton(context.container, 'Update season'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();
                 expect(changedDivisionOrSeason).toEqual(true);
@@ -612,7 +612,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
                 await doClick(findButton(context.container, 'Close'));
@@ -627,7 +627,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
@@ -642,7 +642,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 await doSelectOption(getDivisionButtonGroup().querySelector('.dropdown-menu'), '➕ New division');
 
@@ -657,12 +657,12 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
                 await doClick(findButton(context.container, 'Update division'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();
                 expect(changedDivisionOrSeason).toEqual(true);
@@ -676,7 +676,7 @@ describe('DivisionControls', () => {
                     originalDivisionData: division5,
                     overrideMode: null,
                 }, account, seasons, divisions);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
                 await doClick(findButton(context.container, 'Close'));

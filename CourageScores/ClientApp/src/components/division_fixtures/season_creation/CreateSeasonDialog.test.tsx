@@ -223,7 +223,7 @@ describe('CreateSeasonDialog', () => {
                     onClose,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 setApiResponse(true, {
                     divisions: [{
                         id: divisionId,
@@ -249,7 +249,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next')); // (1) pick -> (2) assign placeholders
                 await doClick(findButton(context.container, 'Next')); // (2) assign placeholders -> (3) review
                 await doClick(findButton(context.container, 'Next')); // (3) review -> (4) review-proposals
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 await doClick(findButton(context.container.querySelector('div'), 'Save all fixtures')); // (4) review-proposals -> (5) confirm-save
 
@@ -285,11 +285,11 @@ describe('CreateSeasonDialog', () => {
                 let alert: string;
                 window.alert = (msg) => alert = msg;
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '🚫 TEMPLATE');
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(alert).toEqual('This template is not compatible with this season, pick another template');
                 expect(proposalRequest).toBeNull();
             });
@@ -324,12 +324,12 @@ describe('CreateSeasonDialog', () => {
                     onClose,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 setApiResponse(true);
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const placeholderLists = Array.from(context.container.querySelectorAll('h6 + ul'));
                 expect(placeholderLists.length).toEqual(1);
             });
@@ -450,7 +450,7 @@ describe('CreateSeasonDialog', () => {
                     onClose,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 setApiResponse(true, {
                     divisions: [{
@@ -469,13 +469,13 @@ describe('CreateSeasonDialog', () => {
             it('can navigate back to (2) assign placeholders', async () => {
                 await doClick(findButton(context.container, 'Back'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
             });
 
             it('can navigate to (4) review-proposals', async () => {
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(divisionDataSetTo).toEqual({
                     id: divisionId,
                     name: 'PROPOSED DIVISION',
@@ -520,7 +520,7 @@ describe('CreateSeasonDialog', () => {
                 });
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 setApiResponse(true, {
                     divisions: [{
                         id: divisionId,
@@ -549,7 +549,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
             });
 
             it('can navigate back to (3) review', async () => {
@@ -609,7 +609,7 @@ describe('CreateSeasonDialog', () => {
                 });
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 setApiResponse(true, {
                     divisions: [{
                         id: divisionId,
@@ -638,7 +638,7 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
                 await doClick(findButton(context.container, 'Next'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await doClick(findButton(context.container.querySelector('div'), 'Save all fixtures'));
             });
 
@@ -652,7 +652,7 @@ describe('CreateSeasonDialog', () => {
             it('reloads division after all fixtures saved and closes dialog', async () => {
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -672,7 +672,7 @@ describe('CreateSeasonDialog', () => {
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -688,7 +688,7 @@ describe('CreateSeasonDialog', () => {
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -708,7 +708,7 @@ describe('CreateSeasonDialog', () => {
 
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(1);
                 expect(divisionReloaded).toBeFalsy();
                 expect(divisionDataSetTo).toBeFalsy();
@@ -729,13 +729,13 @@ describe('CreateSeasonDialog', () => {
                     return {success: true};
                 };
                 await doClick(findButton(context.container, 'Next'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 // resume
                 abort = false;
                 await doClick(findButton(context.container, 'Next'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedFixtures.length).toEqual(3);
                 expect(divisionReloaded).toEqual(true);
                 expect(divisionDataSetTo).toBeNull();
@@ -766,11 +766,11 @@ describe('CreateSeasonDialog', () => {
                     seasonId: seasonId,
                     onClose,
                 });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 await doClick(findButton(context.container, 'Close'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(divisionDataResetTo).toEqual(null);
                 expect(closed).toEqual(true);
             });

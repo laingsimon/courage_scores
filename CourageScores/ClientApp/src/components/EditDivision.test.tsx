@@ -107,11 +107,11 @@ describe('EditDivision', () => {
             onClose,
             setSaveError,
         });
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doChange(context.container, 'input[name="name"]', 'NEW DIVISION NAME', context.user);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedData.id).toEqual(division.id);
         expect(updatedData.name).toEqual('NEW DIVISION NAME');
     });
@@ -141,11 +141,11 @@ describe('EditDivision', () => {
             onClose,
             setSaveError,
         });
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doClick(findButton(context.container, 'Update division'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(alert).toBeNull();
         expect(saved).toEqual(true);
         expect(updatedDivision).not.toBeNull();
@@ -160,14 +160,14 @@ describe('EditDivision', () => {
             onClose,
             setSaveError,
         });
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         apiResponse = {
             success: false
         };
 
         await doClick(findButton(context.container, 'Update division'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(saveError).toEqual(apiResponse);
     });
 
@@ -180,7 +180,7 @@ describe('EditDivision', () => {
             onClose,
             setSaveError,
         });
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doClick(findButton(context.container, 'Delete division'));
 
@@ -197,12 +197,12 @@ describe('EditDivision', () => {
             onClose,
             setSaveError,
         });
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete division'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(deletedId).toEqual(division.id);
     });
 
@@ -215,7 +215,7 @@ describe('EditDivision', () => {
             onClose,
             setSaveError,
         });
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         confirmResponse = true;
         apiResponse = {
             success: false
@@ -223,7 +223,7 @@ describe('EditDivision', () => {
 
         await doClick(findButton(context.container, 'Delete division'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(deletedId).toEqual(division.id);
         expect(saveError).toEqual(apiResponse);
     });
@@ -237,7 +237,7 @@ describe('EditDivision', () => {
             onClose,
             setSaveError,
         });
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         confirmResponse = true;
 
         await doClick(findButton(context.container, 'Delete division'));

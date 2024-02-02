@@ -125,8 +125,13 @@ export class ErrorState {
         }
     }
 
-    hasError(): boolean {
-        return !!this.error;
+    verifyNoError(): void {
+        expect(this.error).toBeFalsy();
+    }
+
+    verifyErrorEquals(expected: any) {
+        expect(this.error).toBeTruthy();
+        expect(this.error).toEqual(expected);
     }
 }
 

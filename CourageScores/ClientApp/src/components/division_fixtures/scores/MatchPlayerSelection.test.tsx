@@ -153,7 +153,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], null);
             assertScore(cells[1], '');
@@ -172,7 +172,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertScore(cells[1], '');
             assertScore(cells[3], '');
@@ -197,7 +197,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '3');
@@ -224,7 +224,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
@@ -251,7 +251,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectedPlayer(cells[0], 'HOME');
             assertScore(cells[1], '1');
@@ -289,7 +289,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, containerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME', 'ANOTHER HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
@@ -321,7 +321,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, containerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY', 'ANOTHER AWAY']);
@@ -366,7 +366,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, containerProps, matchTypeProps);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
@@ -411,7 +411,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, containerProps, matchTypeProps);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             assertSelectablePlayers(cells[0], ['HOME']);
             assertSelectablePlayers(cells[4], ['AWAY']);
@@ -440,7 +440,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells[0].textContent).toContain('📊');
         });
@@ -468,7 +468,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells[0].textContent).not.toContain('📊');
         });
@@ -518,12 +518,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], 'HOME');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([homePlayer]);
@@ -544,12 +544,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], 'Add a player...');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).not.toBeNull();
             expect(createPlayerFor).toEqual({
                 index: 0,
@@ -570,12 +570,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], ' ');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -596,12 +596,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[4], 'AWAY');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -622,12 +622,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[4], 'Add a player...');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).not.toBeNull();
             expect(createPlayerFor).toEqual({
                 index: 0,
@@ -648,12 +648,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[4], ' ');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -674,12 +674,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '3', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -700,12 +700,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[3], 'input', '3', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -726,12 +726,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '6', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -752,12 +752,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[3], 'input', '6', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -779,12 +779,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '3', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -806,12 +806,12 @@ describe('MatchPlayerSelection', () => {
                 onMatchOptionsChanged,
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[3], 'input', '3', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
             expect(updatedMatch.homePlayers).toEqual([]);
@@ -840,7 +840,7 @@ describe('MatchPlayerSelection', () => {
                 setCreatePlayerFor: null,
             };
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
@@ -876,7 +876,7 @@ describe('MatchPlayerSelection', () => {
                 setCreatePlayerFor: null,
             };
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
@@ -912,7 +912,7 @@ describe('MatchPlayerSelection', () => {
                 setCreatePlayerFor: null,
             };
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
@@ -948,7 +948,7 @@ describe('MatchPlayerSelection', () => {
                 setCreatePlayerFor: null,
             };
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
@@ -956,7 +956,7 @@ describe('MatchPlayerSelection', () => {
 
             await doClick(findButton(matchOptionsDialog, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(cells[4].querySelector('div.modal-dialog')).toBeFalsy();
         });
 
@@ -982,16 +982,16 @@ describe('MatchPlayerSelection', () => {
                 away: null,
             };
             await renderComponent(account, props, containerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await selectPlayer(cells[0], 'HOME');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
 
             await selectPlayer(cells[4], 'AWAY');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
         });
@@ -1018,16 +1018,16 @@ describe('MatchPlayerSelection', () => {
                 home: null,
             };
             await renderComponent(account, props, containerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doChange(cells[1], 'input', '3', context.user);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
 
             await doChange(cells[3], 'input', '3', context.user);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
         });
@@ -1056,7 +1056,7 @@ describe('MatchPlayerSelection', () => {
 
             await renderComponent(account, props, containerProps, defaultMatchType);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const homePlayers = Array.from(cells[0].querySelectorAll('.dropdown-item'));
             const awayPlayers = Array.from(cells[4].querySelectorAll('.dropdown-item'));
@@ -1087,7 +1087,7 @@ describe('MatchPlayerSelection', () => {
             };
 
             await renderComponent(account, props, containerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const homeScore = cells[1].querySelector('input');
             const awayScore = cells[3].querySelector('input');
@@ -1116,7 +1116,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
             await doClick(findButton(cells[0], '📊'));
@@ -1153,7 +1153,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
@@ -1196,7 +1196,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
@@ -1239,7 +1239,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
@@ -1288,7 +1288,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
@@ -1330,7 +1330,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
@@ -1338,7 +1338,7 @@ describe('MatchPlayerSelection', () => {
 
             await doClick(findButton(saygDialog, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(cells[0].querySelector('div.modal-dialog')).toBeFalsy();
         });
     });

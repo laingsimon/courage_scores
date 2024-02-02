@@ -140,7 +140,7 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop },
                 account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['TYPE at ADDRESS']);
@@ -160,7 +160,7 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
@@ -182,7 +182,7 @@ describe('TournamentFixture', () => {
                 account,
                 [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
@@ -208,7 +208,7 @@ describe('TournamentFixture', () => {
                 account,
                 []);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
@@ -228,7 +228,7 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -254,7 +254,7 @@ describe('TournamentFixture', () => {
                 },
                 account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersCell = context.container.querySelector('td:first-child');
             assertPlayerDisplayWithPlayerLinks(playersCell, 1, side3.players);
             assertSinglePlayerDisplay(playersCell, 2, side1.name, side1.players[0]);
@@ -288,7 +288,7 @@ describe('TournamentFixture', () => {
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['Tournament at ADDRESS', '➕']);
@@ -310,7 +310,7 @@ describe('TournamentFixture', () => {
 
             await doClick(findButton(adminCell, '➕'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(savedTournament.data).toEqual({
                 date: '2023-05-06T00:00:00',
                 address: 'ADDRESS',
@@ -337,7 +337,7 @@ describe('TournamentFixture', () => {
 
             await doClick(findButton(adminCell, '➕'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(savedTournament).not.toBeNull();
             expect(tournamentChanged).toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -386,7 +386,7 @@ describe('TournamentFixture', () => {
             await doClick(findButton(adminCell, '🗑'));
 
             expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(deletedId).toEqual(tournament.id);
             expect(tournamentChanged).toEqual(true);
         });
@@ -411,7 +411,7 @@ describe('TournamentFixture', () => {
             await doClick(findButton(adminCell, '🗑'));
 
             expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(deletedId).toBeNull();
             expect(tournamentChanged).toEqual(null);
         });
@@ -434,7 +434,7 @@ describe('TournamentFixture', () => {
 
             await doClick(findButton(adminCell, '🗑'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(tournamentChanged).toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');
             expect(context.container.textContent).toContain('Could not delete tournament');

@@ -62,14 +62,14 @@ describe('ExportData', () => {
     it('renders tables', async () => {
         await renderComponent(props);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         expect(tables.map(t => t.textContent)).toEqual(['Table 1', 'Table 2']);
     });
 
     it('can select exportable table', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
         expect(table1).toBeTruthy();
@@ -82,7 +82,7 @@ describe('ExportData', () => {
 
     it('cannot select non-exportable table', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table2 = tables.filter(t => t.textContent.indexOf('Table 2') !== -1)[0];
         expect(table2).toBeTruthy();
@@ -95,7 +95,7 @@ describe('ExportData', () => {
 
     it('cannot export when no tables selected', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         let alert: string;
         window.alert = (msg) => alert = msg;
         const tables = Array.from(context.container.querySelectorAll('ul li'));
@@ -105,19 +105,19 @@ describe('ExportData', () => {
 
         await doClick(findButton(context.container, 'Export data'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(exportRequest).toBeNull();
         expect(alert).toEqual('Select some tables to export');
     });
 
     it('can export data with password', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         await doChange(context.container, 'input[name="password"]', 'pass', context.user);
 
         await doClick(findButton(context.container, 'Export data'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: 'pass',
@@ -127,11 +127,11 @@ describe('ExportData', () => {
 
     it('can export data without password', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doClick(findButton(context.container, 'Export data'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: '',
@@ -141,12 +141,12 @@ describe('ExportData', () => {
 
     it('can export data without deleted entries', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         await doClick(context.container, 'input[name="includeDeletedEntries"]');
 
         await doClick(findButton(context.container, 'Export data'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(exportRequest).toEqual({
             includeDeletedEntries: false,
             password: '',
@@ -156,7 +156,7 @@ describe('ExportData', () => {
 
     it('can download zip', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         apiResponse = {
             success: true,
             result: {
@@ -165,26 +165,26 @@ describe('ExportData', () => {
         };
         await doClick(findButton(context.container, 'Export data'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const downloadButton = context.container.querySelector('a[download="export.zip"]') as HTMLAnchorElement;
         expect(downloadButton.href).toEqual('data:application/zip;base64,ZIP CONTENT');
     });
 
     it('can handle error during export', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         apiResponse = {success: false};
 
         await doClick(findButton(context.container, 'Export data'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(exportRequest).not.toBeNull();
         expect(context.container.textContent).toContain('Could not export data');
     });
 
     it('can close error report from export', async () => {
         await renderComponent(props);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         apiResponse = {success: false};
         await doClick(findButton(context.container, 'Export data'));
         expect(context.container.textContent).toContain('Could not export data');

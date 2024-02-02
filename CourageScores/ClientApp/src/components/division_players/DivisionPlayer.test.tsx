@@ -122,7 +122,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 expect(cells.length).toEqual(10);
                 expect(cells.map(c => c.textContent)).toEqual([
@@ -154,7 +154,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 expect(cells.length).toEqual(10);
                 const nameCell = cells[1];
@@ -175,7 +175,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 expect(cells.length).toEqual(9);
                 expect(cells.map(c => c.textContent)).toEqual([
@@ -204,7 +204,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const playerLinkCell = cells[1];
                 expect(playerLinkCell.querySelector('button')).toBeFalsy();
@@ -224,7 +224,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const playerLinkCell = cells[1];
                 const link = playerLinkCell.querySelector('a');
@@ -246,7 +246,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const teamLinkCell = cells[2];
                 const link = teamLinkCell.querySelector('a');
@@ -270,7 +270,7 @@ describe('DivisionPlayer', () => {
                     },
                     account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('td'));
                 const teamLinkCell = cells[2];
                 const link = teamLinkCell.querySelector('a');
@@ -484,7 +484,7 @@ describe('DivisionPlayer', () => {
 
                 await doClick(findButton(dialog, 'Save player'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedPlayer).not.toBeNull();
                 expect(updatedPlayer.playerDetails.name).toEqual('NEW NAME');
                 expect(divisionReloaded).toEqual(true);
@@ -512,7 +512,7 @@ describe('DivisionPlayer', () => {
 
                 await doClick(findButton(dialog, 'Save player'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedPlayer).not.toBeNull();
                 expect(nameCell.textContent).toContain('Could not save player details');
                 expect(divisionReloaded).toEqual(false);

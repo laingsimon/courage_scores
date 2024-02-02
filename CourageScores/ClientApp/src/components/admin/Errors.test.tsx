@@ -150,7 +150,7 @@ describe('Errors', () => {
         await renderComponent();
 
         assertResults(0);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     });
 
     it('shows empty results when none found', async () => {
@@ -159,7 +159,7 @@ describe('Errors', () => {
         await clickRefresh('2001-02-03', []);
 
         assertResults(0);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     });
 
     it('shows error dialog on error', async () => {
@@ -169,7 +169,10 @@ describe('Errors', () => {
         await clickRefresh('2001-02-03', []);
 
         assertResults(0);
-        expect(reportedError.hasError()).toEqual(true);
+        reportedError.verifyErrorEquals({
+            message: 'Some error',
+            stack: expect.any(String),
+        });
     });
 
     it('shows results on refresh', async () => {
@@ -194,7 +197,7 @@ describe('Errors', () => {
         const uiItem = results.filter(li => li.innerHTML.indexOf('message2') !== -1)[0];
         assertListItem(apiItem, apiError);
         assertListItem(uiItem, uiError);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     });
 
     it('shows api details on click', async () => {
@@ -216,7 +219,7 @@ describe('Errors', () => {
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     });
 
     it('shows api details without some details on click', async () => {
@@ -234,7 +237,7 @@ describe('Errors', () => {
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     });
 
     it('shows ui details on click', async () => {
@@ -256,7 +259,7 @@ describe('Errors', () => {
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     });
 
     it('shows ui details without some details on click', async () => {
@@ -274,6 +277,6 @@ describe('Errors', () => {
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     });
 });

@@ -74,7 +74,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h3');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(player.name);
@@ -93,7 +93,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('⚠ Player could not be found');
         });
 
@@ -106,7 +106,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const headings = Array.from(table.querySelectorAll('thead tr th')).map(th => th.textContent);
@@ -129,7 +129,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -169,7 +169,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -211,7 +211,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -253,7 +253,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -293,7 +293,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -326,7 +326,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));
@@ -359,7 +359,7 @@ describe('PlayerOverview', () => {
                     .season(season)
                     .build());
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody tr'));

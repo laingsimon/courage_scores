@@ -104,7 +104,7 @@ describe('Practice', () => {
         it('renders when app is loading', async () => {
             await renderComponent(account, '', true);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             expect(context.container.querySelector('.loading-background')).not.toBeNull();
         });
@@ -112,7 +112,7 @@ describe('Practice', () => {
         it('renders given no saved data', async () => {
             await renderComponent(account, '');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '501');
@@ -124,7 +124,7 @@ describe('Practice', () => {
         it('renders given empty saved data', async () => {
             await renderComponent(account, '#');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '501');
@@ -138,14 +138,14 @@ describe('Practice', () => {
 
             await renderComponent(account, data);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertDataError('Data not found');
         });
 
         it('can close data error', async () => {
             const data = '#not-found';
             await renderComponent(account, data);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertDataError('Data not found');
 
             await doClick(findButton(context.container.querySelector('div[data-name="data-error"]'), 'Clear'));
@@ -168,7 +168,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             assertInputValue('yourName', 'Simon');
             assertInputValue('startingScore', '123');
@@ -192,7 +192,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '123');
@@ -216,7 +216,7 @@ describe('Practice', () => {
                 .addTo(saygData)
                 .build();
             await renderComponent(account, '#' + jsonData.id);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
 
             delete saygData[jsonData.id];
@@ -243,7 +243,7 @@ describe('Practice', () => {
             };
             saygData[jsonData.id] = jsonData;
             await renderComponent(account, '#' + jsonData.id);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
 
             delete saygData[jsonData.id];
@@ -259,7 +259,7 @@ describe('Practice', () => {
 
         it('can change your name', async () => {
             await renderComponent(account, '');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
 
             await doChange(context.container, 'input[name="yourName"]', 'YOU', context.user);
@@ -271,7 +271,7 @@ describe('Practice', () => {
 
         it('can clear opponent name', async () => {
             await renderComponent(account, '');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             await doChange(context.container, 'input[name="opponentName"]', 'THEM', context.user);
             await doClick(findButton(context.container, 'Save '));
@@ -286,7 +286,7 @@ describe('Practice', () => {
 
         it('handles save error correctly', async () => {
             await renderComponent(account, '');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             apiResultFunc = () => {
                 throw new Error('some error');
@@ -294,7 +294,10 @@ describe('Practice', () => {
 
             await doClick(findButton(context.container, 'Save '));
 
-            expect(reportedError.hasError()).toEqual(true);
+            reportedError.verifyErrorEquals({
+                message: 'some error',
+                stack: expect.any(String),
+            });
         });
 
         it('can restart practice', async () => {
@@ -310,7 +313,7 @@ describe('Practice', () => {
             };
             saygData[jsonData.id] = jsonData;
             await renderComponent(account, '#' + jsonData.id);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
 
             await doClick(findButton(context.container, 'Restart...'));
@@ -327,7 +330,7 @@ describe('Practice', () => {
 
         it('can record scores as they are entered', async () => {
             await renderComponent(account, '');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
@@ -349,7 +352,7 @@ describe('Practice', () => {
 
         it('can complete a leg', async () => {
             await renderComponent(account, '');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             await doChange(context.container, 'input[name="startingScore"]', '501', context.user);
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
@@ -379,7 +382,7 @@ describe('Practice', () => {
         it('when no data loaded, sets your name to account givenName', async () => {
             await renderComponent(account, '');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertInputValue('yourName', 'GIVEN NAME');
             assertScoreInputVisible();
         });
@@ -399,7 +402,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             assertInputValue('yourName', 'Simon');
             assertInputValue('startingScore', '123');
@@ -423,7 +426,7 @@ describe('Practice', () => {
 
             await renderComponent(account, '#' + jsonData.id);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             assertNoDataError();
             assertInputValue('yourName', 'you');
             assertInputValue('startingScore', '123');

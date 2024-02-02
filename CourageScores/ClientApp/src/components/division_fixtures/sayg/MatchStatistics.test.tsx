@@ -300,7 +300,7 @@ describe('MatchStatistics', () => {
         expect(context.container.querySelector('.modal-dialog').textContent).toContain('Edit throw');
         await doClick(findButton(legRow, 'Save changes'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedSayg).not.toBeNull();
     });
 
@@ -580,11 +580,11 @@ describe('MatchStatistics', () => {
             account,
         }));
         expect(Object.keys(socketFactory.subscriptions)).toEqual([saygId]);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doSelectOption(context.container.querySelector('h4 .dropdown-menu'), '⏸️ Paused');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(socketFactory.subscriptions).toBeTruthy();
     });
 
@@ -624,11 +624,11 @@ describe('MatchStatistics', () => {
             account,
         }));
         expect(Object.keys(socketFactory.subscriptions)).toEqual([saygId]);
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
 
         await doClick(findButton(context.container.querySelector('h4'), '🖥'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(context.container.innerHTML).toContain('WidescreenMatchStatistics');
     });
 
@@ -691,7 +691,7 @@ describe('MatchStatistics', () => {
             } as MessageEvent<string>);
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const firstRow = context.container.querySelector('table tbody tr:first-child');
         const finishedHeadings = Array.from(firstRow.querySelectorAll('td'));
         expect(finishedHeadings.map(th => th.textContent)).toEqual(['Score', '2', '0']);

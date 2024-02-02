@@ -85,7 +85,7 @@ describe('ManOfTheMatchInput', () => {
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -99,7 +99,7 @@ describe('ManOfTheMatchInput', () => {
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -114,7 +114,7 @@ describe('ManOfTheMatchInput', () => {
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -129,7 +129,7 @@ describe('ManOfTheMatchInput', () => {
 
             await renderComponent(account, { saving, fixtureData, access, setFixtureData });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toEqual('');
         });
     });
@@ -149,7 +149,7 @@ describe('ManOfTheMatchInput', () => {
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], [], ' ', null);
@@ -167,7 +167,7 @@ describe('ManOfTheMatchInput', () => {
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData, disabled: true });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 expect(cells[0].querySelector('.dropdown-toggle').textContent).toEqual('AWAY player');
@@ -182,7 +182,7 @@ describe('ManOfTheMatchInput', () => {
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], [], ' ', null);
@@ -199,7 +199,7 @@ describe('ManOfTheMatchInput', () => {
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], ['AWAY player'], ' ', null);
@@ -217,7 +217,7 @@ describe('ManOfTheMatchInput', () => {
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[0], ['AWAY player'], 'AWAY player', 'AWAY player');
@@ -234,7 +234,7 @@ describe('ManOfTheMatchInput', () => {
 
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
                 assertPlayers(cells[2], ['HOME player'], 'HOME player', 'HOME player');
@@ -249,7 +249,7 @@ describe('ManOfTheMatchInput', () => {
                     .playing('HOME', 'AWAY')
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const homeMOM = context.container.querySelectorAll('td')[0];
 
@@ -268,7 +268,7 @@ describe('ManOfTheMatchInput', () => {
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const homeMOM = context.container.querySelectorAll('td')[0];
 
@@ -286,7 +286,7 @@ describe('ManOfTheMatchInput', () => {
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const awayMOM = context.container.querySelectorAll('td')[2];
 
@@ -305,7 +305,7 @@ describe('ManOfTheMatchInput', () => {
                     .withMatch((m: IMatchBuilder) => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 await renderComponent(account, { saving: false, fixtureData, access: 'admin', setFixtureData });
                 const awayMOM = context.container.querySelectorAll('td')[2];
 
