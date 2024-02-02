@@ -12,10 +12,10 @@ import {createTemporaryId} from "../../../helpers/projection";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
-import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {addSide, removeSide, sideChanged} from "../../../helpers/tournaments";
 
 export interface IEditTournamentProps {
     canSave?: boolean;
@@ -56,51 +56,13 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
         }
     }
 
-    async function sideChanged(newSide: TournamentSideDto, sideIndex: number) {
-        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-        newSide.name = (newSide.name || '').trim();
-        newTournamentData.sides[sideIndex] = newSide;
-        updateSideDataInRound(newTournamentData.round, newSide);
-        await setTournamentData(newTournamentData);
-    }
-
-    async function removeSide(side: TournamentSideDto) {
-        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-        newTournamentData.sides = tournamentData.sides.filter((s: TournamentSideDto) => s.id !== side.id);
-        await setTournamentData(newTournamentData);
-        setNewSide(null);
-    }
-
-    function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDto) {
-        if (!round) {
-            return;
-        }
-
-        if (round.matches) {
-            for (let index = 0; index < round.matches.length; index++) {
-                const match: TournamentMatchDto = round.matches[index];
-                if (match.sideA && match.sideA.id === side.id) {
-                    match.sideA = side;
-                } else if (match.sideB && match.sideB.id === side.id) {
-                    match.sideB = side;
-                }
-            }
-        }
-
-        updateSideDataInRound(round.nextRound, side);
-    }
-
     function renderEditNewSide() {
         return (<EditSide
             side={newSide}
             onChange={async (side: TournamentSideDto) => setNewSide(side)}
             onClose={async () => setNewSide(null)}
             onApply={async () => {
-                const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-                newSide.id = newSide.id || createTemporaryId();
-                newSide.name = (newSide.name || '').trim();
-                newTournamentData.sides.push(newSide);
-                await setTournamentData(newTournamentData);
+                await setTournamentData(addSide(tournamentData, newSide));
                 setNewSide(null);
             }}/>);
     }
@@ -115,8 +77,11 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
                     winner={winningSideId === side.id}
                     readOnly={readOnly}
                     side={side}
-                    onChange={(newSide: TournamentSideDto) => sideChanged(newSide, sideIndex)}
-                    onRemove={() => removeSide(side)}/>);
+                    onChange={async (newSide: TournamentSideDto) => await setTournamentData(sideChanged(tournamentData, newSide, sideIndex))}
+                    onRemove={async () => {
+                        await setTournamentData(removeSide(tournamentData, side));
+                        setNewSide(null);
+                    }}/>);
             })}
             {!readOnly && !hasStarted
                 ? (<button className="btn btn-primary" onClick={() => setNewSide({ id: createTemporaryId() })}>➕</button>)

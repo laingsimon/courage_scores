@@ -1,6 +1,10 @@
 import {repeat} from "./projection";
 import {any} from "./collections";
 import {IBootstrapDropdownItem} from "../components/common/BootstrapDropdown";
+import {TournamentGameDto} from "../interfaces/models/dtos/Game/TournamentGameDto";
+import {TournamentSideDto} from "../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentRoundDto} from "../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentMatchDto} from "../interfaces/models/dtos/Game/TournamentMatchDto";
 
 export interface ILayoutDataForSide {
     id: string;
@@ -150,3 +154,44 @@ function getLayoutSide(id?: string, name?: string, link?: JSX.Element, mnemonic?
         mnemonic: mnemonic || null,
     };
 }
+
+export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number): TournamentGameDto {
+    const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+    newSide.name = (newSide.name || '').trim();
+    newTournamentData.sides[sideIndex] = newSide;
+    updateSideDataInRound(newTournamentData.round, newSide);
+    return newTournamentData;
+}
+
+function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDto) {
+    if (!round) {
+        return;
+    }
+
+    if (round.matches) {
+        for (let index = 0; index < round.matches.length; index++) {
+            const match: TournamentMatchDto = round.matches[index];
+            if (match.sideA && match.sideA.id === side.id) {
+                match.sideA = side;
+            } else if (match.sideB && match.sideB.id === side.id) {
+                match.sideB = side;
+            }
+        }
+    }
+
+    updateSideDataInRound(round.nextRound, side);
+}
+
+export function removeSide(tournamentData: TournamentGameDto, side: TournamentSideDto): TournamentGameDto {
+    const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+    newTournamentData.sides = tournamentData.sides.filter((s: TournamentSideDto) => s.id !== side.id);
+    return newTournamentData;
+}
+
+export function addSide(tournamentData: TournamentGameDto, newSide: TournamentSideDto): TournamentGameDto {
+    const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+    newSide.name = (newSide.name || '').trim();
+    newTournamentData.sides.push(newSide);
+    return newTournamentData;
+}
+
