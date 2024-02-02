@@ -31,7 +31,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
     const readOnly: boolean = !isAdmin || !canSave || disabled || saving;
     const hasStarted: boolean = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
     const winningSideId: string = hasStarted ? getWinningSide(tournamentData.round) : null;
-    const [newSide, setNewSide] = useState(null);
+    const [newSide, setNewSide] = useState<TournamentSideDto>(null);
 
     function getWinningSide(round: TournamentRoundDto): string {
         if (round && round.nextRound) {
@@ -119,7 +119,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
                     onRemove={() => removeSide(side)}/>);
             })}
             {!readOnly && !hasStarted
-                ? (<button className="btn btn-primary" onClick={() => setNewSide({})}>➕</button>)
+                ? (<button className="btn btn-primary" onClick={() => setNewSide({ id: createTemporaryId() })}>➕</button>)
                 : null}
             {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
         </div>

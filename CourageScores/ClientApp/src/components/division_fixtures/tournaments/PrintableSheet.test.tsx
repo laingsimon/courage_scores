@@ -16,13 +16,26 @@ import {
     sideBuilder,
     tournamentBuilder
 } from "../../../helpers/builders/tournaments";
-import {IMatchOptionsBuilder} from "../../../helpers/builders/games";
+import {IMatchOptionsBuilder, matchOptionsBuilder} from "../../../helpers/builders/games";
 import {playerBuilder} from "../../../helpers/builders/players";
 import {teamBuilder} from "../../../helpers/builders/teams";
 import {seasonBuilder} from "../../../helpers/builders/seasons";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {NotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {TournamentPlayerDto} from "../../../interfaces/models/dtos/Game/TournamentPlayerDto";
+
+interface ISideInfo {
+    sideAwinner?: boolean;
+    sideBwinner?: boolean;
+    sideAname?: string;
+    sideAmnemonic?: string;
+    sideBname?: string;
+    sideBmnemonic?: string;
+    scoreA?: string;
+    scoreB?: string;
+    bye: boolean;
+    saygLink?: string;
+}
 
 describe('PrintableSheet', () => {
     let context: TestContext;
@@ -74,32 +87,58 @@ describe('PrintableSheet', () => {
                     } : null,
                     heading: round.querySelector('h5[datatype="round-name"]').textContent,
                     matches: Array.from(round.querySelectorAll('div[datatype="match"]'))
-                        .map(match => {
-                            return {
-                                //element: match,
-                                sideAwinner: match.querySelector('div[datatype="sideA"]')
-                                    ? match.querySelector('div[datatype="sideA"]').className.indexOf('bg-winner') !== -1
-                                    : null,
-                                sideBwinner: match.querySelector('div[datatype="sideB"]')
-                                    ? match.querySelector('div[datatype="sideB"]').className.indexOf('bg-winner') !== -1
-                                    : null,
-                                sideAname: match.querySelector('div[datatype="sideAname"]')
-                                    ? match.querySelector('div[datatype="sideAname"]').textContent.trim()
-                                    : null,
-                                sideBname: match.querySelector('div[datatype="sideBname"]')
-                                    ? match.querySelector('div[datatype="sideBname"]').textContent.trim()
-                                    : null,
-                                scoreA: match.querySelector('div[datatype="scoreA"]')
-                                    ? match.querySelector('div[datatype="scoreA"]').textContent.trim()
-                                    : null,
-                                scoreB: match.querySelector('div[datatype="scoreB"]')
-                                    ? match.querySelector('div[datatype="scoreB"]').textContent.trim()
-                                    : null,
+                        .map((match: Element): ISideInfo => {
+                            function setInfo(selector: string, name: string, getter: (element: Element) => any) {
+                                const element = match.querySelector(selector);
+                                if (element) {
+                                    const value = getter(element);
+                                    if (value) {
+                                        info[name] = value;
+                                    }
+                                }
+                            }
+
+                            const info: ISideInfo = {
                                 bye: match.textContent.indexOf('Bye') !== -1,
                                 saygLink: match.querySelector('a')
                                     ? match.querySelector('a').href
                                     : null,
                             };
+
+                            setInfo(
+                                'div[datatype="sideA"]',
+                                'sideAwinner',
+                                (e: Element) => e.className.indexOf('bg-winner') !== -1);
+                            setInfo(
+                                'div[datatype="sideB"]',
+                                'sideBwinner',
+                                (e: Element) => e.className.indexOf('bg-winner') !== -1);
+                            setInfo(
+                                'span[datatype="sideAname"]',
+                                'sideAname',
+                                (e: Element) => e.textContent.trim());
+                            setInfo(
+                                'span[datatype="sideBname"]',
+                                'sideBname',
+                                (e: Element) => e.textContent.trim());
+                            setInfo(
+                                'span[datatype="sideAmnemonic"]',
+                                'sideAmnemonic',
+                                (e: Element) => e.textContent.trim());
+                            setInfo(
+                                'span[datatype="sideBmnemonic"]',
+                                'sideBmnemonic',
+                                (e: Element) => e.textContent.trim());
+                            setInfo(
+                                'div[datatype="scoreA"]',
+                                'scoreA',
+                                (e: Element) => e.textContent.trim());
+                            setInfo(
+                                'div[datatype="scoreB"]',
+                                'scoreB',
+                                (e: Element) => e.textContent.trim());
+
+                            return info;
                         }),
                 }
             });
@@ -138,22 +177,23 @@ describe('PrintableSheet', () => {
     }
 
     describe('played tournament', () => {
-        const sideA: TournamentSideDto = createSide('A');
-        const sideB: TournamentSideDto = createSide('B');
-        const sideC: TournamentSideDto = createSide('C');
-        const sideD: TournamentSideDto = createSide('D');
-        const sideE: TournamentSideDto = createSide('E');
-        const sideF: TournamentSideDto = createSide('F');
-        const sideG: TournamentSideDto = createSide('G');
-        const sideH: TournamentSideDto = createSide('H');
-        const sideI: TournamentSideDto = createSide('I');
-        const sideJ: TournamentSideDto = createSide('J');
-        const sideK: TournamentSideDto = createSide('K');
-        const sideL: TournamentSideDto = createSide('L');
+        const sideA: TournamentSideDto = createSide('a');
+        const sideB: TournamentSideDto = createSide('b');
+        const sideC: TournamentSideDto = createSide('c');
+        const sideD: TournamentSideDto = createSide('d');
+        const sideE: TournamentSideDto = createSide('e');
+        const sideF: TournamentSideDto = createSide('f');
+        const sideG: TournamentSideDto = createSide('g');
+        const sideH: TournamentSideDto = createSide('h');
+        const sideI: TournamentSideDto = createSide('i');
+        const sideJ: TournamentSideDto = createSide('j');
+        const sideK: TournamentSideDto = createSide('k');
+        const sideL: TournamentSideDto = createSide('l');
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
+        const matchOptionDefaults = matchOptionsBuilder().build();
 
         it('renders tournament with one round', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
@@ -163,7 +203,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -174,9 +214,8 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'A',
-                        sideBname: 'B',
-                        sideAwinner: false,
+                        sideAname: 'a',
+                        sideBname: 'b',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -196,7 +235,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -207,9 +246,8 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'A',
-                        sideBname: 'B',
-                        sideAwinner: false,
+                        sideAname: 'a',
+                        sideBname: 'b',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -232,7 +270,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -243,30 +281,24 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'A',
-                        sideBname: 'B',
-                        sideAwinner: false,
-                        sideBwinner: false,
+                        sideAname: 'a',
+                        sideBname: 'b',
                         scoreA: '0',
                         scoreB: '0',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'C',
-                        sideBname: 'D',
-                        sideAwinner: false,
-                        sideBwinner: false,
+                        sideAname: 'c',
+                        sideBname: 'd',
                         scoreA: '0',
                         scoreB: '0',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'E',
-                        sideBname: 'F',
-                        sideAwinner: false,
-                        sideBwinner: false,
+                        sideAname: 'e',
+                        sideBname: 'f',
                         scoreA: '0',
                         scoreB: '0',
                         bye: false,
@@ -280,22 +312,13 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'winner(M1)',
-                        sideBname: 'winner(M2)',
-                        sideAwinner: false,
-                        sideBwinner: false,
-                        scoreA: '',
-                        scoreB: '',
+                        sideAmnemonic: 'winner(M1)',
+                        sideBmnemonic: 'winner(M2)',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'winner(M3)',
-                        sideBname: null,
-                        sideAwinner: false,
-                        sideBwinner: null,
-                        scoreA: '',
-                        scoreB: null,
+                        sideAmnemonic: 'winner(M3)',
                         bye: true,
                         saygLink: null,
                     },
@@ -307,12 +330,8 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'winner(M3)',
-                        sideBname: 'winner(M4)',
-                        sideAwinner: false,
-                        sideBwinner: false,
-                        scoreA: '',
-                        scoreB: '',
+                        sideAmnemonic: 'winner(M3)',
+                        sideBmnemonic: 'winner(M4)',
                         bye: false,
                         saygLink: null,
                     },
@@ -333,7 +352,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -344,9 +363,8 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'A',
-                        sideBname: 'B',
-                        sideAwinner: false,
+                        sideAname: 'a',
+                        sideBname: 'b',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -354,10 +372,9 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'C',
-                        sideBname: 'D',
+                        sideAname: 'c',
+                        sideBname: 'd',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
@@ -371,10 +388,9 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'B',
-                        sideBname: 'C',
+                        sideAname: 'b',
+                        sideBname: 'c',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
@@ -400,7 +416,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -411,9 +427,8 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'A',
-                        sideBname: 'B',
-                        sideAwinner: false,
+                        sideAname: 'a',
+                        sideBname: 'b',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -421,22 +436,16 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'C',
-                        sideBname: 'D',
+                        sideAname: 'c',
+                        sideBname: 'd',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'E',
-                        sideBname: null,
-                        sideAwinner: false,
-                        sideBwinner: null,
-                        scoreA: '',
-                        scoreB: null,
+                        sideAname: 'e',
                         bye: true,
                         saygLink: null,
                     },
@@ -448,22 +457,16 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'E',
-                        sideBname: 'B',
+                        sideAname: 'e',
+                        sideBname: 'b',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'C',
-                        sideBname: null,
-                        sideAwinner: false,
-                        sideBwinner: null,
-                        scoreA: '',
-                        scoreB: null,
+                        sideAname: 'c',
                         bye: true,
                         saygLink: null,
                     },
@@ -475,10 +478,9 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'C',
-                        sideBname: 'E',
+                        sideAname: 'c',
+                        sideBname: 'e',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
@@ -520,7 +522,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideG).withSide(sideH).withSide(sideI).withSide(sideJ).withSide(sideK).withSide(sideL)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -531,9 +533,8 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'A',
-                        sideBname: 'B',
-                        sideAwinner: false,
+                        sideAname: 'a',
+                        sideBname: 'b',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -541,29 +542,26 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'C',
-                        sideBname: 'D',
+                        sideAname: 'c',
+                        sideBname: 'd',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'E',
-                        sideBname: 'F',
+                        sideAname: 'e',
+                        sideBname: 'f',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'G',
-                        sideBname: 'H',
-                        sideAwinner: false,
+                        sideAname: 'g',
+                        sideBname: 'h',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -571,9 +569,8 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'I',
-                        sideBname: 'J',
-                        sideAwinner: false,
+                        sideAname: 'i',
+                        sideBname: 'j',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -581,9 +578,8 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAname: 'K',
-                        sideBname: 'L',
-                        sideAwinner: false,
+                        sideAname: 'k',
+                        sideBname: 'l',
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
@@ -598,42 +594,30 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'B',
-                        sideBname: 'C',
+                        sideAname: 'b',
+                        sideBname: 'c',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'E',
-                        sideBname: 'H',
+                        sideAname: 'e',
+                        sideBname: 'h',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'J',
-                        sideBname: null,
-                        sideAwinner: false,
-                        sideBwinner: null,
-                        scoreA: '',
-                        scoreB: null,
+                        sideAname: 'j',
                         bye: true,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'L',
-                        sideBname: null,
-                        sideAwinner: false,
-                        sideBwinner: null,
-                        scoreA: '',
-                        scoreB: null,
+                        sideAname: 'l',
                         bye: true,
                         saygLink: null,
                     },
@@ -645,20 +629,18 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAname: 'B',
-                        sideBname: 'E',
+                        sideAname: 'b',
+                        sideBname: 'e',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAname: 'J',
-                        sideBname: 'L',
+                        sideAname: 'j',
+                        sideBname: 'l',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
@@ -672,10 +654,9 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'B',
-                        sideBname: 'J',
+                        sideAname: 'b',
+                        sideBname: 'j',
                         sideAwinner: true,
-                        sideBwinner: false,
                         scoreA: '2',
                         scoreB: '1',
                         bye: false,
@@ -705,7 +686,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -748,7 +729,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -778,7 +759,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -803,7 +784,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             const winner = getWinner();
@@ -824,7 +805,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -847,7 +828,7 @@ describe('PrintableSheet', () => {
             const teams: DataMap<TeamDto> = toMap<TeamDto>([team]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -868,18 +849,18 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
 
         it('renders who is playing when team not found', async () => {
             const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
             const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
-            const sideASinglePlayer: TournamentSideDto = createSide('A', [player1]);
-            const sideBSinglePlayer: TournamentSideDto = createSide('B', [player2]);
+            const sideASinglePlayer: TournamentSideDto = createSide('a', [player1]);
+            const sideBSinglePlayer: TournamentSideDto = createSide('b', [player2]);
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideASinglePlayer)
                 .withSide(sideBSinglePlayer)
@@ -891,10 +872,10 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
 
@@ -907,10 +888,10 @@ describe('PrintableSheet', () => {
             const teams: DataMap<TeamDto> = toMap([]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B', '-3 - C-']);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b', '-3 - c-']);
             expect(getWhoIsPlaying(linkHref)).toEqual([null, null, null]);
         });
 
@@ -947,7 +928,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
@@ -973,7 +954,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
@@ -996,7 +977,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
@@ -1020,7 +1001,7 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, teams, divisions);
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
@@ -1035,6 +1016,7 @@ describe('PrintableSheet', () => {
         const season: SeasonDto = seasonBuilder('SEASON')
             .withDivision(division)
             .build();
+        const matchOptionDefaults = matchOptionsBuilder().build();
 
         it('renders tournament with 2 sides', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
@@ -1042,7 +1024,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const rounds = getRounds();
@@ -1053,12 +1035,8 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAname: 'A',
-                        sideBname: 'B',
-                        sideAwinner: false,
-                        sideBwinner: false,
-                        scoreA: '',
-                        scoreB: '',
+                        sideAmnemonic: 'A',
+                        sideBmnemonic: 'B',
                         bye: false,
                         saygLink: null,
                     },
@@ -1072,7 +1050,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -1084,7 +1062,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division: null}, {printOnly: false});
+            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -1098,7 +1076,7 @@ describe('PrintableSheet', () => {
                 .date('2023-06-01')
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false});
+            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false});
 
             expect(reportedError.hasError()).toEqual(false);
             const heading = context.container.querySelector('div[datatype="heading"]');

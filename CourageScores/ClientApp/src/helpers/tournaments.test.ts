@@ -1,6 +1,4 @@
-﻿// noinspection JSUnresolvedReference
-
-import {
+﻿import {
     getRoundNameFromSides,
     getUnplayedLayoutData,
     hasScore,

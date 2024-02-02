@@ -8,8 +8,8 @@ export interface IPrintableSheetMatchProps {
 export function PrintableSheetMatch({ matchData, noOfMatches } : IPrintableSheetMatchProps) {
     function renderSide(side: ILayoutDataForSide, type: string) {
         return <div className="no-wrap pe-3" datatype={type + 'name'}>
-            {side.link || (<span>&nbsp;</span>)}
-            {side.mnemonic ? <span className="text-secondary-50 opacity-75 small">{side.mnemonic}</span> : null}
+            {side.link ? (<span datatype={`side${type}name`}>{side.link}</span>) : (<span datatype={`side${type}name`}>&nbsp;</span>)}
+            {side.mnemonic ? <span className="text-secondary-50 opacity-75 small" datatype={`side${type}mnemonic`}>{side.mnemonic}</span> : null}
         </div>
     }
 
@@ -23,7 +23,7 @@ export function PrintableSheetMatch({ matchData, noOfMatches } : IPrintableSheet
         {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
         <div datatype="sideA"
              className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
-            {renderSide(matchData.sideA, 'sideA')}
+            {renderSide(matchData.sideA, 'A')}
             <div datatype="scoreA">{matchData.scoreA || ''}</div>
         </div>
         {matchData.bye ? null : (<div className="text-center dotted-line-through">
@@ -38,7 +38,7 @@ export function PrintableSheetMatch({ matchData, noOfMatches } : IPrintableSheet
             ? null
             : (<div datatype="sideB"
                     className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
-                {renderSide(matchData.sideB, 'sideB')}
+                {renderSide(matchData.sideB, 'B')}
                 <div datatype="scoreB">{matchData.scoreB || ''}</div>
             </div>)}
     </div>);

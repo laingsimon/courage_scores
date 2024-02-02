@@ -22,6 +22,9 @@ import {
 } from "../../../helpers/tournaments";
 import {NotableTournamentPlayerDto} from "../../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {PrintableSheetMatch} from "./PrintableSheetMatch";
+import {TeamSeasonDto} from "../../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
+import {TeamDto} from "../../../interfaces/models/dtos/Team/TeamDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -138,19 +141,19 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
     }
 
-    function findTeamAndDivisionForPlayer(player: TournamentPlayerDto) {
+    function findTeamAndDivisionForPlayer(player: TournamentPlayerDto): { team?: TeamDto, division?: DivisionDto } {
         const teamAndDivisionMapping = teams.map(t => {
-            const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
+            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
             if (!teamSeason) {
                 return null;
             }
 
-            const hasPlayer = any(teamSeason.players, (p: TeamPlayerDto) => p.id === player.id);
+            const hasPlayer: boolean = any(teamSeason.players, (p: TeamPlayerDto) => p.id === player.id);
             return hasPlayer ? {team: t, divisionId: teamSeason.divisionId} : null;
         }).filter(a => a !== null)[0];
 
         if (!teamAndDivisionMapping) {
-            return null;
+            return { };
         }
 
         if (teamAndDivisionMapping.divisionId) {
@@ -249,7 +252,7 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         const oneEightyMap = {};
         const playerLookup = {};
 
-        tournamentData.oneEighties.forEach(player => {
+        tournamentData.oneEighties.forEach((player: TournamentPlayerDto) => {
             if (oneEightyMap[player.id]) {
                 oneEightyMap[player.id]++;
             } else {
@@ -272,13 +275,13 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
                 }
 
                 return 0;
-            }).map((id, index) => {
+            }).map((id: string, index: number) => {
                 const player = playerLookup[id];
-                const teamAndDivision = findTeamAndDivisionForPlayer(player);
+                const { team, division } = findTeamAndDivisionForPlayer(player);
 
-                if (teamAndDivision && teamAndDivision.division) {
+                if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
-                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>
+                        <EmbedAwareLink to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
                             {player.name}
                         </EmbedAwareLink> x {oneEightyMap[id]}
                     </div>);
@@ -295,11 +298,11 @@ export function PrintableSheet({printOnly}: IPrintableSheetProps) {
         return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
             <h5>Hi-checks</h5>
             {tournamentData.over100Checkouts.map((player: NotableTournamentPlayerDto, index: number) => {
-                const teamAndDivision = findTeamAndDivisionForPlayer(player);
+                const { team, division } = findTeamAndDivisionForPlayer(player);
 
-                if (teamAndDivision && teamAndDivision.division) {
+                if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
-                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>
+                        <EmbedAwareLink to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
                             {player.name}
                         </EmbedAwareLink> ({player.score})
                     </div>);

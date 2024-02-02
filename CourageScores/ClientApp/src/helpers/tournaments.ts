@@ -138,7 +138,7 @@ export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataFor
 }
 
 function getMnemonicForIndex(ordinal: number): string {
-    const mnemonics = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const mnemonics: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     return mnemonics[ordinal];
 }
 
