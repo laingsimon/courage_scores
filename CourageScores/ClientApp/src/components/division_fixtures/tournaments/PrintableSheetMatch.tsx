@@ -5,7 +5,7 @@ import {BootstrapDropdown, IBootstrapDropdownItem} from "../../common/BootstrapD
 import {propChanged} from "../../../helpers/events";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {useTournament} from "./TournamentContainer";
-import {sortBy} from "../../../helpers/collections";
+import {any, sortBy} from "../../../helpers/collections";
 import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
@@ -42,6 +42,23 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
     })
 
     function beginEditSide(designation: 'A' | 'B') {
+        // check that the round exists...
+        let round: TournamentRoundDto = tournamentData.round;
+        let highestRoundIndex: number = 0;
+
+        for (let index = 0; index < roundIndex; index++) {
+            if (round && any(round.matches)) {
+                highestRoundIndex++;
+            }
+
+            round = round ? round.nextRound : null;
+        }
+
+        if (roundIndex > highestRoundIndex) {
+            alert('Finish entering data for the previous rounds first');
+            return;
+        }
+
         const side: ILayoutDataForSide = matchData['side' + designation];
         const editSide: IEditSide = {
             sideId: side.id,
@@ -75,16 +92,26 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
         };
     }
 
-    async function onSave() {
-        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+    function getEditableRound(newTournamentData: TournamentGameDto, addIfNotExists?: boolean) {
         let newRound: TournamentRoundDto = newTournamentData.round || getEmptyRound();
         newTournamentData.round = newRound;
 
         for (let index = 0; index < roundIndex; index++) {
-            const nextRound: TournamentRoundDto = Object.assign({}, newRound.nextRound || getEmptyRound());
+            const nextRound: TournamentRoundDto = Object.assign({}, newRound.nextRound || (addIfNotExists ? getEmptyRound() : null));
             newRound.nextRound = nextRound;
             newRound = nextRound;
+
+            if (!newRound) {
+                break;
+            }
         }
+
+        return newRound;
+    }
+
+    async function onSave() {
+        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+        const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
 
         let currentMatch: TournamentMatchDto;
         if (matchIndex >= newRound.matches.length) {
@@ -111,14 +138,7 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
 
     async function onRemove() {
         const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-        let newRound: TournamentRoundDto = newTournamentData.round || getEmptyRound();
-        newTournamentData.round = newRound;
-
-        for (let index = 0; index < roundIndex; index++) {
-            const nextRound: TournamentRoundDto = Object.assign({}, newRound.nextRound || getEmptyRound());
-            newRound.nextRound = nextRound;
-            newRound = nextRound;
-        }
+        const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
 
         let currentMatch: TournamentMatchDto = newRound.matches[matchIndex];
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
