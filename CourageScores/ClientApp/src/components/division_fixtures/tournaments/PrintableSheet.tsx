@@ -347,7 +347,6 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                         {roundData.matches.map((matchData: ILayoutDataForMatch, matchIndex: number) => <PrintableSheetMatch
                             key={matchIndex}
                             matchData={matchData}
-                            noOfMatches={roundData.matches.length}
                             matchIndex={matchIndex}
                             roundIndex={roundIndex}
                             possibleSides={getPossibleSides(matchData, roundData)}

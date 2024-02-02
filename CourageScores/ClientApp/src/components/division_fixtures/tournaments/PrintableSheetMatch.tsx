@@ -13,7 +13,6 @@ import {createTemporaryId, repeat} from "../../../helpers/projection";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
-    noOfMatches: number;
     roundIndex: number;
     matchIndex: number;
     possibleSides: TournamentSideDto[];
@@ -209,7 +208,7 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
         <div datatype="match"
                      className={`p-0 border-solid border-1 m-1 position-relative ${matchData.bye ? 'opacity-50' : ''}`}>
             {matchData.mnemonic && !matchData.hideMnemonic
-                ? (<span className="position-absolute right-0 opacity-75">
+                ? (<span datatype="match-mnemonic" className="position-absolute right-0 opacity-75">
                         <span className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute" style={{left: -10, top: -10}}>
                             {matchData.mnemonic}
                         </span>
