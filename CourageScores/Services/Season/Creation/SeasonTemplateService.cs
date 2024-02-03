@@ -189,7 +189,8 @@ public class SeasonTemplateService : ISeasonTemplateService
     }
 
     [ExcludeFromCodeCoverage]
-    public Task<ActionResultDto<TemplateDto>> Upsert<TOut>(Guid id, IUpdateCommand<Template, TOut> updateCommand, CancellationToken token)
+    public Task<ActionResultDto<TemplateDto>> Upsert<TOut>(Guid? id, IUpdateCommand<Template, TOut> updateCommand,
+        CancellationToken token)
     {
         return _underlyingService.Upsert(id, updateCommand, token);
     }

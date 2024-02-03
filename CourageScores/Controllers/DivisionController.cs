@@ -59,7 +59,7 @@ public class DivisionController : Controller
     public async Task<ActionResultDto<DivisionDto>> Update(EditDivisionDto division, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateDivisionCommand>().WithData(division);
-        return await _divisionService.Upsert(division.Id ?? Guid.NewGuid(), command, token);
+        return await _divisionService.Upsert(division.Id, command, token);
     }
 
     [HttpDelete("/api/Division/{id}")]

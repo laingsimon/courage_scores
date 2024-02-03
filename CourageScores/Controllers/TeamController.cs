@@ -42,7 +42,7 @@ public class TeamController : Controller
     public async Task<ActionResultDto<TeamDto>> Update(EditTeamDto team, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateTeamCommand>().WithData(team);
-        return await _teamService.Upsert(team.Id ?? Guid.NewGuid(), command, token);
+        return await _teamService.Upsert(team.Id, command, token);
     }
 
     [HttpDelete("/api/Team/{id}/{seasonId}")]

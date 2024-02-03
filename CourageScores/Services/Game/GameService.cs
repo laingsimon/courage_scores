@@ -34,7 +34,8 @@ public class GameService : IGameService
         return _underlyingService.GetWhere(query, token).SelectAsync(g => Adapt(g, token));
     }
 
-    public async Task<ActionResultDto<GameDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Game.Game, TOut> updateCommand, CancellationToken token)
+    public async Task<ActionResultDto<GameDto>> Upsert<TOut>(Guid? id,
+        IUpdateCommand<Models.Cosmos.Game.Game, TOut> updateCommand, CancellationToken token)
     {
         var result = await _underlyingService.Upsert(id, updateCommand, token);
         if (result.Result != null)
