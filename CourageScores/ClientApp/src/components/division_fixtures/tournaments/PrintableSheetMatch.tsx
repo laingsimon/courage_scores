@@ -61,7 +61,7 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
         const side: ILayoutDataForSide = matchData['side' + designation];
         const editSide: IEditSide = {
             sideId: side.id,
-            score: designation === 'A' ? matchData.scoreA : matchData.scoreB,
+            score: (designation === 'A' ? matchData.scoreA : matchData.scoreB) || '0',
             designation: designation,
         };
 
@@ -78,7 +78,7 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
 
     function renderSide(side: ILayoutDataForSide, type: 'A' | 'B') {
         return <div className="no-wrap pe-3">
-            {side.link ? (<span datatype={`side${type}name`}>{side.link}</span>) : (<span datatype={`side${type}name`}>&nbsp;</span>)}
+            {side.link && !editable ? (<span datatype={`side${type}name`}>{side.link}</span>) : (<span datatype={`side${type}name`}>{side.name}</span>)}
             {side.mnemonic ? <span className="text-secondary-50 opacity-75 small" datatype={`side${type}mnemonic`}>{side.mnemonic}</span> : null}
         </div>
     }

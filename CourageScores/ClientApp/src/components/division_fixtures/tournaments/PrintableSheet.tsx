@@ -371,7 +371,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                             key={side.id}
                             onClick={editable ? () => setEditSide(side) : null}
                             className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
-                            {index + 1} - {getLinkToSide(side)}
+                            {index + 1} - {editable ? side.name : getLinkToSide(side)}
                         </li>)}
                         {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50" onClick={() => setNewSide({ id: createTemporaryId() })}>
                             Add a side
