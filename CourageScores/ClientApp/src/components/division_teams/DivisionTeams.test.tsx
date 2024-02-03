@@ -119,7 +119,7 @@ describe('DivisionTeams', () => {
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const teamsRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(teamsRows.length).toEqual(2);
             assertTeam(teamsRows[0], ['A team 1', '1', '2', '3', '4', '5', '6']);
@@ -133,7 +133,7 @@ describe('DivisionTeams', () => {
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
             expect(addTeamButton).toBeFalsy();
         });
@@ -158,7 +158,7 @@ describe('DivisionTeams', () => {
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const teamsRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(teamsRows.length).toEqual(2);
             assertTeam(teamsRows[0], ['✏️➕A team 1', '1', '2', '3', '4', '5', '6']);
@@ -172,7 +172,7 @@ describe('DivisionTeams', () => {
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
             expect(addTeamButton).toBeTruthy();
         });
@@ -185,7 +185,7 @@ describe('DivisionTeams', () => {
 
             await doClick(findButton(context.container, 'Add team'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Create a new team...');
@@ -216,7 +216,7 @@ describe('DivisionTeams', () => {
             await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);
             await doClick(findButton(dialog, 'Add team'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(divisionReloaded).toEqual(true);
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy(); // dialog closed
         });

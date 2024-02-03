@@ -76,7 +76,7 @@ describe('MatchReport', () => {
                 saygMatches: []
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('h2').textContent).toEqual('SOMERSET DARTS ORGANISATION');
             expect(context.container.querySelector('h3').textContent).toEqual('DIVISION (GENDER)');
         });
@@ -93,7 +93,7 @@ describe('MatchReport', () => {
                 saygMatches: []
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('thead tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(3);
             expect(getRowContent(rows[0], 'th')).toEqual(['HOSTvOPPONENT']);
@@ -128,7 +128,7 @@ describe('MatchReport', () => {
                 saygMatches: [saygMatch],
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(3);
             expect(getRowContent(rows[0], 'td')).toEqual([
@@ -157,7 +157,7 @@ describe('MatchReport', () => {
                 saygMatches: [saygMatch],
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const legsWonContainer = context.container.querySelector('table.table + div');
             expect(legsWonContainer).toBeTruthy();
             const legsWon = Array.from(legsWonContainer.querySelectorAll('div'));

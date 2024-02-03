@@ -145,7 +145,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {}
             }, { side, onChange, onClose, onApply, onDelete }, null);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
             expect(nameInput.value).toEqual('');
             expect(context.container.querySelector('.dropdown-menu')).not.toBeNull();
@@ -163,7 +163,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {}
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
             expect(nameInput.value).toEqual('SIDE NAME');
             expect(context.container.querySelector('.dropdown-menu')).toBeNull();
@@ -220,7 +220,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {}
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
             expect(nameInput.value).toEqual('SIDE NAME');
             expect(context.container.querySelector('.dropdown-menu .active')).not.toBeNull();
@@ -240,7 +240,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {}
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const noShowInput = context.container.querySelector('input[name="noShow"]') as HTMLInputElement;
             expect(noShowInput.checked).toEqual(true);
         });
@@ -256,7 +256,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {}
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const noShowInput = context.container.querySelector('input[name="noShow"]') as HTMLInputElement;
             expect(noShowInput.checked).toEqual(false);
         });
@@ -278,7 +278,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {}
             }, { side, onChange, onClose, onApply, onDelete }, [teamNotInSeason]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).not.toContain('NOT IN SEASON PLAYER');
         });
@@ -298,7 +298,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player),
             }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).not.toContain('OTHER DIVISION PLAYER');
         });
@@ -319,7 +319,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player),
             }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).toContain('OTHER DIVISION PLAYER');
         });
@@ -333,7 +333,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).toContain('PLAYER (⚠ Playing in another tournament)');
         });
@@ -347,7 +347,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER (🚫 Selected in another side)');
         });
@@ -359,7 +359,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side: tournamentData.sides[0], onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER');
         });
@@ -375,7 +375,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-danger')).toBeTruthy();
             expect(context.container.querySelector('.btn-danger').textContent).toEqual('Delete side');
         });
@@ -389,7 +389,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-danger')).toBeFalsy();
         });
 
@@ -410,7 +410,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
             expect(buttonText).toContain('Add player/s');
@@ -431,7 +431,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
             expect(buttonText).toContain('Add player/s');
@@ -454,7 +454,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
             expect(buttonText).not.toContain('Add player');
@@ -477,7 +477,7 @@ describe('EditSide', () => {
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
             const buttonText = buttons.map(btn => btn.textContent);
             expect(buttonText).not.toContain('Add player');
@@ -507,7 +507,7 @@ describe('EditSide', () => {
 
             await doChange(context.container, 'input[name="name"]', 'NEW NAME', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'NEW NAME',
@@ -526,7 +526,7 @@ describe('EditSide', () => {
 
             await doClick(context.container, 'input[name="noShow"]');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'SIDE NAME',
@@ -545,7 +545,7 @@ describe('EditSide', () => {
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEAM');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: side.id,
                 players: [],
@@ -566,7 +566,7 @@ describe('EditSide', () => {
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Select team');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'TEAM',
@@ -587,7 +587,7 @@ describe('EditSide', () => {
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'PLAYER',
@@ -610,7 +610,7 @@ describe('EditSide', () => {
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'PLAYER',
@@ -633,7 +633,7 @@ describe('EditSide', () => {
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'OTHER NAME',
@@ -660,7 +660,7 @@ describe('EditSide', () => {
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'ANOTHER PLAYER, PLAYER',
@@ -691,7 +691,7 @@ describe('EditSide', () => {
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'SIDE NAME',
@@ -723,7 +723,7 @@ describe('EditSide', () => {
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'PLAYER',
@@ -746,7 +746,7 @@ describe('EditSide', () => {
 
             await doClick(findButton(context.container, 'Delete side'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(confirm).toEqual('Are you sure you want to remove SIDE NAME?');
             expect(deleted).toEqual(true);
         });
@@ -766,7 +766,7 @@ describe('EditSide', () => {
 
             await doClick(findButton(context.container, 'Delete side'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(confirm).toEqual('Are you sure you want to remove SIDE NAME?');
             expect(deleted).toEqual(false);
         });
@@ -787,7 +787,7 @@ describe('EditSide', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(alert).toEqual('Please enter a name for this side');
             expect(applied).toEqual(false);
         });
@@ -806,7 +806,7 @@ describe('EditSide', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(alert).toEqual('Select a team or some players');
             expect(applied).toEqual(false);
         });
@@ -823,7 +823,7 @@ describe('EditSide', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(applied).toEqual(true);
         });
 
@@ -839,7 +839,7 @@ describe('EditSide', () => {
 
             await doClick(findButton(context.container, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(closed).toEqual(true);
             expect(applied).toEqual(false);
         });
@@ -852,7 +852,7 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: alreadyPlaying(player),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             const playerItem = playerItems.filter(li => li.textContent === 'PLAYER (⚠ Playing in another tournament)')[0];
             expect(playerItem).toBeTruthy();
@@ -860,7 +860,7 @@ describe('EditSide', () => {
 
             await doClick(playerItem);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'SIDE NAME',
@@ -878,7 +878,7 @@ describe('EditSide', () => {
                 season,
                 alreadyPlaying: {},
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             const playerItem = playerItems.filter(li => li.textContent === 'ANOTHER PLAYER (🚫 Selected in another side)')[0];
             expect(playerItem).toBeTruthy();
@@ -886,7 +886,7 @@ describe('EditSide', () => {
 
             await doClick(playerItem);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toBeNull();
         });
 
@@ -987,7 +987,7 @@ describe('EditSide', () => {
             await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
             await doClick(findButton(dialog, 'Add player'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: side.id,
                 name: 'SIDE NAME',

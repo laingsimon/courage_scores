@@ -103,7 +103,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
@@ -125,7 +125,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(playersRows.length).toEqual(1);
             assertPlayer(playersRows[0], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
@@ -139,7 +139,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: true});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             const heading = context.container.querySelector('.content-background > div > p');
@@ -154,7 +154,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: true, hideHeading: undefined});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '🤴 A captain', '6', '7', '8', '2', '3', '4', '5']);
@@ -184,7 +184,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5']);
@@ -206,7 +206,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: undefined});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', 'A team', '0', '0', '0', '2', '3', '4', '5']);
@@ -221,7 +221,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: undefined, hideHeading: true});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             const heading = context.container.querySelector('.content-background > div > p');
@@ -236,7 +236,7 @@ describe('DivisionPlayers', () => {
                 {...divisionData, onReloadDivision, setDivisionData},
                 {hideVenue: true, hideHeading: undefined});
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[]
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], ['1', '✏️🗑️🤴 A captain', '6', '7', '8', '2', '3', '4', '5']);

@@ -43,7 +43,7 @@ describe('MatchLogTableHeading', () => {
                 noOfThrows: 3,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[0])).toEqual(['TEAM', 'Dart average', '', '']);
@@ -56,7 +56,7 @@ describe('MatchLogTableHeading', () => {
                 noOfThrows: 3,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
             const cells = Array.from(rows[0].querySelectorAll('th'));

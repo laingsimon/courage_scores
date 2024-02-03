@@ -134,6 +134,33 @@ public class GenericDataServiceTests
     }
 
     [Test]
+    public async Task Upsert_WhenNullId_CreatesNewItem()
+    {
+        var command = new Mock<IUpdateCommand<Model, object>>();
+        var user = new UserDto
+        {
+            Name = Model.CreatePermitted,
+        };
+        var commandResult = new ActionResult<object>
+        {
+            Success = true,
+            Messages =
+            {
+                "some message",
+            },
+        };
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
+        command.Setup(c => c.ApplyUpdate(It.IsAny<Model>(), _token)).ReturnsAsync(() => commandResult);
+
+        var result = await _service.Upsert(null, command.Object, _token);
+
+        _repository.Verify(r => r.Get(It.IsAny<Guid>(), _token), Times.Never);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.True);
+        _repository.Verify(r => r.Upsert(It.IsAny<Model>(), _token));
+    }
+
+    [Test]
     public async Task Upsert_WhenNotFoundAndNotAnAdmin_ReturnsUnsuccessful()
     {
         var id = Guid.NewGuid();

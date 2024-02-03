@@ -218,7 +218,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].textContent).toEqual('SIDE A');
@@ -246,7 +246,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].textContent).toEqual('SIDE A');
@@ -274,7 +274,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].className).toContain('bg-winner');
@@ -301,7 +301,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[1].textContent).toEqual('3');
@@ -326,7 +326,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].className).not.toContain('bg-winner');
@@ -353,7 +353,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[1].textContent).toEqual('0');
@@ -378,7 +378,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(5);
                 expect(cells[0].textContent).toEqual('SIDE A');
@@ -406,7 +406,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).not.toContain('📊');
             });
@@ -479,7 +479,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertDropdown(cells[0], 'SIDE A', ['SIDE A', 'SIDE B', 'SIDE E']);
@@ -507,7 +507,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[5].textContent).toContain('🛠');
             });
@@ -535,7 +535,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).toContain('📊');
             });
@@ -560,7 +560,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).toContain('📊');
             });
@@ -591,7 +591,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).not.toContain('📊');
             });
@@ -616,7 +616,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).not.toContain('📊');
             });
@@ -639,7 +639,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertScore(cells[1], '3');
@@ -664,7 +664,7 @@ describe('TournamentRoundMatch', () => {
                     onMatchOptionsChanged,
                 }, account);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertScore(cells[1], '0');
@@ -756,7 +756,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
@@ -804,7 +804,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('SOME ERROR');
             expect(context.container.textContent).toContain('Could not create sayg session');
         });
@@ -893,7 +893,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createdSaygSessions.length).toEqual(0);
             expect(message).toEqual('Save the tournament first');
         });
@@ -938,7 +938,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createdSaygSessions.length).toEqual(0);
             expect(message).toEqual('Game has already been played; cannot score as you go');
         });
@@ -983,7 +983,7 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(cells[0], '📊'));
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
 
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
@@ -1017,7 +1017,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], '📊'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
@@ -1067,7 +1067,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], 'Delete sayg'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeFalsy();
             expect(deletedSayg).toEqual({
@@ -1121,7 +1121,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[0], 'Delete sayg'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(deletedSayg).toBeNull();
@@ -1207,12 +1207,12 @@ describe('TournamentRoundMatch', () => {
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, '🎯SIDE A'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedSaygData.legs[0].playerSequence).toEqual([
                 {text: 'SIDE A', value: 'home'},
                 {text: 'SIDE B', value: 'away'},
@@ -1247,12 +1247,12 @@ describe('TournamentRoundMatch', () => {
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(oneEighties).toEqual([playerSideA]);
         });
 
@@ -1284,12 +1284,12 @@ describe('TournamentRoundMatch', () => {
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(oneEighties).toEqual([]);
         });
 
@@ -1321,12 +1321,12 @@ describe('TournamentRoundMatch', () => {
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(oneEighties).toEqual([]);
         });
 
@@ -1358,12 +1358,12 @@ describe('TournamentRoundMatch', () => {
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(hiChecks).toEqual([{
                 score: 151,
                 player: playerSideB,
@@ -1398,12 +1398,12 @@ describe('TournamentRoundMatch', () => {
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(hiChecks).toEqual([]);
         });
 
@@ -1435,12 +1435,12 @@ describe('TournamentRoundMatch', () => {
                 .build();
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(hiChecks).toEqual([]);
         });
 
@@ -1465,7 +1465,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[5], '🛠'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Edit match options');
@@ -1520,7 +1520,7 @@ describe('TournamentRoundMatch', () => {
 
             await doChange(cells[1], 'input', '5', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {scoreA: 5})],
                 matchOptions: [],
@@ -1551,7 +1551,7 @@ describe('TournamentRoundMatch', () => {
 
             await doChange(cells[1], 'input', '', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {scoreA: 0})],
                 matchOptions: [],
@@ -1582,7 +1582,7 @@ describe('TournamentRoundMatch', () => {
 
             await doSelectOption(cells[0].querySelector('.dropdown-menu'), 'SIDE C');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {sideA: sideC})],
                 matchOptions: [],
@@ -1613,7 +1613,7 @@ describe('TournamentRoundMatch', () => {
 
             await doChange(cells[3], 'input', '5', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {scoreB: 5})],
                 matchOptions: [],
@@ -1644,7 +1644,7 @@ describe('TournamentRoundMatch', () => {
 
             await doChange(cells[3], 'input', '', context.user);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {scoreB: 0})],
                 matchOptions: [],
@@ -1675,7 +1675,7 @@ describe('TournamentRoundMatch', () => {
 
             await doSelectOption(cells[4].querySelector('.dropdown-menu'), 'SIDE C');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {sideB: sideC})],
                 matchOptions: [],
@@ -1711,7 +1711,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[5], '🗑'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(confirm).toEqual('Are you sure you want to remove this match?');
             expect(updatedRound).toEqual({
                 matches: [],
@@ -1748,7 +1748,7 @@ describe('TournamentRoundMatch', () => {
 
             await doClick(findButton(cells[5], '🗑'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(confirm).toEqual('Are you sure you want to remove this match?');
             expect(updatedRound).toBeNull();
         });

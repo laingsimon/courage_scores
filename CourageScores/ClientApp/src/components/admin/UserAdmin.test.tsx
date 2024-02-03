@@ -71,7 +71,7 @@ describe('UserAdmin', () => {
 
         await renderComponent([account], account);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(context.container.textContent).toContain('Manage access');
         expect(getAccess('manageAccess').checked).toEqual(false);
     });
@@ -86,7 +86,7 @@ describe('UserAdmin', () => {
 
         await doClick(context.container, 'input[id="showEmailAddress"]');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(context.container.textContent).toContain('You a@b.com');
     });
 
@@ -108,7 +108,7 @@ describe('UserAdmin', () => {
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Test 1');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(context.container.textContent).toContain('Manage access');
         expect(getAccess('manageAccess').checked).toEqual(false);
     });
@@ -134,7 +134,7 @@ describe('UserAdmin', () => {
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(context.container.textContent).toContain('Manage access');
         expect(getAccess('manageAccess').checked).toEqual(true);
     });
@@ -162,7 +162,7 @@ describe('UserAdmin', () => {
 
         await doClick(findButton(context.container, 'Set access'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedAccess).toEqual({
             access: {
                 manageAccess: true,
@@ -196,7 +196,7 @@ describe('UserAdmin', () => {
 
         await doClick(findButton(context.container, 'Set access'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(context.container.textContent).toContain('SOME ERROR');
         expect(context.container.textContent).toContain('Could not save access');
     });
@@ -252,7 +252,7 @@ describe('UserAdmin', () => {
 
         await doClick(findButton(context.container, 'Set access'));
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(updatedAccess).not.toBeNull();
         expect(accountReloaded).toEqual(true);
     });

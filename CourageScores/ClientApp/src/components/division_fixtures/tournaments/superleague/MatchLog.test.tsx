@@ -79,7 +79,7 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('⚠ No data available for the match between A and B');
         });
 
@@ -97,7 +97,7 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('⚠ No data available for the match between A and B');
         });
 
@@ -117,7 +117,7 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = Array.from(context.container.querySelectorAll('table.table'))[0];
             const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
@@ -145,7 +145,7 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = Array.from(context.container.querySelectorAll('table.table'))[0];
             const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
@@ -175,7 +175,7 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch]
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table.table');
             const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
@@ -209,7 +209,7 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch1, saygMatch2]
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstMatchTable = Array.from(context.container.querySelectorAll('table.table'))[0];
             const secondMatchTable = Array.from(context.container.querySelectorAll('table.table'))[1];
             const firstMatchRows = Array.from(firstMatchTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
@@ -247,7 +247,7 @@ describe('MatchLog', () => {
                 saygMatches: [saygMatch1, saygMatch2]
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstMatchTable = Array.from(context.container.querySelectorAll('table.table'))[0];
             const secondMatchTable = Array.from(context.container.querySelectorAll('table.table'))[1];
             const firstMatchRows = Array.from(firstMatchTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];

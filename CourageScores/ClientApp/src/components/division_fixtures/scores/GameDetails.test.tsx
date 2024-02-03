@@ -128,7 +128,7 @@ describe('GameDetails', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const shareButton = context.container.querySelectorAll('button')[0];
             expect(shareButton).toBeTruthy();
             expect(shareButton.textContent).toEqual('🔗');

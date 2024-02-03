@@ -54,7 +54,7 @@ describe('LiveSayg', () => {
 
         await renderComponent('/live/match/:id', '/live/match/' + saygData.id);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(requestedSaygId).toEqual(saygData.id);
     })
 });

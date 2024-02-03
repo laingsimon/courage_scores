@@ -87,7 +87,7 @@ describe('DivisionTeam', () => {
             };
 
             await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const cells = Array.from(context.container.querySelectorAll('td'));
             const cellText = cells.map(c => c.textContent);
@@ -116,7 +116,7 @@ describe('DivisionTeam', () => {
             };
 
             await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const firstCell = context.container.querySelector('td:first-child');
             expect(firstCell.textContent).toEqual('TEAM');
@@ -151,12 +151,12 @@ describe('DivisionTeam', () => {
                 address: '',
             };
             await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
 
             await doClick(findButton(firstCell, '✏️'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Edit team: TEAM');
@@ -176,7 +176,7 @@ describe('DivisionTeam', () => {
                 address: '',
             };
             await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
@@ -184,7 +184,7 @@ describe('DivisionTeam', () => {
             await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);
             await doClick(findButton(dialog, 'Save team'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedTeam).not.toBeNull();
             expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(updatedTeam.name).toEqual('NEW TEAM');
@@ -203,13 +203,13 @@ describe('DivisionTeam', () => {
                 address: '',
             };
             await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null});
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '✏️'));
 
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -227,12 +227,12 @@ describe('DivisionTeam', () => {
                 seasons: [],
             };
             await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null}, [team]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
 
             await doClick(findButton(firstCell, '➕'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Assign seasons');
@@ -252,7 +252,7 @@ describe('DivisionTeam', () => {
                 seasons: [],
             };
             await renderComponent(team, account, {id: division.id, season, onReloadDivision, name: '', setDivisionData: null}, [team]);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstCell = context.container.querySelector('td:first-child');
             await doClick(findButton(firstCell, '➕'));
             const dialog = context.container.querySelector('.modal-dialog');

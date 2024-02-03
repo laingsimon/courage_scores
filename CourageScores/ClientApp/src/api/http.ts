@@ -8,6 +8,8 @@ export interface IHttp {
     put(relativeUrl: string, content: any): any;
 }
 
+/* istanbul ignore file */
+
 class Http implements IHttp {
     private settings: ISettings;
     constructor(settings: ISettings) {

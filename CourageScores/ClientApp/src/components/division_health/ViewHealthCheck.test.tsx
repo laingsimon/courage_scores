@@ -38,7 +38,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('✔ some description');
@@ -60,7 +60,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('❌ some description');
@@ -82,7 +82,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some error');
@@ -104,7 +104,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some warning');
@@ -126,7 +126,7 @@ describe('DivisionHealth', () => {
             },
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const checkItems = Array.from(context.container.querySelectorAll('ol li'));
         expect(checkItems.length).toEqual(1);
         expect(checkItems[0].textContent).toContain('some message');

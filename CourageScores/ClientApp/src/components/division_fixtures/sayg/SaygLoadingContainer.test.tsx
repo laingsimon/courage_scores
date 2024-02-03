@@ -120,7 +120,7 @@ describe('SaygLoadingContainer', () => {
                 liveOptions: {},
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(containerProps).toEqual({
                 subscriptions: {},
                 enableLiveUpdates: expect.any(Function),
@@ -153,7 +153,7 @@ describe('SaygLoadingContainer', () => {
                 liveOptions: {},
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(containerProps).toEqual({
                 subscriptions: {},
                 liveOptions: expect.any(Object),
@@ -189,7 +189,7 @@ describe('SaygLoadingContainer', () => {
                 liveOptions: {},
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(loadError).toEqual('Data not found');
         });
 
@@ -213,7 +213,7 @@ describe('SaygLoadingContainer', () => {
                 liveOptions: {},
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(loadError).toEqual('Data not found');
         });
 
@@ -240,7 +240,7 @@ describe('SaygLoadingContainer', () => {
                 liveOptions: {},
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(sayg.lastUpdated).toEqual('2023-07-21');
         });
 
@@ -277,7 +277,7 @@ describe('SaygLoadingContainer', () => {
                     .build());
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(containerProps.sayg.lastUpdated).toEqual('2023-07-21');
         });
 
@@ -412,7 +412,10 @@ describe('SaygLoadingContainer', () => {
             expect(saved).toBeNull();
             expect(result).toBeNull();
             expect(containerProps.sayg.id).toBeUndefined();
-            expect(reportedError.hasError()).toEqual(true);
+            reportedError.verifyErrorEquals({
+                message: 'Cannot create property \'lastUpdated\' on string \'SOMETHING THAT WILL TRIGGER AN EXCEPTION\'',
+                stack: expect.any(String),
+            });
         });
 
         it('should save data when score changes and auto save enabled', async () => {
@@ -652,7 +655,7 @@ describe('SaygLoadingContainer', () => {
                 } as MessageEvent<string>);
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(renderedData).toEqual(newSaygData);
         });
 

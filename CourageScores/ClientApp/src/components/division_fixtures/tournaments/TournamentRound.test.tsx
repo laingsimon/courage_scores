@@ -173,7 +173,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.textContent).toContain('No matches defined');
             });
 
@@ -192,7 +192,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2']);
@@ -214,7 +214,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -242,7 +242,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
                 assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -283,7 +283,7 @@ describe('TournamentRound', () => {
                 onHiCheck,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual(['Quarter-Final', 'Semi-Final']);
             const roundTables = context.container.querySelectorAll('table');
             assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -313,7 +313,7 @@ describe('TournamentRound', () => {
                 onHiCheck,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
             const roundTables = context.container.querySelectorAll('table');
             expect(roundTables.length).toEqual(1);
@@ -331,7 +331,7 @@ describe('TournamentRound', () => {
                 patchData,
                 onHiCheck,
             });
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('strong'));
 
@@ -366,7 +366,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('table')).toBeTruthy();
             });
 
@@ -385,7 +385,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertEditableMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2', '🗑🛠']);
@@ -413,7 +413,7 @@ describe('TournamentRound', () => {
                         onHiCheck,
                     });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertEditableMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2', '🗑🛠']);
@@ -441,7 +441,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
                 assertEditableMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -488,7 +488,7 @@ describe('TournamentRound', () => {
                         onHiCheck,
                     });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual(['Quarter-Final', 'Semi-Final', 'Final']);
                 const roundTables = context.container.querySelectorAll('table');
                 assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
@@ -519,7 +519,7 @@ describe('TournamentRound', () => {
                     onHiCheck,
                 });
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
                 expect(roundTables.length).toEqual(1);
@@ -547,13 +547,13 @@ describe('TournamentRound', () => {
                         patchData,
                         onHiCheck,
                     });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 window.confirm = () => true;
 
                 await doClick(findButton(matchRow, '🗑'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [],
                     matchOptions: [],
@@ -580,13 +580,13 @@ describe('TournamentRound', () => {
                         patchData,
                         onHiCheck,
                     });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideAScore = matchRow.querySelector('td:nth-child(2)');
 
                 await doChange(sideAScore, 'input', '2', context.user);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
@@ -619,13 +619,13 @@ describe('TournamentRound', () => {
                         patchData,
                         onHiCheck,
                     });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideBScore = matchRow.querySelector('td:nth-child(4)');
 
                 await doChange(sideBScore, 'input', '2', context.user);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
@@ -658,7 +658,7 @@ describe('TournamentRound', () => {
                         patchData,
                         onHiCheck,
                     });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doClick(findButton(matchRow, '🛠'));
@@ -667,7 +667,7 @@ describe('TournamentRound', () => {
                 await doChange(matchOptionsDialog, 'input[name="startingScore"]', '123', context.user);
                 await doClick(findButton(matchOptionsDialog, 'Close'));
                 expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedRound).not.toBeNull();
                 expect(updatedRound.matchOptions).toEqual([{
                     startingScore: 123,
@@ -703,7 +703,7 @@ describe('TournamentRound', () => {
                         onHiCheck,
                     },
                     permittedAccount);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 expect(matchRow.textContent).not.toContain('📊');
@@ -738,11 +738,11 @@ describe('TournamentRound', () => {
                         onHiCheck,
                     },
                     permittedAccount);
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog).toBeTruthy();
             });
@@ -766,13 +766,13 @@ describe('TournamentRound', () => {
                         patchData,
                         onHiCheck,
                     });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideA = matchRow.querySelector('td:nth-child(1)');
 
                 await doSelectOption(sideA.querySelector('.dropdown-menu'), 'SIDE 3');
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
@@ -805,13 +805,13 @@ describe('TournamentRound', () => {
                         patchData,
                         onHiCheck,
                     });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideB = matchRow.querySelector('td:nth-child(5)');
 
                 await doSelectOption(sideB.querySelector('.dropdown-menu'), 'SIDE 3');
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(updatedRound).toEqual({
                     matches: [{
                         id: match.id,
@@ -836,7 +836,7 @@ describe('TournamentRound', () => {
                     patchData,
                     onHiCheck,
                 });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 let message: string;
                 window.alert = (msg) => message = msg;
@@ -859,7 +859,7 @@ describe('TournamentRound', () => {
                     patchData,
                     onHiCheck,
                 });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 let message: string;
                 window.alert = (msg) => message = msg;
@@ -889,7 +889,7 @@ describe('TournamentRound', () => {
                         patchData,
                         onHiCheck,
                     });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
@@ -919,7 +919,7 @@ describe('TournamentRound', () => {
                     patchData,
                     onHiCheck,
                 });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
@@ -951,7 +951,7 @@ describe('TournamentRound', () => {
                     patchData,
                     onHiCheck,
                 });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const roundTables = context.container.querySelectorAll('table');
                 const subMatchRow = roundTables[1].querySelector('tr:nth-child(1)');
 
@@ -988,7 +988,7 @@ describe('TournamentRound', () => {
                     patchData,
                     onHiCheck,
                 });
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
 
                 const roundTables = Array.from(context.container.querySelectorAll('table'));
                 expect(roundTables.length).toEqual(2);
@@ -1031,10 +1031,10 @@ describe('TournamentRound', () => {
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
                 await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
@@ -1080,10 +1080,10 @@ describe('TournamentRound', () => {
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
                 await doChange(saygDialog, 'input[data-score-input="true"]', '150', context.user);
@@ -1134,17 +1134,17 @@ describe('TournamentRound', () => {
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
 
                 await doChange(saygDialog, 'input[data-score-input="true"]', '51', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(patchedData).toEqual({
                     nestInRound: true,
                     patch: {
@@ -1215,18 +1215,18 @@ describe('TournamentRound', () => {
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
                 saygApiData[nestedSaygData.id] = nestedSaygData;
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const secondRoundTable = context.container.querySelectorAll('table')[1];
                 const matchRow = secondRoundTable.querySelector('tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
 
                 await doChange(saygDialog, 'input[data-score-input="true"]', '41', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(patchedData).toEqual({
                     nestInRound: true,
                     patch: {

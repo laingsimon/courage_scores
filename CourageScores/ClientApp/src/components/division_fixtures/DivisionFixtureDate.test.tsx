@@ -107,7 +107,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
@@ -137,7 +137,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
@@ -169,7 +169,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -199,7 +199,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
@@ -232,7 +232,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
@@ -262,7 +262,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
@@ -292,7 +292,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const component = context.container.querySelector('div');
             expect(component).toBeTruthy();
             expect(component.className).not.toContain('text-secondary-50');
@@ -317,7 +317,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const component = context.container.querySelector('div');
             expect(component).toBeTruthy();
             expect(component.className).not.toContain('text-secondary-50');
@@ -342,7 +342,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const component = context.container.querySelector('div');
             expect(component).toBeTruthy();
             expect(component.className).toContain('text-secondary-50');
@@ -374,7 +374,7 @@ describe('DivisionFixtureDate', () => {
                     .build(),
                 account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -509,7 +509,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -544,7 +544,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team).withTeam(homeTeam).withTeam(awayTeam)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(2);
@@ -575,7 +575,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -613,7 +613,7 @@ describe('DivisionFixtureDate', () => {
 
             await doSelectOption(table.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(newFixtures).toEqual([expected]);
         });
 
@@ -698,7 +698,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]')).toBeTruthy();
         });
 
@@ -746,7 +746,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account, null, [team, awayTeam]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
@@ -779,7 +779,7 @@ describe('DivisionFixtureDate', () => {
                 .withTeam(team)
                 .build(), account, null, [team, awayTeam]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));

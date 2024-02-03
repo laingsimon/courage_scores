@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export interface ISettings {
     get apiHost(): string;
     get invalidateCacheOnNextRequest(): boolean;

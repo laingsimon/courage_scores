@@ -37,7 +37,7 @@ public class TournamentGameController : Controller
     public async Task<ActionResultDto<TournamentGameDto>> Update(EditTournamentGameDto game, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateTournamentGameCommand>().WithData(game);
-        return await _tournamentService.Upsert(game.Id ?? Guid.NewGuid(), command, token);
+        return await _tournamentService.Upsert(game.Id, command, token);
     }
 
     [HttpDelete("/api/Tournament/{id}")]

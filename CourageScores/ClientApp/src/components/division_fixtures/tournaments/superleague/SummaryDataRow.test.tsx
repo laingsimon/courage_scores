@@ -84,7 +84,7 @@ describe('SummaryDataRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const row = context.container.querySelector('tr');
             expect(getRowContent(row, 'td')).toEqual([
                 '1', 'HOST', '2', '6', '6', '0', '0', '33.4',
@@ -108,7 +108,7 @@ describe('SummaryDataRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const row = context.container.querySelector('tr');
             const cells = Array.from(row.querySelectorAll('td'));
             expect(cells[1].className).toEqual('bg-winner');
@@ -131,7 +131,7 @@ describe('SummaryDataRow', () => {
                 opponentPlayerName: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const row = context.container.querySelector('tr');
             const cells = Array.from(row.querySelectorAll('td'));
             expect(cells[1].className).toEqual('');

@@ -251,7 +251,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, true);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const container = context.container.querySelector('.content-background');
                 expect(container).toBeTruthy();
                 expect(container.className).toContain('loading-background');
@@ -268,8 +268,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(true);
-                expect(reportedError.error).toEqual('Tournament could not be found');
+                reportedError.verifyErrorEquals('Tournament could not be found');
                 expect(context.container.textContent).toContain('Tournament not found');
             });
 
@@ -295,8 +294,10 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(true);
-                expect(reportedError.error.message).toEqual('Could not find the season for this tournament');
+                reportedError.verifyErrorEquals({
+                    message: 'Could not find the season for this tournament',
+                    stack: expect.any(String),
+                });
             });
 
             it('tournament without any sides', async () => {
@@ -324,7 +325,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
@@ -356,7 +357,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
@@ -391,7 +392,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const printableSheet = context.container.querySelector('div[datatype="printable-sheet"]');
                 expect(printableSheet).toBeTruthy();
             });
@@ -434,8 +435,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(true);
-                expect(reportedError.error).toEqual('No seasons found');
+                reportedError.verifyErrorEquals('No seasons found');
             });
 
             it('loading', async () => {
@@ -459,7 +459,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, true);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const container = context.container.querySelector('.content-background');
                 expect(container).toBeTruthy();
                 expect(container.className).toContain('loading-background');
@@ -486,7 +486,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 // address
                 const address = context.container.querySelector('.content-background > div:nth-child(2)');
                 expect(address).toBeTruthy();
@@ -534,7 +534,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(6)');
                 expect(editTournamentComponent).toBeTruthy();
                 expect(editTournamentComponent.textContent).toContain('Playing:');
@@ -567,7 +567,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
                 expect(superLeagueOptions).toBeTruthy();
                 const hostInput = superLeagueOptions.querySelector('input[name="host"]') as HTMLInputElement;
@@ -603,7 +603,7 @@ describe('Tournament', () => {
                     divisions: [division],
                 }, false);
 
-                expect(reportedError.hasError()).toEqual(false);
+                reportedError.verifyNoError();
                 expect(context.container.querySelector('div[data-options-for="superleague"]')).toBeFalsy();
             });
         });
@@ -692,7 +692,7 @@ describe('Tournament', () => {
             await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(createdPlayer).not.toBeNull();
             expect(createdPlayer.teamId).toEqual(team.id);
             expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
@@ -1216,7 +1216,7 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             (window as any).open = noop;
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1331,13 +1331,13 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
                 data: {
                     round: {
@@ -1394,13 +1394,13 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
                 data: {
                     additional180: playerA,
@@ -1451,13 +1451,13 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '100', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
                 data: {
                     additionalOver100Checkout: {
@@ -1524,13 +1524,13 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(patchedTournamentData).not.toBeNull();
             expect(context.container.textContent).toContain('Could not save tournament details');
             expect(context.container.textContent).toContain('SOME ERROR');
@@ -1564,7 +1564,7 @@ describe('Tournament', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(dialog.querySelector('.list-group-item')); // click on a player
             await doClick(findButton(dialog, 'Save')); // close the dialog
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const oneEightiesDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
             const oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
@@ -1599,7 +1599,7 @@ describe('Tournament', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(dialog.querySelector('.list-group-item')); // click on a player
             await doClick(findButton(dialog, 'Save')); // close the dialog
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
             const hiCheckPlayers = Array.from(hiCheckDropdown.querySelectorAll('.dropdown-item'));
@@ -1635,7 +1635,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Delete side')); // delete the side
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const oneEightyDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
             expect(oneEightyDropdown).toBeFalsy();
@@ -1670,7 +1670,7 @@ describe('Tournament', () => {
             await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Delete side')); // delete the side
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
             expect(hiCheckDropdown).toBeFalsy();

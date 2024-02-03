@@ -309,7 +309,7 @@ describe('EditTournament', () => {
             await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM 1');
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.sides).toEqual([existingSide, {
                 id: expect.any(String),
                 name: 'TEAM 1',
@@ -346,7 +346,7 @@ describe('EditTournament', () => {
             await doChange(dialog, 'input[name="name"]', 'NAME   ', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.sides).toEqual([{
                 id: expect.any(String),
                 name: 'NAME',
@@ -380,7 +380,7 @@ describe('EditTournament', () => {
             expect(dialog).toBeTruthy();
             await doClick(findButton(dialog, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(sides.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -415,7 +415,7 @@ describe('EditTournament', () => {
             expect(dialog).toBeTruthy();
             await doClick(findButton(dialog, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(sides.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -450,7 +450,7 @@ describe('EditTournament', () => {
             expect(dialog).toBeTruthy();
             await doClick(findButton(dialog, 'Delete side'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.sides).toEqual([]);
         });
 
@@ -486,7 +486,7 @@ describe('EditTournament', () => {
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.round.matches[0]).toEqual({
                 id: expect.any(String),
                 sideA: {id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: []},
@@ -528,7 +528,7 @@ describe('EditTournament', () => {
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.round.matches[0]).toEqual({
                 id: expect.any(String),
                 sideA: null,
@@ -570,7 +570,7 @@ describe('EditTournament', () => {
             await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1   ', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.sides[0]).toEqual({
                 id: side.id,
                 name: 'NEW SIDE 1',

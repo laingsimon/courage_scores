@@ -263,7 +263,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -279,7 +279,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -347,7 +347,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -376,7 +376,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -517,7 +517,7 @@ describe('Score', () => {
                 };
             };
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -528,7 +528,7 @@ describe('Score', () => {
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
@@ -548,7 +548,7 @@ describe('Score', () => {
                 };
             };
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -581,7 +581,7 @@ describe('Score', () => {
                 };
             };
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
@@ -603,7 +603,7 @@ describe('Score', () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
@@ -618,7 +618,7 @@ describe('Score', () => {
             const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
@@ -637,7 +637,7 @@ describe('Score', () => {
 
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
         });
 
@@ -668,7 +668,7 @@ describe('Score', () => {
             await doClick(findButton(playerSelection, 'Another player'));
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
             expect(updatedFixtures[fixture.id].matches[0].homePlayers).toEqual([anotherHomePlayer]);
         });
@@ -688,7 +688,7 @@ describe('Score', () => {
             await doClick(findButton(dialog, 'Close'));
             await doClick(findButton(context.container, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
             expect(updatedFixtures[fixture.id].matchOptions[0].numberOfLegs).toEqual(30);
         });
@@ -700,13 +700,13 @@ describe('Score', () => {
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
             await renderComponent(fixtureData.id, appData);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             let alert: string;
             window.alert = (msg) => alert = msg;
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
@@ -735,15 +735,15 @@ describe('Score', () => {
                 match.awayScore = 1;
             });
             await renderComponent(fixtureData.id, appData);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             let alert: string;
             window.alert = (msg) => alert = msg;
             await doClick(context.container, 'span[title="See home submission"]');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
@@ -764,15 +764,15 @@ describe('Score', () => {
                 match.awayScore = 2;
             });
             await renderComponent(fixtureData.id, appData);
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             let alert: string;
             window.alert = (msg) => alert = msg;
             await doClick(context.container, 'span[title="See away submission"]');
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container, 'Unpublish'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
             const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
             const allScores = matches.flatMap(match => {
@@ -798,7 +798,7 @@ describe('Score', () => {
 
             await renderComponent(fixtureData.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
         });
 
         it('can show when only away submission present', async () => {
@@ -817,7 +817,7 @@ describe('Score', () => {
 
             await renderComponent(fixtureData.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
         });
     });
 
@@ -838,7 +838,7 @@ describe('Score', () => {
         it('renders score card without results', async () => {
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -866,7 +866,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -905,7 +905,7 @@ describe('Score', () => {
         it('renders score card without results', async () => {
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
@@ -933,7 +933,7 @@ describe('Score', () => {
 
             await renderComponent(fixture.id, appData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');

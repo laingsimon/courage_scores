@@ -13,7 +13,7 @@ export interface ITournamentSideProps {
 }
 
 export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITournamentSideProps) {
-    const [editSide, setEditSide] = useState(null);
+    const [editSide, setEditSide] = useState<TournamentSideDto>(null);
 
     function renderPlayers() {
         if (isEmpty(side.players || [])) {

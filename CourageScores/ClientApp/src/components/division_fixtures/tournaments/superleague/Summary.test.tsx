@@ -72,7 +72,7 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('No matches');
         });
 
@@ -93,7 +93,7 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('table thead tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(1);
             expect(getRowContent(rows[0], 'th')).toEqual([
@@ -120,7 +120,7 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('table.table tbody tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(1 + 1);
             expect(getRowContent(rows[0], 'td')).toEqual([
@@ -146,7 +146,7 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('table.table tbody tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(1 + 1);
             expect(getRowContent(rows[1], 'td')).toEqual([
@@ -173,7 +173,7 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('table.table tfoot tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[0], 'td')).toEqual([
@@ -202,7 +202,7 @@ describe('Summary', () => {
                 opponent: 'OPPONENT',
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const rows = Array.from(context.container.querySelectorAll('table.table tfoot tr')) as HTMLTableRowElement[];
             expect(rows.length).toEqual(2);
             expect(getRowContent(rows[1], 'td')).toEqual([

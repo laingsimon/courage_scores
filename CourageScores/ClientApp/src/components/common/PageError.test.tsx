@@ -44,7 +44,7 @@ describe('PageError', () => {
             (<PageError error={appError}/>));
 
         // don't allow onError to be called - would call infinite-loop/recursion
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
     }
 
     describe('with error details', () => {

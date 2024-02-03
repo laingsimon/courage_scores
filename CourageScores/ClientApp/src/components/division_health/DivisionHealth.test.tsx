@@ -72,7 +72,10 @@ describe('DivisionHealth', () => {
             onReloadDivision,
         });
 
-        expect(reportedError.hasError()).toEqual(true);
+        reportedError.verifyErrorEquals({
+            message: 'SOME ERROR',
+            stack: expect.any(String),
+        });
     });
 
     it('shows health-check results', async () => {
@@ -87,7 +90,7 @@ describe('DivisionHealth', () => {
             onReloadDivision,
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
     });
 
@@ -113,7 +116,7 @@ describe('DivisionHealth', () => {
             onReloadDivision,
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         assertHeading('Status: Healthy', 'text-success');
     });
 
@@ -139,7 +142,7 @@ describe('DivisionHealth', () => {
             onReloadDivision,
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         assertHeading('Status: Unhealthy', 'text-warning');
     });
 
@@ -165,7 +168,7 @@ describe('DivisionHealth', () => {
             onReloadDivision,
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         assertHeading('Status: Unhealthy', 'text-warning');
     });
 
@@ -191,7 +194,7 @@ describe('DivisionHealth', () => {
             onReloadDivision,
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         assertHeading('Status: Healthy', 'text-success');
     });
 
@@ -217,7 +220,7 @@ describe('DivisionHealth', () => {
             onReloadDivision,
         });
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         assertHeading('Status: Unhealthy', 'text-warning');
     });
 });

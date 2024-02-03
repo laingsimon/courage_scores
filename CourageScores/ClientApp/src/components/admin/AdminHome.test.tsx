@@ -66,7 +66,7 @@ describe('AdminHome', () => {
 
         const tab = context.container.querySelector(`.nav-tabs .nav-item a[href="${href}"]`);
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         if (exists) {
             expect(tab).not.toBeNull();
         } else {
@@ -95,7 +95,7 @@ describe('AdminHome', () => {
             address
         );
 
-        expect(reportedError.hasError()).toEqual(false);
+        reportedError.verifyNoError();
         const content = context.container.querySelector(`div.content-background`);
         expect(content).not.toBeNull();
         expect(content.innerHTML).toContain(expectContent);

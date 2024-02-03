@@ -77,7 +77,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             const sideLink = sideName.querySelector('a');
             expect(sideLink).toBeFalsy();
@@ -99,7 +99,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
@@ -119,7 +119,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
@@ -142,7 +142,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
@@ -166,7 +166,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
@@ -187,7 +187,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual('SIDE NAME');
             const players = context.container.querySelector('ol');
@@ -205,7 +205,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual('SIDE NAME');
             const players = context.container.querySelector('ol');
@@ -226,7 +226,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual('SIDE NAME');
             expect(sideName.className).toContain('text-decoration-line-through');
@@ -245,7 +245,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual(team.name);
             const teamName = context.container.querySelector('div[data-name="team-name"]');
@@ -266,7 +266,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             expect(sideName.textContent).toEqual(team.name);
             expect(sideName.className).toContain('text-decoration-line-through');
@@ -288,7 +288,7 @@ describe('TournamentSide', () => {
                 onRemove,
             }, [team]);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const sideName = context.container.querySelector('strong');
             const sideLink = sideName.querySelector('a');
             expect(sideLink).toBeFalsy();
@@ -318,7 +318,7 @@ describe('TournamentSide', () => {
 
             await doClick(findButton(context.container, '✏️'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
         });
@@ -355,7 +355,7 @@ describe('TournamentSide', () => {
             await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: sideId,
                 teamId: team.id,
@@ -381,7 +381,7 @@ describe('TournamentSide', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -402,7 +402,7 @@ describe('TournamentSide', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, 'Delete side'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(removed).toEqual(true);
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });

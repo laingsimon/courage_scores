@@ -168,7 +168,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
@@ -186,7 +186,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -205,7 +205,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -225,7 +225,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -241,7 +241,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -264,7 +264,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 OctWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -286,7 +286,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 OctWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -308,7 +308,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account, '/division', '/division#show-who-is-playing');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             expect(fixtureDateElement.textContent).toContain('SIDE PLAYER');
         });
@@ -329,7 +329,7 @@ describe('DivisionFixtures', () => {
 
             await doSelectOption(filterContainer.querySelector('.dropdown-menu'), 'League fixtures');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
         });
 
         it('hides filters when no controls', async () => {
@@ -345,7 +345,7 @@ describe('DivisionFixtures', () => {
                 .build());
             await renderComponent(divisionData, account, null, null, true);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const filterContainer = context.container.querySelector('.content-background > div[datatype="fixture-filters"]');
             expect(filterContainer).toBeFalsy();
         });
@@ -363,7 +363,7 @@ describe('DivisionFixtures', () => {
                 .build());
             await renderComponent(divisionData, account, '/divisions', '/divisions?date=2020-01-01');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).not.toContain('Pairs at another address');
         });
 
@@ -380,7 +380,7 @@ describe('DivisionFixtures', () => {
                 .build());
             await renderComponent(divisionData, account, '/divisions', '/divisions?date=2022-10-13&type=tournaments');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).toContain('Pairs at another address');
         });
 
@@ -397,7 +397,7 @@ describe('DivisionFixtures', () => {
                 .build());
             await renderComponent(divisionData, account, '/divisions', '/divisions?date=2022-10-13&type=league');
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.textContent).not.toContain('📅');
         });
     });
@@ -423,7 +423,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
@@ -441,7 +441,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -460,7 +460,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -479,7 +479,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -496,7 +496,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -519,7 +519,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -541,7 +541,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
@@ -570,7 +570,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0, account);
             await doClick(findButton(fixtureDateElement, '➕'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(divisionReloaded).toEqual(true);
             expect(newFixtures).not.toBeNull();
         });
@@ -586,7 +586,7 @@ describe('DivisionFixtures', () => {
 
             await doClick(findButton(fixtureDateElement, '📌 Add note'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Create note');
@@ -602,7 +602,7 @@ describe('DivisionFixtures', () => {
 
             await doClick(findButton(fixtureDateElement.querySelector('.alert'), 'Edit'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Edit note');
@@ -626,7 +626,7 @@ describe('DivisionFixtures', () => {
             await doChange(dialog, 'textarea[name="note"]', 'New note', context.user);
             await doClick(findButton(dialog, 'Save'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
             expect(divisionReloaded).toEqual(true);
             expect(updatedNote).not.toBeNull();
@@ -644,7 +644,7 @@ describe('DivisionFixtures', () => {
 
             await doClick(findButton(dialog, 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -654,7 +654,7 @@ describe('DivisionFixtures', () => {
 
             await doClick(findButton(context.container, '➕ Add date'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Add date');
@@ -667,7 +667,7 @@ describe('DivisionFixtures', () => {
             await doClick(findButton(context.container, '➕ Add date'));
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeFalsy();
         });
@@ -682,7 +682,7 @@ describe('DivisionFixtures', () => {
 
             await doClick(findButton(dialog, 'Add date'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(newFixtures).toBeNull();
             expect(alert).toEqual('Select a date first');
         });
@@ -704,7 +704,7 @@ describe('DivisionFixtures', () => {
             await doChange(dialog, 'input[type="date"]', '2022-10-13', context.user);
             await doClick(findButton(dialog, 'Add date'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(newFixtures).toBeNull();
         });
 
@@ -724,7 +724,7 @@ describe('DivisionFixtures', () => {
             await doClick(dialog, 'input[name="isKnockout"]');
             await doClick(findButton(dialog, 'Add date'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(newFixtures).not.toBeNull();
             expect(newFixtures.length).toEqual(1);
             expect(newFixtures[0].date).toEqual('2023-05-06T00:00:00');
@@ -753,7 +753,7 @@ describe('DivisionFixtures', () => {
 
             await renderComponent(divisionData, account);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
         });
 
         it('can open create new fixtures dialog', async () => {
@@ -762,7 +762,7 @@ describe('DivisionFixtures', () => {
 
             await doClick(findButton(context.container, '🗓️ Create fixtures'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Create season fixtures...');
@@ -772,7 +772,7 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
             await doClick(findButton(context.container, '🗓️ Create fixtures'));
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
 
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'))
 

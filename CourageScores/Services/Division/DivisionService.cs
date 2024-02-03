@@ -142,7 +142,8 @@ public class DivisionService : IDivisionService
     }
 
     [ExcludeFromCodeCoverage]
-    public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
+    public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid? id,
+        IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
     {
         return _genericDivisionService.Upsert(id, updateCommand, token);
     }

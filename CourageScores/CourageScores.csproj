@@ -45,10 +45,13 @@
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install"/>
     </Target>
 
-    <Target Name="Write typescript interfaces" AfterTargets="Build">
+    <Target Name="Clean typescript interfaces" BeforeTargets="Clean">
         <Message Importance="high" Text="Removing existing typescript generated files..." Condition=" '$(Configuration)' == 'Debug' "/>
         <RemoveDir Directories="$(ProjectDir)$(SpaRoot)src/interfaces/models" Condition=" '$(Configuration)' == 'Debug' " />
         <RemoveDir Directories="$(ProjectDir)$(SpaRoot)src/interfaces/apis" Condition=" '$(Configuration)' == 'Debug' " />
+    </Target>
+
+    <Target Name="Write typescript interfaces" AfterTargets="Build">
         <Exec WorkingDirectory="$(OutDir)" Command="dotnet TypeScriptMapper.dll $(ProjectDir)$(SpaRoot)src/interfaces"/>
     </Target>
 

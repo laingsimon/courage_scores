@@ -86,7 +86,7 @@ describe('DivisionReports', () => {
 
             await renderComponent(account, divisionData);
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const input = context.container.querySelectorAll('.content-background input');
             expect(input).toBeTruthy();
         });
@@ -107,7 +107,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
         });
 
         it('handles api exception when fetching reports', async () => {
@@ -236,7 +236,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const messages = Array.from(context.container.querySelectorAll('.content-background ul > li')) as HTMLElement[];
             expect(messages.map(li => li.textContent)).toEqual(['A message']);
         });
@@ -262,7 +262,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const reportOptions = Array.from(context.container.querySelectorAll('.content-background div.btn-group > div[role="menu"] > button')) as HTMLButtonElement[];
             expect(reportOptions.map(li => li.textContent)).toEqual(['A report description', 'Another report description']);
         });
@@ -291,7 +291,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const reportTable = context.container.querySelector('.content-background table');
             expect(reportTable).toBeTruthy();
             const reportHeadings = Array.from(reportTable.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
@@ -327,7 +327,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('div[datatype="print-division-heading"]');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('DIVISION, A season');
@@ -358,7 +358,7 @@ describe('DivisionReports', () => {
 
             await doClick(findButton(context.container, '📊 Get reports...'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const heading = context.container.querySelector('div[datatype="print-division-heading"]');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('A season');

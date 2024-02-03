@@ -61,7 +61,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -85,7 +85,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const td = context.container.querySelector('td');
             expect(td.colSpan).toEqual(5);
             expect(td.querySelector('button')).toBeTruthy();
@@ -112,7 +112,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const td = context.container.querySelector('td');
             expect(td.colSpan).toEqual(5);
             expect(td.querySelector('button')).toBeTruthy();
@@ -139,7 +139,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const td = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement;
             expect(td.colSpan).toEqual(2);
             expect(td.querySelector('span').textContent).toEqual('No match');
@@ -160,7 +160,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(context.container.innerHTML).toEqual('');
         });
 
@@ -187,7 +187,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const homeSubmission = context.container.querySelector('td:nth-child(1)') as HTMLTableCellElement;
             expect(homeSubmission.colSpan).toEqual(2);
             expect(homeSubmission.textContent).toContain('from HOME CAPTAIN');
@@ -218,7 +218,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const homeSubmission = context.container.querySelector('td:nth-child(1)') as HTMLTableCellElement
             expect(homeSubmission.colSpan).toEqual(2);
             expect(homeSubmission.querySelector('button').disabled).toEqual(true);
@@ -247,7 +247,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awaySubmission = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement
             expect(awaySubmission.colSpan).toEqual(2);
             expect(awaySubmission.textContent).toContain('from AWAY CAPTAIN');
@@ -278,7 +278,7 @@ describe('MergeMatch', () => {
                 setFixtureData,
             });
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             const awaySubmission = context.container.querySelector('td:nth-child(3)') as HTMLTableCellElement;
             expect(awaySubmission.colSpan).toEqual(2);
             expect(awaySubmission.querySelector('button').disabled).toEqual(true);
@@ -316,7 +316,7 @@ describe('MergeMatch', () => {
 
             await doClick(findButton(homeSubmission, 'Accept'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.matches[0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],
@@ -355,7 +355,7 @@ describe('MergeMatch', () => {
 
             await doClick(findButton(awaySubmission, 'Accept'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.matches[0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],
@@ -394,7 +394,7 @@ describe('MergeMatch', () => {
 
             await doClick(findButton(homeSubmission, 'Accept'));
 
-            expect(reportedError.hasError()).toEqual(false);
+            reportedError.verifyNoError();
             expect(updatedData.matches[0]).toEqual({
                 awayPlayers: [awayPlayer],
                 homePlayers: [homePlayer],

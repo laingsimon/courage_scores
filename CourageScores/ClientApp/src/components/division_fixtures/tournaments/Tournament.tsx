@@ -49,11 +49,10 @@ export function Tournament() {
     const {divisionApi, tournamentApi, webSocket} = useDependencies();
     const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
     const canManagePlayers: boolean = account && account.access && account.access.managePlayers;
+    const canEnterTournamentResults = account && account.access && account.access.enterTournamentResults;
     const [loading, setLoading] = useState<string>('init');
-    const [disabled, setDisabled] = useState<boolean>(false);
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
-    const [canSave, setCanSave] = useState<boolean>(true);
     const [tournamentData, setTournamentData] = useState<TournamentGameDto | null>(null);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
@@ -67,12 +66,6 @@ export function Tournament() {
         {text: 'Men', value: 'men'},
         {text: 'Women',value: 'women'}
     ];
-
-    useEffect(() => {
-        const isAdmin = (account && account.access && account.access.manageTournaments);
-        setDisabled(!isAdmin || false);
-        setCanSave(isAdmin || false);
-    }, [account]);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -217,7 +210,7 @@ export function Tournament() {
     }
 
     async function publishLiveUpdate(data: TournamentGameDto) {
-        if (canSave) {
+        if (canManageTournaments) {
             await webSocket.publish(tournamentId, data);
         }
     }
@@ -316,7 +309,7 @@ export function Tournament() {
         }
 
         const liveOptions: ILiveOptions = {
-            publish: canSave,
+            publish: canManageTournaments,
             canSubscribe: false,
             subscribeAtStartup: [],
         };
@@ -442,12 +435,12 @@ export function Tournament() {
                     setWarnBeforeSave={async (warning: string) => setWarnBeforeSave(warning)}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     liveOptions={liveOptions}>
-                    {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving}
-                                                applyPatch={applyPatch}/>) : null}
-                    {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division}/>) : null}
-                    {tournamentData.singleRound && canSave ? (
-                        <div className="d-screen-none"><SuperLeaguePrintout division={division}/></div>) : null}
-                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canSave}/>) : null}
+                    {canManageTournaments ? (<EditTournament canSave={true} saving={saving} applyPatch={applyPatch}/>) : null}
+                    {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division}/>) : null}
+                    {tournamentData.singleRound && canManageTournaments ? (<div className="d-screen-none">
+                        <SuperLeaguePrintout division={division}/>
+                    </div>) : null}
+                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canManageTournaments} editable={canEnterTournamentResults} />) : null}
                 </TournamentContainer>
                 {canManageTournaments ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
