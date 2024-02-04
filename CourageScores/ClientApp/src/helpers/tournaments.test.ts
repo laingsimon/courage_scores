@@ -1,11 +1,15 @@
 ﻿import {
+    getPlayedLayoutData,
     getRoundNameFromSides,
     getUnplayedLayoutData,
     hasScore,
-    ILayoutDataForRound, setRoundNames
+    ILayoutDataForRound, ITournamentLayoutGenerationContext, setRoundNames
 } from "./tournaments";
 import {distinct} from "./collections";
 import {repeat} from "./projection";
+import {ITournamentMatchBuilder, roundBuilder, sideBuilder} from "./builders/tournaments";
+import {matchOptionsBuilder} from "./builders/games";
+import {GameMatchOptionDto} from "../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 describe('tournaments', () => {
     describe('getRoundNameFromSides', () => {
@@ -312,6 +316,86 @@ describe('tournaments', () => {
                 alreadySelectedSides: expect.any(Array),
                 possibleSides: expect.any(Array),
             });
+        });
+    });
+
+    describe('getPlayedLayoutData', () => {
+        const matchOptionDefaults: GameMatchOptionDto = matchOptionsBuilder().numberOfLegs(5).build();
+
+        it('shows player name in bye when only one bye', () => {
+            const sideA = sideBuilder('SIDE A').build();
+            const sideB = sideBuilder('SIDE B').build();
+            const sideC = sideBuilder('SIDE C').build();
+            const sideD = sideBuilder('SIDE D').build();
+            const sideE = sideBuilder('SIDE E').build();
+            const round = roundBuilder()
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB))
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC).sideB(sideD))
+                .build();
+            const context: ITournamentLayoutGenerationContext = {
+                getLinkToSide: () => null,
+                matchOptionDefaults,
+            };
+
+            const layout: ILayoutDataForRound[] = getPlayedLayoutData(
+                [ sideA, sideB, sideC, sideD, sideE ],
+                round,
+                context);
+
+            expect(layout.length).toBeGreaterThanOrEqual(1);
+            expect(layout[0].matches.length).toEqual(3);
+            expect(layout[0].matches[2].sideA.mnemonic).toEqual(sideE.name);
+        });
+
+        it('bye from first round plays first in second round', () => {
+            const sideA = sideBuilder('SIDE A').build();
+            const sideB = sideBuilder('SIDE B').build();
+            const sideC = sideBuilder('SIDE C').build();
+            const sideD = sideBuilder('SIDE D').build();
+            const sideE = sideBuilder('SIDE E').build();
+            const round = roundBuilder()
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB))
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC).sideB(sideD))
+                .build();
+            const context: ITournamentLayoutGenerationContext = {
+                getLinkToSide: () => null,
+                matchOptionDefaults,
+            };
+
+            const layout: ILayoutDataForRound[] = getPlayedLayoutData(
+                [ sideA, sideB, sideC, sideD, sideE ],
+                round,
+                context);
+
+            expect(layout.length).toBeGreaterThanOrEqual(2);
+            expect(layout[1].matches.length).toBeGreaterThanOrEqual(2);
+            expect(layout[1].matches[0].sideA.mnemonic).toEqual(sideE.name);
+        });
+
+        it('shows player name in subsequent round bye', () => {
+            const sideA = sideBuilder('SIDE A').build();
+            const sideB = sideBuilder('SIDE B').build();
+            const sideC = sideBuilder('SIDE C').build();
+            const sideD = sideBuilder('SIDE D').build();
+            const sideE = sideBuilder('SIDE E').build();
+            const round = roundBuilder()
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 0).sideB(sideB, 3))
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 3).sideB(sideD, 0))
+                .build();
+            const context: ITournamentLayoutGenerationContext = {
+                getLinkToSide: () => null,
+                matchOptionDefaults,
+            };
+
+            const layout: ILayoutDataForRound[] = getPlayedLayoutData(
+                [ sideA, sideB, sideC, sideD, sideE ],
+                round,
+                context);
+
+            expect(layout.length).toBeGreaterThanOrEqual(2);
+            expect(layout[1].matches.length).toEqual(2);
+            expect(layout[1].matches.map(m => m.sideA.mnemonic + (m.sideB ? ' vs ' + m.sideB.mnemonic : '')))
+                .toEqual([ 'SIDE E vs SIDE B', 'SIDE C' ]);
         });
     });
 

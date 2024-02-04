@@ -242,7 +242,10 @@ export function getPlayedLayoutData(sides: TournamentSideDto[], round: Tournamen
     if (any(sidesThatHaveNotPlayedInThisRound)) {
         const totalOfUnbalancedMatches: number = layoutDataForRound.matches.filter((m: ILayoutDataForMatch) => (m.sideA.id && !m.sideB.id) || (m.sideB.id && !m.sideA.id)).length;
         if (totalOfUnbalancedMatches < sidesThatHaveNotPlayedInThisRound.length) {
-            const mnemonics: string[] = repeat(sidesThatHaveNotPlayedInThisRound.length - totalOfUnbalancedMatches, (_: number) => sideMnemonicCalculator.next());
+            const byes: number = sidesThatHaveNotPlayedInThisRound.length - totalOfUnbalancedMatches;
+            const mnemonics: string[] = byes <= 2
+                ? sidesThatHaveNotPlayedInThisRound.map((s: TournamentSideDto) => s.name)
+                : repeat(byes, (_: number) => sideMnemonicCalculator.next());
             const byeLayout: ILayoutDataForRound = getUnplayedLayoutDataForSides(mnemonics, mnemonics, winnersAndByes, layoutContext.matchMnemonic, true)[0];
             layoutDataForRound.matches = layoutDataForRound.matches.concat(byeLayout.matches);
         }
