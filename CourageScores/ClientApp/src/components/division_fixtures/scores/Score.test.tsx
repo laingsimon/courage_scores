@@ -639,6 +639,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(fixture.updated);
         });
 
         it('renders error if save fails', async () => {
@@ -670,6 +671,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(fixture.updated);
             expect(updatedFixtures[fixture.id].matches[0].homePlayers).toEqual([anotherHomePlayer]);
         });
 
@@ -690,6 +692,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(fixture.updated);
             expect(updatedFixtures[fixture.id].matchOptions[0].numberOfLegs).toEqual(30);
         });
 

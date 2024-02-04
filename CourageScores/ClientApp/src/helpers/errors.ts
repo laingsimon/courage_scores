@@ -1,6 +1,7 @@
 import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
 import {IError} from "../interfaces/IError";
 import {ErrorDetailDto} from "../interfaces/models/dtos/ErrorDetailDto";
+import {createTemporaryId} from "./projection";
 
 export function mapError(error: any): IError {
     if (error.stack) {
@@ -26,6 +27,6 @@ export function mapForLogging(error: any, account?: UserDto): ErrorDetailDto {
         userName: account ? account.name : null,
         userAgent: userAgent,
         url: window.location.href,
-        id: null,
-    };
+        id: createTemporaryId(),
+    }
 }

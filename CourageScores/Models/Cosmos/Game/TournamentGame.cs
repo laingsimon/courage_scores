@@ -127,7 +127,7 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto? user)
     {
-        return user?.Access?.ManageTournaments == true;
+        return user?.Access?.ManageTournaments == true || user?.Access?.EnterTournamentResults == true;
     }
 
     [ExcludeFromCodeCoverage]
