@@ -442,7 +442,7 @@ export function Tournament() {
                     </div>) : null}
                     {!tournamentData.singleRound ? (<PrintableSheet printOnly={canManageTournaments} editable={canEnterTournamentResults} />) : null}
                 </TournamentContainer>
-                {canManageTournaments ? (
+                {canManageTournaments || canEnterTournamentResults ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                         {saving ? (<LoadingSpinnerSmall/>) : null}
                         Save
