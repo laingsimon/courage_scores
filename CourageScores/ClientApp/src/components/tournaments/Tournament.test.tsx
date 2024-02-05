@@ -8,7 +8,6 @@ import {
     doSelectOption, ErrorState,
     findButton,
     iocProps,
-    noop,
     renderApp, TestContext
 } from "../../helpers/tests";
 import {Tournament} from "./Tournament";
@@ -20,7 +19,6 @@ import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTourn
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
-import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
@@ -46,7 +44,6 @@ import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
-import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 interface IScenario {
     account?: UserDto;
@@ -64,7 +61,6 @@ describe('Tournament', () => {
     let patchedTournamentData: {id: string, data: PatchTournamentDto}[];
     let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
     let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto};
-    let exportRequest: ExportDataRequestDto;
     let apiResponse: IClientActionResultDto<any>;
 
     const divisionApi = api<IDivisionApi>({
@@ -109,12 +105,6 @@ describe('Tournament', () => {
             };
         }
     });
-    const dataApi = api<IDataApi>({
-        export: async (request: ExportDataRequestDto) => {
-            exportRequest = request;
-            return {success: true, result: {zip: 'content'}};
-        }
-    });
     const saygApi = api<ISaygApi>({
         get: async (id: string): Promise<RecordedScoreAsYouGoDto | null> => {
             if (any(Object.keys(saygDataLookup), k => k === id)) {
@@ -152,7 +142,6 @@ describe('Tournament', () => {
         updatedTournamentData = [];
         patchedTournamentData = [];
         createdPlayer = null;
-        exportRequest = null;
         apiResponse = null;
     });
 
@@ -162,7 +151,6 @@ describe('Tournament', () => {
                 divisionApi,
                 tournamentApi,
                 playerApi,
-                dataApi,
                 saygApi,
             }),
             brandingProps(),
@@ -541,71 +529,6 @@ describe('Tournament', () => {
                 const sides = editTournamentComponent.querySelector('div:nth-child(2)');
                 expect(sides.textContent).toContain('SIDE 1');
             });
-
-            it('super league options when single round', async () => {
-                const tournamentData = tournamentBuilder()
-                    .forSeason(season)
-                    .forDivision(division)
-                    .date('2023-01-02T00:00:00')
-                    .address('ADDRESS')
-                    .type('TYPE')
-                    .notes('NOTES')
-                    .host('HOST')
-                    .opponent('OPPONENT')
-                    .gender('men')
-                    .singleRound()
-                    .accoladesCount()
-                    .addTo(tournamentDataLookup)
-                    .build();
-                const divisionData = divisionDataBuilder().build();
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-
-                await renderComponent(tournamentData.id, {
-                    account,
-                    seasons: toMap([season]),
-                    teams: [],
-                    divisions: [division],
-                }, false);
-
-                reportedError.verifyNoError();
-                const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-                expect(superLeagueOptions).toBeTruthy();
-                const hostInput = superLeagueOptions.querySelector('input[name="host"]') as HTMLInputElement;
-                const opponentInput = superLeagueOptions.querySelector('input[name="opponent"]') as HTMLInputElement;
-                expect(hostInput).toBeTruthy();
-                expect(hostInput.value).toEqual('HOST');
-                expect(opponentInput).toBeTruthy();
-                expect(opponentInput.value).toEqual('OPPONENT');
-                expect(superLeagueOptions.querySelector('div[datatype="superleague-gender"] .dropdown-menu .active').textContent).toEqual('Men');
-            });
-
-            it('no super league options when not single round', async () => {
-                const tournamentData = tournamentBuilder()
-                    .forSeason(season)
-                    .forDivision(division)
-                    .date('2023-01-02T00:00:00')
-                    .address('ADDRESS')
-                    .type('TYPE')
-                    .notes('NOTES')
-                    .host('HOST')
-                    .opponent('OPPONENT')
-                    .gender('men')
-                    .accoladesCount()
-                    .addTo(tournamentDataLookup)
-                    .build();
-                const divisionData = divisionDataBuilder().build();
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-
-                await renderComponent(tournamentData.id, {
-                    account,
-                    seasons: toMap([season]),
-                    teams: [],
-                    divisions: [division],
-                }, false);
-
-                reportedError.verifyNoError();
-                expect(context.container.querySelector('div[data-options-for="superleague"]')).toBeFalsy();
-            });
         });
     });
 
@@ -618,17 +541,6 @@ describe('Tournament', () => {
                 manageTournaments: true,
                 managePlayers: true,
                 recordScoresAsYouGo: true,
-            }
-        };
-        const canExportAccount: UserDto = {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                manageTournaments: true,
-                managePlayers: true,
-                recordScoresAsYouGo: true,
-                exportData: true,
             }
         };
 
@@ -999,238 +911,6 @@ describe('Tournament', () => {
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 
-        it('can export tournament and sayg data with no round', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: canExportAccount,
-                seasons: toMap([season]),
-                teams: [],
-                divisions: [division],
-            }, false);
-            (window as any).open = noop;
-
-            await doClick(findButton(context.container, '🛒'));
-
-            expect(exportRequest).toEqual({
-                password: '',
-                includeDeletedEntries: false,
-                tables: {
-                    tournamentGame: [tournamentData.id],
-                    division: [tournamentData.divisionId],
-                    season: [tournamentData.seasonId],
-                }
-            });
-            // NOTE: requestedScoreAsYouGo should NOT be present, to prevent export of ALL records
-        });
-
-        it('can export tournament and sayg data with round', async () => {
-            const saygId = createTemporaryId();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .saygId(saygId)
-                        .sideA('A')
-                        .sideB('B'))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: canExportAccount,
-                seasons: toMap([season]),
-                teams: [],
-                divisions: [division],
-            }, false);
-            (window as any).open = noop;
-
-            await doClick(findButton(context.container, '🛒'));
-
-            expect(exportRequest).toEqual({
-                password: '',
-                includeDeletedEntries: false,
-                tables: {
-                    tournamentGame: [tournamentData.id],
-                    recordedScoreAsYouGo: [saygId],
-                    division: [tournamentData.divisionId],
-                    season: [tournamentData.seasonId],
-                }
-            });
-        });
-
-        it('can export tournament and sayg data with sub rounds', async () => {
-            const saygId1 = createTemporaryId();
-            const saygId2 = createTemporaryId();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .forDivision(division)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .saygId(saygId1)
-                        .sideA('A')
-                        .sideB('B'))
-                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m
-                            .saygId(saygId2)
-                            .sideA('A')
-                            .sideB('B'))
-                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: canExportAccount,
-                seasons: toMap([season]),
-                teams: [],
-                divisions: [division],
-            }, false);
-            (window as any).open = noop;
-
-            await doClick(findButton(context.container, '🛒'));
-
-            expect(exportRequest).toEqual({
-                password: '',
-                includeDeletedEntries: false,
-                tables: {
-                    tournamentGame: [tournamentData.id],
-                    recordedScoreAsYouGo: [saygId1, saygId2],
-                    division: [tournamentData.divisionId],
-                    season: [tournamentData.seasonId],
-                }
-            });
-        });
-
-        it('can export tournament data for cross-divisional tournament', async () => {
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .date('2023-01-02T00:00:00')
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: canExportAccount,
-                seasons: toMap([season]),
-                teams: [],
-                divisions: [division],
-            }, false);
-            (window as any).open = noop;
-
-            await doClick(findButton(context.container, '🛒'));
-
-            expect(exportRequest).toEqual({
-                password: '',
-                includeDeletedEntries: false,
-                tables: {
-                    tournamentGame: [tournamentData.id],
-                    season: [tournamentData.seasonId],
-                }
-            });
-        });
-
-        it('can export tournament data and team data for team sides', async () => {
-            const team = teamBuilder('TEAM').build();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .date('2023-01-02T00:00:00')
-                .withSide((s: ITournamentSideBuilder) => s.teamId(team.id))
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: canExportAccount,
-                seasons: toMap([season]),
-                teams: [],
-                divisions: [division],
-            }, false);
-            (window as any).open = noop;
-
-            await doClick(findButton(context.container, '🛒'));
-
-            expect(exportRequest).toEqual({
-                password: '',
-                includeDeletedEntries: false,
-                tables: {
-                    tournamentGame: [tournamentData.id],
-                    season: [tournamentData.seasonId],
-                    team: [team.id],
-                }
-            });
-        });
-
-        it('can export tournament data and team data for sides with players', async () => {
-            const playerId = createTemporaryId();
-            const team = teamBuilder('TEAM')
-                .forSeason(season, null, [playerBuilder('PLAYER', playerId).build()])
-                .build();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .date('2023-01-02T00:00:00')
-                .withSide((s: ITournamentSideBuilder) => s.withPlayer(undefined, playerId))
-                .address('ADDRESS')
-                .type('TYPE')
-                .notes('NOTES')
-                .accoladesCount()
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: canExportAccount,
-                seasons: toMap([season]),
-                teams: [team],
-                divisions: [division],
-            }, false);
-            (window as any).open = noop;
-            reportedError.verifyNoError();
-
-            await doClick(findButton(context.container, '🛒'));
-
-            expect(exportRequest).toEqual({
-                password: '',
-                includeDeletedEntries: false,
-                tables: {
-                    tournamentGame: [tournamentData.id],
-                    season: [tournamentData.seasonId],
-                    team: [team.id],
-                }
-            });
-        });
-
         it('excludes no-show sides from 180 selection', async () => {
             const side1Player = playerBuilder('SIDE 1 PLAYER').build();
             const side2Player = playerBuilder('SIDE 2 PLAYER').build();
@@ -1248,7 +928,7 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: canExportAccount,
+                account: account,
                 seasons: toMap([season]),
                 teams: [team],
                 divisions: [division],
@@ -1277,7 +957,7 @@ describe('Tournament', () => {
             const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: canExportAccount,
+                account: account,
                 seasons: toMap([season]),
                 teams: [team],
                 divisions: [division],
