@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using TypeScriptMapper.Controllers;
 using TypeScriptMapper.Dtos;
@@ -26,3 +27,8 @@ var controllers = new ControllerStrategy(assembly);
 
 await dtos.Execute(outputDirectory + "/models/dtos", onlyType, token);
 await controllers.Execute(outputDirectory + "/apis", onlyType, token);
+
+[ExcludeFromCodeCoverage]
+public partial class Program
+{
+}
