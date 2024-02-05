@@ -1,7 +1,7 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
 import {FilterFixtures, IFilterFixturesProps} from "./FilterFixtures";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IInitialisedFilters} from "../../helpers/filters";
 

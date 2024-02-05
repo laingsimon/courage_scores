@@ -1,5 +1,5 @@
 import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {PlayerOverview} from "./PlayerOverview";

@@ -15,7 +15,7 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";

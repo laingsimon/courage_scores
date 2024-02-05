@@ -1,6 +1,6 @@
-import {useDependencies} from "../../IocContainer";
+import {useDependencies} from "../common/IocContainer";
 import {useEffect, useState} from "react";
-import {useApp} from "../../AppContainer";
+import {useApp} from "../common/AppContainer";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
 import {valueChanged} from "../../helpers/events";
@@ -9,7 +9,7 @@ import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
 import {useLocation} from "react-router-dom";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
 import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 

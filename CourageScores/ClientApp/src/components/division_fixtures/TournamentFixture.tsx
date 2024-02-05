@@ -1,13 +1,13 @@
 import {useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, count, sortBy} from "../../helpers/collections";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {

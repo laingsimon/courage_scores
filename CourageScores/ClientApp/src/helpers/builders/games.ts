@@ -1,5 +1,5 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {IDatedDivisionFixtureDto} from "../../interfaces/IDatedDivisionFixtureDto";
+import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {createTemporaryId} from "../projection";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";

@@ -3,7 +3,7 @@ import {PlayerPerformanceDto} from "../../interfaces/models/dtos/Division/Player
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
-import {ISelectablePlayer} from "../../components/division_players/PlayerSelection";
+import {ISelectablePlayer} from "../../components/common/PlayerSelection";
 import {createTemporaryId} from "../projection";
 
 export interface IPlayerBuilder extends IAddableBuilder<TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer> {

@@ -12,7 +12,7 @@
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";
 import {UpdateAccessDto} from "../../interfaces/models/dtos/Identity/UpdateAccessDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IAccountApi} from "../../interfaces/apis/IAccountApi";
 

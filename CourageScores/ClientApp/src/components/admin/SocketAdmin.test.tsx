@@ -13,7 +13,7 @@ import {
 import {SocketAdmin} from "./SocketAdmin";
 import {createTemporaryId} from "../../helpers/projection";
 import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILiveApi} from "../../interfaces/apis/ILiveApi";
 
 describe('SocketAdmin', () => {

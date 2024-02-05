@@ -12,8 +12,8 @@ import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
 import {DataMap, toMap} from "../../helpers/collections";
 import {DivisionFixture, IDivisionFixtureProps} from "./DivisionFixture";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditGameDto} from "../../interfaces/models/dtos/Game/EditGameDto";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
@@ -21,8 +21,8 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {IDatedDivisionFixtureDto} from "../../interfaces/IDatedDivisionFixtureDto";
-import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {IDatedDivisionFixtureDto} from "./IDatedDivisionFixtureDto";
+import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 import {
     divisionBuilder,
     divisionDataBuilder,

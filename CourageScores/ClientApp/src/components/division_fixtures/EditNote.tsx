@@ -2,11 +2,11 @@ import {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {valueChanged} from "../../helpers/events";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 

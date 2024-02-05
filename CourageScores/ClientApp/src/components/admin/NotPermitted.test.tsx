@@ -1,6 +1,6 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {NotPermitted} from "./NotPermitted";
-import {IAppContainerProps} from "../../AppContainer";
+import {IAppContainerProps} from "../common/AppContainer";
 
 describe('NotPermitted', () => {
     let context: TestContext;

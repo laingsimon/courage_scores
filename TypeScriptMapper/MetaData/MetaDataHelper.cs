@@ -118,7 +118,7 @@ public class MetaDataHelper : IMetaDataHelper
                     DotNetType = type,
                     Name = "IClientActionResultDto",
                     IsPrimitive = false,
-                    RelativePath = GetPathToRoot(context) + "/IClientActionResultDto",
+                    RelativePath = GetPathToRoot(context) + "/../components/common/IClientActionResultDto",
                 };
             }
             else

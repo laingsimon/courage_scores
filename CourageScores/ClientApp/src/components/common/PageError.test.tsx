@@ -9,7 +9,7 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {PageError} from "./PageError";
-import {IError} from "../../interfaces/IError";
+import {IError} from "./IError";
 
 describe('PageError', () => {
     let context: TestContext;

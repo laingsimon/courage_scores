@@ -1,4 +1,4 @@
-import {useApp} from "../../AppContainer";
+import {useApp} from "../common/AppContainer";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
 import {HealthCheckResultDto} from "../../interfaces/models/dtos/Health/HealthCheckResultDto";
 

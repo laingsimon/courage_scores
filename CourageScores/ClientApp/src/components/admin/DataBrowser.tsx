@@ -2,11 +2,11 @@ import {Link, useLocation, useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {useDependencies} from "../../IocContainer";
+import {useDependencies} from "../common/IocContainer";
 import {renderDate} from "../../helpers/rendering";
 import {repeat} from "../../helpers/projection";
 import {SingleDataResultDto} from "../../interfaces/models/dtos/Data/SingleDataResultDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export function DataBrowser() {
     const {dataApi} = useDependencies();

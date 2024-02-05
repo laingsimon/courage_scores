@@ -1,11 +1,11 @@
 import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {NavMenu} from "./NavMenu";
 import {ISettings} from "../../api/settings";
-import {IBrandingContainerProps} from "../../BrandingContainer";
+import {IBrandingContainerProps} from "../common/BrandingContainer";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {IAppContainerProps} from "../../AppContainer";
+import {IAppContainerProps} from "../common/AppContainer";
 
 describe('NavMenu', () => {
     let context: TestContext;

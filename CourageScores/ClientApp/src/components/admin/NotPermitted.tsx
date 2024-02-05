@@ -1,5 +1,5 @@
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
 import {useLocation} from "react-router-dom";
 
 export function NotPermitted() {

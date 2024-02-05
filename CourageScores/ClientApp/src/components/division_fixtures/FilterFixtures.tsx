@@ -3,8 +3,8 @@ import {isEmpty, sortBy} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
 import {renderDate} from "../../helpers/rendering";
 import {ShareButton} from "../common/ShareButton";
-import {useDivisionData} from "../DivisionDataContainer";
-import {useBranding} from "../../BrandingContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
+import {useBranding} from "../common/BrandingContainer";
 import {IInitialisedFilters} from "../../helpers/filters";
 
 export interface IFilterFixturesProps {

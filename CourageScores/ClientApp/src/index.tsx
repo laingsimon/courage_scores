@@ -2,9 +2,9 @@ import 'bootstrap/dist/css/bootstrap.css';
 import {createRoot} from 'react-dom/client';
 import {BrowserRouter} from 'react-router-dom';
 import {App} from './App';
-import {IIocContainerProps, IocContainer} from "./IocContainer";
-import {BrandingContainer} from "./BrandingContainer";
-import {IBranding} from "./interfaces/IBranding";
+import {IIocContainerProps, IocContainer} from "./components/common/IocContainer";
+import {BrandingContainer} from "./components/common/BrandingContainer";
+import {IBranding} from "./components/common/IBranding";
 
 /* istanbul ignore file */
 
@@ -18,6 +18,7 @@ const hash: string = document.location.hash;
 const embed: boolean = search.indexOf('embed=true') !== -1 || hash.indexOf('embed=true') !== -1;
 const controls: boolean = (search.indexOf('controls=') === -1 || search.indexOf('controls=true') !== -1)
     && (hash.indexOf('controls=') === -1 || hash.indexOf('controls=true') !== -1);
+// noinspection JSUnresolvedReference
 const branding: IBranding = (window as any).branding || {};
 const noServices: IIocContainerProps = null;
 

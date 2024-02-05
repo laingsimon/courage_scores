@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
-import {useApp} from "../../AppContainer";
-import {useDependencies} from "../../IocContainer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useApp} from "../common/AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {Loading} from "../common/Loading";
 import {ViewHealthCheck} from "./ViewHealthCheck";
 import {isEmpty} from "../../helpers/collections";

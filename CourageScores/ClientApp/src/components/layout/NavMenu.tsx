@@ -3,15 +3,15 @@ import {Collapse, Navbar, NavbarBrand, NavLink} from 'reactstrap';
 import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
 import {any, isEmpty} from "../../helpers/collections";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
-import {useBranding} from "../../BrandingContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
+import {useBranding} from "../common/BrandingContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IMenuItem} from "../../interfaces/IMenuItem";
+import {IMenuItem} from "./IMenuItem";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
-import {IError} from "../../interfaces/IError";
+import {IError} from "../common/IError";
 
 export function NavMenu() {
     const {settings} = useDependencies();

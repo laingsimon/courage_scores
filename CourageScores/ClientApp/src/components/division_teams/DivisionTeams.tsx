@@ -2,10 +2,10 @@ import {useState} from 'react';
 import {DivisionTeam} from "./DivisionTeam";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "./EditTeamDetails";
-import {useApp} from "../../AppContainer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useApp} from "../common/AppContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
-import {PrintDivisionHeading} from "../PrintDivisionHeading";
+import {PrintDivisionHeading} from "../league/PrintDivisionHeading";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 
 export function DivisionTeams() {

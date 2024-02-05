@@ -1,14 +1,14 @@
 import {all, any} from "./collections";
-import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
+import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../components/division_fixtures/Filter";
 import {isInFuture, isInPast, isToday} from "./dates";
-import {IFilter} from "../interfaces/IFilter";
+import {IFilter} from "../components/division_fixtures/IFilter";
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {DivisionFixtureDto} from "../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {DivisionFixtureDateDto} from "../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {FixtureDateNoteDto} from "../interfaces/models/dtos/FixtureDateNoteDto";
-import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
+import {IEditableDivisionFixtureDateDto} from "../components/division_fixtures/IEditableDivisionFixtureDateDto";
 import {TournamentSideDto} from "../interfaces/models/dtos/Game/TournamentSideDto";
 
 export interface IRenderContext {

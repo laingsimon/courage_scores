@@ -13,7 +13,7 @@ import {
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
 import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";

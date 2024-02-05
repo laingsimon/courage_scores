@@ -14,7 +14,7 @@ import {
 import {ExportData} from "./ExportData";
 import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
 import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ExportData', () => {

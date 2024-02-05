@@ -11,7 +11,7 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";

@@ -1,8 +1,8 @@
 import {DivisionPlayer} from "./DivisionPlayer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
-import {useApp} from "../../AppContainer";
-import {PrintDivisionHeading} from "../PrintDivisionHeading";
+import {useApp} from "../common/AppContainer";
+import {PrintDivisionHeading} from "../league/PrintDivisionHeading";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 
 export interface IDivisionPlayersProps {

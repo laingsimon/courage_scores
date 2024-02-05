@@ -1,6 +1,6 @@
 import {api, appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {DivisionHealth} from "./DivisionHealth";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
 import {SeasonApi} from "../../interfaces/apis/ISeasonApi";

@@ -1,5 +1,5 @@
-import {useApp} from "../../AppContainer";
-import {useBranding} from "../../BrandingContainer";
+import {useApp} from "../common/AppContainer";
+import {useBranding} from "../common/BrandingContainer";
 
 export function Heading() {
     const {build} = useApp();

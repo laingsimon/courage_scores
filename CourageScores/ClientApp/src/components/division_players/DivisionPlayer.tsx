@@ -3,15 +3,15 @@ import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {propChanged} from "../../helpers/events";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {EMPTY_ID} from "../../helpers/projection";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export interface IDivisionPlayerProps {
     player: DivisionPlayerDto;

@@ -1,6 +1,6 @@
 import {useLocation} from "react-router-dom";
 import {useState} from "react";
-import {useBranding} from "../../BrandingContainer";
+import {useBranding} from "./BrandingContainer";
 import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 
 export interface IShareButtonProps {

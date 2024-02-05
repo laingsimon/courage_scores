@@ -1,9 +1,9 @@
 import {appProps, cleanUp, iocProps, renderApp, TestContext} from "../helpers/tests";
 import {renderDate} from "../helpers/rendering";
 import {About} from "./About";
-import {IBuild} from "../interfaces/IBuild";
-import {IBrandingContainerProps} from "../BrandingContainer";
-import {IBranding} from "../interfaces/IBranding";
+import {IBuild} from "./common/IBuild";
+import {IBrandingContainerProps} from "./common/BrandingContainer";
+import {IBranding} from "./common/IBranding";
 
 describe('About', () => {
     let context: TestContext;

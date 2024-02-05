@@ -10,9 +10,9 @@
     TestContext
 } from "../../helpers/tests";
 import {FixtureDateNote, IFixtureDateNoteProps} from "./FixtureDateNote";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionDataContainer} from "../league/DivisionDataContainer";
 import {noteBuilder} from "../../helpers/builders/divisions";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {createTemporaryId} from "../../helpers/projection";

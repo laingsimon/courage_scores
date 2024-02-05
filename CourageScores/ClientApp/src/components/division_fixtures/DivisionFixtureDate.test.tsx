@@ -12,7 +12,7 @@ import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {toMap} from "../../helpers/collections";
 import {DivisionFixtureDate, IDivisionFixtureDateProps} from "./DivisionFixtureDate";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";

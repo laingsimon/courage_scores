@@ -3,13 +3,13 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
 import {any} from "../../helpers/collections";
 import {propChanged, valueChanged} from "../../helpers/events";
-import {useDependencies} from "../../IocContainer";
+import {useDependencies} from "../common/IocContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {ImportDataRequestDto} from "../../interfaces/models/dtos/Data/ImportDataRequestDto";
 import {ImportDataResultDto} from "../../interfaces/models/dtos/Data/ImportDataResultDto";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export function ImportData() {
     const {dataApi} = useDependencies();

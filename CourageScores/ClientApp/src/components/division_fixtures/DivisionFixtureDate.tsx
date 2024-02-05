@@ -3,12 +3,12 @@ import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {DivisionFixture, IEditableDivisionFixtureDto} from "./DivisionFixture";
 import {TournamentFixture} from "./TournamentFixture";
-import {useApp} from "../../AppContainer";
+import {useApp} from "../common/AppContainer";
 import {useLocation, useNavigate} from "react-router-dom";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
-import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";

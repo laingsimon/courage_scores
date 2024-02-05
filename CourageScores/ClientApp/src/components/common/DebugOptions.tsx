@@ -1,6 +1,6 @@
 import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
 import React, {useState} from "react";
-import {useApp} from "../../AppContainer";
+import {useApp} from "./AppContainer";
 
 export interface IDebugOptionsProps {
     children: React.ReactNode;

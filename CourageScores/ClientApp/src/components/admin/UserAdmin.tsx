@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {UpdateAccessDto} from "../../interfaces/models/dtos/Identity/UpdateAccessDto";
 import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
