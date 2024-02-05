@@ -1,8 +1,8 @@
 import {useState} from "react";
 import {sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {ErrorDetailDto} from "../../interfaces/models/dtos/ErrorDetailDto";
 

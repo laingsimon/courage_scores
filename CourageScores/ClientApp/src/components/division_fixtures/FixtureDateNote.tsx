@@ -1,10 +1,10 @@
 import {useState} from "react";
-import {useDependencies} from "../../IocContainer";
-import {useDivisionData} from "../DivisionDataContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
+import {useApp} from "../common/AppContainer";
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 

@@ -6,7 +6,7 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
 import {AccessDto} from "../../interfaces/models/dtos/Identity/AccessDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {AccountApi} from "../../interfaces/apis/IAccountApi";
 import {SeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 import {ILiveApi} from "../../interfaces/apis/ILiveApi";

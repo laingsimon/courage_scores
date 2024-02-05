@@ -1,14 +1,14 @@
 import {useState} from "react";
-import {useApp} from "../../AppContainer";
+import {useApp} from "../common/AppContainer";
 import {all, any, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
-import {useDivisionData} from "../DivisionDataContainer";
-import {useDependencies} from "../../IocContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
+import {useDependencies} from "../common/IocContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ModifyTeamSeasonDto} from "../../interfaces/models/dtos/Team/ModifyTeamSeasonDto";
 
 export interface IAssignTeamToSeasonsProps {

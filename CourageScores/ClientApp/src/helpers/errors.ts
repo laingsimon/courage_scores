@@ -1,5 +1,5 @@
 import {UserDto} from "../interfaces/models/dtos/Identity/UserDto";
-import {IError} from "../interfaces/IError";
+import {IError} from "../components/common/IError";
 import {ErrorDetailDto} from "../interfaces/models/dtos/ErrorDetailDto";
 import {createTemporaryId} from "./projection";
 

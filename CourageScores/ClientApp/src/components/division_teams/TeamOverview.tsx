@@ -2,9 +2,9 @@ import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {ShareButton} from "../common/ShareButton";
 import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
-import {useDivisionData} from "../DivisionDataContainer";
-import {useApp} from "../../AppContainer";
-import {useBranding} from "../../BrandingContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
+import {useApp} from "../common/AppContainer";
+import {useBranding} from "../common/BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 

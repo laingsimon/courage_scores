@@ -2,15 +2,15 @@ import {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
 import {valueChanged} from "../../helpers/events";
-import {useDependencies} from "../../IocContainer";
+import {useDependencies} from "../common/IocContainer";
 import {useAdmin} from "./AdminContainer";
 import {any, toDictionary} from "../../helpers/collections";
-import {useApp} from "../../AppContainer";
+import {useApp} from "../common/AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
 import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export function ExportData() {
     const {dataApi} = useDependencies();

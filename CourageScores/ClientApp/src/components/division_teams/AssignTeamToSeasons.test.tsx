@@ -9,14 +9,14 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {DivisionDataContainer} from "../DivisionDataContainer";
+import {DivisionDataContainer} from "../league/DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";

@@ -16,7 +16,7 @@ import {EditTeamDetails, IEditTeamDetailsProps} from "./EditTeamDetails";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {ITeamApi} from "../../interfaces/apis/ITeamApi";

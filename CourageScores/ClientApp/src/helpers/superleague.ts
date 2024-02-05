@@ -3,7 +3,7 @@ import {LegThrowDto} from "../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {ScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
 import {LegDto} from "../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
-import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
+import {ISuperleagueSayg} from "../components/tournaments/superleague/ISuperleagueSayg";
 
 export function playerOverallAverage(saygData: ScoreAsYouGoDto | null | undefined, sideName: string): number | null {
     if (!saygData || !saygData.legs) {

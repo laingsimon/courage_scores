@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedReference
-
 describe('build', () => {
     describe('getBuildDetail', () => {
         it('does nothing', async () => {

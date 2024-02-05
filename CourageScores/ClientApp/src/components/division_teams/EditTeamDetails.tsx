@@ -1,14 +1,14 @@
 import {useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
 import {handleChange} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export interface IEditTeamDetailsProps {
     divisionId: string;

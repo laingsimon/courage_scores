@@ -13,10 +13,10 @@ import {DataBrowser} from "./DataBrowser";
 import {createTemporaryId, repeat} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {SingleDataResultDto} from "../../interfaces/models/dtos/Data/SingleDataResultDto";
-import {IAppContainerProps} from "../../AppContainer";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
-import {IError} from "../../interfaces/IError";
-import {IFailedRequest} from "../../interfaces/IFailedRequest";
+import {IAppContainerProps} from "../common/AppContainer";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {IError} from "../common/IError";
+import {IFailedRequest} from "../common/IFailedRequest";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 const mockedUsedNavigate = jest.fn();

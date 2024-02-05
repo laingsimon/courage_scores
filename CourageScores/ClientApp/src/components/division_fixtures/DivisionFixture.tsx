@@ -3,18 +3,18 @@ import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDrop
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {renderDate} from "../../helpers/rendering";
 import {any, sortBy} from "../../helpers/collections";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;

@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
-import {useApp} from "../../AppContainer";
-import {IError} from "../../interfaces/IError";
+import {useApp} from "./AppContainer";
+import {IError} from "./IError";
 
 export interface IPageErrorProps {
     error: IError | string;

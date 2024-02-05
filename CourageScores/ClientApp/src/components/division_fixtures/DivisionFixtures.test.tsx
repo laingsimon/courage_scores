@@ -12,12 +12,12 @@ import {
 } from "../../helpers/tests";
 import {toMap} from "../../helpers/collections";
 import {DivisionFixtures} from "./DivisionFixtures";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
-import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {
@@ -31,7 +31,7 @@ import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/Divi
 import {ISeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 import {INoteApi} from "../../interfaces/apis/INoteApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 

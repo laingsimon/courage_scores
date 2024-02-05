@@ -1,14 +1,14 @@
 ﻿import {act, fireEvent} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {MemoryRouter, Route, Routes} from "react-router-dom";
-import {IocContainer, IIocContainerProps} from "../IocContainer";
-import {AppContainer, IAppContainerProps} from "../AppContainer";
+import {IocContainer, IIocContainerProps} from "../components/common/IocContainer";
+import {AppContainer, IAppContainerProps} from "../components/common/AppContainer";
 import ReactDOM from "react-dom/client";
-import {BrandingContainer, IBrandingContainerProps} from "../BrandingContainer";
+import {BrandingContainer, IBrandingContainerProps} from "../components/common/BrandingContainer";
 import {UserEvent} from "@testing-library/user-event/setup/setup";
-import {IError} from "../interfaces/IError";
-import {ISubscriptions} from "../interfaces/ISubscriptions";
-import {IParentHeight} from "../ParentHeight";
+import {IError} from "../components/common/IError";
+import {ISubscriptions} from "../live/ISubscriptions";
+import {IParentHeight} from "../components/layout/ParentHeight";
 import {IHttp} from "../api/http";
 
 /* istanbul ignore file */

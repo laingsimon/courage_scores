@@ -4,8 +4,8 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
-import {useApp} from "../../AppContainer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useApp} from "../common/AppContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {
     changeFilter,
@@ -15,15 +15,15 @@ import {
     initFilter, IFixtureMapping
 } from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
-import {CreateSeasonDialog} from "./season_creation/CreateSeasonDialog";
+import {CreateSeasonDialog} from "../season_creation/CreateSeasonDialog";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
-import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
-import {IFilter} from "../../interfaces/IFilter";
+import {IFilter} from "./IFilter";
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";

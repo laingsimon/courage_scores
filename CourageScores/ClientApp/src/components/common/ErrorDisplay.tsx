@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {Dialog} from "./Dialog";
-import {useApp} from "../../AppContainer";
+import {useApp} from "./AppContainer";
 
 export interface IErrorDisplayProps {
     errors?: any;

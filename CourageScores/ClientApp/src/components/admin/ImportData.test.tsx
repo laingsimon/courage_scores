@@ -15,7 +15,7 @@ import {
 } from "../../helpers/tests";
 import {ImportData} from "./ImportData";
 import {ImportDataRequestDto} from "../../interfaces/models/dtos/Data/ImportDataRequestDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ImportDataResultDto} from "../../interfaces/models/dtos/Data/ImportDataResultDto";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
 

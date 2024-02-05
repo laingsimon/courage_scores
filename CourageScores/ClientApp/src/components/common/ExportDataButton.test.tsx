@@ -3,7 +3,7 @@ import {ExportDataButton, IExportDataButtonProps} from "./ExportDataButton";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {ExportDataRequestDto} from "../../interfaces/models/dtos/Data/ExportDataRequestDto";
 import {ExportDataResultDto} from "../../interfaces/models/dtos/Data/ExportDataResultDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "./IClientActionResultDto";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
 
 describe('ExportDataButton', () => {

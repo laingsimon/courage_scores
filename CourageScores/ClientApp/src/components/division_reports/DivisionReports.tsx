@@ -2,13 +2,13 @@ import {useState} from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
-import {useDependencies} from "../../IocContainer";
-import {useDivisionData} from "../DivisionDataContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useDivisionData} from "../league/DivisionDataContainer";
 import {Report} from "./Report";
 import {ReportGenerationMessages} from "./ReportGenerationMessages";
-import {PrintDivisionHeading} from "../PrintDivisionHeading";
+import {PrintDivisionHeading} from "../league/PrintDivisionHeading";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
-import {useApp} from "../../AppContainer";
+import {useApp} from "../common/AppContainer";
 import {ReportCollectionDto} from "../../interfaces/models/dtos/Report/ReportCollectionDto";
 import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
 

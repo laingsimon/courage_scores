@@ -2,8 +2,9 @@ import {Container} from 'reactstrap';
 import {NavMenu} from './NavMenu';
 import {Heading} from "./Heading";
 import {PageError} from "../common/PageError";
-import {useApp} from "../../AppContainer";
+import {useApp} from "../common/AppContainer";
 import {Footer} from "./Footer";
+import React from "react";
 
 export interface ILayoutProps {
     children?: React.ReactNode;

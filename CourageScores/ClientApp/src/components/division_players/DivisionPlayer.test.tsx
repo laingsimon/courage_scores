@@ -11,7 +11,7 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {DivisionPlayer, IDivisionPlayerProps} from "./DivisionPlayer";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
@@ -19,7 +19,7 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";

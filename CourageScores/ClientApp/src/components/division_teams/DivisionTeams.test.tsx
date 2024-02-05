@@ -11,14 +11,14 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {DivisionTeams} from "./DivisionTeams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 

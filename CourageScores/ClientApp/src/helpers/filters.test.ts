@@ -1,6 +1,4 @@
-﻿// noinspection JSUnresolvedReference
-
-import {
+﻿import {
     changeFilter,
     getDateFilter,
     getFixtureDateFilters,
@@ -13,13 +11,13 @@ import {
     isNextFixtureAfterToday,
     optionallyInvertFilter
 } from "./filters";
-import {IFilter} from "../interfaces/IFilter";
+import {IFilter} from "../components/division_fixtures/IFilter";
 import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder} from "./builders/divisions";
 import {ITournamentSideBuilder, tournamentBuilder} from "./builders/tournaments";
 import {teamBuilder} from "./builders/teams";
 import {DivisionFixtureDateDto} from "../interfaces/models/dtos/Division/DivisionFixtureDateDto";
-import {Filter, NullFilter} from "../Filter";
-import {IEditableDivisionFixtureDateDto} from "../interfaces/IEditableDivisionFixtureDateDto";
+import {Filter, NullFilter} from "../components/division_fixtures/Filter";
+import {IEditableDivisionFixtureDateDto} from "../components/division_fixtures/IEditableDivisionFixtureDateDto";
 import {fixtureBuilder} from "./builders/games";
 
 describe('filters', () => {

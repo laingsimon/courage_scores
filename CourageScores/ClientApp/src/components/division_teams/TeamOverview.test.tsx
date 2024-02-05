@@ -1,6 +1,6 @@
 import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {TeamOverview} from "./TeamOverview";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";

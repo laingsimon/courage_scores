@@ -2,23 +2,24 @@ import {api, cleanUp, doClick, findButton, iocProps, noop, TestContext} from "./
 import {App} from "./App";
 import {act} from "@testing-library/react";
 import {MemoryRouter, Route} from "react-router-dom";
-import {IocContainer, IIocContainerProps} from "./IocContainer";
+import {IocContainer, IIocContainerProps} from "./components/common/IocContainer";
 import ReactDOM from "react-dom/client";
-import {useApp} from "./AppContainer";
-import {BrandingContainer} from "./BrandingContainer";
+import {useApp} from "./components/common/AppContainer";
+import {BrandingContainer} from "./components/common/BrandingContainer";
 import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
 import {SeasonDto} from "./interfaces/models/dtos/Season/SeasonDto";
 import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
 import {ErrorDetailDto} from "./interfaces/models/dtos/ErrorDetailDto";
 import {DivisionDto} from "./interfaces/models/dtos/DivisionDto";
-import {IBuild} from "./interfaces/IBuild";
-import {IClientActionResultDto} from "./interfaces/IClientActionResultDto";
+import {IBuild} from "./components/common/IBuild";
+import {IClientActionResultDto} from "./components/common/IClientActionResultDto";
 import {divisionBuilder} from "./helpers/builders/divisions";
 import {IAccountApi} from "./interfaces/apis/IAccountApi";
 import {IErrorApi} from "./interfaces/apis/IErrorApi";
 import {IDivisionApi} from "./interfaces/apis/IDivisionApi";
 import {ISeasonApi} from "./interfaces/apis/ISeasonApi";
 import {ITeamApi} from "./interfaces/apis/ITeamApi";
+import React from "react";
 
 describe('App', () => {
     let context: TestContext;

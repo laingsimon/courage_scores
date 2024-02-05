@@ -1,5 +1,6 @@
 import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
 import {EmbedAwareLink} from "./EmbedAwareLink";
+import React from "react";
 
 describe('EmbedAwareLink', () => {
     let context: TestContext;

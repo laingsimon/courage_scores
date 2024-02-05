@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {any, sortBy} from "../../helpers/collections";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {WebSocketDto} from "../../interfaces/models/dtos/Live/WebSocketDto";
 
 export function SocketAdmin() {

@@ -1,17 +1,17 @@
 ﻿import {IAddableBuilder, IBuilder} from "./builders";
-import {IDatedDivisionFixtureDto} from "../../interfaces/IDatedDivisionFixtureDto";
+import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
 import {IEditableDivisionFixtureDto} from "../../components/division_fixtures/DivisionFixture";
 import {createTemporaryId} from "../projection";
 import {OtherDivisionFixtureDto} from "../../interfaces/models/dtos/Division/OtherDivisionFixtureDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
-import {IEditableDivisionFixtureDateDto} from "../../interfaces/IEditableDivisionFixtureDateDto";
+import {IEditableDivisionFixtureDateDto} from "../../components/division_fixtures/IEditableDivisionFixtureDateDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {teamBuilder} from "./teams";
 import {playerBuilder} from "./players";
 import {seasonBuilder} from "./seasons";
-import {IDivisionDataContainerProps} from "../../components/DivisionDataContainer";
+import {IDivisionDataContainerProps} from "../../components/league/DivisionDataContainer";
 import {tournamentBuilder} from "./tournaments";
 
 export interface IDivisionFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto> {

@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedReference
-
 import {
     countLegThrowsBetween,
     countMatch100,
@@ -21,7 +19,7 @@ import {
 } from "./superleague";
 import {ScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
 import {LegDto} from "../interfaces/models/dtos/Game/Sayg/LegDto";
-import {ISuperleagueSayg} from "../interfaces/ISuperleagueSayg";
+import {ISuperleagueSayg} from "../components/tournaments/superleague/ISuperleagueSayg";
 
 describe('superleague', () => {
     describe('playerOverallAverage', () => {

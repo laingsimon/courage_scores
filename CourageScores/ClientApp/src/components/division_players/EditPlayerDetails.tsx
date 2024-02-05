@@ -1,15 +1,15 @@
 import {useState} from 'react';
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {useDependencies} from "../../IocContainer";
-import {useApp} from "../../AppContainer";
+import {useDependencies} from "../common/IocContainer";
+import {useApp} from "../common/AppContainer";
 import {sortBy} from "../../helpers/collections";
 import {handleChange, stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 
 export interface IEditPlayerDetailsProps {

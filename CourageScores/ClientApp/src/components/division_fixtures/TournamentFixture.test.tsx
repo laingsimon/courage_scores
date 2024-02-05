@@ -11,10 +11,10 @@ import {
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {toMap} from "../../helpers/collections";
-import {DivisionDataContainer, IDivisionDataContainerProps} from "../DivisionDataContainer";
+import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {ITournamentFixtureProps, TournamentFixture} from "./TournamentFixture";
 import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTournamentGameDto";
-import {IClientActionResultDto} from "../../interfaces/IClientActionResultDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
