@@ -35,6 +35,7 @@ public class MetaDataHelper : IMetaDataHelper
         { typeof(byte[]), String },
         { typeof(object), Object },
         { typeof(Guid), String },
+        { typeof(Type), String },
     };
 
     private static readonly Dictionary<string, string> CustomMappings = new()
