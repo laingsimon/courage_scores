@@ -460,7 +460,7 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAmnemonic: 'A',
+                        sideAmnemonic: 'e',
                         bye: true,
                         saygLink: null,
                     },
@@ -481,7 +481,7 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAmnemonic: 'A',
+                        sideAmnemonic: 'c',
                         bye: true,
                         saygLink: null,
                     },
@@ -627,8 +627,8 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAmnemonic: 'A',
-                        sideBmnemonic: 'B',
+                        sideAmnemonic: 'j',
+                        sideBmnemonic: 'l',
                         bye: false,
                         saygLink: null,
                     },

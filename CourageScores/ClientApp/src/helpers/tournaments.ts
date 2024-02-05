@@ -176,9 +176,20 @@ function getMatchLayoutData(match: TournamentMatchDto, index: number, context: I
         winner = 'sideB';
     }
 
+    function getSide(side?: TournamentSideDto): ILayoutDataForSide {
+        return {
+            id: side ? side.id : null,
+            name: side ? side.name: null,
+            link: side ? context.roundContext.getLinkToSide(side) : null,
+            mnemonic: side && side.id
+                ? null
+                : context.roundContext.sideMnemonicCalculator.next()
+        };
+    }
+
     return {
-        sideA: {id: match.sideA.id, name: match.sideA.name, link: context.roundContext.getLinkToSide(match.sideA), mnemonic: match.sideA.id ? null : context.roundContext.sideMnemonicCalculator.next()},
-        sideB: {id: match.sideB.id, name: match.sideB.name, link: context.roundContext.getLinkToSide(match.sideB), mnemonic: match.sideB.id ? null : context.roundContext.sideMnemonicCalculator.next()},
+        sideA: getSide(match.sideA),
+        sideB: getSide(match.sideB),
         scoreA: (match.scoreA ? match.scoreA.toString() : null) || '0',
         scoreB: (match.scoreB ? match.scoreB.toString() : null) || '0',
         bye: false,
@@ -242,7 +253,10 @@ export function getPlayedLayoutData(sides: TournamentSideDto[], round: Tournamen
     if (any(sidesThatHaveNotPlayedInThisRound)) {
         const totalOfUnbalancedMatches: number = layoutDataForRound.matches.filter((m: ILayoutDataForMatch) => (m.sideA.id && !m.sideB.id) || (m.sideB.id && !m.sideA.id)).length;
         if (totalOfUnbalancedMatches < sidesThatHaveNotPlayedInThisRound.length) {
-            const mnemonics: string[] = repeat(sidesThatHaveNotPlayedInThisRound.length - totalOfUnbalancedMatches, (_: number) => sideMnemonicCalculator.next());
+            const byes: number = sidesThatHaveNotPlayedInThisRound.length - totalOfUnbalancedMatches;
+            const mnemonics: string[] = byes <= 2
+                ? sidesThatHaveNotPlayedInThisRound.map((s: TournamentSideDto) => s.name)
+                : repeat(byes, (_: number) => sideMnemonicCalculator.next());
             const byeLayout: ILayoutDataForRound = getUnplayedLayoutDataForSides(mnemonics, mnemonics, winnersAndByes, layoutContext.matchMnemonic, true)[0];
             layoutDataForRound.matches = layoutDataForRound.matches.concat(byeLayout.matches);
         }
