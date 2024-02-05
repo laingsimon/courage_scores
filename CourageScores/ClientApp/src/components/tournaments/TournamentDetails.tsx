@@ -84,7 +84,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
     }
 
     return (<>
-        <h4 className="pb-2 d-print-none">
+        <h4 className="pb-2">
             <span>Edit tournament: </span>
             <span className="me-4">{renderDate(tournamentData.date)}</span>
             <button className="btn btn-sm margin-left btn-outline-primary margin-right"
@@ -92,7 +92,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
             </button>
             <ExportDataButton tables={getExportTables()}/>
         </h4>
-        <div className="input-group mb-1 d-print-none">
+        <div className="input-group mb-1">
             <div className="input-group-prepend">
                 <label htmlFor="address" className="input-group-text width-75">Address</label>
             </div>
@@ -100,7 +100,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                    value={tournamentData.address}
                    name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
         </div>
-        <div className="form-group input-group mb-1 d-print-none">
+        <div className="form-group input-group mb-1">
             <div className="input-group-prepend">
                 <label htmlFor="type" className="input-group-text width-75">Type</label>
             </div>
@@ -118,7 +118,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                 <label className="form-check-label" htmlFor="singleRound">Super league</label>
             </div>
         </div>
-        <div className="form-group input-group mb-1 d-print-none">
+        <div className="form-group input-group mb-1">
             <label htmlFor="note-text" className="input-group-text width-75">Notes</label>
             <textarea id="note-text" className="form-control" disabled={disabled}
                       value={tournamentData.notes || ''} name="notes"
@@ -126,7 +126,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                       placeholder="Notes for the tournament">
                         </textarea>
         </div>
-        <div className="form-group input-group mb-3 d-print-none" datatype="tournament-options">
+        <div className="form-group input-group mb-3" datatype="tournament-options">
             <label className="input-group-text width-75">Options</label>
             <div className="form-control">
                 <div className="form-check form-switch margin-right my-1">

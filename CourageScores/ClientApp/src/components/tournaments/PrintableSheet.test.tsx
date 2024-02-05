@@ -218,7 +218,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const rounds = getRounds();
@@ -250,7 +253,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const rounds = getRounds();
@@ -285,7 +291,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE).withSide(sideF)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const rounds = getRounds();
@@ -367,7 +376,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const rounds = getRounds();
@@ -431,7 +443,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const rounds = getRounds();
@@ -537,7 +552,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideG).withSide(sideH).withSide(sideI).withSide(sideJ).withSide(sideK).withSide(sideL)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const rounds = getRounds();
@@ -697,7 +715,10 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             const winner = getWinner();
@@ -740,7 +761,10 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({teams, divisions}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({teams, divisions}, reportedError));
 
             reportedError.verifyNoError();
             const winner = getWinner();
@@ -770,7 +794,10 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             const winner = getWinner();
@@ -795,7 +822,10 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division: null, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             const winner = getWinner();
@@ -816,7 +846,10 @@ describe('PrintableSheet', () => {
                     .build()]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -839,7 +872,10 @@ describe('PrintableSheet', () => {
             const teams: DataMap<TeamDto> = toMap<TeamDto>([team]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -860,7 +896,10 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division: null, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
@@ -883,7 +922,10 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division: null, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b']);
@@ -899,7 +941,10 @@ describe('PrintableSheet', () => {
             const teams: DataMap<TeamDto> = toMap([]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - a', '2 - b', '-3 - c-']);
@@ -914,7 +959,10 @@ describe('PrintableSheet', () => {
                 .date('2023-06-01')
                 .build();
 
-            await renderComponent({tournamentData, season, division}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('div[datatype="heading"]');
@@ -939,7 +987,10 @@ describe('PrintableSheet', () => {
             ]);
             const divisions: DivisionDto[] = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
@@ -965,7 +1016,10 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division: null, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
@@ -988,7 +1042,10 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
@@ -1012,7 +1069,10 @@ describe('PrintableSheet', () => {
             ]);
             const divisions = [division];
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({ teams, divisions }, reportedError));
+            await renderComponent(
+                {tournamentData, season, division: null, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
 
             reportedError.verifyNoError();
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
@@ -1031,7 +1091,10 @@ describe('PrintableSheet', () => {
                         .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: false},
+                appProps({}, reportedError));
             reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
 
@@ -1053,7 +1116,10 @@ describe('PrintableSheet', () => {
                         .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
             await doClick(firstSideA);
@@ -1083,7 +1149,10 @@ describe('PrintableSheet', () => {
                         .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
             await doClick(firstSideA);
@@ -1109,7 +1178,10 @@ describe('PrintableSheet', () => {
                         .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideB"]');
             await doClick(firstSideA);
@@ -1139,7 +1211,10 @@ describe('PrintableSheet', () => {
                         .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             reportedError.verifyNoError();
             const firstSideA = context.container.querySelector('div[datatype="sideB"]');
             await doClick(firstSideA);
@@ -1167,7 +1242,10 @@ describe('PrintableSheet', () => {
                 .build();
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('div[data-accolades="180s"]'));
@@ -1196,7 +1274,10 @@ describe('PrintableSheet', () => {
                 .build();
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
@@ -1233,7 +1314,10 @@ describe('PrintableSheet', () => {
                 emailAddress: '',
                 access: {}
             }
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers}, {printOnly: false, editable: true}, appProps({account}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {printOnly: false, editable: true},
+                appProps({account}, reportedError));
             reportedError.verifyNoError();
             const playing = context.container.querySelector('div[datatype="playing"]');
             const firstSide = playing.querySelector('li');
@@ -1266,7 +1350,10 @@ describe('PrintableSheet', () => {
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()]);
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({account, teams}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {printOnly: false, editable: true},
+                appProps({account, teams}, reportedError));
             reportedError.verifyNoError();
             const addSide = context.container.querySelector('li[datatype="add-side"]');
             await doClick(addSide);
@@ -1295,7 +1382,10 @@ describe('PrintableSheet', () => {
                 access: {}
             }
             window.confirm = () => true;
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({account}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}},
+                {printOnly: false, editable: true},
+                appProps({account}, reportedError));
             reportedError.verifyNoError();
             const playing = context.container.querySelector('div[datatype="playing"]');
             const firstSide = playing.querySelector('li.list-group-item');
@@ -1318,6 +1408,12 @@ describe('PrintableSheet', () => {
             .withDivision(division)
             .build();
         const matchOptionDefaults = matchOptionsBuilder().build();
+        const account: UserDto = {
+            name: '',
+            givenName: '',
+            emailAddress: '',
+            access: {}
+        };
 
         it('renders tournament with 2 sides', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
@@ -1325,7 +1421,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const rounds = getRounds();
@@ -1351,7 +1450,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -1363,7 +1465,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
 
-            await renderComponent({tournamentData, season, division: null, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division: null, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
@@ -1377,7 +1482,10 @@ describe('PrintableSheet', () => {
                 .date('2023-06-01')
                 .build();
 
-            await renderComponent({tournamentData, season, division, matchOptionDefaults}, {printOnly: false}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
 
             reportedError.verifyNoError();
             const heading = context.container.querySelector('div[datatype="heading"]');
@@ -1389,7 +1497,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
             await doClick(firstSideA);
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1409,7 +1520,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
             const firstSideA = context.container.querySelector('div[datatype="sideB"]');
             await doClick(firstSideA);
             const dialog = context.container.querySelector('div.modal-dialog');
@@ -1431,16 +1545,12 @@ describe('PrintableSheet', () => {
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()]);
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: {}
-            }
             const tournamentData: TournamentGameDto = tournamentBuilder().build();
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}}, {printOnly: false, editable: true}, appProps({teams, account}, reportedError));
-            const addSideOption = context.container.querySelector('li[datatype="add-side"]');
-            await doClick(addSideOption);
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {printOnly: false, editable: true},
+                appProps({teams, account}, reportedError));
+            await doClick(context.container.querySelector('li[datatype="add-side"]'));
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('div.modal-dialog');
             expect(dialog).toBeTruthy();
@@ -1458,14 +1568,11 @@ describe('PrintableSheet', () => {
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: {}
-            }
             window.confirm = () => true;
-            await renderComponent({tournamentData, season, division, matchOptionDefaults, setTournamentData}, {printOnly: false, editable: true}, appProps({account}, reportedError));
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({account}, reportedError));
             const playing = context.container.querySelector('div[datatype="playing"]');
             const firstSide = playing.querySelector('li.list-group-item');
             await doClick(firstSide);

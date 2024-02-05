@@ -169,15 +169,6 @@ describe('Tournament', () => {
             '/test/' + tournamentId);
     }
 
-    async function assertDataChange(existingData: TournamentGameDto, expectedChange: TournamentGameDto) {
-        await doClick(findButton(context.container, 'Save'));
-        expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
-        const update = updatedTournamentData.shift();
-        expect(update.lastUpdated).toEqual(existingData.updated || '<updated> not defined in existing data');
-        expect(update).toEqual(
-            Object.assign({ lastUpdated: update.lastUpdated }, existingData, expectedChange));
-    }
-
     const division: DivisionDto = divisionBuilder('DIVISION').build();
     const season: SeasonDto = seasonBuilder('SEASON')
         .starting('2023-01-02T00:00:00')
@@ -453,53 +444,6 @@ describe('Tournament', () => {
                 expect(container.className).toContain('loading-background');
             });
 
-            it('tournament without any sides', async () => {
-                const tournamentData = tournamentBuilder()
-                    .forSeason(season)
-                    .forDivision(division)
-                    .date('2023-01-02T00:00:00')
-                    .address('ADDRESS')
-                    .type('TYPE')
-                    .notes('NOTES')
-                    .accoladesCount()
-                    .addTo(tournamentDataLookup)
-                    .build();
-                const divisionData = divisionDataBuilder().build();
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-
-                await renderComponent(tournamentData.id, {
-                    account,
-                    seasons: toMap([season]),
-                    teams: [],
-                    divisions: [division],
-                }, false);
-
-                reportedError.verifyNoError();
-                // address
-                const address = context.container.querySelector('.content-background > div:nth-child(2)');
-                expect(address).toBeTruthy();
-                expect(address.textContent).toContain('Address');
-                expect(address.querySelector('input').value).toEqual('ADDRESS');
-                // type
-                const type = context.container.querySelector('.content-background > div:nth-child(3)');
-                expect(type).toBeTruthy();
-                expect(type.textContent).toContain('Type');
-                expect(type.querySelector('input').value).toEqual('TYPE');
-                // notes
-                const notes = context.container.querySelector('.content-background > div:nth-child(4)');
-                expect(notes).toBeTruthy();
-                expect(notes.textContent).toContain('Notes');
-                expect(notes.querySelector('textarea').value).toEqual('NOTES');
-                // accolades qualify
-                const accoladesCountAndDivision = context.container.querySelector('.content-background > div:nth-child(5)');
-                expect(accoladesCountAndDivision).toBeTruthy();
-                expect(accoladesCountAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
-                expect(accoladesCountAndDivision.querySelector('input').checked).toEqual(true);
-                // division
-                expect(accoladesCountAndDivision.textContent).toContain('Division');
-                expect(accoladesCountAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
-            });
-
             it('tournament with sides and players', async () => {
                 const tournamentData = tournamentBuilder()
                     .forSeason(season)
@@ -510,6 +454,7 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .singleRound()
                     .addTo(tournamentDataLookup)
                     .build();
                 const divisionData = divisionDataBuilder().build();
@@ -523,7 +468,7 @@ describe('Tournament', () => {
                 }, false);
 
                 reportedError.verifyNoError();
-                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(6)');
+                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(1)');
                 expect(editTournamentComponent).toBeTruthy();
                 expect(editTournamentComponent.textContent).toContain('Playing:');
                 const sides = editTournamentComponent.querySelector('div:nth-child(2)');
@@ -665,34 +610,14 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
 
-            const address = context.container.querySelector('.content-background > div:nth-child(2)');
-            await doChange(address, 'input', 'NEW ADDRESS', context.user);
-            const type = context.container.querySelector('.content-background > div:nth-child(3)');
-            await doChange(type, 'input', 'NEW TYPE', context.user);
-            const notes = context.container.querySelector('.content-background > div:nth-child(4)');
-            await doChange(notes, 'textarea', 'NEW NOTES', context.user);
-            const accoladesCountAndDivision = context.container.querySelector('.content-background > div:nth-child(5)');
-            const superLeagueOptions = context.container.querySelector('div[datatype="tournament-options"]');
-            await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
-            await doSelectOption(accoladesCountAndDivision.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
-            await doSelectOption(superLeagueOptions.querySelector('div[datatype="superleague-gender"] .dropdown-menu'), 'Women');
-            await doChange(superLeagueOptions, 'input[name="host"]', 'HOST', context.user);
-            await doChange(superLeagueOptions, 'input[name="opponent"]', 'OPPONENT', context.user);
+            await doClick(findButton(context.container, 'Edit'));
+            const dialog = context.container.querySelector('div.modal-dialog');
+            await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
+            await doClick(findButton(dialog, 'Close'));
+            await doClick(findButton(context.container, 'Save'));
 
-            await assertDataChange(
-                tournamentData,
-                {
-                    id: tournamentData.id,
-                    address: 'NEW ADDRESS',
-                    type: 'NEW TYPE',
-                    notes: 'NEW NOTES',
-                    accoladesCount: false,
-                    divisionId: null,
-                    singleRound: true,
-                    host: 'HOST',
-                    opponent: 'OPPONENT',
-                    gender: 'women',
-                });
+            expect(updatedTournamentData.length).toEqual(1);
+            expect(updatedTournamentData[0].type).toEqual('NEW TYPE');
         });
 
         it('can save changes', async () => {
@@ -787,6 +712,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .singleRound()
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -820,6 +746,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .singleRound()
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -853,6 +780,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .singleRound()
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -888,6 +816,7 @@ describe('Tournament', () => {
                 .notes('NOTES')
                 .bestOf(7)
                 .accoladesCount()
+                .singleRound()
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -923,6 +852,7 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .withSide(side1)
                 .withSide(side2)
+                .singleRound()
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -952,6 +882,7 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .withSide(side1)
                 .withSide(side2)
+                .singleRound()
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
@@ -975,8 +906,8 @@ describe('Tournament', () => {
             const sayg = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(451))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(451))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -987,6 +918,7 @@ describe('Tournament', () => {
             const sideB = sideBuilder('B').withPlayer(playerB).build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .forDivision(division)
                 .date('2023-01-02T00:00:00')
                 .withSide(sideA)
                 .withSide(sideB)
@@ -994,6 +926,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1039,8 +972,8 @@ describe('Tournament', () => {
             const sayg = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -1050,6 +983,7 @@ describe('Tournament', () => {
             const sideB = sideBuilder('B').withPlayer(playerB).build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .forDivision(division)
                 .date('2023-01-02T00:00:00')
                 .withSide(sideA)
                 .withSide(sideB)
@@ -1057,6 +991,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1095,8 +1030,8 @@ describe('Tournament', () => {
             const sayg = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(401))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(401))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -1107,6 +1042,7 @@ describe('Tournament', () => {
             const sideB = sideBuilder('B').withPlayer(playerB).build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .forDivision(division)
                 .date('2023-01-02T00:00:00')
                 .withSide(sideA)
                 .withSide(sideB)
@@ -1114,6 +1050,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1169,8 +1106,8 @@ describe('Tournament', () => {
             const sayg = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(100))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).score(200))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(200))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
@@ -1180,6 +1117,7 @@ describe('Tournament', () => {
             const sideB = sideBuilder('B').withPlayer(playerB).build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .forDivision(division)
                 .date('2023-01-02T00:00:00')
                 .withSide(sideA)
                 .withSide(sideB)
@@ -1187,6 +1125,7 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1218,8 +1157,10 @@ describe('Tournament', () => {
 
         it('can add 180 for player in newly added side', async () => {
             const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER A').withPlayer(playerA))
                 .date('2023-01-02T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')
@@ -1228,10 +1169,10 @@ describe('Tournament', () => {
                 .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = divisionDataBuilder().build();
             const team = teamBuilder('TEAM')
-                .forSeason(season, division, [ playerA ])
+                .forSeason(season, division, [ playerA, playerB ])
                 .build();
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
@@ -1240,21 +1181,28 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
 
-            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '➕')); // open add side dialog
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(dialog.querySelector('.list-group-item')); // click on a player
-            await doClick(findButton(dialog, 'Save')); // close the dialog
+            reportedError.verifyNoError();
+            await doClick(context.container.querySelector('li[datatype="add-side"]'));
+            reportedError.verifyNoError();
+            const editSideDialog = context.container.querySelector('.modal-dialog');
+            await doClick(editSideDialog.querySelector('.list-group-item:nth-child(2)')); // click on a player
+            await doClick(findButton(editSideDialog, 'Save')); // close the dialog
             reportedError.verifyNoError();
 
-            const oneEightiesDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
+            // open the 180s dialog
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            const oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            const oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
             const oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
             expect(oneEightyPlayers.map(p => p.textContent)).toContain('PLAYER A');
         });
 
         it('can add hi-check for player in newly added side', async () => {
             const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER A').withPlayer(playerA))
                 .date('2023-01-02T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')
@@ -1263,10 +1211,10 @@ describe('Tournament', () => {
                 .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = divisionDataBuilder().build();
             const team = teamBuilder('TEAM')
-                .forSeason(season, division, [ playerA ])
+                .forSeason(season, division, [ playerA, playerB ])
                 .build();
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
@@ -1275,34 +1223,42 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
 
-            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '➕')); // open add side dialog
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(dialog.querySelector('.list-group-item')); // click on a player
-            await doClick(findButton(dialog, 'Save')); // close the dialog
+            await doClick(context.container.querySelector('li[datatype="add-side"]'));
+            reportedError.verifyNoError();
+            const addSideDialog = context.container.querySelector('.modal-dialog');
+            await doClick(addSideDialog.querySelector('.list-group-item:nth-child(2)')); // click on a player
+            await doClick(findButton(addSideDialog, 'Save')); // close the dialog
             reportedError.verifyNoError();
 
-            const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
+            // open the hi-checks dialog
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
+            const hiCheckDialog = context.container.querySelector('.modal-dialog');
+            const hiCheckDropdown = hiCheckDialog.querySelector('.dropdown-menu');
             const hiCheckPlayers = Array.from(hiCheckDropdown.querySelectorAll('.dropdown-item'));
             expect(hiCheckPlayers.map(p => p.textContent)).toContain('PLAYER A');
         });
 
         it('cannot add 180 for player in newly removed side', async () => {
             const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerC = playerBuilder('PLAYER C').build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER A').withPlayer(playerA))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER B').withPlayer(playerB))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER C').withPlayer(playerC))
                 .date('2023-01-02T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .withSide((s: ITournamentSideBuilder) => s.withPlayer(playerA))
                 .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = divisionDataBuilder().build();
             const team = teamBuilder('TEAM')
-                .forSeason(season, division, [ playerA ])
+                .forSeason(season, division, [ playerA, playerB, playerC ])
                 .build();
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
@@ -1311,33 +1267,50 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             window.confirm = () => true;
+            // verify that all 3 players CAN be selected before the side is removed
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            let oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            let oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            let oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
+            expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
+            await doClick(findButton(oneEightiesDialog, 'Close')); // close the dialog
 
-            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(findButton(dialog, 'Delete side')); // delete the side
+            await doClick(findButton(dialog, 'Delete side')); // delete side A
             reportedError.verifyNoError();
 
-            const oneEightyDropdown = context.container.querySelector('td[datatype="180s"] .dropdown-menu');
-            expect(oneEightyDropdown).toBeFalsy();
+            // open the 180s dialog
+            // verify that only the 2 remaining players can be selected after a side has been removed
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
+            expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
         });
 
         it('cannot add hi-check for player in newly removed side', async () => {
             const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerC = playerBuilder('PLAYER C').build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER A').withPlayer(playerA))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER B').withPlayer(playerB))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER C').withPlayer(playerC))
                 .date('2023-01-02T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .withSide((s: ITournamentSideBuilder) => s.withPlayer(playerA))
                 .round((r: ITournamentRoundBuilder) => r)
                 .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = divisionDataBuilder().build();
             const team = teamBuilder('TEAM')
-                .forSeason(season, division, [ playerA ])
+                .forSeason(season, division, [ playerA, playerB, playerC ])
                 .build();
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
@@ -1346,14 +1319,202 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
             window.confirm = () => true;
+            // verify that all 3 players CAN be selected before the side is removed
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
+            let hiChecksDialog = context.container.querySelector('.modal-dialog');
+            let hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            let hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
+            expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
+            await doClick(findButton(hiChecksDialog, 'Close')); // close the dialog
 
-            await doClick(findButton(context.container.querySelector('div:nth-child(6)'), '✏️')); // open edit side dialog
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
             const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(findButton(dialog, 'Delete side')); // delete the side
+            await doClick(findButton(dialog, 'Delete side')); // delete side A
             reportedError.verifyNoError();
 
-            const hiCheckDropdown = context.container.querySelector('td[datatype="hiChecks"] .dropdown-menu');
-            expect(hiCheckDropdown).toBeFalsy();
+            // open the 180s dialog
+            // verify that only the 2 remaining players can be selected after a side has been removed
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
+            hiChecksDialog = context.container.querySelector('.modal-dialog');
+            hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
+            expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
+        });
+
+        it('produces correct match option defaults when no bestOf', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 2'))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .singleRound()
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
+            }, false);
+            let alert: string;
+            window.alert = (msg) => alert = msg;
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
+            await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕')); // add match
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(alert).toBeFalsy();
+            const round = updatedTournamentData[0].round;
+            expect(round.matchOptions).toEqual([{ numberOfLegs: 5, startingScore: 501 }]);
+        });
+
+        it('produces correct match option defaults', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 1'))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE 2'))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .bestOf(7)
+                .accoladesCount()
+                .singleRound()
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
+            }, false);
+            let alert: string;
+            window.alert = (msg) => alert = msg;
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
+            await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕')); // add match
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(alert).toBeFalsy();
+            const round = updatedTournamentData[0].round;
+            expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
+        });
+
+        it('excludes no-show sides from 180 selection', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerC = playerBuilder('PLAYER C').build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER A').withPlayer(playerA))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER B').withPlayer(playerB))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER C').withPlayer(playerC))
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ playerA, playerB, playerC ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+            // verify that all 3 players CAN be selected before the side is removed
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            let oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            let oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            let oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
+            expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
+            await doClick(findButton(oneEightiesDialog, 'Close')); // close the dialog
+
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(dialog.querySelector('input[name="noShow"]'));
+            await doClick(findButton(dialog, 'Save'));
+            reportedError.verifyNoError();
+
+            // open the 180s dialog
+            // verify that only the 2 remaining players can be selected after a side has been removed
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+            oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            oneEightiesDropdown = oneEightiesDialog.querySelector('.dropdown-menu');
+            oneEightyPlayers = Array.from(oneEightiesDropdown.querySelectorAll('.dropdown-item'));
+            expect(oneEightyPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
+        });
+
+        it('excludes no-show sides from hi-check selection', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const playerC = playerBuilder('PLAYER C').build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER A').withPlayer(playerA))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER B').withPlayer(playerB))
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER C').withPlayer(playerC))
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ playerA, playerB, playerC ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+            // verify that all 3 players CAN be selected before the side is removed
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
+            let hiChecksDialog = context.container.querySelector('.modal-dialog');
+            let hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            let hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
+            expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER A', 'PLAYER B', 'PLAYER C' ]);
+            await doClick(findButton(hiChecksDialog, 'Close')); // close the dialog
+
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            await doClick(playing.querySelector('li:nth-child(1)')); // open edit side dialog
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(dialog.querySelector('input[name="noShow"]'));
+            await doClick(findButton(dialog, 'Save'));
+            reportedError.verifyNoError();
+
+            // open the 180s dialog
+            // verify that only the 2 remaining players can be selected after a side has been removed
+            await doClick(context.container.querySelector('div[data-accolades="hi-checks"]'));
+            hiChecksDialog = context.container.querySelector('.modal-dialog');
+            hiChecksDropdown = hiChecksDialog.querySelector('.dropdown-menu');
+            hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
+            expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
         });
     });
 });

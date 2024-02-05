@@ -89,6 +89,49 @@ describe('TournamentDetails', () => {
             }
         };
 
+        it('tournament without any sides', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
+
+            await renderComponent({ tournamentData, setTournamentData }, appProps({
+                account,
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
+            }));
+
+            // address
+            const address = context.container.querySelector('div:nth-child(2)');
+            expect(address).toBeTruthy();
+            expect(address.textContent).toContain('Address');
+            expect(address.querySelector('input').value).toEqual('ADDRESS');
+            // type
+            const type = context.container.querySelector('div:nth-child(3)');
+            expect(type).toBeTruthy();
+            expect(type.textContent).toContain('Type');
+            expect(type.querySelector('input').value).toEqual('TYPE');
+            // notes
+            const notes = context.container.querySelector('div:nth-child(4)');
+            expect(notes).toBeTruthy();
+            expect(notes.textContent).toContain('Notes');
+            expect(notes.querySelector('textarea').value).toEqual('NOTES');
+            // accolades qualify
+            const accoladesCountAndDivision = context.container.querySelector('div:nth-child(5)');
+            expect(accoladesCountAndDivision).toBeTruthy();
+            expect(accoladesCountAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
+            expect(accoladesCountAndDivision.querySelector('input').checked).toEqual(true);
+            // division
+            expect(accoladesCountAndDivision.textContent).toContain('Division');
+            expect(accoladesCountAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
+        });
+
         it('super league options when single round', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
