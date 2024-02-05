@@ -373,7 +373,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                             className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
                             {index + 1} - {editable ? side.name : getLinkToSide(side)}
                         </li>)}
-                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50" onClick={() => setNewSide({ id: createTemporaryId() })}>
+                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50 d-print-none" onClick={() => setNewSide({ id: createTemporaryId() })}>
                             Add a side
                         </li>) : null}
                     </ul>

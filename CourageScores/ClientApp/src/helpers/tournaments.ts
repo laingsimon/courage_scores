@@ -176,9 +176,20 @@ function getMatchLayoutData(match: TournamentMatchDto, index: number, context: I
         winner = 'sideB';
     }
 
+    function getSide(side?: TournamentSideDto): ILayoutDataForSide {
+        return {
+            id: side ? side.id : null,
+            name: side ? side.name: null,
+            link: side ? context.roundContext.getLinkToSide(side) : null,
+            mnemonic: side && side.id
+                ? null
+                : context.roundContext.sideMnemonicCalculator.next()
+        };
+    }
+
     return {
-        sideA: {id: match.sideA.id, name: match.sideA.name, link: context.roundContext.getLinkToSide(match.sideA), mnemonic: match.sideA.id ? null : context.roundContext.sideMnemonicCalculator.next()},
-        sideB: {id: match.sideB.id, name: match.sideB.name, link: context.roundContext.getLinkToSide(match.sideB), mnemonic: match.sideB.id ? null : context.roundContext.sideMnemonicCalculator.next()},
+        sideA: getSide(match.sideA),
+        sideB: getSide(match.sideB),
         scoreA: (match.scoreA ? match.scoreA.toString() : null) || '0',
         scoreB: (match.scoreB ? match.scoreB.toString() : null) || '0',
         bye: false,
