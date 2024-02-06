@@ -164,5 +164,22 @@ describe('MatchReport', () => {
             expect(legsWon[0].textContent).toEqual('Legs won: 2');
             expect(legsWon[1].textContent).toEqual('Legs won: 0');
         });
+
+        it('when no division', async () => {
+            await renderComponent({
+                division: null,
+                showWinner: false,
+                noOfThrows: 3,
+                noOfLegs: 3,
+                gender: 'GENDER',
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                saygMatches: []
+            });
+
+            reportedError.verifyNoError();
+            expect(context.container.querySelector('h2').textContent).toEqual('SOMERSET DARTS ORGANISATION');
+            expect(context.container.querySelector('h3').textContent).toEqual('(GENDER)');
+        });
     });
 });
