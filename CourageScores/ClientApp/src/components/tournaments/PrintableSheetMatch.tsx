@@ -221,14 +221,16 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
                 {renderSide(matchData.sideA, 'A')}
                 <div datatype="scoreA">{matchData.scoreA || ''}</div>
             </div>
-            {matchData.bye ? null : (<div className="text-center dotted-line-through">
-                                        <span className="px-3 bg-white position-relative">
-                                            vs
-                                            {matchData.saygId ? (
-                                                <a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer"
-                                                   className="margin-left no-underline">👁️</a>) : null}
-                                        </span>
-            </div>)}
+            {matchData.bye
+                ? null
+                : (<div className="text-center dotted-line-through">
+                        <span className="px-3 bg-white position-relative">
+                            vs
+                            {matchData.saygId
+                                ? (<a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer" className="margin-left no-underline">👁️</a>)
+                                : null}
+                        </span>
+                    </div>)}
             {matchData.bye
                 ? null
                 : (<div datatype="sideB"
