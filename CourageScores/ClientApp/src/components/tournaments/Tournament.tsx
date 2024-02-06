@@ -292,7 +292,7 @@ export function Tournament() {
                 {canManagePlayers ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={() => setAddPlayerDialogOpen(true)}>Add
                         player</button>) : null}
-                {canManageTournaments
+                {canManageTournaments && tournamentData.singleRound
                     ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setEditTournament(true)}>
                         Edit
                     </button>) : null}
