@@ -1,4 +1,4 @@
-import {repeat} from "./projection";
+import {createTemporaryId, repeat} from "./projection";
 import {any} from "./collections";
 import {IBootstrapDropdownItem} from "../components/common/BootstrapDropdown";
 import {TournamentSideDto} from "../interfaces/models/dtos/Game/TournamentSideDto";
@@ -365,6 +365,7 @@ export function removeSide(tournamentData: TournamentGameDto, side: TournamentSi
 export function addSide(tournamentData: TournamentGameDto, newSide: TournamentSideDto): TournamentGameDto {
     const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
     newSide.name = (newSide.name || '').trim();
+    newSide.id = createTemporaryId();
     newTournamentData.sides.push(newSide);
     return newTournamentData;
 }

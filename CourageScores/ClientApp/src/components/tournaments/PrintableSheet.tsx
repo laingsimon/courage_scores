@@ -1,5 +1,5 @@
 import {useTournament} from "./TournamentContainer";
-import {createTemporaryId, repeat} from "../../helpers/projection";
+import {repeat} from "../../helpers/projection";
 import {any, count, sortBy} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
@@ -375,7 +375,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                             className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
                             {index + 1} - {editable ? side.name : getLinkToSide(side)}
                         </li>)}
-                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50 d-print-none" onClick={() => setNewSide({ id: createTemporaryId() })}>
+                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50 d-print-none" onClick={() => setNewSide({ id: null })}>
                             Add a side
                         </li>) : null}
                     </ul>
