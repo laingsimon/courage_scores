@@ -1,6 +1,6 @@
 import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../helpers/projection";
-import {any, count, sortBy} from "../../helpers/collections";
+import {any, count, Frequency, groupAndSortByOccurrences, sortBy} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
 import {useApp} from "../common/AppContainer";
@@ -207,46 +207,21 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
     }
 
     function render180s() {
-        const oneEightyMap = {};
-        const playerLookup = {};
-
-        tournamentData.oneEighties.forEach((player: TournamentPlayerDto) => {
-            if (oneEightyMap[player.id]) {
-                oneEightyMap[player.id]++;
-            } else {
-                oneEightyMap[player.id] = 1;
-            }
-
-            if (!playerLookup[player.id]) {
-                playerLookup[player.id] = player;
-            }
-        });
-
         return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5" onClick={editable ? () => setEditAccolades('one-eighties') : null}>
             <h5>180s</h5>
-            {Object.keys(oneEightyMap).sort((aId: string, bId: string) => {
-                if (oneEightyMap[aId] > oneEightyMap[bId]) {
-                    return -1;
-                }
-                if (oneEightyMap[aId] < oneEightyMap[bId]) {
-                    return 1;
-                }
-
-                return 0;
-            }).map((id: string, index: number) => {
-                const player = playerLookup[id];
+            {groupAndSortByOccurrences(tournamentData.oneEighties, 'id').map((player: TournamentPlayerDto & Frequency, index: number) => {
                 const { team, division } = findTeamAndDivisionForPlayer(player);
 
                 if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
                         <EmbedAwareLink to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
                             {player.name}
-                        </EmbedAwareLink> x {oneEightyMap[id]}
+                        </EmbedAwareLink> x {player.occurrences}
                     </div>);
                 }
 
-                return (<div key={id} className="p-1 no-wrap">
-                    {player.name} x {oneEightyMap[id]}
+                return (<div key={player.id} className="p-1 no-wrap">
+                    {player.name} x {player.occurrences}
                 </div>);
             })}
         </div>);

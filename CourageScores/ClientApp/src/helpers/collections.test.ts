@@ -5,7 +5,7 @@ import {
     any,
     count,
     distinct,
-    elementAt,
+    elementAt, groupAndSortByOccurrences,
     isEmpty,
     max,
     reverse,
@@ -128,6 +128,42 @@ describe('collections', () => {
                 {home: {name: 'a'}},
                 {home: {name: 'b'}},
                 {home: {name: 'c'}}]);
+        });
+    });
+
+    describe('groupAndSoryOccurrences', () => {
+        it('groups item by property', () => {
+            const a1 = { id: 'A' };
+            const a2 = { id: 'A' };
+            const b1 = { id: 'B' };
+            const a3 = { id: 'A' };
+
+            const result = groupAndSortByOccurrences([ a1, a2, b1, a3 ], 'id');
+
+            expect(result.length).toEqual(2);
+            expect(result.map(i => i.id)).toEqual([ 'A', 'B' ]);
+        });
+
+        it('returns items with occurrences in descending order', () => {
+            const a1 = { id: 'A' };
+            const a2 = { id: 'A' };
+            const b1 = { id: 'B' };
+            const a3 = { id: 'A' };
+
+            const result = groupAndSortByOccurrences([ a1, a2, b1, a3 ], 'id');
+
+            expect(result.length).toEqual(2);
+            expect(result.map(i => i.occurrences)).toEqual([ 3, 1 ]);
+        });
+
+        it('original items are unmodified', () => {
+            const a1 = { id: 'A' };
+            const a2 = { id: 'A' };
+
+            groupAndSortByOccurrences([ a1, a2 ], 'id');
+
+            expect(a1).toEqual({ id: 'A' });
+            expect(a2).toEqual({ id: 'A' });
         });
     });
 
