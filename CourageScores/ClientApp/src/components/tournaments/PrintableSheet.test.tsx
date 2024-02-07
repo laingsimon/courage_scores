@@ -1332,6 +1332,43 @@ describe('PrintableSheet', () => {
                 .toEqual([sideB.name, sideC.name, sideD.name, 'NEW SIDE A']);
         });
 
+        it('can close edit side dialog', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            sideA.players = [ player1 ];
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 1).sideB(sideB, 2))
+                    .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 2).sideB(sideD, 1))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideB, 2).sideB(sideC, 1))
+                        .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3))))
+                .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {}
+            }
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {printOnly: false, editable: true},
+                appProps({account}, reportedError));
+            reportedError.verifyNoError();
+            const playing = context.container.querySelector('div[datatype="playing"]');
+            const firstSide = playing.querySelector('li');
+            await doClick(firstSide);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(updatedTournament).toBeNull();
+            expect(context.container.querySelector('div.modal-dialog')).toBeFalsy();
+        });
+
         it('can add a side', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
@@ -1561,6 +1598,29 @@ describe('PrintableSheet', () => {
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name)).toEqual(['NEW SIDE']);
+        });
+
+        it('can close add a side dialog', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+                teamBuilder('TEAM')
+                    .forSeason(season, division, [player1])
+                    .build()]);
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {printOnly: false, editable: true},
+                appProps({teams, account}, reportedError));
+            await doClick(context.container.querySelector('li[datatype="add-side"]'));
+            reportedError.verifyNoError();
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(updatedTournament).toBeNull();
+            expect(context.container.querySelector('div.modal-dialog')).toBeFalsy();
         });
 
         it('can remove a side', async () => {
