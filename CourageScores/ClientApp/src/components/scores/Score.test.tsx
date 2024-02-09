@@ -143,6 +143,7 @@ describe('Score', () => {
             .forSeason(appData.seasons.filter(_ => true)[0])
             .forDivision(appData.divisions.filter(_ => true)[0])
             .playing(homeTeam, awayTeam)
+            .updated('2023-01-02T04:05:06')
             .addTo(fixtureDataMap as any)
             .build();
     }
@@ -195,6 +196,7 @@ describe('Score', () => {
             .withMatch(createMatch(3, 0))
             .with180(findPlayer(homeTeam, 'Home player'))
             .withHiCheck(findPlayer(awayTeam, 'Away player'), 140)
+            .updated('2023-01-02T04:05:06')
             .addTo(fixtureDataMap as any)
             .build();
     }
@@ -637,6 +639,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(fixture.updated);
         });
 
         it('renders error if save fails', async () => {
@@ -668,6 +671,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(fixture.updated);
             expect(updatedFixtures[fixture.id].matches[0].homePlayers).toEqual([anotherHomePlayer]);
         });
 
@@ -688,6 +692,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             expect(updatedFixtures[fixture.id]).not.toBeNull();
+            expect(updatedFixtures[fixture.id].lastUpdated).toEqual(fixture.updated);
             expect(updatedFixtures[fixture.id].matchOptions[0].numberOfLegs).toEqual(30);
         });
 

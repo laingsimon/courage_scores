@@ -26,6 +26,7 @@ export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDt
     author: (name: string) => IFixtureBuilder;
     homeSubmission?: (submissionOrBuilderFunc?: any, id?: string) => IFixtureBuilder;
     awaySubmission?: (submissionOrBuilderFunc?: any, id?: string) => IFixtureBuilder;
+    updated: (time: string) => IFixtureBuilder;
 }
 
 export function fixtureBuilder(date?: string, id?: string, omitSubmission?: boolean): IFixtureBuilder {
@@ -153,6 +154,10 @@ export function fixtureBuilder(date?: string, id?: string, omitSubmission?: bool
             fixture.author = name;
             return builder;
         },
+        updated: (date: string) => {
+            fixture.updated = date;
+            return builder;
+        }
     };
 
     if (!omitSubmission) {

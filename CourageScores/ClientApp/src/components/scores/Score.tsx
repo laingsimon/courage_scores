@@ -45,6 +45,7 @@ import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {ISelectablePlayer} from "../common/PlayerSelection";
+import {RecordScoresDto} from "../../interfaces/models/dtos/Game/RecordScoresDto";
 
 export interface ICreatePlayerFor {
     side: string;
@@ -319,7 +320,9 @@ export function Score() {
 
         try {
             setSaving(true);
-            const response: IClientActionResultDto<GameDto> = await gameApi.updateScores(fixtureId, fixtureData);
+            const update: RecordScoresDto = fixtureData as RecordScoresDto;
+            update.lastUpdated = fixtureData.updated;
+            const response: IClientActionResultDto<GameDto> = await gameApi.updateScores(fixtureId, update);
 
             if (!response.success) {
                 setSaveError(response);
