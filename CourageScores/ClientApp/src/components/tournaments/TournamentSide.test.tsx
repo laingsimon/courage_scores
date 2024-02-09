@@ -128,6 +128,26 @@ describe('TournamentSide', () => {
             expect(players.map(p => p.textContent)).toEqual(['PLAYER']);
         });
 
+        it('single player with side name same as player name', async () => {
+            await renderComponent({season, tournamentData: null}, {
+                side: sideBuilder('PLAYER A')
+                    .withPlayer('PLAYER A')
+                    .build(),
+                winner: null,
+                readOnly: false,
+                onChange,
+                onRemove,
+            }, [team]);
+
+            reportedError.verifyNoError();
+            const sideName = context.container.querySelector('strong');
+            expect(sideName.textContent).toEqual('PLAYER A');
+            const teamName = context.container.querySelector('div[data-name="team-name"]');
+            expect(teamName).toBeFalsy();
+            const players = context.container.querySelector('ol');
+            expect(players).toBeFalsy();
+        });
+
         it('multi player side', async () => {
             const side = sideBuilder('SIDE NAME')
                 .withPlayer('PLAYER 1', null, division.id)
