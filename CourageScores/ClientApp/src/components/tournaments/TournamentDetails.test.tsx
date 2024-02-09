@@ -650,5 +650,40 @@ describe('TournamentDetails', () => {
                 }
             });
         });
+
+        it('can export tournament data where teamId for player cannot be found', async () => {
+            const player = playerBuilder('PLAYER').build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, null, [])
+                .build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .withSide((s: ITournamentSideBuilder) => s.withPlayer(undefined, player.id))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
+            await renderComponent({ tournamentData, setTournamentData }, appProps({
+                account: canExportAccount,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }));
+            (window as any).open = noop;
+
+            await doClick(findButton(context.container, '🛒'));
+
+            // no teamId's could be identified, player's team could not be found, so it should be excluded from the request
+            expect(exportRequest).toEqual({
+                password: '',
+                includeDeletedEntries: false,
+                tables: {
+                    tournamentGame: [tournamentData.id],
+                    season: [tournamentData.seasonId],
+                }
+            });
+        });
     });
 });
