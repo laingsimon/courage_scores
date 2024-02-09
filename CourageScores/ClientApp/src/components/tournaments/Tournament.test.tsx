@@ -1516,5 +1516,182 @@ describe('Tournament', () => {
             hiCheckPlayers = Array.from(hiChecksDropdown.querySelectorAll('.dropdown-item'));
             expect(hiCheckPlayers.map(p => p.textContent)).toEqual([ ' ', 'PLAYER B', 'PLAYER C' ]);
         });
+
+        it('cannot edit tournament details via printable sheet when logged out', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: null,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(context.container.querySelector('div[datatype="heading"]'));
+
+            reportedError.verifyNoError();
+            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            expect(editTournamentDialog).toBeFalsy();
+        });
+
+        it('cannot edit tournament details via printable sheet when not permitted', async () => {
+            const notPermittedAccount: UserDto = {
+                name: '',
+                emailAddress: '',
+                givenName: '',
+                access: { },
+            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: notPermittedAccount,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(context.container.querySelector('div[datatype="heading"]'));
+
+            reportedError.verifyNoError();
+            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            expect(editTournamentDialog).toBeFalsy();
+        });
+
+        it('can edit tournament details via printable sheet when permitted', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(context.container.querySelector('div[datatype="heading"]'));
+
+            reportedError.verifyNoError();
+            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            expect(editTournamentDialog).toBeTruthy();
+        });
+
+        it('cannot edit tournament details via superleague printable sheet when logged out', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .singleRound()
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: null,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+
+            reportedError.verifyNoError();
+            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            expect(editTournamentDialog).toBeFalsy();
+        });
+
+        it('cannot edit tournament details via superleague printable sheet when not permitted', async () => {
+            const notPermittedAccount: UserDto = {
+                name: '',
+                emailAddress: '',
+                givenName: '',
+                access: { },
+            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .singleRound()
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: notPermittedAccount,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+
+            reportedError.verifyNoError();
+            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            expect(editTournamentDialog).toBeFalsy();
+        });
+
+        it('can edit tournament details via superleague printable sheet when permitted', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .singleRound()
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
+            }, false);
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+
+            reportedError.verifyNoError();
+            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            expect(editTournamentDialog).toBeTruthy();
+        });
     });
 });

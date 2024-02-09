@@ -53,6 +53,7 @@ describe('PrintableSheet', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedTournament: TournamentGameDto;
+    let editTournament: boolean;
 
     afterEach(() => {
         cleanUp(context);
@@ -61,10 +62,15 @@ describe('PrintableSheet', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         updatedTournament = null;
+        editTournament = null;
     });
 
     async function setTournamentData(update: TournamentGameDto) {
         updatedTournament = update;
+    }
+
+    async function setEditTournament(value: boolean) {
+        editTournament = value;
     }
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, appProps: IAppContainerProps) {
@@ -1600,6 +1606,46 @@ describe('PrintableSheet', () => {
             expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name)).toEqual(['NEW SIDE']);
         });
 
+        it('can add sides from hint', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+                teamBuilder('TEAM')
+                    .forSeason(season, division, [player1])
+                    .build()]);
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {printOnly: false, editable: true},
+                appProps({teams, account}, reportedError));
+
+            await doClick(context.container.querySelector('div[datatype="add-sides-hint"] > span'));
+
+            reportedError.verifyNoError();
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+        });
+
+        it('does not show add sides hint when some sides', async () => {
+            const player1 = playerBuilder('PLAYER 1').build();
+            const allPlayers: ISelectablePlayer[] = [player1];
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+                teamBuilder('TEAM')
+                    .forSeason(season, division, [player1])
+                    .build()]);
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE A'))
+                .build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {printOnly: false, editable: true},
+                appProps({teams, account}, reportedError));
+
+            const hint = context.container.querySelector('div[datatype="add-sides-hint"]');
+
+            expect(hint).toBeFalsy();
+        });
+
         it('can close add a side dialog', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
@@ -1643,6 +1689,80 @@ describe('PrintableSheet', () => {
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament.sides.map((s: TournamentSideDto) => s.name))
                 .toEqual([sideB.name]);
+        });
+    });
+
+    describe('interactivity', () => {
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
+        const season: SeasonDto = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
+        const matchOptionDefaults = matchOptionsBuilder().build();
+
+        it('can edit tournament when permitted', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r)
+                .build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, setEditTournament},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="heading"]'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual(true);
+        });
+
+        it('can close edit tournament dialog', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r)
+                .build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, setEditTournament, editTournament: true},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
+            reportedError.verifyNoError();
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doClick(findButton(dialog, 'Close'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual(false);
+        });
+
+        it('can edit tournament details', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r)
+                .build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, setEditTournament, editTournament: true},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
+            reportedError.verifyNoError();
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doChange(dialog, 'input[name="address"]', 'NEW ADDRESS', context.user);
+
+            reportedError.verifyNoError();
+            expect(updatedTournament.address).toEqual('NEW ADDRESS');
+        });
+
+        it('cannot edit tournament when not permitted', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r)
+                .build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="heading"]'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual(null);
         });
     });
 });
