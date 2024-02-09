@@ -65,9 +65,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             const input = document.querySelector('input[data-score-input="true"]') as HTMLInputElement;
             if (input) {
                 input.focus();
-            } else {
-                /* istanbul ignore next */
-                console.log('Unable to find input to focus');
             }
             setFocusEventHandle(null);
         }, 300);

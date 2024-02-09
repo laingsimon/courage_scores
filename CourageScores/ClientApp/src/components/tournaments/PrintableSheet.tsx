@@ -1,6 +1,6 @@
 import {useTournament} from "./TournamentContainer";
-import {createTemporaryId, repeat} from "../../helpers/projection";
-import {any, count, sortBy} from "../../helpers/collections";
+import {repeat} from "../../helpers/projection";
+import {any, count, IFrequency, groupAndSortByOccurrences, sortBy} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
 import {useApp} from "../common/AppContainer";
@@ -28,6 +28,8 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {Dialog} from "../common/Dialog";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../common/Accolades";
 import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
+import {TournamentDetails} from "./TournamentDetails";
+import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -46,7 +48,7 @@ interface IWiggler {
 export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
-    const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers } = useTournament();
+    const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, saving, editTournament, setEditTournament } = useTournament();
     const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, { matchOptionDefaults, getLinkToSide })
         : getUnplayedLayoutData(tournamentData.sides));
@@ -205,46 +207,21 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
     }
 
     function render180s() {
-        const oneEightyMap = {};
-        const playerLookup = {};
-
-        tournamentData.oneEighties.forEach((player: TournamentPlayerDto) => {
-            if (oneEightyMap[player.id]) {
-                oneEightyMap[player.id]++;
-            } else {
-                oneEightyMap[player.id] = 1;
-            }
-
-            if (!playerLookup[player.id]) {
-                playerLookup[player.id] = player;
-            }
-        });
-
         return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5" onClick={editable ? () => setEditAccolades('one-eighties') : null}>
             <h5>180s</h5>
-            {Object.keys(oneEightyMap).sort((aId: string, bId: string) => {
-                if (oneEightyMap[aId] > oneEightyMap[bId]) {
-                    return -1;
-                }
-                if (oneEightyMap[aId] < oneEightyMap[bId]) {
-                    return 1;
-                }
-
-                return 0;
-            }).map((id: string, index: number) => {
-                const player = playerLookup[id];
+            {groupAndSortByOccurrences(tournamentData.oneEighties, 'id').map((player: TournamentPlayerDto & IFrequency, index: number) => {
                 const { team, division } = findTeamAndDivisionForPlayer(player);
 
                 if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
                         <EmbedAwareLink to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
                             {player.name}
-                        </EmbedAwareLink> x {oneEightyMap[id]}
+                        </EmbedAwareLink> x {player.occurrences}
                     </div>);
                 }
 
-                return (<div key={id} className="p-1 no-wrap">
-                    {player.name} x {oneEightyMap[id]}
+                return (<div key={player.id} className="p-1 no-wrap">
+                    {player.name} x {player.occurrences}
                 </div>);
             })}
         </div>);
@@ -330,7 +307,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
             {winner ? null : (<div className="float-end">
                 <RefreshControl id={tournamentData.id} />
             </div>)}
-            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center">
+            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament(true) : null}>
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
                 <span className="d-print-none margin-left">
@@ -339,7 +316,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                 </span>
             </div>
             <div datatype="rounds-and-players"
-                 className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
+                 className="d-flex flex-row align-items-center justify-content-center overflow-auto no-overflow-on-print">
                 {layoutData.map((roundData: ILayoutDataForRound, roundIndex: number) => (
                     <div key={roundIndex} datatype={`round-${roundIndex}`} className="d-flex flex-column p-3">
                         {roundIndex === layoutData.length - 1 ? render180s() : null}
@@ -364,6 +341,11 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                         </div>
                     </div>
                 </div>) : null}
+                {!any(tournamentData.sides) && editable
+                    ? (<div datatype="add-sides-hint" className="alert alert-warning m-3 d-print-none">
+                        Add who's playing by clicking <span className="text-secondary" onClick={() => setNewSide({ id: null })}>Add a side</span> &rarr;
+                    </div>)
+                    : null}
                 {any(tournamentData.sides) || editable ? (<div datatype="playing" className="ms-5">
                     <h4>Playing</h4>
                     <ul className="list-group">
@@ -373,7 +355,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                             className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
                             {index + 1} - {editable ? side.name : getLinkToSide(side)}
                         </li>)}
-                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50 d-print-none" onClick={() => setNewSide({ id: createTemporaryId() })}>
+                        {editable ? (<li datatype="add-side" className="list-group-item text-secondary opacity-50 d-print-none" onClick={() => setNewSide({ id: null })}>
                             Add a side
                         </li>) : null}
                     </ul>
@@ -382,6 +364,14 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                 {newSide ? renderEditNewSide() : null}
                 {editAccolades === 'hi-checks' ? renderEditHiChecks() : null}
                 {editAccolades === 'one-eighties' ? renderEdit180s() : null}
+                {editTournament
+                    ? (<Dialog onClose={async () => await setEditTournament(false)}>
+                        <TournamentDetails
+                        tournamentData={tournamentData}
+                        disabled={saving}
+                        setTournamentData={async (data: TournamentGameDto) => setTournamentData(data)} />
+                        </Dialog>)
+                    : null}
             </div>
         </div>);
     } catch (e) {

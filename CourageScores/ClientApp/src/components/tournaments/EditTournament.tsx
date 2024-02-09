@@ -8,7 +8,6 @@ import {useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {useTournament} from "./TournamentContainer";
 import {EditSide} from "./EditSide";
-import {createTemporaryId} from "../../helpers/projection";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
@@ -84,7 +83,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
                     }}/>);
             })}
             {!readOnly && !hasStarted
-                ? (<button className="btn btn-primary" onClick={() => setNewSide({ id: createTemporaryId() })}>➕</button>)
+                ? (<button className="btn btn-primary" onClick={() => setNewSide({ id: null })}>➕</button>)
                 : null}
             {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
         </div>

@@ -15,4 +15,7 @@ export interface ITournament {
     saveTournament?: (preventLoading?: boolean) => Promise<TournamentGameDto>;
     setWarnBeforeSave?: (warning: string) => Promise<any>;
     matchOptionDefaults?: GameMatchOptionDto;
+    saving?: boolean;
+    editTournament?: boolean;
+    setEditTournament?: (edit: boolean) => Promise<any>;
 }

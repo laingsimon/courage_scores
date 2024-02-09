@@ -1,6 +1,10 @@
 import {useApp} from "../../common/AppContainer";
 import {renderDate} from "../../../helpers/rendering";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {Dialog} from "../../common/Dialog";
+import {TournamentDetails} from "../TournamentDetails";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {useTournament} from "../TournamentContainer";
 
 export interface IMasterDrawProps {
     matches: TournamentMatchDto[];
@@ -13,11 +17,12 @@ export interface IMasterDrawProps {
 
 export function MasterDraw({matches, host, opponent, gender, date, notes}: IMasterDrawProps) {
     const {onError} = useApp();
+    const {tournamentData, setTournamentData, saving, editTournament, setEditTournament } = useTournament();
 
     try {
         return (<div className="page-break-after" datatype="master-draw">
-            <h2>Master draw</h2>
-            <div className="d-flex flex-row">
+            <h2 onClick={setEditTournament ? async () => await setEditTournament(true) : null}>Master draw</h2>
+            <div className="d-flex flex-row" onClick={setEditTournament ? async () => await setEditTournament(true) : null}>
                 <div>
                     <table className="table">
                         <thead>
@@ -46,6 +51,14 @@ export function MasterDraw({matches, host, opponent, gender, date, notes}: IMast
                     {notes ? (<div>Notes: <span className="fw-bold">{notes}</span></div>) : null}
                 </div>
             </div>
+            {editTournament
+                ? (<Dialog title="Edit tournament details" onClose={async () => await setEditTournament(false)}>
+                    <TournamentDetails
+                        tournamentData={tournamentData}
+                        disabled={saving}
+                        setTournamentData={async (data: TournamentGameDto) => setTournamentData(data)} />
+                </Dialog>)
+                : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */
