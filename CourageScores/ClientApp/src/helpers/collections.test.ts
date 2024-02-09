@@ -131,7 +131,7 @@ describe('collections', () => {
         });
     });
 
-    describe('groupAndSoryOccurrences', () => {
+    describe('groupAndSortOccurrences', () => {
         it('groups item by property', () => {
             const a1 = { id: 'A' };
             const a2 = { id: 'A' };
@@ -140,8 +140,38 @@ describe('collections', () => {
 
             const result = groupAndSortByOccurrences([ a1, a2, b1, a3 ], 'id');
 
-            expect(result.length).toEqual(2);
             expect(result.map(i => i.id)).toEqual([ 'A', 'B' ]);
+        });
+
+        it('groups item by property where later items have greater occurrences', () => {
+            const b1 = { id: 'B' };
+            const a1 = { id: 'A' };
+            const a2 = { id: 'A' };
+            const a3 = { id: 'A' };
+
+            const result = groupAndSortByOccurrences([ b1, a1, a2, a3 ], 'id');
+
+            expect(result.map(i => i.id)).toEqual([ 'A', 'B' ]);
+        });
+
+        it('groups item by property where items have same number of occurrences', () => {
+            const b1 = { id: 'B' };
+            const b2 = { id: 'B' };
+            const a1 = { id: 'A' };
+            const a2 = { id: 'A' };
+
+            const result = groupAndSortByOccurrences([ b1, a1, a2, b2 ], 'id');
+
+            expect(result.map(i => i.id)).toEqual([ 'A', 'B' ]);
+        });
+
+        it('groups item by property where items have same id', () => {
+            const a1 = { id: 'A' };
+            const a2 = { id: 'A' };
+
+            const result = groupAndSortByOccurrences([ a1, a2 ], 'id');
+
+            expect(result.map(i => i.id)).toEqual([ 'A' ]);
         });
 
         it('returns items with occurrences in descending order', () => {
@@ -152,7 +182,6 @@ describe('collections', () => {
 
             const result = groupAndSortByOccurrences([ a1, a2, b1, a3 ], 'id');
 
-            expect(result.length).toEqual(2);
             expect(result.map(i => i.occurrences)).toEqual([ 3, 1 ]);
         });
 

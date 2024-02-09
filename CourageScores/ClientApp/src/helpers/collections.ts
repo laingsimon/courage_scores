@@ -54,14 +54,14 @@ export function sortBy(property: string, descending?: boolean): (a: any, b: any)
     }
 }
 
-export interface Frequency {
+export interface IFrequency {
     occurrences: number;
 }
 
 /*
 * Group items in a collections by the given property and return them in order of occurrences, descending
 * */
-export function groupAndSortByOccurrences<T>(items: T[], property: string): (T & Frequency)[] {
+export function groupAndSortByOccurrences<T>(items: T[], property: string): (T & IFrequency)[] {
     const oneEightyMap: { [id: string]: number } = {};
     const itemLookup: { [id: string]: T } = {};
 
@@ -84,8 +84,16 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
             return 1;
         }
 
+        // they have the same frequency, so sort by name instead
+        if (aId < bId) {
+            return -1;
+        }
+        if (aId > bId) {
+            return 1;
+        }
+
         return 0;
-    }).map((id: string): T & Frequency => {
+    }).map((id: string): T & IFrequency => {
         const occurrences: number = oneEightyMap[id];
         const item: T = itemLookup[id];
 

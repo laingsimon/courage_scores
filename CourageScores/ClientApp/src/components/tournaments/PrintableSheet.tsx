@@ -1,6 +1,6 @@
 import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../helpers/projection";
-import {any, count, Frequency, groupAndSortByOccurrences, sortBy} from "../../helpers/collections";
+import {any, count, IFrequency, groupAndSortByOccurrences, sortBy} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
 import {useApp} from "../common/AppContainer";
@@ -209,7 +209,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
     function render180s() {
         return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5" onClick={editable ? () => setEditAccolades('one-eighties') : null}>
             <h5>180s</h5>
-            {groupAndSortByOccurrences(tournamentData.oneEighties, 'id').map((player: TournamentPlayerDto & Frequency, index: number) => {
+            {groupAndSortByOccurrences(tournamentData.oneEighties, 'id').map((player: TournamentPlayerDto & IFrequency, index: number) => {
                 const { team, division } = findTeamAndDivisionForPlayer(player);
 
                 if (division && team) {
