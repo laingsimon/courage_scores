@@ -1032,6 +1032,35 @@ describe('PrintableSheet', () => {
             expect(getAccolades('180s', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
         });
 
+        it('renders 180s where team division cannot be found', async () => {
+            const player1: TournamentPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TournamentPlayerDto = playerBuilder('PLAYER 2').build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide(createSide('A', [player1]))
+                .withSide(createSide('B', [player2]))
+                .withOneEighty(player1)
+                .withOneEighty(player2)
+                .withOneEighty(player1)
+                .withOneEighty(player1)
+                .build();
+            const teams: DataMap<TeamDto> = toMap([
+                teamBuilder('TEAM')
+                    .forSeason(season, null, [player1])
+                    .build()
+            ]);
+            const divisions: DivisionDto[] = [division];
+
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
+
+            reportedError.verifyNoError();
+            expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
+            expect(getAccolades('180s', linkHref))
+                .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
+        });
+
         it('renders hi checks', async () => {
             const player1: NotableTournamentPlayerDto = playerBuilder('PLAYER 1').build();
             const player2: NotableTournamentPlayerDto = playerBuilder('PLAYER 2').build();
