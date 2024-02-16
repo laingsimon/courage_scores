@@ -82,7 +82,7 @@ export function MultiPlayerSelection({
 
     function getTeamName(playerId: string): string {
         const team: TeamDto = teams.filter(t => {
-            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
+            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
             if (!teamSeason) {
                 return null;
             }
