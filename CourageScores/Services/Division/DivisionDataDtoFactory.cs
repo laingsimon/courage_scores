@@ -123,7 +123,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var allPlayersInSeasonAndDivision = await context.TeamsInSeasonAndDivision
             .SelectManyAsync<TeamDto, DivisionPlayerDto>(async t =>
             {
-                var teamSeason = t.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id);
+                var teamSeason = t.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id && ts.Deleted == null);
                 return await (teamSeason?.Players ?? new List<TeamPlayerDto>())
                     .SelectAsync(async tp => await _divisionPlayerAdapter.Adapt(t, tp, token))
                     .ToList();
@@ -244,7 +244,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private static Dictionary<Guid, DivisionData.TeamPlayerTuple> CreatePlayerIdToTeamLookup(DivisionDataContext context)
     {
         return (from team in context.TeamsInSeasonAndDivision
-            let teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id)
+            let teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id && ts.Deleted == null)
             where teamSeason != null
             from player in teamSeason.Players
             select new DivisionData.TeamPlayerTuple(player, team)).ToDictionary(t => t.Player.Id);

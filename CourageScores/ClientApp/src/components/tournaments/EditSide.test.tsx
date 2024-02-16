@@ -171,6 +171,29 @@ describe('EditSide', () => {
             expect(context.container.querySelector('ol.list-group li.list-group-item.active').textContent).toEqual('PLAYER');
         });
 
+        it('excludes players from deleted team seasons', async () => {
+            const deletedPlayer: TeamPlayerDto = playerBuilder('DELETED PLAYER').build();
+            const deletedTeam: TeamDto = teamBuilder('DELETED TEAM')
+                .forSeason(season, tournamentData.divisionId, [ deletedPlayer ], true)
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, { side, onChange, onClose, onApply, onDelete }, [deletedTeam, team]);
+
+            reportedError.verifyNoError();
+            const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
+            expect(nameInput.value).toEqual('SIDE NAME');
+            expect(context.container.querySelector('.dropdown-menu')).toBeNull();
+            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
+            expect(context.container.querySelector('ol.list-group').textContent).not.toContain('DELETED PLAYER');
+        });
+
         it('filtered players', async () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .withPlayer(player)
@@ -262,7 +285,7 @@ describe('EditSide', () => {
         });
 
         it('when team is not registered to season', async () => {
-            const teamNotInSeason: TeamDto = teamBuilder('TEAM')
+            const teamNotInSeason: TeamDto = teamBuilder('NOT IN SEASON TEAM')
                 .forSeason(
                     seasonBuilder('ANOTHER SEASON').build(),
                     tournamentData.divisionId,
@@ -281,6 +304,33 @@ describe('EditSide', () => {
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).not.toContain('NOT IN SEASON PLAYER');
+            const dropdownItems = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(dropdownItems.map(i => i.textContent)).not.toContain('NOT IN SEASON TEAM');
+        });
+
+        it('when team is deleted from season', async () => {
+            const deletedTeam: TeamDto = teamBuilder('DELETED TEAM')
+                .forSeason(
+                    season,
+                    tournamentData.divisionId,
+                    [playerBuilder('DELETED PLAYER').build()],
+                    true)
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .teamId(deletedTeam.id)
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, { side, onChange, onClose, onApply, onDelete }, [deletedTeam]);
+
+            reportedError.verifyNoError();
+            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            expect(playerItems.map(li => li.textContent)).not.toContain('DELETED PLAYER');
+            const dropdownItems = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(dropdownItems.map(i => i.textContent)).not.toContain('DELETED TEAM');
         });
 
         it('excludes players from another division when for a division', async () => {

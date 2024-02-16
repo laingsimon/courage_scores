@@ -179,7 +179,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
 
     function findTeamAndDivisionForPlayer(player: TournamentPlayerDto): { team?: TeamDto, division?: DivisionDto } {
         const teamAndDivisionMapping = teams.map(t => {
-            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
+            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
             if (!teamSeason) {
                 return null;
             }

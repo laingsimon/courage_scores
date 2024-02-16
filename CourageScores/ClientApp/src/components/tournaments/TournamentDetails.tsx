@@ -9,6 +9,7 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {useApp} from "../common/AppContainer";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
+import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;
@@ -70,7 +71,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
     function getTeamIdForPlayer(player: TournamentPlayerDto) {
         const teamToSeasonMaps = teams.map((t: TeamDto) => {
             return {
-                teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0],
+                teamSeason: t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0],
                 team: t,
             }
         });

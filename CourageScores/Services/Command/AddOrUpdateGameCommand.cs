@@ -131,7 +131,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<CosmosGame, EditGameDto
             Result = Adapt(teamDto),
         };
 
-        if (teamDto.Seasons.Any(s => s.SeasonId == season.Id))
+        if (teamDto.Seasons.Any(s => s.SeasonId == season.Id && s.Deleted == null))
         {
             return result;
         }

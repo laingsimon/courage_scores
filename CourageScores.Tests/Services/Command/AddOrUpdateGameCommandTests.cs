@@ -261,6 +261,40 @@ public class AddOrUpdateGameCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdates_WhenTeamsUnRegisteredFromSeason_ThenRegistersTeamsWithSeason()
+    {
+        var update = new EditGameDto
+        {
+            HomeTeamId = _homeTeam.Id,
+            AwayTeamId = _awayTeam.Id,
+            Id = _game.Id,
+            SeasonId = _season.Id,
+            LastUpdated = _game.Updated,
+            DivisionId = _game.DivisionId,
+        };
+        var success = new ActionResultDto<TeamDto>
+        {
+            Success = true,
+        };
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(() => _season);
+        _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
+        _teamService.Setup(s => s.Get(update.AwayTeamId, _token)).ReturnsAsync(_awayTeam);
+        _homeTeam.Seasons.Add(new TeamSeasonDto { SeasonId = _season.Id, Deleted = DateTime.UtcNow });
+        _awayTeam.Seasons.Add(new TeamSeasonDto { SeasonId = _season.Id, Deleted = DateTime.UtcNow });
+        _teamService.Setup(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token)).ReturnsAsync(success);
+        _teamService.Setup(s => s.Upsert(_awayTeam.Id, _addSeasonToTeamCommand.Object, _token)).ReturnsAsync(success);
+
+        var result = await _command.WithData(update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
+        _teamService.Verify(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token));
+        _teamService.Verify(s => s.Upsert(_awayTeam.Id, _addSeasonToTeamCommand.Object, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
+    }
+
+    [Test]
     public async Task ApplyUpdates_WhenTeamsRegisteredToSeason_DoesNotRegisterTeamsToSeason()
     {
         var update = new EditGameDto

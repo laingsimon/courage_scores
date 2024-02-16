@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {useApp} from "../common/AppContainer";
-import {all, any, sortBy} from "../../helpers/collections";
+import {all, any, isEmpty, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {useDependencies} from "../common/IocContainer";
@@ -10,10 +10,17 @@ import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ModifyTeamSeasonDto} from "../../interfaces/models/dtos/Team/ModifyTeamSeasonDto";
+import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 
 export interface IAssignTeamToSeasonsProps {
     teamOverview: DivisionTeamDto;
     onClose: () => Promise<any>;
+}
+
+interface IChanges {
+    added: string[];
+    removed: string[];
+    changed: boolean;
 }
 
 export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeasonsProps) {
@@ -21,11 +28,11 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
     const {seasons, teams, onError, reloadAll} = useApp();
     const {teamApi} = useDependencies();
     const team: TeamDto = teams.filter((t: TeamDto) => t.id === teamOverview.id)[0];
-    const initialSeasonIds: string[] = team ? team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId) : [];
+    const initialSeasonIds: string[] = team ? team.seasons.filter(ts => !ts.deleted).map((ts: TeamSeasonDto) => ts.seasonId) : [];
     const [selectedSeasonIds, setSelectedSeasonIds]: [string[], (value: (((prevState: string[]) => string[]) | string[])) => void] = useState(initialSeasonIds);
     const [saving, setSaving] = useState(false);
     const [copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason] = useState(true);
-    const changes = getChanges(initialSeasonIds, selectedSeasonIds);
+    const changes: IChanges = getChanges(initialSeasonIds, selectedSeasonIds);
 
     async function saveChanges() {
         /* istanbul ignore next */
@@ -54,7 +61,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
                 results.push(result);
             }
 
-            const allSuccess = all(results, r => r.success);
+            const allSuccess: boolean = all(results, (r: IClientActionResultDto<TeamDto>) => r.success);
             if (allSuccess) {
                 await reloadAll();
                 await onReloadDivision();
@@ -62,8 +69,8 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
                 return;
             }
 
-            const errors = results.filter(r => !r.success);
-            errors.forEach(res => console.error(res));
+            const errors: IClientActionResultDto<TeamDto>[] = results.filter((r: IClientActionResultDto<TeamDto>) => !r.success);
+            errors.forEach((res: IClientActionResultDto<TeamDto>) => console.error(res));
             window.alert(`There were ${errors.length} error/s when applying these changes; some changes may not have been saved`);
         } catch (e) {
             /* istanbul ignore next */
@@ -73,21 +80,21 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
         }
     }
 
-    function getChanges(initialIds: string[], selectedIds: string[]): { added: string[], removed: string[], changed: boolean } {
+    function getChanges(initialIds: string[], selectedIds: string[]): IChanges {
         const added: string[] = [];
         const removed: string[] = [];
 
         for (let index = 0; index < initialIds.length; index++) {
-            const initialId = initialIds[index];
-            const hasBeenRemoved = selectedIds.filter(id => id === initialId).length === 0;
+            const initialId: string = initialIds[index];
+            const hasBeenRemoved: boolean = isEmpty(selectedIds, (id: string) => id === initialId);
             if (hasBeenRemoved) {
                 removed.push(initialId);
             }
         }
 
         for (let index = 0; index < selectedIds.length; index++) {
-            const selectedId = selectedIds[index];
-            const hasBeenRemoved = initialIds.filter(id => id === selectedId).length === 0;
+            const selectedId: string = selectedIds[index];
+            const hasBeenRemoved: boolean = isEmpty(initialIds, (id: string) => id === selectedId);
             if (hasBeenRemoved) {
                 added.push(selectedId);
             }
@@ -101,10 +108,10 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
     }
 
     function toggleSeason(seasonId: string) {
-        const seasonSelected = any(selectedSeasonIds.filter(id => id === seasonId));
+        const seasonSelected: boolean = any(selectedSeasonIds.filter((id: string) => id === seasonId));
         if (seasonSelected) {
             // remove
-            setSelectedSeasonIds(selectedSeasonIds.filter(id => id !== seasonId));
+            setSelectedSeasonIds(selectedSeasonIds.filter((id: string) => id !== seasonId));
         } else {
             // add
             setSelectedSeasonIds(selectedSeasonIds.concat([seasonId]));
@@ -112,7 +119,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
     }
 
     function renderSeason(season: SeasonDto) {
-        let className = '';
+        let className: string = '';
         if (any(changes.added, id => id === season.id)) {
             className = ' bg-success';
         } else if (any(changes.removed, id => id === season.id)) {

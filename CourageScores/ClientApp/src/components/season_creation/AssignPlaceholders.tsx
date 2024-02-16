@@ -34,7 +34,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
     }
 
     function getTeamsWithUniqueAddresses(division: DivisionDto): IBootstrapDropdownItem[] {
-        const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id));
+        const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
         const addressCounts: { [address: string]: number } = {};
         teamsInDivision.forEach((team: TeamDto) => {
             if (addressCounts[team.address] === undefined) {

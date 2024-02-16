@@ -85,7 +85,7 @@ export function Score() {
             await reloadTeams();
 
             try {
-                const updatedTeamSeason: TeamSeasonDto = updatedTeamDetails.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === fixtureData.seasonId)[0];
+                const updatedTeamSeason: TeamSeasonDto = updatedTeamDetails.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === fixtureData.seasonId && !ts.deleted)[0];
                 if (!updatedTeamSeason) {
                     /* istanbul ignore next */
                     console.log(updatedTeamDetails);

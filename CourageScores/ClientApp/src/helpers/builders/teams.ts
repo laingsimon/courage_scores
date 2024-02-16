@@ -7,7 +7,7 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
 
 export interface ITeamBuilder extends IAddableBuilder<TeamDto & EditTeamDto & GameTeamDto> {
-    forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[]) => ITeamBuilder;
+    forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[], deleted?: boolean) => ITeamBuilder;
     address: (address: string) => ITeamBuilder;
     season: (seasonOrId: any) => ITeamBuilder;
     division: (divisionOrId: any) => ITeamBuilder;
@@ -30,12 +30,15 @@ export function teamBuilder(name?: string, id?: string): ITeamBuilder {
             map[team.id] = team;
             return builder;
         },
-        forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[]) => {
+        forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[], deleted?: boolean) => {
             const teamSeason: TeamSeasonDto = {
                 seasonId: seasonOrId && seasonOrId.id ? seasonOrId.id : seasonOrId,
                 divisionId: divisionOrId && divisionOrId.id ? divisionOrId.id : divisionOrId,
                 players: players || [],
             };
+            if (deleted) {
+                teamSeason.deleted = '2020-01-03T04:05:06Z';
+            }
             team.seasons.push(teamSeason);
             return builder;
         },

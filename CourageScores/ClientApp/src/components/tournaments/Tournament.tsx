@@ -134,7 +134,7 @@ export function Tournament() {
 
         const players: ISelectablePlayer[] = teams
             .filter((t: TeamDto) => any(selectedTournamentTeams, (id: string) => id === t.id))
-            .map((t: TeamDto) => t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId)[0])
+            .map((t: TeamDto) => t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0])
             .filter((teamSeasonDto: TeamSeasonDto) => teamSeasonDto)
             .flatMap((teamSeason: TeamSeasonDto) => teamSeason.players.map((p: TeamPlayerDto) => p as ISelectablePlayer));
 

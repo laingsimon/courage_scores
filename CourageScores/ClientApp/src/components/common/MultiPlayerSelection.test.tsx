@@ -229,6 +229,29 @@ describe('MultiPlayerSelection', () => {
             expect(linkToPlayer.textContent).toEqual('PLAYER');
         });
 
+        it('disabled selected players link via id when team has deleted season', async () => {
+            const team = teamBuilder('TEAM_NAME')
+                .forSeason(season, division, [player], true)
+                .build();
+            await renderComponent({
+                disabled: true,
+                players: [player],
+                allPlayers: [player],
+                division: division,
+                season: season,
+                onAddPlayer: onAddPlayer,
+                onRemovePlayer: onRemovePlayer,
+            }, [team]);
+
+            reportedError.verifyNoError();
+            const selectedPlayer = getSelectedPlayers()[0];
+            expect(selectedPlayer).toBeTruthy();
+            const linkToPlayer = selectedPlayer.querySelector('a');
+            expect(linkToPlayer).toBeTruthy();
+            expect(linkToPlayer.href).toContain(`/division/${division.name}/player:${player.id}/${season.name}`);
+            expect(linkToPlayer.textContent).toEqual('PLAYER');
+        });
+
         it('disabled selected players link via id when team has no matching season', async () => {
             const team = teamBuilder().forSeason(seasonBuilder('ANOTHER SEASON').build(), division).build();
             await renderComponent({

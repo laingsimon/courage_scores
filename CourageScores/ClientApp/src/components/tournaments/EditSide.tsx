@@ -42,7 +42,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     const allPossiblePlayers: ITeamPlayerMap[] = teamMap
         .filter((_: TeamDto) => true) // turn the map back into an array
         .flatMap((t: TeamDto) => {
-            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
+            const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
                 return teamSeason.players.map((p: TeamPlayerDto): ITeamPlayerMap => {
                     return {id: p.id, name: p.name, team: t}
@@ -54,7 +54,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     const canAddPlayers: boolean = account.access.managePlayers && !side.teamId;
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
+        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
         if (!teamSeason) {
             return false;
         }

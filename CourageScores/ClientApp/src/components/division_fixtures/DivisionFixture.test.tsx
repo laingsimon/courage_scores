@@ -445,6 +445,30 @@ describe('DivisionFixture', () => {
             expect(awayCell.textContent).toEqual(`AWAYANOTHER TEAM`);
         });
 
+        it('does not render team with deleted team season', async () => {
+            const date = '2023-05-06T00:00:00';
+            const deletedAwayTeam: TeamDto = teamBuilder('DELETED AWAY')
+                .forSeason(season, division, null, true)
+                .build();
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .bye(homeTeam)
+                .knockout()
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(deletedAwayTeam)
+                    .build(),
+                account,
+                toMap([homeTeam, deletedAwayTeam]));
+
+            reportedError.verifyNoError();
+            const awayCell = context.container.querySelector('td:nth-child(5)');
+            expect(awayCell.textContent).not.toContain(`DELETED AWAY`);
+        });
+
         it('renders unselectable away team playing elsewhere (qualifier)', async () => {
             const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
