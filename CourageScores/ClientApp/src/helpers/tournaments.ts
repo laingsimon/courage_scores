@@ -24,6 +24,7 @@ export interface ILayoutDataForMatch {
     saygId?: string;
     mnemonic?: string;
     hideMnemonic?: boolean;
+    matchOptions?: GameMatchOptionDto;
 }
 
 export interface ILayoutDataForRound {
@@ -197,6 +198,7 @@ function getMatchLayoutData(match: TournamentMatchDto, index: number, context: I
         saygId: match.saygId,
         mnemonic: context.roundContext.matchMnemonic.next(),
         hideMnemonic: allSidesSelectedInNextRound(context.round, match) || context.roundContext.sides.length === 2,
+        matchOptions: matchOptions,
     };
 }
 
