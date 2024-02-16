@@ -51,7 +51,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
     const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, saving, editTournament, setEditTournament } = useTournament();
     const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, { matchOptionDefaults, getLinkToSide })
-        : getUnplayedLayoutData(tournamentData.sides));
+        : getUnplayedLayoutData(tournamentData.sides.filter(s => !s.noShow)));
     const [wiggle, setWiggle] = useState<boolean>(!printOnly);
     const [editSide, setEditSide] = useState<TournamentSideDto>(null);
     const [newSide, setNewSide] = useState<TournamentSideDto>(null);

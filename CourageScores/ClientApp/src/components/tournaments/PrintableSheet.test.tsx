@@ -1539,6 +1539,38 @@ describe('PrintableSheet', () => {
             });
         });
 
+        it('renders tournament with 2 sides and one no-show', async () => {
+            const noShowSide: TournamentSideDto = createSide('NO SHOW');
+            noShowSide.noShow = true;
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide(sideA)
+                .withSide(sideB)
+                .withSide(noShowSide)
+                .build();
+
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({}, reportedError));
+
+            reportedError.verifyNoError();
+            const rounds = getRounds();
+            expect(rounds.length).toEqual(1);
+            expect(rounds[0]).toEqual({
+                heading: 'Final',
+                hiChecks: {players: []},
+                oneEighties: {players: []},
+                matches: [
+                    {
+                        sideAmnemonic: 'A',
+                        sideBmnemonic: 'B',
+                        bye: false,
+                        saygLink: null,
+                    },
+                ],
+            });
+        });
+
         it('renders who is playing', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
