@@ -16,7 +16,7 @@ import {IHttp} from "../api/http";
 export async function doClick(container: Element, selector?: string) {
     const item = selector ? container.querySelector(selector) : container;
     if (!item) {
-        throw new Error(`Element to click was not found: ${selector || container.innerHTML}`)
+        throw new Error(`Element to click was not found: ${selector || (container ? container.innerHTML : '<no container>')}`)
     }
     const anyItem: any = item;
     expect(anyItem!.disabled || false).toEqual(false);

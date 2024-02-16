@@ -282,7 +282,7 @@ describe('EditTournament', () => {
         const team1 = teamBuilder('TEAM 1').forSeason(season, division).build();
 
         it('can add a side', async () => {
-            const existingSide = sideBuilder('SIDE 1').build();
+            const existingSide = sideBuilder('SIDE 1').teamId(team1.id).build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(existingSide)
@@ -318,7 +318,7 @@ describe('EditTournament', () => {
         });
 
         it('trims whitespace from end of new side name', async () => {
-            const existingSide = sideBuilder('SIDE 1').build();
+            const existingSide = sideBuilder('SIDE 1').teamId(team1.id).build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(existingSide)

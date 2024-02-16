@@ -148,8 +148,6 @@ describe('EditSide', () => {
             reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
             expect(nameInput.value).toEqual('');
-            expect(context.container.querySelector('.dropdown-menu')).not.toBeNull();
-            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
         });
 
         it('side with players', async () => {
@@ -236,9 +234,12 @@ describe('EditSide', () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .build();
+            const emptyTournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(division)
+                .build();
 
             await renderComponent({
-                tournamentData,
+                tournamentData: emptyTournamentData,
                 season,
                 alreadyPlaying: {}
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
@@ -248,7 +249,6 @@ describe('EditSide', () => {
             expect(nameInput.value).toEqual('SIDE NAME');
             expect(context.container.querySelector('.dropdown-menu .active')).not.toBeNull();
             expect(context.container.querySelector('.dropdown-menu .active').textContent).toEqual('TEAM');
-            expect(context.container.querySelector('ol.list-group')).toBeNull();
         });
 
         it('side which did not show', async () => {
@@ -537,13 +537,14 @@ describe('EditSide', () => {
     describe('interactivity', () => {
         const player: TeamPlayerDto = playerBuilder('PLAYER').build();
         const anotherPlayer: TeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
+        const division: DivisionDto = divisionBuilder('DIVISION').build();
         const tournamentData: TournamentGameDto = tournamentBuilder()
-            .forDivision(divisionBuilder('DIVISION').build())
+            .forDivision(division)
             .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const team: TeamDto = teamBuilder('TEAM')
-            .forSeason(season, tournamentData.divisionId, [ player, anotherPlayer ])
+            .forSeason(season, division.id, [ player, anotherPlayer ])
             .build();
 
         it('can change side name', async () => {
@@ -587,11 +588,18 @@ describe('EditSide', () => {
 
         it('can change team id', async () => {
             const side: TournamentSideDto = sideBuilder().build();
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
+                .forSeason(season, division.id)
+                .build();
+            const teamTournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(division)
+                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .build();
             await renderComponent({
-                tournamentData,
+                tournamentData: teamTournamentData,
                 season,
                 alreadyPlaying: {},
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEAM');
 
@@ -608,11 +616,18 @@ describe('EditSide', () => {
             const side: TournamentSideDto = sideBuilder('TEAM')
                 .teamId(team.id)
                 .build();
+            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
+                .forSeason(season, division.id)
+                .build();
+            const teamTournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(division)
+                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
+                .build();
             await renderComponent({
-                tournamentData,
+                tournamentData: teamTournamentData,
                 season,
                 alreadyPlaying: {},
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Select team');
 
@@ -1099,6 +1114,106 @@ describe('EditSide', () => {
             await doClick(findButton(dialog, 'Add player'));
 
             expect(Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...').length).toEqual(0);
+        });
+
+        it('can select team when no other sides', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(divisionBuilder('DIVISION').build())
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+
+            expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
+        });
+
+        it('can select players when no other sides', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(divisionBuilder('DIVISION').build())
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+
+            expect(context.container.querySelector('.list-group')).toBeTruthy();
+        });
+
+        it('can select team when other sides are teams', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(divisionBuilder('DIVISION').build())
+                .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+
+            expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
+        });
+
+        it('can select players when other sides are players', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(divisionBuilder('DIVISION').build())
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+
+            expect(context.container.querySelector('.list-group')).toBeTruthy();
+        });
+
+        it('cannot select team when other sides are players', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(divisionBuilder('DIVISION').build())
+                .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+
+            expect(context.container.querySelector('.dropdown-menu')).toBeFalsy();
+        });
+
+        it('cannot select team when other sides are teams', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .forDivision(divisionBuilder('DIVISION').build())
+                .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
+                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .build();
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+
+            expect(context.container.querySelector('.list-group')).toBeFalsy();
         });
     });
 });

@@ -1729,6 +1729,8 @@ describe('Tournament', () => {
         });
 
         it('does not include null players from a mix of team and player sides', async () => {
+            // NOTE: This is now a regression test for when there is invalid data, the scenario should otherwise not be possible
+            // The UI will prevent a mix of team vs player sides for a tournament.
             const playerA = playerBuilder('PLAYER A').build();
             const team = teamBuilder('TEAM')
                 .forSeason(season, division, [ playerA ])
@@ -1736,6 +1738,7 @@ describe('Tournament', () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide((s: ITournamentSideBuilder) => s.name('SIDE B').withPlayer(playerA))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE C').teamId(team.id))
                 .date('2023-01-02T00:00:00')
                 .address('ADDRESS')
                 .type('TYPE')

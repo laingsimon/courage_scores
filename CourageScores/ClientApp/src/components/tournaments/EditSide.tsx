@@ -13,6 +13,7 @@ import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 
 export interface IEditSideProps {
     side: TournamentSideDto;
@@ -26,6 +27,11 @@ interface ITeamPlayerMap {
     id: string;
     name: string;
     team: TeamDto;
+}
+
+interface ITournamentSideType {
+    canSelectPlayers: boolean;
+    canSelectTeams: boolean;
 }
 
 export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSideProps) {
@@ -52,6 +58,21 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
             return [];
         });
     const canAddPlayers: boolean = account.access.managePlayers && !side.teamId;
+    const tournamentSideType: ITournamentSideType = getTournamentSideType(tournamentData);
+
+    function getTournamentSideType(tournamentData: TournamentGameDto): ITournamentSideType {
+        if (!any(tournamentData.sides)) {
+            return {
+                canSelectPlayers: true,
+                canSelectTeams: true,
+            };
+        }
+
+        return {
+            canSelectTeams: any(tournamentData.sides, (s: TournamentSideDto) => !!s.teamId),
+            canSelectPlayers: any(tournamentData.sides, (s: TournamentSideDto) => any(s.players || [])),
+        };
+    }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
         const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
@@ -223,13 +244,13 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                        onChange={valueChanged(side, onChange)}/>
                 <label className="form-check-label" htmlFor="noShow">No show on the night?</label>
             </div>
-            {any(side.players || []) ? null : (<div className="form-group input-group mb-3 d-print-none">
+            {any(side.players || []) || !tournamentSideType.canSelectTeams ? null : (<div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
                     <span className="input-group-text">Team</span>
                 </div>
                 <BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId}/>
             </div>)}
-            {side.teamId ? null : (<div>
+            {side.teamId || !tournamentSideType.canSelectPlayers ? null : (<div>
                 <div className="d-flex justify-content-between align-items-center p-2 pt-0">
                     <div>Who's playing</div>
                     <div>
