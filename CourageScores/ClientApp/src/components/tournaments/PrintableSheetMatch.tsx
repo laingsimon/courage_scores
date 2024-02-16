@@ -28,7 +28,7 @@ interface IEditSide {
 export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matchIndex, editable } : IPrintableSheetMatchProps) {
     const [ editSide, setEditSide ] = useState<IEditSide>(null);
     const { tournamentData, setTournamentData, matchOptionDefaults } = useTournament();
-    const bestOf: number = tournamentData.bestOf || matchOptionDefaults.numberOfLegs || 5;
+    const bestOf: number = (matchData.matchOptions ? matchData.matchOptions.numberOfLegs : null) || tournamentData.bestOf || matchOptionDefaults.numberOfLegs || 5;
     const possibleSideOptions: IBootstrapDropdownItem[] = possibleSides.sort(sortBy('name')).map((side: TournamentSideDto): IBootstrapDropdownItem => { return {
         value: side.id,
         text: side.name,

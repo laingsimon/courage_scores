@@ -1249,12 +1249,12 @@ describe('PrintableSheet', () => {
             expect(tournamentData.round.matches[0].scoreB).toEqual(2);
 
             await doSelectOption(dialog.querySelector('div.btn-group:nth-child(2) .dropdown-menu'), sideE.name); // side
-            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '3'); // score
+            await doSelectOption(dialog.querySelector('div.btn-group:nth-child(4) .dropdown-menu'), '2'); // score
             await doClick(findButton(dialog, 'Save'));
 
             expect(updatedTournament).not.toBeNull();
             expect(updatedTournament.round.matches[0].sideB.id).toEqual(sideE.id);
-            expect(updatedTournament.round.matches[0].scoreB).toEqual(3);
+            expect(updatedTournament.round.matches[0].scoreB).toEqual(2);
         });
 
         it('can remove match side b', async () => {

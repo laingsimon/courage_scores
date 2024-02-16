@@ -427,6 +427,33 @@ describe('tournaments', () => {
             expect(layout[0].matches.map(formatMatchData))
                 .toEqual([ 'SIDE A vs SIDE B', 'A vs B', 'C' ]);
         });
+
+        it('returns match options where available', () => {
+            const sideA = sideBuilder('SIDE A').build();
+            const sideB = sideBuilder('SIDE B').build();
+            const sideC = sideBuilder('SIDE C').build();
+            const sideD = sideBuilder('SIDE D').build();
+            const sideE = sideBuilder('SIDE E').build();
+            const firstMatchOptions = matchOptionsBuilder().numberOfLegs(7).build();
+            const round = roundBuilder()
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB))
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC).sideB(sideD))
+                .withMatchOption(firstMatchOptions)
+                .build();
+            const context: ITournamentLayoutGenerationContext = {
+                getLinkToSide: () => null,
+                matchOptionDefaults,
+            };
+
+            const layout: ILayoutDataForRound[] = getPlayedLayoutData(
+                [ sideA, sideB, sideC, sideD, sideE ],
+                round,
+                context);
+
+            expect(layout.length).toBeGreaterThanOrEqual(1);
+            expect(layout[0].matches.map(m => m.matchOptions))
+                .toEqual([ firstMatchOptions, matchOptionDefaults, undefined ]);
+        });
     });
 
     describe('setRoundNames', () => {
