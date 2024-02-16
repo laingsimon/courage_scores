@@ -316,7 +316,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                 </span>
             </div>
             <div datatype="rounds-and-players"
-                 className="d-flex flex-row align-items-center justify-content-center overflow-auto no-overflow-on-print">
+                 className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
                 {layoutData.map((roundData: ILayoutDataForRound, roundIndex: number) => (
                     <div key={roundIndex} datatype={`round-${roundIndex}`} className="d-flex flex-column p-3">
                         {roundIndex === layoutData.length - 1 ? render180s() : null}
