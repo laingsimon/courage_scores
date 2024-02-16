@@ -120,7 +120,7 @@ export function Tournament() {
         const selectedTournamentPlayers: ISelectablePlayer[] = tournamentData.sides
             ? tournamentData.sides
                 .filter((s: TournamentSideDto) => !s.noShow)
-                .flatMap((side: TournamentSideDto) => side.players)
+                .flatMap((side: TournamentSideDto) => side.players || [])
                 .map((p: TournamentPlayerDto) => p as ISelectablePlayer)
             : [];
 
