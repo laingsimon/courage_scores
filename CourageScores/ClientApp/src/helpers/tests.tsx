@@ -15,7 +15,9 @@ import {IHttp} from "../api/http";
 
 export async function doClick(container: Element, selector?: string) {
     const item = selector ? container.querySelector(selector) : container;
-    expect(item).toBeTruthy();
+    if (!item) {
+        throw new Error(`Element to click was not found: ${selector || container.innerHTML}`)
+    }
     const anyItem: any = item;
     expect(anyItem!.disabled || false).toEqual(false);
     const clickEvent = new MouseEvent('click', {bubbles: true});

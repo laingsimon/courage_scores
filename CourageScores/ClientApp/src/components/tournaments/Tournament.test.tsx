@@ -202,7 +202,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([]),
-                    teams: [],
+                    teams: toMap([]),
                     divisions: [division],
                 }, false);
 
@@ -226,7 +226,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [],
+                    teams: toMap([]),
                     divisions: [division],
                 }, true);
 
@@ -243,7 +243,7 @@ describe('Tournament', () => {
                 await renderComponent(id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [],
+                    teams: toMap([]),
                     divisions: [division],
                 }, false);
 
@@ -269,7 +269,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [],
+                    teams: toMap([]),
                     divisions: [division],
                 }, false);
 
@@ -300,7 +300,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [team],
+                    teams: toMap([team]),
                     divisions: [division],
                 }, false);
 
@@ -332,7 +332,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [team],
+                    teams: toMap([team]),
                     divisions: [division],
                 }, false);
 
@@ -367,7 +367,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [team],
+                    teams: toMap([team]),
                     divisions: [division],
                 }, false);
 
@@ -410,7 +410,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([]),
-                    teams: [],
+                    teams: toMap([]),
                     divisions: [division],
                 }, false);
 
@@ -434,7 +434,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [],
+                    teams: toMap([]),
                     divisions: [division],
                 }, true);
 
@@ -463,7 +463,7 @@ describe('Tournament', () => {
                 await renderComponent(tournamentData.id, {
                     account,
                     seasons: toMap([season]),
-                    teams: [],
+                    teams: toMap([]),
                     divisions: [division],
                 }, false);
 
@@ -511,7 +511,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
 
@@ -577,7 +577,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, 'Add player'));
@@ -606,7 +606,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
 
@@ -637,7 +637,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
 
@@ -662,7 +662,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             apiResponse = {success: false, errors: ['SOME ERROR']};
@@ -689,7 +689,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             apiResponse = {success: false, errors: ['SOME ERROR']};
@@ -720,7 +720,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             let alert: string;
@@ -754,7 +754,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             let alert: string;
@@ -788,7 +788,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             let alert: string;
@@ -824,7 +824,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             let alert: string;
@@ -860,7 +860,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -890,7 +890,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -940,7 +940,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
@@ -1005,7 +1005,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
@@ -1064,7 +1064,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
@@ -1139,7 +1139,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
@@ -1177,7 +1177,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1219,7 +1219,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1263,7 +1263,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
             window.confirm = () => true;
@@ -1315,7 +1315,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
             window.confirm = () => true;
@@ -1361,7 +1361,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             let alert: string;
@@ -1397,7 +1397,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [],
+                teams: toMap([]),
                 divisions: [division],
             }, false);
             let alert: string;
@@ -1438,7 +1438,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
             // verify that all 3 players CAN be selected before the side is removed
@@ -1490,7 +1490,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
             // verify that all 3 players CAN be selected before the side is removed
@@ -1533,7 +1533,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: null,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1566,7 +1566,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: notPermittedAccount,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1593,7 +1593,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1621,7 +1621,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: null,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1655,7 +1655,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: notPermittedAccount,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1683,7 +1683,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [team],
+                teams: toMap([team]),
                 divisions: [division],
             }, false);
 
@@ -1716,7 +1716,7 @@ describe('Tournament', () => {
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
-                teams: [deletedTeam],
+                teams: toMap([deletedTeam]),
                 divisions: [division],
             }, false);
 
@@ -1726,6 +1726,47 @@ describe('Tournament', () => {
             const oneEightiesDropdownItems = Array.from(oneEightiesDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(oneEightiesDropdownItems.map(i => i.textContent)).not.toContain('DELETED PLAYER A');
             expect(oneEightiesDropdownItems.map(i => i.textContent)).not.toContain('DELETED PLAYER B');
+        });
+
+        it('does not include null players from a mix of team and player sides', async () => {
+            const playerA = playerBuilder('PLAYER A').build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ playerA ])
+                .build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE B').withPlayer(playerA))
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: toMap([team]),
+                divisions: [division],
+            }, false);
+            const addSide = context.container.querySelector('li[datatype="add-side"]');
+            await doClick(addSide);
+            reportedError.verifyNoError();
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM');
+            await doClick(findButton(dialog, 'Save'));
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+
+            reportedError.verifyNoError();
+            const oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            const oneEightiesDropdownItems = Array.from(oneEightiesDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(oneEightiesDropdownItems.map(i => i.textContent)).toEqual([' ', 'PLAYER A']);
         });
     });
 });
