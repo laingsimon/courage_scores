@@ -296,10 +296,12 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
         const sideAId: string = matchData.sideA ? matchData.sideA.id : null;
         const sideBId: string = matchData.sideB ? matchData.sideB.id : null;
 
-        return roundData.possibleSides.filter((s: TournamentSideDto) =>
-            s.id === sideAId ||
-            s.id === sideBId ||
-            !any(roundData.alreadySelectedSides, (alreadySelected: TournamentSideDto) => alreadySelected.id === s.id))
+        return roundData.possibleSides
+            .filter((s: TournamentSideDto) => !s.noShow)
+            .filter((s: TournamentSideDto) =>
+                s.id === sideAId ||
+                s.id === sideBId ||
+                !any(roundData.alreadySelectedSides, (alreadySelected: TournamentSideDto) => alreadySelected.id === s.id))
     }
 
     try {

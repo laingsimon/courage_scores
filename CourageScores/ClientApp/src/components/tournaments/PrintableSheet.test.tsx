@@ -1633,6 +1633,27 @@ describe('PrintableSheet', () => {
             expect(updatedTournament.round.matches[0].scoreB).toEqual(2);
         });
 
+        it('cannot set match side to no-show side', async () => {
+            const noShowSide: TournamentSideDto = createSide('NO SHOW');
+            noShowSide.noShow = true;
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide(sideA)
+                .withSide(sideB)
+                .withSide(noShowSide)
+                .build();
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {printOnly: false, editable: true},
+                appProps({}, reportedError));
+            const firstSideA = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(firstSideA);
+            const dialog = context.container.querySelector('div.modal-dialog');
+            expect(dialog).toBeTruthy();
+
+            const sides = Array.from(dialog.querySelectorAll('div.btn-group:nth-child(2) .dropdown-menu .dropdown-item'));
+            expect(sides.map(s => s.textContent)).toEqual([ 'A', 'B' ]);
+        });
+
         it('can add a side', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
