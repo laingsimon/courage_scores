@@ -743,6 +743,43 @@ describe('DivisionFixtures', () => {
             expect(newFixtures[0].tournamentFixtures[0].proposed).toEqual(true);
         });
 
+        it('does not add teams with deleted seasons to new date', async () => {
+            const divisionData = getInSeasonDivisionData();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .forSeason(divisionData.season, divisionData)
+                .build();
+            const deletedTeam = teamBuilder('DELETED TEAM')
+                .address('ADDRESS')
+                .forSeason(divisionData.season, divisionData, null, true)
+                .build();
+            await renderComponent(divisionData, account, null, null, null, [team, deletedTeam]);
+            await doClick(findButton(context.container, '➕ Add date'));
+            const dialog = context.container.querySelector('.modal-dialog');
+
+            await doChange(dialog, 'input[type="date"]', '2023-05-06', context.user);
+            await doClick(dialog, 'input[name="isKnockout"]');
+            await doClick(findButton(dialog, 'Add date'));
+
+            reportedError.verifyNoError();
+            expect(newFixtures).not.toBeNull();
+            expect(newFixtures.length).toEqual(1);
+            expect(newFixtures[0].date).toEqual('2023-05-06T00:00:00');
+            expect(newFixtures[0].isNew).toEqual(true);
+            expect(newFixtures[0].isKnockout).toEqual(true);
+            expect(newFixtures[0].fixtures.length).toEqual(1);
+            expect(newFixtures[0].fixtures[0].fixturesUsingAddress).toEqual([]);
+            expect(newFixtures[0].fixtures[0].homeTeam.id).toEqual(team.id);
+            expect(newFixtures[0].fixtures[0].homeTeam.name).toEqual(team.name);
+            expect(newFixtures[0].fixtures[0].homeTeam.address).toEqual(team.address);
+            expect(newFixtures[0].fixtures[0].awayTeam).toBeNull();
+            expect(newFixtures[0].fixtures[0].isKnockout).toEqual(true);
+            expect(newFixtures[0].fixtures[0].accoladesCount).toEqual(true);
+            expect(newFixtures[0].fixtures[0].fixturesUsingAddress).toEqual([]);
+            expect(newFixtures[0].tournamentFixtures[0].address).toEqual('ADDRESS');
+            expect(newFixtures[0].tournamentFixtures[0].proposed).toEqual(true);
+        });
+
         it('renders new dates correctly', async () => {
             const divisionData = getInSeasonDivisionData();
             const homeTeam = teamBuilder('HOME').build();

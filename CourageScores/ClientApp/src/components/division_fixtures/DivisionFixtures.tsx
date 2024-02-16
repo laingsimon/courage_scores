@@ -82,7 +82,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
 
     function getNewFixtureDate(date: string, isKnockout: boolean): IEditableDivisionFixtureDateDto {
         const seasonalTeams: TeamDto[] = teams.filter((t: TeamDto) => {
-            return t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && ts.divisionId === divisionId).length > 0;
+            return any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === season.id && ts.divisionId === divisionId && !ts.deleted);
         });
 
         return {
