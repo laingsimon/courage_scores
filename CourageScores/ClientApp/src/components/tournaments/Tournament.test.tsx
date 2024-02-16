@@ -1604,6 +1604,42 @@ describe('Tournament', () => {
             expect(editTournamentDialog).toBeTruthy();
         });
 
+        it('updating number of legs updates all match options in all matches', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatchOption((mo: IMatchOptionsBuilder) => mo.numberOfLegs(7))
+                    .round((r: ITournamentRoundBuilder) => r.withMatchOption((mo: IMatchOptionsBuilder) => mo.numberOfLegs(5))))
+                .addTo(tournamentDataLookup)
+                .build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division, [ ])
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: toMap([team]),
+                divisions: [division],
+            }, false);
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="heading"]'));
+            reportedError.verifyNoError();
+            const editTournamentDialog = context.container.querySelector('.modal-dialog');
+            await doChange(editTournamentDialog, 'input[name="bestOf"]', '9', context.user);
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(updatedTournamentData.length).toEqual(1);
+            const firstUpdate = updatedTournamentData[0];
+            expect(firstUpdate.bestOf).toEqual(9);
+            expect(firstUpdate.round.matchOptions.map(mo => mo.numberOfLegs)).toEqual([ 9 ]);
+            expect(firstUpdate.round.nextRound.matchOptions.map(mo => mo.numberOfLegs)).toEqual([ 9 ]);
+        });
+
         it('cannot edit tournament details via superleague printable sheet when logged out', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)

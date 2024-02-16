@@ -35,6 +35,7 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
 import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTournamentGameDto";
 import {TournamentDetails} from "./TournamentDetails";
+import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -228,8 +229,27 @@ export function Tournament() {
     }
 
     async function updateTournamentData(newData: TournamentGameDto) {
-        setTournamentData(newData);
-        setAllPlayers(getAllPlayers(newData));
+        try {
+            const matchOptionsHaveChanged = tournamentData && tournamentData.bestOf !== newData.bestOf;
+            if (matchOptionsHaveChanged && newData.round) {
+                updateMatchOptions(newData.round, newData.bestOf);
+            }
+
+            setTournamentData(newData);
+            setAllPlayers(getAllPlayers(newData));
+        } catch (e) {
+            onError(e);
+        }
+    }
+
+    function updateMatchOptions(round: TournamentRoundDto, numberOfLegs: number) {
+        round.matchOptions.forEach((matchOptions: GameMatchOptionDto) => {
+            matchOptions.numberOfLegs = numberOfLegs;
+        });
+
+        if (round.nextRound) {
+            updateMatchOptions(round.nextRound, numberOfLegs);
+        }
     }
 
     if (loading !== 'ready') {
