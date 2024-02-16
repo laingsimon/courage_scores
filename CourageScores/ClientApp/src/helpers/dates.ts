@@ -10,6 +10,14 @@ export function isInFuture(date: string) {
 }
 
 export function isToday(date: string) {
-    const today = new Date().toDateString();
-    return today === new Date(date).toDateString();
+    return isDateEqualTo(date, 0);
+}
+
+export function isDateEqualTo(date: string, dayOffset?: number) {
+    const relative = new Date();
+    if (dayOffset) {
+        relative.setDate(relative.getDate() + dayOffset);
+    }
+
+    return relative.toDateString() === new Date(date).toDateString();
 }

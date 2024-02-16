@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import {isInFuture, isInPast, isToday,} from "./dates";
+import {isDateEqualTo, isInFuture, isInPast, isToday,} from "./dates";
 
 describe('dates', () => {
     const today = date(0);
@@ -52,6 +52,26 @@ describe('dates', () => {
 
         it('returns false for a future date', () => {
             expect(isToday(future)).toEqual(false);
+        });
+    });
+
+    describe('isDateEqualTo', () => {
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+
+        it('returns false for yesterday', () => {
+            expect(isDateEqualTo(today.toDateString(), -1)).toEqual(false);
+        });
+
+        it('returns true for yesterday', () => {
+            expect(isDateEqualTo(yesterday.toDateString(), -1)).toEqual(true);
+        });
+
+        it('returns false for a future date', () => {
+            expect(isDateEqualTo(tomorrow.toDateString(), -1)).toEqual(false);
         });
     });
 });

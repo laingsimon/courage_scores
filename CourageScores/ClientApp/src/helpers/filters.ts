@@ -1,6 +1,6 @@
 import {all, any} from "./collections";
 import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../components/division_fixtures/Filter";
-import {isInFuture, isInPast, isToday} from "./dates";
+import {isInFuture, isInPast, isDateEqualTo, isToday} from "./dates";
 import {IFilter} from "../components/division_fixtures/IFilter";
 import {
     DivisionTournamentFixtureDetailsDto
@@ -72,6 +72,16 @@ export function getDateFilter(date: string, renderContext: IRenderContext, fixtu
                 new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => isLastFixtureBeforeToday(renderContext, fixtures, c.date)),
                 new Filter<IEditableDivisionFixtureDateDto>((c: DivisionFixtureDateDto) => isNextFixtureAfterToday(renderContext, c.date))
             ]);
+        case 'today':
+            return new Filter<IEditableDivisionFixtureDateDto>((c: IEditableDivisionFixtureDateDto) => isToday(c.date));
+        case 'yesterday':
+            return new Filter<IEditableDivisionFixtureDateDto>((c: IEditableDivisionFixtureDateDto) => isDateEqualTo(c.date, -1));
+        case 'tomorrow':
+            return new Filter<IEditableDivisionFixtureDateDto>((c: IEditableDivisionFixtureDateDto) => isDateEqualTo(c.date, 1));
+        case 'last-week':
+            return new Filter<IEditableDivisionFixtureDateDto>((c: IEditableDivisionFixtureDateDto) => isDateEqualTo(c.date, -7));
+        case 'next-week':
+            return new Filter<IEditableDivisionFixtureDateDto>((c: IEditableDivisionFixtureDateDto) => isDateEqualTo(c.date, 7));
         default:
             if (date && all(date.split(','), (d: string) => !!d.match(/\d{4}-\d{2}/))) {
                 const splitDates: string[] = date.split(',');
