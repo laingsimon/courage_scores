@@ -149,6 +149,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                 await onChange(newSide);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
