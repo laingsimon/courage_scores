@@ -114,17 +114,21 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     }
 
     async function updateTeamId(teamId: string) {
-        const newSide: TournamentSideDto = Object.assign({}, side);
-        if (teamId) {
-            newSide.name = newSide.name || teamMap[teamId].name;
-        } else {
-            teamId = undefined;
-        }
+        try {
+            const newSide: TournamentSideDto = Object.assign({}, side);
+            if (teamId) {
+                newSide.name = newSide.name || teamMap[teamId].name;
+            } else {
+                teamId = undefined;
+            }
 
-        newSide.teamId = teamId;
+            newSide.teamId = teamId;
 
-        if (onChange) {
-            await onChange(newSide);
+            if (onChange) {
+                await onChange(newSide);
+            }
+        } catch (e) {
+            onError(e);
         }
     }
 
