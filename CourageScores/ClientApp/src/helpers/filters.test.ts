@@ -24,6 +24,14 @@ describe('filters', () => {
     const today = date(0);
     const future = date(1);
     const past = date(-1);
+    const lastWeekDate = new Date();
+    lastWeekDate.setDate(new Date().getDate() - 7);
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(new Date().getDate() - 1);
+    const tomorrowDate = new Date();
+    tomorrowDate.setDate(new Date().getDate() + 1);
+    const nextWeekDate = new Date();
+    nextWeekDate.setDate(new Date().getDate() + 7);
 
     function date(monthOffset: number) {
         let date = new Date();
@@ -234,6 +242,91 @@ describe('filters', () => {
             expect(filter.apply({date: past})).toEqual(true);
             expect(filter.apply({date: today})).toEqual(true);
             expect(filter.apply({date: future})).toEqual(true);
+            expect(filter.apply({date: date(2)})).toEqual(false);
+        });
+
+        it('when last-week', () => {
+            const context: IRenderContext = {
+                lastFixtureDateBeforeToday: past,
+                futureDateShown: future,
+            };
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('last-week', context, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({date: date(-2)})).toEqual(false);
+            expect(filter.apply({date: past})).toEqual(false);
+            expect(filter.apply({date: lastWeekDate.toISOString()})).toEqual(true);
+            expect(filter.apply({date: today})).toEqual(false);
+            expect(filter.apply({date: nextWeekDate.toISOString()})).toEqual(false);
+            expect(filter.apply({date: future})).toEqual(false);
+            expect(filter.apply({date: date(2)})).toEqual(false);
+        });
+
+        it('when yesterday', () => {
+            const context: IRenderContext = {
+                lastFixtureDateBeforeToday: past,
+                futureDateShown: future,
+            };
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('yesterday', context, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({date: date(-2)})).toEqual(false);
+            expect(filter.apply({date: past})).toEqual(false);
+            expect(filter.apply({date: yesterdayDate.toISOString()})).toEqual(true);
+            expect(filter.apply({date: today})).toEqual(false);
+            expect(filter.apply({date: tomorrowDate.toISOString()})).toEqual(false);
+            expect(filter.apply({date: future})).toEqual(false);
+            expect(filter.apply({date: date(2)})).toEqual(false);
+        });
+
+        it('when today', () => {
+            const context: IRenderContext = {
+                lastFixtureDateBeforeToday: past,
+                futureDateShown: future,
+            };
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('today', context, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({date: date(-2)})).toEqual(false);
+            expect(filter.apply({date: past})).toEqual(false);
+            expect(filter.apply({date: yesterdayDate.toISOString()})).toEqual(false);
+            expect(filter.apply({date: today})).toEqual(true);
+            expect(filter.apply({date: tomorrowDate.toISOString()})).toEqual(false);
+            expect(filter.apply({date: future})).toEqual(false);
+            expect(filter.apply({date: date(2)})).toEqual(false);
+        });
+
+        it('when tomorrow', () => {
+            const context: IRenderContext = {
+                lastFixtureDateBeforeToday: past,
+                futureDateShown: future,
+            };
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('tomorrow', context, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({date: date(-2)})).toEqual(false);
+            expect(filter.apply({date: past})).toEqual(false);
+            expect(filter.apply({date: yesterdayDate.toISOString()})).toEqual(false);
+            expect(filter.apply({date: today})).toEqual(false);
+            expect(filter.apply({date: tomorrowDate.toISOString()})).toEqual(true);
+            expect(filter.apply({date: future})).toEqual(false);
+            expect(filter.apply({date: date(2)})).toEqual(false);
+        });
+
+        it('when next-week', () => {
+            const context: IRenderContext = {
+                lastFixtureDateBeforeToday: past,
+                futureDateShown: future,
+            };
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getDateFilter('next-week', context, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({date: date(-2)})).toEqual(false);
+            expect(filter.apply({date: past})).toEqual(false);
+            expect(filter.apply({date: lastWeekDate.toISOString()})).toEqual(false);
+            expect(filter.apply({date: today})).toEqual(false);
+            expect(filter.apply({date: nextWeekDate.toISOString()})).toEqual(true);
+            expect(filter.apply({date: future})).toEqual(false);
             expect(filter.apply({date: date(2)})).toEqual(false);
         });
 
