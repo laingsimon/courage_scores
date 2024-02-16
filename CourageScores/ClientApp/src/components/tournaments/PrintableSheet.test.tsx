@@ -862,6 +862,29 @@ describe('PrintableSheet', () => {
             expect(getWhoIsPlaying(linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`, null]);
         });
 
+        it('renders who is playing without links when team season deleted', async () => {
+            const player1: TeamPlayerDto = playerBuilder('PLAYER 1').build();
+            const player2: TeamPlayerDto = playerBuilder('PLAYER 2').build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .withSide(createSide('A', [player1]))
+                .withSide(createSide('B', [player2]))
+                .build();
+            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+                teamBuilder('TEAM')
+                    .forSeason(season, division, [player1], true)
+                    .build()]);
+            const divisions: DivisionDto[] = [division];
+
+            await renderComponent(
+                {tournamentData, season, division, matchOptionDefaults},
+                {printOnly: false},
+                appProps({ teams, divisions }, reportedError));
+
+            reportedError.verifyNoError();
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
+        });
+
         it('renders who is playing (teams)', async () => {
             const team: TeamDto = teamBuilder('TEAM')
                 .forSeason(season, division)
