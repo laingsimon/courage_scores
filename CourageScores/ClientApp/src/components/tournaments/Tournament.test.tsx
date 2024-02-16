@@ -1693,5 +1693,39 @@ describe('Tournament', () => {
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
             expect(editTournamentDialog).toBeTruthy();
         });
+
+        it('only includes players from teams with active team seasons', async () => {
+            const playerA = playerBuilder('DELETED PLAYER A').build();
+            const deletedTeam = teamBuilder('DELETED TEAM')
+                .forSeason(season, division, [ playerA ], true)
+                .build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE A').teamId(deletedTeam.id))
+                .withSide((s: ITournamentSideBuilder) => s.name('SIDE B'))
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: [deletedTeam],
+                divisions: [division],
+            }, false);
+
+            await doClick(context.container.querySelector('div[data-accolades="180s"]'));
+
+            const oneEightiesDialog = context.container.querySelector('.modal-dialog');
+            const oneEightiesDropdownItems = Array.from(oneEightiesDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(oneEightiesDropdownItems.map(i => i.textContent)).not.toContain('DELETED PLAYER A');
+            expect(oneEightiesDropdownItems.map(i => i.textContent)).not.toContain('DELETED PLAYER B');
+        });
     });
 });
