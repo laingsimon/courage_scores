@@ -160,7 +160,7 @@ describe('Score', () => {
                 return { name, id: createTemporaryId() };
             }
 
-            const teamSeason: TeamSeasonDto = team.seasons.filter((s: TeamSeasonDto) => s.seasonId === firstSeason.id)[0];
+            const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === firstSeason.id && !ts.deleted)[0];
             const player: TeamPlayerDto = teamSeason.players.filter((p: TeamPlayerDto) => p.name === name)[0];
             return player || { name: name + ' Not found', id: createTemporaryId() };
         }
@@ -500,7 +500,7 @@ describe('Score', () => {
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.map((ts: TeamSeasonDto) => {
-                    const newTeamSeason = Object.assign({}, ts);
+                    const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
 
                     if (ts.seasonId === createdPlayer.seasonId) {
                         newTeamSeason.players = newTeamSeason.players.concat([
@@ -541,6 +541,37 @@ describe('Score', () => {
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.filter((_: TeamSeasonDto) => false); // return no team seasons
+
+                return {
+                    success: true,
+                    result: existingTeam,
+                };
+            };
+
+            reportedError.verifyNoError();
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            expect(addPlayerDialog).toBeTruthy();
+            expect(addPlayerDialog.textContent).toContain('Create home player...');
+            await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
+            await doClick(findButton(addPlayerDialog, 'Add player'));
+
+            expect(reportedError.error).toEqual('Could not find updated teamSeason');
+            expect(teamsReloaded).toEqual(true);
+            expect(createdPlayer).not.toBeNull();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can handle deleted team season during add new player', async () => {
+            const appData = getDefaultAppData(account);
+            const fixture = getPlayedFixtureData(appData);
+            await renderComponent(fixture.id, appData);
+            newPlayerApiResult = (createdPlayer) => {
+                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                existingTeam.seasons.forEach((teamSeasonDto: TeamSeasonDto) => teamSeasonDto.deleted = '2020-01-02T04:05:06Z'); // modify the team season so it is deleted
 
                 return {
                     success: true,
