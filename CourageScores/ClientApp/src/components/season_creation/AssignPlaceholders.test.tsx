@@ -247,6 +247,30 @@ describe('AssignPlaceholders', () => {
             const dropdownItems = Array.from(placeholderA.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(dropdownItems.map(li => li.textContent)).toEqual(['🎲 Randomly assign', '🚫 TEAM A (has shared address)', '🚫 TEAM AA (has shared address)']);
         });
+
+        it('teams with deleted seasons are excluded from dropdown', async () => {
+            const deletedTeamD: TeamDto = teamBuilder('TEAM D')
+                .address('ADDRESS D')
+                .forSeason(season, division1, [], true)
+                .build();
+            await renderComponent(appProps({
+                    divisions: [division2, division1],
+                    seasons: toMap([season]),
+                    teams: toMap([deletedTeamD]),
+                }),
+                {
+                    seasonId: season.id,
+                    selectedTemplate: { result: template },
+                    placeholderMappings: {},
+                    setPlaceholderMappings,
+                });
+
+            const div1 = context.container.querySelector('div > div > div:nth-child(1)');
+            const div1Placeholders = Array.from(div1.querySelectorAll('ul > li'));
+            const placeholderA = div1Placeholders.filter(p => p.querySelector('span').textContent === 'A')[0];
+            const dropdownItems = Array.from(placeholderA.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(dropdownItems.map(li => li.textContent)).not.toContain('TEAM D');
+        });
     });
 
     describe('interactivity', () => {
