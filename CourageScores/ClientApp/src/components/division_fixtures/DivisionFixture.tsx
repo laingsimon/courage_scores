@@ -15,6 +15,7 @@ import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/Divi
 import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
+import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
@@ -134,8 +135,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     function renderKnockoutAwayTeams() {
         const options: IBootstrapDropdownItem[] = allTeams
             .filter((t: TeamDto) => t.id !== fixture.homeTeam.id)
-            .filter((t: TeamDto) => any(t.seasons, ts => ts.seasonId === season.id))
-            .map((t: TeamDto) => {
+            .filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted))
+            .map((t: TeamDto): IBootstrapDropdownItem => {
                 const otherFixtureSameDate: DivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
                 const unavailableReason: string = otherFixtureSameDate
                     ? otherFixtureSameDate.awayTeam.id === t.id
