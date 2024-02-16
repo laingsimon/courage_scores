@@ -185,7 +185,7 @@ describe('PrintableSheetMatch', () => {
     });
 
     describe('interactivity', () => {
-        const matchOptionDefaults: GameMatchOptionDto = matchOptionsBuilder().build();
+        const matchOptionDefaults: GameMatchOptionDto = matchOptionsBuilder().numberOfLegs(7).build();
         const sideA = sideBuilder('SIDE A').build();
         const sideB = sideBuilder('SIDE B').build();
         const sideC = sideBuilder('SIDE C').build();
@@ -698,6 +698,68 @@ describe('PrintableSheetMatch', () => {
                 matches: [],
                 nextRound: null,
             });
+        });
+
+        it('shows layout match options number of legs when present', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
+            const matchOptions: GameMatchOptionDto = matchOptionsBuilder().numberOfLegs(9).build();
+            const matchData: ILayoutDataForMatch = {
+                scoreB: '7',
+                scoreA: '5',
+                sideA: { id: null, name: null, link: null },
+                sideB: { id: null, name: null, link: null },
+                mnemonic: 'M1',
+                hideMnemonic: true,
+                matchOptions,
+            };
+            await renderComponent({
+                tournamentData,
+                setTournamentData,
+                matchOptionDefaults,
+            }, {
+                matchData,
+                matchIndex: 0,
+                roundIndex: 0,
+                possibleSides: [sideA, sideB, sideC],
+                editable: true,
+            }, appProps({}, reportedError));
+            const side = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(side);
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog.textContent).toContain('Best of 9');
+            const scoreDropdownItems = Array.from(dialog.querySelectorAll('.form-group :nth-child(4) div.dropdown-menu .dropdown-item'));
+            expect(scoreDropdownItems.map(i => i.textContent)).toEqual([ '0', '1', '2', '3', '4', '5']); // best of 9
+        });
+
+        it('shows default match options number of legs when match options not present', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder().build();
+            const matchData: ILayoutDataForMatch = {
+                scoreB: '7',
+                scoreA: '5',
+                sideA: { id: null, name: null, link: null },
+                sideB: { id: null, name: null, link: null },
+                mnemonic: 'M1',
+                hideMnemonic: true,
+            };
+            await renderComponent({
+                tournamentData,
+                setTournamentData,
+                matchOptionDefaults,
+            }, {
+                matchData,
+                matchIndex: 0,
+                roundIndex: 0,
+                possibleSides: [sideA, sideB, sideC],
+                editable: true,
+            }, appProps({}, reportedError));
+            const side = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(side);
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog.textContent).toContain('Best of 7');
+            const scoreDropdownItems = Array.from(dialog.querySelectorAll('.form-group :nth-child(4) div.dropdown-menu .dropdown-item'));
+            expect(scoreDropdownItems.map(i => i.textContent)).toEqual([ '0', '1', '2', '3', '4' ]); // best of 7
         });
     });
 });
