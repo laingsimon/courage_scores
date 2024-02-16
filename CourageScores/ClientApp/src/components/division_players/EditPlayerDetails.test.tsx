@@ -21,6 +21,7 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {playerBuilder} from "../../helpers/builders/players";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
+import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 
 describe('EditPlayerDetails', () => {
     let context: TestContext;
@@ -30,7 +31,7 @@ describe('EditPlayerDetails', () => {
     let saved: {result: TeamDto, newPlayers: TeamPlayerDto[] | null};
     let change: {name: string, value: string};
     let canceled: boolean;
-    let apiResponse: IClientActionResultDto<TeamDto>;
+    let apiResponse: () => IClientActionResultDto<TeamDto>;
     let cumulativeCreatedPlayers: EditTeamPlayerDto[];
 
     const playerApi = api<IPlayerApi>({
@@ -41,7 +42,7 @@ describe('EditPlayerDetails', () => {
             const teamPlayer: TeamPlayerDto = playerDetails as TeamPlayerDto;
             teamPlayer.id = createTemporaryId();
 
-            return apiResponse || {
+            return apiResponse ? apiResponse() : {
                 success: true,
                 result: {
                     id: teamId,
@@ -56,7 +57,7 @@ describe('EditPlayerDetails', () => {
         },
         update: async (seasonId: string, teamId: string, playerId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             updatedPlayer = {seasonId, teamId, playerId, playerDetails};
-            return apiResponse || {success: true};
+            return apiResponse ? apiResponse() : {success: true};
         }
     });
 
@@ -194,6 +195,27 @@ describe('EditPlayerDetails', () => {
         it('excludes teams where not selected for current season', async () => {
             const differentSeasonTeam = teamBuilder('OTHER SEASON')
                 .forSeason(createTemporaryId(), division)
+                .build();
+
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                onCancel,
+                onSaved,
+                onChange,
+            }, [team, differentSeasonTeam], [division]);
+
+            const items = Array.from(findNewTeamDropdown().querySelectorAll('.dropdown-item'));
+            expect(items.map(i => i.textContent)).toEqual([ 'Select team', 'TEAM' ]);
+        });
+
+        it('excludes teams where not deleted for current season', async () => {
+            const differentSeasonTeam = teamBuilder('DELETED TEAM')
+                .forSeason(season, division, null, true)
                 .build();
 
             await renderComponent({
@@ -518,6 +540,60 @@ describe('EditPlayerDetails', () => {
             }]);
         });
 
+        it('identifies new player ignoring deleted team seasons', async () => {
+            const deletedPlayer = playerBuilder('NAME').build();
+            const teamWithDeletedSeason: TeamDto = teamBuilder('TEAM WITH DELETED SEASON')
+                .forSeason(season, division, [deletedPlayer], true)
+                .forSeason(season, division)
+                .build();
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: teamWithDeletedSeason,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                onCancel,
+                onSaved,
+                onChange,
+            }, [teamWithDeletedSeason, otherTeam], [division, otherDivision]);
+            reportedError.verifyNoError();
+            apiResponse = () => {
+                return {
+                    success: true,
+                    result: {
+                        id: teamWithDeletedSeason.id,
+                        seasons: teamWithDeletedSeason.seasons.map((ts: TeamSeasonDto) => {
+                            if (ts.deleted) {
+                                return ts;
+                            }
+
+                            const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
+                            cumulativeCreatedPlayers.forEach((p: EditTeamPlayerDto) => {
+                                return newTeamSeason.players = ts.players.concat(p as TeamPlayerDto);
+                            });
+                            return newTeamSeason;
+                        }),
+                        name: teamWithDeletedSeason.name,
+                        address: teamWithDeletedSeason.address,
+                    }
+                };
+            };
+
+            await doClick(findButton(context.container, 'Add player'));
+
+            reportedError.verifyNoError();
+            expect(saved).not.toBeNull();
+            expect(saved.newPlayers).toEqual([{
+                name: 'NAME',
+                captain: true,
+                emailAddress: 'EMAIL',
+                id: expect.any(String),
+                newTeamId: null,
+            }]);
+            expect(saved.newPlayers[0].id).not.toEqual(deletedPlayer.id);
+        });
+
         it('creates multiple players', async () => {
             await renderComponent({
                 player: playerBuilder('NAME 1\nNAME 2').noId().build(),
@@ -660,7 +736,7 @@ describe('EditPlayerDetails', () => {
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
             reportedError.verifyNoError();
-            apiResponse = {success: false};
+            apiResponse = () => { return { success: false } };
 
             await doClick(findButton(context.container, 'Save player'));
 
@@ -681,7 +757,7 @@ describe('EditPlayerDetails', () => {
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
             reportedError.verifyNoError();
-            apiResponse = {success: false};
+            apiResponse = () => { return { success: false } };
             await doClick(findButton(context.container, 'Save player'));
             expect(context.container.textContent).toContain('Could not save player details');
 
@@ -703,7 +779,7 @@ describe('EditPlayerDetails', () => {
                 onChange,
             }, [team, otherTeam], [division, otherDivision]);
             reportedError.verifyNoError();
-            apiResponse = {success: false};
+            apiResponse = () => { return { success: false } };
 
             await doClick(findButton(context.container, 'Cancel'));
 

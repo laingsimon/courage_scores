@@ -114,7 +114,6 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
     }
 
     function getNewPlayers(response: IClientActionResultDto<TeamDto> | IMultiPlayerCreationResult): TeamPlayerDto[] {
-
         try {
             const multiCreationResponse: IMultiPlayerCreationResult = response as IMultiPlayerCreationResult;
             if (!multiCreationResponse.playerDetails) {
@@ -122,7 +121,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 return [];
             }
 
-            const teamSeason: TeamSeasonDto = response.result.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId)[0];
+            const teamSeason: TeamSeasonDto = response.result.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted)[0];
             const newPlayers: TeamPlayerDto[] = multiCreationResponse.playerDetails.map((request: IEditPlayerDetailsPlayer) => {
                 return teamSeason.players.filter((p: TeamPlayerDto) => p.name === request.name)[0];
             });
@@ -177,7 +176,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
     }
 
     function teamSeasonForSameDivision(team: TeamDto): boolean {
-        const teamSeason = team.seasons.filter(ts => ts.seasonId === seasonId)[0];
+        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId && !ts.deleted)[0];
         if (!teamSeason) {
             return false;
         }
