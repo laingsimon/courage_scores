@@ -428,6 +428,31 @@ describe('tournaments', () => {
                 .toEqual([ 'SIDE A vs SIDE B', 'A vs B', 'C' ]);
         });
 
+        it('shows match mnemonics in second round when matches are not defined', async () => {
+            const sideA = sideBuilder('SIDE A').build();
+            const sideB = sideBuilder('SIDE B').build();
+            const sideC = sideBuilder('SIDE C').build();
+            const sideD = sideBuilder('SIDE D').build();
+            const round = roundBuilder()
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA, 0).sideB(sideB, 3))
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideC, 3).sideB(sideD, 1))
+                .build();
+            const context: ITournamentLayoutGenerationContext = {
+                getLinkToSide: () => null,
+                matchOptionDefaults,
+            };
+
+            const layout: ILayoutDataForRound[] = getPlayedLayoutData(
+                [ sideA, sideB, sideC, sideD ],
+                round,
+                context);
+
+            expect(layout.length).toBeGreaterThanOrEqual(2);
+            expect(layout[0].matches.map((m: ILayoutDataForMatch) => m.mnemonic)).toEqual([ 'M1', 'M2' ]);
+            expect(layout[1].matches.map((m: ILayoutDataForMatch) => m.mnemonic)).toEqual([ 'M3' ]);
+            expect(layout[1].matches.map(formatMatchData)).toEqual([ 'SIDE B vs SIDE C' ]);
+        });
+
         it('returns match options where available', () => {
             const sideA = sideBuilder('SIDE A').build();
             const sideB = sideBuilder('SIDE B').build();

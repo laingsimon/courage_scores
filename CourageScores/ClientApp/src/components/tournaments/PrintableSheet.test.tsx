@@ -361,7 +361,7 @@ describe('PrintableSheet', () => {
                 matches: [
                     {
                         sideAmnemonic: 'winner(M3)',
-                        sideBmnemonic: 'winner(M1)',
+                        sideBmnemonic: 'winner(M4)',
                         bye: false,
                         saygLink: null,
                     },

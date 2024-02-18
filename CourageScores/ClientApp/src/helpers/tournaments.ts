@@ -281,7 +281,7 @@ export function getPlayedLayoutData(sides: TournamentSideDto[], round: Tournamen
 
             return [ m.sideA.name || m.sideA.mnemonic ];
         });
-        return [layoutDataForRound].concat(getUnplayedLayoutDataForSides(mnemonics, byes, winnersAndByes, context.matchMnemonic));
+        return [layoutDataForRound].concat(getUnplayedLayoutDataForSides(mnemonics, byes, winnersAndByes, layoutContext.matchMnemonic));
     }
 
     return [layoutDataForRound].concat(getPlayedLayoutData(winnersAndByes, round.nextRound, context));
