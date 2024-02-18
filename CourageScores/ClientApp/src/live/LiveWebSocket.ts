@@ -1,12 +1,13 @@
 import {any} from "../helpers/collections";
 import {ISubscription} from "./ISubscription";
 import {ISubscriptions} from "./ISubscriptions";
+import {IWebSocketContext} from "./IWebSocketContext";
 
 interface ILiveWebSocketProps {
-    socket: WebSocket | null;
+    socketContext: IWebSocketContext;
     subscriptions: ISubscriptions;
     setSubscriptions: (subscriptions: ISubscriptions) => Promise<any>;
-    setSocket: (socket: WebSocket) => Promise<any>;
+    setSocketContext: (socket: IWebSocketContext) => Promise<any>;
     createSocket: () => WebSocket;
 }
 
@@ -22,18 +23,20 @@ export class LiveWebSocket implements ILiveWebSocket {
     socket: WebSocket | null;
     subscriptions: ISubscriptions;
     setSubscriptions: (subscriptions: ISubscriptions) => Promise<any>;
-    setSocket: (socket: WebSocket) => Promise<any>;
+    setSocketContext: (context: IWebSocketContext) => Promise<any>;
     createSocket: () => WebSocket;
+    socketContext: IWebSocketContext;
 
-    constructor({socket,
+    constructor({socketContext,
                 subscriptions,
                 setSubscriptions,
-                setSocket,
+                setSocketContext,
                 createSocket}: ILiveWebSocketProps) {
-        this.socket = socket;
+        this.socketContext = socketContext;
+        this.socket = socketContext.webSocket;
         this.subscriptions = subscriptions;
         this.setSubscriptions = setSubscriptions;
-        this.setSocket = setSocket;
+        this.setSocketContext = setSocketContext;
         this.createSocket = createSocket;
         if (this.socket) {
             this.socket.onmessage = this.handleMessage.bind(this);
@@ -45,9 +48,27 @@ export class LiveWebSocket implements ILiveWebSocket {
         return !!this.socket;
     }
 
+    async banConnections() {
+        console.error(`Banning web-socket connections after ${this.socketContext.closures} unexpected closures`);
+
+        const newContext = Object.assign({}, this.socketContext);
+        newContext.banned = true;
+        this.socketContext = newContext;
+        await this.setSocketContext(newContext);
+    }
+
     async awaitStateChange() {
+        if (this.socketContext.banned) {
+            return Promise.reject('banned');
+        }
+
         if (!this.socket || this.socket.readyState === 1) {
             return;
+        }
+
+        if (this.socketContext.closures >= 10) {
+            await this.banConnections();
+            return Promise.reject('just banned');
         }
 
         return new Promise((resolve, reject) => {
@@ -80,7 +101,12 @@ export class LiveWebSocket implements ILiveWebSocket {
     async closeSocket() {
         if (this.socket) {
             this.socket.close();
-            await this.setSocket(null);
+
+            const newContext: IWebSocketContext = Object.assign({}, this.socketContext);
+            newContext.webSocket = null;
+            newContext.closures = (newContext.closures || 0) + 1;
+
+            await this.setSocketContext(newContext);
             await this.setSubscriptions({});
         }
     }
@@ -88,7 +114,11 @@ export class LiveWebSocket implements ILiveWebSocket {
     async __send(data: object) {
         if (!this.socket) {
             this.socket = this.createSocket();
-            await this.setSocket(this.socket);
+            const newContext: IWebSocketContext = Object.assign({}, this.socketContext);
+            newContext.connectionAttempts = (newContext.connectionAttempts || 0) + 1;
+            newContext.webSocket = this.socket;
+
+            await this.setSocketContext(newContext);
         }
 
         await this.awaitStateChange();
@@ -204,6 +234,9 @@ export class LiveWebSocket implements ILiveWebSocket {
 
     async handleClose() {
         console.error('Socket closed');
-        await this.setSocket(null);
+        const newContext: IWebSocketContext = Object.assign({}, this.socketContext);
+        newContext.webSocket = null;
+        newContext.closures = (newContext.closures || 0) + 1;
+        await this.setSocketContext(newContext);
     }
 }

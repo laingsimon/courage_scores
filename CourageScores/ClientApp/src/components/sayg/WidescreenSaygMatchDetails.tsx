@@ -8,7 +8,11 @@ export interface IWidescreenSaygMatchDetailsProps {
 export function WidescreenSaygMatchDetails({ legs, numberOfLegs }: IWidescreenSaygMatchDetailsProps) {
     const orderedLegKeys: string[] = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
     const lastLegKey: string = orderedLegKeys[orderedLegKeys.length - 1];
-    const lastLeg = legs[lastLegKey];
+    const lastLeg: LegDto = legs[lastLegKey];
+
+    if (!lastLeg) {
+        return null;
+    }
 
     return (<div datatype="WidescreenSaygMatchDetails" className="d-flex flex-row justify-content-around">
         <span>Best of {numberOfLegs}</span>

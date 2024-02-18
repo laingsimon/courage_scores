@@ -20,6 +20,7 @@ import {PlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {TeamApi} from "../../interfaces/apis/ITeamApi";
 import {TournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {DataApi} from "../../interfaces/apis/IDataApi";
+import {IWebSocketContext} from "../../live/IWebSocketContext";
 
 const DependenciesContext = createContext({});
 
@@ -36,7 +37,7 @@ export interface IIocContainerProps {
 
 /* istanbul ignore next */
 export function IocContainer({children, overrideHttp, overrideParentHeight, ...services} : IIocContainerProps) {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [socketContext, setSocketContext] = useState<IWebSocketContext>({});
     const [subscriptions, setSubscriptions] = useState<ISubscriptions>({});
     const settings: ISettings = new Settings();
     const http: IHttp = overrideHttp || new Http(settings);
@@ -58,10 +59,10 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
         liveApi: new LiveApi(http),
         parentHeight: overrideParentHeight || new ParentHeight(25),
         webSocket: new LiveWebSocket({
-            socket,
+            socketContext,
             subscriptions,
             setSubscriptions: async (subs: ISubscriptions) => setSubscriptions(subs),
-            setSocket: async (socket: WebSocket) => setSocket(socket),
+            setSocketContext: async (context: IWebSocketContext) => setSocketContext(context),
             createSocket: () => (services.socketFactory || socketFactory)(settings),
         }),
     };

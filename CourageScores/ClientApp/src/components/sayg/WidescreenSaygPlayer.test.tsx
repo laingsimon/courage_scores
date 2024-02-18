@@ -82,6 +82,23 @@ describe('WidescreenSaygPlayer', () => {
                 .build();
         });
 
+        it('no legs', async () => {
+            await renderComponent(
+                { },
+                {
+                    scoreFirst: true,
+                    legs: {},
+                    player: 'home',
+                    finished: false,
+                    showOptions: false,
+                    changeStatisticsView,
+                });
+
+            reportedError.verifyNoError();
+            const recentThrows = Array.from(context.container.querySelectorAll('div.flex-column > div')); // WidescreenSaygRecentThrow instances
+            expect(recentThrows.length).toEqual(0);
+        });
+
         it('score first', async () => {
             await renderComponent(
                 { },
