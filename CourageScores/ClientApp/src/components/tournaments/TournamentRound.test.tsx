@@ -18,7 +18,6 @@ import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/Re
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
@@ -38,11 +37,9 @@ import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateT
 describe('TournamentRound', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let oneEighty: TournamentPlayerDto;
-    let hiCheck: {player: TournamentPlayerDto, note: number};
     let updatedRound: TournamentRoundDto;
     let warnBeforeSave: string;
-    let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean };
+    let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean }[];
     let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
     const tournamentApi = api<ITournamentGameApi>({
         addSayg: async (id: string, _: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> => {
@@ -78,31 +75,21 @@ describe('TournamentRound', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        oneEighty = null;
-        hiCheck = null;
         saygApiData = {};
         updatedRound = null;
         warnBeforeSave = null;
-        patchedData = null;
+        patchedData = [];
     });
 
     async function onChange(newRound: TournamentRoundDto) {
         updatedRound = newRound;
     }
 
-    async function onHiCheck(player: TournamentPlayerDto, score: number) {
-        hiCheck = {player, note: score};
-    }
-
-    async function on180(player: TournamentPlayerDto) {
-        oneEighty = player
-    }
-
     async function setTournamentData() {
     }
 
     async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
-        patchedData = { patch, nestInRound }
+        patchedData.push({ patch, nestInRound });
     }
 
     async function setWarnBeforeSave(msg: string) {
@@ -168,9 +155,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -187,9 +172,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -209,9 +192,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -237,9 +218,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -278,9 +257,7 @@ describe('TournamentRound', () => {
                 readOnly,
                 depth: 1,
                 onChange,
-                on180,
                 patchData,
-                onHiCheck,
             });
 
             reportedError.verifyNoError();
@@ -308,9 +285,7 @@ describe('TournamentRound', () => {
                 readOnly,
                 depth: 1,
                 onChange,
-                on180,
                 patchData,
-                onHiCheck,
             });
 
             reportedError.verifyNoError();
@@ -327,9 +302,7 @@ describe('TournamentRound', () => {
                 readOnly,
                 depth: 1,
                 onChange,
-                on180,
                 patchData,
-                onHiCheck,
             });
             reportedError.verifyNoError();
 
@@ -361,9 +334,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -380,9 +351,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -408,9 +377,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
 
                 reportedError.verifyNoError();
@@ -436,9 +403,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -483,9 +448,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
 
                 reportedError.verifyNoError();
@@ -514,9 +477,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
 
                 reportedError.verifyNoError();
@@ -543,9 +504,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -576,9 +535,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -615,9 +572,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -654,9 +609,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -698,9 +651,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     },
                     permittedAccount);
                 reportedError.verifyNoError();
@@ -733,9 +684,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     },
                     permittedAccount);
                 reportedError.verifyNoError();
@@ -762,9 +711,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -801,9 +748,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -832,9 +777,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -855,9 +798,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -885,9 +826,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -915,9 +854,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
                 reportedError.verifyNoError();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
@@ -947,9 +884,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
                 reportedError.verifyNoError();
                 const roundTables = context.container.querySelectorAll('table');
@@ -984,9 +919,7 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                     onChange,
-                    on180,
                     patchData,
-                    onHiCheck,
                 });
                 reportedError.verifyNoError();
 
@@ -1025,9 +958,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
@@ -1040,7 +971,11 @@ describe('TournamentRound', () => {
                 await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
-                expect(oneEighty).not.toBeNull();
+                expect(patchedData).toEqual([{
+                    patch: {
+                        additional180: expect.any(Object),
+                    },
+                }]);
             });
 
             it('can record hiCheck', async () => {
@@ -1074,9 +1009,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
@@ -1089,8 +1022,16 @@ describe('TournamentRound', () => {
                 await doChange(saygDialog, 'input[data-score-input="true"]', '150', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
-                expect(hiCheck).not.toBeNull();
-                expect(hiCheck.note).toEqual(150);
+                const patchesWithHiChecks = patchedData.filter(p => (p.patch as PatchTournamentDto).additionalOver100Checkout);
+                expect(patchesWithHiChecks).toEqual([{
+                    patch: {
+                        additionalOver100Checkout: {
+                            name: side1.players[0].name,
+                            id: side1.players[0].id,
+                            score: 150,
+                        }
+                    },
+                }]);
             });
 
             it('completing a leg patches the match data', async () => {
@@ -1128,9 +1069,7 @@ describe('TournamentRound', () => {
                         readOnly,
                         depth: 1,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
@@ -1145,7 +1084,7 @@ describe('TournamentRound', () => {
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
                 reportedError.verifyNoError();
-                expect(patchedData).toEqual({
+                expect(patchedData).toEqual([{
                     nestInRound: true,
                     patch: {
                         match: {
@@ -1155,7 +1094,7 @@ describe('TournamentRound', () => {
                             scoreB: 0
                         },
                     },
-                });
+                }]);
             });
 
             it('completing a leg in a nested match patches the match data', async () => {
@@ -1208,9 +1147,7 @@ describe('TournamentRound', () => {
                         depth: 1,
                         allowNextRound: true,
                         onChange,
-                        on180,
                         patchData,
-                        onHiCheck,
                     },
                     permittedAccount);
                 saygApiData[saygData.id] = saygData;
@@ -1227,7 +1164,7 @@ describe('TournamentRound', () => {
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
                 reportedError.verifyNoError();
-                expect(patchedData).toEqual({
+                expect(patchedData).toEqual([{
                     nestInRound: true,
                     patch: {
                         nextRound: {
@@ -1239,7 +1176,7 @@ describe('TournamentRound', () => {
                             },
                         },
                     },
-                });
+                }]);
             });
         });
 

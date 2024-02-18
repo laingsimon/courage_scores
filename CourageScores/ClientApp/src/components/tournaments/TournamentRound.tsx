@@ -8,7 +8,6 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {createTemporaryId} from "../../helpers/projection";
@@ -19,13 +18,11 @@ export interface ITournamentRoundProps {
     sides: TournamentSideDto[];
     readOnly?: boolean;
     depth: number;
-    onHiCheck: (player: TournamentPlayerDto, score: number) => Promise<any>;
-    on180: (player: TournamentPlayerDto) => Promise<any>;
     patchData: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
     allowNextRound?: boolean;
 }
 
-export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData, allowNextRound }: ITournamentRoundProps) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth, patchData, allowNextRound }: ITournamentRoundProps) {
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
     const allMatchesHaveAScore: boolean = round.matches && all(round.matches, (current: TournamentMatchDto) => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap: DataMap<TournamentSideDto> = toMap(sides);
@@ -165,8 +162,6 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
                     onChange={onChange}
                     matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
                     onMatchOptionsChanged={async (newMatchOptions: GameMatchOptionDto) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
-                    on180={on180}
-                    onHiCheck={onHiCheck}
                     patchData={thisRoundPatch}/>);
             })}
             {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
@@ -193,7 +188,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         </table>
         {allowNextRound && (hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1))
             ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly}
-                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck}
+                                depth={(depth + 1)} sides={sidesForTheNextRound()}
                                 patchData={nestedRoundPatch} allowNextRound={allowNextRound}/>)
             : null}
     </div>);

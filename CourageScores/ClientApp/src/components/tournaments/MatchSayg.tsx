@@ -21,6 +21,7 @@ import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOpt
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {add180, addHiCheck} from "../common/Accolades";
 
 export interface IMatchSaygProps {
     round: TournamentRoundDto;
@@ -28,13 +29,11 @@ export interface IMatchSaygProps {
     matchIndex: number;
     matchOptions: GameMatchOptionDto;
     onChange?: (round: TournamentRoundDto) => Promise<any>;
-    onHiCheck?: (player: TournamentPlayerDto, score: number) => Promise<any>;
-    on180?: (player: TournamentPlayerDto) => Promise<any>;
     patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
     readOnly?: boolean;
 }
 
-export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, onHiCheck, on180 } : IMatchSaygProps) {
+export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
@@ -44,6 +43,8 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
     const saygId: string = match.saygId;
     const scoreA: number = match.scoreA;
     const scoreB: number = match.scoreB;
+    const onHiCheck: (player: TournamentPlayerDto, score: number) => Promise<any> = addHiCheck(tournamentData, setTournamentData);
+    const on180: (player: TournamentPlayerDto) => Promise<any> = add180(tournamentData, setTournamentData);
 
     async function openSaygDialog() {
         if (saygId) {
@@ -186,9 +187,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
 
         const side: TournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
-            if (onHiCheck) {
-                await onHiCheck(side.players[0], score);
-            }
+            await onHiCheck(side.players[0], score);
 
             await patchData({
                 additionalOver100Checkout: Object.assign({}, side.players[0], {score}),
@@ -203,9 +202,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
 
         const side: TournamentSideDto = sideName === 'home' ? match.sideA : match.sideB;
         if (count(side.players) === 1) {
-            if (on180) {
-                await on180(side.players[0]);
-            }
+            await on180(side.players[0]);
 
             await patchData({
                 additional180: side.players[0],

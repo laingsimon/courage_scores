@@ -20,7 +20,6 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
@@ -50,14 +49,13 @@ describe('TournamentRoundMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedRound: TournamentRoundDto;
-    let hiChecks: {player: TournamentPlayerDto, score: number}[];
-    let oneEighties: TournamentPlayerDto[];
     let updatedSaygData: UpdateRecordedScoreAsYouGoDto;
     let createdSaygSessions: {tournamentId: string, request: CreateTournamentSaygDto}[];
     let addSaygLookup: ISaygDataLookup[];
     let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
     let tournamentApiResponse: IClientActionResultDto<TournamentGameDto>;
     let deletedSayg: { tournamentId: string, matchId: string };
+    let patchedData: (PatchTournamentDto | PatchTournamentRoundDto)[];
     const tournamentApi = api<ITournamentGameApi>({
         addSayg: async (tournamentId: string, request: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> => {
             createdSaygSessions.push({tournamentId, request});
@@ -108,21 +106,12 @@ describe('TournamentRoundMatch', () => {
         reportedError = new ErrorState();
         updatedRound = null;
         tournamentApiResponse = null;
-        hiChecks = [];
-        oneEighties = [];
         addSaygLookup = [];
         updatedSaygData = null;
         createdSaygSessions = [];
         deletedSayg = null;
+        patchedData = [];
     });
-
-    async function onHiCheck(player: TournamentPlayerDto, score: number) {
-        hiChecks.push({player, score});
-    }
-
-    async function on180(player: TournamentPlayerDto) {
-        oneEighties.push(player);
-    }
 
     async function setTournamentData() {
     }
@@ -134,7 +123,8 @@ describe('TournamentRoundMatch', () => {
     async function onMatchOptionsChanged(_: GameMatchOptionDto) {
     }
 
-    async function patchData(_: PatchTournamentDto | PatchTournamentRoundDto) {
+    async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto) {
+        patchedData.push(patch);
     }
 
     async function onChange(updated: TournamentRoundDto) {
@@ -211,10 +201,8 @@ describe('TournamentRoundMatch', () => {
                         matches: [match]
                     },
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -239,10 +227,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -267,10 +253,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: matchOptionsBuilder().numberOfLegs(5).build(),
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -294,10 +278,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -319,10 +301,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: matchOptionsBuilder().numberOfLegs(5).build(),
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -346,10 +326,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -371,10 +349,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -399,10 +375,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -428,10 +402,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -472,10 +444,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -500,10 +470,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -528,10 +496,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -553,10 +519,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -584,10 +548,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -609,10 +571,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -632,10 +592,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -657,10 +615,8 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    on180,
                     patchData,
                     onChange,
-                    onHiCheck,
                     onMatchOptionsChanged,
                 }, account);
 
@@ -675,7 +631,7 @@ describe('TournamentRoundMatch', () => {
 
     describe('interactivity', () => {
         const playerSideA: TeamPlayerDto = playerBuilder('PLAYER SIDE A').build();
-        const playerSideB: TeamPlayerDto = playerBuilder('PLAYER SIDE A').build();
+        const playerSideB: TeamPlayerDto = playerBuilder('PLAYER SIDE B').build();
         const sideA: TournamentSideDto = sideBuilder('SIDE A').withPlayer(playerSideA).build();
         const sideB: TournamentSideDto = sideBuilder('SIDE B').withPlayer(playerSideB).build();
         const sideC: TournamentSideDto = sideBuilder('SIDE C')
@@ -727,10 +683,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
@@ -777,10 +731,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
@@ -821,10 +773,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
@@ -865,10 +815,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
@@ -910,10 +858,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions,
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
@@ -949,10 +895,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const saygData = saygBuilder()
@@ -1001,10 +945,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[saygData.id] = saygData;
@@ -1044,10 +986,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, accountWithDebugOptions);
             saygApiData[saygData.id] = saygData;
@@ -1099,10 +1039,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, accountWithDebugOptions);
             saygApiData[saygData.id] = saygData;
@@ -1149,10 +1087,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, accountWithDebugOptions);
             saygApiData[saygData.id] = saygData;
@@ -1186,10 +1122,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
@@ -1225,10 +1159,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
@@ -1248,7 +1180,9 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             reportedError.verifyNoError();
-            expect(oneEighties).toEqual([playerSideA]);
+            expect(patchedData).toEqual([{
+                additional180: playerSideA
+            }]);
         });
 
         it('cannot record sayg 180 when readonly', async () => {
@@ -1262,10 +1196,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
@@ -1285,7 +1217,7 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             reportedError.verifyNoError();
-            expect(oneEighties).toEqual([]);
+            expect(patchedData).toEqual([]);
         });
 
         it('cannot record sayg 180 for multi-player sides', async () => {
@@ -1299,10 +1231,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
@@ -1322,7 +1252,7 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             reportedError.verifyNoError();
-            expect(oneEighties).toEqual([]);
+            expect(patchedData).toEqual([]);
         });
 
         it('can record sayg hi-check', async () => {
@@ -1336,10 +1266,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
@@ -1359,9 +1287,14 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             reportedError.verifyNoError();
-            expect(hiChecks).toEqual([{
-                score: 151,
-                player: playerSideB,
+            const patchesWithHiChecks = patchedData.filter(p => (p as PatchTournamentDto).additionalOver100Checkout);
+            expect(patchesWithHiChecks).toEqual([{
+                additionalOver100Checkout: {
+                    id: playerSideB.id,
+                    name: playerSideB.name,
+                    score: 151,
+                    team: null,
+                }
             }]);
         });
 
@@ -1376,10 +1309,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
@@ -1399,7 +1330,8 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             reportedError.verifyNoError();
-            expect(hiChecks).toEqual([]);
+            const patchesWithHiChecks = patchedData.filter(p => (p as PatchTournamentDto).additionalOver100Checkout);
+            expect(patchesWithHiChecks).toEqual([]);
         });
 
         it('cannot record sayg hi-check for multi-player sides', async () => {
@@ -1413,10 +1345,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             saygApiData[match.saygId] = saygBuilder(match.saygId)
@@ -1436,7 +1366,8 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             reportedError.verifyNoError();
-            expect(hiChecks).toEqual([]);
+            const patchesWithHiChecks = patchedData.filter(p => (p as PatchTournamentDto).additionalOver100Checkout);
+            expect(patchesWithHiChecks).toEqual([]);
         });
 
         it('can open match options dialog', async () => {
@@ -1450,10 +1381,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1477,10 +1406,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1505,10 +1432,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1536,10 +1461,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1567,10 +1490,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1598,10 +1519,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1629,10 +1548,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1660,10 +1577,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1691,10 +1606,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
@@ -1728,10 +1641,8 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                on180,
                 patchData,
                 onChange,
-                onHiCheck,
                 onMatchOptionsChanged,
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));

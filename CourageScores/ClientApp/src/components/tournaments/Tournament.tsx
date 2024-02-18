@@ -302,7 +302,12 @@ export function Tournament() {
                     {tournamentData.singleRound && canManageTournaments ? (<div className="d-screen-none">
                         <SuperLeaguePrintout division={division}/>
                     </div>) : null}
-                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={false} editable={canEnterTournamentResults || canManageTournaments} />) : null}
+                    {tournamentData.singleRound
+                        ? null
+                        : (<PrintableSheet
+                            printOnly={false}
+                            patchData={applyPatch}
+                            editable={canEnterTournamentResults || canManageTournaments} />)}
                 </TournamentContainer>
                 {canManageTournaments || canEnterTournamentResults ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>

@@ -30,10 +30,13 @@ import {add180, addHiCheck, remove180, removeHiCheck} from "../common/Accolades"
 import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
 import {TournamentDetails} from "./TournamentDetails";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
+import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
     editable?: boolean;
+    patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
 }
 
 interface IMovement {
@@ -45,7 +48,7 @@ interface IWiggler {
     movements: IMovement[];
 }
 
-export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
+export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
     const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, saving, editTournament, setEditTournament } = useTournament();
@@ -329,6 +332,8 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                             matchIndex={matchIndex}
                             roundIndex={roundIndex}
                             possibleSides={getPossibleSides(matchData, roundData)}
+                            patchData={patchData}
+                            round={roundData.round}
                             editable={editable} />)}
                         {roundIndex === layoutData.length - 1 ? renderHiChecks() : null}
                     </div>))}
