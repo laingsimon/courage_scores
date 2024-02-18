@@ -24,6 +24,15 @@ describe('WidescreenSaygMatchDetails', () => {
             .withLeg(1, (l: ILegBuilder) => l.startingScore(501))
             .build();
 
+        it('when no legs', async () => {
+            await renderComponent({
+                legs: {},
+                numberOfLegs: sayg.numberOfLegs,
+            });
+
+            expect(context.container.innerHTML).toEqual('');
+        });
+
         it('best of', async () => {
             await renderComponent({
                 legs: sayg.legs,

@@ -43,6 +43,17 @@ describe('WidescreenSaygPlayerStatistic', () => {
             legs = sayg.legs;
         });
 
+        it('when no legs', async () => {
+            await renderComponent({
+                legs: {},
+                player: 'home',
+                oneDartAverage: true,
+                setOneDartAverage,
+            });
+
+            expect(context.container.innerHTML).toContain('Not started');
+        });
+
         it('No of darts', async () => {
             await renderComponent({
                 legs,
