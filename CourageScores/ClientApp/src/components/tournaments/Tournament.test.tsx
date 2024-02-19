@@ -943,7 +943,7 @@ describe('Tournament', () => {
                 teams: toMap([]),
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -1008,7 +1008,7 @@ describe('Tournament', () => {
                 teams: toMap([]),
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -1067,7 +1067,7 @@ describe('Tournament', () => {
                 teams: toMap([]),
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -1142,7 +1142,7 @@ describe('Tournament', () => {
                 teams: toMap([]),
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
             reportedError.verifyNoError();
             apiResponse = {success: false, errors: ['SOME ERROR']};
 

@@ -15,8 +15,6 @@ import {ITournamentContainerProps, TournamentContainer} from "./TournamentContai
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
-import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
-import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {
     ITournamentMatchBuilder,
@@ -39,8 +37,6 @@ describe('EditTournament', () => {
 
     async function setTournamentData(newData: TournamentGameDto) {
         updatedData = newData;
-    }
-    async function applyPatch(_: PatchTournamentDto | PatchTournamentRoundDto, __?: boolean) {
     }
 
     beforeEach(() => {
@@ -82,7 +78,6 @@ describe('EditTournament', () => {
                 disabled: true,
                 saving: false,
                 canSave: false,
-                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -109,7 +104,6 @@ describe('EditTournament', () => {
                 disabled: true,
                 saving: false,
                 canSave: false,
-                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -134,7 +128,6 @@ describe('EditTournament', () => {
                 disabled: true,
                 saving: false,
                 canSave: false,
-                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -161,7 +154,6 @@ describe('EditTournament', () => {
                 disabled: true,
                 saving: false,
                 canSave: false,
-                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -186,7 +178,6 @@ describe('EditTournament', () => {
                 disabled: true,
                 saving: false,
                 canSave: false,
-                applyPatch,
             }, account);
 
             const accolades = context.container.querySelector('div > div > table');
@@ -217,7 +208,6 @@ describe('EditTournament', () => {
                 disabled: true,
                 saving: false,
                 canSave: false,
-                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -256,7 +246,6 @@ describe('EditTournament', () => {
                 disabled: true,
                 saving: false,
                 canSave: false,
-                applyPatch,
             }, account);
 
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -297,7 +286,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -333,7 +321,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -369,7 +356,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -400,7 +386,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -435,7 +420,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -473,7 +457,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -515,7 +498,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -557,7 +539,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
@@ -598,7 +579,6 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true,
-                applyPatch,
             }, account, [team1]);
 
             const rounds = context.container.querySelector('div > div > div.mt-3:nth-child(3)');

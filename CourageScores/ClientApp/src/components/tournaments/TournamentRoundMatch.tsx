@@ -8,9 +8,6 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
-import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {MatchSayg} from "./MatchSayg";
 
 export interface ITournamentRoundMatchProps {
     readOnly?: boolean;
@@ -23,11 +20,10 @@ export interface ITournamentRoundMatchProps {
     round: TournamentRoundDto;
     matchOptions: GameMatchOptionDto;
     onMatchOptionsChanged: (newOptions: GameMatchOptionDto) => Promise<any>;
-    patchData: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
 }
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange,
-                                         round, matchOptions, onMatchOptionsChanged, patchData }: ITournamentRoundMatchProps) {
+                                         round, matchOptions, onMatchOptionsChanged }: ITournamentRoundMatchProps) {
     const {onError} = useApp();
     const scoreA: number = match.scoreA;
     const scoreB: number = match.scoreB;
@@ -116,14 +112,6 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                     onChange={(side) => updateMatch('sideA', side)}
                     slim={true}
                     className="margin-right"/>)}
-            <MatchSayg
-                match={match}
-                round={round}
-                onChange={onChange}
-                matchOptions={matchOptions}
-                matchIndex={matchIndex}
-                patchData={patchData}
-                readOnly={readOnly} />
         </td>
         <td className={hasBothScores && isWinner(scoreA) ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound

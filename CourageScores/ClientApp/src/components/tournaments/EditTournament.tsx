@@ -11,8 +11,6 @@ import {EditSide} from "./EditSide";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
-import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {addSide, removeSide, sideChanged} from "../../helpers/tournaments";
 
@@ -20,10 +18,9 @@ export interface IEditTournamentProps {
     canSave?: boolean;
     disabled?: boolean;
     saving?: boolean;
-    applyPatch: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
 }
 
-export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTournamentProps) {
+export function EditTournament({canSave, disabled, saving}: IEditTournamentProps) {
     const {account} = useApp();
     const {tournamentData, setTournamentData, allPlayers, season, division} = useTournament();
     const isAdmin: boolean = account && account.access && account.access.manageTournaments;
@@ -93,7 +90,6 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
             onChange={propChanged(tournamentData, setTournamentData, 'round')}
             readOnly={readOnly}
             depth={1}
-            patchData={applyPatch}
             allowNextRound={!tournamentData.singleRound}/>) : null}
         {canShowResults && any(allPlayers) ? (<table className="table">
             <tbody>

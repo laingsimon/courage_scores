@@ -11,89 +11,37 @@ import {
     noop,
     renderApp, TestContext
 } from "../../helpers/tests";
-import {createTemporaryId} from "../../helpers/projection";
 import {any, toMap} from "../../helpers/collections";
 import {ITournamentRoundMatchProps, TournamentRoundMatch} from "./TournamentRoundMatch";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
-import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
-import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {
     roundBuilder,
     sideBuilder,
     tournamentBuilder,
     tournamentMatchBuilder
 } from "../../helpers/builders/tournaments";
-import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {playerBuilder} from "../../helpers/builders/players";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
-import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateTournamentSaygDto";
-
-interface ISaygDataLookup extends IClientActionResultDto<TournamentGameDto> {
-    match: TournamentMatchDto;
-    saygId: string;
-}
 
 describe('TournamentRoundMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedRound: TournamentRoundDto;
-    let updatedSaygData: UpdateRecordedScoreAsYouGoDto;
-    let createdSaygSessions: {tournamentId: string, request: CreateTournamentSaygDto}[];
-    let addSaygLookup: ISaygDataLookup[];
     let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
-    let tournamentApiResponse: IClientActionResultDto<TournamentGameDto>;
-    let deletedSayg: { tournamentId: string, matchId: string };
-    let patchedData: (PatchTournamentDto | PatchTournamentRoundDto)[];
     const tournamentApi = api<ITournamentGameApi>({
-        addSayg: async (tournamentId: string, request: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> => {
-            createdSaygSessions.push({tournamentId, request});
-            const responseData: ISaygDataLookup = addSaygLookup.filter((l: ISaygDataLookup) => l.match.id === request.matchId)[0];
-
-            if (!responseData) {
-                throw new Error('Did not expect match to have sayg session created');
-            }
-
-            // NOTE: intentionally mutates the source data so the tests work with updated state.
-            responseData.match.saygId = responseData.saygId;
-
-            return tournamentApiResponse || {
-                success: responseData.success,
-                result: responseData.result
-            };
-        },
-        deleteSayg: async (tournamentId: string, matchId: string): Promise<IClientActionResultDto<TournamentGameDto>> => {
-            deletedSayg = { tournamentId, matchId };
-            return tournamentApiResponse || {
-                success: true,
-            }
-        }
     });
     const saygApi = api<ISaygApi>({
         get: async (id: string): Promise<RecordedScoreAsYouGoDto | null>  => {
             return saygApiData[id];
-        },
-        upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
-            updatedSaygData = data;
-            if (!data.id) {
-                data.id = createTemporaryId();
-            }
-
-            return {
-                success: true,
-                result: data as RecordedScoreAsYouGoDto,
-            };
         },
     });
 
@@ -105,12 +53,6 @@ describe('TournamentRoundMatch', () => {
         saygApiData = {};
         reportedError = new ErrorState();
         updatedRound = null;
-        tournamentApiResponse = null;
-        addSaygLookup = [];
-        updatedSaygData = null;
-        createdSaygSessions = [];
-        deletedSayg = null;
-        patchedData = [];
     });
 
     async function setTournamentData() {
@@ -121,10 +63,6 @@ describe('TournamentRoundMatch', () => {
     }
 
     async function onMatchOptionsChanged(_: GameMatchOptionDto) {
-    }
-
-    async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto) {
-        patchedData.push(patch);
     }
 
     async function onChange(updated: TournamentRoundDto) {
@@ -201,7 +139,6 @@ describe('TournamentRoundMatch', () => {
                         matches: [match]
                     },
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -227,7 +164,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -253,7 +189,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: matchOptionsBuilder().numberOfLegs(5).build(),
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -278,7 +213,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -301,7 +235,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: matchOptionsBuilder().numberOfLegs(5).build(),
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -326,7 +259,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -349,7 +281,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -375,7 +306,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -383,34 +313,6 @@ describe('TournamentRoundMatch', () => {
                 reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[0].textContent).not.toContain('📊');
-            });
-
-            it('can open sayg if it exists', async () => {
-                const saygData = saygBuilder()
-                    .numberOfLegs(7)
-                    .startingScore(501)
-                    .addTo(saygApiData)
-                    .build();
-                const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
-
-                await renderComponent(defaultTournamentContainerProps, {
-                    readOnly: true,
-                    match: match,
-                    hasNextRound: false,
-                    sideMap: toMap([sideA, sideB]),
-                    exceptSelected: exceptSelected,
-                    matchIndex: 0,
-                    round: roundBuilder().withMatch(match).build(),
-                    matchOptions: {},
-                    patchData,
-                    onChange,
-                    onMatchOptionsChanged,
-                }, account);
-
-                const link = context.container.querySelector('a');
-
-                expect(link.textContent).toEqual('👁️');
-                expect(link.href).toEqual('http://localhost/live/match/' + saygData.id);
             });
         });
 
@@ -444,7 +346,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -470,7 +371,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -478,107 +378,6 @@ describe('TournamentRoundMatch', () => {
                 reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells[5].textContent).toContain('🛠');
-            });
-
-            it('can open sayg when super league tournament', async () => {
-                const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-                const tournamentContainerProps: ITournamentContainerProps = {
-                    tournamentData: tournamentBuilder().singleRound().build(),
-                    setTournamentData,
-                    saveTournament,
-                }
-                await renderComponent(tournamentContainerProps, {
-                    readOnly: false,
-                    match: match,
-                    hasNextRound: false,
-                    sideMap: toMap([sideA, sideB]),
-                    exceptSelected: exceptSelected,
-                    matchIndex: 0,
-                    round: roundBuilder().withMatch(match).build(),
-                    matchOptions: {},
-                    patchData,
-                    onChange,
-                    onMatchOptionsChanged,
-                }, account);
-
-                reportedError.verifyNoError();
-                const cells = Array.from(context.container.querySelectorAll('tr td'));
-                expect(cells[0].textContent).toContain('📊');
-            });
-
-            it('can open sayg when singles tournament', async () => {
-                const singlesSideA = sideBuilder('A').withPlayer('A player').build();
-                const singlesSideB = sideBuilder('B').withPlayer('B player').build();
-                const match = tournamentMatchBuilder().sideA(singlesSideA, 0).sideB(singlesSideB, 0).build();
-                await renderComponent(defaultTournamentContainerProps, {
-                    readOnly: false,
-                    match: match,
-                    hasNextRound: false,
-                    sideMap: toMap([singlesSideA, singlesSideB]),
-                    exceptSelected: exceptSelected,
-                    matchIndex: 0,
-                    round: roundBuilder().withMatch(match).build(),
-                    matchOptions: {},
-                    patchData,
-                    onChange,
-                    onMatchOptionsChanged,
-                }, account);
-
-                reportedError.verifyNoError();
-                const cells = Array.from(context.container.querySelectorAll('tr td'));
-                expect(cells[0].textContent).toContain('📊');
-            });
-
-            it('cannot open sayg when pairs tournament', async () => {
-                const pairsSideA = sideBuilder('A')
-                    .withPlayer('A player 1')
-                    .withPlayer('A player 2')
-                    .build();
-                const pairsSideB = sideBuilder('B')
-                    .withPlayer('B player 1')
-                    .withPlayer('B player 2')
-                    .build();
-                const match = tournamentMatchBuilder().sideA(pairsSideA, 0).sideB(pairsSideB, 0).build();
-                await renderComponent(defaultTournamentContainerProps, {
-                    readOnly: false,
-                    match: match,
-                    hasNextRound: false,
-                    sideMap: toMap([pairsSideA, pairsSideB]),
-                    exceptSelected: exceptSelected,
-                    matchIndex: 0,
-                    round: roundBuilder().withMatch(match).build(),
-                    matchOptions: {},
-                    patchData,
-                    onChange,
-                    onMatchOptionsChanged,
-                }, account);
-
-                reportedError.verifyNoError();
-                const cells = Array.from(context.container.querySelectorAll('tr td'));
-                expect(cells[0].textContent).not.toContain('📊');
-            });
-
-            it('can open sayg when teams tournament', async () => {
-                const teamSideA = sideBuilder('A').teamId(createTemporaryId()).build();
-                const teamSideB = sideBuilder('B').teamId(createTemporaryId()).build();
-                const match = tournamentMatchBuilder().sideA(teamSideA, 0).sideB(teamSideB, 0).build();
-                await renderComponent(defaultTournamentContainerProps, {
-                    readOnly: false,
-                    match: match,
-                    hasNextRound: false,
-                    sideMap: toMap([teamSideA, teamSideB]),
-                    exceptSelected: exceptSelected,
-                    matchIndex: 0,
-                    round: roundBuilder().withMatch(match).build(),
-                    matchOptions: {},
-                    patchData,
-                    onChange,
-                    onMatchOptionsChanged,
-                }, account);
-
-                reportedError.verifyNoError();
-                const cells = Array.from(context.container.querySelectorAll('tr td'));
-                expect(cells[0].textContent).toContain('📊');
             });
 
             it('sideA outright winner shows 0 value score for sideB', async () => {
@@ -592,7 +391,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -615,7 +413,6 @@ describe('TournamentRoundMatch', () => {
                     matchIndex: 0,
                     round: roundBuilder().withMatch(match).build(),
                     matchOptions: {},
-                    patchData,
                     onChange,
                     onMatchOptionsChanged,
                 }, account);
@@ -671,705 +468,6 @@ describe('TournamentRoundMatch', () => {
             console.log = noop;
         });
 
-        it('can open sayg', async () => {
-            const match: TournamentMatchDto = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
-            const matchOptions: GameMatchOptionDto = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions,
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
-                .build();
-            addSaygLookup.push({
-                match: match,
-                success: true,
-                result: {
-                    id: createTemporaryId(),
-                    round: {
-                        matches: [match]
-                    },
-                    address: '',
-                },
-                saygId: saygData.id,
-            });
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-
-            await doClick(findButton(cells[0], '📊'));
-
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('SIDE A vs SIDE B');
-            expect(createdSaygSessions.length).toEqual(1);
-            expect(createdSaygSessions[0].request.matchId).toEqual(match.id);
-            expect(createdSaygSessions[0].request.matchOptions).toEqual(matchOptions);
-        });
-
-        it('handles error when opening sayg dialog', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
-            const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions,
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
-                .build();
-            addSaygLookup.push({
-                match: match,
-                success: true,
-                result: {
-                    id: createTemporaryId(),
-                    round: {
-                        matches: [match]
-                    },
-                    address: '',
-                },
-                saygId: saygData.id,
-            });
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            tournamentApiResponse = {success: false, errors: ['SOME ERROR']};
-
-            await doClick(findButton(cells[0], '📊'));
-
-            reportedError.verifyNoError();
-            expect(context.container.textContent).toContain('SOME ERROR');
-            expect(context.container.textContent).toContain('Could not create sayg session');
-        });
-
-        it('can close error dialog after sayg creation failure', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
-            const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions,
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
-                .build();
-            addSaygLookup.push({
-                match: match,
-                success: true,
-                result: {
-                    id: createTemporaryId(),
-                    round: {
-                        matches: [match]
-                    },
-                    address: '',
-                },
-                saygId: saygData.id,
-            });
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            tournamentApiResponse = {success: false, errors: ['SOME ERROR']};
-            await doClick(findButton(cells[0], '📊'));
-            expect(context.container.textContent).toContain('Could not create sayg session');
-
-            await doClick(findButton(context.container, 'Close'));
-
-            expect(context.container.textContent).not.toContain('Could not create sayg session');
-        });
-
-        it('does not open sayg for tentative match', async () => {
-            const match = tournamentMatchBuilder().noId().sideA(sideA).sideB(sideB).build();
-            const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions,
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
-                .build();
-            addSaygLookup.push({
-                match: match,
-                success: true,
-                result: {
-                    id: createTemporaryId(),
-                    round: {
-                        matches: [match]
-                    },
-                    address: '',
-                },
-                saygId: saygData.id,
-            });
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let message: string;
-            window.alert = (msg) => message = msg;
-
-            await doClick(findButton(cells[0], '📊'));
-
-            reportedError.verifyNoError();
-            expect(createdSaygSessions.length).toEqual(0);
-            expect(message).toEqual('Save the tournament first');
-        });
-
-        it('does not open sayg for matches with score', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions,
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l.startingScore(501))
-                .build();
-            addSaygLookup.push({
-                match: match,
-                success: true,
-                result: {
-                    id: createTemporaryId(),
-                    round: {
-                        matches: [match]
-                    },
-                    address: '',
-                },
-                saygId: saygData.id,
-            });
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-
-            reportedError.verifyNoError();
-            expect(cells[0].textContent).not.toContain('📊');
-        });
-
-        it('can close sayg', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
-                .build();
-            addSaygLookup.push({
-                match: match,
-                success: true,
-                result: {
-                    id: createTemporaryId(),
-                    round: {
-                        matches: [match]
-                    },
-                    address: '',
-                },
-                saygId: saygData.id,
-            });
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
-
-            reportedError.verifyNoError();
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
-
-            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
-        });
-
-        it('can open existing sayg', async () => {
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
-                .build();
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-
-            await doClick(findButton(cells[0], '📊'));
-
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeTruthy();
-            expect(dialog.textContent).toContain('SIDE A vs SIDE B');
-        });
-
-        it('can delete sayg', async () => {
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
-                .build();
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
-            const tournamentId = createTemporaryId();
-            const accountWithDebugOptions = Object.assign({}, account);
-            accountWithDebugOptions.access = Object.assign({}, account.access);
-            accountWithDebugOptions.access.showDebugOptions = true;
-            const tournamentContainerProps: ITournamentContainerProps = {
-                tournamentData: {id: tournamentId, address: ''},
-                saveTournament,
-                setTournamentData,
-            };
-            await renderComponent(tournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, accountWithDebugOptions);
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm: string;
-            window.confirm = (msg) => {
-                confirm = msg;
-                return true;
-            };
-            window.alert = () => {};
-            await doClick(findButton(cells[0], '📊'));
-
-            await doClick(findButton(cells[0], 'Delete sayg'));
-
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeFalsy();
-            expect(deletedSayg).toEqual({
-                matchId: match.id,
-                tournamentId: tournamentId,
-            });
-            expect(confirm).toEqual('Are you sure you want to delete the sayg data for this match?');
-            expect(updatedRound.matches[0].saygId).toBeNull();
-        });
-
-        it('does not delete sayg if unconfirmed', async () => {
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
-                .build();
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
-            const tournamentId = createTemporaryId();
-            const accountWithDebugOptions = Object.assign({}, account);
-            accountWithDebugOptions.access = Object.assign({}, account.access);
-            accountWithDebugOptions.access.showDebugOptions = true;
-            const tournamentContainerProps: ITournamentContainerProps = {
-                tournamentData: {id: tournamentId, address: ''},
-                saveTournament,
-                setTournamentData,
-            };
-            await renderComponent(tournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, accountWithDebugOptions);
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let confirm: string;
-            window.confirm = (msg) => {
-                confirm = msg;
-                return false;
-            };
-            await doClick(findButton(cells[0], '📊'));
-
-            await doClick(findButton(cells[0], 'Delete sayg'));
-
-            reportedError.verifyNoError();
-            const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeTruthy();
-            expect(deletedSayg).toBeNull();
-            expect(confirm).toEqual('Are you sure you want to delete the sayg data for this match?');
-        });
-
-        it('handles error when deleting sayg', async () => {
-            const saygData = saygBuilder()
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c)
-                    .away((c: ILegCompetitorScoreBuilder) => c))
-                .build();
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).saygId(saygData.id).build();
-            const tournamentId = createTemporaryId();
-            const accountWithDebugOptions = Object.assign({}, account);
-            accountWithDebugOptions.access = Object.assign({}, account.access);
-            accountWithDebugOptions.access.showDebugOptions = true;
-            const tournamentContainerProps: ITournamentContainerProps = {
-                tournamentData: {id: tournamentId, address: ''},
-                saveTournament,
-                setTournamentData,
-            };
-            await renderComponent(tournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, accountWithDebugOptions);
-            saygApiData[saygData.id] = saygData;
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            window.confirm = () => true;
-            await doClick(findButton(cells[0], '📊'));
-            tournamentApiResponse = { success: false, errors: ['ERROR']};
-
-            await doClick(findButton(cells[0], 'Delete sayg'));
-
-            const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeTruthy();
-            expect(deletedSayg).toEqual({
-                tournamentId: tournamentId,
-                matchId: match.id,
-            });
-            expect(reportedError.error).toEqual({
-                errors: ['ERROR'],
-                success: false,
-            });
-        });
-
-        it('can set first player for match', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0)))
-                .yourName('SIDE A')
-                .opponentName('SIDE B')
-                .build();
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            reportedError.verifyNoError();
-
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(findButton(dialog, '🎯SIDE A'));
-
-            reportedError.verifyNoError();
-            expect(updatedSaygData.legs[0].playerSequence).toEqual([
-                {text: 'SIDE A', value: 'home'},
-                {text: 'SIDE B', value: 'away'},
-            ]);
-        });
-
-        it('can record sayg 180', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .playerSequence('home', 'away')
-                    .currentThrow('home')
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .startingScore(501))
-                .numberOfLegs(3)
-                .build();
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            reportedError.verifyNoError();
-
-            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
-
-            reportedError.verifyNoError();
-            expect(patchedData).toEqual([{
-                additional180: playerSideA
-            }]);
-        });
-
-        it('cannot record sayg 180 when readonly', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: true,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .playerSequence('home', 'away')
-                    .currentThrow('home')
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .startingScore(501))
-                .numberOfLegs(3)
-                .build();
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            reportedError.verifyNoError();
-
-            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
-
-            reportedError.verifyNoError();
-            expect(patchedData).toEqual([]);
-        });
-
-        it('cannot record sayg 180 for multi-player sides', async () => {
-            const match = tournamentMatchBuilder().sideA(sideC, 0).sideB(sideD, 0).saygId(createTemporaryId()).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideC, sideD]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .playerSequence('home', 'away')
-                    .currentThrow('home')
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .startingScore(501))
-                .numberOfLegs(3)
-                .build();
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            reportedError.verifyNoError();
-
-            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
-
-            reportedError.verifyNoError();
-            expect(patchedData).toEqual([]);
-        });
-
-        it('can record sayg hi-check', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .playerSequence('away', 'home')
-                    .currentThrow('away')
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(200))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(350))
-                    .startingScore(501))
-                .numberOfLegs(3)
-                .build();
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            reportedError.verifyNoError();
-
-            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
-
-            reportedError.verifyNoError();
-            const patchesWithHiChecks = patchedData.filter(p => (p as PatchTournamentDto).additionalOver100Checkout);
-            expect(patchesWithHiChecks).toEqual([{
-                additionalOver100Checkout: {
-                    id: playerSideB.id,
-                    name: playerSideB.name,
-                    score: 151,
-                    team: null,
-                }
-            }]);
-        });
-
-        it('cannot record sayg hi-check when readonly', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 0).sideB(sideB, 0).saygId(createTemporaryId()).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: true,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .playerSequence('away', 'home')
-                    .currentThrow('away')
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(200))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(350))
-                    .startingScore(501))
-                .numberOfLegs(3)
-                .build();
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            reportedError.verifyNoError();
-
-            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
-
-            reportedError.verifyNoError();
-            const patchesWithHiChecks = patchedData.filter(p => (p as PatchTournamentDto).additionalOver100Checkout);
-            expect(patchesWithHiChecks).toEqual([]);
-        });
-
-        it('cannot record sayg hi-check for multi-player sides', async () => {
-            const match = tournamentMatchBuilder().sideA(sideC, 0).sideB(sideD, 0).saygId(createTemporaryId()).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideC, sideD]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                patchData,
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            saygApiData[match.saygId] = saygBuilder(match.saygId)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .playerSequence('away', 'home')
-                    .currentThrow('away')
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(200))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(350))
-                    .startingScore(501))
-                .numberOfLegs(3)
-                .build();
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-            await doClick(findButton(cells[0], '📊'));
-            reportedError.verifyNoError();
-
-            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
-            await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
-
-            reportedError.verifyNoError();
-            const patchesWithHiChecks = patchedData.filter(p => (p as PatchTournamentDto).additionalOver100Checkout);
-            expect(patchesWithHiChecks).toEqual([]);
-        });
-
         it('can open match options dialog', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             await renderComponent(defaultTournamentContainerProps, {
@@ -1381,7 +479,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1406,7 +503,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1432,7 +528,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1461,7 +556,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1490,7 +584,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1519,7 +612,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1548,7 +640,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1577,7 +668,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1606,7 +696,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);
@@ -1641,7 +730,6 @@ describe('TournamentRoundMatch', () => {
                 matchIndex: 0,
                 round: roundBuilder().withMatch(match).build(),
                 matchOptions: {},
-                patchData,
                 onChange,
                 onMatchOptionsChanged,
             }, account);

@@ -297,7 +297,7 @@ export function Tournament() {
                     editTournament={editTournament}
                     setEditTournament={canManageTournaments ? async (value: boolean) => setEditTournament(value) : null}
                     liveOptions={liveOptions}>
-                    {canManageTournaments && tournamentData.singleRound ? (<EditTournament canSave={true} saving={saving} applyPatch={applyPatch}/>) : null}
+                    {canManageTournaments && tournamentData.singleRound ? (<EditTournament canSave={true} saving={saving} />) : null}
                     {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division} readOnly={true}/>) : null}
                     {tournamentData.singleRound && canManageTournaments ? (<div>
                         <SuperLeaguePrintout division={division} patchData={applyPatch} />
