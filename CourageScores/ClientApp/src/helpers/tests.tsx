@@ -256,7 +256,9 @@ export function findButton(container: Element | undefined | null, text: string) 
         return matching[0];
     }
     if (matching.length === 0) {
-        throw new Error(`Unable to find button with text = ${text}`);
+        const buttons = Array.from(container.querySelectorAll('.btn')).map(b => b.textContent).join(', ');
+
+        throw new Error(`Unable to find button with text = ${text} - buttons are ${buttons}`);
     }
     throw new Error(`Multiple buttons (${matching.length}) exist with text = ${text}`);
 }
