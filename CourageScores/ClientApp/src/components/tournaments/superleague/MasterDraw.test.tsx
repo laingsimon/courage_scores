@@ -49,7 +49,7 @@ describe('MasterDraw', () => {
 
     describe('renders', () => {
         const defaultContainerProps: ITournamentContainerProps = {
-            tournamentData: null,
+            tournamentData: tournamentBuilder().build(),
             setEditTournament: null,
             setTournamentData: null,
         };
@@ -72,8 +72,8 @@ describe('MasterDraw', () => {
             const table = context.container.querySelector('table.table');
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B']);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D']);
+            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B', '']);
+            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D', '']);
         });
 
         it('tournament properties', async () => {
@@ -121,7 +121,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 
@@ -141,11 +141,31 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > div'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tr:first-child'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual(true);
+        });
+
+        it('can edit tournament from tournament details', async () => {
+            await renderComponent({
+                matches: [],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder().build(),
+            });
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="details"]'));
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual(true);
@@ -206,7 +226,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament: null,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 
@@ -226,7 +246,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament: null,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 

@@ -16,16 +16,20 @@ import {DivisionDto} from "../../../interfaces/models/dtos/DivisionDto";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {ISubscription} from "../../../live/ISubscription";
+import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;
+    patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
+    readOnly?: boolean;
 }
 
 interface ISaygDataMap {
     [saygId: string]: RecordedScoreAsYouGoDto;
 }
 
-export function SuperLeaguePrintout({division}: ISuperLeaguePrintoutProps) {
+export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeaguePrintoutProps) {
     const {onError} = useApp();
     const {tournamentData} = useTournament();
     const {saygApi, webSocket} = useDependencies();
@@ -127,7 +131,9 @@ export function SuperLeaguePrintout({division}: ISuperLeaguePrintoutProps) {
                 opponent={tournamentData.opponent}
                 date={tournamentData.date}
                 gender={tournamentData.gender}
-                notes={tournamentData.notes}/>
+                notes={tournamentData.notes}
+                patchData={patchData}
+                readOnly={readOnly} />
             <MatchLog
                 host={tournamentData.host}
                 opponent={tournamentData.opponent}
