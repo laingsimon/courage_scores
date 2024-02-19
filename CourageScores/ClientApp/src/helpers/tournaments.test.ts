@@ -428,7 +428,7 @@ describe('tournaments', () => {
                 .toEqual([ 'SIDE A vs SIDE B', 'A vs B', 'C' ]);
         });
 
-        it('shows match mnemonics in second round when matches are not defined', async () => {
+        it('shows match mnemonics in second round when matches are not defined', () => {
             const sideA = sideBuilder('SIDE A').build();
             const sideB = sideBuilder('SIDE B').build();
             const sideC = sideBuilder('SIDE C').build();
@@ -478,6 +478,54 @@ describe('tournaments', () => {
             expect(layout.length).toBeGreaterThanOrEqual(1);
             expect(layout[0].matches.map(m => m.matchOptions))
                 .toEqual([ firstMatchOptions, matchOptionDefaults, undefined ]);
+        });
+
+        it('includes round data in round layout', () => {
+            const sideA = sideBuilder('SIDE A').build();
+            const sideB = sideBuilder('SIDE B').build();
+            const sideC = sideBuilder('SIDE C').build();
+            const round = roundBuilder()
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB))
+                .build();
+            const context: ITournamentLayoutGenerationContext = {
+                getLinkToSide: () => null,
+                matchOptionDefaults,
+            };
+
+            const layout: ILayoutDataForRound[] = getPlayedLayoutData(
+                [ sideA, sideB, sideC ],
+                round,
+                context);
+
+            expect(layout.length).toBeGreaterThanOrEqual(2);
+            expect(layout[0].matches.map(formatMatchData))
+                .toEqual([ 'SIDE A vs SIDE B', 'SIDE C' ]);
+            expect(layout[0].round).toEqual(round);
+            expect(layout[1].round).toBeFalsy();
+        });
+
+        it('includes match data in round layout', () => {
+            const sideA = sideBuilder('SIDE A').build();
+            const sideB = sideBuilder('SIDE B').build();
+            const sideC = sideBuilder('SIDE C').build();
+            const round = roundBuilder()
+                .withMatch((m: ITournamentMatchBuilder) => m.sideA(sideA).sideB(sideB))
+                .build();
+            const context: ITournamentLayoutGenerationContext = {
+                getLinkToSide: () => null,
+                matchOptionDefaults,
+            };
+
+            const layout: ILayoutDataForRound[] = getPlayedLayoutData(
+                [ sideA, sideB, sideC ],
+                round,
+                context);
+
+            expect(layout.length).toBeGreaterThanOrEqual(2);
+            expect(layout[0].matches.map(formatMatchData))
+                .toEqual([ 'SIDE A vs SIDE B', 'SIDE C' ]);
+            expect(layout[0].matches.map(m => m.match)).toEqual([ round.matches[0], undefined ]);
+            expect(layout[1].matches.map(m => m.match)).toEqual([ undefined ]);
         });
     });
 

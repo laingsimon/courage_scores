@@ -59,7 +59,7 @@ export function Tournament() {
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division: DivisionDto = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
-    const [editTournament, setEditTournament] = useState<boolean>(false);
+    const [editTournament, setEditTournament] = useState<string>(null);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -274,12 +274,12 @@ export function Tournament() {
                 originalSeasonData={season}
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
-            {canManageTournaments && tournamentData && tournamentData.singleRound && editTournament
-                ? (<Dialog onClose={async () => setEditTournament(false)}>
+            {canManageTournaments && tournamentData && editTournament === 'details'
+                ? (<Dialog onClose={async () => setEditTournament(null)}>
                     <TournamentDetails
                         tournamentData={tournamentData}
                         disabled={saving}
-                        setTournamentData={async (data: TournamentGameDto) => setTournamentData(data)} />
+                        setTournamentData={async (data: TournamentGameDto) => updateTournamentData(data)} />
                 </Dialog>)
                 : null}
             {tournamentData ? (<div className="content-background p-3">
@@ -295,14 +295,23 @@ export function Tournament() {
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
-                    setEditTournament={canManageTournaments ? async (value: boolean) => setEditTournament(value) : null}
+                    setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : null}
                     liveOptions={liveOptions}>
-                    {canManageTournaments && tournamentData.singleRound ? (<EditTournament canSave={true} saving={saving} applyPatch={applyPatch}/>) : null}
-                    {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division}/>) : null}
-                    {tournamentData.singleRound && canManageTournaments ? (<div className="d-screen-none">
-                        <SuperLeaguePrintout division={division}/>
+                    {canManageTournaments && tournamentData && editTournament === 'matches'
+                        ? (<Dialog title="Edit sides and matches" onClose={async () => setEditTournament(null)}>
+                            <EditTournament canSave={true} saving={saving} />
+                        </Dialog>)
+                        : null}
+                    {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division} readOnly={true}/>) : null}
+                    {tournamentData.singleRound && canManageTournaments ? (<div>
+                        <SuperLeaguePrintout division={division} patchData={applyPatch} />
                     </div>) : null}
-                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={false} editable={canEnterTournamentResults || canManageTournaments} />) : null}
+                    {tournamentData.singleRound
+                        ? null
+                        : (<PrintableSheet
+                            printOnly={false}
+                            patchData={applyPatch}
+                            editable={canEnterTournamentResults || canManageTournaments} />)}
                 </TournamentContainer>
                 {canManageTournaments || canEnterTournamentResults ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
@@ -313,7 +322,7 @@ export function Tournament() {
                     <button className="btn btn-primary d-print-none margin-right" onClick={() => setAddPlayerDialogOpen(true)}>Add
                         player</button>) : null}
                 {canManageTournaments && tournamentData.singleRound
-                    ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setEditTournament(true)}>
+                    ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setEditTournament('details')}>
                         Edit
                     </button>) : null}
             </div>) : (<div>Tournament not found</div>)}

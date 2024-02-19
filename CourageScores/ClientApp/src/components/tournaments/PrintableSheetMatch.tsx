@@ -10,6 +10,9 @@ import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGam
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {createTemporaryId, repeat} from "../../helpers/projection";
+import {MatchSayg} from "./MatchSayg";
+import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
@@ -17,6 +20,8 @@ export interface IPrintableSheetMatchProps {
     matchIndex: number;
     possibleSides: TournamentSideDto[];
     editable?: boolean;
+    patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
+    round?: TournamentRoundDto;
 }
 
 interface IEditSide {
@@ -25,10 +30,11 @@ interface IEditSide {
     designation: 'A' | 'B';
 }
 
-export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matchIndex, editable } : IPrintableSheetMatchProps) {
+export function PrintableSheetMatch({ round, matchData, possibleSides, roundIndex, matchIndex, editable, patchData } : IPrintableSheetMatchProps) {
     const [ editSide, setEditSide ] = useState<IEditSide>(null);
     const { tournamentData, setTournamentData, matchOptionDefaults } = useTournament();
-    const bestOf: number = (matchData.matchOptions ? matchData.matchOptions.numberOfLegs : null) || tournamentData.bestOf || matchOptionDefaults.numberOfLegs || 5;
+    const matchOptions = matchData.matchOptions || { numberOfLegs: tournamentData.bestOf || matchOptionDefaults.numberOfLegs || 5 };
+    const bestOf: number = matchOptions.numberOfLegs;
     const possibleSideOptions: IBootstrapDropdownItem[] = possibleSides.sort(sortBy('name')).map((side: TournamentSideDto): IBootstrapDropdownItem => { return {
         value: side.id,
         text: side.name,
@@ -39,6 +45,7 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
             text: index
         };
     })
+    const readOnly: boolean = !round;
 
     function beginEditSide(designation: 'A' | 'B') {
         // check that the round exists...
@@ -161,6 +168,44 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
         setEditSide(null);
     }
 
+    async function onChange(updatedRound: TournamentRoundDto) {
+        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
+        const newRound: TournamentRoundDto = getEditableRound(newTournamentData, false);
+
+        // NOTE: This approach prevents the need to create a whole-new find-the-parent-of-the-round method
+        // Instead we patch across every property from the provided round into an editable version
+        for (const updatedRoundKey in updatedRound) {
+            newRound[updatedRoundKey] = updatedRound[updatedRoundKey];
+        }
+        // Unset any properties that are in newRound but not in updatedRound
+        for (const newRoundKey in newRound) {
+            if (!updatedRound[newRoundKey] === undefined) {
+                delete newRound[newRoundKey];
+            }
+        }
+
+        await setTournamentData(newTournamentData);
+    }
+
+    async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
+        if (!nestInRound) {
+            // e.g. 180s/hi-checks, which don't apply to rounds, so can be pass up without including the nested round info.
+            await patchData(patch, nestInRound);
+            return;
+        }
+
+        const roundPatch: PatchTournamentRoundDto = patch as PatchTournamentRoundDto;
+        const nestedPatch: PatchTournamentRoundDto = {};
+        let patchParent: PatchTournamentRoundDto = nestedPatch;
+        for (let index = 0; index < roundIndex; index++) {
+            patchParent.nextRound = {} as PatchTournamentRoundDto;
+            patchParent = patchParent.nextRound;
+        }
+
+        patchParent.nextRound = roundPatch;
+        await patchData(nestedPatch, nestInRound);
+    }
+
     function renderEditSideDialog() {
         const oppositeSideId = editSide.designation === 'A'
             ? matchData.sideB ? matchData.sideB.id : null
@@ -226,9 +271,14 @@ export function PrintableSheetMatch({ matchData, possibleSides, roundIndex, matc
                 : (<div className="text-center dotted-line-through">
                         <span className="px-3 bg-white position-relative">
                             vs
-                            {matchData.saygId
-                                ? (<a href={`/live/match/${matchData.saygId}`} target="_blank" rel="noreferrer" className="margin-left no-underline">👁️</a>)
-                                : null}
+                            {matchData.match ? (<MatchSayg
+                                match={matchData.match}
+                                round={round}
+                                onChange={onChange}
+                                matchOptions={matchOptions}
+                                matchIndex={matchIndex}
+                                patchData={patchRoundData}
+                                readOnly={readOnly} />) : null}
                         </span>
                     </div>)}
             {matchData.bye

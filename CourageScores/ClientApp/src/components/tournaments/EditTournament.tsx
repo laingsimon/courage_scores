@@ -2,8 +2,6 @@ import {any, sortBy} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
 import {TournamentSide} from "./TournamentSide";
 import {TournamentRound} from "./TournamentRound";
-import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
-import {add180, addHiCheck, remove180, removeHiCheck} from "../common/Accolades";
 import {useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {useTournament} from "./TournamentContainer";
@@ -11,8 +9,6 @@ import {EditSide} from "./EditSide";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
-import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
-import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {addSide, removeSide, sideChanged} from "../../helpers/tournaments";
 
@@ -20,12 +16,11 @@ export interface IEditTournamentProps {
     canSave?: boolean;
     disabled?: boolean;
     saving?: boolean;
-    applyPatch: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
 }
 
-export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTournamentProps) {
+export function EditTournament({canSave, disabled, saving}: IEditTournamentProps) {
     const {account} = useApp();
-    const {tournamentData, setTournamentData, allPlayers, season, division} = useTournament();
+    const {tournamentData, setTournamentData} = useTournament();
     const isAdmin: boolean = account && account.access && account.access.manageTournaments;
     const readOnly: boolean = !isAdmin || !canSave || disabled || saving;
     const hasStarted: boolean = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
@@ -67,7 +62,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
     }
 
     const canShowResults: boolean = any((tournamentData.round || {}).matches || [], (match: TournamentMatchDto) => !!match.scoreA || !!match.scoreB) || !readOnly;
-    return (<div className="d-print-none">
+    return (<div className="d-print-none" datatype="edit-tournament">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
             {tournamentData.sides.sort(sortBy('name')).map((side, sideIndex) => {
@@ -92,41 +87,6 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
             sides={tournamentData.sides.filter((s: TournamentSideDto) => !s.noShow)}
             onChange={propChanged(tournamentData, setTournamentData, 'round')}
             readOnly={readOnly}
-            depth={1}
-            onHiCheck={add180(tournamentData, setTournamentData)}
-            on180={add180(tournamentData, setTournamentData)}
-            patchData={applyPatch}
-            allowNextRound={!tournamentData.singleRound}/>) : null}
-        {canShowResults && any(allPlayers) ? (<table className="table">
-            <tbody>
-            <tr>
-                <td colSpan={2} datatype="180s">
-                    180s<br/>
-                    <MultiPlayerSelection
-                        disabled={disabled}
-                        readOnly={saving}
-                        allPlayers={allPlayers}
-                        division={division}
-                        season={season}
-                        players={tournamentData.oneEighties || []}
-                        onRemovePlayer={remove180(tournamentData, setTournamentData)}
-                        onAddPlayer={add180(tournamentData, setTournamentData)}/>
-                </td>
-                <td colSpan={2} datatype="hiChecks">
-                    100+ c/o<br/>
-                    <MultiPlayerSelection
-                        disabled={disabled}
-                        readOnly={saving}
-                        allPlayers={allPlayers}
-                        division={division}
-                        season={season}
-                        players={tournamentData.over100Checkouts || []}
-                        onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
-                        onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
-                        showScore={true}/>
-                </td>
-            </tr>
-            </tbody>
-        </table>) : null}
+            depth={1} />) : null}
     </div>);
 }

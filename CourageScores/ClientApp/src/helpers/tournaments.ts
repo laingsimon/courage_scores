@@ -25,6 +25,7 @@ export interface ILayoutDataForMatch {
     mnemonic?: string;
     hideMnemonic?: boolean;
     matchOptions?: GameMatchOptionDto;
+    match?: TournamentMatchDto;
 }
 
 export interface ILayoutDataForRound {
@@ -32,6 +33,7 @@ export interface ILayoutDataForRound {
     matches: ILayoutDataForMatch[];
     possibleSides: TournamentSideDto[];
     alreadySelectedSides: TournamentSideDto[];
+    round?: TournamentRoundDto;
 }
 
 export interface IMnemonicAccumulator {
@@ -199,6 +201,7 @@ function getMatchLayoutData(match: TournamentMatchDto, index: number, context: I
         mnemonic: context.roundContext.matchMnemonic.next(),
         hideMnemonic: allSidesSelectedInNextRound(context.round, match) || context.roundContext.sides.length === 2,
         matchOptions: matchOptions,
+        match,
     };
 }
 
@@ -226,6 +229,7 @@ function getRoundLayoutData(round: TournamentRoundDto, roundContext: IRoundLayou
         }),
         possibleSides: roundContext.sides,
         alreadySelectedSides: matchContext.playedInThisRound,
+        round,
     };
 }
 

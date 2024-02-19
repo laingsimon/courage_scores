@@ -28,12 +28,13 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {Dialog} from "../common/Dialog";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../common/Accolades";
 import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
-import {TournamentDetails} from "./TournamentDetails";
-import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
+import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
     editable?: boolean;
+    patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
 }
 
 interface IMovement {
@@ -45,10 +46,10 @@ interface IWiggler {
     movements: IMovement[];
 }
 
-export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
+export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
-    const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, saving, editTournament, setEditTournament } = useTournament();
+    const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, setEditTournament } = useTournament();
     const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, { matchOptionDefaults, getLinkToSide })
         : getUnplayedLayoutData(tournamentData.sides.filter(s => !s.noShow)));
@@ -309,7 +310,7 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
             {winner ? null : (<div className="float-end">
                 <RefreshControl id={tournamentData.id} />
             </div>)}
-            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament(true) : null}>
+            <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                 {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
                 <span className="d-print-none margin-left">
@@ -329,6 +330,8 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                             matchIndex={matchIndex}
                             roundIndex={roundIndex}
                             possibleSides={getPossibleSides(matchData, roundData)}
+                            patchData={patchData}
+                            round={roundData.round}
                             editable={editable} />)}
                         {roundIndex === layoutData.length - 1 ? renderHiChecks() : null}
                     </div>))}
@@ -366,14 +369,6 @@ export function PrintableSheet({printOnly, editable}: IPrintableSheetProps) {
                 {newSide ? renderEditNewSide() : null}
                 {editAccolades === 'hi-checks' ? renderEditHiChecks() : null}
                 {editAccolades === 'one-eighties' ? renderEdit180s() : null}
-                {editTournament
-                    ? (<Dialog onClose={async () => await setEditTournament(false)}>
-                        <TournamentDetails
-                        tournamentData={tournamentData}
-                        disabled={saving}
-                        setTournamentData={async (data: TournamentGameDto) => setTournamentData(data)} />
-                        </Dialog>)
-                    : null}
             </div>
         </div>);
     } catch (e) {

@@ -1,8 +1,8 @@
 import {
     appProps,
     brandingProps,
-    cleanUp, doChange, doClick,
-    ErrorState, findButton,
+    cleanUp, doClick,
+    ErrorState,
     iocProps,
     renderApp,
     TestContext
@@ -11,13 +11,11 @@ import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../helpers/rendering";
 import {tournamentBuilder, tournamentMatchBuilder} from "../../../helpers/builders/tournaments";
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
-import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 
 describe('MasterDraw', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let updatedTournament: TournamentGameDto;
-    let editTournament: boolean;
+    let editTournament: string;
 
     afterEach(() => {
         cleanUp(context);
@@ -25,16 +23,11 @@ describe('MasterDraw', () => {
 
     beforeEach(() => {
         reportedError = new ErrorState();
-        updatedTournament = null;
         editTournament = null;
     });
 
-    async function setEditTournament(value: boolean) {
+    async function setEditTournament(value: string) {
         editTournament = value;
-    }
-
-    async function setTournamentData(update: TournamentGameDto) {
-        updatedTournament = update;
     }
 
     async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps) {
@@ -49,7 +42,7 @@ describe('MasterDraw', () => {
 
     describe('renders', () => {
         const defaultContainerProps: ITournamentContainerProps = {
-            tournamentData: null,
+            tournamentData: tournamentBuilder().build(),
             setEditTournament: null,
             setTournamentData: null,
         };
@@ -72,8 +65,8 @@ describe('MasterDraw', () => {
             const table = context.container.querySelector('table.table');
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B']);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D']);
+            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B', '']);
+            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D', '']);
         });
 
         it('tournament properties', async () => {
@@ -121,14 +114,14 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 
             await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
 
             reportedError.verifyNoError();
-            expect(editTournament).toEqual(true);
+            expect(editTournament).toEqual('matches');
         });
 
         it('can edit tournament from table of players', async () => {
@@ -141,17 +134,17 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > div'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tr:first-child'));
 
             reportedError.verifyNoError();
-            expect(editTournament).toEqual(true);
+            expect(editTournament).toEqual('matches');
         });
 
-        it('can close edit tournament dialog', async () => {
+        it('can edit tournament from tournament details', async () => {
             await renderComponent({
                 matches: [],
                 host: 'HOST',
@@ -162,38 +155,13 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
-                editTournament: true,
             });
             reportedError.verifyNoError();
 
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(findButton(dialog, 'Close'));
+            await doClick(context.container.querySelector('div[datatype="details"]'));
 
             reportedError.verifyNoError();
-            expect(editTournament).toEqual(false);
-        });
-
-        it('can edit tournament details', async () => {
-            await renderComponent({
-                matches: [],
-                host: 'HOST',
-                opponent: 'OPPONENT',
-                gender: 'GENDER',
-                date: '2023-05-06',
-                notes: 'NOTES',
-            }, {
-                setEditTournament,
-                tournamentData: tournamentBuilder().build(),
-                editTournament: true,
-                setTournamentData,
-            });
-            reportedError.verifyNoError();
-
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doChange(dialog, 'input[name="address"]', 'NEW ADDRESS', context.user);
-
-            reportedError.verifyNoError();
-            expect(updatedTournament.address).toEqual('NEW ADDRESS');
+            expect(editTournament).toEqual('details');
         });
 
         it('cannot edit tournament from heading when not permitted', async () => {
@@ -206,7 +174,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament: null,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 
@@ -226,7 +194,7 @@ describe('MasterDraw', () => {
                 notes: 'NOTES',
             }, {
                 setEditTournament: null,
-                tournamentData: null,
+                tournamentData: tournamentBuilder().build(),
             });
             reportedError.verifyNoError();
 
