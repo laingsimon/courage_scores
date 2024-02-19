@@ -53,7 +53,7 @@ describe('PrintableSheet', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedTournament: TournamentGameDto;
-    let editTournament: boolean;
+    let editTournament: string;
 
     afterEach(() => {
         cleanUp(context);
@@ -69,7 +69,7 @@ describe('PrintableSheet', () => {
         updatedTournament = update;
     }
 
-    async function setEditTournament(value: boolean) {
+    async function setEditTournament(value: string) {
         editTournament = value;
     }
 
@@ -1817,41 +1817,7 @@ describe('PrintableSheet', () => {
             await doClick(context.container.querySelector('div[datatype="heading"]'));
 
             reportedError.verifyNoError();
-            expect(editTournament).toEqual(true);
-        });
-
-        it('can close edit tournament dialog', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-            await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, setEditTournament, editTournament: true},
-                {printOnly: false, editable: true},
-                appProps({}, reportedError));
-            reportedError.verifyNoError();
-
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doClick(findButton(dialog, 'Close'));
-
-            reportedError.verifyNoError();
-            expect(editTournament).toEqual(false);
-        });
-
-        it('can edit tournament details', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r)
-                .build();
-            await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, setEditTournament, editTournament: true},
-                {printOnly: false, editable: true},
-                appProps({}, reportedError));
-            reportedError.verifyNoError();
-
-            const dialog = context.container.querySelector('.modal-dialog');
-            await doChange(dialog, 'input[name="address"]', 'NEW ADDRESS', context.user);
-
-            reportedError.verifyNoError();
-            expect(updatedTournament.address).toEqual('NEW ADDRESS');
+            expect(editTournament).toEqual('details');
         });
 
         it('cannot edit tournament when not permitted', async () => {

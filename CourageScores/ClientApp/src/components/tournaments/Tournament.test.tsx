@@ -1601,7 +1601,7 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+            await doClick(context.container.querySelector('div[datatype="details"]'));
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
@@ -1663,7 +1663,7 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] > h2'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] div[datatype="details"]'));
 
             reportedError.verifyNoError();
             const editTournamentDialog = context.container.querySelector('.modal-dialog');
