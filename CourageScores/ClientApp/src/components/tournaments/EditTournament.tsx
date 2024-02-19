@@ -2,8 +2,6 @@ import {any, sortBy} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
 import {TournamentSide} from "./TournamentSide";
 import {TournamentRound} from "./TournamentRound";
-import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
-import {add180, addHiCheck, remove180, removeHiCheck} from "../common/Accolades";
 import {useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {useTournament} from "./TournamentContainer";
@@ -22,7 +20,7 @@ export interface IEditTournamentProps {
 
 export function EditTournament({canSave, disabled, saving}: IEditTournamentProps) {
     const {account} = useApp();
-    const {tournamentData, setTournamentData, allPlayers, season, division} = useTournament();
+    const {tournamentData, setTournamentData} = useTournament();
     const isAdmin: boolean = account && account.access && account.access.manageTournaments;
     const readOnly: boolean = !isAdmin || !canSave || disabled || saving;
     const hasStarted: boolean = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
@@ -91,36 +89,5 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
             readOnly={readOnly}
             depth={1}
             allowNextRound={!tournamentData.singleRound}/>) : null}
-        {canShowResults && any(allPlayers) ? (<table className="table">
-            <tbody>
-            <tr>
-                <td colSpan={2} datatype="180s">
-                    180s<br/>
-                    <MultiPlayerSelection
-                        disabled={disabled}
-                        readOnly={saving}
-                        allPlayers={allPlayers}
-                        division={division}
-                        season={season}
-                        players={tournamentData.oneEighties || []}
-                        onRemovePlayer={remove180(tournamentData, setTournamentData)}
-                        onAddPlayer={add180(tournamentData, setTournamentData)}/>
-                </td>
-                <td colSpan={2} datatype="hiChecks">
-                    100+ c/o<br/>
-                    <MultiPlayerSelection
-                        disabled={disabled}
-                        readOnly={saving}
-                        allPlayers={allPlayers}
-                        division={division}
-                        season={season}
-                        players={tournamentData.over100Checkouts || []}
-                        onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
-                        onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
-                        showScore={true}/>
-                </td>
-            </tr>
-            </tbody>
-        </table>) : null}
     </div>);
 }

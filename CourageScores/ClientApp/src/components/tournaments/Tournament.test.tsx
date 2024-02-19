@@ -840,66 +840,6 @@ describe('Tournament', () => {
             expect(round.matchOptions).toEqual([{ numberOfLegs: 7, startingScore: 501 }]);
         });
 
-        it('excludes no-show sides from 180 selection', async () => {
-            const side1Player = playerBuilder('SIDE 1 PLAYER').build();
-            const side2Player = playerBuilder('SIDE 2 PLAYER').build();
-            const side1 = sideBuilder('SIDE 1').withPlayer(side1Player).build();
-            const side2 = sideBuilder('SIDE 2 (no show)').noShow().withPlayer(side2Player).build();
-            const team = teamBuilder('TEAM')
-                .forSeason(season, null, [ side1Player, side2Player ])
-                .build();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .withSide(side1)
-                .withSide(side2)
-                .singleRound()
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
-                divisions: [division],
-            }, false);
-
-            const accolades = context.container.querySelector('div > div > table:nth-child(4)');
-            const oneEighties = accolades.querySelector('tbody tr:first-child td:nth-child(1)');
-            const options = Array.from(oneEighties.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(options.map(o => o.textContent.trim())).toEqual(['', 'SIDE 1 PLAYER']);
-        });
-
-        it('excludes no-show sides from hi-check selection', async () => {
-            const side1Player = playerBuilder('SIDE 1 PLAYER').build();
-            const side2Player = playerBuilder('SIDE 2 PLAYER').build();
-            const side1 = sideBuilder('SIDE 1').withPlayer(side1Player).build();
-            const side2 = sideBuilder('SIDE 2 (no show)').noShow().withPlayer(side2Player).build();
-            const team = teamBuilder('TEAM')
-                .forSeason(season, null, [ side1Player, side2Player])
-                .build();
-            const tournamentData = tournamentBuilder()
-                .forSeason(season)
-                .withSide(side1)
-                .withSide(side2)
-                .singleRound()
-                .addTo(tournamentDataLookup)
-                .build();
-            const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            await renderComponent(tournamentData.id, {
-                account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
-                divisions: [division],
-            }, false);
-
-            const accolades = context.container.querySelector('div > div > table:nth-child(4)');
-            const hiChecks = accolades.querySelector('tbody tr:first-child td:nth-child(2)');
-            const options = Array.from(hiChecks.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(options.map(o => o.textContent.trim())).toEqual(['', 'SIDE 1 PLAYER']);
-        });
-
         it('can patch data with sayg score for match', async () => {
             const playerA = playerBuilder('PLAYER A').build();
             const playerB = playerBuilder('PLAYER B').build();
