@@ -80,12 +80,25 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                             </tr>);
                         })}
                         </tbody>
+                        {setEditTournament ? (<tfoot className="d-print-none">
+                        <tr>
+                            <td colSpan={5} onClick={async () => await setEditTournament('matches')}>
+                                <div className="alert alert-warning p-2">
+                                    Click to edit matches
+                                </div>
+                            </td>
+                        </tr>
+                        </tfoot>) : null}
                     </table>
                 </div>
                 <div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
                     <div>Gender: <span className="fw-bold">{gender}</span></div>
                     <div>Date: <span className="fw-bold">{renderDate(date)}</span></div>
                     {notes ? (<div>Notes: <span className="fw-bold">{notes}</span></div>) : null}
+
+                    {setEditTournament ? (<div className="d-print-none alert alert-warning p-2 m-3 ms-0">
+                        Click to edit details
+                    </div>) : null}
                 </div>
             </div>
         </div>);
