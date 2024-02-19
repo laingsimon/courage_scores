@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {Dialog} from "../common/Dialog";
 import {EditMatchOptions} from "../common/EditMatchOptions";
@@ -58,21 +58,6 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         }
     }
 
-    async function changeScore(event: React.ChangeEvent<HTMLInputElement>, property: string) {
-        try {
-            const newRound: TournamentRoundDto = Object.assign({}, round);
-            const match: TournamentMatchDto = newRound.matches[matchIndex];
-            match[property] = Number.parseInt(event.target.value || '0');
-
-            if (onChange) {
-                await onChange(newRound);
-            }
-        } catch (e) {
-            /* istanbul ignore next */
-            onError(e);
-        }
-    }
-
     async function removeMatch() {
         if (!window.confirm('Are you sure you want to remove this match?')) {
             return;
@@ -114,17 +99,11 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                     className="margin-right"/>)}
         </td>
         <td className={hasBothScores && isWinner(scoreA) ? 'narrow-column bg-winner' : 'narrow-column'}>
-            {readOnly || hasNextRound
-                ? scoreA || (scoreARecorded ? '0' : '')
-                : (<input type="number" value={scoreARecorded ? (match.scoreA || '0') : ''}
-                          max={matchOptions.numberOfLegs} min="0" onChange={(event: React.ChangeEvent<HTMLInputElement>) => changeScore(event, 'scoreA')}/>)}
+            {scoreA || (scoreARecorded ? '0' : '')}
         </td>
         <td className="narrow-column">vs</td>
         <td className={hasBothScores && isWinner(scoreB) ? 'narrow-column bg-winner' : 'narrow-column'}>
-            {readOnly || hasNextRound
-                ? scoreB || (scoreBRecorded ? '0' : '')
-                : (<input type="number" value={scoreBRecorded ? (match.scoreB || '0') : ''}
-                          max={matchOptions.numberOfLegs} min="0" onChange={(event: React.ChangeEvent<HTMLInputElement>) => changeScore(event, 'scoreB')}/>)}
+            {scoreB || (scoreBRecorded ? '0' : '')}
         </td>
         <td className={hasBothScores && isWinner(scoreB) ? 'bg-winner' : ''}>
             {readOnly || hasNextRound

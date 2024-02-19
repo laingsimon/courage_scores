@@ -1,8 +1,8 @@
 import {useState} from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {all, any, DataMap, elementAt, isEmpty, toMap} from "../../helpers/collections";
+import {any, DataMap, elementAt, isEmpty, toMap} from "../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
-import {getRoundNameFromSides, hasScore, sideSelection} from "../../helpers/tournaments";
+import {getRoundNameFromSides, sideSelection} from "../../helpers/tournaments";
 import {useTournament} from "./TournamentContainer";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
@@ -16,12 +16,10 @@ export interface ITournamentRoundProps {
     sides: TournamentSideDto[];
     readOnly?: boolean;
     depth: number;
-    allowNextRound?: boolean;
 }
 
-export function TournamentRound({ round, onChange, sides, readOnly, depth, allowNextRound }: ITournamentRoundProps) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth }: ITournamentRoundProps) {
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
-    const allMatchesHaveAScore: boolean = round.matches && all(round.matches, (current: TournamentMatchDto) => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap: DataMap<TournamentSideDto> = toMap(sides);
     const {setWarnBeforeSave, matchOptionDefaults} = useTournament();
 
@@ -87,37 +85,6 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         }
     }
 
-    async function subRoundChange(subRound: TournamentRoundDto) {
-        const newRound: TournamentRoundDto = Object.assign({}, round);
-        newRound.nextRound = subRound;
-
-        if (onChange) {
-            await onChange(newRound);
-        }
-    }
-
-    function sidesForTheNextRound(): TournamentSideDto[] {
-        const sidesForTheNextRound: TournamentSideDto[] = sides.filter((side: TournamentSideDto) => {
-            const isPlaying: boolean = any(round.matches, (m: TournamentMatchDto) => m.sideA.id === side.id || m.sideB.id === side.id);
-            return !isPlaying;
-        });
-
-        return sidesForTheNextRound.concat(round.matches.flatMap((match: TournamentMatchDto, index: number) => {
-            const scoreA: number = match.scoreA;
-            const scoreB: number = match.scoreB;
-            const matchOptions: GameMatchOptionDto = round.matchOptions[index];
-            const numberOfLegs: number = matchOptions ? matchOptions.numberOfLegs : 5;
-
-            if (scoreA > (numberOfLegs / 2.0)) {
-                return [match.sideA];
-            } else if (scoreB > (numberOfLegs / 2.0)) {
-                return [match.sideB];
-            }
-
-            return [];
-        }));
-    }
-
     async function onMatchOptionsChanged(newMatchOptions: GameMatchOptionDto, matchIndex: number) {
         const newRound: TournamentRoundDto = Object.assign({}, round);
         newRound.matchOptions[matchIndex] = newMatchOptions;
@@ -174,9 +141,5 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
             </tr>)}
             </tbody>
         </table>
-        {allowNextRound && (hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1))
-            ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly}
-                                depth={(depth + 1)} sides={sidesForTheNextRound()} allowNextRound={allowNextRound}/>)
-            : null}
     </div>);
 }

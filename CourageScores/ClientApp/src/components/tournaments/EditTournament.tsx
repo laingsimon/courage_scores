@@ -87,7 +87,6 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
             sides={tournamentData.sides.filter((s: TournamentSideDto) => !s.noShow)}
             onChange={propChanged(tournamentData, setTournamentData, 'round')}
             readOnly={readOnly}
-            depth={1}
-            allowNextRound={!tournamentData.singleRound}/>) : null}
+            depth={1} />) : null}
     </div>);
 }

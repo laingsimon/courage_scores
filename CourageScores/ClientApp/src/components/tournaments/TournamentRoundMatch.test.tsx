@@ -3,7 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
     doClick,
     doSelectOption, ErrorState,
     findButton,
@@ -94,9 +93,7 @@ describe('TournamentRoundMatch', () => {
     }
 
     function assertScore(cell: Element, expectedScore: string) {
-        const input = cell.querySelector('input');
-        expect(input).toBeTruthy();
-        expect(input.value).toEqual(expectedScore);
+        expect(cell.textContent).toEqual(expectedScore);
     }
 
     describe('renders', () => {
@@ -515,62 +512,6 @@ describe('TournamentRoundMatch', () => {
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
-        it('can change sideA score', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            returnFromExceptSelected['sideA'] = [sideC, sideD];
-            returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-
-            await doChange(cells[1], 'input', '5', context.user);
-
-            reportedError.verifyNoError();
-            expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreA: 5})],
-                matchOptions: [],
-                nextRound: null,
-            });
-        });
-
-        it('can clear sideA score', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            returnFromExceptSelected['sideA'] = [sideC, sideD];
-            returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-
-            await doChange(cells[1], 'input', '', context.user);
-
-            reportedError.verifyNoError();
-            expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreA: 0})],
-                matchOptions: [],
-                nextRound: null,
-            });
-        });
-
         it('can change A side', async () => {
             const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
             returnFromExceptSelected['sideA'] = [sideB, sideD];
@@ -594,62 +535,6 @@ describe('TournamentRoundMatch', () => {
             reportedError.verifyNoError();
             expect(updatedRound).toEqual({
                 matches: [Object.assign({}, match, {sideA: sideC})],
-                matchOptions: [],
-                nextRound: null,
-            });
-        });
-
-        it('can change sideB score', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            returnFromExceptSelected['sideA'] = [sideC, sideD];
-            returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-
-            await doChange(cells[3], 'input', '5', context.user);
-
-            reportedError.verifyNoError();
-            expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreB: 5})],
-                matchOptions: [],
-                nextRound: null,
-            });
-        });
-
-        it('can clear sideB score', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
-            returnFromExceptSelected['sideA'] = [sideC, sideD];
-            returnFromExceptSelected['sideB'] = [sideD, sideE];
-            await renderComponent(defaultTournamentContainerProps, {
-                readOnly: false,
-                match: match,
-                hasNextRound: false,
-                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
-                exceptSelected: exceptSelected,
-                matchIndex: 0,
-                round: roundBuilder().withMatch(match).build(),
-                matchOptions: {},
-                onChange,
-                onMatchOptionsChanged,
-            }, account);
-            const cells = Array.from(context.container.querySelectorAll('tr td'));
-
-            await doChange(cells[3], 'input', '', context.user);
-
-            reportedError.verifyNoError();
-            expect(updatedRound).toEqual({
-                matches: [Object.assign({}, match, {scoreB: 0})],
                 matchOptions: [],
                 nextRound: null,
             });
