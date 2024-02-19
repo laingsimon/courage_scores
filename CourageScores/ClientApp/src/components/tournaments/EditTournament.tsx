@@ -93,7 +93,7 @@ export function EditTournament({canSave, disabled, saving, applyPatch}: IEditTou
             onChange={propChanged(tournamentData, setTournamentData, 'round')}
             readOnly={readOnly}
             depth={1}
-            onHiCheck={add180(tournamentData, setTournamentData)}
+            onHiCheck={addHiCheck(tournamentData, setTournamentData)}
             on180={add180(tournamentData, setTournamentData)}
             patchData={applyPatch}
             allowNextRound={!tournamentData.singleRound}/>) : null}
