@@ -56,12 +56,6 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             return;
         }
 
-        if (scoreA || scoreB) {
-            // scores already recorded
-            alert('Game has already been played; cannot score as you go');
-            return;
-        }
-
         /* istanbul ignore next */
         if (creatingSayg) {
             /* istanbul ignore next */
@@ -119,12 +113,19 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             return false;
         }
 
+        if (scoreA || scoreB) {
+            // scores already recorded
+            // must be after hasSaygData to ensure existing data can be edited
+            return false;
+        }
+
         if (tournamentData.singleRound) {
             // super league match, and permitted, allow it to be created
             return true;
         }
 
-        return match.sideA.players.length === 1 && match.sideB.players.length === 1;
+        return (match.sideA.players.length === 1 && match.sideB.players.length === 1)
+            || (!!match.sideA.teamId && !!match.sideB.teamId);
     }
 
     function renderSaygDialog() {

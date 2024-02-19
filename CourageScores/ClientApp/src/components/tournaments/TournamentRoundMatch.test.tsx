@@ -513,7 +513,7 @@ describe('TournamentRoundMatch', () => {
             });
 
             it('can open sayg when super league tournament', async () => {
-                const match = tournamentMatchBuilder().sideA(sideA, 1).sideB(sideB, 2).build();
+                const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
                 const tournamentContainerProps: ITournamentContainerProps = {
                     tournamentData: tournamentBuilder().singleRound().build(),
                     setTournamentData,
@@ -596,7 +596,7 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[0].textContent).not.toContain('📊');
             });
 
-            it('cannot open sayg when teams tournament', async () => {
+            it('can open sayg when teams tournament', async () => {
                 const teamSideA = sideBuilder('A').teamId(createTemporaryId()).build();
                 const teamSideB = sideBuilder('B').teamId(createTemporaryId()).build();
                 const match = tournamentMatchBuilder().sideA(teamSideA, 0).sideB(teamSideB, 0).build();
@@ -618,7 +618,7 @@ describe('TournamentRoundMatch', () => {
 
                 reportedError.verifyNoError();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
-                expect(cells[0].textContent).not.toContain('📊');
+                expect(cells[0].textContent).toContain('📊');
             });
 
             it('sideA outright winner shows 0 value score for sideB', async () => {
@@ -854,7 +854,7 @@ describe('TournamentRoundMatch', () => {
         });
 
         it('does not open sayg for tentative match', async () => {
-            const match = tournamentMatchBuilder().noId().sideA(sideA, 1).sideB(sideB, 2).build();
+            const match = tournamentMatchBuilder().noId().sideA(sideA).sideB(sideB).build();
             const matchOptions = matchOptionsBuilder().startingScore(501).numberOfLegs(3).build();
             await renderComponent(defaultTournamentContainerProps, {
                 readOnly: false,
@@ -933,14 +933,9 @@ describe('TournamentRoundMatch', () => {
             });
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            let message: string;
-            window.alert = (msg) => message = msg;
-
-            await doClick(findButton(cells[0], '📊'));
 
             reportedError.verifyNoError();
-            expect(createdSaygSessions.length).toEqual(0);
-            expect(message).toEqual('Game has already been played; cannot score as you go');
+            expect(cells[0].textContent).not.toContain('📊');
         });
 
         it('can close sayg', async () => {
