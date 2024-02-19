@@ -125,7 +125,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             return true;
         }
 
-        return (match.sideA.players.length === 1 && match.sideB.players.length === 1)
+        return ((match.sideA.players || []).length === 1 && (match.sideB.players || []).length === 1)
             || (!!match.sideA.teamId && !!match.sideB.teamId);
     }
 

@@ -13,7 +13,13 @@ import {ITournamentContainerProps, TournamentContainer} from "./TournamentContai
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IMatchSaygProps, MatchSayg} from "./MatchSayg";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
-import {roundBuilder, sideBuilder, tournamentBuilder, tournamentMatchBuilder} from "../../helpers/builders/tournaments";
+import {
+    ITournamentSideBuilder,
+    roundBuilder,
+    sideBuilder,
+    tournamentBuilder,
+    tournamentMatchBuilder
+} from "../../helpers/builders/tournaments";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
@@ -143,6 +149,33 @@ describe('MatchSayg', () => {
                 recordScoresAsYouGo: true,
             },
         };
+
+        it('shows no sayg links when no players', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA((s: ITournamentSideBuilder) => s)
+                .sideB((s: ITournamentSideBuilder) => s)
+                .build();
+            match.sideA.players = null;
+            match.sideB.players = null;
+            const round = roundBuilder().withMatch(match).build();
+            const tournamentData = tournamentBuilder().round(round).build();
+
+            await renderComponent({
+                setTournamentData,
+                tournamentData,
+            }, {
+                match,
+                matchIndex: 0,
+                round,
+                onChange,
+                patchData,
+                matchOptions,
+            }, permitted);
+
+            reportedError.verifyNoError();
+            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
+        });
 
         it('shows no sayg links when no data and not logged in', async () => {
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
