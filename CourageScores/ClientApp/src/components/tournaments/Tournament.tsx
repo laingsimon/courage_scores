@@ -297,7 +297,11 @@ export function Tournament() {
                     editTournament={editTournament}
                     setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : null}
                     liveOptions={liveOptions}>
-                    {canManageTournaments && tournamentData.singleRound ? (<EditTournament canSave={true} saving={saving} />) : null}
+                    {canManageTournaments && tournamentData && editTournament === 'matches'
+                        ? (<Dialog title="Edit sides and matches" onClose={async () => setEditTournament(null)}>
+                            <EditTournament canSave={true} saving={saving} />
+                        </Dialog>)
+                        : null}
                     {tournamentData.singleRound && !canManageTournaments ? (<SuperLeaguePrintout division={division} readOnly={true}/>) : null}
                     {tournamentData.singleRound && canManageTournaments ? (<div>
                         <SuperLeaguePrintout division={division} patchData={applyPatch} />

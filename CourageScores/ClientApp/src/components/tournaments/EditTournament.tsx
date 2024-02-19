@@ -62,7 +62,7 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
     }
 
     const canShowResults: boolean = any((tournamentData.round || {}).matches || [], (match: TournamentMatchDto) => !!match.scoreA || !!match.scoreB) || !readOnly;
-    return (<div className="d-print-none">
+    return (<div className="d-print-none" datatype="edit-tournament">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
             {tournamentData.sides.sort(sortBy('name')).map((side, sideIndex) => {
