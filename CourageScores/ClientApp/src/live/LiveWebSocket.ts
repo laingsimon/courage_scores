@@ -2,6 +2,7 @@ import {any} from "../helpers/collections";
 import {ISubscription} from "./ISubscription";
 import {ISubscriptions} from "./ISubscriptions";
 import {IWebSocketContext} from "./IWebSocketContext";
+import {ILiveWebSocket} from "./ILiveWebSocket";
 
 interface ILiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -9,14 +10,6 @@ interface ILiveWebSocketProps {
     setSubscriptions: (subscriptions: ISubscriptions) => Promise<any>;
     setSocketContext: (socket: IWebSocketContext) => Promise<any>;
     createSocket: () => WebSocket;
-}
-
-export interface ILiveWebSocket {
-    subscriptions: ISubscriptions;
-    publish(id: string, data: any): Promise<void>;
-    unsubscribe(id: string): Promise<void>;
-    subscribe(id: string, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void): Promise<void>;
-    isConnected: () => boolean;
 }
 
 export class LiveWebSocket implements ILiveWebSocket {
