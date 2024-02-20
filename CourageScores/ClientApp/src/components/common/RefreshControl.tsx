@@ -7,7 +7,7 @@ export interface IRefreshControlProps extends ISubscriptionRequest {
 }
 
 export function RefreshControl({ id, type }: IRefreshControlProps) {
-    const {enableLiveUpdates, subscriptions, connected} = useLive();
+    const {enableLiveUpdates, subscriptions} = useLive();
     const {account} = useApp();
 
     function getRefreshOptions(): IBootstrapDropdownItem[] {
@@ -26,7 +26,7 @@ export function RefreshControl({ id, type }: IRefreshControlProps) {
             className="margin-left float-end"
             options={getRefreshOptions()}
             onChange={async (v: boolean) => enableLiveUpdates(v, { id, type })}
-            value={!!subscriptions[id] && connected}
+            value={!!subscriptions[id]}
             slim={true} />
     </>);
 }

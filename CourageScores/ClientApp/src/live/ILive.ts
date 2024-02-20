@@ -6,5 +6,4 @@ export interface ILive {
     liveOptions: ILiveOptions;
     enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
     subscriptions: ISubscriptions;
-    connected: boolean;
 }

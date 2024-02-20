@@ -38,10 +38,6 @@ export class LiveWebSocket implements ILiveWebSocket {
         }
     }
 
-    isConnected(): boolean {
-        return !!this.socket;
-    }
-
     async banConnections() {
         console.error(`Banning web-socket connections after ${this.socketContext.closures} unexpected closures`);
 
