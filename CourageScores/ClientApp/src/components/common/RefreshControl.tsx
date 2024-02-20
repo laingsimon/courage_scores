@@ -1,12 +1,12 @@
 import {BootstrapDropdown, IBootstrapDropdownItem} from "./BootstrapDropdown";
 import {useLive} from "../../live/LiveContainer";
 import {useApp} from "./AppContainer";
+import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 
-export interface IRefreshControlProps {
-    id: string;
+export interface IRefreshControlProps extends ISubscriptionRequest {
 }
 
-export function RefreshControl({ id }: IRefreshControlProps) {
+export function RefreshControl({ id, type }: IRefreshControlProps) {
     const {enableLiveUpdates, subscriptions, connected} = useLive();
     const {account} = useApp();
 
@@ -25,7 +25,7 @@ export function RefreshControl({ id }: IRefreshControlProps) {
         <BootstrapDropdown
             className="margin-left float-end"
             options={getRefreshOptions()}
-            onChange={async (v: boolean) => enableLiveUpdates(v, id)}
+            onChange={async (v: boolean) => enableLiveUpdates(v, { id, type })}
             value={!!subscriptions[id] && connected}
             slim={true} />
     </>);

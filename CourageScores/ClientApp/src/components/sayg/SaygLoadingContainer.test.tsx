@@ -4,10 +4,14 @@ import {
     brandingProps,
     cleanUp,
     doChange,
-    doClick, ErrorState,
+    doClick,
+    ErrorState,
     findButton,
-    iocProps, MockSocketFactory, noop,
-    renderApp, TestContext
+    iocProps,
+    MockSocketFactory,
+    noop,
+    renderApp,
+    TestContext
 } from "../../helpers/tests";
 import {act} from "@testing-library/react";
 import {
@@ -27,6 +31,8 @@ import {ILiveOptions} from "../../live/ILiveOptions";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IAppContainerProps} from "../common/AppContainer";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
+import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
+import {LiveDataType} from "../../live/LiveDataType";
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
@@ -515,7 +521,7 @@ describe('SaygLoadingContainer', () => {
 
     describe('live updates', () => {
         it('given sayg, when enabling, creates a socket', async () => {
-            let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -545,7 +551,7 @@ describe('SaygLoadingContainer', () => {
             }, appProps({ account }, reportedError));
 
             await act(async () => {
-                await enableLiveUpdates(true, saygData.id);
+                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
             });
 
             expect(socketFactory.socketWasCreated()).toEqual(true);
@@ -553,7 +559,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given error live message type, shows error', async () => {
-            let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -583,7 +589,7 @@ describe('SaygLoadingContainer', () => {
             }, appProps({ account }, reportedError));
 
             await act(async () => {
-                await enableLiveUpdates(true, saygData.id);
+                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
             });
             await act(async () => {
                 console.error = () => {};
@@ -602,7 +608,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given update live message type, updates sayg data', async () => {
-            let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
             let renderedData: UpdateRecordedScoreAsYouGoDto;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
@@ -641,7 +647,7 @@ describe('SaygLoadingContainer', () => {
             expect(renderedData).toEqual(saygData);
 
             await act(async () => {
-                await enableLiveUpdates(true, saygData.id);
+                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
             });
             await act(async () => {
                 expect(socketFactory.socketWasCreated()).toEqual(true);
@@ -660,7 +666,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given no socket, when disabling, does nothing', async () => {
-            let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -684,14 +690,14 @@ describe('SaygLoadingContainer', () => {
             });
 
             await act(async () => {
-                await enableLiveUpdates(false, saygData.id);
+                await enableLiveUpdates(false, { id: saygData.id, type: LiveDataType.sayg });
             });
 
             expect(socketFactory.socketWasCreated()).toEqual(false);
         });
 
         it('given an open socket, when disabling, closes socket', async () => {
-            let enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -720,12 +726,12 @@ describe('SaygLoadingContainer', () => {
                 liveOptions: {},
             }, appProps({ account }, reportedError));
             await act(async () => {
-                await enableLiveUpdates(true, saygData.id);
+                await enableLiveUpdates(true, { id: saygData.id, type: LiveDataType.sayg });
             });
 
             await act(async () => {
                 // now close the socket
-                await enableLiveUpdates(false, saygData.id);
+                await enableLiveUpdates(false, { id: saygData.id, type: LiveDataType.sayg });
             });
 
             expect(socketFactory.socketWasCreated()).toEqual(true);
@@ -737,7 +743,7 @@ describe('SaygLoadingContainer', () => {
         sayg: ILoadedScoreAsYouGoDto,
         setSayg: (newData: ILoadedScoreAsYouGoDto) => Promise<ILoadedScoreAsYouGoDto>,
         saveDataAndGetId: (useData?: ILoadedScoreAsYouGoDto) => Promise<string>,
-        enableLiveUpdates: (enabled: boolean, id: string) => Promise<any>,
+        enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>,
         subscriptions: ISubscriptions,
         liveOptions: ILiveOptions
     }

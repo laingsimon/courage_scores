@@ -2,6 +2,7 @@ import {LiveWebSocket} from "./LiveWebSocket";
 import {createTemporaryId} from "../helpers/projection";
 import {ISubscriptions} from "./ISubscriptions";
 import {IWebSocketContext} from "./IWebSocketContext";
+import {LiveDataType} from "./LiveDataType";
 
 describe('LiveWebSocket', () => {
     describe('publish', () => {
@@ -234,7 +235,7 @@ describe('LiveWebSocket', () => {
                 socketContext: { webSocket: new MockSocket(socketInfo) as any },
                 setSocketContext: async () => {},
                 subscriptions: {
-                    anId: { id: 'anId', errorHandler: () => {}, updateHandler: () => {} },
+                    anId: { id: 'anId', type: LiveDataType.sayg, errorHandler: () => {}, updateHandler: () => {} },
                 },
                 setSubscriptions: async () => {},
                 createSocket: () => new WebSocket(''),
@@ -292,7 +293,7 @@ describe('LiveWebSocket', () => {
                 socketContext: { webSocket: new MockSocket(socketInfo) as any },
                 setSocketContext: async () => {},
                 subscriptions: {
-                    anId: { id, updateHandler: () => {}, errorHandler: () => {} },
+                    anId: { id, type: LiveDataType.sayg, updateHandler: () => {}, errorHandler: () => {} },
                 },
                 setSubscriptions: async () => {},
                 createSocket: () => new WebSocket(''),
@@ -318,7 +319,7 @@ describe('LiveWebSocket', () => {
             const id = createTemporaryId();
             let sent: string;
             const subscriptions: ISubscriptions = {};
-            subscriptions[id] = { id, updateHandler: () => {}, errorHandler: () => {} };
+            subscriptions[id] = { id, type: LiveDataType.sayg, updateHandler: () => {}, errorHandler: () => {} };
             const socket = new LiveWebSocket({
                 socketContext: { webSocket: {
                     send: (value: string) => {
@@ -356,7 +357,7 @@ describe('LiveWebSocket', () => {
                 setSocketContext: async () => {},
                 createSocket: () => new WebSocket(''),
             });
-            await socket.subscribe(id);
+            await socket.subscribe({ id, type: LiveDataType.sayg });
 
             await socket.unsubscribe(id);
 
@@ -388,8 +389,8 @@ describe('LiveWebSocket', () => {
                 setSocketContext: async () => {},
                 createSocket: () => new WebSocket(''),
             });
-            await socket.subscribe(id1);
-            await socket.subscribe(id2);
+            await socket.subscribe({ id: id1, type: LiveDataType.sayg });
+            await socket.subscribe({ id: id2, type: LiveDataType.sayg });
 
             await socket.unsubscribe(id2);
 
@@ -414,7 +415,7 @@ describe('LiveWebSocket', () => {
                 createSocket: () => new WebSocket(''),
             });
 
-            await socket.subscribe(id);
+            await socket.subscribe({ id, type: LiveDataType.sayg });
 
             expect(sent!).toBeTruthy();
             expect(JSON.parse(sent!)).toEqual({
@@ -448,7 +449,7 @@ describe('LiveWebSocket', () => {
                 setSocketContext: async () => {},
                 createSocket: () => new WebSocket(''),
             });
-            await socket.subscribe(id, () => mutable++);
+            await socket.subscribe({ id, type: LiveDataType.sayg }, () => mutable++);
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
@@ -458,7 +459,7 @@ describe('LiveWebSocket', () => {
             } as MessageEvent);
             expect(mutable).toEqual(1);
 
-            await socket.subscribe(id, () => mutable--);
+            await socket.subscribe({ id, type: LiveDataType.sayg }, () => mutable--);
 
             webSocket.onmessage!({
                 type: 'message',
@@ -531,7 +532,7 @@ describe('LiveWebSocket', () => {
 
         it('handles update live message type', () => {
             let received: object;
-            socket.subscribe(id, (data: object) => {
+            socket.subscribe({ id, type: LiveDataType.sayg }, (data: object) => {
                 received = data;
             });
 
@@ -554,7 +555,7 @@ describe('LiveWebSocket', () => {
         it('handles update live message type when no handler set', () => {
             let logged: string;
             console.log = (msg: string) => { logged = msg };
-            socket.subscribe(id);
+            socket.subscribe({ id, type: LiveDataType.sayg });
 
             webSocket.onmessage!({
                 type: 'message',
@@ -598,7 +599,7 @@ describe('LiveWebSocket', () => {
         it('handles error live message type', () => {
             console.error = () => { };
             let error: string;
-            socket.subscribe(id, () => {}, (err: string) => {
+            socket.subscribe({ id, type: LiveDataType.sayg }, () => {}, (err: string) => {
                 error = err;
             });
 
@@ -616,7 +617,7 @@ describe('LiveWebSocket', () => {
         it('handles error live message type when no handler set', () => {
             let logged: string;
             console.error = (err: string) => { logged = err };
-            socket.subscribe(id);
+            socket.subscribe({ id, type: LiveDataType.sayg });
 
             webSocket.onmessage!({
                 type: 'message',

@@ -18,6 +18,7 @@ import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg
 import {ISubscription} from "../../../live/ISubscription";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {LiveDataType} from "../../../live/LiveDataType";
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;
@@ -67,7 +68,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
             for (let saygId in saygDataMap) {
                 if (!subscriptions[saygId]) {
                     // noinspection JSIgnoredPromiseFromCall
-                    webSocket.subscribe(saygId, (newSaygData: RecordedScoreAsYouGoDto) => {
+                    webSocket.subscribe({ id: saygId, type: LiveDataType.sayg }, (newSaygData: RecordedScoreAsYouGoDto) => {
                         const newSaygDataMap: ISaygDataMap = Object.assign({}, saygDataMap);
                         newSaygDataMap[newSaygData.id] = newSaygData;
                         setSaygDataMap(newSaygDataMap);
@@ -123,7 +124,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
     try {
         return (<div className="overflow-auto no-overflow-on-print">
             <div className="float-end">
-                <RefreshControl id={tournamentData.id} />
+                <RefreshControl id={tournamentData.id} type={LiveDataType.tournament} />
             </div>
             <MasterDraw
                 matches={matches}

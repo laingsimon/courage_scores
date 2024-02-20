@@ -4,16 +4,18 @@ import {
     cleanUp,
     doSelectOption,
     iocProps,
-    MockSocketFactory, noop,
+    MockSocketFactory,
+    noop,
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {RefreshControl} from "./RefreshControl";
+import {IRefreshControlProps, RefreshControl} from "./RefreshControl";
 import {LiveContainer, useLive} from "../../live/LiveContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {ILive} from "../../live/ILive";
 import {act} from "@testing-library/react";
+import {LiveDataType} from "../../live/LiveDataType";
 
 describe('RefreshControl', () => {
     let context: TestContext;
@@ -29,7 +31,7 @@ describe('RefreshControl', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(id: string, account?: UserDto) {
+    async function renderComponent(props: IRefreshControlProps, account?: UserDto) {
         context = await renderApp(
             iocProps({socketFactory: socketFactory.createSocket}),
             brandingProps(),
@@ -38,7 +40,7 @@ describe('RefreshControl', () => {
             }),
             (<LiveContainer liveOptions={null} onDataUpdate={noop}>
                 <GetLiveContainer onLoad={(live: ILive) => liveContainer = live}>
-                    <RefreshControl id={id} />
+                    <RefreshControl {...props} />
                 </GetLiveContainer>
             </LiveContainer>));
     }
@@ -56,7 +58,7 @@ describe('RefreshControl', () => {
         it('nothing when logged out', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id);
+            await renderComponent({ id, type: LiveDataType.sayg });
 
             const menu = context.container.querySelector('.dropdown-menu');
             expect(menu).toBeFalsy();
@@ -65,7 +67,7 @@ describe('RefreshControl', () => {
         it('nothing when not permitted', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id, { givenName: '',name: '',emailAddress:'', access: {} });
+            await renderComponent({ id, type: LiveDataType.sayg }, { givenName: '',name: '',emailAddress:'', access: {} });
 
             const menu = context.container.querySelector('.dropdown-menu');
             expect(menu).toBeFalsy();
@@ -74,7 +76,7 @@ describe('RefreshControl', () => {
         it('options', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id, account);
+            await renderComponent({ id, type: LiveDataType.sayg }, account);
 
             const items = Array.from(context.container.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(items.map(li => li.textContent)).toEqual([ '⏸️ Paused', '▶️ Live' ]);
@@ -83,9 +85,9 @@ describe('RefreshControl', () => {
         it('selected option', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id, account);
+            await renderComponent({ id, type: LiveDataType.sayg }, account);
             await act(async () => {
-                await liveContainer.enableLiveUpdates(true, id);
+                await liveContainer.enableLiveUpdates(true, { id, type: LiveDataType.sayg });
                 expect(socketFactory.socketWasCreated()).toEqual(true);
             });
 
@@ -96,7 +98,7 @@ describe('RefreshControl', () => {
         it('paused when disconnected', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id, account);
+            await renderComponent({ id, type: LiveDataType.sayg }, account);
 
             const selectedItem = context.container.querySelector('.dropdown-menu .dropdown-item.active')
             expect(selectedItem.textContent).toEqual('⏸️ Paused');
@@ -116,7 +118,7 @@ describe('RefreshControl', () => {
         it('enables live', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id, account);
+            await renderComponent({ id, type: LiveDataType.sayg }, account);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
@@ -126,9 +128,9 @@ describe('RefreshControl', () => {
         it('disables live', async () => {
             const id = createTemporaryId();
 
-            await renderComponent(id, account);
+            await renderComponent({ id, type: LiveDataType.sayg }, account);
             await act(async () => {
-                await liveContainer.enableLiveUpdates(true, id);
+                await liveContainer.enableLiveUpdates(true, { id, type: LiveDataType.sayg });
             });
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');

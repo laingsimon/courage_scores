@@ -4,11 +4,14 @@ import {
     brandingProps,
     cleanUp,
     doClick,
-    doSelectOption, ErrorState,
+    doSelectOption,
+    ErrorState,
     findButton,
-    iocProps, MockSocketFactory,
+    iocProps,
+    MockSocketFactory,
     noop,
-    renderApp, TestContext
+    renderApp,
+    TestContext
 } from "../../helpers/tests";
 import {ILegCompetitorScoreBuilder, legBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {ISaygLoadingContainerProps, SaygLoadingContainer} from "./SaygLoadingContainer";
@@ -23,6 +26,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {LiveDataType} from "../../live/LiveDataType";
 
 describe('MatchStatistics', () => {
     let context: TestContext;
@@ -365,7 +369,7 @@ describe('MatchStatistics', () => {
             .build();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: [createTemporaryId()],
+            subscribeAtStartup: [{ id: createTemporaryId(), type: LiveDataType.sayg }],
         };
         const saygData = saygBuilder()
             .withLeg(0, leg)
@@ -396,7 +400,7 @@ describe('MatchStatistics', () => {
             .build();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: [createTemporaryId()],
+            subscribeAtStartup: [{ id: createTemporaryId(), type: LiveDataType.sayg }],
         };
         console.log = noop;
         const saygData = saygBuilder()
@@ -427,7 +431,7 @@ describe('MatchStatistics', () => {
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: [id],
+            subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
         };
         const account: UserDto = {
             name: '',
@@ -505,7 +509,7 @@ describe('MatchStatistics', () => {
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: [id],
+            subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
         };
         const account: UserDto = {
             givenName: '',
@@ -554,7 +558,7 @@ describe('MatchStatistics', () => {
         const saygId = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: [saygId],
+            subscribeAtStartup: [{ id: saygId, type: LiveDataType.sayg }],
         };
         const account: UserDto = {
             name: '',
@@ -598,7 +602,7 @@ describe('MatchStatistics', () => {
         const saygId = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: [saygId],
+            subscribeAtStartup: [{ id: saygId, type: LiveDataType.sayg }],
         };
         const saygData: RecordedScoreAsYouGoDto = saygBuilder(saygId)
             .withLeg(0, leg)
@@ -648,7 +652,7 @@ describe('MatchStatistics', () => {
         const id = createTemporaryId();
         const liveOptions: ILiveOptions = {
             canSubscribe: true,
-            subscribeAtStartup: [id],
+            subscribeAtStartup: [{ id, type: LiveDataType.sayg }],
         };
         const account: UserDto = {
             givenName: '',

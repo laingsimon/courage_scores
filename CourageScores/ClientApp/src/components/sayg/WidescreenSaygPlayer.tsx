@@ -6,6 +6,7 @@ import {RefreshControl} from "../common/RefreshControl";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {useApp} from "../common/AppContainer";
+import {LiveDataType} from "../../live/LiveDataType";
 
 export interface IWidescreenSaygPlayerProps {
     legs: { [legKey: number]: LegDto };
@@ -51,7 +52,7 @@ export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, chang
             </div>
             {scoreFirst ? null : score}
             {showOptions ? (<div className="position-absolute p-1">
-                {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id}/> : null}
+                {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id} type={LiveDataType.sayg} /> : null}
                 {changeStatisticsView ?
                     <button className="btn btn-sm btn-outline-primary border-dark"
                             onClick={() => changeStatisticsView(false)}>

@@ -3,6 +3,7 @@ import {ISubscription} from "./ISubscription";
 import {ISubscriptions} from "./ISubscriptions";
 import {IWebSocketContext} from "./IWebSocketContext";
 import {ILiveWebSocket} from "./ILiveWebSocket";
+import {ISubscriptionRequest} from "./ISubscriptionRequest";
 
 interface ILiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -145,14 +146,16 @@ export class LiveWebSocket implements ILiveWebSocket {
         });
     }
 
-    async subscribe(id: string, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void) {
-        if (this.subscriptions[id]) {
+    async subscribe(request: ISubscriptionRequest, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void) {
+        if (this.subscriptions[request.id]) {
             console.log('WARN: Subscription is being replaced');
         }
 
         const newSubscriptions = Object.assign({}, this.subscriptions);
-        newSubscriptions[id] = {
-            id,
+        newSubscriptions[request.id] = {
+            id: request.id,
+            type: request.type,
+            method: 'websocket',
             updateHandler: dataHandler || ((msg: any) => console.log(msg)),
             errorHandler: errorHandler || ((err: any) => console.error(err)),
         };
@@ -160,7 +163,7 @@ export class LiveWebSocket implements ILiveWebSocket {
 
         await this.__send({
             type: 'subscribed',
-            id: id,
+            id: request.id,
         });
     }
 
