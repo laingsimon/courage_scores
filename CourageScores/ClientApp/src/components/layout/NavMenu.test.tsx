@@ -30,7 +30,7 @@ describe('NavMenu', () => {
             appContainerProps,
             (<NavMenu/>),
             route || '/practice',
-            currentPath || '/practice');
+            currentPath || '/practice?q=value');
     }
 
     function isExpanded() {
@@ -114,7 +114,7 @@ describe('NavMenu', () => {
                 'http://localhost/division/' + division.name + '/teams/' + currentSeason.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
-                'https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice']);
+                'https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice?q=value']);
         });
 
         it('divisions', async () => {
@@ -164,7 +164,7 @@ describe('NavMenu', () => {
 
             const link = loginItem.querySelector('a');
             expect(link).toBeTruthy();
-            expect(link.href).toEqual('https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice');
+            expect(link.href).toEqual('https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice?q=value');
         });
 
         it('clears error on navigate', async () => {
@@ -460,7 +460,7 @@ describe('NavMenu', () => {
             const logoutItem = items[items.length - 1];
             const link = logoutItem.querySelector('a');
             expect(link).toBeTruthy();
-            expect(link.href).toEqual('https://localhost/api/Account/Logout/?redirectUrl=https://localhost/practice');
+            expect(link.href).toEqual('https://localhost/api/Account/Logout/?redirectUrl=https://localhost/practice?q=value');
         });
     })
 });
