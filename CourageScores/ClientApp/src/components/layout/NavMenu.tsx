@@ -19,15 +19,15 @@ export function NavMenu() {
     const {account, clearError, divisions, appLoading, seasons} = useApp();
     const [collapsed, setCollapsed] = useState<boolean>(true);
     const [navMenuError, setNavMenuError] = useState<IError | null>(null);
-    const [currentLink, setCurrentLink] = useState<string>(document.location.href);
     const location = useLocation();
 
     useEffect(() => {
-        setCurrentLink('https://' + document.location.host + location.pathname);
         setCollapsed(true);
     }, [location]);
 
     function isActive(toRegex: string) {
+        const currentLink = 'https://' + document.location.host + location.pathname;
+
         return decodeURI(currentLink).match(toRegex);
     }
 
@@ -35,15 +35,16 @@ export function NavMenu() {
         return isActive(to) ? 'nav-item-active' : '';
     }
 
-    function navigate(event: any) {
-        setCurrentLink(event.target.href);
+    async function navigate() {
         setCollapsed(true);
         if (clearError) {
-            clearError();
+            await clearError();
         }
     }
 
     function getAccountUrl(action: string) {
+        const currentLink: string = 'https://' + document.location.host + location.pathname;
+
         return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
 
