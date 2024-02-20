@@ -1,4 +1,5 @@
 ﻿import {
+    api,
     appProps,
     brandingProps,
     cleanUp,
@@ -22,11 +23,33 @@ import {ILayoutDataForMatch} from "../../helpers/tournaments";
 import {createTemporaryId} from "../../helpers/projection";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
+import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {ISaygApi} from "../../interfaces/apis/ISaygApi";
+import {saygBuilder} from "../../helpers/builders/sayg";
+import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedTournament: TournamentGameDto;
+    let patchedData: {patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean}[];
+    let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
+
+    const saygApi = api<ISaygApi>({
+        async get(id: string): Promise<RecordedScoreAsYouGoDto | null> {
+            return saygDataLookup[id];
+        },
+        async upsert(data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> {
+            return {
+                success: true,
+                result: data as RecordedScoreAsYouGoDto,
+            };
+        }
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -35,7 +58,13 @@ describe('PrintableSheetMatch', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         updatedTournament = null;
+        patchedData = [];
+        saygDataLookup = {};
     });
+
+    async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
+        patchedData.push({patch, nestInRound});
+    }
 
     async function setTournamentData(update: TournamentGameDto) {
         updatedTournament = update;
@@ -43,7 +72,7 @@ describe('PrintableSheetMatch', () => {
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetMatchProps, appProps: IAppContainerProps) {
         context = await renderApp(
-            iocProps(),
+            iocProps({saygApi}),
             brandingProps(),
             appProps,
             (<TournamentContainer {...containerProps}>
@@ -760,6 +789,142 @@ describe('PrintableSheetMatch', () => {
             expect(dialog.textContent).toContain('Best of 7');
             const scoreDropdownItems = Array.from(dialog.querySelectorAll('.form-group :nth-child(4) div.dropdown-menu .dropdown-item'));
             expect(scoreDropdownItems.map(i => i.textContent)).toEqual([ '0', '1', '2', '3', '4' ]); // best of 7
+        });
+
+        it('patches data in first round', async () => {
+            const saygData = saygBuilder()
+                .yourName('SIDE A')
+                .opponentName('SIDE B')
+                .scores(0, 0)
+                .numberOfLegs(3)
+                .startingScore(501)
+                .addTo(saygDataLookup)
+                .build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(sideA)
+                        .sideB(sideB)
+                        .saygId(saygData.id)))
+                .build();
+            const matchData: ILayoutDataForMatch = {
+                scoreB: '',
+                scoreA: '',
+                sideA: { id: createTemporaryId(), link: (<span>SIDE A</span>), name: '', mnemonic: 'A' },
+                sideB: { id: createTemporaryId(), link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
+                mnemonic: 'M1',
+                hideMnemonic: true,
+                match: tournamentData.round.matches[0],
+            };
+            const account: UserDto = {
+                name: '',
+                emailAddress: '',
+                givenName: '',
+                access: {
+                    recordScoresAsYouGo: true,
+                },
+            }
+            await renderComponent({
+                tournamentData,
+                setTournamentData,
+                matchOptionDefaults,
+            }, {
+                matchData,
+                matchIndex: 0,
+                roundIndex: 0,
+                possibleSides: [],
+                editable: true,
+                patchData
+            }, appProps({ account }, reportedError));
+
+            await doClick(findButton(context.container, '📊'));
+            reportedError.verifyNoError();
+            const saygDialog = context.container.querySelector('.modal-dialog');
+            // set sideA to play first
+            await doClick(findButton(saygDialog, '🎯SIDE A'));
+
+            //verify patch data
+            reportedError.verifyNoError();
+            expect(patchedData).toEqual([{
+                nestInRound: true,
+                patch: {
+                    match: {
+                        scoreA: 0,
+                        scoreB: 0,
+                        sideA: sideA.id,
+                        sideB: sideB.id,
+                    }
+                }
+            }]);
+        });
+
+        it('patches data in second round', async () => {
+            const saygData = saygBuilder()
+                .yourName('SIDE A')
+                .opponentName('SIDE B')
+                .scores(0, 0)
+                .numberOfLegs(3)
+                .startingScore(501)
+                .addTo(saygDataLookup)
+                .build();
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(sideA)
+                        .sideB(sideB)
+                        .saygId(saygData.id)))
+                .build();
+            const matchData: ILayoutDataForMatch = {
+                scoreB: '',
+                scoreA: '',
+                sideA: { id: createTemporaryId(), link: (<span>SIDE A</span>), name: '', mnemonic: 'A' },
+                sideB: { id: createTemporaryId(), link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
+                mnemonic: 'M1',
+                hideMnemonic: true,
+                match: tournamentData.round.matches[0],
+            };
+            const account: UserDto = {
+                name: '',
+                emailAddress: '',
+                givenName: '',
+                access: {
+                    recordScoresAsYouGo: true,
+                },
+            }
+            await renderComponent({
+                tournamentData,
+                setTournamentData,
+                matchOptionDefaults,
+            }, {
+                matchData,
+                matchIndex: 0,
+                roundIndex: 1,
+                possibleSides: [],
+                editable: true,
+                patchData
+            }, appProps({ account }, reportedError));
+
+            await doClick(findButton(context.container, '📊'));
+            reportedError.verifyNoError();
+            const saygDialog = context.container.querySelector('.modal-dialog');
+            // set sideA to play first
+            await doClick(findButton(saygDialog, '🎯SIDE A'));
+
+            //verify patch data
+            reportedError.verifyNoError();
+            expect(patchedData).toEqual([{
+                nestInRound: true,
+                patch: {
+                    nextRound: {
+                        match: {
+                            scoreA: 0,
+                            scoreB: 0,
+                            sideA: sideA.id,
+                            sideB: sideB.id,
+                        }
+                    }
+                }
+            }]);
         });
     });
 });
