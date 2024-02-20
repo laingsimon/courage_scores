@@ -4,6 +4,7 @@ import {ISubscriptions} from "./ISubscriptions";
 import {IWebSocketContext} from "./IWebSocketContext";
 import {ILiveWebSocket} from "./ILiveWebSocket";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
+import {WebSocketMode} from "./WebSocketMode";
 
 interface ILiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -151,7 +152,7 @@ export class LiveWebSocket implements ILiveWebSocket {
         newSubscriptions[request.id] = {
             id: request.id,
             type: request.type,
-            method: 'websocket',
+            method: WebSocketMode.socket,
             updateHandler: dataHandler || ((msg: any) => console.log(msg)),
             errorHandler: errorHandler || ((err: any) => console.error(err)),
         };
@@ -161,6 +162,8 @@ export class LiveWebSocket implements ILiveWebSocket {
             type: 'subscribed',
             id: request.id,
         });
+
+        return true;
     }
 
     publishToSubscribers(id: string, data: any) {

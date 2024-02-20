@@ -1,0 +1,10 @@
+import {IWebSocketContext} from "./IWebSocketContext";
+import {ISubscriptions} from "./ISubscriptions";
+import {ISubscriptionRequest} from "./ISubscriptionRequest";
+
+export interface IUpdateStrategy {
+    refresh(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>): void;
+    publish(context: IWebSocketContext, id: string, data: any): Promise<IWebSocketContext | null>;
+    unsubscribe(context: IWebSocketContext, subscriptions: ISubscriptions, id: string): Promise<IWebSocketContext>;
+    subscribe(context: IWebSocketContext, request: ISubscriptionRequest): Promise<IWebSocketContext | null>;
+}

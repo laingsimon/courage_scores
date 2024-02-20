@@ -49,4 +49,16 @@ public class LiveController : Controller
     {
         return await _liveService.CloseSocket(id, token);
     }
+
+    [HttpGet("/api/Live/Update/{id}/{type}")]
+    public async Task<ActionResultDto<object>> GetUpdate(Guid id, string type, DateTime lastUpdate, CancellationToken token)
+    {
+        return new ActionResultDto<object>
+        {
+            Errors =
+            {
+                "Not implemented",
+            },
+        };
+    }
 }
