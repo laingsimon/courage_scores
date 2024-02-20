@@ -104,7 +104,6 @@ export class LiveWebSocket implements ILiveWebSocket {
 
             const newContext: IWebSocketContext = Object.assign({}, this.socketContext);
             newContext.webSocket = null;
-            newContext.closures = (newContext.closures || 0) + 1;
 
             await this.setSocketContext(newContext);
             await this.setSubscriptions({});
