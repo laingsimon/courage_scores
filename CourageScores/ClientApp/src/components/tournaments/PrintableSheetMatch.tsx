@@ -194,15 +194,13 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             return;
         }
 
-        const roundPatch: PatchTournamentRoundDto = patch as PatchTournamentRoundDto;
-        const nestedPatch: PatchTournamentRoundDto = {};
-        let patchParent: PatchTournamentRoundDto = nestedPatch;
+        let nestedPatch: PatchTournamentRoundDto = patch as PatchTournamentRoundDto;
         for (let index = 0; index < roundIndex; index++) {
-            patchParent.nextRound = {} as PatchTournamentRoundDto;
-            patchParent = patchParent.nextRound;
+            nestedPatch = {
+                nextRound: nestedPatch
+            };
         }
 
-        patchParent.nextRound = roundPatch;
         await patchData(nestedPatch, nestInRound);
     }
 
