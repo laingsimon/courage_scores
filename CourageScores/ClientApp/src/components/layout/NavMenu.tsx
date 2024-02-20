@@ -43,7 +43,7 @@ export function NavMenu() {
     }
 
     function getAccountUrl(action: string) {
-        const currentLink: string = 'https://' + document.location.host + location.pathname;
+        const currentLink: string = 'https://' + document.location.host + location.pathname + location.search;
 
         return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
