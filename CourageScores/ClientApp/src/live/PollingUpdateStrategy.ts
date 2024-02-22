@@ -7,6 +7,7 @@ import {ISubscriptions} from "./ISubscriptions";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {ILiveApi} from "../interfaces/apis/ILiveApi";
 import {WebSocketMode} from "./WebSocketMode";
+import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 
 export class PollingUpdateStrategy implements IUpdateStrategy {
     private readonly initialDelay: number;
@@ -65,12 +66,11 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         const allSubscriptions: ISubscriptions = this.refreshContext.allSubscriptions;
 
         // polling iteration
-        const update: string = new Date().toISOString();
         let someSuccess: boolean = false;
 
         for (const id in allSubscriptions) {
             const subscription: ISubscription = allSubscriptions[id];
-            const success: boolean = await this.requestLatestData(subscription, update);
+            const success: boolean = await this.requestLatestData(subscription);
             someSuccess = someSuccess || success;
         }
 
@@ -87,13 +87,13 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         await this.refreshContext.setContext(newContext);
     }
 
-    private async requestLatestData(subscription: ISubscription, update: string): Promise<boolean> {
+    private async requestLatestData(subscription: ISubscription): Promise<boolean> {
         try {
-            const latestData: IClientActionResultDto<any> = await this.liveApi.getUpdate(subscription.id, subscription.type, subscription.lastUpdate);
+            const latestData: IClientActionResultDto<UpdatedDataDto> = await this.liveApi.getUpdate(subscription.id, subscription.type, subscription.lastUpdate);
             if (latestData.success) {
                 if (latestData.result) {
-                    subscription.lastUpdate = update;
-                    subscription.updateHandler(latestData.result);
+                    subscription.lastUpdate = latestData.result.lastUpdate;
+                    subscription.updateHandler(latestData.result.data);
                 } else {
                     // no update since last request
                 }

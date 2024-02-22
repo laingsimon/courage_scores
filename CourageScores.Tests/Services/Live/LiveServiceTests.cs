@@ -18,6 +18,7 @@ public class LiveServiceTests
     private LiveService _service = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
+    private Mock<IUpdatedDataSource> _updatedDataSource = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -25,7 +26,8 @@ public class LiveServiceTests
         _sockets = new List<IWebSocketContract>();
         _contractFactory = new Mock<IWebSocketContractFactory>();
         _userService = new Mock<IUserService>();
-        _service = new LiveService(_sockets, _contractFactory.Object, _userService.Object);
+        _updatedDataSource = new Mock<IUpdatedDataSource>();
+        _service = new LiveService(_sockets, _contractFactory.Object, _userService.Object, _updatedDataSource.Object);
         _contract = new Mock<IWebSocketContract>();
 
         _contractFactory
@@ -243,5 +245,49 @@ public class LiveServiceTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(new[] { "Socket closed" }));
         Assert.That(result.Result, Is.EqualTo(socketDto));
+    }
+
+    [Test]
+    public async Task GetUpdate_WhenEntityNotTracked_ReturnsError()
+    {
+        var id = Guid.NewGuid();
+        var since = DateTimeOffset.UtcNow;
+        _updatedDataSource.Setup(s => s.GetUpdate(id, LiveDataType.Sayg, since)).ReturnsAsync(() => null);
+
+        var result = await _service.GetUpdate(id, LiveDataType.Sayg, since, _token);
+
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public async Task GetUpdate_WhenEntityNotUpdated_ReturnsNotUpdatedWithLastUpdateDate()
+    {
+        var id = Guid.NewGuid();
+        var since = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+        var lastUpdated = new DateTimeOffset(2001, 02, 03, 05, 06, 07, TimeSpan.Zero);
+        var updatedData = new PollingUpdatesProcessor.UpdateData(null, lastUpdated);
+        _updatedDataSource.Setup(s => s.GetUpdate(id, LiveDataType.Sayg, since)).ReturnsAsync(updatedData);
+
+        var result = await _service.GetUpdate(id, LiveDataType.Sayg, since, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetUpdate_WhenEntityUpdated_ReturnsUpdatedDataAndLastUpdateDate()
+    {
+        var id = Guid.NewGuid();
+        var since = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+        var lastUpdated = new DateTimeOffset(2001, 02, 03, 05, 06, 07, TimeSpan.Zero);
+        var updatedData = new PollingUpdatesProcessor.UpdateData("data", lastUpdated);
+        _updatedDataSource.Setup(s => s.GetUpdate(id, LiveDataType.Sayg, since)).ReturnsAsync(updatedData);
+
+        var result = await _service.GetUpdate(id, LiveDataType.Sayg, since, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.Not.Null);
+        Assert.That(result.Result!.Data, Is.EqualTo("data"));
+        Assert.That(result.Result.LastUpdate, Is.EqualTo(lastUpdated));
     }
 }

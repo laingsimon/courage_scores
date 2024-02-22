@@ -9,6 +9,7 @@ import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {WebSocketMode} from "./WebSocketMode";
 import {IClientActionResultDto} from "../components/common/IClientActionResultDto";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 
 describe('PollingUpdateStrategy', () => {
     let updateLookup: { [id: string]: () => IClientActionResultDto<object> };
@@ -342,10 +343,13 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(context, subscriptions, setContext);
             await strategy.subscribe(context, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
                     success: true,
-                    result: data
+                    result: {
+                        data: data,
+                        lastUpdate: 'LAST_UPDATE',
+                    }
                 };
             };
 

@@ -10,15 +10,18 @@ public class LiveService : ILiveService
     private readonly ICollection<IWebSocketContract> _sockets;
     private readonly IWebSocketContractFactory _socketContractFactory;
     private readonly IUserService _userService;
+    private readonly IUpdatedDataSource _updatedDataSource;
 
     public LiveService(
         ICollection<IWebSocketContract> sockets,
         IWebSocketContractFactory socketContractFactory,
-        IUserService userService)
+        IUserService userService,
+        IUpdatedDataSource updatedDataSource)
     {
         _sockets = sockets;
         _socketContractFactory = socketContractFactory;
         _userService = userService;
+        _updatedDataSource = updatedDataSource;
     }
 
     public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
@@ -82,6 +85,38 @@ public class LiveService : ILiveService
             Messages =
             {
                 "Socket closed",
+            },
+        };
+    }
+
+    public async Task<ActionResultDto<UpdatedDataDto?>> GetUpdate(Guid id, LiveDataType type, DateTimeOffset? lastUpdate, CancellationToken token)
+    {
+        var update = await _updatedDataSource.GetUpdate(id, type, lastUpdate);
+        if (update == null)
+        {
+            return Error<UpdatedDataDto?>("Entity is not being live-updated");
+        }
+
+        if (update.Data == null)
+        {
+            // no update since <lastUpdate>
+            return new ActionResultDto<UpdatedDataDto?>
+            {
+                Success = true,
+                Messages =
+                {
+                    $"Last update: {update.Updated}",
+                },
+            };
+        }
+
+        return new ActionResultDto<UpdatedDataDto?>
+        {
+            Success = true,
+            Result = new UpdatedDataDto
+            {
+                Data = update.Data,
+                LastUpdate = update.Updated,
             },
         };
     }

@@ -1,8 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using TypeScriptMapper;
 
 namespace CourageScores.Controllers;
@@ -51,14 +53,37 @@ public class LiveController : Controller
     }
 
     [HttpGet("/api/Live/Update/{id}/{type}")]
-    public async Task<ActionResultDto<object>> GetUpdate(Guid id, string type, DateTime lastUpdate, CancellationToken token)
+    public async Task<ActionResultDto<UpdatedDataDto?>> GetUpdate(Guid id, LiveDataType type, [FromQuery] DateTimeOffset? lastUpdate, CancellationToken token)
     {
-        return new ActionResultDto<object>
+        // TODO: Remove lastUpdate query string parameter
+        var lastUpdateValue = lastUpdate ?? AsDateTime(Request.Headers.IfModifiedSince);
+        var dto =  await _liveService.GetUpdate(id, type, lastUpdateValue, token);
+
+        if (dto.Result != null)
         {
-            Errors =
-            {
-                "Not implemented",
-            },
-        };
+            var lastUpdated = dto.Result.LastUpdate;
+            Response.Headers.LastModified = new StringValues(lastUpdated.ToString("R"));
+            Response.StatusCode = dto.Result.Data != null
+                ? StatusCodes.Status200OK
+                : StatusCodes.Status304NotModified;
+        }
+        else
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+        }
+
+        return dto;
+    }
+
+    private static DateTime? AsDateTime(StringValues value)
+    {
+        if (string.IsNullOrEmpty(value.ToString()))
+        {
+            return null;
+        }
+
+        return DateTime.TryParseExact(value.ToString(), "R", null, DateTimeStyles.None, out var dateTime)
+            ? dateTime
+            : null;
     }
 }
