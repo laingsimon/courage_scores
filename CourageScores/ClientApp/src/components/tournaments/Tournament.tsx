@@ -205,7 +205,9 @@ export function Tournament() {
 
     async function publishLiveUpdate(data: TournamentGameDto) {
         if (canManageTournaments) {
-            await webSocket.publish(tournamentId, data);
+            if (!await webSocket.publish(tournamentId, data)) {
+                window.alert('Unable to publish updated data');
+            }
         }
     }
 

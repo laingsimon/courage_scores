@@ -74,15 +74,13 @@ describe('MultiModeLiveWebSocket', () => {
                 socketContext: socketContext,
                 subscriptions: {}
             });
-            let error: Error;
+            let error: string;
+            console.error = (msg: string) => error = msg;
 
-            try {
-                await socket.publish(createTemporaryId(), 'data');
-            } catch (e) {
-                error = e as Error;
-            }
+            const result = await socket.publish(createTemporaryId(), 'data');
 
-            expect(error.message).toEqual('Unable to publish update; no strategy was able to publish the update');
+            expect(result).toEqual(false);
+            expect(error).toEqual('Unable to publish update; no strategy was able to publish the update');
         });
 
         it('refreshes all strategies', async () => {
@@ -181,17 +179,15 @@ describe('MultiModeLiveWebSocket', () => {
             });
             webSocketStrategy.publishResponse = null;
             pollingStrategy.publishResponse = null;
-            let error: Error;
+            let error: string;
+            console.error = (msg: string) => error = msg;
 
-            try {
-                await socket.publish(createTemporaryId(), 'data');
-            } catch (e) {
-                error = e as Error;
-            }
+            const result = await socket.publish(createTemporaryId(), 'data');
 
+            expect(result).toEqual(false);
             expect(webSocketStrategy.publishRequest).toBeTruthy();
             expect(pollingStrategy.publishRequest).toBeTruthy();
-            expect(error.message).toEqual('Unable to publish update; no strategy was able to publish the update');
+            expect(error).toEqual('Unable to publish update; no strategy was able to publish the update');
         });
     });
 

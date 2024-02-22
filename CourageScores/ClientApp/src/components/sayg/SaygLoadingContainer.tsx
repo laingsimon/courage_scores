@@ -126,7 +126,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg, newData);
         setSayg(newSayg);
         if (liveOptions.publish) {
-            await webSocket.publish(id, newSayg);
+            if (!await webSocket.publish(id, newSayg)) {
+                window.alert('Unable to publish updated data');
+            }
         }
         return newSayg;
     }

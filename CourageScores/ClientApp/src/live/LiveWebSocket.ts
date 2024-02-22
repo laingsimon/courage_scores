@@ -115,12 +115,13 @@ export class LiveWebSocket implements ILiveWebSocket {
         this.socket.send(JSON.stringify(data));
     }
 
-    async publish(id: string, data: any) {
+    async publish(id: string, data: any): Promise<boolean> {
         await this.__send({
             type: 'update',
             id: id,
             data: data,
         });
+        return true;
     }
 
     async unsubscribe(id: string) {

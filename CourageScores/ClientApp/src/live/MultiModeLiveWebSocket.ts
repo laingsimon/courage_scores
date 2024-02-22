@@ -39,7 +39,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         this.pollingStrategy = pollingStrategy;
     }
 
-    async publish(id: string, data: any) {
+    async publish(id: string, data: any): Promise<boolean> {
         const strategies: IUpdateStrategy[] = this.getAllStrategies(this.socketContext);
         strategies.forEach((s: IUpdateStrategy) => s.refresh(this.socketContext, this.subscriptions, this.setSocketContext));
 
@@ -47,11 +47,12 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             const published: IWebSocketContext = await strategy.publish(this.socketContext, id, data);
             if (published) {
                 await this.setSocketContext(published);
-                return;
+                return true;
             }
         }
 
-        throw new Error('Unable to publish update; no strategy was able to publish the update');
+        console.error('Unable to publish update; no strategy was able to publish the update');
+        return false;
     }
 
     async unsubscribe(id: string) {
