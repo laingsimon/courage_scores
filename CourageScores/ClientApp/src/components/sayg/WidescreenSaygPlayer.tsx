@@ -6,7 +6,7 @@ import {RefreshControl} from "../common/RefreshControl";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {useApp} from "../common/AppContainer";
-import {LiveDataType} from "../../live/LiveDataType";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface IWidescreenSaygPlayerProps {
     legs: { [legKey: number]: LegDto };

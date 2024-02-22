@@ -11,6 +11,7 @@ import {ISubscriptions} from "../live/ISubscriptions";
 import {IParentHeight} from "../components/layout/ParentHeight";
 import {IHttp} from "../api/http";
 import {ReactNode} from "react";
+import {MessageType} from "../interfaces/models/dtos/MessageType";
 
 /* istanbul ignore file */
 
@@ -151,9 +152,9 @@ export class MockSocketFactory {
             readyState: 1,
             send: (data: any) => {
                 const message = JSON.parse(data);
-                if (message.type === 'subscribed') {
+                if (message.type === MessageType.subscribed) {
                     this.subscriptions[message.id] = { id: null, type: null, errorHandler: null, updateHandler: null };
-                } else if (message.type === 'unsubscribed') {
+                } else if (message.type === MessageType.unsubscribed) {
                     delete this.subscriptions[message.id];
                 }
                 this.sent.push(message);

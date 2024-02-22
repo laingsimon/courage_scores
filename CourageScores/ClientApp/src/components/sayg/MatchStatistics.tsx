@@ -8,7 +8,7 @@ import {RefreshControl} from "../common/RefreshControl";
 import {useLive} from "../../live/LiveContainer";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {LiveDataType} from "../../live/LiveDataType";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface IMatchStatisticsProps {
     legs: { [key: number]: LegDto };

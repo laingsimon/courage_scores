@@ -15,7 +15,7 @@ import {createTemporaryId} from "../../helpers/projection";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {ILive} from "../../live/ILive";
 import {act} from "@testing-library/react";
-import {LiveDataType} from "../../live/LiveDataType";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 describe('RefreshControl', () => {
     let context: TestContext;

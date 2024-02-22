@@ -1,7 +1,7 @@
 import {useParams} from "react-router-dom";
 import {SaygLoadingContainer} from "./SaygLoadingContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
-import {LiveDataType} from "../../live/LiveDataType";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export function LiveSayg() {
     const { id } = useParams();

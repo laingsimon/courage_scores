@@ -5,10 +5,10 @@ import {IUpdateStrategy} from "./IUpdateStrategy";
 import {api} from "../helpers/tests";
 import {ILiveApi} from "../interfaces/apis/ILiveApi";
 import {ISubscriptions} from "./ISubscriptions";
-import {LiveDataType} from "./LiveDataType";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {WebSocketMode} from "./WebSocketMode";
 import {IClientActionResultDto} from "../components/common/IClientActionResultDto";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 describe('PollingUpdateStrategy', () => {
     let updateLookup: { [id: string]: () => IClientActionResultDto<object> };

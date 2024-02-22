@@ -1,9 +1,7 @@
-﻿import {LiveDataType} from "./LiveDataType";
-import {WebSocketMode} from "./WebSocketMode";
+﻿import {WebSocketMode} from "./WebSocketMode";
+import {ISubscriptionRequest} from "./ISubscriptionRequest";
 
-export interface ISubscription {
-    id: string,
-    type: LiveDataType,
+export interface ISubscription extends ISubscriptionRequest {
     method?: WebSocketMode,
     lastUpdate?: string;
     updateHandler: (data: any) => void,

@@ -2,10 +2,11 @@ import {WebSocketUpdateStrategy} from "./WebSocketUpdateStrategy";
 import {IWebSocketContext} from "./IWebSocketContext";
 import {createTemporaryId} from "../helpers/projection";
 import {ISubscriptions} from "./ISubscriptions";
-import {LiveDataType} from "./LiveDataType";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {WebSocketMode} from "./WebSocketMode";
 import {noop} from "../helpers/tests";
+import {MessageType} from "../interfaces/models/dtos/MessageType";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 describe('WebSocketUpdateStrategy', () => {
     let newContext: IWebSocketContext;
@@ -107,7 +108,7 @@ describe('WebSocketUpdateStrategy', () => {
             await strategy.publish(context, id, 'data');
 
             expect(sent).toEqual([JSON.stringify({
-                type: 'update',
+                type: MessageType.update,
                 id,
                 data: 'data'
             })]);
@@ -130,7 +131,7 @@ describe('WebSocketUpdateStrategy', () => {
             await strategy.publish(context, id, 'data');
 
             expect(sent).toEqual([JSON.stringify({
-                type: 'update',
+                type: MessageType.update,
                 id,
                 data: 'data'
             })]);
@@ -168,7 +169,7 @@ describe('WebSocketUpdateStrategy', () => {
             await strategy.unsubscribe(context, {}, id);
 
             expect(sent).toEqual([JSON.stringify({
-                type: 'unsubscribed',
+                type: MessageType.unsubscribed,
                 id,
             })]);
         });
@@ -292,7 +293,7 @@ describe('WebSocketUpdateStrategy', () => {
             await strategy.subscribe(context, request);
 
             expect(sent).toEqual([JSON.stringify({
-                type: 'subscribed',
+                type: MessageType.subscribed,
                 id: request.id,
             })]);
         });
@@ -318,7 +319,7 @@ describe('WebSocketUpdateStrategy', () => {
             await strategy.subscribe(context, request);
 
             expect(sent).toEqual([JSON.stringify({
-                type: 'subscribed',
+                type: MessageType.subscribed,
                 id: request.id,
             })]);
         });
@@ -396,7 +397,7 @@ describe('WebSocketUpdateStrategy', () => {
             await mockWebSocket.onmessage({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Update',
+                    type: MessageType.update,
                     id: null,
                     data
                 }),
@@ -454,7 +455,7 @@ describe('WebSocketUpdateStrategy', () => {
             await mockWebSocket.onmessage({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Update',
+                    type: MessageType.update,
                     id: '1234',
                     data
                 }),
@@ -484,12 +485,12 @@ describe('WebSocketUpdateStrategy', () => {
             await mockWebSocket.onmessage({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Marco',
+                    type: MessageType.marco,
                 }),
             } as any);
 
             expect(sent).toEqual([JSON.stringify({
-                type: 'polo'
+                type: MessageType.polo
             })]);
         });
 
@@ -512,7 +513,7 @@ describe('WebSocketUpdateStrategy', () => {
             await mockWebSocket.onmessage({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Polo',
+                    type: MessageType.polo,
                 }),
             } as any);
 
@@ -562,7 +563,7 @@ describe('WebSocketUpdateStrategy', () => {
             await mockWebSocket.onmessage({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Error',
+                    type: MessageType.error,
                     id: null,
                     message: 'SOME ERROR'
                 }),
@@ -618,7 +619,7 @@ describe('WebSocketUpdateStrategy', () => {
             await mockWebSocket.onmessage({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Error',
+                    type: MessageType.error,
                     id: '1234',
                     message: 'SOME ERROR'
                 }),

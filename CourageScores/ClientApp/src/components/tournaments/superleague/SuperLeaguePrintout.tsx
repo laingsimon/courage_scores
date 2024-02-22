@@ -18,7 +18,7 @@ import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg
 import {ISubscription} from "../../../live/ISubscription";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {LiveDataType} from "../../../live/LiveDataType";
+import {LiveDataType} from "../../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;

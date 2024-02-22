@@ -4,6 +4,7 @@ import {any} from "../helpers/collections";
 import {ISubscriptions} from "./ISubscriptions";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {ISubscription} from "./ISubscription";
+import {MessageType} from "../interfaces/models/dtos/MessageType";
 
 export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private readonly createSocket: () => WebSocket;
@@ -30,7 +31,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
 
         context.webSocket.send(JSON.stringify({
-            type: 'update',
+            type: MessageType.update,
             id: id,
             data: data,
         }));
@@ -43,7 +44,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
 
         context.webSocket.send(JSON.stringify({
-            type: 'unsubscribed',
+            type: MessageType.unsubscribed,
             id: id,
         }));
 
@@ -68,7 +69,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
 
         if (context.webSocket) {
             context.webSocket.send(JSON.stringify({
-                type: 'subscribed',
+                type: MessageType.subscribed,
                 id: request.id,
             }));
         }
@@ -144,22 +145,22 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
 
         const jsonData = JSON.parse(messageEvent.data);
         switch (jsonData.type) {
-            case 'Update': {
+            case MessageType.update: {
                 this.publishToSubscribers(allSubscriptions, jsonData.id, jsonData.data);
                 break;
             }
-            case 'Marco': {
+            case MessageType.marco: {
                 // send back polo
                 context.webSocket.send(JSON.stringify({
-                    type: 'polo',
+                    type: MessageType.polo,
                 }));
                 break;
             }
-            case 'Polo': {
+            case MessageType.polo: {
                 // nothing to do
                 break;
             }
-            case 'Error': {
+            case MessageType.error: {
                 console.error(jsonData);
                 if (jsonData.message) {
                     this.alertSubscribers(allSubscriptions, jsonData.id, jsonData.message);

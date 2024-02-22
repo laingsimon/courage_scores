@@ -32,7 +32,7 @@ import {add180, addHiCheck, remove180, removeHiCheck} from "../common/Accolades"
 import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {LiveDataType} from "../../live/LiveDataType";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;

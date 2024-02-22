@@ -1,5 +1,4 @@
 import {ISubscriptions} from "./ISubscriptions";
-
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 
 export interface ILiveWebSocket {

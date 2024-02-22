@@ -5,6 +5,7 @@ import {IWebSocketContext} from "./IWebSocketContext";
 import {ILiveWebSocket} from "./ILiveWebSocket";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {WebSocketMode} from "./WebSocketMode";
+import {MessageType} from "../interfaces/models/dtos/MessageType";
 
 interface ILiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -117,7 +118,7 @@ export class LiveWebSocket implements ILiveWebSocket {
 
     async publish(id: string, data: any): Promise<boolean> {
         await this.__send({
-            type: 'update',
+            type: MessageType.update,
             id: id,
             data: data,
         });
@@ -134,7 +135,7 @@ export class LiveWebSocket implements ILiveWebSocket {
         await this.setSubscriptions(newSubscriptions);
 
         await this.__send({
-            type: 'unsubscribed',
+            type: MessageType.unsubscribed,
             id: id,
         }).then(() => {
             if (Object.keys(this.subscriptions).length === 0) {
@@ -160,7 +161,7 @@ export class LiveWebSocket implements ILiveWebSocket {
         await this.setSubscriptions(newSubscriptions);
 
         await this.__send({
-            type: 'subscribed',
+            type: MessageType.subscribed,
             id: request.id,
         });
 
@@ -198,22 +199,22 @@ export class LiveWebSocket implements ILiveWebSocket {
 
         const jsonData = JSON.parse(messageEvent.data);
         switch (jsonData.type) {
-            case 'Update': {
+            case MessageType.update: {
                 this.publishToSubscribers(jsonData.id, jsonData.data);
                 break;
             }
-            case 'Marco': {
+            case MessageType.marco: {
                 // send back polo
                 await this.__send({
-                    type: 'polo',
+                    type: MessageType.polo,
                 });
                 break;
             }
-            case 'Polo': {
+            case MessageType.polo: {
                 // nothing to do
                 break;
             }
-            case 'Error': {
+            case MessageType.error: {
                 console.error(jsonData);
                 if (jsonData.message) {
                     this.alertSubscribers(jsonData.id, jsonData.message);

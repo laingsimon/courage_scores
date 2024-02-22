@@ -32,7 +32,8 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IAppContainerProps} from "../common/AppContainer";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
-import {LiveDataType} from "../../live/LiveDataType";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {MessageType} from "../../interfaces/models/dtos/MessageType";
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
@@ -654,7 +655,7 @@ describe('SaygLoadingContainer', () => {
                 socketFactory.socket.onmessage({
                     type: 'message',
                     data: JSON.stringify({
-                        type: 'Update',
+                        type: MessageType.update,
                         data: newSaygData,
                         id: newSaygData.id,
                     })

@@ -26,7 +26,8 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
-import {LiveDataType} from "../../live/LiveDataType";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {MessageType} from "../../interfaces/models/dtos/MessageType";
 
 describe('MatchStatistics', () => {
     let context: TestContext;
@@ -688,7 +689,7 @@ describe('MatchStatistics', () => {
             socketFactory.socket.onmessage({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Update',
+                    type: MessageType.update,
                     data: newSaygData,
                     id: newSaygData.id,
                 })

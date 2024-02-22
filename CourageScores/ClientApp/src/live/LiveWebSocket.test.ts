@@ -2,7 +2,8 @@ import {LiveWebSocket} from "./LiveWebSocket";
 import {createTemporaryId} from "../helpers/projection";
 import {ISubscriptions} from "./ISubscriptions";
 import {IWebSocketContext} from "./IWebSocketContext";
-import {LiveDataType} from "./LiveDataType";
+import {MessageType} from "../interfaces/models/dtos/MessageType";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 describe('LiveWebSocket', () => {
     describe('publish', () => {
@@ -56,7 +57,7 @@ describe('LiveWebSocket', () => {
 
             expect(sent!).toBeTruthy();
             expect(JSON.parse(sent!)).toEqual({
-                type: 'update',
+                type: MessageType.update,
                 id: id,
                 data: 'data',
             });
@@ -146,7 +147,7 @@ describe('LiveWebSocket', () => {
             }
 
             expect(exception).toBeNull();
-            expect(socketInfo.sent.map((sent) => JSON.parse(sent))).toEqual([{type:'update', id, data: 'second'}]);
+            expect(socketInfo.sent.map((sent) => JSON.parse(sent))).toEqual([{type:MessageType.update, id, data: 'second'}]);
             expect(socketInfo.closed).toEqual(false);
         });
 
@@ -338,7 +339,7 @@ describe('LiveWebSocket', () => {
 
             expect(sent!).toBeTruthy();
             expect(JSON.parse(sent!)).toEqual({
-                type: 'unsubscribed',
+                type: MessageType.unsubscribed,
                 id,
             });
         });
@@ -419,7 +420,7 @@ describe('LiveWebSocket', () => {
 
             expect(sent!).toBeTruthy();
             expect(JSON.parse(sent!)).toEqual({
-                type: 'subscribed',
+                type: MessageType.subscribed,
                 id,
             });
         });
@@ -453,7 +454,7 @@ describe('LiveWebSocket', () => {
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Update',
+                    type: MessageType.update,
                     id,
                 }),
             } as MessageEvent);
@@ -464,7 +465,7 @@ describe('LiveWebSocket', () => {
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Update',
+                    type: MessageType.update,
                     id,
                 }),
             } as MessageEvent);
@@ -539,7 +540,7 @@ describe('LiveWebSocket', () => {
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Update',
+                    type: MessageType.update,
                     id,
                     data: {
                         age: 10,
@@ -560,7 +561,7 @@ describe('LiveWebSocket', () => {
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Update',
+                    type: MessageType.update,
                     data: {
                         age: 10,
                     },
@@ -576,12 +577,12 @@ describe('LiveWebSocket', () => {
             await webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Marco'
+                    type: MessageType.marco
                 }),
             } as MessageEvent);
 
             expect(JSON.parse(sent[0])).toEqual({
-                type: 'polo',
+                type: MessageType.polo,
             });
         });
 
@@ -589,7 +590,7 @@ describe('LiveWebSocket', () => {
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Polo'
+                    type: MessageType.polo
                 }),
             } as MessageEvent);
 
@@ -606,7 +607,7 @@ describe('LiveWebSocket', () => {
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Error',
+                    type: MessageType.error,
                     message: 'ERROR'
                 }),
             } as MessageEvent);
@@ -622,7 +623,7 @@ describe('LiveWebSocket', () => {
             webSocket.onmessage!({
                 type: 'message',
                 data: JSON.stringify({
-                    type: 'Error',
+                    type: MessageType.error,
                     message: 'ERROR'
                 }),
             } as MessageEvent);

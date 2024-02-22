@@ -6,7 +6,7 @@ import {ILiveWebSocket} from "./ILiveWebSocket";
 import {WebSocketMode} from "./WebSocketMode";
 import {IUpdateStrategy} from "./IUpdateStrategy";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
-import {LiveDataType} from "./LiveDataType";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 interface IMockUpdateStrategy extends IUpdateStrategy {
     refreshRequest?: { context: IWebSocketContext, subscriptions: ISubscriptions };
@@ -304,7 +304,7 @@ describe('MultiModeLiveWebSocket', () => {
 
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
-            expect(warn).toEqual('WARN: sayg subscription is being replaced');
+            expect(warn).toEqual('WARN: Sayg subscription is being replaced');
         });
 
         it('adds subscription and updates state', async () => {
