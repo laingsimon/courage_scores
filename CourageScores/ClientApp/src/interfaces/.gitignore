@@ -1,5 +1,5 @@
-models/*.d.ts
-models/**/*.d.ts
+models/*.ts
+models/**/*.ts
 
 apis/*.ts
 apis/**/*.ts
