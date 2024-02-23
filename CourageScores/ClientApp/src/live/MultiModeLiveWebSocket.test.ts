@@ -7,18 +7,19 @@ import {WebSocketMode} from "./WebSocketMode";
 import {IUpdateStrategy} from "./IUpdateStrategy";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {IStrategyData} from "./IStrategyData";
 
 interface IMockUpdateStrategy extends IUpdateStrategy {
-    refreshRequest: { context: IWebSocketContext, subscriptions: ISubscriptions }[];
+    refreshRequest: IStrategyData[];
     refreshed: number;
 
-    publishRequest?: { context: IWebSocketContext, id: string, data: any, subscriptions: ISubscriptions };
+    publishRequest?: { props: IStrategyData, id: string, data: any };
     publishResponse?: IWebSocketContext;
 
-    subscribeRequest?: { context: IWebSocketContext, request: ISubscriptionRequest, subscriptions: ISubscriptions };
+    subscribeRequest?: { props: IStrategyData, request: ISubscriptionRequest };
     subscribeResponse?: IWebSocketContext;
 
-    unsubscribeRequest?: { context: IWebSocketContext, subscriptions: ISubscriptions, id: string };
+    unsubscribeRequest?: { props: IStrategyData, id: string };
     unsubscribeResponse?: IWebSocketContext;
 }
 
@@ -38,21 +39,21 @@ describe('MultiModeLiveWebSocket', () => {
         return {
             refreshed: 0,
             refreshRequest: [],
-            refresh(context: IWebSocketContext, subscriptions: ISubscriptions) {
-                this.refreshRequest.push({ context, subscriptions });
+            refresh(props: IStrategyData) {
+                this.refreshRequest.push(props);
                 this.refreshed++;
             },
-            async publish(context: IWebSocketContext, subscriptions: ISubscriptions, _: (socket: IWebSocketContext) => Promise<any>, id: string, data: any): Promise<IWebSocketContext | null> {
-                this.publishRequest = { context, id, data, subscriptions };
-                return this.publishResponse === undefined ? context : this.publishResponse;
+            async publish(props: IStrategyData, id: string, data: any): Promise<IWebSocketContext | null> {
+                this.publishRequest = { props, id, data };
+                return this.publishResponse === undefined ? props.context : this.publishResponse;
             },
-            async subscribe(context: IWebSocketContext, subscriptions: ISubscriptions, _: (socket: IWebSocketContext) => Promise<any>, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
-                this.subscribeRequest = { context, request, subscriptions };
-                return this.subscribeResponse === undefined ? context : this.subscribeResponse;
+            async subscribe(props: IStrategyData, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+                this.subscribeRequest = { props, request };
+                return this.subscribeResponse === undefined ? props.context : this.subscribeResponse;
             },
-            async unsubscribe(context: IWebSocketContext, subscriptions: ISubscriptions, id: string): Promise<IWebSocketContext> {
-                this.unsubscribeRequest = { context, subscriptions, id };
-                return this.unsubscribeResponse === undefined ? context : this.unsubscribeResponse;
+            async unsubscribe(props: IStrategyData, id: string): Promise<IWebSocketContext> {
+                this.unsubscribeRequest = { props, id };
+                return this.unsubscribeResponse === undefined ? props.context : this.unsubscribeResponse;
             }
         }
     }
@@ -125,10 +126,14 @@ describe('MultiModeLiveWebSocket', () => {
             await socket.publish(id, 'data');
 
             expect(webSocketStrategy.publishRequest).toEqual({
-                context: socketContext,
+                props: {
+                    context: socketContext,
+                    subscriptions: {},
+                    setContext: expect.any(Function),
+                    setSubscriptions: expect.any(Function),
+                },
                 id,
                 data: 'data',
-                subscriptions: {},
             });
             expect(pollingStrategy.publishRequest).toBeFalsy();
         });
@@ -154,16 +159,24 @@ describe('MultiModeLiveWebSocket', () => {
             await socket.publish(id, 'data');
 
             expect(webSocketStrategy.publishRequest).toEqual({
-                context: socketContext,
+                props: {
+                    context: socketContext,
+                    subscriptions: {},
+                    setContext: expect.any(Function),
+                    setSubscriptions: expect.any(Function),
+                },
                 id,
                 data: 'data',
-                subscriptions: {},
             });
             expect(pollingStrategy.publishRequest).toEqual({
-                context: socketContext,
+                props: {
+                    context: socketContext,
+                    subscriptions: {},
+                    setContext: expect.any(Function),
+                    setSubscriptions: expect.any(Function),
+                },
                 id,
                 data: 'data',
-                subscriptions: {},
             });
         });
 
@@ -264,17 +277,25 @@ describe('MultiModeLiveWebSocket', () => {
             await socket.unsubscribe(id);
 
             expect(webSocketStrategy.unsubscribeRequest).toEqual({
-                context: {
-                    modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                props: {
+                    context: {
+                        modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                    },
+                    subscriptions: {},
+                    setContext: expect.any(Function),
+                    setSubscriptions: expect.any(Function),
                 },
-                subscriptions: {},
                 id,
             });
             expect(pollingStrategy.unsubscribeRequest).toEqual({
-                context: {
-                    modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                props: {
+                    context: {
+                        modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                    },
+                    subscriptions: {},
+                    setContext: expect.any(Function),
+                    setSubscriptions: expect.any(Function),
                 },
-                subscriptions: {},
                 id,
             });
         });
@@ -380,21 +401,25 @@ describe('MultiModeLiveWebSocket', () => {
             await socket.subscribe({ id, type: LiveDataType.sayg });
 
             expect(webSocketStrategy.subscribeRequest).toEqual({
-                context: {
-                    modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                props: {
+                    context: {
+                        modes: [ WebSocketMode.socket, WebSocketMode.polling ],
+                    },
+                    subscriptions: {
+                        NEW_ID: {
+                            id,
+                            method: WebSocketMode.socket,
+                            type: LiveDataType.sayg,
+                            updateHandler: expect.any(Function),
+                            errorHandler: expect.any(Function),
+                        },
+                    },
+                    setContext: expect.any(Function),
+                    setSubscriptions: expect.any(Function),
                 },
                 request: {
                     id,
                     type: LiveDataType.sayg,
-                },
-                subscriptions: {
-                    NEW_ID: {
-                        id,
-                        method: WebSocketMode.socket,
-                        type: LiveDataType.sayg,
-                        updateHandler: expect.any(Function),
-                        errorHandler: expect.any(Function),
-                    },
                 },
             });
         });
@@ -488,21 +513,25 @@ describe('MultiModeLiveWebSocket', () => {
 
             expect(webSocketStrategy.subscribeRequest).toBeTruthy();
             expect(pollingStrategy.subscribeRequest).toEqual({
-                context: {
-                    modes: [ WebSocketMode.polling ],
+                props: {
+                    context: {
+                        modes: [ WebSocketMode.polling ],
+                    },
+                    subscriptions: {
+                        NEW_ID: {
+                            id,
+                            method: WebSocketMode.polling,
+                            type: LiveDataType.sayg,
+                            updateHandler: expect.any(Function),
+                            errorHandler: expect.any(Function),
+                        },
+                    },
+                    setContext: expect.any(Function),
+                    setSubscriptions: expect.any(Function),
                 },
                 request: {
                     id,
                     type: LiveDataType.sayg,
-                },
-                subscriptions: {
-                    NEW_ID: {
-                        id,
-                        method: WebSocketMode.polling,
-                        type: LiveDataType.sayg,
-                        updateHandler: expect.any(Function),
-                        errorHandler: expect.any(Function),
-                    },
                 },
             });
         });

@@ -27,7 +27,7 @@ describe('WebSocketUpdateStrategy', () => {
                 modes: [],
             }
 
-            strategy.refresh(context, {}, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
         });
 
         it('binds websocket onmessage', async () => {
@@ -39,7 +39,7 @@ describe('WebSocketUpdateStrategy', () => {
                 modes: [],
             }
 
-            strategy.refresh(context, {}, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
             expect(context.webSocket.onmessage).toBeTruthy();
         });
@@ -53,7 +53,7 @@ describe('WebSocketUpdateStrategy', () => {
                 modes: [],
             }
 
-            strategy.refresh(context, {}, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
             expect(context.webSocket.onclose).toBeTruthy();
         });
@@ -72,7 +72,10 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            const result: IWebSocketContext = await strategy.publish(context, {}, noop, id, 'data');
+            const result: IWebSocketContext = await strategy.publish(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                id,
+                'data');
 
             expect(result).toBeTruthy();
             expect(result.webSocket).toEqual(mockWebSocket);
@@ -91,7 +94,10 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            const result: IWebSocketContext = await strategy.publish(context, {}, noop, id, 'data');
+            const result: IWebSocketContext = await strategy.publish(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                id,
+                'data');
 
             expect(result).toBeNull();
         });
@@ -111,7 +117,10 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            await strategy.publish(context, {}, noop, id, 'data');
+            await strategy.publish(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                id,
+                'data');
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.update,
@@ -135,7 +144,10 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            await strategy.publish(context, {}, noop, id, 'data');
+            await strategy.publish(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                id,
+                'data');
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.update,
@@ -154,7 +166,9 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            const result: IWebSocketContext = await strategy.unsubscribe(context, {}, id);
+            const result: IWebSocketContext = await strategy.unsubscribe(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                id);
 
             expect(result).toEqual(context);
         });
@@ -175,7 +189,9 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            await strategy.unsubscribe(context, {}, id);
+            await strategy.unsubscribe(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                id);
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.unsubscribed,
@@ -200,7 +216,9 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            const result = await strategy.unsubscribe(context, {}, id);
+            const result = await strategy.unsubscribe(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                id);
 
             expect(closed).toEqual(true);
             expect(result).toEqual({
@@ -234,7 +252,9 @@ describe('WebSocketUpdateStrategy', () => {
                 },
             };
 
-            const result = await strategy.unsubscribe(context, subscriptions, id);
+            const result = await strategy.unsubscribe(
+                {context, subscriptions, setContext, setSubscriptions: noop},
+                id);
 
             expect(closed).toEqual(false);
             expect(result).toEqual({
@@ -260,7 +280,9 @@ describe('WebSocketUpdateStrategy', () => {
                 type: LiveDataType.sayg
             };
 
-            const result: IWebSocketContext = await strategy.subscribe(context, {}, noop, request);
+            const result: IWebSocketContext = await strategy.subscribe(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                request);
 
             expect(result).toBeTruthy();
             expect(result.webSocket).toEqual(mockWebSocket);
@@ -282,7 +304,9 @@ describe('WebSocketUpdateStrategy', () => {
                 type: LiveDataType.sayg
             };
 
-            const result: IWebSocketContext = await strategy.subscribe(context, {}, noop, request);
+            const result: IWebSocketContext = await strategy.subscribe(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                request);
 
             expect(result).toEqual(null);
         });
@@ -306,7 +330,9 @@ describe('WebSocketUpdateStrategy', () => {
                 type: LiveDataType.sayg
             };
 
-            await strategy.subscribe(context, {}, noop, request);
+            await strategy.subscribe(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                request);
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.subscribed,
@@ -333,7 +359,9 @@ describe('WebSocketUpdateStrategy', () => {
                 type: LiveDataType.sayg
             };
 
-            await strategy.subscribe(context, {}, noop, request);
+            await strategy.subscribe(
+                {context, subscriptions: {}, setContext, setSubscriptions: noop},
+                request);
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.subscribed,
@@ -354,8 +382,7 @@ describe('WebSocketUpdateStrategy', () => {
                 webSocket: mockWebSocket,
                 modes: [],
             };
-            const subscriptions: ISubscriptions = {};
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
             let log: string;
             console.log = (msg: string) => log = msg;
 
@@ -408,7 +435,7 @@ describe('WebSocketUpdateStrategy', () => {
                     },
                 }
             };
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions, setContext, setSubscriptions: noop});
             const data = {
                 type: 'updated-data',
             };
@@ -467,7 +494,7 @@ describe('WebSocketUpdateStrategy', () => {
                     },
                 }
             };
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions, setContext, setSubscriptions: noop});
             const data = {
                 type: 'updated-data',
             };
@@ -500,8 +527,7 @@ describe('WebSocketUpdateStrategy', () => {
                 webSocket: mockWebSocket,
                 modes: [],
             };
-            const subscriptions: ISubscriptions = {};
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
             await mockWebSocket.onmessage({
                 type: 'message',
@@ -529,8 +555,7 @@ describe('WebSocketUpdateStrategy', () => {
                 webSocket: mockWebSocket,
                 modes: [],
             };
-            const subscriptions: ISubscriptions = {};
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
 
             await mockWebSocket.onmessage({
                 type: 'message',
@@ -580,7 +605,7 @@ describe('WebSocketUpdateStrategy', () => {
                     updateHandler: () => {},
                 }
             };
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions, setContext, setSubscriptions: noop});
             console.error = noop;
 
             await mockWebSocket.onmessage({
@@ -637,7 +662,7 @@ describe('WebSocketUpdateStrategy', () => {
                     updateHandler: () => {},
                 }
             };
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions, setContext, setSubscriptions: noop});
             console.error = noop;
 
             await mockWebSocket.onmessage({
@@ -665,8 +690,7 @@ describe('WebSocketUpdateStrategy', () => {
                 webSocket: mockWebSocket,
                 modes: [],
             };
-            const subscriptions: ISubscriptions = {};
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
             let log: string;
             console.log = (msg: string) => log = msg;
 
@@ -691,8 +715,7 @@ describe('WebSocketUpdateStrategy', () => {
                 webSocket: mockWebSocket,
                 modes: [],
             };
-            const subscriptions: ISubscriptions = {};
-            strategy.refresh(context, subscriptions, setContext);
+            strategy.refresh({context, subscriptions: {}, setContext, setSubscriptions: noop});
             let error: string;
             console.error = (msg: string) => error = msg;
 

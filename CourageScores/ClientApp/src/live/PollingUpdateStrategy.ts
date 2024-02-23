@@ -8,17 +8,14 @@ import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {ILiveApi} from "../interfaces/apis/ILiveApi";
 import {WebSocketMode} from "./WebSocketMode";
 import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
+import {IStrategyData} from "./IStrategyData";
 
 export class PollingUpdateStrategy implements IUpdateStrategy {
     private readonly initialDelay: number;
     private readonly liveApi: ILiveApi;
     private readonly subsequentDelay: number;
 
-    private refreshContext?: {
-        context: IWebSocketContext;
-        allSubscriptions: ISubscriptions;
-        setContext: (socket: IWebSocketContext) => Promise<any>;
-    };
+    private refreshContext?: IStrategyData;
 
     constructor(liveApi: ILiveApi, initialDelay: number, subsequentDelay: number) {
         this.liveApi = liveApi;
@@ -26,32 +23,32 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         this.subsequentDelay = subsequentDelay;
     }
 
-    refresh(context: IWebSocketContext, allSubscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>): void {
-        this.refreshContext = { context, allSubscriptions, setContext };
+    refresh(props: IStrategyData): void {
+        this.refreshContext = props;
     }
 
-    async publish(_: IWebSocketContext, __: ISubscriptions, ___: (socket: IWebSocketContext) => Promise<any>, ____: string, _____: any): Promise<IWebSocketContext | null> {
+    async publish(_: IStrategyData, __: string, ___: any): Promise<IWebSocketContext | null> {
         return null;
     }
 
-    async unsubscribe(context: IWebSocketContext, subscriptions: ISubscriptions, _: string): Promise<IWebSocketContext> {
-        const anySubscriptions: boolean = any(Object.keys(subscriptions));
+    async unsubscribe(props: IStrategyData, _: string): Promise<IWebSocketContext> {
+        const anySubscriptions: boolean = any(Object.keys(props.subscriptions));
         if (anySubscriptions) {
-            return context;
+            return props.context;
         }
 
-        const newContext: IWebSocketContext = Object.assign({}, context);
-        window.clearTimeout(context.pollingHandle);
+        const newContext: IWebSocketContext = Object.assign({}, props.context);
+        window.clearTimeout(props.context.pollingHandle);
         newContext.pollingHandle = null;
         return newContext;
     }
 
-    async subscribe(context: IWebSocketContext, _: ISubscriptions, __: (socket: IWebSocketContext) => Promise<any>, ___: ISubscriptionRequest): Promise<IWebSocketContext | null> {
-        if (context.pollingHandle) {
-            return context;
+    async subscribe(props: IStrategyData, _: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+        if (props.context.pollingHandle) {
+            return props.context;
         }
 
-        const newContext: IWebSocketContext = Object.assign({}, context);
+        const newContext: IWebSocketContext = Object.assign({}, props.context);
         newContext.pollingHandle = window.setTimeout(this.pollingIteration.bind(this), this.initialDelay);
         return newContext;
     }
@@ -63,14 +60,23 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         }
 
         const context: IWebSocketContext = this.refreshContext.context;
-        const allSubscriptions: ISubscriptions = this.refreshContext.allSubscriptions;
+        const allSubscriptions: ISubscriptions = this.refreshContext.subscriptions;
+        const setContext = this.refreshContext.setContext;
+        const setSubscriptions = this.refreshContext.setSubscriptions;
+        const newSubscriptions: ISubscriptions = Object.assign({}, allSubscriptions);
 
         // polling iteration
         let someSuccess: boolean = false;
+        let someFailures: boolean = false;
 
         for (const id in allSubscriptions) {
             const subscription: ISubscription = allSubscriptions[id];
             const success: boolean = await this.requestLatestData(subscription);
+            if (!success) {
+                someFailures = true;
+                delete newSubscriptions[id];
+            }
+
             someSuccess = someSuccess || success;
         }
 
@@ -84,7 +90,10 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
             ? window.setTimeout(this.pollingIteration.bind(this), this.subsequentDelay)
             : null;
 
-        await this.refreshContext.setContext(newContext);
+        await setContext(newContext);
+        if (someFailures) {
+            await setSubscriptions(newSubscriptions);
+        }
     }
 
     private async requestLatestData(subscription: ISubscription): Promise<boolean> {

@@ -5,6 +5,7 @@ import {ISubscriptions} from "./ISubscriptions";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {ISubscription} from "./ISubscription";
 import {MessageType} from "../interfaces/models/dtos/MessageType";
+import {IStrategyData} from "./IStrategyData";
 
 export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private readonly createSocket: () => WebSocket;
@@ -13,18 +14,19 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         this.createSocket = createSocket;
     }
 
-    refresh(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>): void {
-        if (!context.webSocket) {
+    refresh(props: IStrategyData): void {
+        if (!props.context.webSocket) {
             return;
         }
 
-        context.webSocket.onmessage = ((msg: any) => this.handleWebSocketMessage(context, subscriptions, msg));
-        context.webSocket.onclose = (async () => await setContext(await this.handleDisconnect(context)));
+        props.context.webSocket.onmessage = ((msg: any) => this.handleWebSocketMessage(props, msg));
+        props.context.webSocket.onclose = (async () => await props.setContext(await this.handleDisconnect(props.context)));
     }
 
-    async publish(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>, id: string, data: any): Promise<IWebSocketContext | null> {
-        if (!context.webSocket) {
-            context = await this.createSocketAndWaitForReady(context, subscriptions, setContext);
+    async publish(props: IStrategyData, id: string, data: any): Promise<IWebSocketContext | null> {
+        let context: IWebSocketContext = props.context;
+        if (!props.context.webSocket) {
+            context = await this.createSocketAndWaitForReady(props);
             if (!context) {
                 return null;
             }
@@ -38,30 +40,31 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         return context;
     }
 
-    async unsubscribe(context: IWebSocketContext, subscriptions: ISubscriptions, id: string): Promise<IWebSocketContext> {
-        if (!context.webSocket) {
-            return context;
+    async unsubscribe(props: IStrategyData, id: string): Promise<IWebSocketContext> {
+        if (!props.context.webSocket) {
+            return props.context;
         }
 
-        context.webSocket.send(JSON.stringify({
+        props.context.webSocket.send(JSON.stringify({
             type: MessageType.unsubscribed,
             id: id,
         }));
 
-        const anySubscriptions: boolean = any(Object.keys(subscriptions));
+        const anySubscriptions: boolean = any(Object.keys(props.subscriptions));
         if (anySubscriptions) {
-            return context;
+            return props.context;
         }
 
-        const newContext: IWebSocketContext = Object.assign({}, context);
-        context.webSocket.close();
+        const newContext: IWebSocketContext = Object.assign({}, props.context);
+        props.context.webSocket.close();
         newContext.webSocket = null;
         return newContext;
     }
 
-    async subscribe(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+    async subscribe(props: IStrategyData, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+        let context: IWebSocketContext = props.context;
         if (!context.webSocket) {
-            context = await this.createSocketAndWaitForReady(context, subscriptions, setContext);
+            context = await this.createSocketAndWaitForReady(props);
             if (!context) {
                 return null;
             }
@@ -106,11 +109,14 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         });
     }
 
-    private async createSocketAndWaitForReady(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>): Promise<IWebSocketContext | null>{
+    private async createSocketAndWaitForReady(props: IStrategyData): Promise<IWebSocketContext | null>{
         const socket: WebSocket = this.createSocket();
-        const newContext: IWebSocketContext = Object.assign({}, context);
+        const newContext: IWebSocketContext = Object.assign({}, props.context);
         newContext.webSocket = socket;
-        this.refresh(newContext, subscriptions, setContext);
+
+        const newProps: IStrategyData = Object.assign({}, props);
+        newProps.context = newContext;
+        this.refresh(newProps);
 
         return await this.awaitReady(newContext);
     }
@@ -137,7 +143,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
     }
 
-    private async handleWebSocketMessage(context: IWebSocketContext, allSubscriptions: ISubscriptions, messageEvent: any) {
+    private async handleWebSocketMessage(props: IStrategyData, messageEvent: any) {
         if (messageEvent.type !== 'message') {
             console.log(`Unhandled message: ${JSON.stringify(messageEvent)}`);
             return;
@@ -146,12 +152,12 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         const jsonData = JSON.parse(messageEvent.data);
         switch (jsonData.type) {
             case MessageType.update: {
-                this.publishToSubscribers(allSubscriptions, jsonData.id, jsonData.data);
+                this.publishToSubscribers(props.subscriptions, jsonData.id, jsonData.data);
                 break;
             }
             case MessageType.marco: {
                 // send back polo
-                context.webSocket.send(JSON.stringify({
+                props.context.webSocket.send(JSON.stringify({
                     type: MessageType.polo,
                 }));
                 break;
@@ -163,7 +169,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
             case MessageType.error: {
                 console.error(jsonData);
                 if (jsonData.message) {
-                    this.alertSubscribers(allSubscriptions, jsonData.id, jsonData.message);
+                    this.alertSubscribers(props.subscriptions, jsonData.id, jsonData.message);
                 }
                 break;
             }

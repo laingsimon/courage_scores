@@ -4,6 +4,7 @@ import {ILiveWebSocket} from "./ILiveWebSocket";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {IUpdateStrategy} from "./IUpdateStrategy";
 import {WebSocketMode} from "./WebSocketMode";
+import {IStrategyData} from "./IStrategyData";
 
 interface IMultiModeLiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -41,10 +42,16 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
 
     async publish(id: string, data: any): Promise<boolean> {
         const strategies: IUpdateStrategy[] = this.getAllStrategies(this.socketContext);
-        strategies.forEach((s: IUpdateStrategy) => s.refresh(this.socketContext, this.subscriptions, this.setSocketContext));
+        const strategyProps: IStrategyData = {
+            context: this.socketContext,
+            subscriptions: this.subscriptions,
+            setContext: this.setSocketContext,
+            setSubscriptions: this.setSubscriptions,
+        };
+        strategies.forEach((s: IUpdateStrategy) => s.refresh(strategyProps));
 
         for (const strategy of strategies) {
-            const published: IWebSocketContext = await strategy.publish(this.socketContext, this.subscriptions, this.setSocketContext, id, data);
+            const published: IWebSocketContext = await strategy.publish(strategyProps, id, data);
             if (published) {
                 await this.setSocketContext(published);
                 return true;
@@ -57,20 +64,31 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
 
     async unsubscribe(id: string) {
         const strategies: IUpdateStrategy[] = this.getAllStrategies(this.socketContext);
-        strategies.forEach((s: IUpdateStrategy) => s.refresh(this.socketContext, this.subscriptions, this.setSocketContext));
+        const strategyProps: IStrategyData = {
+            context: this.socketContext,
+            subscriptions: this.subscriptions,
+            setContext: this.setSocketContext,
+            setSubscriptions: this.setSubscriptions,
+        };
+        strategies.forEach((s: IUpdateStrategy) => s.refresh(strategyProps));
 
         const newSubscriptions: ISubscriptions = Object.assign({}, this.subscriptions);
         delete newSubscriptions[id];
         delete this.subscriptions[id];
         await this.setSubscriptions(newSubscriptions);
 
-        let newSocketContext: IWebSocketContext = Object.assign({}, this.socketContext);
+        const newStrategyProps: IStrategyData = {
+            context: Object.assign({}, this.socketContext),
+            subscriptions: newSubscriptions,
+            setContext: this.setSocketContext,
+            setSubscriptions: this.setSubscriptions,
+        };
 
         for (const strategy of strategies) {
-            newSocketContext = await strategy.unsubscribe(newSocketContext, newSubscriptions, id);
+            newStrategyProps.context = await strategy.unsubscribe(newStrategyProps, id);
         }
 
-        await this.setSocketContext(newSocketContext);
+        await this.setSocketContext(newStrategyProps.context);
     }
 
     async subscribe(request: ISubscriptionRequest, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void) {
@@ -87,6 +105,12 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         };
         let newSocketContext: IWebSocketContext = Object.assign({}, this.socketContext);
         let subscribed = false;
+        const strategyProps: IStrategyData = {
+            context: newSocketContext,
+            subscriptions: newSubscriptions,
+            setContext: this.setSocketContext,
+            setSubscriptions: this.setSubscriptions,
+        };
 
         for (let i = 0; i < this.socketContext.modes.length; i++) {
             const mode: WebSocketMode = this.socketContext.modes[i];
@@ -95,8 +119,8 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
                 continue; // null strategy
             }
 
-            strategy.refresh(newSocketContext, newSubscriptions, this.setSocketContext);
-            const result: IWebSocketContext = await strategy.subscribe(newSocketContext, newSubscriptions, this.setSocketContext, request);
+            strategy.refresh(strategyProps);
+            const result: IWebSocketContext = await strategy.subscribe(strategyProps, request);
             if (result) {
                 newSocketContext = result;
                 newSubscriptions[request.id].method = mode;
