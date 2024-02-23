@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Live;
 
 namespace CourageScores.Services.Live;
 
@@ -20,7 +21,7 @@ public class CompositeWebSocketMessageProcessor : IWebSocketMessageProcessor
         }
     }
 
-    public async Task PublishUpdate(IWebSocketContract source, Guid id, object dto, CancellationToken token)
+    public async Task PublishUpdate(IWebSocketContract source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
     {
         foreach (var processor in _processors)
         {
@@ -29,7 +30,7 @@ public class CompositeWebSocketMessageProcessor : IWebSocketMessageProcessor
                 return;
             }
 
-            await processor.PublishUpdate(source, id, dto, token);
+            await processor.PublishUpdate(source, id, dataType, dto, token);
         }
     }
 }

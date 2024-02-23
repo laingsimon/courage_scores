@@ -140,7 +140,7 @@ public class LiveService : ILiveService
 
     public async Task ProcessUpdate(Guid id, LiveDataType type, object data, CancellationToken token)
     {
-        await _webSocketMessageProcessor.PublishUpdate(HttpUpdateContract, id, data, token);
+        await _webSocketMessageProcessor.PublishUpdate(HttpUpdateContract, id, type, data, token);
     }
 
     private static ActionResultDto<T> Error<T>(string message)

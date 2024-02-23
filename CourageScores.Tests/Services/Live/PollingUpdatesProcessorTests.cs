@@ -43,11 +43,12 @@ public class PollingUpdatesProcessorTests
         var id = Guid.NewGuid();
         _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
 
-        await _processor.PublishUpdate(_socket.Object, id, "DATA", _token);
+        await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token);
 
         Assert.That(_data.Keys, Has.Member(id));
         Assert.That(_data[id].Data, Is.EqualTo("DATA"));
         Assert.That(_data[id].Updated, Is.EqualTo(now));
+        Assert.That(_data[id].Type, Is.EqualTo(LiveDataType.Sayg));
     }
 
     [Test]
@@ -63,12 +64,13 @@ public class PollingUpdatesProcessorTests
         var id = Guid.NewGuid();
         _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
 
-        await _processor.PublishUpdate(_socket.Object, id, "DATA", _token);
-        await _processor.PublishUpdate(_socket.Object, id, "NEW DATA", _token);
+        await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Tournament, "DATA", _token);
+        await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Tournament, "NEW DATA", _token);
 
         Assert.That(_data.Keys, Has.Member(id));
         Assert.That(_data[id].Data, Is.EqualTo("NEW DATA"));
         Assert.That(_data[id].Updated, Is.EqualTo(next));
+        Assert.That(_data[id].Type, Is.EqualTo(LiveDataType.Tournament));
     }
 
     [Test]
@@ -94,7 +96,7 @@ public class PollingUpdatesProcessorTests
         });
         var id = Guid.NewGuid();
         _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
-        await _processor.PublishUpdate(_socket.Object, id, "DATA", _token); // @ then
+        await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, now);
 
@@ -115,7 +117,7 @@ public class PollingUpdatesProcessorTests
         });
         var id = Guid.NewGuid();
         _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
-        await _processor.PublishUpdate(_socket.Object, id, "DATA", _token); // @ then
+        await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, null);
 
@@ -136,7 +138,7 @@ public class PollingUpdatesProcessorTests
         });
         var id = Guid.NewGuid();
         _clock.Setup(c => c.UtcNow).Returns(() => times.Dequeue());
-        await _processor.PublishUpdate(_socket.Object, id, "DATA", _token); // @ then
+        await _processor.PublishUpdate(_socket.Object, id, LiveDataType.Sayg, "DATA", _token); // @ then
 
         var update = await _processor.GetUpdate(id, LiveDataType.Sayg, then.AddMinutes(-1));
 

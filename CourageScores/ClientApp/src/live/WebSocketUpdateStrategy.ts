@@ -6,6 +6,8 @@ import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {ISubscription} from "./ISubscription";
 import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {IStrategyData} from "./IStrategyData";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {LiveMessageDto} from "../interfaces/models/dtos/LiveMessageDto";
 
 export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private readonly createSocket: () => WebSocket;
@@ -23,7 +25,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         props.context.webSocket.onclose = (async () => await props.setContext(await this.handleDisconnect(props.context)));
     }
 
-    async publish(props: IStrategyData, id: string, data: any): Promise<IWebSocketContext | null> {
+    async publish(props: IStrategyData, id: string, type: LiveDataType, data: any): Promise<IWebSocketContext | null> {
         let context: IWebSocketContext = props.context;
         if (!props.context.webSocket) {
             context = await this.createSocketAndWaitForReady(props);
@@ -32,11 +34,13 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
             }
         }
 
-        context.webSocket.send(JSON.stringify({
+        const update: LiveMessageDto = {
             type: MessageType.update,
             id: id,
             data: data,
-        }));
+            dataType: type,
+        };
+        context.webSocket.send(JSON.stringify(update));
         return context;
     }
 

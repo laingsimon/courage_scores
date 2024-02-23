@@ -24,14 +24,14 @@ public class PollingUpdatesProcessor : IWebSocketMessageProcessor, IUpdatedDataS
         }*/
     }
 
-    public Task PublishUpdate(IWebSocketContract source, Guid id, object dto, CancellationToken token)
+    public Task PublishUpdate(IWebSocketContract source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
     {
-        var record = new UpdateData(dto, _clock.UtcNow);
+        var record = new UpdateData(dataType, dto, _clock.UtcNow);
         _dataStore.AddOrUpdate(id, record, (_, _) => record);
         return Task.CompletedTask;
     }
 
-    public Task<UpdateData?> GetUpdate(Guid id, LiveDataType? type, DateTimeOffset? since)
+    public Task<UpdateData?> GetUpdate(Guid id, LiveDataType type, DateTimeOffset? since)
     {
         if (!_dataStore.TryGetValue(id, out var data))
         {
@@ -40,16 +40,18 @@ public class PollingUpdatesProcessor : IWebSocketMessageProcessor, IUpdatedDataS
 
         return Task.FromResult<UpdateData?>(data.Updated >= since || since == null
             ? data
-            : new UpdateData(null, data.Updated));
+            : new UpdateData(type, null, data.Updated));
     }
 
     public class UpdateData
     {
         public object? Data { get; }
         public DateTimeOffset Updated { get; }
+        public LiveDataType Type { get; }
 
-        public UpdateData(object? data, DateTimeOffset updated)
+        public UpdateData(LiveDataType type, object? data, DateTimeOffset updated)
         {
+            Type = type;
             Data = data;
             Updated = updated;
         }

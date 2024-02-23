@@ -9,6 +9,7 @@ import {ILiveApi} from "../interfaces/apis/ILiveApi";
 import {WebSocketMode} from "./WebSocketMode";
 import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 import {IStrategyData} from "./IStrategyData";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 enum PollResult {
     Updated,
@@ -35,7 +36,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         this.refreshContext = props;
     }
 
-    async publish(_: IStrategyData, __: string, ___: any): Promise<IWebSocketContext | null> {
+    async publish(_: IStrategyData, __: string, ___: LiveDataType, ____: any): Promise<IWebSocketContext | null> {
         return null;
     }
 

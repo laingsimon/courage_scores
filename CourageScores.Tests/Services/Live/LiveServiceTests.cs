@@ -267,7 +267,7 @@ public class LiveServiceTests
         var id = Guid.NewGuid();
         var since = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var lastUpdated = new DateTimeOffset(2001, 02, 03, 05, 06, 07, TimeSpan.Zero);
-        var updatedData = new PollingUpdatesProcessor.UpdateData(null, lastUpdated);
+        var updatedData = new PollingUpdatesProcessor.UpdateData(LiveDataType.Sayg, null, lastUpdated);
         _updatedDataSource.Setup(s => s.GetUpdate(id, LiveDataType.Sayg, since)).ReturnsAsync(updatedData);
 
         var result = await _service.GetUpdate(id, LiveDataType.Sayg, since, _token);
@@ -284,7 +284,7 @@ public class LiveServiceTests
         var id = Guid.NewGuid();
         var since = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var lastUpdated = new DateTimeOffset(2001, 02, 03, 05, 06, 07, TimeSpan.Zero);
-        var updatedData = new PollingUpdatesProcessor.UpdateData("data", lastUpdated);
+        var updatedData = new PollingUpdatesProcessor.UpdateData(LiveDataType.Sayg, "data", lastUpdated);
         _updatedDataSource.Setup(s => s.GetUpdate(id, LiveDataType.Sayg, since)).ReturnsAsync(updatedData);
 
         var result = await _service.GetUpdate(id, LiveDataType.Sayg, since, _token);
@@ -302,6 +302,6 @@ public class LiveServiceTests
 
         await _service.ProcessUpdate(id, LiveDataType.Sayg, "DATA", _token);
 
-        _webSocketMessageProcessor.Verify(p => p.PublishUpdate(It.IsAny<IWebSocketContract>(), id, "DATA", _token));
+        _webSocketMessageProcessor.Verify(p => p.PublishUpdate(It.IsAny<IWebSocketContract>(), id, LiveDataType.Sayg, "DATA", _token));
     }
 }
