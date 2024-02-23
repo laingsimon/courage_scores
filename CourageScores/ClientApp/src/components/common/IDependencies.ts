@@ -1,6 +1,6 @@
 ﻿import {ISettings} from "../../api/settings";
 import {IParentHeight} from "../layout/ParentHeight";
-import {ILiveWebSocket} from "../../live/LiveWebSocket";
+import {ILiveWebSocket} from "../../live/ILiveWebSocket";
 import {IAccountApi} from "../../interfaces/apis/IAccountApi";
 import {IErrorApi} from "../../interfaces/apis/IErrorApi";
 import {IReportApi} from "../../interfaces/apis/IReportApi";

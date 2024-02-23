@@ -10,6 +10,8 @@ import {IError} from "../components/common/IError";
 import {ISubscriptions} from "../live/ISubscriptions";
 import {IParentHeight} from "../components/layout/ParentHeight";
 import {IHttp} from "../api/http";
+import {ReactNode} from "react";
+import {MessageType} from "../interfaces/models/dtos/MessageType";
 
 /* istanbul ignore file */
 
@@ -150,9 +152,9 @@ export class MockSocketFactory {
             readyState: 1,
             send: (data: any) => {
                 const message = JSON.parse(data);
-                if (message.type === 'subscribed') {
-                    this.subscriptions[message.id] = { id: null, errorHandler: null, updateHandler: null };
-                } else if (message.type === 'unsubscribed') {
+                if (message.type === MessageType.subscribed) {
+                    this.subscriptions[message.id] = { id: null, type: null, errorHandler: null, updateHandler: null };
+                } else if (message.type === MessageType.unsubscribed) {
                     delete this.subscriptions[message.id];
                 }
                 this.sent.push(message);
@@ -201,7 +203,7 @@ export function appProps(props?: any, errorState?: ErrorState): IAppContainerPro
     return Object.assign({}, defaultProps, props);
 }
 
-export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBrandingContainerProps, appProps: IAppContainerProps, content: React.ReactNode, route?: string, currentPath?: string, containerTag?: string): Promise<TestContext> {
+export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBrandingContainerProps, appProps: IAppContainerProps, content: ReactNode, route?: string, currentPath?: string, containerTag?: string): Promise<TestContext> {
     const container = document.createElement(containerTag || 'div') as HTMLElement;
     document.body.appendChild(container);
 

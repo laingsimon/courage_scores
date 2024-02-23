@@ -1,6 +1,6 @@
 import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../helpers/projection";
-import {any, count, IFrequency, groupAndSortByOccurrences, sortBy} from "../../helpers/collections";
+import {any, count, groupAndSortByOccurrences, IFrequency, sortBy} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
 import {useApp} from "../common/AppContainer";
@@ -16,8 +16,10 @@ import {
     getPlayedLayoutData,
     getUnplayedLayoutData,
     ILayoutDataForMatch,
-    ILayoutDataForRound, removeSide,
-    setRoundNames, sideChanged
+    ILayoutDataForRound,
+    removeSide,
+    setRoundNames,
+    sideChanged
 } from "../../helpers/tournaments";
 import {NotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {PrintableSheetMatch} from "./PrintableSheetMatch";
@@ -30,6 +32,7 @@ import {add180, addHiCheck, remove180, removeHiCheck} from "../common/Accolades"
 import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface IPrintableSheetProps {
     printOnly: boolean;
@@ -308,7 +311,7 @@ export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheet
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
             {winner ? null : (<div className="float-end">
-                <RefreshControl id={tournamentData.id} />
+                <RefreshControl id={tournamentData.id} type={LiveDataType.tournament} />
             </div>)}
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
                 {tournamentData.type || 'tournament'} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>

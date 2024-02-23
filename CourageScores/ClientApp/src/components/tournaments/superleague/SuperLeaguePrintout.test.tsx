@@ -23,6 +23,7 @@ import {
 } from "../../../helpers/builders/tournaments";
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
+import {MessageType} from "../../../interfaces/models/dtos/MessageType";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -204,7 +205,7 @@ describe('SuperLeaguePrintout', () => {
                     socketFactory.socket.onmessage({
                         type: 'message',
                         data: JSON.stringify({
-                            type: 'Update',
+                            type: MessageType.update,
                             id: newSaygData.id,
                             data: newSaygData
                         }),

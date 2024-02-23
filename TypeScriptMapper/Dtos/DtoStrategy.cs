@@ -52,7 +52,8 @@ public class DtoStrategy: IStrategy
             Namespace = _dtosNamespace,
         };
         var relativePath = _metaDataHelper.GetRelativePath(context, type.DotNetType.Namespace!) + "/" + Path.GetFileName(type.RelativePath);
-        var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath + ".d.ts"));
+        var extension = type.DotNetType.IsEnum ? ".ts" : ".d.ts";
+        var path = Path.GetFullPath(Path.Combine(outputDirectory, relativePath + extension));
 
 #if DEBUG
         await Console.Out.WriteLineAsync($"Writing {type.Name} to {path}...");
@@ -68,7 +69,15 @@ public class DtoStrategy: IStrategy
             await WriteHeader(writer, type);
             await writer.WriteLineAsync("");
             await WriteImports(writer, type, token);
-            await WriteInterface(writer, type, type.Name, token);
+
+            if (type.DotNetType.IsEnum)
+            {
+                await WriteEnumInterface(writer, type, type.Name);
+            }
+            else
+            {
+                await WriteInterface(writer, type, type.Name, token);
+            }
         }
     }
 
@@ -108,6 +117,18 @@ public class DtoStrategy: IStrategy
                 await writer.WriteLineAsync($"    */");
             }
             await writer.WriteLineAsync($"    {member.GetDefinition()};");
+        }
+
+        await writer.WriteLineAsync("}");
+    }
+
+    private static async Task WriteEnumInterface(TextWriter writer, TypeScriptInterface type, string name)
+    {
+        await writer.WriteLineAsync($"export enum {name} {{");
+
+        foreach (var enumName in Enum.GetNames(type.DotNetType))
+        {
+            await writer.WriteLineAsync($"    {enumName.ToCamelCase()} = \"{enumName}\",");
         }
 
         await writer.WriteLineAsync("}");

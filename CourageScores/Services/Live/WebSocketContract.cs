@@ -144,7 +144,7 @@ public class WebSocketContract : IWebSocketContract
             case MessageType.Update:
                 if (dto.Data != null && dto.Id != null)
                 {
-                    await _processor.PublishUpdate(this, dto.Id.Value, dto.Data, token);
+                    await _processor.PublishUpdate(this, dto.Id.Value, dto.DataType, dto.Data, token);
                     break;
                 }
                 // invalid

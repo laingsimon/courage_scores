@@ -272,13 +272,14 @@ public class WebSocketContractTests
             Type = MessageType.Update,
             Data = data,
             Id = data.Id,
+            DataType = LiveDataType.Sayg,
         };
         _receiveResults.Enqueue(CreateReceiveResult(dto: messageDto));
         _receiveResults.Enqueue(CreateReceiveResult(closeStatus: WebSocketCloseStatus.NormalClosure));
 
         await _contract.Accept(_token);
 
-       _processor.Verify(p => p.PublishUpdate(_contract, data.Id, It.IsAny<JObject>(), _token));
+       _processor.Verify(p => p.PublishUpdate(_contract, data.Id, LiveDataType.Sayg, It.IsAny<JObject>(), _token));
     }
 
     [Test]

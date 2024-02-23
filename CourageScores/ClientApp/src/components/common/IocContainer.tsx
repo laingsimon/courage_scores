@@ -3,7 +3,6 @@ import {Http, IHttp} from "../../api/http";
 import {ISettings, Settings} from "../../api/settings";
 import {IParentHeight, ParentHeight} from "../layout/ParentHeight";
 import socketFactory from "../../api/socketFactory";
-import {LiveWebSocket} from "../../live/LiveWebSocket";
 import {IDependencies} from "./IDependencies";
 import {ISubscriptions} from "../../live/ISubscriptions";
 import {AccountApi} from "../../interfaces/apis/IAccountApi";
@@ -21,6 +20,10 @@ import {TeamApi} from "../../interfaces/apis/ITeamApi";
 import {TournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {DataApi} from "../../interfaces/apis/IDataApi";
 import {IWebSocketContext} from "../../live/IWebSocketContext";
+import {MultiModeLiveWebSocket} from "../../live/MultiModeLiveWebSocket";
+import {WebSocketUpdateStrategy} from "../../live/WebSocketUpdateStrategy";
+import {PollingUpdateStrategy} from "../../live/PollingUpdateStrategy";
+import {WebSocketMode} from "../../live/WebSocketMode";
 
 const DependenciesContext = createContext({});
 
@@ -37,10 +40,14 @@ export interface IIocContainerProps {
 
 /* istanbul ignore next */
 export function IocContainer({children, overrideHttp, overrideParentHeight, ...services} : IIocContainerProps) {
-    const [socketContext, setSocketContext] = useState<IWebSocketContext>({});
+    const [socketContext, setSocketContext] = useState<IWebSocketContext>({
+        modes: [ WebSocketMode.socket, WebSocketMode.polling ]
+    });
     const [subscriptions, setSubscriptions] = useState<ISubscriptions>({});
     const settings: ISettings = new Settings();
     const http: IHttp = overrideHttp || new Http(settings);
+    const liveApi = (services as any).liveApi || new LiveApi(http);
+    const oneSecond: number = 1000;
     const defaultServices: IDependencies = {
         settings: settings,
         divisionApi: new DivisionApi(http),
@@ -56,18 +63,21 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
         reportApi: new ReportApi(http),
         saygApi: new SaygApi(http),
         templateApi: new SeasonTemplateApi(http),
-        liveApi: new LiveApi(http),
+        liveApi: liveApi,
         parentHeight: overrideParentHeight || new ParentHeight(25),
-        webSocket: new LiveWebSocket({
+        webSocket: new MultiModeLiveWebSocket({
             socketContext,
             subscriptions,
             setSubscriptions: async (subs: ISubscriptions) => setSubscriptions(subs),
             setSocketContext: async (context: IWebSocketContext) => setSocketContext(context),
-            createSocket: () => (services.socketFactory || socketFactory)(settings),
+            webSocketStrategy: new WebSocketUpdateStrategy(() => (services.socketFactory || socketFactory)(settings)),
+            pollingStrategy: new PollingUpdateStrategy(liveApi, oneSecond, 10 * oneSecond),
         }),
     };
 
-    return (<DependenciesContext.Provider value={Object.assign({}, defaultServices, services)}>
+    const dependencies = Object.assign({}, defaultServices, services);
+
+    return (<DependenciesContext.Provider value={dependencies}>
         {children}
     </DependenciesContext.Provider>)
 }

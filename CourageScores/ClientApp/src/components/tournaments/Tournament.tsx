@@ -36,6 +36,7 @@ import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/Division
 import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTournamentGameDto";
 import {TournamentDetails} from "./TournamentDetails";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -205,7 +206,9 @@ export function Tournament() {
 
     async function publishLiveUpdate(data: TournamentGameDto) {
         if (canManageTournaments) {
-            await webSocket.publish(tournamentId, data);
+            if (!await webSocket.publish(tournamentId, LiveDataType.tournament, data)) {
+                window.alert('Unable to publish updated data');
+            }
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using CourageScores.Filters;
+﻿using System.Collections.Concurrent;
+using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
@@ -88,8 +89,19 @@ public static class DependencyInjectionExtensions
     private static void AddLive(IServiceCollection services)
     {
         services.AddSingleton<ICollection<IWebSocketContract>>(new List<IWebSocketContract>());
+        services.AddSingleton(new ConcurrentDictionary<Guid, PollingUpdatesProcessor.UpdateData>());
+
         services.AddScoped<ILiveService, LiveService>();
-        services.AddScoped<IWebSocketMessageProcessor, PublishUpdatesProcessor>();
+        services.AddScoped<IWebSocketMessageProcessor, CompositeWebSocketMessageProcessor>(p =>
+        {
+            return new CompositeWebSocketMessageProcessor(new IWebSocketMessageProcessor[] {
+                p.GetService<PollingUpdatesProcessor>()!,
+                p.GetService<PublishUpdatesProcessor>()!,
+            });
+        });
+        services.AddScoped<PollingUpdatesProcessor>();
+        services.AddScoped<PublishUpdatesProcessor>();
+        services.AddScoped<IUpdatedDataSource, PollingUpdatesProcessor>();
     }
 
     private static void AddComparers(IServiceCollection services)

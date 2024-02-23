@@ -3,6 +3,7 @@ import {useDependencies} from "../components/common/IocContainer";
 import {useApp} from "../components/common/AppContainer";
 import {ILive} from "./ILive";
 import {ILiveOptions} from "./ILiveOptions";
+import {ISubscriptionRequest} from "./ISubscriptionRequest";
 
 const LiveContext = createContext({});
 
@@ -23,20 +24,20 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
-            liveOptions.subscribeAtStartup.forEach(id => {
+            liveOptions.subscribeAtStartup.forEach((request: ISubscriptionRequest) => {
                 // noinspection JSIgnoredPromiseFromCall
-                enableLiveUpdates(true, id);
+                enableLiveUpdates(true, request);
             });
         }
     },
     // eslint-disable-next-line
-    [liveOptions]);
+    [account]);
 
-    async function enableLiveUpdates(enabled: boolean, id: string) {
-        if (enabled && !webSocket.subscriptions[id] && canConnect) {
-            webSocket.subscribe(id, onDataUpdate, onError);
+    async function enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest) {
+        if (enabled && !webSocket.subscriptions[request.id] && canConnect) {
+            await webSocket.subscribe(request, onDataUpdate, onError);
         } else if (!enabled) {
-            await webSocket.unsubscribe(id);
+            await webSocket.unsubscribe(request.id);
         }
     }
 
@@ -44,7 +45,6 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
         enableLiveUpdates,
         liveOptions,
         subscriptions: webSocket.subscriptions,
-        connected: webSocket.isConnected(),
     };
 
     return (<LiveContext.Provider value={props}>

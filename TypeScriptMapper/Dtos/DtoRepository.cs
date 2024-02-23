@@ -18,7 +18,7 @@ public class DtoRepository
     {
         var types = _assembly.GetTypes()
             // ReSharper disable once MergeIntoPattern
-            .Where(t => t.IsClass && !t.IsAbstract && !t.IsInterface && t.GetCustomAttribute<CompilerGeneratedAttribute>() == null) // non-abstract manually created classes
+            .Where(t => t.IsEnum || (t.IsClass && !t.IsAbstract && !t.IsInterface && t.GetCustomAttribute<CompilerGeneratedAttribute>() == null)) // non-abstract manually created classes
             .Where(t => t.GetGenericArguments().Length == 0) // non-generic classes
             .Where(t => t.Namespace?.StartsWith(rootNamespace) == true)
             .SelectMany(AndAnyCourageScoresClassesOrInterfaces)

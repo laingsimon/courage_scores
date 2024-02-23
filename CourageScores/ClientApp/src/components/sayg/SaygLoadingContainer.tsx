@@ -10,6 +10,7 @@ import {IBaseSayg, ISayg} from "./ISayg";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 const SaygContext = createContext({});
 
@@ -126,7 +127,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg, newData);
         setSayg(newSayg);
         if (liveOptions.publish) {
-            await webSocket.publish(id, newSayg);
+            if (!await webSocket.publish(id, LiveDataType.sayg, newSayg)) {
+                window.alert('Unable to publish updated data');
+            }
         }
         return newSayg;
     }

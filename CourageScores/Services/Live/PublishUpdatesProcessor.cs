@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Live;
 
 namespace CourageScores.Services.Live;
 
@@ -17,7 +18,7 @@ public class PublishUpdatesProcessor : IWebSocketMessageProcessor
         _sockets.Remove(socket);
     }
 
-    public async Task PublishUpdate(IWebSocketContract source, Guid id, object dto, CancellationToken token)
+    public async Task PublishUpdate(IWebSocketContract source, Guid id, LiveDataType dataType, object dto, CancellationToken token)
     {
         var subscriptionsToUpdate = _sockets.Where(s => s.IsSubscribedTo(id)).Except(new[] { source }).ToArray();
         var message = new LiveMessageDto
@@ -25,6 +26,7 @@ public class PublishUpdatesProcessor : IWebSocketMessageProcessor
             Type = MessageType.Update,
             Data = dto,
             Id = id,
+            DataType = dataType,
         };
 
         foreach (var subscription in subscriptionsToUpdate)

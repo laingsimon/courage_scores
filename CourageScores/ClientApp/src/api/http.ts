@@ -1,11 +1,15 @@
 import {ISettings} from "./settings";
 
+export interface IHeaders {
+    [name: string]: string;
+}
+
 export interface IHttp {
-    get(relativeUrl: string): any;
-    post(relativeUrl: string, content: any): any;
-    patch(relativeUrl: string, content: any): any;
-    delete(relativeUrl: string, content?: any): any;
-    put(relativeUrl: string, content: any): any;
+    get(relativeUrl: string, headers: IHeaders): Promise<any>;
+    post(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
+    patch(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
+    delete(relativeUrl: string, headers: IHeaders, content?: any): Promise<any>;
+    put(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
 }
 
 /* istanbul ignore file */
@@ -16,30 +20,41 @@ class Http implements IHttp {
         this.settings = settings;
     }
 
-    get(relativeUrl: string) {
-        return this.send('GET', relativeUrl, null);
+    get(relativeUrl: string, headers: IHeaders) {
+        return this.send('GET', headers, relativeUrl, null);
     }
 
-    post(relativeUrl: string, content: any) {
-        return this.send('POST', relativeUrl, content);
+    post(relativeUrl: string, headers: IHeaders, content: any) {
+        return this.send('POST', headers, relativeUrl, content);
     }
 
-    patch(relativeUrl: string, content: any) {
-        return this.send('PATCH', relativeUrl, content);
+    patch(relativeUrl: string, headers: IHeaders, content: any) {
+        return this.send('PATCH', headers, relativeUrl, content);
     }
 
-    delete(relativeUrl: string, content?: any) {
-        return this.send('DELETE', relativeUrl, content ? content : null);
+    delete(relativeUrl: string, headers: IHeaders, content?: any) {
+        return this.send('DELETE', headers, relativeUrl, content ? content : null);
     }
 
-    put(relativeUrl: string, content: any) {
-        return this.send('PUT', relativeUrl, content);
+    put(relativeUrl: string, headers: IHeaders, content: any) {
+        return this.send('PUT', headers, relativeUrl, content);
     }
 
-    getPostHeaders() {
-        const defaultHeaders: any = {
+    getPostHeaders(headers: IHeaders): IHeaders {
+        const defaultHeaders: IHeaders = {
             'Content-Type': 'application/json'
         };
+        const requestHeaders: IHeaders = Object.assign(defaultHeaders, headers);
+
+        if (this.settings.invalidateCacheOnNextRequest) {
+            requestHeaders['Cache-Control'] = 'no-cache';
+        }
+
+        return requestHeaders;
+    }
+
+    getGetHeaders(headers: IHeaders): IHeaders {
+        const defaultHeaders: IHeaders = Object.assign({}, headers);
 
         if (this.settings.invalidateCacheOnNextRequest) {
             defaultHeaders['Cache-Control'] = 'no-cache';
@@ -48,17 +63,7 @@ class Http implements IHttp {
         return defaultHeaders;
     }
 
-    getGetHeaders() {
-        const defaultHeaders: any = {};
-
-        if (this.settings.invalidateCacheOnNextRequest) {
-            defaultHeaders['Cache-Control'] = 'no-cache';
-        }
-
-        return defaultHeaders;
-    }
-
-    async send(httpMethod: string, relativeUrl: string, content?: any) {
+    async send(httpMethod: string, headers: IHeaders, relativeUrl: string, content?: any) {
         if (relativeUrl.indexOf('/') !== 0) {
             relativeUrl = '/' + relativeUrl;
         }
@@ -70,7 +75,7 @@ class Http implements IHttp {
                 method: httpMethod,
                 mode: 'cors',
                 body: JSON.stringify(content),
-                headers: this.getPostHeaders(),
+                headers: this.getPostHeaders(headers),
                 credentials: 'include'
             });
 
@@ -85,7 +90,7 @@ class Http implements IHttp {
             method: httpMethod,
             mode: 'cors',
             credentials: 'include',
-            headers: this.getGetHeaders(),
+            headers: this.getGetHeaders(headers),
         });
 
         if (response.status === 204) {

@@ -1,5 +1,6 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Live;
 using Moq;
 using NUnit.Framework;
@@ -40,7 +41,7 @@ public class PublishUpdatesProcessorTests
             Id = _key,
         };
 
-        await _processor.PublishUpdate(_publisherSocket.Object, _key, data, _token);
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, LiveDataType.Sayg, data, _token);
 
         _publisherSocket.Verify(s => s.Send(It.IsAny<LiveMessageDto>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -54,7 +55,7 @@ public class PublishUpdatesProcessorTests
             YourName = "Your Name",
         };
 
-        await _processor.PublishUpdate(_publisherSocket.Object, _key, data, _token);
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, LiveDataType.Sayg, data, _token);
 
         _subscriberSocket.Verify(s => s.Send(
             It.Is<LiveMessageDto>(dto => dto.Type == MessageType.Update && dto.Data == data),
@@ -74,7 +75,7 @@ public class PublishUpdatesProcessorTests
         errorSocket.Setup(s => s.Send(It.IsAny<LiveMessageDto>(), _token)).Throws<InvalidOperationException>();
         errorSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
 
-        await _processor.PublishUpdate(_publisherSocket.Object, _key, data, _token);
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, LiveDataType.Sayg, data, _token);
 
         errorSocket.Verify(s => s.Send(
             It.IsAny<LiveMessageDto>(),
