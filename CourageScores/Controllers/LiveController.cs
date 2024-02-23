@@ -76,6 +76,14 @@ public class LiveController : Controller
         return dto;
     }
 
+    [HttpPost("/api/Live/Update/{id}/{type}")]
+    public async Task PostUpdate(Guid id, LiveDataType type, [FromBody] object data, CancellationToken token)
+    {
+        await _liveService.ProcessUpdate(id, type, data, token);
+        Response.Headers.Location = $"/api/Live/Update/{id}/{type}";
+        Response.StatusCode = StatusCodes.Status302Found;
+    }
+
     private static DateTime? AsDateTime(StringValues value)
     {
         if (string.IsNullOrEmpty(value.ToString()))

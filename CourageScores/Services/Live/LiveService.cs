@@ -7,21 +7,26 @@ namespace CourageScores.Services.Live;
 
 public class LiveService : ILiveService
 {
+    private static readonly IWebSocketContract HttpUpdateContract = new HttpUpdateWebSocketContract();
+
     private readonly ICollection<IWebSocketContract> _sockets;
     private readonly IWebSocketContractFactory _socketContractFactory;
     private readonly IUserService _userService;
     private readonly IUpdatedDataSource _updatedDataSource;
+    private readonly IWebSocketMessageProcessor _webSocketMessageProcessor;
 
     public LiveService(
         ICollection<IWebSocketContract> sockets,
         IWebSocketContractFactory socketContractFactory,
         IUserService userService,
-        IUpdatedDataSource updatedDataSource)
+        IUpdatedDataSource updatedDataSource,
+        IWebSocketMessageProcessor webSocketMessageProcessor)
     {
         _sockets = sockets;
         _socketContractFactory = socketContractFactory;
         _userService = userService;
         _updatedDataSource = updatedDataSource;
+        _webSocketMessageProcessor = webSocketMessageProcessor;
     }
 
     public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
@@ -133,6 +138,11 @@ public class LiveService : ILiveService
         };
     }
 
+    public async Task ProcessUpdate(Guid id, LiveDataType type, object data, CancellationToken token)
+    {
+        await _webSocketMessageProcessor.PublishUpdate(HttpUpdateContract, id, data, token);
+    }
+
     private static ActionResultDto<T> Error<T>(string message)
     {
         return new ActionResultDto<T>
@@ -142,5 +152,30 @@ public class LiveService : ILiveService
                 message,
             },
         };
+    }
+
+    private class HttpUpdateWebSocketContract : IWebSocketContract
+    {
+        public WebSocketDto WebSocketDto { get; } = new WebSocketDto();
+
+        public Task Accept(CancellationToken token)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task Send(LiveMessageDto message, CancellationToken token)
+        {
+            throw new NotSupportedException();
+        }
+
+        public bool IsSubscribedTo(Guid id)
+        {
+            return false;
+        }
+
+        public Task Close(CancellationToken token)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

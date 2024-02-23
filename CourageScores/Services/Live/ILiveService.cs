@@ -10,4 +10,5 @@ public interface ILiveService
     Task<ActionResultDto<List<WebSocketDto>>> GetSockets(CancellationToken token);
     Task<ActionResultDto<WebSocketDto>> CloseSocket(Guid socketId, CancellationToken token);
     Task<ActionResultDto<UpdatedDataDto?>> GetUpdate(Guid id, LiveDataType type, DateTimeOffset? lastUpdate, CancellationToken token);
+    Task ProcessUpdate(Guid id, LiveDataType type, object data, CancellationToken token);
 }

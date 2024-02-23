@@ -19,6 +19,7 @@ public class LiveServiceTests
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
     private Mock<IUpdatedDataSource> _updatedDataSource = null!;
+    private Mock<IWebSocketMessageProcessor> _webSocketMessageProcessor = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -27,7 +28,8 @@ public class LiveServiceTests
         _contractFactory = new Mock<IWebSocketContractFactory>();
         _userService = new Mock<IUserService>();
         _updatedDataSource = new Mock<IUpdatedDataSource>();
-        _service = new LiveService(_sockets, _contractFactory.Object, _userService.Object, _updatedDataSource.Object);
+        _webSocketMessageProcessor = new Mock<IWebSocketMessageProcessor>();
+        _service = new LiveService(_sockets, _contractFactory.Object, _userService.Object, _updatedDataSource.Object, _webSocketMessageProcessor.Object);
         _contract = new Mock<IWebSocketContract>();
 
         _contractFactory
@@ -291,5 +293,15 @@ public class LiveServiceTests
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Data, Is.EqualTo("data"));
         Assert.That(result.Result.LastUpdate, Is.EqualTo(lastUpdated));
+    }
+
+    [Test]
+    public async Task ProcessUpdate_WhenCalled_PublishesUpdate()
+    {
+        var id = Guid.NewGuid();
+
+        await _service.ProcessUpdate(id, LiveDataType.Sayg, "DATA", _token);
+
+        _webSocketMessageProcessor.Verify(p => p.PublishUpdate(It.IsAny<IWebSocketContract>(), id, "DATA", _token));
     }
 }
