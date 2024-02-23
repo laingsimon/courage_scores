@@ -236,9 +236,7 @@ describe('PollingUpdateStrategy', () => {
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
-                return {
-                    success: false,
-                };
+                throw new Error('SOME ERROR 1234');
             };
 
             expect(timerCallback).toBeTruthy();
@@ -330,14 +328,10 @@ describe('PollingUpdateStrategy', () => {
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
-                return {
-                    success: false,
-                };
+                throw new Error('SOME ERROR 1234');
             };
             updateLookup['5678'] = (): IClientActionResultDto<any> => {
-                return {
-                    success: false,
-                };
+                throw new Error('SOME ERROR 5678');
             };
 
             expect(timerCallback).toBeTruthy();
@@ -454,7 +448,7 @@ describe('PollingUpdateStrategy', () => {
             await timerCallback();
 
             expect(errorData).toEqual({
-                success: false
+                message: 'Error polling for updates: 1234 (Sayg)'
             });
         });
 

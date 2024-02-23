@@ -10,6 +10,12 @@ import {WebSocketMode} from "./WebSocketMode";
 import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 import {IStrategyData} from "./IStrategyData";
 
+enum PollResult {
+    Success,
+    Failure,
+    Exception,
+}
+
 export class PollingUpdateStrategy implements IUpdateStrategy {
     private readonly initialDelay: number;
     private readonly liveApi: ILiveApi;
@@ -66,23 +72,36 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         const newSubscriptions: ISubscriptions = Object.assign({}, allSubscriptions);
 
         // polling iteration
-        let someSuccess: boolean = false;
-        let someFailures: boolean = false;
+        let someSuccess: number = 0;
+        let someFailures: number = 0;
+        let someExceptions: number = 0;
 
         for (const id in allSubscriptions) {
             const subscription: ISubscription = allSubscriptions[id];
-            const success: boolean = await this.requestLatestData(subscription);
-            if (!success) {
-                someFailures = true;
+            const result: PollResult = await this.requestLatestData(subscription);
+            if (result !== PollResult.Success) {
+                someFailures++;
                 delete newSubscriptions[id];
             }
 
-            someSuccess = someSuccess || success;
+            switch (result) {
+                case PollResult.Success:
+                    someSuccess++;
+                    break;
+                case PollResult.Failure:
+                    someFailures++;
+                    delete newSubscriptions[id];
+                    break;
+                case PollResult.Exception:
+                    someExceptions++;
+                    delete newSubscriptions[id];
+                    break;
+            }
         }
 
         const newContext: IWebSocketContext = Object.assign({}, context);
 
-        if (!someSuccess && any(Object.keys(allSubscriptions))) {
+        if (someExceptions === Object.keys(allSubscriptions).length) {
             // every poll failed, cancel this mode
             newContext.modes = newContext.modes.filter((m: WebSocketMode) => m !== WebSocketMode.polling);
         }
@@ -96,7 +115,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         }
     }
 
-    private async requestLatestData(subscription: ISubscription): Promise<boolean> {
+    private async requestLatestData(subscription: ISubscription): Promise<PollResult> {
         try {
             const latestData: IClientActionResultDto<UpdatedDataDto> = await this.liveApi.getUpdate(subscription.id, subscription.type, subscription.lastUpdate);
             if (latestData.success) {
@@ -107,10 +126,13 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
                     // no update since last request
                 }
 
-                return true;
+                return PollResult.Success;
             } else {
-                subscription.errorHandler(latestData);
-                return false;
+                const message: string = `Error polling for updates: ${subscription.id} (${subscription.type})`;
+                subscription.errorHandler({
+                    message: message + (latestData.errors ? '\n' + latestData.errors.join('\n'): ''),
+                });
+                return PollResult.Failure;
             }
         } catch (e) {
             const error = e as any;
@@ -120,7 +142,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
                 stack: error.stack
             });
 
-            return false;
+            return PollResult.Exception;
         }
     }
 }
