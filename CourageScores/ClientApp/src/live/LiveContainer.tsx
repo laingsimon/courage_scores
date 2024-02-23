@@ -31,11 +31,11 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
         }
     },
     // eslint-disable-next-line
-    [liveOptions]);
+    [account]);
 
     async function enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest) {
         if (enabled && !webSocket.subscriptions[request.id] && canConnect) {
-            webSocket.subscribe(request, onDataUpdate, onError);
+            await webSocket.subscribe(request, onDataUpdate, onError);
         } else if (!enabled) {
             await webSocket.unsubscribe(request.id);
         }
