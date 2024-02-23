@@ -109,7 +109,6 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private async createSocketAndWaitForReady(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>): Promise<IWebSocketContext | null>{
         const socket: WebSocket = this.createSocket();
         const newContext: IWebSocketContext = Object.assign({}, context);
-        newContext.connectionAttempts = (newContext.connectionAttempts || 0) + 1;
         newContext.webSocket = socket;
         this.refresh(newContext, subscriptions, setContext);
 
