@@ -139,6 +139,15 @@ public class MetaDataHelper : IMetaDataHelper
             };
         }
 
+        if (type.IsAssignableTo(typeof(Task)))
+        {
+            return new PromiseTypeScriptType(new TypeScriptType
+            {
+                IsPrimitive = true,
+                Name = "void",
+            });
+        }
+
         if (type.IsAssignableTo(typeof(IEnumerable)) && type != typeof(string))
         {
             var elementType = type.GetElementType();
