@@ -235,7 +235,7 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(props);
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 throw new Error('SOME ERROR 1234');
             };
 
@@ -274,14 +274,16 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(props);
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
                     success: false,
                 };
             };
-            updateLookup['5678'] = (): IClientActionResultDto<any> => {
+            updateLookup['5678'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
                     success: true,
+                    result: {
+                    }
                 };
             };
 
@@ -327,10 +329,10 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(props);
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 throw new Error('SOME ERROR 1234');
             };
-            updateLookup['5678'] = (): IClientActionResultDto<any> => {
+            updateLookup['5678'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 throw new Error('SOME ERROR 5678');
             };
 
@@ -404,10 +406,13 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(props);
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
                     success: true,
-                    result: null
+                    result: {
+                        lastUpdate: '2021-01-02',
+                        data: null,
+                    }
                 };
             };
 
@@ -415,6 +420,42 @@ describe('PollingUpdateStrategy', () => {
             await timerCallback();
 
             expect(updatedData).toBeFalsy();
+        });
+
+        it('should unsubscribe if data is not live-tracked', async () => {
+            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
+            const context: IWebSocketContext = {
+                modes: [ WebSocketMode.polling ]
+            };
+            let newSubscriptions: ISubscriptions;
+            const subscriptions: ISubscriptions = {
+                '1234': {
+                    type: LiveDataType.sayg,
+                    method: WebSocketMode.polling,
+                    id: '1234',
+                    updateHandler: (data) => {},
+                    errorHandler: () => {},
+                },
+            };
+            const props: IStrategyData = {
+                context,
+                subscriptions,
+                setContext,
+                setSubscriptions: async (subs: ISubscriptions) => newSubscriptions = subs};
+            strategy.refresh(props);
+            await strategy.subscribe(props, null);
+            expect(timerHandle).toEqual(1);
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
+                return {
+                    success: true,
+                    result: null, // null here means the data isn't tracked
+                };
+            };
+
+            expect(timerCallback).toBeTruthy();
+            await timerCallback();
+
+            expect(newSubscriptions).toEqual({});
         });
 
         it('should call errorHandler if request fails', async () => {
@@ -438,7 +479,7 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(props);
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
                     success: false
                 };
@@ -475,7 +516,7 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(props);
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
                     success: false
                 };
@@ -508,7 +549,7 @@ describe('PollingUpdateStrategy', () => {
             strategy.refresh(props);
             await strategy.subscribe(props, null);
             expect(timerHandle).toEqual(1);
-            updateLookup['1234'] = (): IClientActionResultDto<any> => {
+            updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 throw new Error('ERROR');
             };
 

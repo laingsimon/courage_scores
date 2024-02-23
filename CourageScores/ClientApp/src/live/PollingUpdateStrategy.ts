@@ -11,9 +11,11 @@ import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 import {IStrategyData} from "./IStrategyData";
 
 enum PollResult {
-    Success,
-    Failure,
+    Updated,
+    Error,
     Exception,
+    NotTracked,
+    NoChange,
 }
 
 export class PollingUpdateStrategy implements IUpdateStrategy {
@@ -72,45 +74,47 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         const newSubscriptions: ISubscriptions = Object.assign({}, allSubscriptions);
 
         // polling iteration
-        let someSuccess: number = 0;
-        let someFailures: number = 0;
-        let someExceptions: number = 0;
+        let successes: number = 0;
+        let exceptions: number = 0;
+        let subscriptionsChanged: boolean = false;
 
         for (const id in allSubscriptions) {
             const subscription: ISubscription = allSubscriptions[id];
             const result: PollResult = await this.requestLatestData(subscription);
-            if (result !== PollResult.Success) {
-                someFailures++;
-                delete newSubscriptions[id];
-            }
 
             switch (result) {
-                case PollResult.Success:
-                    someSuccess++;
+                case PollResult.Updated:
+                case PollResult.NoChange:
+                    successes++;
                     break;
-                case PollResult.Failure:
-                    someFailures++;
+                case PollResult.NotTracked:
                     delete newSubscriptions[id];
+                    subscriptionsChanged = true;
+                    break;
+                case PollResult.Error:
+                    delete newSubscriptions[id];
+                    subscriptionsChanged = true;
                     break;
                 case PollResult.Exception:
-                    someExceptions++;
+                    exceptions++;
                     delete newSubscriptions[id];
+                    subscriptionsChanged = true;
                     break;
             }
         }
 
         const newContext: IWebSocketContext = Object.assign({}, context);
 
-        if (someExceptions === Object.keys(allSubscriptions).length) {
+        if (exceptions === Object.keys(allSubscriptions).length) {
             // every poll failed, cancel this mode
             newContext.modes = newContext.modes.filter((m: WebSocketMode) => m !== WebSocketMode.polling);
         }
-        newContext.pollingHandle = any(Object.keys(allSubscriptions)) && someSuccess
+        newContext.pollingHandle = any(Object.keys(allSubscriptions)) && successes > 0
             ? window.setTimeout(this.pollingIteration.bind(this), this.subsequentDelay)
             : null;
 
         await setContext(newContext);
-        if (someFailures) {
+        if (subscriptionsChanged) {
             await setSubscriptions(newSubscriptions);
         }
     }
@@ -119,21 +123,24 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         try {
             const latestData: IClientActionResultDto<UpdatedDataDto> = await this.liveApi.getUpdate(subscription.id, subscription.type, subscription.lastUpdate);
             if (latestData.success) {
-                if (latestData.result) {
-                    subscription.lastUpdate = latestData.result.lastUpdate;
-                    subscription.updateHandler(latestData.result.data);
-                } else {
-                    // no update since last request
+                if (!latestData.result) {
+                    return PollResult.NotTracked;
                 }
 
-                return PollResult.Success;
-            } else {
-                const message: string = `Error polling for updates: ${subscription.id} (${subscription.type})`;
-                subscription.errorHandler({
-                    message: message + (latestData.errors ? '\n' + latestData.errors.join('\n'): ''),
-                });
-                return PollResult.Failure;
+                if (!latestData.result.data) {
+                    return PollResult.NoChange;
+                }
+
+                subscription.lastUpdate = latestData.result.lastUpdate;
+                subscription.updateHandler(latestData.result.data);
+                return PollResult.Updated;
             }
+
+            const message: string = `Error polling for updates: ${subscription.id} (${subscription.type})`;
+            subscription.errorHandler({
+                message: message + (latestData.errors ? '\n' + latestData.errors.join('\n'): ''),
+            });
+            return PollResult.Error;
         } catch (e) {
             const error = e as any;
 

@@ -94,7 +94,15 @@ public class LiveService : ILiveService
         var update = await _updatedDataSource.GetUpdate(id, type, lastUpdate);
         if (update == null)
         {
-            return Error<UpdatedDataDto?>("Entity is not being live-updated");
+            return new ActionResultDto<UpdatedDataDto?>
+            {
+                Success = true,
+                Result = null,
+                Warnings =
+                {
+                    "Entity is not being live-updated",
+                },
+            };
         }
 
         if (update.Data == null)
@@ -103,6 +111,10 @@ public class LiveService : ILiveService
             return new ActionResultDto<UpdatedDataDto?>
             {
                 Success = true,
+                Result = new UpdatedDataDto
+                {
+                    LastUpdate = update.Updated,
+                },
                 Messages =
                 {
                     $"Last update: {update.Updated}",

@@ -256,7 +256,7 @@ public class LiveServiceTests
 
         var result = await _service.GetUpdate(id, LiveDataType.Sayg, since, _token);
 
-        Assert.That(result.Success, Is.False);
+        Assert.That(result.Success, Is.True);
     }
 
     [Test]
@@ -271,7 +271,9 @@ public class LiveServiceTests
         var result = await _service.GetUpdate(id, LiveDataType.Sayg, since, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Result, Is.Null);
+        Assert.That(result.Result, Is.Not.Null);
+        Assert.That(result.Result!.LastUpdate, Is.EqualTo(lastUpdated));
+        Assert.That(result.Result.Data, Is.Null);
     }
 
     [Test]
