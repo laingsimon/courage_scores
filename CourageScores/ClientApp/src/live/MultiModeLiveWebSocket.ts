@@ -5,6 +5,7 @@ import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {IUpdateStrategy} from "./IUpdateStrategy";
 import {WebSocketMode} from "./WebSocketMode";
 import {IStrategyData} from "./IStrategyData";
+import {ISubscription} from "./ISubscription";
 
 interface IMultiModeLiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -97,12 +98,13 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         }
 
         const newSubscriptions: ISubscriptions = Object.assign({}, this.subscriptions);
-        newSubscriptions[request.id] = {
+        const newSubscription: ISubscription = {
             id: request.id,
             type: request.type,
             updateHandler: dataHandler || ((msg: any) => console.log(msg)),
             errorHandler: errorHandler || ((err: any) => console.error(err)),
         };
+        newSubscriptions[request.id] = newSubscription;
         let newSocketContext: IWebSocketContext = Object.assign({}, this.socketContext);
         let subscribed = false;
         const strategyProps: IStrategyData = {
@@ -123,7 +125,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             const result: IWebSocketContext = await strategy.subscribe(strategyProps, request);
             if (result) {
                 newSocketContext = result;
-                newSubscriptions[request.id].method = mode;
+                newSubscription.method = mode;
                 subscribed = true;
                 break;
             } else {
