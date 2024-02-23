@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
+using TypeScriptMapper.Controllers;
 
 namespace TypeScriptMapper.MetaData;
 
@@ -21,6 +22,7 @@ public class TypeScriptMethod : IRouteMethod
         _helper = helper;
         _context = context;
         _parameters = method.GetParameters().Select(p => new TypeScriptParameter(p, helper, _context)).ToList();
+        Headers = method.GetCustomAttributes<AddHeaderAttribute>().ToList();
     }
 
     public HttpMethodAttribute? RouteAttribute => _method.GetCustomAttribute<HttpMethodAttribute>();
@@ -34,6 +36,8 @@ public class TypeScriptMethod : IRouteMethod
     public string? FileUploadPropertyName => _parameters.Select(p => ParameterRequiresFileUpload(p.ParameterType)).SingleOrDefault(name => name != null);
 
     public ObsoleteAttribute? ObsoleteAnnotation => _method.GetCustomAttribute<ObsoleteAttribute>();
+
+    public List<AddHeaderAttribute> Headers { get; }
 
     public string GetDefinition()
     {
@@ -70,6 +74,11 @@ public class TypeScriptMethod : IRouteMethod
         if (FileUploadPropertyName != null)
         {
             yield return $"{FileListParameterName}: File";
+        }
+
+        foreach (var header in Headers)
+        {
+            yield return $"{header.ParameterName}: string";
         }
     }
 

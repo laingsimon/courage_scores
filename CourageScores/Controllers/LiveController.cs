@@ -6,6 +6,7 @@ using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using TypeScriptMapper;
+using TypeScriptMapper.Controllers;
 
 namespace CourageScores.Controllers;
 
@@ -53,10 +54,10 @@ public class LiveController : Controller
     }
 
     [HttpGet("/api/Live/Update/{id}/{type}")]
-    public async Task<ActionResultDto<UpdatedDataDto?>> GetUpdate(Guid id, LiveDataType type, [FromQuery] DateTimeOffset? lastUpdate, CancellationToken token)
+    [AddHeader("If-Modified-Since", "lastUpdated")]
+    public async Task<ActionResultDto<UpdatedDataDto?>> GetUpdate(Guid id, LiveDataType type, CancellationToken token)
     {
-        // TODO: Remove lastUpdate query string parameter
-        var lastUpdateValue = lastUpdate ?? AsDateTime(Request.Headers.IfModifiedSince);
+        var lastUpdateValue = AsDateTime(Request.Headers.IfModifiedSince);
         var dto =  await _liveService.GetUpdate(id, type, lastUpdateValue, token);
 
         if (dto.Result != null)

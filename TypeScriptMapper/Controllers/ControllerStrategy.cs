@@ -112,7 +112,7 @@ public class ControllerStrategy: IStrategy
         var httpMethod = attribute.HttpMethods.FirstOrDefault();
         if (httpMethod == null)
         {
-            return "/*Method does not have a HTTP parameters assigned*/";
+            return "/*Method does not have HTTP parameters assigned*/";
         }
 
         var url = attribute.Template!.Replace("{", "${").Replace("?", "");
@@ -122,8 +122,14 @@ public class ControllerStrategy: IStrategy
             : "";
         var queryParameter = method.Parameters.SingleOrDefault(p => p.IsQueryStringParameter);
         var queryStringSuffix = queryParameter != null ? $"?${{new URLSearchParams({queryParameter.Name} as any).toString()}}" : "";
+        var headers = $"{{{GetHeaders(method.Headers)}}}";
 
-        return $"return this.http.{httpMethod.ToLower()}(`{url}{queryStringSuffix}`{body});";
+        return $"return this.http.{httpMethod.ToLower()}(`{url}{queryStringSuffix}`, {headers}{body});";
+    }
+
+    private static string GetHeaders(IEnumerable<AddHeaderAttribute> headers)
+    {
+        return string.Join(",", headers.Select(header => $"'{header.HeaderName}': {header.ParameterName}"));
     }
 
     private static string GetFileUploadImplementation(IRouteMethod method)
@@ -150,7 +156,7 @@ public class ControllerStrategy: IStrategy
         builder.AppendLine($"{methodIndent}{functionIndent}method: '{method.RouteAttribute.HttpMethods.First()}',");
         builder.AppendLine($"{methodIndent}{functionIndent}mode: 'cors',");
         builder.AppendLine($"{methodIndent}{functionIndent}body: data,");
-        builder.AppendLine($"{methodIndent}{functionIndent}headers: {{}},");
+        builder.AppendLine($"{methodIndent}{functionIndent}headers: {{{GetHeaders(method.Headers)}}},");
         builder.AppendLine($"{methodIndent}{functionIndent}credentials: 'include',");
         builder.AppendLine($"{methodIndent}}});");
         builder.AppendLine();
