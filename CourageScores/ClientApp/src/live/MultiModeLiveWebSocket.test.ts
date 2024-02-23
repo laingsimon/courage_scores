@@ -43,8 +43,8 @@ describe('MultiModeLiveWebSocket', () => {
                 this.refreshRequest.push(props);
                 this.refreshed++;
             },
-            async publish(props: IStrategyData, id: string, data: any): Promise<IWebSocketContext | null> {
-                this.publishRequest = { props, id, data };
+            async publish(props: IStrategyData, id: string, type: string, data: any): Promise<IWebSocketContext | null> {
+                this.publishRequest = { props, id, type, data };
                 return this.publishResponse === undefined ? props.context : this.publishResponse;
             },
             async subscribe(props: IStrategyData, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
@@ -79,7 +79,7 @@ describe('MultiModeLiveWebSocket', () => {
             let error: string;
             console.error = (msg: string) => error = msg;
 
-            const result = await socket.publish(createTemporaryId(), 'data');
+            const result = await socket.publish(createTemporaryId(), LiveDataType.sayg, 'data');
 
             expect(result).toEqual(false);
             expect(error).toEqual('Unable to publish update; no strategy was able to publish the update');
@@ -100,7 +100,7 @@ describe('MultiModeLiveWebSocket', () => {
                 subscriptions: {}
             });
 
-            await socket.publish(createTemporaryId(), 'data');
+            await socket.publish(createTemporaryId(), LiveDataType.sayg, 'data');
 
             expect(pollingStrategy.refreshed).toEqual(1);
             expect(webSocketStrategy.refreshed).toEqual(1);
@@ -123,7 +123,7 @@ describe('MultiModeLiveWebSocket', () => {
             webSocketStrategy.publishResponse = { modes: [] };
             const id: string = createTemporaryId();
 
-            await socket.publish(id, 'data');
+            await socket.publish(id, LiveDataType.sayg, 'data');
 
             expect(webSocketStrategy.publishRequest).toEqual({
                 props: {
@@ -134,6 +134,7 @@ describe('MultiModeLiveWebSocket', () => {
                 },
                 id,
                 data: 'data',
+                type: LiveDataType.sayg,
             });
             expect(pollingStrategy.publishRequest).toBeFalsy();
         });
@@ -156,7 +157,7 @@ describe('MultiModeLiveWebSocket', () => {
             pollingStrategy.publishResponse = { modes: [] };
             const id: string = createTemporaryId();
 
-            await socket.publish(id, 'data');
+            await socket.publish(id, LiveDataType.sayg, 'data');
 
             expect(webSocketStrategy.publishRequest).toEqual({
                 props: {
@@ -167,6 +168,7 @@ describe('MultiModeLiveWebSocket', () => {
                 },
                 id,
                 data: 'data',
+                type: LiveDataType.sayg,
             });
             expect(pollingStrategy.publishRequest).toEqual({
                 props: {
@@ -177,6 +179,7 @@ describe('MultiModeLiveWebSocket', () => {
                 },
                 id,
                 data: 'data',
+                type: LiveDataType.sayg,
             });
         });
 
@@ -199,7 +202,7 @@ describe('MultiModeLiveWebSocket', () => {
             let error: string;
             console.error = (msg: string) => error = msg;
 
-            const result = await socket.publish(createTemporaryId(), 'data');
+            const result = await socket.publish(createTemporaryId(), LiveDataType.sayg, 'data');
 
             expect(result).toEqual(false);
             expect(webSocketStrategy.publishRequest).toBeTruthy();

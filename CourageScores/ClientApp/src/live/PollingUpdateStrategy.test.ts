@@ -14,15 +14,20 @@ import {IStrategyData} from "./IStrategyData";
 
 describe('PollingUpdateStrategy', () => {
     let updateLookup: { [id: string]: () => IClientActionResultDto<object> };
+    let postedUpdates: { id: string, type: string, data: object }[];
 
     const liveApi = api<ILiveApi>({
         async getUpdate(id: string, _: string, __: string): Promise<IClientActionResultDto<object>> {
             return updateLookup[id]();
+        },
+        async postUpdate(id: string, type: string, data: object): Promise<void> {
+            postedUpdates.push({id, type, data})
         }
     });
 
     beforeEach(() => {
         updateLookup = {};
+        postedUpdates = [];
     })
 
     describe('refresh', () => {
@@ -35,16 +40,21 @@ describe('PollingUpdateStrategy', () => {
     });
 
     describe('publish', () => {
-        it('should return null', async () => {
+        it('should publish update', async () => {
             const strategy: IUpdateStrategy = new PollingUpdateStrategy(liveApi, 1, 2);
             const context: IWebSocketContext = { modes: [] };
+            const id = createTemporaryId();
 
             const result = await strategy.publish(
                 {context, subscriptions: {}, setContext: noop, setSubscriptions: noop},
-                createTemporaryId(),
+                id,
+                LiveDataType.sayg,
                 'data');
 
-            expect(result).toBeNull();
+            expect(postedUpdates).toEqual([
+                {id, type: LiveDataType.sayg, data: 'data'},
+            ]);
+            expect(result).toEqual(context);
         });
     });
 
@@ -433,7 +443,7 @@ describe('PollingUpdateStrategy', () => {
                     type: LiveDataType.sayg,
                     method: WebSocketMode.polling,
                     id: '1234',
-                    updateHandler: (data) => {},
+                    updateHandler: () => {},
                     errorHandler: () => {},
                 },
             };

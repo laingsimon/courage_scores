@@ -75,6 +75,7 @@ describe('WebSocketUpdateStrategy', () => {
             const result: IWebSocketContext = await strategy.publish(
                 {context, subscriptions: {}, setContext, setSubscriptions: noop},
                 id,
+                LiveDataType.sayg,
                 'data');
 
             expect(result).toBeTruthy();
@@ -97,6 +98,7 @@ describe('WebSocketUpdateStrategy', () => {
             const result: IWebSocketContext = await strategy.publish(
                 {context, subscriptions: {}, setContext, setSubscriptions: noop},
                 id,
+                LiveDataType.sayg,
                 'data');
 
             expect(result).toBeNull();
@@ -120,12 +122,14 @@ describe('WebSocketUpdateStrategy', () => {
             await strategy.publish(
                 {context, subscriptions: {}, setContext, setSubscriptions: noop},
                 id,
+                LiveDataType.sayg,
                 'data');
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.update,
                 id,
-                data: 'data'
+                data: 'data',
+                dataType: LiveDataType.sayg,
             })]);
         });
 
@@ -147,12 +151,14 @@ describe('WebSocketUpdateStrategy', () => {
             await strategy.publish(
                 {context, subscriptions: {}, setContext, setSubscriptions: noop},
                 id,
+                LiveDataType.sayg,
                 'data');
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.update,
                 id,
-                data: 'data'
+                data: 'data',
+                dataType: LiveDataType.sayg,
             })]);
         });
     });

@@ -6,6 +6,7 @@ import {IUpdateStrategy} from "./IUpdateStrategy";
 import {WebSocketMode} from "./WebSocketMode";
 import {IStrategyData} from "./IStrategyData";
 import {ISubscription} from "./ISubscription";
+import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 interface IMultiModeLiveWebSocketProps {
     socketContext: IWebSocketContext;
@@ -41,7 +42,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         this.pollingStrategy = pollingStrategy;
     }
 
-    async publish(id: string, data: any): Promise<boolean> {
+    async publish(id: string, type: LiveDataType, data: any): Promise<boolean> {
         const strategies: IUpdateStrategy[] = this.getAllStrategies(this.socketContext);
         const strategyProps: IStrategyData = {
             context: this.socketContext,
@@ -52,7 +53,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         strategies.forEach((s: IUpdateStrategy) => s.refresh(strategyProps));
 
         for (const strategy of strategies) {
-            const published: IWebSocketContext = await strategy.publish(strategyProps, id, data);
+            const published: IWebSocketContext = await strategy.publish(strategyProps, id, type, data);
             if (published) {
                 await this.setSocketContext(published);
                 return true;
