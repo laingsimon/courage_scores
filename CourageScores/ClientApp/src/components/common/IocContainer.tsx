@@ -37,7 +37,9 @@ export interface IIocContainerProps {
 
 /* istanbul ignore next */
 export function IocContainer({children, overrideHttp, overrideParentHeight, ...services} : IIocContainerProps) {
-    const [socketContext, setSocketContext] = useState<IWebSocketContext>({});
+    const [socketContext, setSocketContext] = useState<IWebSocketContext>({
+        modes: [ WebSocketMode.socket, WebSocketMode.polling ]
+    });
     const [subscriptions, setSubscriptions] = useState<ISubscriptions>({});
     const settings: ISettings = new Settings();
     const http: IHttp = overrideHttp || new Http(settings);

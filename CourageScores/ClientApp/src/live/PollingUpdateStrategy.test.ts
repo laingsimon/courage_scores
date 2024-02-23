@@ -27,7 +27,7 @@ describe('PollingUpdateStrategy', () => {
     describe('refresh', () => {
         it('should accept context and subscriptions', async () => {
             const strategy: IUpdateStrategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {};
+            const context: IWebSocketContext = { modes: [] };
 
             strategy.refresh(context, {}, async () => {});
         });
@@ -49,6 +49,7 @@ describe('PollingUpdateStrategy', () => {
             const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
             const context: IWebSocketContext = {
                 pollingHandle: 1,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {
                 anotherId: {
@@ -62,13 +63,14 @@ describe('PollingUpdateStrategy', () => {
             const result = await strategy.unsubscribe(context, subscriptions, createTemporaryId());
 
             expect(result).toEqual({
-                pollingHandle: 1
+                pollingHandle: 1,
+                modes: [],
             });
         });
 
         it('should do nothing if no subscriptions and no polling handle', async () => {
             const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {};
+            const context: IWebSocketContext = { modes: [] };
             const subscriptions: ISubscriptions = {
                 anotherId: {
                     id: 'anotherId',
@@ -80,7 +82,9 @@ describe('PollingUpdateStrategy', () => {
 
             const result = await strategy.unsubscribe(context, subscriptions, createTemporaryId());
 
-            expect(result).toEqual({});
+            expect(result).toEqual({
+                modes: [],
+            });
         });
 
         it('should clear timeout if no subscriptions and polling handle', async () => {
@@ -88,6 +92,7 @@ describe('PollingUpdateStrategy', () => {
             const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
             const context: IWebSocketContext = {
                 pollingHandle: 1,
+                modes: [],
             };
             window.clearTimeout = (id: number) => {
                 clearedTimeout = id;
@@ -97,7 +102,8 @@ describe('PollingUpdateStrategy', () => {
 
             expect(clearedTimeout).toEqual(1);
             expect(result).toEqual({
-                pollingHandle: null
+                pollingHandle: null,
+                modes: [],
             });
         });
     });
@@ -107,6 +113,7 @@ describe('PollingUpdateStrategy', () => {
             const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
             const context: IWebSocketContext = {
                 pollingHandle: 1,
+                modes: [],
             };
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
@@ -116,13 +123,14 @@ describe('PollingUpdateStrategy', () => {
             const result = await strategy.subscribe(context, {}, noop, request);
 
             expect(result).toEqual({
-                pollingHandle: 1
+                pollingHandle: 1,
+                modes: [],
             });
         });
 
         it('should setup new timeout and return new context if polling handle not defined', async () => {
             const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {};
+            const context: IWebSocketContext = { modes: [] };
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
                 type: LiveDataType.sayg,
@@ -134,7 +142,8 @@ describe('PollingUpdateStrategy', () => {
             const result = await strategy.subscribe(context, {}, noop, request);
 
             expect(result).toEqual({
-                pollingHandle: 123
+                pollingHandle: 123,
+                modes: [],
             });
         });
     });

@@ -119,7 +119,7 @@ describe('MultiModeLiveWebSocket', () => {
                 socketContext: socketContext,
                 subscriptions: {}
             });
-            webSocketStrategy.publishResponse = {};
+            webSocketStrategy.publishResponse = { modes: [] };
             const id: string = createTemporaryId();
 
             await socket.publish(id, 'data');
@@ -148,7 +148,7 @@ describe('MultiModeLiveWebSocket', () => {
                 subscriptions: {}
             });
             webSocketStrategy.publishResponse = null;
-            pollingStrategy.publishResponse = {};
+            pollingStrategy.publishResponse = { modes: [] };
             const id: string = createTemporaryId();
 
             await socket.publish(id, 'data');

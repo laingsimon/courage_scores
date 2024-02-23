@@ -6,5 +6,5 @@ export interface IWebSocketContext {
     closures?: number;
     banned?: boolean;
     pollingHandle?: number;
-    modes?: WebSocketMode[];
+    modes: WebSocketMode[];
 }

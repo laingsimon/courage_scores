@@ -19,6 +19,7 @@ describe('LiveWebSocket', () => {
                         readyState: 1,
                     } as any,
                     banned: true,
+                    modes: [],
                 },
                 subscriptions: {},
                 createSocket: () => new WebSocket(''),
@@ -46,7 +47,7 @@ describe('LiveWebSocket', () => {
                         sent = data;
                     },
                     readyState: 1,
-                } as any },
+                } as any, modes: [], },
                 subscriptions: {},
                 createSocket: () => new WebSocket(''),
                 setSocketContext: async () => {},
@@ -74,7 +75,7 @@ describe('LiveWebSocket', () => {
                     },
                     readyState: 2,
                     close: () => { closed = true },
-                } as any },
+                } as any, modes: [], },
                 setSocketContext: async () => {},
                 subscriptions: {},
                 setSubscriptions: async () => {},
@@ -129,7 +130,7 @@ describe('LiveWebSocket', () => {
                 },
             }
             const socket = new LiveWebSocket({
-                socketContext: { webSocket: new MockSocket(socketInfo) as any },
+                socketContext: { webSocket: new MockSocket(socketInfo) as any, modes: [], },
                 setSocketContext: async () => {},
                 subscriptions: {},
                 setSubscriptions: async () => {},
@@ -181,7 +182,7 @@ describe('LiveWebSocket', () => {
                 readyStateRetrieved: () => {},
             };
             const socket = new LiveWebSocket({
-                socketContext: { webSocket: new MockSocket(socketInfo) as any },
+                socketContext: { webSocket: new MockSocket(socketInfo) as any, modes: [], },
                 setSocketContext: async () => {},
                 subscriptions: {},
                 setSubscriptions: async () => {},
@@ -233,7 +234,7 @@ describe('LiveWebSocket', () => {
                 readyStateRetrieved: () => {},
             }
             const socket = new LiveWebSocket({
-                socketContext: { webSocket: new MockSocket(socketInfo) as any },
+                socketContext: { webSocket: new MockSocket(socketInfo) as any, modes: [], },
                 setSocketContext: async () => {},
                 subscriptions: {
                     anId: { id: 'anId', type: LiveDataType.sayg, errorHandler: () => {}, updateHandler: () => {} },
@@ -291,7 +292,7 @@ describe('LiveWebSocket', () => {
                 ]
             }
             const socket = new LiveWebSocket({
-                socketContext: { webSocket: new MockSocket(socketInfo) as any },
+                socketContext: { webSocket: new MockSocket(socketInfo) as any, modes: [], },
                 setSocketContext: async () => {},
                 subscriptions: {
                     anId: { id, type: LiveDataType.sayg, updateHandler: () => {}, errorHandler: () => {} },
@@ -328,7 +329,7 @@ describe('LiveWebSocket', () => {
                     },
                     readyState: 1,
                     close: () => { },
-                } as WebSocket },
+                } as WebSocket, modes: [], },
                 subscriptions,
                 setSubscriptions: async () => {},
                 setSocketContext: async () => {},
@@ -352,7 +353,7 @@ describe('LiveWebSocket', () => {
                     send: () => {},
                     readyState: 1,
                     close: () => { closed = true },
-                } as any },
+                } as any, modes: [], },
                 subscriptions: {},
                 setSubscriptions: async () => {},
                 setSocketContext: async () => {},
@@ -375,7 +376,7 @@ describe('LiveWebSocket', () => {
                     send: (_: string) => {},
                     readyState: 1,
                     close: () => { closed = true },
-                } as WebSocket },
+                } as WebSocket, modes: [], },
                 subscriptions,
                 setSubscriptions: async (value) => {
                     // mutate the instance to save the need for a new LiveWebSocket to be created.
@@ -409,7 +410,7 @@ describe('LiveWebSocket', () => {
                         sent = value;
                     },
                     readyState: 1,
-                } as WebSocket },
+                } as WebSocket, modes: [], },
                 subscriptions: {},
                 setSubscriptions: async () => {},
                 setSocketContext: async () => {},
@@ -435,7 +436,7 @@ describe('LiveWebSocket', () => {
             } as any;
             let subscriptions: ISubscriptions = {};
             const socket = new LiveWebSocket({
-                socketContext: { webSocket },
+                socketContext: { webSocket, modes: [], },
                 subscriptions,
                 setSubscriptions: async (value) => {
                     // mutate the instance to save the need for a new LiveWebSocket to be created.
@@ -490,7 +491,7 @@ describe('LiveWebSocket', () => {
             } as WebSocket;
             subscriptions = {};
             socket = new LiveWebSocket({
-                socketContext: { webSocket },
+                socketContext: { webSocket, modes: [], },
                 subscriptions,
                 setSubscriptions: async (value) => {
                     // mutate the instance to save the need for a new LiveWebSocket to be created.
@@ -643,7 +644,7 @@ describe('LiveWebSocket', () => {
             } as any;
             newSocket = null;
             new LiveWebSocket({
-                socketContext: { webSocket },
+                socketContext: { webSocket, modes: [], },
                 subscriptions: {},
                 setSubscriptions: async () => {},
                 setSocketContext: async (value) => newSocket = value,
@@ -661,6 +662,7 @@ describe('LiveWebSocket', () => {
             expect(newSocket).toEqual({
                 webSocket: null,
                 closures: 1,
+                modes: [],
             });
         });
     });

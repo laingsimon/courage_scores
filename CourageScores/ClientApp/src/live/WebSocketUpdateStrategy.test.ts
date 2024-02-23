@@ -24,6 +24,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             }
 
             strategy.refresh(context, {}, setContext);
@@ -35,6 +36,7 @@ describe('WebSocketUpdateStrategy', () => {
                 webSocket: {
 
                 } as any,
+                modes: [],
             }
 
             strategy.refresh(context, {}, setContext);
@@ -48,6 +50,7 @@ describe('WebSocketUpdateStrategy', () => {
                 webSocket: {
 
                 } as any,
+                modes: [],
             }
 
             strategy.refresh(context, {}, setContext);
@@ -65,6 +68,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             };
             const id = createTemporaryId();
 
@@ -83,6 +87,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             };
             const id = createTemporaryId();
 
@@ -102,6 +107,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             };
             const id = createTemporaryId();
 
@@ -125,6 +131,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const id = createTemporaryId();
 
@@ -143,6 +150,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             };
             const id = createTemporaryId();
 
@@ -163,6 +171,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const id = createTemporaryId();
 
@@ -187,6 +196,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const id = createTemporaryId();
 
@@ -195,6 +205,7 @@ describe('WebSocketUpdateStrategy', () => {
             expect(closed).toEqual(true);
             expect(result).toEqual({
                 webSocket: null,
+                modes: [],
             });
         });
 
@@ -211,6 +222,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const id = createTemporaryId();
             const subscriptions: ISubscriptions = {
@@ -227,6 +239,7 @@ describe('WebSocketUpdateStrategy', () => {
             expect(closed).toEqual(false);
             expect(result).toEqual({
                 webSocket: mockWebSocket,
+                modes: [],
             });
         });
     });
@@ -240,6 +253,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             };
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
@@ -285,6 +299,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             };
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
@@ -311,6 +326,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
@@ -336,6 +352,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {};
             strategy.refresh(context, subscriptions, setContext);
@@ -363,6 +380,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {
                 '1234': {
@@ -421,6 +439,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {
                 '1234': {
@@ -479,6 +498,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {};
             strategy.refresh(context, subscriptions, setContext);
@@ -507,6 +527,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {};
             strategy.refresh(context, subscriptions, setContext);
@@ -531,6 +552,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {
                 '1234': {
@@ -587,6 +609,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {
                 '1234': {
@@ -640,6 +663,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {};
             strategy.refresh(context, subscriptions, setContext);
@@ -665,6 +689,7 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
+                modes: [],
             };
             const subscriptions: ISubscriptions = {};
             strategy.refresh(context, subscriptions, setContext);
@@ -676,6 +701,7 @@ describe('WebSocketUpdateStrategy', () => {
             expect(error).toEqual('Socket disconnected');
             expect(newContext).toEqual({
                 webSocket: null,
+                modes: [],
             });
         });
     })
