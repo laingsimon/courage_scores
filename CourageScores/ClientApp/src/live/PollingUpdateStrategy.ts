@@ -30,7 +30,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         this.refreshContext = { context, allSubscriptions, setContext };
     }
 
-    async publish(_: IWebSocketContext, __: string, ___: any): Promise<IWebSocketContext | null> {
+    async publish(_: IWebSocketContext, __: ISubscriptions, ___: (socket: IWebSocketContext) => Promise<any>, ____: string, _____: any): Promise<IWebSocketContext | null> {
         return null;
     }
 
@@ -46,7 +46,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         return newContext;
     }
 
-    async subscribe(context: IWebSocketContext, _: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+    async subscribe(context: IWebSocketContext, _: ISubscriptions, __: (socket: IWebSocketContext) => Promise<any>, ___: ISubscriptionRequest): Promise<IWebSocketContext | null> {
         if (context.pollingHandle) {
             return context;
         }

@@ -68,7 +68,7 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            const result: IWebSocketContext = await strategy.publish(context, id, 'data');
+            const result: IWebSocketContext = await strategy.publish(context, {}, noop, id, 'data');
 
             expect(result).toBeTruthy();
             expect(result.webSocket).toEqual(mockWebSocket);
@@ -86,7 +86,7 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            const result: IWebSocketContext = await strategy.publish(context, id, 'data');
+            const result: IWebSocketContext = await strategy.publish(context, {}, noop, id, 'data');
 
             expect(result).toBeNull();
         });
@@ -105,7 +105,7 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            await strategy.publish(context, id, 'data');
+            await strategy.publish(context, {}, noop, id, 'data');
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.update,
@@ -128,7 +128,7 @@ describe('WebSocketUpdateStrategy', () => {
             };
             const id = createTemporaryId();
 
-            await strategy.publish(context, id, 'data');
+            await strategy.publish(context, {}, noop, id, 'data');
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.update,
@@ -246,7 +246,7 @@ describe('WebSocketUpdateStrategy', () => {
                 type: LiveDataType.sayg
             };
 
-            const result: IWebSocketContext = await strategy.subscribe(context, request);
+            const result: IWebSocketContext = await strategy.subscribe(context, {}, noop, request);
 
             expect(result).toBeTruthy();
             expect(result.webSocket).toEqual(mockWebSocket);
@@ -261,13 +261,14 @@ describe('WebSocketUpdateStrategy', () => {
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
+                modes: [],
             };
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
                 type: LiveDataType.sayg
             };
 
-            const result: IWebSocketContext = await strategy.subscribe(context, request);
+            const result: IWebSocketContext = await strategy.subscribe(context, {}, noop, request);
 
             expect(result).toEqual(null);
         });
@@ -290,7 +291,7 @@ describe('WebSocketUpdateStrategy', () => {
                 type: LiveDataType.sayg
             };
 
-            await strategy.subscribe(context, request);
+            await strategy.subscribe(context, {}, noop, request);
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.subscribed,
@@ -316,7 +317,7 @@ describe('WebSocketUpdateStrategy', () => {
                 type: LiveDataType.sayg
             };
 
-            await strategy.subscribe(context, request);
+            await strategy.subscribe(context, {}, noop, request);
 
             expect(sent).toEqual([JSON.stringify({
                 type: MessageType.subscribed,

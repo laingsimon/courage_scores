@@ -9,13 +9,13 @@ import {ISubscriptionRequest} from "./ISubscriptionRequest";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 
 interface IMockUpdateStrategy extends IUpdateStrategy {
-    refreshRequest?: { context: IWebSocketContext, subscriptions: ISubscriptions };
-    refreshed: boolean;
+    refreshRequest: { context: IWebSocketContext, subscriptions: ISubscriptions }[];
+    refreshed: number;
 
-    publishRequest?: { context: IWebSocketContext, id: string, data: any };
+    publishRequest?: { context: IWebSocketContext, id: string, data: any, subscriptions: ISubscriptions };
     publishResponse?: IWebSocketContext;
 
-    subscribeRequest?: { context: IWebSocketContext, request: ISubscriptionRequest };
+    subscribeRequest?: { context: IWebSocketContext, request: ISubscriptionRequest, subscriptions: ISubscriptions };
     subscribeResponse?: IWebSocketContext;
 
     unsubscribeRequest?: { context: IWebSocketContext, subscriptions: ISubscriptions, id: string };
@@ -36,17 +36,18 @@ describe('MultiModeLiveWebSocket', () => {
 
     function mockStrategy(): IMockUpdateStrategy {
         return {
-            refreshed: false,
+            refreshed: 0,
+            refreshRequest: [],
             refresh(context: IWebSocketContext, subscriptions: ISubscriptions) {
-                this.refreshRequest = { context, subscriptions };
-                this.refreshed = true;
+                this.refreshRequest.push({ context, subscriptions });
+                this.refreshed++;
             },
-            async publish(context: IWebSocketContext, id: string, data: any): Promise<IWebSocketContext | null> {
-                this.publishRequest = { context, id, data };
+            async publish(context: IWebSocketContext, subscriptions: ISubscriptions, _: (socket: IWebSocketContext) => Promise<any>, id: string, data: any): Promise<IWebSocketContext | null> {
+                this.publishRequest = { context, id, data, subscriptions };
                 return this.publishResponse === undefined ? context : this.publishResponse;
             },
-            async subscribe(context: IWebSocketContext, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
-                this.subscribeRequest = { context, request };
+            async subscribe(context: IWebSocketContext, subscriptions: ISubscriptions, _: (socket: IWebSocketContext) => Promise<any>, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+                this.subscribeRequest = { context, request, subscriptions };
                 return this.subscribeResponse === undefined ? context : this.subscribeResponse;
             },
             async unsubscribe(context: IWebSocketContext, subscriptions: ISubscriptions, id: string): Promise<IWebSocketContext> {
@@ -100,8 +101,8 @@ describe('MultiModeLiveWebSocket', () => {
 
             await socket.publish(createTemporaryId(), 'data');
 
-            expect(pollingStrategy.refreshed).toEqual(true);
-            expect(webSocketStrategy.refreshed).toEqual(true);
+            expect(pollingStrategy.refreshed).toEqual(1);
+            expect(webSocketStrategy.refreshed).toEqual(1);
         });
 
         it('publishes via the first strategy only', async () => {
@@ -127,6 +128,7 @@ describe('MultiModeLiveWebSocket', () => {
                 context: socketContext,
                 id,
                 data: 'data',
+                subscriptions: {},
             });
             expect(pollingStrategy.publishRequest).toBeFalsy();
         });
@@ -155,11 +157,13 @@ describe('MultiModeLiveWebSocket', () => {
                 context: socketContext,
                 id,
                 data: 'data',
+                subscriptions: {},
             });
             expect(pollingStrategy.publishRequest).toEqual({
                 context: socketContext,
                 id,
                 data: 'data',
+                subscriptions: {},
             });
         });
 
@@ -209,8 +213,8 @@ describe('MultiModeLiveWebSocket', () => {
 
             await socket.unsubscribe(createTemporaryId());
 
-            expect(pollingStrategy.refreshed).toEqual(true);
-            expect(webSocketStrategy.refreshed).toEqual(true);
+            expect(pollingStrategy.refreshed).toEqual(1);
+            expect(webSocketStrategy.refreshed).toEqual(1);
         });
 
         it('removes the subscription and updates subscriptions state', async () => {
@@ -382,7 +386,16 @@ describe('MultiModeLiveWebSocket', () => {
                 request: {
                     id,
                     type: LiveDataType.sayg,
-                }
+                },
+                subscriptions: {
+                    NEW_ID: {
+                        id,
+                        method: WebSocketMode.socket,
+                        type: LiveDataType.sayg,
+                        updateHandler: expect.any(Function),
+                        errorHandler: expect.any(Function),
+                    },
+                },
             });
         });
 
@@ -481,7 +494,16 @@ describe('MultiModeLiveWebSocket', () => {
                 request: {
                     id,
                     type: LiveDataType.sayg,
-                }
+                },
+                subscriptions: {
+                    NEW_ID: {
+                        id,
+                        method: WebSocketMode.polling,
+                        type: LiveDataType.sayg,
+                        updateHandler: expect.any(Function),
+                        errorHandler: expect.any(Function),
+                    },
+                },
             });
         });
 

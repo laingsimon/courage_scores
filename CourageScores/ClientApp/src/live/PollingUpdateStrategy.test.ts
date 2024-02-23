@@ -2,7 +2,7 @@ import {PollingUpdateStrategy} from "./PollingUpdateStrategy";
 import {IWebSocketContext} from "./IWebSocketContext";
 import {createTemporaryId} from "../helpers/projection";
 import {IUpdateStrategy} from "./IUpdateStrategy";
-import {api} from "../helpers/tests";
+import {api, noop} from "../helpers/tests";
 import {ILiveApi} from "../interfaces/apis/ILiveApi";
 import {ISubscriptions} from "./ISubscriptions";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
@@ -36,9 +36,9 @@ describe('PollingUpdateStrategy', () => {
     describe('publish', () => {
         it('should return null', async () => {
             const strategy: IUpdateStrategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {};
+            const context: IWebSocketContext = { modes: [] };
 
-            const result = await strategy.publish(context, createTemporaryId(), 'data');
+            const result = await strategy.publish(context, {}, noop, createTemporaryId(), 'data');
 
             expect(result).toBeNull();
         });
@@ -113,7 +113,7 @@ describe('PollingUpdateStrategy', () => {
                 type: LiveDataType.sayg,
             };
 
-            const result = await strategy.subscribe(context, request);
+            const result = await strategy.subscribe(context, {}, noop, request);
 
             expect(result).toEqual({
                 pollingHandle: 1
@@ -131,7 +131,7 @@ describe('PollingUpdateStrategy', () => {
                 return 123;
             }) as any;
 
-            const result = await strategy.subscribe(context, request);
+            const result = await strategy.subscribe(context, {}, noop, request);
 
             expect(result).toEqual({
                 pollingHandle: 123
@@ -164,7 +164,7 @@ describe('PollingUpdateStrategy', () => {
             const context: IWebSocketContext = {
                 modes: [ WebSocketMode.polling ]
             };
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             let log: string;
             console.log = (msg: string) => log = msg;
 
@@ -182,7 +182,7 @@ describe('PollingUpdateStrategy', () => {
             const subscriptions: ISubscriptions = {
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
 
             expect(timerCallback).toBeTruthy();
@@ -206,7 +206,7 @@ describe('PollingUpdateStrategy', () => {
                 },
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
                 return {
@@ -246,7 +246,7 @@ describe('PollingUpdateStrategy', () => {
                 },
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
                 return {
@@ -298,7 +298,7 @@ describe('PollingUpdateStrategy', () => {
                 },
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
                 return {
@@ -341,7 +341,7 @@ describe('PollingUpdateStrategy', () => {
                 type: 'updated',
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<UpdatedDataDto> => {
                 return {
@@ -377,7 +377,7 @@ describe('PollingUpdateStrategy', () => {
                 },
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
                 return {
@@ -410,7 +410,7 @@ describe('PollingUpdateStrategy', () => {
                 },
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
                 return {
@@ -444,7 +444,7 @@ describe('PollingUpdateStrategy', () => {
                 },
             };
             strategy.refresh(context, subscriptions, setContext);
-            await strategy.subscribe(context, null);
+            await strategy.subscribe(context, {}, noop, null);
             expect(timerHandle).toEqual(1);
             updateLookup['1234'] = (): IClientActionResultDto<any> => {
                 throw new Error('ERROR');

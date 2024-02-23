@@ -44,7 +44,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         strategies.forEach((s: IUpdateStrategy) => s.refresh(this.socketContext, this.subscriptions, this.setSocketContext));
 
         for (const strategy of strategies) {
-            const published: IWebSocketContext = await strategy.publish(this.socketContext, id, data);
+            const published: IWebSocketContext = await strategy.publish(this.socketContext, this.subscriptions, this.setSocketContext, id, data);
             if (published) {
                 await this.setSocketContext(published);
                 return true;
@@ -95,8 +95,8 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
                 continue; // null strategy
             }
 
-            strategy.refresh(this.socketContext, newSubscriptions, this.setSocketContext);
-            const result: IWebSocketContext = await strategy.subscribe(newSocketContext, request);
+            strategy.refresh(newSocketContext, newSubscriptions, this.setSocketContext);
+            const result: IWebSocketContext = await strategy.subscribe(newSocketContext, newSubscriptions, this.setSocketContext, request);
             if (result) {
                 newSocketContext = result;
                 newSubscriptions[request.id].method = mode;

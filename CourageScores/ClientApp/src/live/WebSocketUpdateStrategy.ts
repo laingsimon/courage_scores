@@ -22,9 +22,9 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         context.webSocket.onclose = (async () => await setContext(await this.handleDisconnect(context)));
     }
 
-    async publish(context: IWebSocketContext, id: string, data: any): Promise<IWebSocketContext | null> {
+    async publish(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>, id: string, data: any): Promise<IWebSocketContext | null> {
         if (!context.webSocket) {
-            context = await this.createSocketAndWaitForReady(context);
+            context = await this.createSocketAndWaitForReady(context, subscriptions, setContext);
             if (!context) {
                 return null;
             }
@@ -59,9 +59,9 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         return newContext;
     }
 
-    async subscribe(context: IWebSocketContext, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+    async subscribe(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>, request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
         if (!context.webSocket) {
-            context = await this.createSocketAndWaitForReady(context);
+            context = await this.createSocketAndWaitForReady(context, subscriptions, setContext);
             if (!context) {
                 return null;
             }
@@ -106,11 +106,12 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         });
     }
 
-    private async createSocketAndWaitForReady(context: IWebSocketContext): Promise<IWebSocketContext | null>{
+    private async createSocketAndWaitForReady(context: IWebSocketContext, subscriptions: ISubscriptions, setContext: (socket: IWebSocketContext) => Promise<any>): Promise<IWebSocketContext | null>{
         const socket: WebSocket = this.createSocket();
         const newContext: IWebSocketContext = Object.assign({}, context);
         newContext.connectionAttempts = (newContext.connectionAttempts || 0) + 1;
         newContext.webSocket = socket;
+        this.refresh(newContext, subscriptions, setContext);
 
         return await this.awaitReady(newContext);
     }
