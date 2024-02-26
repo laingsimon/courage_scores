@@ -28,6 +28,12 @@
     You need to enable JavaScript to run this app.
 </noscript>
 <script>
+    function onError(message, source, lineno, colno, error) {
+        window.alert(`Some error occurred: ${message}\n${source}@${lineno}:${colno}\n${JSON.stringify(error)}`);
+    }
+    window.onerror = onError;
+</script>
+<script>
     window.branding = {
         name: 'Courage Scores',
         email: 'info@couragescores.co.uk',
