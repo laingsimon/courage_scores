@@ -2,6 +2,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Live;
+using CourageScores.Services;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
@@ -41,6 +42,14 @@ public class PublishUpdatesProcessorTests
         _subscriberSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
         _publisherSocket.Setup(s => s.Details).Returns(_publisherDetails);
         _clock.Setup(c => c.UtcNow).Returns(() => _now);
+    }
+
+    [Test]
+    public void Disconnected_WhenCalled_RemovesSocket()
+    {
+        _processor.Disconnected(_publisherSocket.Object);
+
+        Assert.That(_sockets, Is.EquivalentTo(new[] { _subscriberSocket.Object }));
     }
 
     [Test]
@@ -134,10 +143,31 @@ public class PublishUpdatesProcessorTests
     }
 
     [Test]
-    public void Disconnected_WhenCalled_RemovesSocket()
+    public async Task GetWatchableData_WhenCalled_ReturnsDetails()
     {
-        _processor.Disconnected(_publisherSocket.Object);
+        var socket = new Mock<IWebSocketContract>();
+        var sayg = new WebSocketPublication
+        {
+            Id = Guid.NewGuid(),
+            DataType = LiveDataType.Sayg,
+            LastUpdate = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
+        };
+        var details = new WebSocketDetail
+        {
+            Id = Guid.NewGuid(),
+            Publishing =
+            {
+                sayg
+            },
+        };
+        _sockets.Clear();
+        _sockets.Add(socket.Object);
+        socket.Setup(s => s.Details).Returns(details);
 
-        Assert.That(_sockets, Is.EquivalentTo(new[] { _subscriberSocket.Object }));
+        var result = await _processor.GetWatchableData(_token).ToList();
+
+        Assert.That(result.Select(d => d.PublicationMode), Is.EquivalentTo(new[] { PublicationMode.WebSocket }));
+        Assert.That(result.Select(d => d.Publication), Is.EquivalentTo(new[] { sayg }));
+        Assert.That(result.Select(d => d.Connection), Is.EquivalentTo(new[] { details }));
     }
 }

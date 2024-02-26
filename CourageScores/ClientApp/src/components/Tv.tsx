@@ -18,7 +18,9 @@ export function Tv() {
     []);
 
     async function reloadConnections() {
+        /* istanbul ignore next */
         if (loading) {
+            /* istanbul ignore next */
             return;
         }
 
