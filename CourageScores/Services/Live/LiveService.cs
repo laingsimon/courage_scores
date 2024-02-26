@@ -1,4 +1,6 @@
 ﻿using System.Net.WebSockets;
+using CourageScores.Models;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Identity;
@@ -14,19 +16,22 @@ public class LiveService : ILiveService
     private readonly IUserService _userService;
     private readonly IUpdatedDataSource _updatedDataSource;
     private readonly IWebSocketMessageProcessor _webSocketMessageProcessor;
+    private readonly ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto> _webSocketDetailAdapter;
 
     public LiveService(
         ICollection<IWebSocketContract> sockets,
         IWebSocketContractFactory socketContractFactory,
         IUserService userService,
         IUpdatedDataSource updatedDataSource,
-        IWebSocketMessageProcessor webSocketMessageProcessor)
+        IWebSocketMessageProcessor webSocketMessageProcessor,
+        ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto> webSocketDetailAdapter)
     {
         _sockets = sockets;
         _socketContractFactory = socketContractFactory;
         _userService = userService;
         _updatedDataSource = updatedDataSource;
         _webSocketMessageProcessor = webSocketMessageProcessor;
+        _webSocketDetailAdapter = webSocketDetailAdapter;
     }
 
     public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
@@ -58,7 +63,7 @@ public class LiveService : ILiveService
         return new ActionResultDto<List<WebSocketDto>>
         {
             Success = true,
-            Result = _sockets.Select(s => s.WebSocketDto).ToList(),
+            Result = await _sockets.SelectAsync(s => _webSocketDetailAdapter.Adapt(s.Details, token)).ToList(),
         };
     }
 
@@ -75,7 +80,7 @@ public class LiveService : ILiveService
             return Error<WebSocketDto>("Not permitted");
         }
 
-        var socket = _sockets.SingleOrDefault(s => s.WebSocketDto.Id == socketId);
+        var socket = _sockets.SingleOrDefault(s => s.Details.Id == socketId);
         if (socket == null)
         {
             return Error<WebSocketDto>("Not found");
@@ -86,7 +91,7 @@ public class LiveService : ILiveService
         return new ActionResultDto<WebSocketDto>
         {
             Success = true,
-            Result = socket.WebSocketDto,
+            Result = await _webSocketDetailAdapter.Adapt(socket.Details, token),
             Messages =
             {
                 "Socket closed",
@@ -156,7 +161,7 @@ public class LiveService : ILiveService
 
     private class HttpUpdateWebSocketContract : IWebSocketContract
     {
-        public WebSocketDto WebSocketDto { get; } = new WebSocketDto();
+        public WebSocketDetail Details { get; } = new WebSocketDetail();
 
         public Task Accept(CancellationToken token)
         {

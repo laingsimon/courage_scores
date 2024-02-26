@@ -1,4 +1,6 @@
 using System.Net.WebSockets;
+using CourageScores.Models;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Live;
 using CourageScores.Services.Identity;
@@ -20,6 +22,7 @@ public class LiveServiceTests
     private UserDto? _user;
     private Mock<IUpdatedDataSource> _updatedDataSource = null!;
     private Mock<IWebSocketMessageProcessor> _webSocketMessageProcessor = null!;
+    private Mock<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>> _adapter = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -29,7 +32,8 @@ public class LiveServiceTests
         _userService = new Mock<IUserService>();
         _updatedDataSource = new Mock<IUpdatedDataSource>();
         _webSocketMessageProcessor = new Mock<IWebSocketMessageProcessor>();
-        _service = new LiveService(_sockets, _contractFactory.Object, _userService.Object, _updatedDataSource.Object, _webSocketMessageProcessor.Object);
+        _adapter = new Mock<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>>();
+        _service = new LiveService(_sockets, _contractFactory.Object, _userService.Object, _updatedDataSource.Object, _webSocketMessageProcessor.Object, _adapter.Object);
         _contract = new Mock<IWebSocketContract>();
 
         _contractFactory
@@ -129,6 +133,7 @@ public class LiveServiceTests
     public async Task GetSockets_WhenPermitted_ReturnsSockets()
     {
         var socketDto = new WebSocketDto();
+        var details = new WebSocketDetail();
         var socket = new Mock<IWebSocketContract>();
         _user = new UserDto
         {
@@ -138,7 +143,8 @@ public class LiveServiceTests
             },
         };
         _sockets.Add(socket.Object);
-        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+        _adapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.GetSockets(_token);
 
@@ -150,13 +156,18 @@ public class LiveServiceTests
     public async Task CloseSocket_WhenLoggedOut_ReturnsNotLoggedIn()
     {
         _user = null;
-        var socketDto = new WebSocketDto
+        var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
         };
+        var socketDto = new WebSocketDto
+        {
+            Id = details.Id,
+        };
         var socket = new Mock<IWebSocketContract>();
         _sockets.Add(socket.Object);
-        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+        _adapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(socketDto.Id, _token);
 
@@ -171,13 +182,18 @@ public class LiveServiceTests
         {
             Access = new AccessDto(),
         };
-        var socketDto = new WebSocketDto
+        var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
         };
+        var socketDto = new WebSocketDto
+        {
+            Id = details.Id,
+        };
         var socket = new Mock<IWebSocketContract>();
         _sockets.Add(socket.Object);
-        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+        _adapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(socketDto.Id, _token);
 
@@ -195,9 +211,13 @@ public class LiveServiceTests
                 ManageSockets = true,
             },
         };
-        var socketDto = new WebSocketDto
+        var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
+        };
+        var socketDto = new WebSocketDto
+        {
+            Id = details.Id,
         };
         var socket = new Mock<IWebSocketContract>();
         _user = new UserDto
@@ -208,7 +228,8 @@ public class LiveServiceTests
             },
         };
         _sockets.Add(socket.Object);
-        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+        _adapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(Guid.NewGuid(), _token);
 
@@ -226,9 +247,13 @@ public class LiveServiceTests
                 ManageSockets = true,
             },
         };
-        var socketDto = new WebSocketDto
+        var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
+        };
+        var socketDto = new WebSocketDto
+        {
+            Id = details.Id,
         };
         var socket = new Mock<IWebSocketContract>();
         _user = new UserDto
@@ -239,7 +264,8 @@ public class LiveServiceTests
             },
         };
         _sockets.Add(socket.Object);
-        socket.Setup(s => s.WebSocketDto).Returns(socketDto);
+        _adapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
+        socket.Setup(s => s.Details).Returns(details);
 
         var result = await _service.CloseSocket(socketDto.Id, _token);
 
