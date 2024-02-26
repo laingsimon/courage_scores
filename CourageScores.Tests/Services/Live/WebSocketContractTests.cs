@@ -4,6 +4,7 @@ using System.Text;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 using CourageScores.Services;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Authentication;
@@ -27,7 +28,7 @@ public class WebSocketContractTests
     private Guid _key;
     private Queue<ReceiveResultAndData> _receiveResults = null!;
     private WebSocketCloseStatus? _socketStatus;
-    private WebSocketDto _dto = null!;
+    private WebSocketDetail _details = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -36,9 +37,9 @@ public class WebSocketContractTests
         _serializerService = new RecordingSerializerService();
         _processor = new Mock<IWebSocketMessageProcessor>();
         _clock = new Mock<ISystemClock>();
-        _dto = new WebSocketDto();
+        _details = new WebSocketDetail();
         _key = Guid.NewGuid();
-        _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object, _dto, _clock.Object);
+        _contract = new WebSocketContract(_socket.Object, _serializerService, _processor.Object, _details, _clock.Object);
         _receiveResults = new Queue<ReceiveResultAndData>();
         _socket.Setup(s => s.CloseStatus).Returns(() => _socketStatus);
 
@@ -162,7 +163,7 @@ public class WebSocketContractTests
 
         await _contract.Accept(_token);
 
-        Assert.That(_dto.LastReceipt, Is.EqualTo(now));
+        Assert.That(_details.LastReceipt, Is.EqualTo(now));
     }
 
     [Test]
@@ -181,7 +182,7 @@ public class WebSocketContractTests
 
         await _contract.Accept(_token);
 
-        Assert.That(_dto.ReceivedMessages, Is.EqualTo(1));
+        Assert.That(_details.ReceivedMessages, Is.EqualTo(1));
     }
 
     [Test]
@@ -316,7 +317,7 @@ public class WebSocketContractTests
         await _contract.Accept(_token);
 
         Assert.That(_contract.IsSubscribedTo(messageDto.Id.Value), Is.True);
-        Assert.That(_dto.Subscriptions, Is.EquivalentTo(new[] { messageDto.Id.Value }));
+        Assert.That(_details.Subscriptions, Is.EquivalentTo(new[] { messageDto.Id.Value }));
     }
 
     [Test]
@@ -362,7 +363,7 @@ public class WebSocketContractTests
         await _contract.Accept(_token);
 
         Assert.That(_contract.IsSubscribedTo(subscribeMessageDto.Id.Value), Is.False);
-        Assert.That(_dto.Subscriptions, Is.Empty);
+        Assert.That(_details.Subscriptions, Is.Empty);
     }
 
     [Test]
@@ -419,7 +420,7 @@ public class WebSocketContractTests
 
         await _contract.Send(messageDto, _token);
 
-        Assert.That(_dto.LastSent, Is.EqualTo(now));
+        Assert.That(_details.LastSent, Is.EqualTo(now));
     }
 
     [Test]
@@ -434,7 +435,7 @@ public class WebSocketContractTests
 
         await _contract.Send(messageDto, _token);
 
-        Assert.That(_dto.SentMessages, Is.EqualTo(1));
+        Assert.That(_details.SentMessages, Is.EqualTo(1));
     }
 
     [Test]

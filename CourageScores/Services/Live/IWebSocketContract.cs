@@ -1,11 +1,11 @@
 using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 
 namespace CourageScores.Services.Live;
 
 public interface IWebSocketContract
 {
-    WebSocketDto WebSocketDto { get; }
+    WebSocketDetail Details { get; }
 
     Task Accept(CancellationToken token);
     Task Send(LiveMessageDto message, CancellationToken token);

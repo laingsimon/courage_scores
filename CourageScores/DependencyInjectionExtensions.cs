@@ -6,6 +6,7 @@ using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Adapters.Identity;
+using CourageScores.Models.Adapters.Live;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Adapters.Team;
@@ -22,9 +23,11 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Models.Live;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services;
@@ -233,6 +236,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleOnewayAdapter<Template, SeasonHealthDto>, TemplateToHealthCheckAdapter>();
 
         services.AddScoped<IUpdateScoresAdapter, UpdateScoresAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>, WebSocketDtoAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>, WatchableDataDtoAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

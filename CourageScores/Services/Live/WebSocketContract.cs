@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using System.Text;
 using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;
@@ -18,17 +18,17 @@ public class WebSocketContract : IWebSocketContract
         WebSocket socket,
         IJsonSerializerService serializerService,
         IWebSocketMessageProcessor processor,
-        WebSocketDto webSocketDto,
+        WebSocketDetail details,
         ISystemClock systemClock)
     {
-        WebSocketDto = webSocketDto;
+        Details = details;
         _socket = socket;
         _serializerService = serializerService;
         _processor = processor;
         _systemClock = systemClock;
     }
 
-    public WebSocketDto WebSocketDto { get; }
+    public WebSocketDetail Details { get; }
 
     public bool IsSubscribedTo(Guid id)
     {
@@ -97,8 +97,8 @@ public class WebSocketContract : IWebSocketContract
         try
         {
             await _socket.SendAsync(segment, WebSocketMessageType.Text, true, token);
-            WebSocketDto.SentMessages++;
-            WebSocketDto.LastSent = _systemClock.UtcNow;
+            Details.SentMessages++;
+            Details.LastSent = _systemClock.UtcNow;
         }
         catch (WebSocketException)
         {
@@ -126,8 +126,8 @@ public class WebSocketContract : IWebSocketContract
 
     private async Task ProcessMessage(byte[] messageBytes, CancellationToken token)
     {
-        WebSocketDto.LastReceipt = _systemClock.UtcNow;
-        WebSocketDto.ReceivedMessages++;
+        Details.LastReceipt = _systemClock.UtcNow;
+        Details.ReceivedMessages++;
         var dto = _serializerService.DeserialiseTo<LiveMessageDto>(Encoding.UTF8.GetString(messageBytes));
         switch (dto.Type)
         {
@@ -159,7 +159,7 @@ public class WebSocketContract : IWebSocketContract
                 if (dto.Id != null)
                 {
                     _subscribedIds.Add(dto.Id.Value);
-                    WebSocketDto.Subscriptions = _subscribedIds.ToList();
+                    Details.Subscriptions = _subscribedIds.ToList();
                     break;
                 }
 
@@ -175,7 +175,7 @@ public class WebSocketContract : IWebSocketContract
                 if (dto.Id != null)
                 {
                     _subscribedIds.Remove(dto.Id.Value);
-                    WebSocketDto.Subscriptions = _subscribedIds.ToList();
+                    Details.Subscriptions = _subscribedIds.ToList();
                     break;
                 }
 

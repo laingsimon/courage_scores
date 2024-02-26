@@ -19,6 +19,7 @@ import {DivisionDto} from "./interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "./interfaces/models/dtos/Season/SeasonDto";
 import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
+import {Tv} from "./components/Tv";
 
 export interface IAppProps {
     embed: boolean;
@@ -140,6 +141,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
                     <Route path='/practice' element={<Practice/>}/>
                     <Route path='/about' element={<About/>}/>
                     <Route path='/live/match/:id' element={<LiveSayg />}/>
+                    <Route path='/tv' element={<Tv/>}/>
                     {testRoute}
                 </Routes>
             </Layout>

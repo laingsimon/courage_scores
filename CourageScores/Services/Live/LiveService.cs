@@ -1,6 +1,9 @@
 ﻿using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Live;
@@ -14,19 +17,25 @@ public class LiveService : ILiveService
     private readonly IUserService _userService;
     private readonly IUpdatedDataSource _updatedDataSource;
     private readonly IWebSocketMessageProcessor _webSocketMessageProcessor;
+    private readonly ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto> _webSocketDetailAdapter;
+    private readonly ISimpleOnewayAdapter<WatchableData, WatchableDataDto> _watchableDataAdapter;
 
     public LiveService(
         ICollection<IWebSocketContract> sockets,
         IWebSocketContractFactory socketContractFactory,
         IUserService userService,
         IUpdatedDataSource updatedDataSource,
-        IWebSocketMessageProcessor webSocketMessageProcessor)
+        IWebSocketMessageProcessor webSocketMessageProcessor,
+        ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto> webSocketDetailAdapter,
+        ISimpleOnewayAdapter<WatchableData, WatchableDataDto> watchableDataAdapter)
     {
         _sockets = sockets;
         _socketContractFactory = socketContractFactory;
         _userService = userService;
         _updatedDataSource = updatedDataSource;
         _webSocketMessageProcessor = webSocketMessageProcessor;
+        _webSocketDetailAdapter = webSocketDetailAdapter;
+        _watchableDataAdapter = watchableDataAdapter;
     }
 
     public async Task Accept(WebSocket webSocket, string originatingUrl, CancellationToken token)
@@ -58,7 +67,7 @@ public class LiveService : ILiveService
         return new ActionResultDto<List<WebSocketDto>>
         {
             Success = true,
-            Result = _sockets.Select(s => s.WebSocketDto).ToList(),
+            Result = await _sockets.SelectAsync(s => _webSocketDetailAdapter.Adapt(s.Details, token)).ToList(),
         };
     }
 
@@ -75,7 +84,7 @@ public class LiveService : ILiveService
             return Error<WebSocketDto>("Not permitted");
         }
 
-        var socket = _sockets.SingleOrDefault(s => s.WebSocketDto.Id == socketId);
+        var socket = _sockets.SingleOrDefault(s => s.Details.Id == socketId);
         if (socket == null)
         {
             return Error<WebSocketDto>("Not found");
@@ -86,7 +95,7 @@ public class LiveService : ILiveService
         return new ActionResultDto<WebSocketDto>
         {
             Success = true,
-            Result = socket.WebSocketDto,
+            Result = await _webSocketDetailAdapter.Adapt(socket.Details, token),
             Messages =
             {
                 "Socket closed",
@@ -143,6 +152,45 @@ public class LiveService : ILiveService
         await _webSocketMessageProcessor.PublishUpdate(HttpUpdateContract, id, type, data, token);
     }
 
+    public async IAsyncEnumerable<WatchableDataDto> GetWatchableData(LiveDataType? type, [EnumeratorCancellation] CancellationToken token)
+    {
+        var lookups = new Dictionary<Guid, List<WatchableDataDto>>();
+
+        await foreach (var detail in _webSocketMessageProcessor.GetWatchableData(token))
+        {
+            var dto = await _watchableDataAdapter.Adapt(detail, token);
+            if (type == null || dto.DataType == type)
+            {
+                if (!lookups.TryGetValue(dto.Id, out var dtos))
+                {
+                    dtos = new List<WatchableDataDto>();
+                    lookups.Add(dto.Id, dtos);
+                }
+
+                dtos.Add(dto);
+            }
+        }
+
+        foreach (var pair in lookups)
+        {
+            var preferredDto = pair.Value.OrderBy(GetPublicationModePreference).First();
+            yield return preferredDto;
+        }
+    }
+
+    private static int GetPublicationModePreference(WatchableDataDto dto)
+    {
+        switch (dto.PublicationMode)
+        {
+            case PublicationMode.WebSocket:
+                return 1;
+            case PublicationMode.Polling:
+                return 2;
+            default:
+                return 3;
+        }
+    }
+
     private static ActionResultDto<T> Error<T>(string message)
     {
         return new ActionResultDto<T>
@@ -156,7 +204,7 @@ public class LiveService : ILiveService
 
     private class HttpUpdateWebSocketContract : IWebSocketContract
     {
-        public WebSocketDto WebSocketDto { get; } = new WebSocketDto();
+        public WebSocketDetail Details { get; } = new WebSocketDetail();
 
         public Task Accept(CancellationToken token)
         {

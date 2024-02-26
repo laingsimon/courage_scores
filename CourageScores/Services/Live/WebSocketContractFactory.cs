@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
-using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 
@@ -30,7 +30,7 @@ public class WebSocketContractFactory : IWebSocketContractFactory
     {
         var user = await _userService.GetUser(token);
 
-        var dto = new WebSocketDto
+        var dto = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
             Connected = _systemClock.UtcNow,
