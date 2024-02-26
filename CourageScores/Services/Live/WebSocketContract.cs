@@ -1,7 +1,7 @@
 using System.Net.WebSockets;
 using System.Text;
-using CourageScores.Models;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Live;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Live;

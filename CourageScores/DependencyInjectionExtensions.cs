@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using CourageScores.Filters;
-using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
@@ -28,6 +27,7 @@ using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Models.Live;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services;
@@ -237,6 +237,7 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IUpdateScoresAdapter, UpdateScoresAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>, WebSocketDtoAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>, WatchableDataDtoAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

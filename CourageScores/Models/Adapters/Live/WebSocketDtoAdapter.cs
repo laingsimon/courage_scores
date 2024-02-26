@@ -1,4 +1,5 @@
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 
 namespace CourageScores.Models.Adapters.Live;
 

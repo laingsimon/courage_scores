@@ -1,4 +1,6 @@
-namespace CourageScores.Models;
+using System.Collections.Concurrent;
+
+namespace CourageScores.Models.Live;
 
 public class WebSocketDetail
 {
@@ -9,6 +11,7 @@ public class WebSocketDetail
     public DateTimeOffset LastReceipt { get; set; }
     public DateTimeOffset? LastSent { get; set; }
     public List<Guid> Subscriptions { get; set; } = new();
+    public ConcurrentBag<WebSocketPublication> Publishing { get; set; } = new();
     public int ReceivedMessages { get; set; }
     public int SentMessages { get; set; }
 }

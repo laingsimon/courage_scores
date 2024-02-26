@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Text;
-using CourageScores.Models;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 using CourageScores.Services;
 using CourageScores.Services.Live;
 using Microsoft.AspNetCore.Authentication;

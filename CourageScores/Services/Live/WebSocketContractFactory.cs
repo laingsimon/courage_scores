@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
-using CourageScores.Models;
+using CourageScores.Models.Live;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 

@@ -84,6 +84,12 @@ public class LiveController : Controller
         Response.StatusCode = StatusCodes.Status302Found;
     }
 
+    [HttpGet("/api/Live/Watch/{type?}")]
+    public IAsyncEnumerable<WatchableDataDto> Watch(LiveDataType? type, CancellationToken token)
+    {
+        return _liveService.GetWatchableData(type, token);
+    }
+
     private static DateTime? AsDateTime(StringValues value)
     {
         if (string.IsNullOrEmpty(value.ToString()))

@@ -1,5 +1,5 @@
-using CourageScores.Models;
 using CourageScores.Models.Adapters.Live;
+using CourageScores.Models.Live;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Live;

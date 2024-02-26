@@ -1,5 +1,5 @@
-using CourageScores.Models;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Live;
 
 namespace CourageScores.Services.Live;
 

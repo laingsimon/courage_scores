@@ -1,9 +1,12 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 using CourageScores.Services.Live;
+using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
+using DateTimeOffset = System.DateTimeOffset;
 
 namespace CourageScores.Tests.Services.Live;
 
@@ -16,6 +19,9 @@ public class PublishUpdatesProcessorTests
     private Mock<IWebSocketContract> _subscriberSocket = null!;
     private PublishUpdatesProcessor _processor = null!;
     private Guid _key;
+    private WebSocketDetail _publisherDetails = null!;
+    private Mock<ISystemClock> _clock = null!;
+    private DateTimeOffset _now;
 
     [SetUp]
     public void SetupEachTest()
@@ -26,11 +32,53 @@ public class PublishUpdatesProcessorTests
         {
             _publisherSocket.Object, _subscriberSocket.Object
         });
-        _processor = new PublishUpdatesProcessor(_sockets);
+        _clock = new Mock<ISystemClock>();
+        _processor = new PublishUpdatesProcessor(_sockets, _clock.Object);
         _key = Guid.NewGuid();
+        _publisherDetails = new WebSocketDetail();
 
         _publisherSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
         _subscriberSocket.Setup(s => s.IsSubscribedTo(_key)).Returns(true);
+        _publisherSocket.Setup(s => s.Details).Returns(_publisherDetails);
+        _clock.Setup(c => c.UtcNow).Returns(() => _now);
+    }
+
+    [Test]
+    public async Task PublishUpdate_GivenNoPublicationDetailsForId_AddsPublicationDetails()
+    {
+        var data = new RecordedScoreAsYouGoDto
+        {
+            Id = _key,
+        };
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, LiveDataType.Sayg, data, _token);
+
+        Assert.That(_publisherDetails.Publishing.Select(p => p.Id), Is.EquivalentTo(new[] { _key }));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.DataType), Is.EquivalentTo(new[] { LiveDataType.Sayg }));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.LastUpdate), Is.EquivalentTo(new[] { new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero) }));
+    }
+
+    [Test]
+    public async Task PublishUpdate_GivenPublicationDetailsForId_UpdatesPublicationDetails()
+    {
+        var data = new RecordedScoreAsYouGoDto
+        {
+            Id = _key,
+        };
+        _publisherDetails.Publishing.Add(new WebSocketPublication
+        {
+            Id = _key,
+            DataType = LiveDataType.Sayg,
+            LastUpdate = new DateTimeOffset(2000, 01, 01, 0, 0, 0, TimeSpan.Zero),
+        });
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+
+        await _processor.PublishUpdate(_publisherSocket.Object, _key, LiveDataType.Sayg, data, _token);
+
+        Assert.That(_publisherDetails.Publishing.Select(p => p.Id), Is.EquivalentTo(new[] { _key }));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.DataType), Is.EquivalentTo(new[] { LiveDataType.Sayg }));
+        Assert.That(_publisherDetails.Publishing.Select(p => p.LastUpdate), Is.EquivalentTo(new[] { new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero) }));
     }
 
     [Test]

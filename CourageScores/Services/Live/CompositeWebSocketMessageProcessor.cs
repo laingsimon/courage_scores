@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using CourageScores.Models.Dtos.Live;
+using CourageScores.Models.Live;
 
 namespace CourageScores.Services.Live;
 
@@ -31,6 +33,22 @@ public class CompositeWebSocketMessageProcessor : IWebSocketMessageProcessor
             }
 
             await processor.PublishUpdate(source, id, dataType, dto, token);
+        }
+    }
+
+    public async IAsyncEnumerable<WatchableData> GetWatchableData([EnumeratorCancellation] CancellationToken token)
+    {
+        foreach (var processor in _processors)
+        {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
+
+            await foreach (var detail in processor.GetWatchableData(token))
+            {
+                yield return detail;
+            }
         }
     }
 }
