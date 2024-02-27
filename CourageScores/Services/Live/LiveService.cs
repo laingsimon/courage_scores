@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos;
@@ -202,6 +203,7 @@ public class LiveService : ILiveService
         };
     }
 
+    [ExcludeFromCodeCoverage]
     private class HttpUpdateWebSocketContract : IWebSocketContract
     {
         public WebSocketDetail Details { get; } = new WebSocketDetail();
