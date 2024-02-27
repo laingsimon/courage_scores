@@ -53,8 +53,11 @@ export function Tv() {
     }
 
     function getPublicationMode(connection: WatchableDataDto): JSX.Element {
-        const lastUpdateTime: string = connection.lastUpdate
-            ? ' @ ' + connection.lastUpdate.substring(11).substring(0, 8)
+        const lastUpdate: Date = connection.lastUpdate
+            ? new Date(connection.lastUpdate)
+            : null;
+        const lastUpdateTime: string = lastUpdate
+            ? ' @ ' + lastUpdate.toLocaleTimeString()
             : null;
 
         switch (connection.publicationMode as PublicationMode){

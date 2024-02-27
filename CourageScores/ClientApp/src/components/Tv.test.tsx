@@ -98,7 +98,7 @@ describe('Tv', () => {
 
         const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
         expect(item.querySelector('.badge').className).toEqual('badge rounded-pill bg-primary');
-        expect(item.querySelector('.badge').textContent).toEqual(' @ 11:27:07');
+        expect(item.querySelector('.badge').textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
     });
 
     it('renders polling connections', async () => {
@@ -114,7 +114,7 @@ describe('Tv', () => {
 
         const item = context.container.querySelector('.list-group-item') as HTMLAnchorElement;
         expect(item.querySelector('.badge').className).toEqual('badge rounded-pill bg-secondary');
-        expect(item.querySelector('.badge').textContent).toEqual(' @ 11:27:07');
+        expect(item.querySelector('.badge').textContent).toEqual(' @ ' + new Date('2024-02-26T11:27:07+00:00').toLocaleTimeString());
     });
 
     it('renders sayg connections', async () => {
