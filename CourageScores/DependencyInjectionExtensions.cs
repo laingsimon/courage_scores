@@ -241,6 +241,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IUpdateScoresAdapter, UpdateScoresAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>, WebSocketDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>, WatchableDataDtoAdapter>();
+        services.AddScoped<ISimpleAdapter<PhotoReference, PhotoReferenceDto>, PhotoReferenceAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

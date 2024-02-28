@@ -61,7 +61,7 @@ public class PhotoServiceTests
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _clock.Setup(c => c.UtcNow).Returns(_now);
-        _photoRepository.Setup(r => r.GetPhoto(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto.PhotoBytes);
+        _photoRepository.Setup(r => r.GetPhoto(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
 
         _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object);
     }
@@ -100,7 +100,8 @@ public class PhotoServiceTests
 
         var result = await _service.Upsert(_photo, _token);
 
-        _photoRepository.Verify(r => r.Upsert(_photo.Id, _resizedBytes, _token));
+        _photoRepository.Verify(r => r.Upsert(_photo, _token));
+        _photoRepository.Verify(r => r.Upsert(It.Is<Photo>(p => p.PhotoBytes == _resizedBytes), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Id, Is.EqualTo(_photo.Id));
@@ -124,7 +125,7 @@ public class PhotoServiceTests
 
         var result = await _service.Upsert(_photo, _token);
 
-        _photoRepository.Verify(r => r.Upsert(It.IsAny<Guid>(), It.IsAny<byte[]>(), _token), Times.Never);
+        _photoRepository.Verify(r => r.Upsert(It.IsAny<Photo>(), _token), Times.Never);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not a valid photo file" }));
     }

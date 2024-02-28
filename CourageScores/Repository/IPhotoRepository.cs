@@ -1,7 +1,9 @@
+using CourageScores.Models.Cosmos;
+
 namespace CourageScores.Repository;
 
 public interface IPhotoRepository
 {
-    Task Upsert(Guid id, byte[] bytes, CancellationToken token);
-    Task<byte[]?> GetPhoto(Guid id, CancellationToken token);
+    Task Upsert(Photo photo, CancellationToken token);
+    Task<Photo?> GetPhoto(Guid id, CancellationToken token);
 }

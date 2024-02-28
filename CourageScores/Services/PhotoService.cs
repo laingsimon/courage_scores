@@ -42,7 +42,9 @@ public class PhotoService : IPhotoService
             return resizedPhoto.As<PhotoReference>();
         }
 
-        await _photoRepository.Upsert(photo.Id, resizedPhoto.Result!, token);
+        photo.PhotoBytes = resizedPhoto.Result;
+
+        await _photoRepository.Upsert(photo, token);
         return new ActionResult<PhotoReference>
         {
             Success = true,
@@ -58,7 +60,7 @@ public class PhotoService : IPhotoService
         };
     }
 
-    public async Task<byte[]?> GetPhoto(Guid id, CancellationToken token)
+    public async Task<Photo?> GetPhoto(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         if (user?.Access?.ManageScores != true)

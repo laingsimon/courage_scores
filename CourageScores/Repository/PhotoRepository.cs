@@ -1,19 +1,21 @@
 using System.Collections.Concurrent;
+using CourageScores.Models.Cosmos;
 
 namespace CourageScores.Repository;
 
 public class PhotoRepository : IPhotoRepository
 {
-    private static readonly ConcurrentDictionary<Guid, byte[]> Store = new ConcurrentDictionary<Guid, byte[]>();
+    private static readonly ConcurrentDictionary<Guid, Photo> Store = new ConcurrentDictionary<Guid, Photo>();
 
-    public async Task Upsert(Guid id, byte[] bytes, CancellationToken token)
+    public Task Upsert(Photo photo, CancellationToken token)
     {
-        Store.TryRemove(id, out _);
-        Store.TryAdd(id, bytes);
+        Store.TryRemove(photo.Id, out _);
+        Store.TryAdd(photo.Id, photo);
+        return Task.CompletedTask;
     }
 
-    public async Task<byte[]?> GetPhoto(Guid id, CancellationToken token)
+    public Task<Photo?> GetPhoto(Guid id, CancellationToken token)
     {
-        return Store.GetValueOrDefault(id);
+        return Task.FromResult(Store.GetValueOrDefault(id));
     }
 }
