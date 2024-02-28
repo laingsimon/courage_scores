@@ -1,10 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using CourageScores.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace CourageScores.Services;
 
-[SuppressMessage("ReSharper", "ConvertToUsingDeclaration")]
 public class PhotoHelper : IPhotoHelper
 {
     public const int MaxHeight = 1_000; // pixels
@@ -13,10 +12,10 @@ public class PhotoHelper : IPhotoHelper
     {
         try
         {
-            using (var image = Image.FromStream(new MemoryStream(bytes)))
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (var image = Image.Load(new MemoryStream(bytes)))
             {
-                var size = image.Size;
-                if (size.Height <= MaxHeight)
+                if (image.Height <= MaxHeight)
                 {
                     return Task.FromResult(new ActionResult<byte[]>
                     {
@@ -24,12 +23,12 @@ public class PhotoHelper : IPhotoHelper
                         Success = true,
                         Messages =
                         {
-                            $"Photo size is {size.Width}x{size.Width}",
+                            $"Photo size is {image.Width}x{image.Width}",
                         },
                     });
                 }
 
-                var requiredSize = RescaleSize(size, MaxHeight);
+                var requiredSize = RescaleSize(image.Size, MaxHeight);
                 var newBytes = ScaleImageToSize(image, requiredSize);
 
                 return Task.FromResult(new ActionResult<byte[]>
@@ -38,7 +37,7 @@ public class PhotoHelper : IPhotoHelper
                     Success = true,
                     Messages =
                     {
-                        $"Photo resized from {size.Width}x{size.Height} to {requiredSize.Width}x{requiredSize.Height}"
+                        $"Photo resized from {image.Width}x{image.Height} to {requiredSize.Width}x{requiredSize.Height}"
                     },
                 });
             }
@@ -59,18 +58,12 @@ public class PhotoHelper : IPhotoHelper
 
     private static byte[] ScaleImageToSize(Image src, Size requiredSize)
     {
-        using (var dest = new Bitmap(requiredSize.Width, requiredSize.Height))
-        using (var graphics = Graphics.FromImage(dest))
-        {
-            graphics.DrawImage(src, 0, 0, requiredSize.Width, requiredSize.Height);
+        var stream = new MemoryStream();
 
-            graphics.Save();
+        src.Mutate(img => img.Resize(requiredSize));
+        src.Save(stream, src.Metadata.DecodedImageFormat!);
 
-            var stream = new MemoryStream();
-            dest.Save(stream, src.RawFormat);
-
-            return stream.ToArray();
-        }
+        return stream.ToArray();
     }
 
     private static Size RescaleSize(Size currentSize, double maxHeight)

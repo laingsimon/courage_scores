@@ -1,13 +1,14 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
 using CourageScores.Services;
 using NUnit.Framework;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace CourageScores.Tests.Services;
 
 [TestFixture]
-[SuppressMessage("ReSharper", "ConvertToUsingDeclaration")]
 public class PhotoHelperTests
 {
     private readonly CancellationToken _token = new CancellationToken();
@@ -74,26 +75,19 @@ public class PhotoHelperTests
 
     private static byte[] GetImageAtSize(int width, int height)
     {
-        // TODO: Use a different function to allow this to function on a non-windows host
-
-        using (var image = new Bitmap(width, height))
-        using (var graphics = Graphics.FromImage(image))
+        using (var image = new Image<Rgba32>(width, height))
         {
-            graphics.FillRectangle(Brushes.Azure, 0, 0, width, height);
-
-            graphics.Save();
+            image.Mutate(img => img.Fill(Color.Azure));
 
             var stream = new MemoryStream();
-            image.Save(stream, ImageFormat.Png);
+            image.Save(stream, new PngEncoder());
             return stream.ToArray();
         }
     }
 
     private static Size GetImageSize(byte[] photo)
     {
-        // TODO: Use a different function to allow this to function on a non-windows host
-
-        using (var image = Image.FromStream(new MemoryStream(photo)))
+        using (var image = Image.Load(new MemoryStream(photo)))
         {
             return image.Size;
         }
