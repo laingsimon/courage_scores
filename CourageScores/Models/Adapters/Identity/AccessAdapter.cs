@@ -30,6 +30,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageSockets = model.ManageSockets,
             UseWebSockets = model.UseWebSockets,
             EnterTournamentResults = model.EnterTournamentResults,
+            UploadPhotos = model.UploadPhotos,
         });
     }
 
@@ -58,6 +59,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageSockets = dto.ManageSockets,
             UseWebSockets = dto.UseWebSockets,
             EnterTournamentResults = dto.EnterTournamentResults,
+            UploadPhotos = dto.UploadPhotos,
         });
     }
 }

@@ -26,4 +26,5 @@ public class AccessDto
     public bool ManageSockets { get; set; }
     public bool UseWebSockets { get; set; }
     public bool EnterTournamentResults { get; set; }
+    public bool UploadPhotos { get; set; }
 }
