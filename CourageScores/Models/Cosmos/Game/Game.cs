@@ -87,6 +87,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 
     public bool AccoladesCount { get; set; }
 
+    /// <summary>
+    /// Photos of the score card
+    /// </summary>
+    public List<PhotoReference> Photos { get; set; } = new();
+
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
         scope = scope.With(new VisitorScope

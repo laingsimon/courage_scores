@@ -165,6 +165,8 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IReportFactory, ReportFactory>();
+        services.AddScoped<IPhotoService, PhotoService>();
+        services.AddScoped<IPhotoHelper, PhotoHelper>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -172,6 +174,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped(typeof(IDataBrowserRepository<>), typeof(DataBrowserRepository<>));
+        services.AddScoped<IPhotoRepository, PhotoRepository>();
     }
 
     private static void AddAdapters(IServiceCollection services)

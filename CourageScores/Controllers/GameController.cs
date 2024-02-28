@@ -51,4 +51,11 @@ public class GameController : Controller
     {
         return await _gameService.Delete(id, token);
     }
+
+    [HttpPost("/api/Scores/Photo")]
+    public async Task<ActionResultDto<GameDto>> UploadPhoto([FromForm] UploadPhotoDto request, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<UploadPhotoCommand>().WithPhoto(request.Photo);
+        return await _gameService.Upsert(request.Id, command, token);
+    }
 }
