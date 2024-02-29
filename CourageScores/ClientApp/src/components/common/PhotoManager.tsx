@@ -132,7 +132,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                     Upload photo
                 </button>
             </div>
-            <input type="file" accept="image/*" className="visually-hidden" onChange={uploadPhoto} />
+            <input type="file" accept="image/*" className="visually-hidden" capture="environment" onChange={uploadPhoto} />
         </>) : null}
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
