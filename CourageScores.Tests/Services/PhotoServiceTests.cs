@@ -15,7 +15,7 @@ public class PhotoServiceTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private Mock<IUserService> _userService = null!;
-    private Mock<IGenericRepository<Photo>> _photoRepository = null!;
+    private Mock<IPhotoRepository> _photoRepository = null!;
     private Mock<IPhotoHelper> _photoHelper = null!;
     private Mock<ISystemClock> _clock = null!;
     private UserDto? _user;
@@ -30,7 +30,7 @@ public class PhotoServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _photoRepository = new Mock<IGenericRepository<Photo>>();
+        _photoRepository = new Mock<IPhotoRepository>();
         _photoHelper = new Mock<IPhotoHelper>();
         _clock = new Mock<ISystemClock>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
