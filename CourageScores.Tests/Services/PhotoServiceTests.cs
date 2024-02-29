@@ -25,6 +25,7 @@ public class PhotoServiceTests
     private Photo _existingPhoto = null!;
     private byte[] _resizedBytes = null!;
     private DateTimeOffset _now;
+    private MutablePhotoSettings _settings = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -35,6 +36,10 @@ public class PhotoServiceTests
         _clock = new Mock<ISystemClock>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _resizedBytes = new byte[] { 5, 6, 7, 8 };
+        _settings = new MutablePhotoSettings
+        {
+            MaxPhotoHeight = 5000,
+        };
         _user = new UserDto
         {
             Access = new AccessDto
@@ -64,7 +69,7 @@ public class PhotoServiceTests
         _clock.Setup(c => c.UtcNow).Returns(_now);
         _photoRepository.Setup(r => r.Get(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
 
-        _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object);
+        _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object, _settings);
     }
 
     [Test]
@@ -97,7 +102,7 @@ public class PhotoServiceTests
             Success = true,
             Result = _resizedBytes,
         };
-        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _token)).ReturnsAsync(resizeResult);
+        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _settings.MaxPhotoHeight, _token)).ReturnsAsync(resizeResult);
 
         var result = await _service.Upsert(_photo, _token);
 
@@ -122,7 +127,7 @@ public class PhotoServiceTests
             Result = null,
             Warnings = { "Not a valid photo file" },
         };
-        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _token)).ReturnsAsync(resizeResult);
+        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _settings.MaxPhotoHeight, _token)).ReturnsAsync(resizeResult);
 
         var result = await _service.Upsert(_photo, _token);
 
@@ -143,7 +148,7 @@ public class PhotoServiceTests
         _photo.Created = default;
         _photo.Editor = null!;
         _photo.Updated = default;
-        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _token)).ReturnsAsync(resizeResult);
+        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _settings.MaxPhotoHeight, _token)).ReturnsAsync(resizeResult);
 
         await _service.Upsert(_photo, _token);
 
@@ -158,7 +163,7 @@ public class PhotoServiceTests
             Success = true,
             Result = _resizedBytes,
         };
-        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _token)).ReturnsAsync(resizeResult);
+        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _settings.MaxPhotoHeight, _token)).ReturnsAsync(resizeResult);
         var created = new DateTime(2000, 01, 01, 01, 01, 01);
         _photo.Author = "AUTHOR";
         _photo.Created = created;

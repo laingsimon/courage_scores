@@ -6,21 +6,14 @@ namespace CourageScores.Services;
 
 public class PhotoHelper : IPhotoHelper
 {
-    private readonly IPhotoSettings _settings;
-
-    public PhotoHelper(IPhotoSettings settings)
-    {
-        _settings = settings;
-    }
-
-    public Task<ActionResult<byte[]>> ResizePhoto(byte[] bytes, CancellationToken token)
+    public Task<ActionResult<byte[]>> ResizePhoto(byte[] bytes, int maxHeight, CancellationToken token)
     {
         try
         {
             // ReSharper disable once ConvertToUsingDeclaration
             using (var image = Image.Load(new MemoryStream(bytes)))
             {
-                if (image.Height <= _settings.MaxPhotoHeight)
+                if (image.Height <= maxHeight)
                 {
                     return Task.FromResult(new ActionResult<byte[]>
                     {
@@ -33,7 +26,7 @@ public class PhotoHelper : IPhotoHelper
                     });
                 }
 
-                var requiredSize = RescaleSize(image.Size, _settings.MaxPhotoHeight);
+                var requiredSize = RescaleSize(image.Size, maxHeight);
                 var newBytes = ScaleImageToSize(image, requiredSize);
 
                 return Task.FromResult(new ActionResult<byte[]>

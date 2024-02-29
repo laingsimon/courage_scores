@@ -13,22 +13,19 @@ public class PhotoHelperTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private PhotoHelper _helper = null!;
-    private MutablePhotoSettings _settings = null!;
+    private int _maxPhotoHeight;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _settings = new MutablePhotoSettings
-        {
-            MaxPhotoHeight = 5000,
-        };
-        _helper = new PhotoHelper(_settings);
+        _maxPhotoHeight = 5000;
+        _helper = new PhotoHelper();
     }
 
     [Test]
     public async Task Resize_GivenNonImageFile_ReturnsUnsuccessful()
     {
-        var result = await _helper.ResizePhoto(new byte[] { 0, 1, 2, 3 }, _token);
+        var result = await _helper.ResizePhoto(new byte[] { 0, 1, 2, 3 }, _maxPhotoHeight, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not a valid photo" }));
@@ -39,7 +36,7 @@ public class PhotoHelperTests
     {
         var smallPhoto = GetImageAtSize(100, 100);
 
-        var result = await _helper.ResizePhoto(smallPhoto, _token);
+        var result = await _helper.ResizePhoto(smallPhoto, _maxPhotoHeight, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.EqualTo(smallPhoto));
@@ -48,34 +45,34 @@ public class PhotoHelperTests
     [Test]
     public async Task Resize_GivenLargeSquareImageFile_ReturnsResizedImage()
     {
-        var largePhoto = GetImageAtSize(_settings.MaxPhotoHeight * 2, _settings.MaxPhotoHeight * 2);
+        var largePhoto = GetImageAtSize(_maxPhotoHeight * 2, _maxPhotoHeight * 2);
 
-        var result = await _helper.ResizePhoto(largePhoto, _token);
+        var result = await _helper.ResizePhoto(largePhoto, _maxPhotoHeight, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_settings.MaxPhotoHeight, _settings.MaxPhotoHeight)));
+        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_maxPhotoHeight, _maxPhotoHeight)));
     }
 
     [Test]
     public async Task Resize_GivenLargePortraitImageFile_ReturnsResizedImageRespectingAspectRatio()
     {
-        var largePortraitPhoto = GetImageAtSize(_settings.MaxPhotoHeight * 2, _settings.MaxPhotoHeight * 4);
+        var largePortraitPhoto = GetImageAtSize(_maxPhotoHeight * 2, _maxPhotoHeight * 4);
 
-        var result = await _helper.ResizePhoto(largePortraitPhoto, _token);
+        var result = await _helper.ResizePhoto(largePortraitPhoto, _maxPhotoHeight, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_settings.MaxPhotoHeight / 2, _settings.MaxPhotoHeight)));
+        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_maxPhotoHeight / 2, _maxPhotoHeight)));
     }
 
     [Test]
     public async Task Resize_GivenLargeLandscapeImageFile_ReturnsResizedImageRespectingAspectRatio()
     {
-        var largePortraitPhoto = GetImageAtSize(_settings.MaxPhotoHeight * 4, _settings.MaxPhotoHeight * 2);
+        var largePortraitPhoto = GetImageAtSize(_maxPhotoHeight * 4, _maxPhotoHeight * 2);
 
-        var result = await _helper.ResizePhoto(largePortraitPhoto, _token);
+        var result = await _helper.ResizePhoto(largePortraitPhoto, _maxPhotoHeight, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_settings.MaxPhotoHeight * 2, _settings.MaxPhotoHeight)));
+        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_maxPhotoHeight * 2, _maxPhotoHeight)));
     }
 
     private static byte[] GetImageAtSize(int width, int height)

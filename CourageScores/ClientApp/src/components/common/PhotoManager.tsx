@@ -27,8 +27,8 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
     const myPhotos: PhotoReferenceDto[] = (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name);
     const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? (photos || []) : myPhotos;
 
-    function getDownloadAddress(photo: PhotoReferenceDto): string {
-        return `${settings.apiHost}/api/Photo/${photo.id}`;
+    function getDownloadAddress(photo: PhotoReferenceDto, height?: number): string {
+        return `${settings.apiHost}/api/Photo/${photo.id}/${height ? height : ''}`;
     }
 
     async function uploadPhoto() {
@@ -122,7 +122,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                         : null}
                     from {photo.author} on {renderDate(photo.created)}
 
-                    <img src={getDownloadAddress(photo)} className="float-end" height="50" alt={`${photo.fileName}`} title={photo.contentType} />
+                    <img src={getDownloadAddress(photo, 50)} className="float-end" height="50" alt={`${photo.fileName}`} title={photo.contentType} />
                 </a>))}
         </div>
         {canUploadPhotos && !uploading ? (<>

@@ -12,13 +12,15 @@ public class PhotoService : IPhotoService
     private readonly IPhotoRepository _photoRepository;
     private readonly IPhotoHelper _photoHelper;
     private readonly ISystemClock _clock;
+    private readonly IPhotoSettings _settings;
 
-    public PhotoService(IUserService userService, IPhotoRepository photoRepository, IPhotoHelper photoHelper, ISystemClock clock)
+    public PhotoService(IUserService userService, IPhotoRepository photoRepository, IPhotoHelper photoHelper, ISystemClock clock, IPhotoSettings settings)
     {
         _userService = userService;
         _photoRepository = photoRepository;
         _photoHelper = photoHelper;
         _clock = clock;
+        _settings = settings;
     }
 
     public async Task<ActionResult<PhotoReference>> Upsert(Photo photo, CancellationToken token)
@@ -36,7 +38,7 @@ public class PhotoService : IPhotoService
             };
         }
 
-        var resizedPhoto = await _photoHelper.ResizePhoto(photo.PhotoBytes, token);
+        var resizedPhoto = await _photoHelper.ResizePhoto(photo.PhotoBytes, _settings.MaxPhotoHeight, token);
         if (!resizedPhoto.Success || resizedPhoto.Result == null)
         {
             return resizedPhoto.As<PhotoReference>();
