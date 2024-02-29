@@ -20,6 +20,8 @@ describe('PhotoManager', () => {
     let upload: File;
     let uploadResult: boolean;
     let closed: boolean;
+    let deleteId: string;
+    let deleteResult: boolean;
 
     afterEach(() => {
         cleanUp(context);
@@ -30,11 +32,18 @@ describe('PhotoManager', () => {
         uploadResult = true;
         closed = false;
         reportedError = new ErrorState();
+        deleteId = null;
+        deleteResult = true;
     });
 
     async function doUpload(file: File) {
         upload = file;
         return uploadResult;
+    }
+
+    async function doDelete(id: string) {
+        deleteId = id;
+        return deleteResult;
     }
 
     async function onClose() {
@@ -86,6 +95,7 @@ describe('PhotoManager', () => {
                 canViewAllPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
@@ -103,6 +113,7 @@ describe('PhotoManager', () => {
                 canViewAllPhotos: false,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
@@ -119,6 +130,7 @@ describe('PhotoManager', () => {
                 canViewAllPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
@@ -134,6 +146,7 @@ describe('PhotoManager', () => {
                 canUploadPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             const uploadButton = context.container.querySelector('.btn-primary');
@@ -154,6 +167,7 @@ describe('PhotoManager', () => {
                 canUploadPhotos: false,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             const uploadButton = context.container.querySelector('.btn-primary');
@@ -162,6 +176,56 @@ describe('PhotoManager', () => {
             expect(fileUploadControl).toBeFalsy();
             const visibleUploadContainer = context.container.querySelector('div[datatype="upload-control"]');
             expect(visibleUploadContainer).toBeFalsy();
+        });
+
+        it('when not permitted, no delete button', async () => {
+            await renderComponent(appProps({
+                account
+            }, reportedError), {
+                photos: [ myPhoto, anotherPhoto ],
+                canViewAllPhotos: false,
+                canUploadPhotos: false,
+                doUpload,
+                onClose,
+                doDelete,
+            });
+
+            const deleteButtons = Array.from(context.container.querySelectorAll('.btn-danger'));
+            expect(deleteButtons).toEqual([]);
+        });
+
+        it('when not permitted, delete button for own photo only', async () => {
+            await renderComponent(appProps({
+                account
+            }, reportedError), {
+                photos: [ myPhoto, anotherPhoto ],
+                canViewAllPhotos: false,
+                canUploadPhotos: false,
+                canDeletePhotos: true,
+                doUpload,
+                onClose,
+                doDelete,
+            });
+
+            const deleteButtons = Array.from(context.container.querySelectorAll('.btn-danger'));
+            expect(deleteButtons.length).toEqual(1);
+        });
+
+        it('when permitted, delete buttons for all photos', async () => {
+            await renderComponent(appProps({
+                account
+            }, reportedError), {
+                photos: [ myPhoto, anotherPhoto ],
+                canViewAllPhotos: true,
+                canUploadPhotos: false,
+                canDeletePhotos: true,
+                doUpload,
+                onClose,
+                doDelete,
+            });
+
+            const deleteButtons = Array.from(context.container.querySelectorAll('.btn-danger'));
+            expect(deleteButtons.length).toEqual(2);
         });
     });
 
@@ -187,6 +251,7 @@ describe('PhotoManager', () => {
                 canViewAllPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
@@ -201,6 +266,7 @@ describe('PhotoManager', () => {
                 canUploadPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
             let alert: string;
             window.alert = (msg) => alert = msg;
@@ -219,6 +285,7 @@ describe('PhotoManager', () => {
                 canUploadPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             await setPhoto();
@@ -234,6 +301,7 @@ describe('PhotoManager', () => {
                 canUploadPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             const visibleUploadContainer = context.container.querySelector('div[datatype="upload-control"]');
@@ -254,6 +322,7 @@ describe('PhotoManager', () => {
                 canUploadPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             await setPhoto();
@@ -272,6 +341,7 @@ describe('PhotoManager', () => {
                 canUploadPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             await setPhoto();
@@ -288,11 +358,57 @@ describe('PhotoManager', () => {
                 canUploadPhotos: true,
                 doUpload,
                 onClose,
+                doDelete,
             });
 
             await doClick(findButton(context.container, 'Close'));
 
             expect(closed).toEqual(true);
+        });
+
+        it('does not delete photo when cancelled', async () => {
+            uploadResult = true;
+
+            await renderComponent(appProps({
+                account
+            }, reportedError), {
+                photos: [ myPhoto ],
+                canUploadPhotos: true,
+                canDeletePhotos: true,
+                doUpload,
+                onClose,
+                doDelete,
+            });
+            let confirm: string;
+            window.confirm = (msg: string) => {
+                confirm = msg;
+                return false;
+            };
+
+            await doClick(findButton(context.container, '🗑'));
+
+            expect(confirm).toEqual('Are you sure you want to delete this photo?');
+            expect(deleteId).toBeNull();
+        });
+
+        it('can delete own photo when not permitted', async () => {
+            uploadResult = true;
+
+            await renderComponent(appProps({
+                account
+            }, reportedError), {
+                photos: [ myPhoto ],
+                canUploadPhotos: true,
+                canDeletePhotos: true,
+                doUpload,
+                onClose,
+                doDelete,
+            });
+            window.confirm = () => true;
+
+            await doClick(findButton(context.container, '🗑'));
+
+            expect(deleteId).toEqual(myPhoto.id);
         });
     });
 });

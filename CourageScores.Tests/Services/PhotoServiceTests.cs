@@ -220,4 +220,102 @@ public class PhotoServiceTests
 
         Assert.That(result, Is.EqualTo(_existingPhoto));
     }
+
+    [Test]
+    public async Task Delete_WhenLoggedOut_ReturnsNotPermitted()
+    {
+        _user = null;
+
+        var result = await _service.Delete(_existingPhoto.Id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task Delete_WhenNotPermitted_ReturnsNotPermitted()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.UploadPhotos = false;
+
+        var result = await _service.Delete(_existingPhoto.Id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task Delete_WhenPhotoNotFound_ReturnsNotFound()
+    {
+        var result = await _service.Delete(Guid.NewGuid(), _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not found" }));
+    }
+
+    [Test]
+    public async Task Delete_WhenOnlyAbleToUploadPhotosAndPhotoIsFromADifferentUser_ReturnsNotPermitted()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.UploadPhotos = true;
+        _existingPhoto.Author = "ANOTHER USER";
+
+        var result = await _service.Delete(_existingPhoto.Id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "You can only delete your own photos" }));
+    }
+
+    [Test]
+    public async Task Delete_WhenOnlyAbleToUploadPhotosAndPhotoIsFromSelf_DeletesPhoto()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.UploadPhotos = true;
+        _existingPhoto.Author = _user.Name;
+
+        var result = await _service.Delete(_existingPhoto.Id, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.EqualTo(_existingPhoto));
+        Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
+        Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
+        _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
+    }
+
+    [Test]
+    public async Task Delete_WhenAdminAndPhotoIsFromADifferentUser_DeletesPhoto()
+    {
+        _user!.Access!.ManageScores = true;
+        _user!.Access!.UploadPhotos = false;
+        _existingPhoto.Author = "ANOTHER USER";
+
+        var result = await _service.Delete(_existingPhoto.Id, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.EqualTo(_existingPhoto));
+        Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
+        Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
+        _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
+    }
+
+    [Test]
+    public async Task Delete_WhenAdminAndPhotoIsFromSelf_DeletesPhoto()
+    {
+        _user!.Access!.ManageScores = true;
+        _user!.Access!.UploadPhotos = false;
+        _existingPhoto.Author = _user.Name;
+
+        var result = await _service.Delete(_existingPhoto.Id, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.EqualTo(_existingPhoto));
+        Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
+        Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
+        _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
+    }
 }

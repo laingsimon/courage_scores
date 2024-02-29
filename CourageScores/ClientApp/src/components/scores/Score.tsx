@@ -508,6 +508,20 @@ export function Score() {
         return false;
     }
 
+    async function deletePhotos(id: string): Promise<boolean> {
+        const result: IClientActionResultDto<GameDto> = await gameApi.deletePhoto(fixtureId, id);
+
+        if (result.success) {
+            const patchedGameData: GameDto = addMatchesAndMatchOptions(result.result);
+            setFixtureData(patchedGameData);
+            setData(patchedGameData);
+            return true;
+        }
+
+        setSaveError(result);
+        return false;
+    }
+
     if (loading !== 'ready') {
         return (<Loading/>);
     }
@@ -634,7 +648,9 @@ export function Score() {
                 doUpload={uploadPhotos}
                 photos={fixtureData.photos}
                 onClose={async () => setShowPhotoManager(false)}
+                doDelete={deletePhotos}
                 canUploadPhotos={account && account.access && account.access.uploadPhotos}
+                canDeletePhotos={account && account.access && account.access.uploadPhotos || access === 'admin'}
                 canViewAllPhotos={access === 'admin'}
             />) : null}
             {saveError ? (

@@ -8,22 +8,23 @@ import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 
 export interface IPhotoManagerProps {
     doUpload: (file: File) => Promise<boolean>;
+    doDelete: (id: string) => Promise<boolean>;
     onClose?: () => Promise<any>;
     photos: PhotoReferenceDto[];
 
     canViewAllPhotos?: boolean;
     canUploadPhotos?: boolean;
+    canDeletePhotos?: boolean;
 }
 
-export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canUploadPhotos }: IPhotoManagerProps) {
+export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canUploadPhotos, canDeletePhotos, doDelete }: IPhotoManagerProps) {
     const { settings } = useDependencies();
     const { account } = useApp();
     const [uploading, setUploading] = useState(false);
+    const [deleting, setDeleting] = useState(null);
     // const canViewAllPhotos: boolean = account && account.access && account.access.manageScores;
     // const canUploadPhotos: boolean = account && account.access && account.access.uploadPhotos;
-    const myPhotos: PhotoReferenceDto[] = account
-        ? (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name)
-        : [];
+    const myPhotos: PhotoReferenceDto[] = (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name);
     const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? (photos || []) : myPhotos;
 
     function getDownloadAddress(photo: PhotoReferenceDto): string {
@@ -54,6 +55,42 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
         }
     }
 
+    async function deletePhoto(event: MouseEvent, id: string) {
+        event.preventDefault();
+
+        /* istanbul ignore next */
+        if (deleting) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        if (!window.confirm('Are you sure you want to delete this photo?')) {
+            return;
+        }
+
+        setDeleting(id);
+
+        try {
+            if (await doDelete(id)) {
+                await onClose();
+            }
+        } finally {
+            setDeleting(null);
+        }
+    }
+
+    function canDeletePhoto(photo: PhotoReferenceDto): boolean {
+        if (!canDeletePhotos) {
+            return false;
+        }
+
+        if (canViewAllPhotos) {
+            return true;
+        }
+
+        return photo.author === account.name;
+    }
+
     function getFileSize(bytes: number): string {
         const suffix: string[] = [ 'b', 'kb', 'mb' ];
         let value: number = bytes;
@@ -76,8 +113,13 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
         <div className="list-group mb-2">
             <div>Click to open in new tab</div>
             {photosToShow.map((photo: PhotoReferenceDto) => (
-                <a href={getDownloadAddress(photo)} className="list-group-item" target="_blank" rel="noreferrer"
+                <a href={getDownloadAddress(photo)} className="list-group-item ps-2" target="_blank" rel="noreferrer"
                    key={photo.id} title={`${photo.fileName}: ${getFileSize(photo.fileSize)}`}>
+                    {canDeletePhoto(photo)
+                        ? (<button className="btn btn-sm btn-danger float-start margin-right" onClick={async (event) => await deletePhoto(event, photo.id)}>
+                            {deleting === photo.id ? (<LoadingSpinnerSmall/>) : '🗑'}
+                        </button>)
+                        : null}
                     from {photo.author} on {renderDate(photo.created)}
 
                     <img src={getDownloadAddress(photo)} className="float-end" height="50" alt={`${photo.fileName}`} title={photo.contentType} />

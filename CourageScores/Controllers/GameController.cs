@@ -65,4 +65,11 @@ public class GameController : Controller
         var command = _commandFactory.GetCommand<UploadPhotoCommand<CosmosGame>>().WithPhoto(request.Photo!);
         return await _gameService.Upsert(request.Id, command, token);
     }
+
+    [HttpDelete("/api/Scores/Photo/{id}/{photoId}")]
+    public async Task<ActionResultDto<GameDto>> DeletePhoto(Guid id, Guid photoId, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<DeletePhotoCommand<CosmosGame>>().WithId(photoId);
+        return await _gameService.Upsert(id, command, token);
+    }
 }

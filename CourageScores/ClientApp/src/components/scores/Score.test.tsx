@@ -35,6 +35,7 @@ import {IFailedRequest} from "../common/IFailedRequest";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
+import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -55,6 +56,8 @@ describe('Score', () => {
     let saveGameApiResult: IClientActionResultDto<GameDto>;
     let uploadedPhoto: { request: UploadPhotoDto, file: File };
     let uploadPhotoResponse: IClientActionResultDto<GameDto>;
+    let deletedPhoto: { id: string, photoId: string };
+    let deletePhotoResponse: IClientActionResultDto<GameDto>;
     const gameApi = api<IGameApi>({
         get: async (fixtureId: string) => {
             if (any(Object.keys(fixtureDataMap), (key: string) => key === fixtureId)) {
@@ -74,6 +77,10 @@ describe('Score', () => {
         async uploadPhoto(request: UploadPhotoDto, file: File): Promise<IClientActionResultDto<GameDto>> {
             uploadedPhoto = {request, file};
             return uploadPhotoResponse;
+        },
+        async deletePhoto(id: string, photoId: string): Promise<IClientActionResultDto<GameDto>> {
+            deletedPhoto = { id, photoId };
+            return deletePhotoResponse;
         }
     });
     const playerApi = api<IPlayerApi>({
@@ -102,6 +109,8 @@ describe('Score', () => {
         saveGameApiResult = null;
         uploadedPhoto = null;
         uploadPhotoResponse = null;
+        deletedPhoto = null;
+        deletePhotoResponse = null;
     });
 
     afterEach(() => {
@@ -947,6 +956,64 @@ describe('Score', () => {
             await setFile(dialog, 'input[type="file"]', file, context.user);
 
             expect(uploadedPhoto).not.toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
+        });
+
+        it('can delete photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const appData = getDefaultAppData(permitted);
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            const photo: PhotoReferenceDto = {
+                id: createTemporaryId(),
+                author: permitted.name,
+                contentType: 'image/png',
+                fileSize: 123,
+            };
+            fixtureData.photos = [photo];
+            await renderComponent(fixtureData.id, appData);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            deletePhotoResponse = {
+                success: true,
+                result: fixtureData,
+            };
+            window.confirm = () => true;
+
+            await doClick(findButton(dialog, '🗑'));
+
+            expect(deletedPhoto).toEqual({
+                id: fixtureData.id,
+                photoId: photo.id,
+            });
+        });
+
+        it('handles error when deleting photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const appData = getDefaultAppData(permitted);
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            const photo: PhotoReferenceDto = {
+                id: createTemporaryId(),
+                author: permitted.name,
+                contentType: 'image/png',
+                fileSize: 123,
+            };
+            fixtureData.photos = [photo];
+            await renderComponent(fixtureData.id, appData);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            deletePhotoResponse = {
+                success: false,
+                errors: [ 'SOME ERROR' ]
+            };
+            window.confirm = () => true;
+
+            await doClick(findButton(dialog, '🗑'));
+
+            expect(deletedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');
         });
     });

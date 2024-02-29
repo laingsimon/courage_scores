@@ -1,5 +1,4 @@
 using CourageScores.Models;
-using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
@@ -89,5 +88,64 @@ public class PhotoService : IPhotoService
         return canViewAllPhotos || photo.Author == user!.Name
             ? photo
             : null;
+    }
+
+    public async Task<ActionResult<Photo>> Delete(Guid id, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        var canDeleteAnyPhoto = user?.Access?.ManageScores == true;
+        var canDeleteOwnPhoto = user?.Access?.UploadPhotos == true;
+
+        if (!canDeleteOwnPhoto && !canDeleteAnyPhoto)
+        {
+            return new ActionResult<Photo>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not permitted",
+                },
+            };
+        }
+
+        var currentPhoto = await _photoRepository.Get(id, token);
+        if (currentPhoto == null)
+        {
+            return new ActionResult<Photo>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not found",
+                },
+            };
+        }
+
+        var canDelete = canDeleteAnyPhoto || canDeleteOwnPhoto && currentPhoto.Author == user!.Name;
+        if (!canDelete)
+        {
+            return new ActionResult<Photo>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "You can only delete your own photos",
+                },
+            };
+        }
+
+        currentPhoto.Deleted = _clock.UtcNow.UtcDateTime;
+        currentPhoto.Remover = user!.Name;
+        await _photoRepository.Upsert(currentPhoto, token);
+
+        return new ActionResult<Photo>
+        {
+            Success = true,
+            Result = currentPhoto,
+            Messages =
+            {
+                "Photo deleted",
+            }
+        };
     }
 }
