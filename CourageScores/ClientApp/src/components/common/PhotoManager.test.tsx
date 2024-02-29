@@ -255,7 +255,7 @@ describe('PhotoManager', () => {
             });
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
-            expect(photos[0].href).toEqual(`https://localhost:7247/api/Photo/${myPhoto.id}`);
+            expect(photos[0].href).toEqual(`https://localhost:7247/api/Photo/${myPhoto.id}/`);
         });
 
         it('does not upload when no photo selected', async () => {
