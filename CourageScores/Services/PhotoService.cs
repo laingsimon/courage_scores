@@ -1,4 +1,5 @@
 using CourageScores.Models;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
@@ -42,6 +43,14 @@ public class PhotoService : IPhotoService
             return resizedPhoto.As<PhotoReference>();
         }
 
+        photo.Author = photo.Created == default
+            ? user.Name
+            : photo.Author;
+        photo.Created = photo.Created == default
+            ? _clock.UtcNow.UtcDateTime
+            : photo.Created;
+        photo.Editor = user.Name;
+        photo.Updated = _clock.UtcNow.UtcDateTime;
         photo.PhotoBytes = resizedPhoto.Result;
 
         await _photoRepository.Upsert(photo, token);
@@ -63,11 +72,22 @@ public class PhotoService : IPhotoService
     public async Task<Photo?> GetPhoto(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        if (user?.Access?.ManageScores != true)
+        var canViewAllPhotos = user?.Access?.ManageScores == true;
+        var canViewOwnPhoto = user?.Access?.UploadPhotos == true;
+
+        if (!canViewAllPhotos && !canViewOwnPhoto)
         {
             return null;
         }
 
-        return await _photoRepository.Get(id, token);
+        var photo = await _photoRepository.Get(id, token);
+        if (photo == null)
+        {
+            return null;
+        }
+
+        return canViewAllPhotos || photo.Author == user!.Name
+            ? photo
+            : null;
     }
 }

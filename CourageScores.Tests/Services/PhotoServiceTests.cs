@@ -50,6 +50,7 @@ public class PhotoServiceTests
             PhotoBytes = new byte[] { 1, 2, 3, 4 },
             ContentType = "image/png",
             FileName = "photo.png",
+            Author = "USER",
         };
         _existingPhoto = new Photo
         {
@@ -131,6 +132,45 @@ public class PhotoServiceTests
     }
 
     [Test]
+    public async Task Upsert_GivenNewPhoto_SetsAuthorAndEditor()
+    {
+        var resizeResult = new ActionResult<byte[]>
+        {
+            Success = true,
+            Result = _resizedBytes,
+        };
+        _photo.Author = null!;
+        _photo.Created = default;
+        _photo.Editor = null!;
+        _photo.Updated = default;
+        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _token)).ReturnsAsync(resizeResult);
+
+        await _service.Upsert(_photo, _token);
+
+        _photoRepository.Verify(r => r.Upsert(It.Is<Photo>(p => p.Author == _user!.Name && p.Editor == _user.Name && p.Created == _now.UtcDateTime && p.Updated == _now.UtcDateTime), _token));
+    }
+
+    [Test]
+    public async Task Upsert_GivenReplacementPhoto_SetsEditor()
+    {
+        var resizeResult = new ActionResult<byte[]>
+        {
+            Success = true,
+            Result = _resizedBytes,
+        };
+        _photoHelper.Setup(h => h.ResizePhoto(_photo.PhotoBytes, _token)).ReturnsAsync(resizeResult);
+        var created = new DateTime(2000, 01, 01, 01, 01, 01);
+        _photo.Author = "AUTHOR";
+        _photo.Created = created;
+        _photo.Editor = null!;
+        _photo.Updated = default;
+
+        await _service.Upsert(_photo, _token);
+
+        _photoRepository.Verify(r => r.Upsert(It.Is<Photo>(p => p.Author == "AUTHOR" && p.Editor == _user!.Name && p.Created == created && p.Updated == _now.UtcDateTime), _token));
+    }
+
+    [Test]
     public async Task GetPhoto_WhenLoggedOut_ReturnsNull()
     {
         _user = null;
@@ -143,11 +183,23 @@ public class PhotoServiceTests
     [Test]
     public async Task GetPhoto_WhenNotPermitted_ReturnsNull()
     {
+        _existingPhoto.Author = "ANOTHER USER";
         _user!.Access!.ManageScores = false;
 
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
 
         Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetPhoto_ForOwnPhotoWhenNotPermitted_ReturnsBytes()
+    {
+        _existingPhoto.Author = _user!.Name;
+        _user!.Access!.ManageScores = false;
+
+        var result = await _service.GetPhoto(_existingPhoto.Id, _token);
+
+        Assert.That(result, Is.EqualTo(_existingPhoto));
     }
 
     [Test]
