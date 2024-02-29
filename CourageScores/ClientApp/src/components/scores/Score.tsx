@@ -629,8 +629,6 @@ export function Score() {
                     </DebugOptions>
                 </div>
             </LeagueFixtureContainer>
-            {saveError ? (
-                <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save score"/>) : null}
             {createPlayerFor ? renderCreatePlayerDialog() : null}
             {showPhotoManager ? (<PhotoManager
                 doUpload={uploadPhotos}
@@ -639,6 +637,8 @@ export function Score() {
                 canUploadPhotos={account && account.access && account.access.uploadPhotos}
                 canViewAllPhotos={access === 'admin'}
             />) : null}
+            {saveError ? (
+                <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save score"/>) : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */
