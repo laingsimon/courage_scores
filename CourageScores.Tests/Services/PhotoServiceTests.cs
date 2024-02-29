@@ -15,7 +15,7 @@ public class PhotoServiceTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private Mock<IUserService> _userService = null!;
-    private Mock<IPhotoRepository> _photoRepository = null!;
+    private Mock<IGenericRepository<Photo>> _photoRepository = null!;
     private Mock<IPhotoHelper> _photoHelper = null!;
     private Mock<ISystemClock> _clock = null!;
     private UserDto? _user;
@@ -30,7 +30,7 @@ public class PhotoServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _photoRepository = new Mock<IPhotoRepository>();
+        _photoRepository = new Mock<IGenericRepository<Photo>>();
         _photoHelper = new Mock<IPhotoHelper>();
         _clock = new Mock<ISystemClock>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
@@ -61,7 +61,7 @@ public class PhotoServiceTests
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _clock.Setup(c => c.UtcNow).Returns(_now);
-        _photoRepository.Setup(r => r.GetPhoto(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
+        _photoRepository.Setup(r => r.Get(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
 
         _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object);
     }
@@ -154,7 +154,7 @@ public class PhotoServiceTests
     public async Task GetPhoto_WhenPhotoNotFound_ReturnsNull()
     {
         var id = Guid.NewGuid();
-        _photoRepository.Setup(r => r.GetPhoto(id, _token)).ReturnsAsync(() => null);
+        _photoRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
         var result = await _service.GetPhoto(id, _token);
 

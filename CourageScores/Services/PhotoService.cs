@@ -9,11 +9,11 @@ namespace CourageScores.Services;
 public class PhotoService : IPhotoService
 {
     private readonly IUserService _userService;
-    private readonly IPhotoRepository _photoRepository;
+    private readonly IGenericRepository<Photo> _photoRepository;
     private readonly IPhotoHelper _photoHelper;
     private readonly ISystemClock _clock;
 
-    public PhotoService(IUserService userService, IPhotoRepository photoRepository, IPhotoHelper photoHelper, ISystemClock clock)
+    public PhotoService(IUserService userService, IGenericRepository<Photo> photoRepository, IPhotoHelper photoHelper, ISystemClock clock)
     {
         _userService = userService;
         _photoRepository = photoRepository;
@@ -68,6 +68,6 @@ public class PhotoService : IPhotoService
             return null;
         }
 
-        return await _photoRepository.GetPhoto(id, token);
+        return await _photoRepository.Get(id, token);
     }
 }
