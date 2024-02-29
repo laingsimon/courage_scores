@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
 using Microsoft.AspNetCore.Mvc;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Controllers;
 
@@ -61,7 +62,7 @@ public class GameController : Controller
             return null!;
         }
 
-        var command = _commandFactory.GetCommand<UploadPhotoCommand>().WithPhoto(request.Photo!);
+        var command = _commandFactory.GetCommand<UploadPhotoCommand<CosmosGame>>().WithPhoto(request.Photo!);
         return await _gameService.Upsert(request.Id, command, token);
     }
 }

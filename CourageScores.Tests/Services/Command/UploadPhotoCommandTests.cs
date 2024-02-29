@@ -20,7 +20,7 @@ public class UploadPhotoCommandTests
     private Mock<IFormFile> _photo = null!;
     private UserDto? _user;
     private CosmosGame _game = null!;
-    private UploadPhotoCommand _command = null!;
+    private UploadPhotoCommand<CosmosGame> _command = null!;
     private byte[] _fileContents = null!;
     private IPhotoSettings _settings = null!;
 
@@ -55,7 +55,7 @@ public class UploadPhotoCommandTests
                 stream.Write(_fileContents, 0, _fileContents.Length);
             });
 
-        _command = new UploadPhotoCommand(_userService.Object, _photoService.Object, _settings)
+        _command = new UploadPhotoCommand<CosmosGame>(_userService.Object, _photoService.Object, _settings)
             .WithPhoto(_photo.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);

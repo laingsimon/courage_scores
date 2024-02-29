@@ -6,7 +6,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// <summary>
 /// A record of a number of matches played at a venue between 2 teams on a given date and time
 /// </summary>
-public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
+public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEntity
 {
     public const int CurrentVersion = 2;
 

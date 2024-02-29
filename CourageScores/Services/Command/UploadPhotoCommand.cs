@@ -1,11 +1,11 @@
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Services.Identity;
-using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Command;
 
-public class UploadPhotoCommand : IUpdateCommand<CosmosGame, CosmosGame>
+public class UploadPhotoCommand<T> : IUpdateCommand<T, T>
+    where T: IPhotoEntity
 {
     private readonly IUserService _userService;
     private readonly IPhotoService _photoService;
@@ -20,20 +20,20 @@ public class UploadPhotoCommand : IUpdateCommand<CosmosGame, CosmosGame>
         _settings = settings;
     }
 
-    public UploadPhotoCommand WithPhoto(IFormFile photo)
+    public UploadPhotoCommand<T> WithPhoto(IFormFile photo)
     {
         _photo = photo;
         return this;
     }
 
-    public async Task<ActionResult<CosmosGame>> ApplyUpdate(CosmosGame model, CancellationToken token)
+    public async Task<ActionResult<T>> ApplyUpdate(T model, CancellationToken token)
     {
         _photo.ThrowIfNull($"{nameof(WithPhoto)} must be called first");
 
         var user = await _userService.GetUser(token);
         if (user?.Access?.UploadPhotos != true)
         {
-            return new ActionResult<CosmosGame>
+            return new ActionResult<T>
             {
                 Success = false,
                 Warnings =
@@ -48,7 +48,7 @@ public class UploadPhotoCommand : IUpdateCommand<CosmosGame, CosmosGame>
 
         if (fileContent.Length < _settings.MinPhotoFileSize)
         {
-            return new ActionResult<CosmosGame>
+            return new ActionResult<T>
             {
                 Success = false,
                 Warnings =
@@ -62,7 +62,7 @@ public class UploadPhotoCommand : IUpdateCommand<CosmosGame, CosmosGame>
 
         if ((model.Photos.Count - existingPhotosForUser.Length) + 1 > _settings.MaxPhotoCountPerEntity)
         {
-            return new ActionResult<CosmosGame>
+            return new ActionResult<T>
             {
                 Success = false,
                 Warnings =
@@ -85,12 +85,12 @@ public class UploadPhotoCommand : IUpdateCommand<CosmosGame, CosmosGame>
         var result = await _photoService.Upsert(photo, token);
         if (!result.Success || result.Result == null)
         {
-            return result.As<CosmosGame>();
+            return result.As<T>();
         }
 
         model.Photos = model.Photos.Except(existingPhotosForUser).Concat(new[] {result.Result!}).ToList();
 
-        return new ActionResult<CosmosGame>
+        return new ActionResult<T>
         {
             Success = true,
             Messages =

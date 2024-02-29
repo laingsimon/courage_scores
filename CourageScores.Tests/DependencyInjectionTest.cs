@@ -65,7 +65,18 @@ public class DependencyInjectionTest
         var types = typeof(DependencyInjectionExtensions).Assembly.GetTypes();
         var commands = types.Where(t => t.IsAssignableTo(typeof(IUpdateCommand)));
 
-        return commands.Where(t => t.IsClass && !t.IsAbstract);
+        return commands
+            .Where(t => t.IsClass && !t.IsAbstract)
+            .Select(t =>
+            {
+                if (!t.IsGenericTypeDefinition)
+                {
+                    return t;
+                }
+
+                var genericArguments = t.GetGenericArguments().Select(gta => gta.GetGenericParameterConstraints().First()).ToArray();
+                return t.MakeGenericType(genericArguments);
+            });
     }
 
     private class MockCosmosDatabaseFactory : ICosmosDatabaseFactory
