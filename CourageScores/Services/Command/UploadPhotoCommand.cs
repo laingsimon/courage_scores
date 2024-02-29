@@ -58,9 +58,11 @@ public class UploadPhotoCommand : IUpdateCommand<CosmosGame, CosmosGame>
             };
         }
 
+        var existingPhoto = model.Photos.FirstOrDefault(p => p.Author == user.Name);
+
         var photo = new Photo
         {
-            Id = Guid.NewGuid(),
+            Id = existingPhoto?.Id ?? Guid.NewGuid(),
             TeamId = user.TeamId,
             EntityId = model.Id,
             FileName = _photo.FileName,

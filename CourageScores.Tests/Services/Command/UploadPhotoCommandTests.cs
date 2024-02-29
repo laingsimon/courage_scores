@@ -159,6 +159,7 @@ public class UploadPhotoCommandTests
     [Test]
     public async Task ApplyUpdate_WhenGameHasPhotoFromExistingUser_ReplacesPhoto()
     {
+        var existingPhotoId = Guid.NewGuid();
         var photoReference = new PhotoReference
         {
             Id = Guid.NewGuid(),
@@ -173,12 +174,13 @@ public class UploadPhotoCommandTests
             .ReturnsAsync(successful);
         _game.Photos.Add(new PhotoReference
         {
-            Id = Guid.NewGuid(),
+            Id = existingPhotoId,
             Author = _user!.Name,
         });
 
         var result = await _command.ApplyUpdate(_game, _token);
 
+        _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), _token));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo added" }));
         Assert.That(_game.Photos, Is.EquivalentTo(new[] { photoReference }));
