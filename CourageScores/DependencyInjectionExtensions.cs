@@ -167,6 +167,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IReportFactory, ReportFactory>();
         services.AddScoped<IPhotoService, PhotoService>();
         services.AddScoped<IPhotoHelper, PhotoHelper>();
+        services.AddSingleton<IPhotoSettings, PhotoSettings>();
     }
 
     private static void AddRepositories(IServiceCollection services)

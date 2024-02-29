@@ -22,6 +22,7 @@ public class UploadPhotoCommandTests
     private CosmosGame _game = null!;
     private UploadPhotoCommand _command = null!;
     private byte[] _fileContents = null!;
+    private IPhotoSettings _settings = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -41,7 +42,12 @@ public class UploadPhotoCommandTests
             Id = Guid.NewGuid(),
         };
         _photo = new Mock<IFormFile>();
-        _fileContents = Enumerable.Range(0, UploadPhotoCommand.MinFileSize).Select(_ => (byte)1).ToArray();
+        _settings = new MutablePhotoSettings
+        {
+            MinPhotoFileSize = 1024,
+            MaxPhotoCountPerEntity = 2,
+        };
+        _fileContents = Enumerable.Range(0, 1024).Select(_ => (byte)1).ToArray();
         _photo
             .Setup(p => p.CopyToAsync(It.IsAny<MemoryStream>(), _token))
             .Callback((Stream stream, CancellationToken _) =>
@@ -49,7 +55,7 @@ public class UploadPhotoCommandTests
                 stream.Write(_fileContents, 0, _fileContents.Length);
             });
 
-        _command = new UploadPhotoCommand(_userService.Object, _photoService.Object)
+        _command = new UploadPhotoCommand(_userService.Object, _photoService.Object, _settings)
             .WithPhoto(_photo.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -186,9 +192,79 @@ public class UploadPhotoCommandTests
         Assert.That(_game.Photos, Is.EquivalentTo(new[] { photoReference }));
     }
 
+    [Test]
+    public async Task ApplyUpdate_WhenGameHasMaxNumberOfPhotosIncludingOneFromUser_ReplacesPhoto()
+    {
+        var existingPhotoId = Guid.NewGuid();
+        var photoReference = new PhotoReference
+        {
+            Id = Guid.NewGuid(),
+        };
+        var successful = new ActionResult<PhotoReference>
+        {
+            Success = true,
+            Result = photoReference,
+        };
+        var otherUserPhoto = new PhotoReference
+        {
+            Id = existingPhotoId,
+            Author = "ANOTHER USER 1",
+        };
+        _photoService
+            .Setup(s => s.Upsert(It.IsAny<Photo>(), _token))
+            .ReturnsAsync(successful);
+        _game.Photos.Add(new PhotoReference
+        {
+            Id = existingPhotoId,
+            Author = _user!.Name,
+        });
+        _game.Photos.Add(otherUserPhoto);
+
+        var result = await _command.ApplyUpdate(_game, _token);
+
+        _photoService.Verify(s => s.Upsert(It.Is<Photo>(p => p.Id == existingPhotoId), _token));
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo added" }));
+        Assert.That(_game.Photos, Is.EquivalentTo(new[] { photoReference, otherUserPhoto }));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenGameHasMaxNumberOfPhotosFromOtherUsers_ReturnsUnsuccessful()
+    {
+        var existingPhotoId = Guid.NewGuid();
+        var photoReference = new PhotoReference
+        {
+            Id = Guid.NewGuid(),
+        };
+        var successful = new ActionResult<PhotoReference>
+        {
+            Success = true,
+            Result = photoReference,
+        };
+        _photoService
+            .Setup(s => s.Upsert(It.IsAny<Photo>(), _token))
+            .ReturnsAsync(successful);
+        _game.Photos.Add(new PhotoReference
+        {
+            Id = existingPhotoId,
+            Author = "ANOTHER USER 1",
+        });
+        _game.Photos.Add(new PhotoReference
+        {
+            Id = existingPhotoId,
+            Author = "ANOTHER USER 2",
+        });
+
+        var result = await _command.ApplyUpdate(_game, _token);
+
+        _photoService.Verify(s => s.Upsert(It.IsAny<Photo>(), _token), Times.Never);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "No more photos can be added to this entity, maximum photo count reached: 2" }));
+    }
+
     private class Parameter<T>
     {
-        public T? Value { get; set; }
+        public T? Value { get; private set; }
 
         public bool Capture(T value)
         {

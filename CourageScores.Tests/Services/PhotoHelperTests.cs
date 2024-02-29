@@ -13,11 +13,16 @@ public class PhotoHelperTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private PhotoHelper _helper = null!;
+    private MutablePhotoSettings _settings = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _helper = new PhotoHelper();
+        _settings = new MutablePhotoSettings
+        {
+            MaxPhotoHeight = 5000,
+        };
+        _helper = new PhotoHelper(_settings);
     }
 
     [Test]
@@ -43,34 +48,34 @@ public class PhotoHelperTests
     [Test]
     public async Task Resize_GivenLargeSquareImageFile_ReturnsResizedImage()
     {
-        var largePhoto = GetImageAtSize(PhotoHelper.MaxHeight * 2, PhotoHelper.MaxHeight * 2);
+        var largePhoto = GetImageAtSize(_settings.MaxPhotoHeight * 2, _settings.MaxPhotoHeight * 2);
 
         var result = await _helper.ResizePhoto(largePhoto, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(PhotoHelper.MaxHeight, PhotoHelper.MaxHeight)));
+        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_settings.MaxPhotoHeight, _settings.MaxPhotoHeight)));
     }
 
     [Test]
     public async Task Resize_GivenLargePortraitImageFile_ReturnsResizedImageRespectingAspectRatio()
     {
-        var largePortraitPhoto = GetImageAtSize(PhotoHelper.MaxHeight * 2, PhotoHelper.MaxHeight * 4);
+        var largePortraitPhoto = GetImageAtSize(_settings.MaxPhotoHeight * 2, _settings.MaxPhotoHeight * 4);
 
         var result = await _helper.ResizePhoto(largePortraitPhoto, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(PhotoHelper.MaxHeight / 2, PhotoHelper.MaxHeight)));
+        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_settings.MaxPhotoHeight / 2, _settings.MaxPhotoHeight)));
     }
 
     [Test]
     public async Task Resize_GivenLargeLandscapeImageFile_ReturnsResizedImageRespectingAspectRatio()
     {
-        var largePortraitPhoto = GetImageAtSize(PhotoHelper.MaxHeight * 4, PhotoHelper.MaxHeight * 2);
+        var largePortraitPhoto = GetImageAtSize(_settings.MaxPhotoHeight * 4, _settings.MaxPhotoHeight * 2);
 
         var result = await _helper.ResizePhoto(largePortraitPhoto, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(PhotoHelper.MaxHeight * 2, PhotoHelper.MaxHeight)));
+        Assert.That(GetImageSize(result.Result!), Is.EqualTo(new Size(_settings.MaxPhotoHeight * 2, _settings.MaxPhotoHeight)));
     }
 
     private static byte[] GetImageAtSize(int width, int height)
