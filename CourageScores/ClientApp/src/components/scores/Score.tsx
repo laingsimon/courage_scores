@@ -650,7 +650,7 @@ export function Score() {
                 onClose={async () => setShowPhotoManager(false)}
                 doDelete={deletePhotos}
                 canUploadPhotos={account && account.access && account.access.uploadPhotos}
-                canDeletePhotos={account && account.access && account.access.uploadPhotos || access === 'admin'}
+                canDeletePhotos={(account && account.access && account.access.uploadPhotos) || access === 'admin'}
                 canViewAllPhotos={access === 'admin'}
             />) : null}
             {saveError ? (
