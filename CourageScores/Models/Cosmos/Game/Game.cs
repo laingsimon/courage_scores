@@ -150,7 +150,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEn
     [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto? user)
     {
-        return user?.Access?.ManageGames == true || user?.Access?.InputResults == true;
+        return user?.Access?.ManageGames == true || user?.Access?.InputResults == true || user?.Access?.UploadPhotos == true;
     }
 
     [ExcludeFromCodeCoverage]
