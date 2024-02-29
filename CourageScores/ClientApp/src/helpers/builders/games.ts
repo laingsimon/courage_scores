@@ -1,4 +1,6 @@
-﻿import {IAddableBuilder, IBuilder} from "./builders";
+﻿/* istanbul ignore file */
+
+import {IAddableBuilder, IBuilder} from "./builders";
 import {IDatedDivisionFixtureDto} from "../../components/division_fixtures/IDatedDivisionFixtureDto";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {createTemporaryId} from "../projection";

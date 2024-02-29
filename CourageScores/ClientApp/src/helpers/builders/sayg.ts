@@ -1,4 +1,6 @@
-﻿import {IAddableBuilder, IBuilder} from "./builders";
+﻿/* istanbul ignore file */
+
+import {IAddableBuilder, IBuilder} from "./builders";
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {createTemporaryId} from "../projection";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
