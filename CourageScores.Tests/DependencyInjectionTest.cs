@@ -22,6 +22,8 @@ public class DependencyInjectionTest
         configuration["CosmosDb_DatabaseName"] = "test_db";
         configuration["CosmosDb_Endpoint"] = "url";
         configuration["CosmosDb_Key"] = "key";
+        configuration["BlobStorage_AccountName"] = "account";
+        configuration["BlobStorage_Key"] = "key";
 
         IServiceCollection services = new ServiceCollection();
         foreach (var controller in Controllers())
@@ -32,6 +34,7 @@ public class DependencyInjectionTest
         services.AddScoped<ICosmosDatabaseFactory, MockCosmosDatabaseFactory>();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddSingleton<ISystemClock>(new SystemClock());
+        services.AddSingleton<IBlobStorageRepository>(new Mock<IBlobStorageRepository>().Object);
 
         _serviceProvider = services.BuildServiceProvider();
     }
