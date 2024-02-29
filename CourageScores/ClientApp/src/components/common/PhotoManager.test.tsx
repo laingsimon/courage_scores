@@ -226,6 +226,24 @@ describe('PhotoManager', () => {
             expect(upload).not.toBeNull();
         });
 
+        it('can select a file by clicking on the visible control', async () => {
+            await renderComponent(appProps({
+                account
+            }, reportedError), {
+                photos: [ ],
+                canUploadPhotos: true,
+                doUpload,
+                onClose,
+            });
+
+            const visibleUploadContainer = context.container.querySelector('div[datatype="upload-control"]');
+            expect(visibleUploadContainer).toBeTruthy();
+            await doClick(visibleUploadContainer);
+
+            // TODO: set the file via the browse-for-file dialog, which may not be possible in tests
+            reportedError.verifyNoError();
+        });
+
         it('closes dialog if upload handler returns true', async () => {
             uploadResult = true;
 
