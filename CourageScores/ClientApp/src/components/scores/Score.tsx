@@ -46,7 +46,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {ISelectablePlayer} from "../common/PlayerSelection";
 import {RecordScoresDto} from "../../interfaces/models/dtos/Game/RecordScoresDto";
-import {PhotoManager} from "./PhotosViewer";
+import {PhotoManager} from "../common/PhotoManager";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 
 export interface ICreatePlayerFor {

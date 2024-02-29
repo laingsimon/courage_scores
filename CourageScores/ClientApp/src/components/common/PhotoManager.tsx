@@ -1,12 +1,12 @@
 import {MouseEvent, useState} from 'react';
 import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
-import {Dialog} from "../common/Dialog";
-import {useApp} from "../common/AppContainer";
+import {Dialog} from "./Dialog";
+import {useApp} from "./AppContainer";
 import {renderDate} from "../../helpers/rendering";
-import {useDependencies} from "../common/IocContainer";
-import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {useDependencies} from "./IocContainer";
+import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 
-export interface IPhotosViewerProps {
+export interface IPhotoManagerProps {
     doUpload: (file: File) => Promise<boolean>;
     onClose?: () => Promise<any>;
     photos: PhotoReferenceDto[];
@@ -15,7 +15,7 @@ export interface IPhotosViewerProps {
     canUploadPhotos?: boolean;
 }
 
-export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canUploadPhotos }: IPhotosViewerProps) {
+export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canUploadPhotos }: IPhotoManagerProps) {
     const { settings } = useDependencies();
     const { account } = useApp();
     const [uploading, setUploading] = useState(false);
