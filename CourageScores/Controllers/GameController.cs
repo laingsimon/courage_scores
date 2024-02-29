@@ -55,7 +55,13 @@ public class GameController : Controller
     [HttpPost("/api/Scores/Photo")]
     public async Task<ActionResultDto<GameDto>> UploadPhoto([FromForm] UploadPhotoDto request, CancellationToken token)
     {
-        var command = _commandFactory.GetCommand<UploadPhotoCommand>().WithPhoto(request.Photo);
+        if (request.Photo == null)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return null!;
+        }
+
+        var command = _commandFactory.GetCommand<UploadPhotoCommand>().WithPhoto(request.Photo!);
         return await _gameService.Upsert(request.Id, command, token);
     }
 }
