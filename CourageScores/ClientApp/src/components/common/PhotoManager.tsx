@@ -84,7 +84,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                 </a>))}
         </div>
         {canUploadPhotos && !uploading ? (<>
-            <div className="mb-2 text-center border-dashed border-1 border-dark" onClick={triggerFileClick}>
+            <div datatype="upload-control" className="mb-2 text-center border-dashed border-1 border-dark" onClick={triggerFileClick}>
                 <button className="border-0 p-2 text-center text-decoration-none text-dark bg-white">
                     <div className="h2 opacity-50">📷</div>
                     Upload photo
