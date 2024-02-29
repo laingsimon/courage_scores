@@ -5,21 +5,37 @@ namespace CourageScores.Repository;
 public class PhotoRepository : IPhotoRepository
 {
     private readonly IGenericRepository<Photo> _cosmosRepository;
+    private readonly IBlobStorageRepository _blobStorageRepository;
 
-    public PhotoRepository(IGenericRepository<Photo> cosmosRepository)
+    public PhotoRepository(IGenericRepository<Photo> cosmosRepository, IBlobStorageRepository blobStorageRepository)
     {
         _cosmosRepository = cosmosRepository;
+        _blobStorageRepository = blobStorageRepository;
     }
 
-    public Task<Photo?> Get(Guid id, CancellationToken token)
+    public async Task<Photo?> Get(Guid id, CancellationToken token)
     {
-        return _cosmosRepository.Get(id, token);
+        var photo = await _cosmosRepository.Get(id, token);
+        if (photo != null)
+        {
+            photo.PhotoBytes = (await _blobStorageRepository.Read(photo.Id.ToString(), token)) ?? Array.Empty<byte>();
+        }
+
+        return photo;
     }
 
-    public Task<Photo> Upsert(Photo item, CancellationToken token)
+    public async Task<Photo> Upsert(Photo item, CancellationToken token)
     {
-        return _cosmosRepository.Upsert(item, token);
-    }
+        var photo = await _cosmosRepository.Upsert(item, token);
+        if (item.Deleted != null)
+        {
+            await _blobStorageRepository.Delete(photo.Id.ToString(), token);
+        }
+        else
+        {
+            await _blobStorageRepository.Write(photo.Id.ToString(), item.PhotoBytes, token);
+        }
 
-    // TODO: Add a delete method to delete the blob from storage
+        return photo;
+    }
 }

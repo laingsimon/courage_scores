@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace CourageScores.Models.Cosmos;
 
 public class Photo : AuditedEntity
@@ -14,7 +16,9 @@ public class Photo : AuditedEntity
 
     /// <summary>
     /// The contents of the photo
+    /// The binary data is recorded in blob storage by the PhotoRepository
     /// </summary>
+    [JsonIgnore]
     public byte[] PhotoBytes { get; set; } = Array.Empty<byte>();
 
     /// <summary>

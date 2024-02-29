@@ -176,6 +176,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped(typeof(IDataBrowserRepository<>), typeof(DataBrowserRepository<>));
         services.AddScoped<IPhotoRepository, PhotoRepository>();
+        services.AddSingleton<IBlobStorageRepository, BlobStorageRepository>();
     }
 
     private static void AddAdapters(IServiceCollection services)
