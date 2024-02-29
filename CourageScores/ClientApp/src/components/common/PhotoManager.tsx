@@ -22,9 +22,9 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
     // const canViewAllPhotos: boolean = account && account.access && account.access.manageScores;
     // const canUploadPhotos: boolean = account && account.access && account.access.uploadPhotos;
     const myPhotos: PhotoReferenceDto[] = account
-        ? photos.filter((p: PhotoReferenceDto) => p.author === account.name)
+        ? (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name)
         : [];
-    const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? photos : myPhotos;
+    const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? (photos || []) : myPhotos;
 
     function getDownloadAddress(photo: PhotoReferenceDto): string {
         return `${settings.apiHost}/api/Photo/${photo.id}`;

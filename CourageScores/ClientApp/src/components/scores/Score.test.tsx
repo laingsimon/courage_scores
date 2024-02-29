@@ -9,7 +9,7 @@ import {
     findButton,
     iocProps,
     noop,
-    renderApp, TestContext
+    renderApp, setFile, TestContext
 } from "../../helpers/tests";
 import {any, toMap} from "../../helpers/collections";
 import {createTemporaryId, repeat} from "../../helpers/projection";
@@ -34,6 +34,7 @@ import {fixtureBuilder, matchBuilder} from "../../helpers/builders/games";
 import {IFailedRequest} from "../common/IFailedRequest";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
+import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -52,6 +53,8 @@ describe('Score', () => {
     let teamsReloaded: boolean;
     let newPlayerApiResult: (createdPlayer: ICreatedPlayer) => IClientActionResultDto<TeamDto>;
     let saveGameApiResult: IClientActionResultDto<GameDto>;
+    let uploadedPhoto: { request: UploadPhotoDto, file: File };
+    let uploadPhotoResponse: IClientActionResultDto<GameDto>;
     const gameApi = api<IGameApi>({
         get: async (fixtureId: string) => {
             if (any(Object.keys(fixtureDataMap), (key: string) => key === fixtureId)) {
@@ -67,6 +70,10 @@ describe('Score', () => {
                 messages: ['Fixture updated'],
                 result: fixtureData as GameDto,
             }
+        },
+        async uploadPhoto(request: UploadPhotoDto, file: File): Promise<IClientActionResultDto<GameDto>> {
+            uploadedPhoto = {request, file};
+            return uploadPhotoResponse;
         }
     });
     const playerApi = api<IPlayerApi>({
@@ -93,6 +100,8 @@ describe('Score', () => {
         teamsReloaded = false;
         newPlayerApiResult = null;
         saveGameApiResult = null;
+        uploadedPhoto = null;
+        uploadPhotoResponse = null;
     });
 
     afterEach(() => {
@@ -852,6 +861,93 @@ describe('Score', () => {
             await renderComponent(fixtureData.id, appData);
 
             reportedError.verifyNoError();
+        });
+
+        it('does not render photos button when not permitted', async () => {
+            const notPermitted = Object.assign({}, account);
+            account.access.uploadPhotos = false;
+            const appData = getDefaultAppData(notPermitted);
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            await renderComponent(fixtureData.id, appData);
+
+            expect(context.container.textContent).not.toContain('Photos');
+        });
+
+        it('can open photo manager to view photos', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const appData = getDefaultAppData(permitted);
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            await renderComponent(fixtureData.id, appData);
+
+            await doClick(findButton(context.container, '📷 Photos'));
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.querySelector('div[datatype="upload-control"]')).toBeTruthy();
+        });
+
+        it('can close photo manager', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const appData = getDefaultAppData(permitted);
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            await renderComponent(fixtureData.id, appData);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can upload photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const appData = getDefaultAppData(permitted);
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            await renderComponent(fixtureData.id, appData);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            uploadPhotoResponse = {
+                success: true,
+                result: fixtureData,
+            };
+
+            const file = 'a photo';
+            await setFile(dialog, 'input[type="file"]', file, context.user);
+
+            expect(uploadedPhoto).toEqual({
+                request: {
+                    id: fixtureData.id,
+                },
+                file: 'a photo',
+            });
+        });
+
+        it('handles error when uploading photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const appData = getDefaultAppData(permitted);
+            const fixtureData = getPlayedFixtureData(appData);
+            fixtureData.resultsPublished = false;
+            await renderComponent(fixtureData.id, appData);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            uploadPhotoResponse = {
+                success: false,
+                errors: [ 'SOME ERROR' ]
+            };
+
+            const file = 'a photo';
+            await setFile(dialog, 'input[type="file"]', file, context.user);
+
+            expect(uploadedPhoto).not.toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
         });
     });
 
