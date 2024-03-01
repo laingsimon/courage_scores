@@ -1,4 +1,4 @@
-import {MouseEvent, useState} from 'react';
+import {ChangeEvent, MouseEvent, useState} from 'react';
 import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
 import {Dialog} from "./Dialog";
 import {useApp} from "./AppContainer";
@@ -32,7 +32,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
         return `${settings.apiHost}/api/Photo/${photo.id}/${height ? height : ''}`;
     }
 
-    async function uploadPhoto() {
+    async function uploadPhoto(event: ChangeEvent) {
         /* istanbul ignore next */
         if (uploading) {
             /* istanbul ignore next */
@@ -42,7 +42,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
         setUploading(true);
 
         try {
-            const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+            const input = event.target as HTMLInputElement;
             if (input.files.length === 0) {
                 window.alert(`Select a photo first`);
                 return;
@@ -103,8 +103,12 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
         return `${value.toFixed(0)}${suffix[0]}`;
     }
 
-    function triggerFileClick(event: MouseEvent) {
-        const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    function triggerFileClick(event: MouseEvent, idOfFileElement: string) {
+        if (uploading) {
+            return;
+        }
+
+        const input = document.getElementById(idOfFileElement) as HTMLInputElement;
         input.click();
         event.preventDefault();
         return false;
@@ -126,23 +130,36 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                     <img src={getDownloadAddress(photo, 50)} className="float-end" height="50" alt={`${photo.fileName}`} title={photo.contentType} />
                 </a>))}
         </div>
-        {canUploadPhotos && !uploading ? (<>
-            <div datatype="upload-control" className="mb-2 text-center border-dashed border-1 border-dark" onClick={triggerFileClick}>
+        {canUploadPhotos ? (<>
+            <div datatype="upload-control" className="mb-2 text-center border-dashed border-1 border-dark"
+                 onClick={(event: MouseEvent) => triggerFileClick(event, 'fromCamera')}>
                 <button className="border-0 p-2 text-center text-decoration-none text-dark bg-white">
-                    <div className="h2 opacity-50">📷</div>
-                    Upload photo
+                    {uploading
+                        ? (<LoadingSpinnerSmall/>)
+                        : (<>
+                            <div className="h2 opacity-50">📷</div>
+                            Take a photo
+                        </>)}
                 </button>
             </div>
-            <input type="file" accept="image/*" className="visually-hidden" capture="environment" onChange={uploadPhoto} />
+            <input id="fromCamera" type="file" accept="image/*" className="visually-hidden" capture="environment" onChange={uploadPhoto}/>
+            <div datatype="upload-control" className="mb-2 text-center border-dashed border-1 border-dark"
+                 onClick={(event: MouseEvent) => triggerFileClick(event, 'fromDevice')}>
+                <button className="border-0 p-2 text-center text-decoration-none text-dark bg-white">
+                    {uploading
+                        ? (<LoadingSpinnerSmall/>)
+                        : (<>
+                            <div className="h2 opacity-50">📤</div>
+                            Upload an image
+                        </>)}
+                </button>
+            </div>
+            <input id="fromDevice" type="file" accept="image/*" className="visually-hidden" onChange={uploadPhoto}/>
         </>) : null}
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onClose}>Close</button>
             </div>
-            {canUploadPhotos ? (<button className="btn btn-primary" onClick={uploadPhoto}>
-                {uploading ? (<LoadingSpinnerSmall/>) : null}
-                Upload
-            </button>) : null}
         </div>
     </Dialog>);
 }

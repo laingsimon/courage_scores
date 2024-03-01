@@ -149,9 +149,6 @@ describe('PhotoManager', () => {
                 doDelete,
             });
 
-            const uploadButton = context.container.querySelector('.btn-primary');
-            expect(uploadButton).toBeTruthy();
-            expect(uploadButton.textContent).toEqual('Upload');
             const fileUploadControl = context.container.querySelector('input[type="file"]');
             expect(fileUploadControl).toBeTruthy();
             const visibleUploadContainer = context.container.querySelector('div[datatype="upload-control"]');
@@ -256,25 +253,6 @@ describe('PhotoManager', () => {
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
             expect(photos[0].href).toEqual(`https://localhost:7247/api/Photo/${myPhoto.id}/`);
-        });
-
-        it('does not upload when no photo selected', async () => {
-            await renderComponent(appProps({
-                account
-            }, reportedError), {
-                photos: [ ],
-                canUploadPhotos: true,
-                doUpload,
-                onClose,
-                doDelete,
-            });
-            let alert: string;
-            window.alert = (msg) => alert = msg;
-
-            await doClick(findButton(context.container, 'Upload'));
-
-            expect(upload).toBeNull();
-            expect(alert).toEqual('Select a photo first');
         });
 
         it('uploads when file selected', async () => {
