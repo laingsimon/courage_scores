@@ -17,7 +17,7 @@ export function RefreshControl({ id, type }: IRefreshControlProps) {
         ];
     }
 
-    if (!account || !account.access.useWebSockets) {
+    if (!account || !account.access || !account.access.useWebSockets) {
         return null;
     }
 
