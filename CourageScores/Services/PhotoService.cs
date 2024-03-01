@@ -73,7 +73,7 @@ public class PhotoService : IPhotoService
     public async Task<Photo?> GetPhoto(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canViewAllPhotos = user?.Access?.ManageScores == true || user?.Access?.ManageTournaments == true;
+        var canViewAllPhotos = user?.Access?.ViewAnyPhoto == true;
         var canViewOwnPhoto = user?.Access?.UploadPhotos == true;
 
         if (!canViewAllPhotos && !canViewOwnPhoto)
@@ -95,7 +95,7 @@ public class PhotoService : IPhotoService
     public async Task<ActionResult<Photo>> Delete(Guid id, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canDeleteAnyPhoto = user?.Access?.ManageScores == true || user?.Access?.ManageTournaments == true;
+        var canDeleteAnyPhoto = user?.Access?.DeleteAnyPhoto == true;
         var canDeleteOwnPhoto = user?.Access?.UploadPhotos == true;
 
         if (!canDeleteOwnPhoto && !canDeleteAnyPhoto)

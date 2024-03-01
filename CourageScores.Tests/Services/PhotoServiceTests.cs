@@ -42,12 +42,7 @@ public class PhotoServiceTests
         };
         _user = new UserDto
         {
-            Access = new AccessDto
-            {
-                UploadPhotos = true,
-                ManageScores = true,
-                ManageTournaments = true,
-            },
+            Access = new AccessDto(),
             Name = "USER",
         };
         _photo = new Photo
@@ -98,6 +93,7 @@ public class PhotoServiceTests
     [Test]
     public async Task Upsert_GivenPhoto_ResizesThenStoresPhoto()
     {
+        _user!.Access!.UploadPhotos = true;
         var resizeResult = new ActionResult<byte[]>
         {
             Success = true,
@@ -122,6 +118,7 @@ public class PhotoServiceTests
     [Test]
     public async Task Upsert_GivenNonPhotoFile_ReturnsUnsuccessful()
     {
+        _user!.Access!.UploadPhotos = true;
         var resizeResult = new ActionResult<byte[]>
         {
             Success = false,
@@ -140,6 +137,7 @@ public class PhotoServiceTests
     [Test]
     public async Task Upsert_GivenNewPhoto_SetsAuthorAndEditor()
     {
+        _user!.Access!.UploadPhotos = true;
         var resizeResult = new ActionResult<byte[]>
         {
             Success = true,
@@ -159,6 +157,7 @@ public class PhotoServiceTests
     [Test]
     public async Task Upsert_GivenReplacementPhoto_SetsEditor()
     {
+        _user!.Access!.UploadPhotos = true;
         var resizeResult = new ActionResult<byte[]>
         {
             Success = true,
@@ -187,11 +186,10 @@ public class PhotoServiceTests
     }
 
     [Test]
-    public async Task GetPhoto_WhenNotPermitted_ReturnsNull()
+    public async Task GetPhoto_WhenNotAdmin_ReturnsNull()
     {
+        _user!.Access!.UploadPhotos = true;
         _existingPhoto.Author = "ANOTHER USER";
-        _user!.Access!.ManageScores = false;
-        _user!.Access!.ManageTournaments = false;
 
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
 
@@ -199,11 +197,10 @@ public class PhotoServiceTests
     }
 
     [Test]
-    public async Task GetPhoto_ForOwnPhotoWhenNotPermitted_ReturnsBytes()
+    public async Task GetPhoto_ForOwnPhotoWhenNotAdmin_ReturnsBytes()
     {
+        _user!.Access!.UploadPhotos = true;
         _existingPhoto.Author = _user!.Name;
-        _user!.Access!.ManageScores = false;
-        _user!.Access!.ManageTournaments = false;
 
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
 
@@ -213,6 +210,8 @@ public class PhotoServiceTests
     [Test]
     public async Task GetPhoto_WhenPhotoNotFound_ReturnsNull()
     {
+        _user!.Access!.UploadPhotos = true;
+        _user!.Access!.ViewAnyPhoto = true;
         var id = Guid.NewGuid();
         _photoRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
@@ -222,8 +221,12 @@ public class PhotoServiceTests
     }
 
     [Test]
-    public async Task GetPhoto_WhenPhotoFound_ReturnsBytes()
+    public async Task GetPhoto_WhenPhotoFromAnotherUser_ReturnsBytes()
     {
+        _user!.Access!.UploadPhotos = true;
+        _user!.Access!.ViewAnyPhoto = true;
+        _photo.Author = "ANOTHER USER";
+
         var result = await _service.GetPhoto(_existingPhoto.Id, _token);
 
         Assert.That(result, Is.EqualTo(_existingPhoto));
@@ -241,11 +244,9 @@ public class PhotoServiceTests
     }
 
     [Test]
-    public async Task Delete_WhenNotPermitted_ReturnsNotPermitted()
+    public async Task Delete_WhenNotAdmin_ReturnsNotPermitted()
     {
-        _user!.Access!.ManageScores = false;
-        _user!.Access!.ManageTournaments = false;
-        _user!.Access!.UploadPhotos = false;
+        _user!.Access!.DeleteAnyPhoto = false;
 
         var result = await _service.Delete(_existingPhoto.Id, _token);
 
@@ -256,6 +257,8 @@ public class PhotoServiceTests
     [Test]
     public async Task Delete_WhenPhotoNotFound_ReturnsNotFound()
     {
+        _user!.Access!.DeleteAnyPhoto = true;
+
         var result = await _service.Delete(Guid.NewGuid(), _token);
 
         Assert.That(result.Success, Is.False);
@@ -265,8 +268,7 @@ public class PhotoServiceTests
     [Test]
     public async Task Delete_WhenOnlyAbleToUploadPhotosAndPhotoIsFromADifferentUser_ReturnsNotPermitted()
     {
-        _user!.Access!.ManageScores = false;
-        _user!.Access!.ManageTournaments = false;
+        _user!.Access!.DeleteAnyPhoto = false;
         _user!.Access!.UploadPhotos = true;
         _existingPhoto.Author = "ANOTHER USER";
 
@@ -279,8 +281,6 @@ public class PhotoServiceTests
     [Test]
     public async Task Delete_WhenOnlyAbleToUploadPhotosAndPhotoIsFromSelf_DeletesPhoto()
     {
-        _user!.Access!.ManageScores = false;
-        _user!.Access!.ManageTournaments = false;
         _user!.Access!.UploadPhotos = true;
         _existingPhoto.Author = _user.Name;
 
@@ -295,10 +295,9 @@ public class PhotoServiceTests
     }
 
     [Test]
-    public async Task Delete_WhenLeagueAdminAndPhotoIsFromADifferentUser_DeletesPhoto()
+    public async Task Delete_WhenAdminAndPhotoIsFromADifferentUser_DeletesPhoto()
     {
-        _user!.Access!.ManageScores = true;
-        _user!.Access!.ManageTournaments = false;
+        _user!.Access!.DeleteAnyPhoto = true;
         _user!.Access!.UploadPhotos = false;
         _existingPhoto.Author = "ANOTHER USER";
 
@@ -314,49 +313,9 @@ public class PhotoServiceTests
     }
 
     [Test]
-    public async Task Delete_WhenLeagueAdminAndPhotoIsFromSelf_DeletesPhoto()
+    public async Task Delete_WhenAdminAndPhotoIsFromSelf_DeletesPhoto()
     {
-        _user!.Access!.ManageScores = true;
-        _user!.Access!.ManageTournaments = false;
-        _user!.Access!.UploadPhotos = false;
-        _existingPhoto.Author = _user.Name;
-
-        var result = await _service.Delete(_existingPhoto.Id, _token);
-
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Result, Is.EqualTo(_existingPhoto));
-        Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
-        Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
-        _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
-    }
-
-    [Test]
-    public async Task Delete_WhenTournamentAdminAndPhotoIsFromADifferentUser_DeletesPhoto()
-    {
-        _user!.Access!.ManageScores = false;
-        _user!.Access!.ManageTournaments = true;
-        _user!.Access!.UploadPhotos = false;
-        _existingPhoto.Author = "ANOTHER USER";
-
-        var result = await _service.Delete(_existingPhoto.Id, _token);
-
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Result, Is.EqualTo(_existingPhoto));
-        Assert.That(_existingPhoto.Deleted, Is.EqualTo(_now.UtcDateTime));
-        Assert.That(_existingPhoto.Remover, Is.EqualTo(_user.Name));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Photo deleted" }));
-        _photoRepository.Verify(r => r.Upsert(_existingPhoto, _token));
-    }
-
-    [Test]
-    public async Task Delete_WhenTournamentAdminAndPhotoIsFromSelf_DeletesPhoto()
-    {
-        _user!.Access!.ManageScores = false;
-        _user!.Access!.ManageTournaments = true;
-        _user!.Access!.UploadPhotos = false;
+        _user!.Access!.DeleteAnyPhoto = true;
         _existingPhoto.Author = _user.Name;
 
         var result = await _service.Delete(_existingPhoto.Id, _token);

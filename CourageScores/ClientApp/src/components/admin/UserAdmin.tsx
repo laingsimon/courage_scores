@@ -1,3 +1,5 @@
+// noinspection SqlDialectInspection,SqlNoDataSourceInspection
+
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
@@ -173,7 +175,9 @@ export function UserAdmin() {
         {renderAccessOption('manageSockets', 'Manage web sockets')}
         {renderAccessOption('useWebSockets', 'Show live results')}
         {renderAccessOption('enterTournamentResults', 'Enter tournament results')}
-        {renderAccessOption('uploadPhotos', 'Upload photos of results')}
+        {renderAccessOption('uploadPhotos', 'Upload photos of results (people can view and delete their own photos)')}
+        {renderAccessOption('viewAnyPhoto', 'View photos from anyone (allows viewing of man-of-the-match submissions)')}
+        {renderAccessOption('deleteAnyPhoto', 'Delete photos from anyone')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving

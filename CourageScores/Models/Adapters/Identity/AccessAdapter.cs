@@ -31,6 +31,8 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             UseWebSockets = model.UseWebSockets,
             EnterTournamentResults = model.EnterTournamentResults,
             UploadPhotos = model.UploadPhotos,
+            DeleteAnyPhoto = model.DeleteAnyPhoto,
+            ViewAnyPhoto = model.ViewAnyPhoto,
         });
     }
 
@@ -60,6 +62,8 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             UseWebSockets = dto.UseWebSockets,
             EnterTournamentResults = dto.EnterTournamentResults,
             UploadPhotos = dto.UploadPhotos,
+            DeleteAnyPhoto = dto.DeleteAnyPhoto,
+            ViewAnyPhoto = dto.ViewAnyPhoto,
         });
     }
 }

@@ -38,6 +38,8 @@ public class AccessAdapterTests
             UseWebSockets = true,
             EnterTournamentResults = true,
             UploadPhotos = true,
+            ViewAnyPhoto = true,
+            DeleteAnyPhoto = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -64,6 +66,8 @@ public class AccessAdapterTests
         Assert.That(result.UseWebSockets, Is.EqualTo(model.UseWebSockets));
         Assert.That(result.EnterTournamentResults, Is.EqualTo(model.EnterTournamentResults));
         Assert.That(result.UploadPhotos, Is.EqualTo(model.UploadPhotos));
+        Assert.That(result.ViewAnyPhoto, Is.EqualTo(model.ViewAnyPhoto));
+        Assert.That(result.DeleteAnyPhoto, Is.EqualTo(model.DeleteAnyPhoto));
     }
 
     [Test]
@@ -93,6 +97,8 @@ public class AccessAdapterTests
             UseWebSockets = true,
             EnterTournamentResults = true,
             UploadPhotos = true,
+            ViewAnyPhoto = true,
+            DeleteAnyPhoto = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -118,5 +124,7 @@ public class AccessAdapterTests
         Assert.That(result.UseWebSockets, Is.EqualTo(dto.UseWebSockets));
         Assert.That(result.EnterTournamentResults, Is.EqualTo(dto.EnterTournamentResults));
         Assert.That(result.UploadPhotos, Is.EqualTo(dto.UploadPhotos));
+        Assert.That(result.ViewAnyPhoto, Is.EqualTo(dto.ViewAnyPhoto));
+        Assert.That(result.DeleteAnyPhoto, Is.EqualTo(dto.DeleteAnyPhoto));
     }
 }

@@ -626,7 +626,7 @@ export function Score() {
                     {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission)
                         ? (<button className="btn btn-warning margin-right" onClick={unpublish}>Unpublish</button>)
                         : null}
-                    {account && account.access && account.access.uploadPhotos
+                    {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto)
                         ? (<button className="btn btn-primary margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
                         : null}
                     <DebugOptions>
@@ -650,8 +650,8 @@ export function Score() {
                 onClose={async () => setShowPhotoManager(false)}
                 doDelete={deletePhotos}
                 canUploadPhotos={account && account.access && account.access.uploadPhotos}
-                canDeletePhotos={(account && account.access && account.access.uploadPhotos) || access === 'admin'}
-                canViewAllPhotos={access === 'admin'}
+                canDeletePhotos={(account && account.access && (account.access.uploadPhotos || account.access.deleteAnyPhoto)) || access === 'admin'}
+                canViewAllPhotos={access === 'admin' || (account && account.access && account.access.viewAnyPhoto)}
             />) : null}
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save score"/>) : null}
