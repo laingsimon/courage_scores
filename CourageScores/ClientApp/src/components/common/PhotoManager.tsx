@@ -143,7 +143,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                 </button>
             </div>
             <input id="fromCamera" type="file" accept="image/*" className="visually-hidden" capture="environment" onChange={uploadPhoto}/>
-            <div datatype="upload-control" className="mb-2 text-center border-dashed border-1 border-dark"
+            {uploading ? null : (<div datatype="upload-control" className="mb-2 text-center border-dashed border-1 border-dark"
                  onClick={(event: MouseEvent) => triggerFileClick(event, 'fromDevice')}>
                 <button className="border-0 p-2 text-center text-decoration-none text-dark bg-white">
                     {uploading
@@ -153,7 +153,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                             Upload an image
                         </>)}
                 </button>
-            </div>
+            </div>)}
             <input id="fromDevice" type="file" accept="image/*" className="visually-hidden" onChange={uploadPhoto}/>
         </>) : null}
         <div className="modal-footer px-0 pb-0">
