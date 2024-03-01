@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using CourageScores.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,8 +39,17 @@ public class PhotoController : Controller
             return;
         }
 
+        var ifModifiedSinceHeader = Request.Headers.IfModifiedSince.ToString();
+        if (DateTime.TryParseExact(ifModifiedSinceHeader, "R", null, DateTimeStyles.None, out var ifModifiedSince) && ifModifiedSince <= photo.Updated)
+        {
+            // no change
+            Response.StatusCode = StatusCodes.Status304NotModified;
+            return;
+        }
+
         Response.ContentType = photo.ContentType;
         Response.Headers.ContentDisposition = $"inline; filename=\"{photo.FileName}\"";
+        Response.Headers.LastModified = photo.Updated.ToString("R");
 
         var bytes = photo.PhotoBytes;
         if (height != null)
