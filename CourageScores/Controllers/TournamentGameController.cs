@@ -66,4 +66,24 @@ public class TournamentGameController : Controller
         var command = _commandFactory.GetCommand<DeleteTournamentMatchSaygCommand>().FromMatch(matchId);
         return await _tournamentService.Upsert(id, command, token);
     }
+
+    [HttpPost("/api/Tournament/Photo")]
+    public async Task<ActionResultDto<TournamentGameDto>> UploadPhoto([FromForm] UploadPhotoDto request, CancellationToken token)
+    {
+        if (request.Photo == null)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return null!;
+        }
+
+        var command = _commandFactory.GetCommand<UploadPhotoCommand<TournamentGame>>().WithPhoto(request.Photo!);
+        return await _tournamentService.Upsert(request.Id, command, token);
+    }
+
+    [HttpDelete("/api/Tournament/Photo/{id}/{photoId}")]
+    public async Task<ActionResultDto<TournamentGameDto>> DeletePhoto(Guid id, Guid photoId, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<DeletePhotoCommand<TournamentGame>>().WithId(photoId);
+        return await _tournamentService.Upsert(id, command, token);
+    }
 }

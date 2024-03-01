@@ -87,4 +87,9 @@ public class TournamentGameDto : AuditedDto
     /// The gender of the players playing
     /// </summary>
     public string? Gender { get; set; }
+
+    /// <summary>
+    /// Photos of the results
+    /// </summary>
+    public List<PhotoReferenceDto> Photos { get; set; } = new();
 }

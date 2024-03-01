@@ -88,7 +88,7 @@ public class GameAdapterTests
             Photos =
             {
                 PhotoReference,
-            }
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -171,7 +171,7 @@ public class GameAdapterTests
             Photos =
             {
                 PhotoReferenceDto,
-            }
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);

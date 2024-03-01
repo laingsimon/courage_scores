@@ -1,4 +1,6 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models.Cosmos;
+using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Services;
 
@@ -10,17 +12,20 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
     private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _playerAdapter;
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _roundAdapter;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
+    private readonly ISimpleAdapter<PhotoReference, PhotoReferenceDto> _photoReferenceAdapter;
 
     public TournamentGameAdapter(
         IAdapter<TournamentRound, TournamentRoundDto> roundAdapter,
         IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
         IAdapter<TournamentPlayer, TournamentPlayerDto> playerAdapter,
-        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> notablePlayerAdapter)
+        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> notablePlayerAdapter,
+        ISimpleAdapter<PhotoReference, PhotoReferenceDto> photoReferenceAdapter)
     {
         _roundAdapter = roundAdapter;
         _sideAdapter = sideAdapter;
         _playerAdapter = playerAdapter;
         _notablePlayerAdapter = notablePlayerAdapter;
+        _photoReferenceAdapter = photoReferenceAdapter;
     }
 
     public async Task<TournamentGameDto> Adapt(TournamentGame model, CancellationToken token)
@@ -44,6 +49,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Host = model.Host,
             Opponent = model.Opponent,
             Gender = model.Gender,
+            Photos = await model.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
@@ -68,6 +74,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Host = dto.Host?.Trim(),
             Opponent = dto.Opponent?.Trim(),
             Gender = dto.Gender?.Trim(),
+            Photos = await dto.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }
