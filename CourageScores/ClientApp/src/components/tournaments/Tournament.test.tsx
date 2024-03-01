@@ -8,7 +8,7 @@ import {
     doSelectOption, ErrorState,
     findButton,
     iocProps,
-    renderApp, TestContext
+    renderApp, setFile, TestContext
 } from "../../helpers/tests";
 import {Tournament} from "./Tournament";
 import {any, DataMap, toMap} from "../../helpers/collections";
@@ -44,6 +44,8 @@ import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
+import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
+import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 
 interface IScenario {
     account?: UserDto;
@@ -62,6 +64,10 @@ describe('Tournament', () => {
     let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
     let createdPlayer: {divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto};
     let apiResponse: IClientActionResultDto<any>;
+    let uploadedPhoto: { request: UploadPhotoDto, file: File };
+    let uploadPhotoResponse: IClientActionResultDto<TournamentGameDto>;
+    let deletedPhoto: { id: string, photoId: string };
+    let deletePhotoResponse: IClientActionResultDto<TournamentGameDto>;
 
     const divisionApi = api<IDivisionApi>({
         data: async (divisionId: string, filter: DivisionDataFilter) => {
@@ -90,6 +96,14 @@ describe('Tournament', () => {
             patchedTournamentData.push({id, data});
             return apiResponse || {success: true, result: data};
         },
+        async uploadPhoto(request: UploadPhotoDto, file: File): Promise<IClientActionResultDto<TournamentGameDto>> {
+            uploadedPhoto = {request, file};
+            return uploadPhotoResponse;
+        },
+        async deletePhoto(id: string, photoId: string): Promise<IClientActionResultDto<TournamentGameDto>> {
+            deletedPhoto = { id, photoId };
+            return deletePhotoResponse;
+        }
     });
     const playerApi = api<IPlayerApi>({
         create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto) => {
@@ -143,6 +157,10 @@ describe('Tournament', () => {
         patchedTournamentData = [];
         createdPlayer = null;
         apiResponse = null;
+        uploadedPhoto = null;
+        uploadPhotoResponse = null;
+        deletedPhoto = null;
+        deletePhotoResponse = null;
     });
 
     async function renderComponent(tournamentId: string, scenario: IScenario, appLoading: boolean) {
@@ -1754,6 +1772,248 @@ describe('Tournament', () => {
             const oneEightiesDialog = context.container.querySelector('.modal-dialog');
             const oneEightiesDropdownItems = Array.from(oneEightiesDialog.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(oneEightiesDropdownItems.map(i => i.textContent)).toEqual([' ', 'PLAYER A']);
+        });
+
+        it('does not render photos button when not permitted', async () => {
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([season]),
+                teams: toMap([]),
+                divisions: [division],
+            }, false);
+
+            expect(context.container.textContent).not.toContain('Photos');
+        });
+
+        it('can open photo manager to view photos', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: permitted,
+                seasons: toMap([season]),
+                teams: toMap([]),
+                divisions: [division],
+            }, false);
+
+            await doClick(findButton(context.container, '📷 Photos'));
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.querySelector('div[datatype="upload-control"]')).toBeTruthy();
+        });
+
+        it('can close photo manager', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: permitted,
+                seasons: toMap([season]),
+                teams: toMap([]),
+                divisions: [division],
+            }, false);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can upload photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: permitted,
+                seasons: toMap([season]),
+                teams: toMap([]),
+                divisions: [division],
+            }, false);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            uploadPhotoResponse = {
+                success: true,
+                result: tournamentData,
+            };
+
+            const file = 'a photo';
+            await setFile(dialog, 'input[type="file"]', file, context.user);
+
+            expect(uploadedPhoto).toEqual({
+                request: {
+                    id: tournamentData.id,
+                },
+                file: 'a photo',
+            });
+        });
+
+        it('handles error when uploading photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: permitted,
+                seasons: toMap([season]),
+                teams: toMap([]),
+                divisions: [division],
+            }, false);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            uploadPhotoResponse = {
+                success: false,
+                errors: [ 'SOME ERROR' ]
+            };
+
+            const file = 'a photo';
+            await setFile(dialog, 'input[type="file"]', file, context.user);
+
+            expect(uploadedPhoto).not.toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
+        });
+
+        it('can delete photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const photo: PhotoReferenceDto = {
+                id: createTemporaryId(),
+                author: permitted.name,
+                contentType: 'image/png',
+                fileSize: 123,
+            };
+            tournamentData.photos = [photo];
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: permitted,
+                seasons: toMap([season]),
+                teams: toMap([]),
+                divisions: [division],
+            }, false);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            deletePhotoResponse = {
+                success: true,
+                result: tournamentData,
+            };
+            window.confirm = () => true;
+
+            await doClick(findButton(dialog, '🗑'));
+
+            expect(deletedPhoto).toEqual({
+                id: tournamentData.id,
+                photoId: photo.id,
+            });
+        });
+
+        it('handles error when deleting photo', async () => {
+            const permitted = Object.assign({}, account);
+            account.access.uploadPhotos = true;
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round((r: ITournamentRoundBuilder) => r)
+                .addTo(tournamentDataLookup)
+                .build();
+            const photo: PhotoReferenceDto = {
+                id: createTemporaryId(),
+                author: permitted.name,
+                contentType: 'image/png',
+                fileSize: 123,
+            };
+            tournamentData.photos = [photo];
+            const divisionData = divisionDataBuilder().build();
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: permitted,
+                seasons: toMap([season]),
+                teams: toMap([]),
+                divisions: [division],
+            }, false);
+            await doClick(findButton(context.container, '📷 Photos'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            deletePhotoResponse = {
+                success: false,
+                errors: [ 'SOME ERROR' ]
+            };
+            window.confirm = () => true;
+
+            await doClick(findButton(dialog, '🗑'));
+
+            expect(deletedPhoto).not.toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
         });
     });
 });
