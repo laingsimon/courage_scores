@@ -57,7 +57,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
 
             return [];
         });
-    const canAddPlayers: boolean = account.access.managePlayers && !side.teamId;
+    const canAddPlayers: boolean = account && account.access && account.access.managePlayers && !side.teamId;
     const tournamentSideType: ITournamentSideType = getTournamentSideType(tournamentData);
 
     function getTournamentSideType(tournamentData: TournamentGameDto): ITournamentSideType {

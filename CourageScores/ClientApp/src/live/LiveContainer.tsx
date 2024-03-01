@@ -20,7 +20,7 @@ export interface ILiveContainerProps {
 export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContainerProps) {
     const {webSocket} = useDependencies();
     const {onError, account} = useApp();
-    const canConnect: boolean = account && account.access.useWebSockets;
+    const canConnect: boolean = account && account.access && account.access.useWebSockets;
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
