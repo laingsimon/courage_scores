@@ -1,4 +1,6 @@
-﻿import {IAddableBuilder, IBuilder} from "./builders";
+﻿/* istanbul ignore file */
+
+import {IAddableBuilder, IBuilder} from "./builders";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {
     DivisionTournamentFixtureDetailsDto

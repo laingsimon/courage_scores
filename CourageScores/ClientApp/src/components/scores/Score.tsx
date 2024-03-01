@@ -46,6 +46,8 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {ISelectablePlayer} from "../common/PlayerSelection";
 import {RecordScoresDto} from "../../interfaces/models/dtos/Game/RecordScoresDto";
+import {PhotoManager} from "../common/PhotoManager";
+import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 
 export interface ICreatePlayerFor {
     side: string;
@@ -76,6 +78,7 @@ export function Score() {
     const [submission, setSubmission] = useState<string | null>(null);
     const [createPlayerFor, setCreatePlayerFor] = useState<ICreatePlayerFor | null>(null);
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
+    const [showPhotoManager, setShowPhotoManager] = useState(false);
     const access = getAccess();
 
     function renderCreatePlayerDialog() {
@@ -284,31 +287,36 @@ export function Score() {
                 loadPlayerData(gameData);
             }
 
-            if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
-                const matchOptions: IMatchOptionsLookup = getMatchOptionsLookup(gameData.matchOptions);
-                gameData.matchOptions = [
-                    getMatchOptionDefaults(0, matchOptions),
-                    getMatchOptionDefaults(1, matchOptions),
-                    getMatchOptionDefaults(2, matchOptions),
-                    getMatchOptionDefaults(3, matchOptions),
-                    getMatchOptionDefaults(4, matchOptions),
-                    getMatchOptionDefaults(5, matchOptions),
-                    getMatchOptionDefaults(6, matchOptions),
-                    getMatchOptionDefaults(7, matchOptions)];
-            }
-
-            if (!gameData.matches || isEmpty(gameData.matches)) {
-                gameData.matches = repeat(8, getMatchDefaults);
-            }
-
-            setFixtureData(gameData);
-            setData(gameData);
+            const patchedGameData = addMatchesAndMatchOptions(gameData);
+            setFixtureData(patchedGameData);
+            setData(patchedGameData);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading('ready');
         }
+    }
+
+    function addMatchesAndMatchOptions(gameData: GameDto): GameDto {
+        if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
+            const matchOptions: IMatchOptionsLookup = getMatchOptionsLookup(gameData.matchOptions);
+            gameData.matchOptions = [
+                getMatchOptionDefaults(0, matchOptions),
+                getMatchOptionDefaults(1, matchOptions),
+                getMatchOptionDefaults(2, matchOptions),
+                getMatchOptionDefaults(3, matchOptions),
+                getMatchOptionDefaults(4, matchOptions),
+                getMatchOptionDefaults(5, matchOptions),
+                getMatchOptionDefaults(6, matchOptions),
+                getMatchOptionDefaults(7, matchOptions)];
+        }
+
+        if (!gameData.matches || isEmpty(gameData.matches)) {
+            gameData.matches = repeat(8, getMatchDefaults);
+        }
+
+        return gameData;
     }
 
     async function saveScores() {
@@ -483,6 +491,37 @@ export function Score() {
         return null;
     }
 
+    async function uploadPhotos(file: File): Promise<boolean> {
+        const request: UploadPhotoDto = {
+            id: fixtureId,
+        };
+        const result: IClientActionResultDto<GameDto> = await gameApi.uploadPhoto(request, file);
+
+        if (result.success) {
+            const patchedGameData: GameDto = addMatchesAndMatchOptions(result.result);
+            setFixtureData(patchedGameData);
+            setData(patchedGameData);
+            return true;
+        }
+
+        setSaveError(result);
+        return false;
+    }
+
+    async function deletePhotos(id: string): Promise<boolean> {
+        const result: IClientActionResultDto<GameDto> = await gameApi.deletePhoto(fixtureId, id);
+
+        if (result.success) {
+            const patchedGameData: GameDto = addMatchesAndMatchOptions(result.result);
+            setFixtureData(patchedGameData);
+            setData(patchedGameData);
+            return true;
+        }
+
+        setSaveError(result);
+        return false;
+    }
+
     if (loading !== 'ready') {
         return (<Loading/>);
     }
@@ -587,6 +626,9 @@ export function Score() {
                     {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission)
                         ? (<button className="btn btn-warning margin-right" onClick={unpublish}>Unpublish</button>)
                         : null}
+                    {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto)
+                        ? (<button className="btn btn-primary margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
+                        : null}
                     <DebugOptions>
                         <span className="dropdown-item">Access: {access}</span>
                         {account ? (<span className="dropdown-item">Team: {teams[account.teamId] ? teams[account.teamId].name : account.teamId}</span>) : null}
@@ -601,9 +643,18 @@ export function Score() {
                     </DebugOptions>
                 </div>
             </LeagueFixtureContainer>
+            {createPlayerFor ? renderCreatePlayerDialog() : null}
+            {showPhotoManager ? (<PhotoManager
+                doUpload={uploadPhotos}
+                photos={fixtureData.photos}
+                onClose={async () => setShowPhotoManager(false)}
+                doDelete={deletePhotos}
+                canUploadPhotos={account && account.access && account.access.uploadPhotos}
+                canDeletePhotos={(account && account.access && (account.access.uploadPhotos || account.access.deleteAnyPhoto)) || access === 'admin'}
+                canViewAllPhotos={access === 'admin' || (account && account.access && account.access.viewAnyPhoto)}
+            />) : null}
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save score"/>) : null}
-            {createPlayerFor ? renderCreatePlayerDialog() : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */

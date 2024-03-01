@@ -1,5 +1,7 @@
 using CourageScores.Models.Adapters.Game;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -31,8 +33,10 @@ public class GameAdapterTests
     private static readonly GameMatchOption MatchOption = new();
     private static readonly GameMatchOptionDto MatchOptionDto = new();
     private static readonly NotablePlayerDto HiCheckPlayerDto = new();
+    private static readonly PhotoReference PhotoReference = new();
+    private static readonly PhotoReferenceDto PhotoReferenceDto = new();
     private readonly CancellationToken _token = new();
-    private readonly GameAdapter _adapter = new(
+    private readonly GameAdapter _adapter = new GameAdapter(
         new MockAdapter<GameMatch, GameMatchDto>(new[]
         {
             GameMatch,
@@ -53,7 +57,8 @@ public class GameAdapterTests
             }),
         new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
         new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
-        new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
+        new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto),
+        new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto));
 
     [Test]
     public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly()
@@ -80,6 +85,10 @@ public class GameAdapterTests
                 HiCheckPlayer,
             },
             AccoladesCount = true,
+            Photos =
+            {
+                PhotoReference,
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -105,6 +114,7 @@ public class GameAdapterTests
         }));
         Assert.That(result.AccoladesCount, Is.EqualTo(model.AccoladesCount));
         Assert.That(result.ResultsPublished, Is.False);
+        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReferenceDto }));
     }
 
     [Test]
@@ -158,6 +168,10 @@ public class GameAdapterTests
                 HiCheckPlayerDto,
             },
             AccoladesCount = true,
+            Photos =
+            {
+                PhotoReferenceDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -186,6 +200,7 @@ public class GameAdapterTests
             HiCheckPlayer,
         }));
         Assert.That(result.AccoladesCount, Is.EqualTo(dto.AccoladesCount));
+        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReference }));
     }
 
     [Test]

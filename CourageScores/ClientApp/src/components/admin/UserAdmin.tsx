@@ -1,3 +1,5 @@
+// noinspection SqlDialectInspection,SqlNoDataSourceInspection
+
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
@@ -104,14 +106,17 @@ export function UserAdmin() {
         setUserAccount(userAccount);
     }
 
-    function renderAccessOption(name: string, description: string) {
+    function renderAccessOption(name: string, description: string, explanation?: string) {
         const access: AccessDto = (userAccount ? userAccount : {}).access || {};
 
         return (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} className="form-check-input" type="checkbox" id={name}
                        name={`access.${name}`} checked={access[name] || false} onChange={valueChanged}/>
-                <label className="form-check-label" htmlFor={name}>{description}</label>
+                <label className="form-check-label" htmlFor={name}>
+                    {description}
+                    {explanation ? (<><br /><small>{explanation}</small></>) : null}
+                </label>
             </div>
         </div>);
     }
@@ -151,28 +156,54 @@ export function UserAdmin() {
                 <label className="form-check-label" htmlFor="showEmailAddress">Show email address</label>
             </div>
         </div>
+        <ul>
+            <li>⚠ Man of the match data can be seen for any team</li>
+        </ul>
         <h6>Access</h6>
-        {renderAccessOption('manageAccess', 'Manage user access')}
-        {renderAccessOption('manageDivisions', 'Manage divisions')}
-        {renderAccessOption('manageGames', 'Manage games')}
-        {renderAccessOption('manageTournaments', 'Manage tournaments')}
-        {renderAccessOption('manageNotes', 'Manage fixture/date notes')}
-        {renderAccessOption('managePlayers', 'Manage players')}
-        {renderAccessOption('manageScores', 'Manage scores')}
-        {renderAccessOption('manageSeasons', 'Manage seasons')}
-        {renderAccessOption('manageTeams', 'Manage teams')}
-        {renderAccessOption('runReports', 'Run reports')}
-        {renderAccessOption('exportData', 'Export data (backup)')}
-        {renderAccessOption('importData', 'Import data (restore)')}
-        {renderAccessOption('inputResults', 'Input results')}
-        {renderAccessOption('viewExceptions', 'View exceptions')}
-        {renderAccessOption('recordScoresAsYouGo', 'Record scores as you go')}
-        {renderAccessOption('runHealthChecks', 'Run health checks')}
-        {renderAccessOption('manageSeasonTemplates', 'Manage season templates')}
-        {renderAccessOption('showDebugOptions', 'Show debug options')}
-        {renderAccessOption('manageSockets', 'Manage web sockets')}
-        {renderAccessOption('useWebSockets', 'Show live results')}
-        {renderAccessOption('enterTournamentResults', 'Enter tournament results')}
+        <div className="d-flex flex-wrap">
+            <div className="border-1 border-secondary border-solid m-1 p-2">
+                <h6>League</h6>
+                {renderAccessOption('managePlayers', 'Manage players', 'Add/Edit/Delete players')}
+                {renderAccessOption('manageScores', 'Manage scores', '⚠ Enter league-fixture results for any team')}
+                {renderAccessOption('inputResults', 'Input results', 'Enter league-fixture results for their team')}
+            </div>
+            <div className="border-1 border-secondary border-solid m-1 p-2">
+                <h6>Tournaments <small>(pairs, singles, knockout and finals night)</small></h6>
+                {renderAccessOption('manageTournaments', 'Manage tournaments', 'Create/Edit/Delete tournaments and record scores')}
+                {renderAccessOption('enterTournamentResults', 'Enter tournament results', 'Record scores for tournaments without editing details')}
+            </div>
+            <div className="border-1 border-secondary border-solid m-1 p-2">
+                <h6>Management</h6>
+                {renderAccessOption('manageDivisions', 'Manage divisions', 'Create/Edit/Delete divisions')}
+                {renderAccessOption('manageGames', 'Manage games', 'Create/Edit/Delete league fixtures')}
+                {renderAccessOption('manageNotes', 'Manage fixture/date notes', 'Create/Edit/Delete notes in the fixture list')}
+                {renderAccessOption('manageSeasons', 'Manage seasons', 'Create/Edit/Delete any seasons')}
+                {renderAccessOption('manageTeams', 'Manage teams', 'Create/Edit/Delete any teams in a season')}
+                {renderAccessOption('runHealthChecks', 'Run health checks', 'Run any health checks over a season')}
+                {renderAccessOption('manageSeasonTemplates', 'Manage season templates', 'Manage the templates used to create new seasons')}
+                {renderAccessOption('runReports', 'Run reports', 'Run league/season reports')}
+            </div>
+            <div className="border-1 border-secondary border-solid m-1 p-2">
+                <h6>Live scoring (super league)</h6>
+                {renderAccessOption('recordScoresAsYouGo', 'Record scores as they\'re played', 'Record scores as matches are played. Required for super league')}
+                {renderAccessOption('useWebSockets', 'Show live results', 'Show results as they\'re recorded on other devices (tv/mobile)')}
+            </div>
+            <div className="border-1 border-secondary border-solid m-1 p-2">
+                <h6>Photos</h6>
+                {renderAccessOption('uploadPhotos', 'Upload photos of results', '(people can view and delete their own photos)')}
+                {renderAccessOption('viewAnyPhoto', '⚠ View photos from anyone', '(allows viewing of man-of-the-match submissions)')}
+                {renderAccessOption('deleteAnyPhoto', 'Delete photos from anyone')}
+            </div>
+            <div className="border-1 border-secondary border-solid m-1 p-2">
+                <h6>System admin</h6>
+                {renderAccessOption('manageAccess', 'Manage user access', 'Manage who can do what')}
+                {renderAccessOption('showDebugOptions', 'Show debug options', 'See additional debugging options')}
+                {renderAccessOption('manageSockets', 'Manage web sockets', 'Manage who is viewing live results')}
+                {renderAccessOption('viewExceptions', 'View exceptions', 'View any errors reported in the system')}
+                {renderAccessOption('exportData', 'Export data (backup)', 'Export/Backup data')}
+                {renderAccessOption('importData', 'Import data (restore)', 'Import/Restore data')}
+            </div>
+        </div>
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving

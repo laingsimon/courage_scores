@@ -1,4 +1,6 @@
-﻿import {IAddableBuilder} from "./builders";
+﻿/* istanbul ignore file */
+
+import {IAddableBuilder} from "./builders";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";

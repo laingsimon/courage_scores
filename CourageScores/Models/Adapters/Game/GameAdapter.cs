@@ -1,15 +1,19 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models.Cosmos;
+using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Services;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Adapters.Game;
 
-public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
+public class GameAdapter : IAdapter<CosmosGame, GameDto>
 {
     private readonly IAdapter<GameMatch, GameMatchDto> _gameMatchAdapter;
     private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
     private readonly IAdapter<GameTeam, GameTeamDto> _gameTeamAdapter;
     private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter;
+    private readonly ISimpleAdapter<PhotoReference, PhotoReferenceDto> _photoReferenceAdapter;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
 
     public GameAdapter(
@@ -17,24 +21,26 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
         IAdapter<GameTeam, GameTeamDto> gameTeamAdapter,
         IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter,
         IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter,
-        ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionAdapter)
+        ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionAdapter,
+        ISimpleAdapter<PhotoReference, PhotoReferenceDto> photoReferenceAdapter)
     {
         _gameMatchAdapter = gameMatchAdapter;
         _gameTeamAdapter = gameTeamAdapter;
         _gamePlayerAdapter = gamePlayerAdapter;
         _notablePlayerAdapter = notablePlayerAdapter;
         _matchOptionAdapter = matchOptionAdapter;
+        _photoReferenceAdapter = photoReferenceAdapter;
     }
 
-    public async Task<GameDto> Adapt(Cosmos.Game.Game model, CancellationToken token)
+    public async Task<GameDto> Adapt(CosmosGame model, CancellationToken token)
     {
         var resultsPublished = model.Matches.Any(m => m.HomeScore > 0 && m.AwayScore > 0);
         return await Adapt(model, resultsPublished, token);
     }
 
-    public async Task<Cosmos.Game.Game> Adapt(GameDto dto, CancellationToken token)
+    public async Task<CosmosGame> Adapt(GameDto dto, CancellationToken token)
     {
-        return new Cosmos.Game.Game
+        return new CosmosGame
         {
             Address = dto.Address.Trim(),
             Away = await _gameTeamAdapter.Adapt(dto.Away, token),
@@ -52,10 +58,11 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             MatchOptions = await dto.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
             AccoladesCount = dto.AccoladesCount,
+            Photos = await dto.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 
-    private async Task<GameDto> Adapt(Cosmos.Game.Game model, bool resultsPublished, CancellationToken token)
+    private async Task<GameDto> Adapt(CosmosGame model, bool resultsPublished, CancellationToken token)
     {
         return new GameDto
         {
@@ -82,6 +89,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
                 .SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             MatchOptions = await model.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
             AccoladesCount = model.AccoladesCount,
+            Photos = await model.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
         }.AddAuditProperties(model);
     }
 }

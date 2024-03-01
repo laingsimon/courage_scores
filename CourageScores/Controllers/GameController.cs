@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
 using Microsoft.AspNetCore.Mvc;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Controllers;
 
@@ -50,5 +51,25 @@ public class GameController : Controller
     public async Task<ActionResultDto<GameDto>> Delete(Guid id, CancellationToken token)
     {
         return await _gameService.Delete(id, token);
+    }
+
+    [HttpPost("/api/Scores/Photo")]
+    public async Task<ActionResultDto<GameDto>> UploadPhoto([FromForm] UploadPhotoDto request, CancellationToken token)
+    {
+        if (request.Photo == null)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return null!;
+        }
+
+        var command = _commandFactory.GetCommand<UploadPhotoCommand<CosmosGame>>().WithPhoto(request.Photo!);
+        return await _gameService.Upsert(request.Id, command, token);
+    }
+
+    [HttpDelete("/api/Scores/Photo/{id}/{photoId}")]
+    public async Task<ActionResultDto<GameDto>> DeletePhoto(Guid id, Guid photoId, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<DeletePhotoCommand<CosmosGame>>().WithId(photoId);
+        return await _gameService.Upsert(id, command, token);
     }
 }

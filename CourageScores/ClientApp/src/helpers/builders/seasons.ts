@@ -1,4 +1,6 @@
-﻿import {IAddableBuilder} from "./builders";
+﻿/* istanbul ignore file */
+
+import {IAddableBuilder} from "./builders";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 import {createTemporaryId} from "../projection";

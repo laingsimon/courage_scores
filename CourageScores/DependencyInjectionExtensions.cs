@@ -165,6 +165,9 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IReportFactory, ReportFactory>();
+        services.AddScoped<IPhotoService, PhotoService>();
+        services.AddScoped<IPhotoHelper, PhotoHelper>();
+        services.AddSingleton<IPhotoSettings, PhotoSettings>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -172,6 +175,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped(typeof(IDataBrowserRepository<>), typeof(DataBrowserRepository<>));
+        services.AddScoped<IPhotoRepository, PhotoRepository>();
+        services.AddSingleton<IBlobStorageRepository, BlobStorageRepository>();
     }
 
     private static void AddAdapters(IServiceCollection services)
@@ -238,6 +243,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IUpdateScoresAdapter, UpdateScoresAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>, WebSocketDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>, WatchableDataDtoAdapter>();
+        services.AddScoped<ISimpleAdapter<PhotoReference, PhotoReferenceDto>, PhotoReferenceAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
