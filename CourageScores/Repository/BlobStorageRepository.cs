@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 
 namespace CourageScores.Repository;
 
+[ExcludeFromCodeCoverage]
 public class BlobStorageRepository : IBlobStorageRepository
 {
     private readonly BlobContainerClient _photosClient;
