@@ -71,6 +71,9 @@ describe('PhotoManager', () => {
             name: 'USER',
             givenName: '',
             emailAddress: '',
+            access: {
+                deleteAnyPhoto: true,
+            }
         };
         const myPhoto: PhotoReferenceDto = {
             id: createTemporaryId(),
@@ -100,8 +103,8 @@ describe('PhotoManager', () => {
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
             expect(photos.map(p => p.textContent)).toEqual([
-                `from ${myPhoto.author} on ${renderDate(myPhoto.created)}`,
-                `from ${anotherPhoto.author} on ${renderDate(anotherPhoto.created)}`
+                `${myPhoto.author} on ${renderDate(myPhoto.created)}1kb`,
+                `${anotherPhoto.author} on ${renderDate(anotherPhoto.created)}1kb`
             ]);
         });
 
@@ -118,7 +121,7 @@ describe('PhotoManager', () => {
 
             const photos = Array.from(context.container.querySelectorAll('.list-group .list-group-item')) as HTMLAnchorElement[];
             expect(photos.map(p => p.textContent)).toEqual([
-                `from ${myPhoto.author} on ${renderDate(myPhoto.created)}`,
+                `${myPhoto.author} on ${renderDate(myPhoto.created)}1kb`,
             ]);
         });
 

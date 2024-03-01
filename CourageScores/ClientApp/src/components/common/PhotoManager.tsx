@@ -27,6 +27,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
     // const canUploadPhotos: boolean = account && account.access && account.access.uploadPhotos;
     const myPhotos: PhotoReferenceDto[] = (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name);
     const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? (photos || []) : myPhotos;
+    const showPhotoSize: boolean = account && account.access && (account.access.viewAnyPhoto || account.access.deleteAnyPhoto);
 
     function getDownloadAddress(photo: PhotoReferenceDto, height?: number): string {
         return `${settings.apiHost}/api/Photo/${photo.id}/${height ? height : ''}`;
@@ -121,13 +122,22 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
                 <a href={getDownloadAddress(photo)} className="list-group-item ps-2" target="_blank" rel="noreferrer"
                    key={photo.id} title={`${photo.fileName}: ${getFileSize(photo.fileSize)}`}>
                     {canDeletePhoto(photo)
-                        ? (<button className="btn btn-sm btn-danger float-start margin-right" onClick={async (event) => await deletePhoto(event, photo.id)}>
+                        ? (<button className="btn btn-sm btn-danger float-start margin-right"
+                                   onClick={async (event) => await deletePhoto(event, photo.id)}>
                             {deleting === photo.id ? (<LoadingSpinnerSmall/>) : '🗑'}
                         </button>)
                         : null}
-                    from {photo.author} on {renderDate(photo.created)}
+                    {photo.author} on {renderDate(photo.created)}
 
-                    <img src={getDownloadAddress(photo, 50)} className="float-end" height="50" alt={`${photo.fileName}`} title={photo.contentType} />
+                    <img  className="float-end" height="50"
+                          src={getDownloadAddress(photo, 50)}
+                          alt={`${photo.fileName}`}
+                          title={photo.contentType}
+                          loading="lazy" />
+
+                    {showPhotoSize ? (<div className="ps-2 small">
+                        {getFileSize(photo.fileSize)}
+                    </div>) : null}
                 </a>))}
         </div>
         {canUploadPhotos ? (<>
