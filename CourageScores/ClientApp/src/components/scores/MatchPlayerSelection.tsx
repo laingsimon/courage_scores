@@ -15,6 +15,8 @@ import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {LiveContainer} from "../../live/LiveContainer";
+import {ILiveOptions} from "../../live/ILiveOptions";
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
@@ -171,21 +173,27 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
             legs: {},
             yourName: ''
         };
+        const noLiveOptions: ILiveOptions = {
+            canSubscribe: false,
+            publish: false,
+        };
 
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
                         onClose={async () => setSaygOpen(false)} className="text-start">
-            <ScoreAsYouGo
-                data={(match.sayg as UpdateRecordedScoreAsYouGoDto) || defaultSaygData}
-                home={home}
-                away={away}
-                onChange={propChanged(match, onMatchChanged, 'sayg')}
-                onLegComplete={!readOnly ? updateMatchScore : null}
-                startingScore={matchOptions.startingScore}
-                numberOfLegs={matchOptions.numberOfLegs}
-                homeScore={match.homeScore}
-                awayScore={match.awayScore}
-                on180={singlePlayerMatch && on180 && !readOnly ? add180 : null}
-                onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null}/>
+            <LiveContainer liveOptions={noLiveOptions}>
+                <ScoreAsYouGo
+                    data={(match.sayg as UpdateRecordedScoreAsYouGoDto) || defaultSaygData}
+                    home={home}
+                    away={away}
+                    onChange={propChanged(match, onMatchChanged, 'sayg')}
+                    onLegComplete={!readOnly ? updateMatchScore : null}
+                    startingScore={matchOptions.startingScore}
+                    numberOfLegs={matchOptions.numberOfLegs}
+                    homeScore={match.homeScore}
+                    awayScore={match.awayScore}
+                    on180={singlePlayerMatch && on180 && !readOnly ? add180 : null}
+                    onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null}/>
+            </LiveContainer>
         </Dialog>)
     }
 

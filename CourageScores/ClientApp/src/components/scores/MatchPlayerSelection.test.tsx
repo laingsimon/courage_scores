@@ -1309,6 +1309,57 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch.awayScore).toEqual(1);
         });
 
+        it('can show match statistics', async () => {
+            const props: IMatchPlayerSelectionProps = {
+                match: matchBuilder()
+                    .scores(0, 3)
+                    .withHome(homePlayer)
+                    .withAway(awayPlayer)
+                    .sayg(
+                        (s: IRecordedSaygBuilder) => s
+                            .withLeg(0, (l: ILegBuilder) => l
+                                .playerSequence('home', 'away')
+                                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(400))
+                                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(501))
+                                .currentThrow('away')
+                                .startingScore(501))
+                            .withLeg(1, (l: ILegBuilder) => l
+                                .playerSequence('home', 'away')
+                                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(400))
+                                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(501))
+                                .currentThrow('away')
+                                .startingScore(501))
+                            .withLeg(2, (l: ILegBuilder) => l
+                                .playerSequence('home', 'away')
+                                .home((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(0))
+                                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0).score(400))
+                                .currentThrow('away')
+                                .startingScore(501))
+                            .numberOfLegs(5)
+                            .scores(0, 3))
+                    .build(),
+                on180,
+                onHiCheck,
+                onMatchChanged,
+                onMatchOptionsChanged,
+            };
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {
+                    recordScoresAsYouGo: true
+                }
+            };
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
+            reportedError.verifyNoError();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            await doClick(findButton(cells[0], '📊'));
+
+            reportedError.verifyNoError();
+            expect(context.container.textContent).toContain('Match statistics');
+        });
+
         it('can close sayg dialog', async () => {
             const props: IMatchPlayerSelectionProps = {
                 match: matchBuilder()
