@@ -34,7 +34,7 @@ public class DependencyInjectionTest
         services.AddScoped<ICosmosDatabaseFactory, MockCosmosDatabaseFactory>();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddSingleton<ISystemClock>(new SystemClock());
-        services.AddSingleton<IBlobStorageRepository>(new Mock<IBlobStorageRepository>().Object);
+        services.AddSingleton(new Mock<IBlobStorageRepository>().Object);
 
         _serviceProvider = services.BuildServiceProvider();
     }
