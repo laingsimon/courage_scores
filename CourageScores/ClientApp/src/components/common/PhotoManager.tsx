@@ -5,6 +5,7 @@ import {useApp} from "./AppContainer";
 import {renderDate} from "../../helpers/rendering";
 import {useDependencies} from "./IocContainer";
 import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
+import {any} from "../../helpers/collections";
 
 export interface IPhotoManagerProps {
     doUpload: (file: File) => Promise<boolean>;
@@ -111,7 +112,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
 
     return (<Dialog title="Photos">
         <div className="list-group mb-2">
-            <div>Click to open in new tab</div>
+            {any(photosToShow) ? (<div>Click to open in new tab</div>) : null}
             {photosToShow.map((photo: PhotoReferenceDto) => (
                 <a href={getDownloadAddress(photo)} className="list-group-item ps-2" target="_blank" rel="noreferrer"
                    key={photo.id} title={`${photo.fileName}: ${getFileSize(photo.fileSize)}`}>
