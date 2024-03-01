@@ -37,6 +37,8 @@ import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTourn
 import {TournamentDetails} from "./TournamentDetails";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {PhotoManager} from "../common/PhotoManager";
+import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -61,6 +63,7 @@ export function Tournament() {
     const [warnBeforeSave, setWarnBeforeSave] = useState(null);
     const division: DivisionDto = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
     const [editTournament, setEditTournament] = useState<string>(null);
+    const [showPhotoManager, setShowPhotoManager] = useState(false);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -255,6 +258,33 @@ export function Tournament() {
         }
     }
 
+    async function uploadPhotos(file: File): Promise<boolean> {
+        const request: UploadPhotoDto = {
+            id: tournamentData.id,
+        };
+        const result: IClientActionResultDto<TournamentGameDto> = await tournamentApi.uploadPhoto(request, file);
+
+        if (result.success) {
+            await updateTournamentData(result.result);
+            return true;
+        }
+
+        setSaveError(result);
+        return false;
+    }
+
+    async function deletePhotos(id: string): Promise<boolean> {
+        const result: IClientActionResultDto<TournamentGameDto> = await tournamentApi.deletePhoto(tournamentData.id, id);
+
+        if (result.success) {
+            await updateTournamentData(result.result);
+            return true;
+        }
+
+        setSaveError(result);
+        return false;
+    }
+
     if (loading !== 'ready') {
         return (<Loading/>);
     }
@@ -328,7 +358,19 @@ export function Tournament() {
                     ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setEditTournament('details')}>
                         Edit
                     </button>) : null}
+                {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto)
+                    ? (<button className="btn btn-primary margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
+                    : null}
             </div>) : (<div>Tournament not found</div>)}
+            {showPhotoManager ? (<PhotoManager
+                doUpload={uploadPhotos}
+                photos={tournamentData.photos}
+                onClose={async () => setShowPhotoManager(false)}
+                doDelete={deletePhotos}
+                canUploadPhotos={account && account.access && account.access.uploadPhotos}
+                canDeletePhotos={account && account.access && (account.access.uploadPhotos || account.access.deleteAnyPhoto)}
+                canViewAllPhotos={account && account.access && account.access.viewAnyPhoto}
+            />) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)}
                                         title="Could not save tournament details"/>) : null}
             {addPlayerDialogOpen ? renderCreatePlayerDialog(season) : null}
