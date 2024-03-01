@@ -96,7 +96,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
     }
 
     function canOpenSaygDialog(): boolean {
-        const isPermitted: boolean = (account || {access: {}}).access.recordScoresAsYouGo;
+        const isPermitted: boolean = account && account.access && account.access.recordScoresAsYouGo;
         const hasSaygData: boolean = !!saygId;
         const hasSidesSelected: boolean = match.sideA !== null && match.sideB !== null;
 

@@ -200,7 +200,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     function canOpenSayg(): boolean {
         return any(match.homePlayers || [])
             && any(match.awayPlayers || [])
-            && (!!match.sayg || (account || {access: {}}).access.recordScoresAsYouGo);
+            && (!!match.sayg || (account && account.access && account.access.recordScoresAsYouGo));
     }
 
     try {
