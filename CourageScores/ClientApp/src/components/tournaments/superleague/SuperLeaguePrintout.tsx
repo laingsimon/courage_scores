@@ -51,7 +51,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
             loadSaygData(unloadedIds);
         },
         // eslint-disable-next-line
-        [loading, saygDataMap]);
+        [loading, saygDataMap, unloadedIds]);
 
     useEffect(() => {
             if (loading) {
