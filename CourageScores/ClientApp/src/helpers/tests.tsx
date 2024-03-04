@@ -56,7 +56,7 @@ export async function setFile(container: Element, selector: string, file: any, u
 
 export interface TestContext {
     container: HTMLElement,
-    cleanUp: () => void
+    cleanUp(): void
     user: UserEvent,
 }
 

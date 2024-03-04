@@ -3,8 +3,8 @@ import {stateChanged} from "../../helpers/events";
 
 export interface ISharedAddressProps {
     address: string[];
-    onUpdate: (addresses: string[]) => Promise<any>;
-    onDelete: () => Promise<any>,
+    onUpdate(addresses: string[]): Promise<any>;
+    onDelete(): Promise<any>,
     className?: string
 }
 

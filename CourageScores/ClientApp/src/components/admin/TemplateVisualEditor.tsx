@@ -5,7 +5,7 @@ import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/Edit
 
 export interface ITemplateVisualEditorProps {
     template: EditTemplateDto;
-    onUpdate: (template: EditTemplateDto) => Promise<any>;
+    onUpdate(template: EditTemplateDto): Promise<any>;
 }
 
 export function TemplateVisualEditor({ template, onUpdate }: ITemplateVisualEditorProps) {

@@ -21,7 +21,7 @@ export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
     date: string;
     readOnly?: boolean;
-    onUpdateFixtures: (adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]) => Promise<any>;
+    onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): Promise<any>;
     beforeReloadDivision?: () => Promise<any>;
 }
 

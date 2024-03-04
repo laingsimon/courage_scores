@@ -9,11 +9,11 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 export interface IEditDivisionProps {
-    onClose: () => Promise<any>;
-    onSave: () => Promise<any>;
-    setSaveError: (error: IClientActionResultDto<DivisionDto>) => Promise<any>;
+    onClose(): Promise<any>;
+    onSave(): Promise<any>;
+    setSaveError(error: IClientActionResultDto<DivisionDto>): Promise<any>;
     data: DivisionDataDto;
-    onUpdateData: (data: DivisionDataDto) => Promise<any>;
+    onUpdateData(data: DivisionDataDto): Promise<any>;
 }
 
 export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}: IEditDivisionProps) {

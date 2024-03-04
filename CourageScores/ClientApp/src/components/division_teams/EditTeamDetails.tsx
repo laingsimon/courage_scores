@@ -12,9 +12,9 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export interface IEditTeamDetailsProps {
     divisionId: string;
-    onSaved: (team: TeamDto) => Promise<any>;
+    onSaved(team: TeamDto): Promise<any>;
     onChange?: (name: string, value: string) => Promise<any>;
-    onCancel: () => Promise<any>;
+    onCancel(): Promise<any>;
     seasonId: string;
     team: EditTeamDto;
     lastUpdated?: string;

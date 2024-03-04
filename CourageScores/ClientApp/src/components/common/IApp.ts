@@ -8,7 +8,7 @@ import {IError} from "./IError";
 
 export interface IApp {
     error?: IError;
-    onError: (error: any) => void;
+    onError(error: any): void;
     embed?: boolean;
 
     divisions: DataMap<DivisionDto>,
@@ -17,13 +17,13 @@ export interface IApp {
     account?: UserDto | null,
     appLoading?: boolean,
     controls?: boolean,
-    reloadDivisions: () => Promise<any>,
-    reloadAccount: () => Promise<any>,
-    reloadAll: () => Promise<any>,
-    reloadTeams: () => Promise<any>,
-    reloadSeasons: () => Promise<any>,
-    clearError: () => Promise<any>,
-    invalidateCacheAndTryAgain: () => Promise<any>,
+    reloadDivisions(): Promise<any>,
+    reloadAccount(): Promise<any>,
+    reloadAll(): Promise<any>,
+    reloadTeams(): Promise<any>,
+    reloadSeasons(): Promise<any>,
+    clearError(): Promise<any>,
+    invalidateCacheAndTryAgain(): Promise<any>,
     build: IBuild,
     reportClientSideException: any,
 }

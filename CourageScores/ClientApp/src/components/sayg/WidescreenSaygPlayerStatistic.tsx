@@ -6,7 +6,7 @@ export interface IWidescreenSaygPlayerStatisticProps {
     legs: { [legKey: number]: LegDto };
     player: 'home' | 'away';
     oneDartAverage: boolean;
-    setOneDartAverage: (newValue: boolean) => Promise<any>;
+    setOneDartAverage(newValue: boolean): Promise<any>;
 }
 
 export function WidescreenSaygPlayerStatistic({legs, player, oneDartAverage, setOneDartAverage }: IWidescreenSaygPlayerStatisticProps) {

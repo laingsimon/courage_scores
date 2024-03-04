@@ -18,8 +18,8 @@ import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGam
 export interface IEditSideProps {
     side: TournamentSideDto;
     onChange?: (side: TournamentSideDto) => Promise<any>;
-    onClose: () => Promise<any>;
-    onApply: () => Promise<any>;
+    onClose(): Promise<any>;
+    onApply(): Promise<any>;
     onDelete?: (side: TournamentSideDto) => Promise<any>;
 }
 

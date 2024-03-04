@@ -20,11 +20,11 @@ import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDa
 export interface IDivisionFixtureDateProps {
     date: IEditableDivisionFixtureDateDto;
     showPlayers: { [date: string]: boolean };
-    startAddNote: (date: string) => void;
-    setEditNote: (note: EditFixtureDateNoteDto) => Promise<any>;
-    setShowPlayers: (newShowPlayers: { [date: string]: boolean }) => Promise<any>;
-    setNewFixtures: (newFixtures: DivisionFixtureDateDto[]) => Promise<any>;
-    onTournamentChanged: () => Promise<any>;
+    startAddNote(date: string): void;
+    setEditNote(note: EditFixtureDateNoteDto): Promise<any>;
+    setShowPlayers(newShowPlayers: { [date: string]: boolean }): Promise<any>;
+    setNewFixtures(newFixtures: DivisionFixtureDateDto[]): Promise<any>;
+    onTournamentChanged(): Promise<any>;
 }
 
 export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged}: IDivisionFixtureDateProps) {

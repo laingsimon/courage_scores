@@ -19,7 +19,7 @@ export interface IMatchStatisticsProps {
     singlePlayer?: boolean;
     legChanged?: (leg: LegDto, index: number) => Promise<any>;
     numberOfLegs: number;
-    changeStatisticsView: (widescreen: boolean) => Promise<any>;
+    changeStatisticsView(widescreen: boolean): Promise<any>;
 }
 
 interface ILegDisplayOptionsLookup {

@@ -16,7 +16,7 @@ import {
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
-    onTournamentChanged: () => Promise<any>;
+    onTournamentChanged(): Promise<any>;
     date: string;
     expanded: boolean;
 }

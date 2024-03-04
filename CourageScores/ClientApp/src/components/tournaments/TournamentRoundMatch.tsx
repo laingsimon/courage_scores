@@ -14,12 +14,12 @@ export interface ITournamentRoundMatchProps {
     match: TournamentMatchDto;
     hasNextRound?: boolean;
     sideMap: DataMap<TournamentSideDto>;
-    exceptSelected: (side: TournamentSideDto, matchIndex: number, sideAOrB: string) => boolean;
+    exceptSelected(side: TournamentSideDto, matchIndex: number, sideAOrB: string): boolean;
     matchIndex: number;
     onChange?: (round: TournamentRoundDto) => Promise<any>;
     round: TournamentRoundDto;
     matchOptions: GameMatchOptionDto;
-    onMatchOptionsChanged: (newOptions: GameMatchOptionDto) => Promise<any>;
+    onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;
 }
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange,

@@ -6,8 +6,8 @@ import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/F
 
 export interface ITemplateDateProps {
     date: DateTemplateDto;
-    onUpdate: (newDate: DateTemplateDto) => Promise<any>;
-    onDelete: () => Promise<any>;
+    onUpdate(newDate: DateTemplateDto): Promise<any>;
+    onDelete(): Promise<any>;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
     moveEarlier?: () => Promise<any>;

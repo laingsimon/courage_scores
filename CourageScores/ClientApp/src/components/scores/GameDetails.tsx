@@ -7,7 +7,7 @@ export interface IGameDetailsProps {
     saving: boolean;
     access: string;
     fixtureData: GameDto;
-    setFixtureData: (newData: GameDto) => Promise<any>;
+    setFixtureData(newData: GameDto): Promise<any>;
 }
 
 export function GameDetails({saving, access, fixtureData, setFixtureData}: IGameDetailsProps) {

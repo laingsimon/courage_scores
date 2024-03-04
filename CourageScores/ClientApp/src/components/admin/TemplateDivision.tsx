@@ -7,8 +7,8 @@ import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/Date
 export interface ITemplateDivisionProps {
     divisionNo: number;
     division: DivisionTemplateDto;
-    onUpdate: (update: DivisionTemplateDto) => Promise<any>;
-    onDelete: () => Promise<any>;
+    onUpdate(update: DivisionTemplateDto): Promise<any>;
+    onDelete(): Promise<any>;
     templateSharedAddresses: string[];
 }
 

@@ -9,7 +9,7 @@ import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/Template
 export interface IPickTemplateProps {
     selectedTemplate: ActionResultDto<TemplateDto> | null;
     loading: boolean;
-    setSelectedTemplate: (template: ActionResultDto<TemplateDto>) => Promise<any>;
+    setSelectedTemplate(template: ActionResultDto<TemplateDto>): Promise<any>;
     templates: IClientActionResultDto<ActionResultDto<TemplateDto>[]>;
 }
 

@@ -23,7 +23,7 @@ import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/Divi
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;
-    onClose: () => Promise<any>;
+    onClose(): Promise<any>;
 }
 
 export interface IFixtureToSave {

@@ -4,7 +4,7 @@ import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/Date
 
 export interface ITemplateDatesProps {
     dates: DateTemplateDto[];
-    onUpdate: (newDates: DateTemplateDto[]) => Promise<any>;
+    onUpdate(newDates: DateTemplateDto[]): Promise<any>;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
 }

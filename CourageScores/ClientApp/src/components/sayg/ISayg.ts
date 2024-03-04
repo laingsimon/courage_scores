@@ -9,6 +9,6 @@ export interface IBaseSayg {
 
 export interface ISayg extends IBaseSayg {
     sayg: UpdateRecordedScoreAsYouGoDto;
-    setSayg: (newData: UpdateRecordedScoreAsYouGoDto) => Promise<UpdateRecordedScoreAsYouGoDto>;
-    saveDataAndGetId: (useData?: ScoreAsYouGoDto) => Promise<string>;
+    setSayg(newData: UpdateRecordedScoreAsYouGoDto): Promise<UpdateRecordedScoreAsYouGoDto>;
+    saveDataAndGetId(useData?: ScoreAsYouGoDto): Promise<string>;
 }

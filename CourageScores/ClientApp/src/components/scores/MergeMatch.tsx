@@ -11,7 +11,7 @@ export interface IMergeMatchProps {
     matchIndex: number;
     homeSubmission?: GameDto;
     awaySubmission?: GameDto;
-    setFixtureData: (newData: GameDto) => Promise<any>;
+    setFixtureData(newData: GameDto): Promise<any>;
     fixtureData: GameDto;
 }
 

@@ -742,15 +742,15 @@ describe('SaygLoadingContainer', () => {
 
     interface IExtractedProps {
         sayg: ILoadedScoreAsYouGoDto,
-        setSayg: (newData: ILoadedScoreAsYouGoDto) => Promise<ILoadedScoreAsYouGoDto>,
-        saveDataAndGetId: (useData?: ILoadedScoreAsYouGoDto) => Promise<string>,
-        enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>,
+        setSayg(newData: ILoadedScoreAsYouGoDto): Promise<ILoadedScoreAsYouGoDto>,
+        saveDataAndGetId(useData?: ILoadedScoreAsYouGoDto): Promise<string>,
+        enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest): Promise<any>,
         subscriptions: ISubscriptions,
         liveOptions: ILiveOptions
     }
 
     interface ITestComponentProps {
-        onLoaded: (props: IExtractedProps) => void;
+        onLoaded(props: IExtractedProps): void;
     }
 
     function TestComponent({onLoaded}: ITestComponentProps) {

@@ -11,8 +11,8 @@ export interface IScoreCardHeadingProps {
     data: GameDto;
     access: string;
     submission?: string;
-    setSubmission: (submissionToShow: string) => Promise<any>;
-    setFixtureData: (data: GameDto) => Promise<any>;
+    setSubmission(submissionToShow: string): Promise<any>;
+    setFixtureData(data: GameDto): Promise<any>;
 }
 
 export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {

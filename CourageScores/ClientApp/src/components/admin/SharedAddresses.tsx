@@ -2,7 +2,7 @@ import {SharedAddress} from "./SharedAddress";
 
 export interface ISharedAddressesProps {
     addresses: string[][];
-    onUpdate: (addresses: string[][]) => Promise<any>;
+    onUpdate(addresses: string[][]): Promise<any>;
     className: string;
 }
 

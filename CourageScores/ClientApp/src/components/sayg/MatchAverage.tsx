@@ -6,7 +6,7 @@ export interface IMatchAverageProps {
     awayAverage: number;
     singlePlayer?: boolean;
     oneDartAverage?: boolean;
-    setOneDartAverage: (onDartAverage: boolean) => Promise<any>;
+    setOneDartAverage(onDartAverage: boolean): Promise<any>;
 }
 
 export function MatchAverage({homeAverage, awayAverage, singlePlayer, oneDartAverage, setOneDartAverage}: IMatchAverageProps) {

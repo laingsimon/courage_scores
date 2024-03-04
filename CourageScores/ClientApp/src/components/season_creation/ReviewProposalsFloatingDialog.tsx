@@ -10,10 +10,10 @@ import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/F
 
 export interface IReviewProposalsFloatingDialogProps {
     proposalResult: ProposalResultDto;
-    changeVisibleDivision: (id: string) => Promise<any>;
+    changeVisibleDivision(id: string): Promise<any>;
     selectedDivisionId: string;
-    onPrevious: () => Promise<any>;
-    onNext: () => Promise<any>;
+    onPrevious(): Promise<any>;
+    onNext(): Promise<any>;
 }
 
 export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDivision, selectedDivisionId, onPrevious, onNext }: IReviewProposalsFloatingDialogProps) {

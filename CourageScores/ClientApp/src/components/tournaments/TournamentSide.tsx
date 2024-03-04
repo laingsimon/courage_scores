@@ -9,7 +9,7 @@ export interface ITournamentSideProps {
     onChange?: (editSide: TournamentSideDto) => Promise<any>;
     winner?: boolean;
     readOnly?: boolean;
-    onRemove: () => Promise<any>;
+    onRemove(): Promise<any>;
 }
 
 export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITournamentSideProps) {

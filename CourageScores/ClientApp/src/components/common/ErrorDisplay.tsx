@@ -6,7 +6,7 @@ export interface IErrorDisplayProps {
     errors?: any;
     messages?: string[];
     warnings?: string[];
-    onClose: () => Promise<any>;
+    onClose(): Promise<any>;
     title?: string;
     Exception?: IServerSideException;
 }

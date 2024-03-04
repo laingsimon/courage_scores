@@ -13,14 +13,14 @@ export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
     home: string;
     away?: string;
-    onChange: (data: ScoreAsYouGoDto) => Promise<any>;
-    onLegComplete: (homeScore: number, awayScore: number) => Promise<any>;
+    onChange(data: ScoreAsYouGoDto): Promise<any>;
+    onLegComplete(homeScore: number, awayScore: number): Promise<any>;
     startingScore: number;
     numberOfLegs: number;
     awayScore?: number;
     homeScore?: number;
-    on180: (accumulatorName: string) => Promise<any>;
-    onHiCheck: (accumulatorName: string, score: number) => Promise<any>;
+    on180(accumulatorName: string): Promise<any>;
+    onHiCheck(accumulatorName: string, score: number): Promise<any>;
     singlePlayer?: boolean;
 }
 
