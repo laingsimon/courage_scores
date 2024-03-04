@@ -5,7 +5,7 @@ export interface IParentHeight {
 }
 
 export interface IWindow {
-    postMessage: (msg: any, targetOrigin: string, transfer?: any) => void;
+    postMessage(msg: any, targetOrigin: string, transfer?: any): void;
 }
 
 export class ParentHeight implements IParentHeight {

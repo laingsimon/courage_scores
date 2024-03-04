@@ -5,7 +5,7 @@ import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 export interface IMergeHiCheckAnd180sProps {
     fixtureData: GameDto;
     data: GameDto;
-    setFixtureData: (data: GameDto) => Promise<any>;
+    setFixtureData(data: GameDto): Promise<any>;
 }
 
 export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeHiCheckAnd180sProps) {

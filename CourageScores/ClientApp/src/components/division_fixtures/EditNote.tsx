@@ -12,9 +12,9 @@ import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDt
 
 export interface IEditNoteProps {
     note: EditFixtureDateNoteDto;
-    onNoteChanged: (newNote: FixtureDateNoteDto) => Promise<any>;
-    onClose: () => Promise<any>;
-    onSaved?: () => Promise<any>;
+    onNoteChanged(newNote: FixtureDateNoteDto): Promise<any>;
+    onClose(): Promise<any>;
+    onSaved?(): Promise<any>;
 }
 
 export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps) {

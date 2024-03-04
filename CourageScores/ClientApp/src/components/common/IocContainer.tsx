@@ -33,7 +33,7 @@ export function useDependencies(): IDependencies {
 
 export interface IIocContainerProps {
     children?: React.ReactNode,
-    socketFactory?: (setts: ISettings) => WebSocket,
+    socketFactory?(setts: ISettings): WebSocket,
     overrideHttp?: IHttp;
     overrideParentHeight?: IParentHeight;
 }

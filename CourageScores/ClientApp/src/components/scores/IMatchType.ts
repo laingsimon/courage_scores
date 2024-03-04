@@ -6,7 +6,7 @@ import {ICreatePlayerFor} from "./Score";
 export interface IMatchType {
     matchOptions: GameMatchOptionDto;
     otherMatches: GameMatchDto[];
-    setCreatePlayerFor: (index: ICreatePlayerFor) => Promise<any>;
+    setCreatePlayerFor(index: ICreatePlayerFor): Promise<any>;
     homePlayers: TeamPlayerDto[];
     awayPlayers: TeamPlayerDto[];
 }

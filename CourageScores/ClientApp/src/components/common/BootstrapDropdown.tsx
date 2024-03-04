@@ -17,8 +17,8 @@ export interface IBootstrapDropdownProps {
     className?: string;
     disabled?: boolean;
     readOnly?: boolean;
-    onChange?: (value: any) => Promise<any>;
-    onOpen?: (willBeOpen: boolean) => Promise<any>;
+    onChange?(value: any): Promise<any>;
+    onOpen?(willBeOpen: boolean): Promise<any>;
     slim?: boolean;
 }
 

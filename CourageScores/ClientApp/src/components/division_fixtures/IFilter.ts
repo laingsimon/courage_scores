@@ -1,3 +1,3 @@
 ﻿export interface IFilter<T> {
-    apply: (item: T) => boolean;
+    apply(item: T): boolean;
 }

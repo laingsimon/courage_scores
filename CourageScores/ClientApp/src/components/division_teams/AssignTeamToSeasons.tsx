@@ -14,7 +14,7 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 
 export interface IAssignTeamToSeasonsProps {
     teamOverview: DivisionTeamDto;
-    onClose: () => Promise<any>;
+    onClose(): Promise<any>;
 }
 
 interface IChanges {

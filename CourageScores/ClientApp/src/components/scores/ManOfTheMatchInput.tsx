@@ -9,7 +9,7 @@ export interface IManOfTheMatchInputProps {
     fixtureData: GameDto;
     access: string;
     saving: boolean;
-    setFixtureData: (newData: GameDto) => Promise<any>;
+    setFixtureData(newData: GameDto): Promise<any>;
     disabled?: boolean;
 }
 

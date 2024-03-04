@@ -6,7 +6,7 @@ import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 export interface IShareButtonProps {
     title?: string;
     text?: string;
-    getHash?: () => Promise<string | null>;
+    getHash?(): Promise<string | null>;
     buttonText?: string;
 }
 

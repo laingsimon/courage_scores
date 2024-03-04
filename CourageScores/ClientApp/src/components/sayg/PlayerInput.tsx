@@ -10,10 +10,10 @@ export interface IPlayerInputProps {
     away?: string;
     homeScore: number;
     awayScore?: number;
-    on180?: (accumulatorName: string) => Promise<any>;
-    onHiCheck: (accumulatorName: string, score: number) => Promise<any>;
-    onChange: (leg: LegDto) => Promise<any>;
-    onLegComplete: (accumulatorName: string) => Promise<any>;
+    on180(accumulatorName: string): Promise<any>;
+    onHiCheck(accumulatorName: string, score: number): Promise<any>;
+    onChange(leg: LegDto): Promise<any>;
+    onLegComplete(accumulatorName: string): Promise<any>;
     leg: LegDto;
     singlePlayer?: boolean;
 }

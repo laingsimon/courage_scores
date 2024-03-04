@@ -13,9 +13,9 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
 
 export interface IEditPlayerDetailsProps {
-    onSaved: (team: TeamDto, newPlayers: TeamPlayerDto[] | null) => Promise<any>;
-    onChange: (name: string, value: string) => Promise<any>;
-    onCancel: () => Promise<any>;
+    onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): Promise<any>;
+    onChange(name: string, value: string): Promise<any>;
+    onCancel(): Promise<any>;
     seasonId: string;
     team?: { id: string };
     gameId?: string;

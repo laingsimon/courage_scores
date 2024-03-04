@@ -4,7 +4,7 @@ import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 export interface ITableSelectionProps {
     allTables?: TableDto[];
     selected: string[];
-    onTableChange?: (tables: string[]) => Promise<any>;
+    onTableChange?(tables: string[]): Promise<any>;
     requireCanExport?: boolean;
     requireCanImport?: boolean;
 }

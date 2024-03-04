@@ -20,7 +20,7 @@ export interface IPrintableSheetMatchProps {
     matchIndex: number;
     possibleSides: TournamentSideDto[];
     editable?: boolean;
-    patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
     round?: TournamentRoundDto;
 }
 

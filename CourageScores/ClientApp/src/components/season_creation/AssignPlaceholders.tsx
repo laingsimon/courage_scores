@@ -19,7 +19,7 @@ export interface IAssignPlaceholdersProps {
     seasonId: string;
     selectedTemplate: ActionResultDto<TemplateDto>;
     placeholderMappings: IPlaceholderMappings;
-    setPlaceholderMappings: (newMappings: IPlaceholderMappings) => Promise<any>;
+    setPlaceholderMappings(newMappings: IPlaceholderMappings): Promise<any>;
 }
 
 export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMappings, setPlaceholderMappings }: IAssignPlaceholdersProps) {

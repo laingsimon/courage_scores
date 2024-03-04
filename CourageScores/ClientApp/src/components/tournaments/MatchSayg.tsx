@@ -28,8 +28,8 @@ export interface IMatchSaygProps {
     match: TournamentMatchDto;
     matchIndex: number;
     matchOptions: GameMatchOptionDto;
-    onChange?: (round: TournamentRoundDto) => Promise<any>;
-    patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
+    onChange?(round: TournamentRoundDto): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
     readOnly?: boolean;
 }
 

@@ -133,7 +133,7 @@ describe('EditDivision', () => {
     });
 
     it('saves division updates', async () => {
-        const division = divisionBuilder('DIVISION').build();
+        const division = divisionBuilder('DIVISION').updated('2024-01-01').build();
         await renderComponent({
             data: division,
             onUpdateData,
@@ -149,6 +149,7 @@ describe('EditDivision', () => {
         expect(alert).toBeNull();
         expect(saved).toEqual(true);
         expect(updatedDivision).not.toBeNull();
+        expect(updatedDivision.lastUpdated).toEqual(division.updated);
     });
 
     it('reports saveError if an error during save', async () => {

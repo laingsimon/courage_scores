@@ -37,19 +37,19 @@ export interface ILayoutDataForRound {
 }
 
 export interface IMnemonicAccumulator {
-    next: () => string;
+    next(): string;
 }
 
 export interface ITournamentLayoutGenerationContext {
     matchOptionDefaults: GameMatchOptionDto;
-    getLinkToSide: (side: TournamentSideDto) => JSX.Element;
+    getLinkToSide(side: TournamentSideDto): JSX.Element;
     matchMnemonic?: IMnemonicAccumulator;
 }
 
 interface IRoundLayoutGenerationContext {
     matchOptionDefaults: GameMatchOptionDto;
     matchMnemonic: IMnemonicAccumulator;
-    getLinkToSide: (side: TournamentSideDto) => JSX.Element;
+    getLinkToSide(side: TournamentSideDto): JSX.Element;
     sideMnemonicCalculator: IMnemonicAccumulator;
     winnersFromThisRound: TournamentSideDto[];
     sides: TournamentSideDto[];

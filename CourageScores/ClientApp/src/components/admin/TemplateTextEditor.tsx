@@ -6,8 +6,8 @@ import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/Edit
 
 export interface ITemplateTextEditorProps {
     template: EditTemplateDto;
-    setValid: (valid: boolean) => Promise<any>;
-    onUpdate: (update: EditTemplateDto) => Promise<any>;
+    setValid(valid: boolean): Promise<any>;
+    onUpdate(update: EditTemplateDto): Promise<any>;
 }
 
 export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTextEditorProps) {

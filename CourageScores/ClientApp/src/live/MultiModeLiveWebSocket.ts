@@ -11,8 +11,8 @@ import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 interface IMultiModeLiveWebSocketProps {
     socketContext: IWebSocketContext;
     subscriptions: ISubscriptions;
-    setSubscriptions: (subscriptions: ISubscriptions) => Promise<any>;
-    setSocketContext: (socket: IWebSocketContext) => Promise<any>;
+    setSubscriptions(subscriptions: ISubscriptions): Promise<any>;
+    setSocketContext(socket: IWebSocketContext): Promise<any>;
     webSocketStrategy: IUpdateStrategy;
     pollingStrategy: IUpdateStrategy;
 }

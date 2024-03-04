@@ -4,7 +4,7 @@ import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 
 export interface IMergeManOfTheMatchProps {
     data: GameDto;
-    setData: (newData: GameDto) => Promise<any>;
+    setData(newData: GameDto): Promise<any>;
     allPlayers: TeamPlayerDto[];
 }
 

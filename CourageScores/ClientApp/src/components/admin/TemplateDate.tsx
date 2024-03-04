@@ -6,12 +6,12 @@ import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/F
 
 export interface ITemplateDateProps {
     date: DateTemplateDto;
-    onUpdate: (newDate: DateTemplateDto) => Promise<any>;
-    onDelete: () => Promise<any>;
+    onUpdate(newDate: DateTemplateDto): Promise<any>;
+    onDelete(): Promise<any>;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
-    moveEarlier?: () => Promise<any>;
-    moveLater?: () => Promise<any>;
+    moveEarlier?(): Promise<any>;
+    moveLater?(): Promise<any>;
 }
 
 export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }: ITemplateDateProps) {

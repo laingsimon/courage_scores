@@ -9,16 +9,12 @@ import {ISelectablePlayer} from "../../components/common/PlayerSelection";
 import {createTemporaryId} from "../projection";
 
 export interface IPlayerBuilder extends IAddableBuilder<TeamPlayerDto & DivisionPlayerDto & NotablePlayerDto & ISelectablePlayer> {
-    captain: () => IPlayerBuilder;
-    /**
-     * @deprecated Use score() instead
-     */
-    notes: (notes?: string) => IPlayerBuilder;
-    score: (score: number) => IPlayerBuilder;
-    noId: () => IPlayerBuilder;
-    email: (email?: string) => IPlayerBuilder;
-    team: (team: any) => IPlayerBuilder;
-    singles: (metricsFunc: any) => IPlayerBuilder;
+    captain(): IPlayerBuilder;
+    score(score: number): IPlayerBuilder;
+    noId(): IPlayerBuilder;
+    email(email?: string): IPlayerBuilder;
+    team(team: any): IPlayerBuilder;
+    singles(metricsFunc: any): IPlayerBuilder;
 }
 
 export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
@@ -36,10 +32,6 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
         },
         captain: () => {
             player.captain = true;
-            return builder;
-        },
-        notes: (notes?: string) => {
-            player.notes = notes;
             return builder;
         },
         score: (score: number) => {
@@ -68,7 +60,7 @@ export function playerBuilder(name?: string, id?: string): IPlayerBuilder {
 }
 
 export interface IPlayerPerformanceBuilder extends IBuilder<PlayerPerformanceDto> {
-    matchesPlayed: (count: number) => IPlayerPerformanceBuilder;
+    matchesPlayed(count: number): IPlayerPerformanceBuilder;
 }
 
 export function playerPerformanceBuilder(): IPlayerPerformanceBuilder {

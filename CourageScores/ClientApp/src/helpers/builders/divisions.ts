@@ -15,17 +15,18 @@ import {playerBuilder} from "./players";
 import {seasonBuilder} from "./seasons";
 import {IDivisionDataContainerProps} from "../../components/league/DivisionDataContainer";
 import {tournamentBuilder} from "./tournaments";
+import {ReactNode} from "react";
 
 export interface IDivisionFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto> {
-    withOtherFixtureUsingUsingAddress: (name: string, id?: string, awayName?: string) => IDivisionFixtureBuilder;
-    playing: (home: any, away: any) => IDivisionFixtureBuilder;
-    scores: (home: number, away: number) => IDivisionFixtureBuilder;
-    bye: (venue: any, id?: string) => IDivisionFixtureBuilder;
-    knockout: () => IDivisionFixtureBuilder;
-    postponed: () => IDivisionFixtureBuilder;
-    originalAwayTeamId: (id: string) => IDivisionFixtureBuilder;
-    accoladesCount: () => IDivisionFixtureBuilder;
-    proposal: () => IDivisionFixtureBuilder;
+    withOtherFixtureUsingUsingAddress(name: string, id?: string, awayName?: string): IDivisionFixtureBuilder;
+    playing(home: any, away: any): IDivisionFixtureBuilder;
+    scores(home: number, away: number): IDivisionFixtureBuilder;
+    bye(venue: any, id?: string): IDivisionFixtureBuilder;
+    knockout(): IDivisionFixtureBuilder;
+    postponed(): IDivisionFixtureBuilder;
+    originalAwayTeamId(id: string): IDivisionFixtureBuilder;
+    accoladesCount(): IDivisionFixtureBuilder;
+    proposal(): IDivisionFixtureBuilder;
 }
 
 export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFixtureBuilder {
@@ -120,11 +121,11 @@ export function divisionFixtureBuilder(date?: string, id?: string): IDivisionFix
 }
 
 export interface IDivisionFixtureDateBuilder extends IBuilder<DivisionFixtureDateDto & IEditableDivisionFixtureDateDto> {
-    knockout: () => IDivisionFixtureDateBuilder;
-    withFixture: (fixtureOrModifierFunc: any, id?: string) => IDivisionFixtureDateBuilder;
-    withTournament: (tournamentOrModifierFunc: any, id?: string) => IDivisionFixtureDateBuilder;
-    withNote: (noteOrModifierFunc: any, id?: string) => IDivisionFixtureDateBuilder;
-    isNew: () => IDivisionFixtureDateBuilder;
+    knockout(): IDivisionFixtureDateBuilder;
+    withFixture(fixtureOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
+    withTournament(tournamentOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
+    withNote(noteOrModifierFunc: any, id?: string): IDivisionFixtureDateBuilder;
+    isNew(): IDivisionFixtureDateBuilder;
 }
 
 export function fixtureDateBuilder(date?: string): IDivisionFixtureDateBuilder {
@@ -172,11 +173,11 @@ export function fixtureDateBuilder(date?: string): IDivisionFixtureDateBuilder {
 }
 
 export interface INoteBuilder extends IBuilder<FixtureDateNoteDto> {
-    note: (text: string) => INoteBuilder;
-    season: (seasonOrId: any) => INoteBuilder;
-    division: (divisionOrId: any) => INoteBuilder;
-    updated: (date: string) => INoteBuilder;
-    noId: () => INoteBuilder;
+    note(text: string): INoteBuilder;
+    season(seasonOrId: any): INoteBuilder;
+    division(divisionOrId: any): INoteBuilder;
+    updated(date: string): INoteBuilder;
+    noId(): INoteBuilder;
 }
 
 export function noteBuilder(date?: string, id?: string): INoteBuilder {
@@ -214,6 +215,7 @@ export function noteBuilder(date?: string, id?: string): INoteBuilder {
 }
 
 export interface IDivisionBuilder extends IAddableBuilder<DivisionDto> {
+    updated(updated: string): IDivisionBuilder;
 }
 
 export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
@@ -228,21 +230,25 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
             map[division.id] = division;
             return builder;
         },
+        updated(updated: string): IDivisionBuilder {
+            division.updated = updated;
+            return builder;
+        }
     };
 
     return builder;
 }
 
 export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & IDivisionDataContainerProps> {
-    withFixtureDate: (fixtureDateOrBuilderFunc: any, date?: string) => IDivisionDataBuilder;
-    season: (seasonOrBuilderFunc: any, name?: string, id?: string) => IDivisionDataBuilder;
-    name: (name?: string) => IDivisionDataBuilder;
-    withTeam: (teamOrBuilderFunc: any, name?: string, id?: string) => IDivisionDataBuilder;
-    withPlayer: (playerOrBuilderFunc: any, name?: string, id?: string) => IDivisionDataBuilder;
+    withFixtureDate(fixtureDateOrBuilderFunc: any, date?: string): IDivisionDataBuilder;
+    season(seasonOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
+    name(name?: string): IDivisionDataBuilder;
+    withTeam(teamOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
+    withPlayer(playerOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
 
-    onReloadDivision: (onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>) => IDivisionDataBuilder;
-    setDivisionData: (setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => Promise<any>) => IDivisionDataBuilder;
-    children: (children: React.ReactNode) => IDivisionDataBuilder;
+    onReloadDivision(onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>): IDivisionDataBuilder;
+    setDivisionData(setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => Promise<any>): IDivisionDataBuilder;
+    children(children: ReactNode): IDivisionDataBuilder;
 }
 
 export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {

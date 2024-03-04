@@ -9,7 +9,7 @@ import {IInitialisedFilters} from "../../helpers/filters";
 
 export interface IFilterFixturesProps {
     filter: IInitialisedFilters;
-    setFilter: (newFilter: IInitialisedFilters) => Promise<any>;
+    setFilter(newFilter: IInitialisedFilters): Promise<any>;
 }
 
 export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {

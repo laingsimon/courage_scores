@@ -9,9 +9,9 @@ export interface IEditThrowProps {
     competitor: 'home' | 'away';
     index: number;
     bust?: boolean;
-    onClose: () => Promise<any>;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => Promise<any>;
-    onSave: () => Promise<any>;
+    onClose(): Promise<any>;
+    onChange(event: React.ChangeEvent<HTMLInputElement>): Promise<any>;
+    onSave(): Promise<any>;
 }
 
 export function EditThrow({ score, noOfDarts, home, away, competitor, index, bust, onClose, onChange, onSave }: IEditThrowProps) {

@@ -3,7 +3,7 @@ import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/
 
 export interface ITemplateDivisionsProps {
     divisions: DivisionTemplateDto[];
-    onUpdate: (a: DivisionTemplateDto[]) => Promise<any>;
+    onUpdate(a: DivisionTemplateDto[]): Promise<any>;
     templateSharedAddresses: string[];
 }
 

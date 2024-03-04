@@ -10,11 +10,11 @@ import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/Divis
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 
 export interface IEditSeasonProps {
-    onClose: () => Promise<any>;
-    onSave: () => Promise<any>;
-    setSaveError: (error: any) => Promise<any>;
+    onClose(): Promise<any>;
+    onSave(): Promise<any>;
+    setSaveError(error: any): Promise<any>;
     data: EditSeasonDto & DivisionDataSeasonDto;
-    onUpdateData: (season: EditSeasonDto) => Promise<any>;
+    onUpdateData(season: EditSeasonDto): Promise<any>;
 }
 
 export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: IEditSeasonProps) {
@@ -38,7 +38,7 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: 
 
         try {
             setSaving(true);
-            const result = await seasonApi.update(data);
+            const result = await seasonApi.update(Object.assign({lastUpdated: data.updated}, data));
 
             if (result.success) {
                 await onSave();

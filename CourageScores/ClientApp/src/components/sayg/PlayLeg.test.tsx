@@ -31,6 +31,12 @@ describe('PlayLeg', () => {
     async function onLegComplete(_: string) {
     }
 
+    async function on180(_: string) {
+    }
+
+    async function onHiCheck(_: string, __: number) {
+    }
+
     async function renderComponent(props: IPlayLegProps) {
         context = await renderApp(
             iocProps(),
@@ -49,6 +55,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         expect(context.container.textContent).toEqual('No leg!');
@@ -70,6 +78,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         expect(context.container.textContent).toContain('Who plays first?');
@@ -95,6 +105,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         expect(context.container.textContent).toContain('Who won the bull?');
@@ -120,6 +132,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         const previousPlayerScore = context.container.querySelector('div > div:nth-child(1)');
@@ -142,6 +156,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         const playerInput = context.container.querySelector('div > div:nth-child(2)');
@@ -164,6 +180,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
         const previousPlayerScore = context.container.querySelector('div > div:nth-child(1)');
         window.confirm = () => true;
@@ -209,6 +227,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doClick(findButton(context.container, '🎯HOME'));
@@ -238,6 +258,8 @@ describe('PlayLeg', () => {
             singlePlayer: false,
             onChange,
             onLegComplete,
+            on180,
+            onHiCheck,
         });
 
         await doClick(findButton(context.container, '🎯AWAY'));

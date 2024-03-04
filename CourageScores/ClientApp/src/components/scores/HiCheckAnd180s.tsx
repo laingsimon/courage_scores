@@ -12,7 +12,7 @@ export interface IHiCheckAnd180sProps {
     access: string;
     saving: boolean;
     fixtureData: GameDto;
-    setFixtureData: (newData: GameDto) => Promise<any>;
+    setFixtureData(newData: GameDto): Promise<any>;
 }
 
 export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IHiCheckAnd180sProps) {

@@ -1,9 +1,9 @@
 export type StringMapObject = {[key: string] : any};
 export interface DataMap<T> extends StringMapObject {
-    map: <V>(mapper: (value: T, index: number, array: T[]) => V, thisArg?: any) => V[];
+    map<V>(mapper: (value: T, index: number, array: T[]) => V, thisArg?: any): V[];
     length: number;
-    sort: (sorter: (x: T, y: T) => number) => T[];
-    filter: (predicate: (item: T) => boolean) => T[];
+    sort(sorter: (x: T, y: T) => number): T[];
+    filter(predicate: (item: T) => boolean): T[];
 }
 
 /*

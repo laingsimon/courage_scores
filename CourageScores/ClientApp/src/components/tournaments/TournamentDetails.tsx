@@ -13,7 +13,7 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;
-    setTournamentData: (data: TournamentGameDto) => Promise<any>;
+    setTournamentData(data: TournamentGameDto): Promise<any>;
     disabled?: boolean;
 }
 

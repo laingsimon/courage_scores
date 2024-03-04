@@ -8,9 +8,9 @@ import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 import {any} from "../../helpers/collections";
 
 export interface IPhotoManagerProps {
-    doUpload: (file: File) => Promise<boolean>;
-    doDelete: (id: string) => Promise<boolean>;
-    onClose?: () => Promise<any>;
+    doUpload(file: File): Promise<boolean>;
+    doDelete(id: string): Promise<boolean>;
+    onClose?(): Promise<any>;
     photos: PhotoReferenceDto[];
 
     canViewAllPhotos?: boolean;

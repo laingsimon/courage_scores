@@ -7,7 +7,7 @@ export interface IPreviousPlayerScoreProps {
     home: string;
     away: string;
     leg: LegDto;
-    undoLastThrow: () => Promise<any>;
+    undoLastThrow(): Promise<any>;
 }
 
 export function PreviousPlayerScore({home, away, leg, undoLastThrow}: IPreviousPlayerScoreProps) {

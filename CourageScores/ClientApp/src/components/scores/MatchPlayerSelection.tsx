@@ -22,10 +22,10 @@ export const NEW_PLAYER: string = 'NEW_PLAYER';
 
 export interface IMatchPlayerSelectionProps {
     match: GameMatchDto;
-    onMatchChanged?: (newMatch: GameMatchDto) => Promise<any>;
-    onMatchOptionsChanged: (newOptions: GameMatchOptionDto) => Promise<any>;
-    on180: (player: GamePlayerDto) => Promise<any>;
-    onHiCheck: (player: GamePlayerDto, score: number) => Promise<any>;
+    onMatchChanged?(newMatch: GameMatchDto): Promise<any>;
+    onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;
+    on180(player: GamePlayerDto): Promise<any>;
+    onHiCheck(player: GamePlayerDto, score: number): Promise<any>;
 }
 
 export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}: IMatchPlayerSelectionProps) {

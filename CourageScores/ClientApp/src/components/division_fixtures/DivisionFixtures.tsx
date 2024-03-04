@@ -30,7 +30,7 @@ import {
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 
 export interface IDivisionFixturesProps {
-    setNewFixtures: (fixtures: DivisionFixtureDateDto[]) => Promise<any>;
+    setNewFixtures(fixtures: DivisionFixtureDateDto[]): Promise<any>;
 }
 
 export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {

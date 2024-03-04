@@ -11,27 +11,27 @@ import {saygBuilder} from "./sayg";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 
 export interface IFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto & GameDto> {
-    playing: (home?: any, away?: any) => IFixtureBuilder;
-    bye: (venue: any, id?: string) => IFixtureBuilder;
-    manOfTheMatch: (homePlayerOrId: any, awayPlayerOrId?: any) => IFixtureBuilder;
-    knockout: () => IFixtureBuilder;
-    postponed: () => IFixtureBuilder;
-    accoladesCount: () => IFixtureBuilder;
-    address: (address: string) => IFixtureBuilder;
-    forSeason: (seasonOrId: any) => IFixtureBuilder;
-    forDivision: (divisionOrId: any) => IFixtureBuilder;
-    with180: (playerOrName: any) => IFixtureBuilder;
-    withHiCheck: (playerOrName: any, score: number) => IFixtureBuilder;
-    withMatch: (matchOrBuilderFunc: any) => IFixtureBuilder;
-    withMatchOption: (matchOptionOrBuilderFunc: any) => IFixtureBuilder;
-    editor: (name: string) => IFixtureBuilder;
-    author: (name: string) => IFixtureBuilder;
-    homeSubmission?: (submissionOrBuilderFunc?: any, id?: string) => IFixtureBuilder;
-    awaySubmission?: (submissionOrBuilderFunc?: any, id?: string) => IFixtureBuilder;
-    updated: (time: string) => IFixtureBuilder;
+    playing(home?: any, away?: any): IFixtureBuilder;
+    bye(venue: any, id?: string): IFixtureBuilder;
+    manOfTheMatch(homePlayerOrId: any, awayPlayerOrId?: any): IFixtureBuilder;
+    knockout(): IFixtureBuilder;
+    postponed(): IFixtureBuilder;
+    accoladesCount(): IFixtureBuilder;
+    address(address: string): IFixtureBuilder;
+    forSeason(seasonOrId: any): IFixtureBuilder;
+    forDivision(divisionOrId: any): IFixtureBuilder;
+    with180(playerOrName: any): IFixtureBuilder;
+    withHiCheck(playerOrName: any, score: number): IFixtureBuilder;
+    withMatch(matchOrBuilderFunc: any): IFixtureBuilder;
+    withMatchOption(matchOptionOrBuilderFunc: any): IFixtureBuilder;
+    editor(name: string): IFixtureBuilder;
+    author(name: string): IFixtureBuilder;
+    homeSubmission(submissionOrBuilderFunc?: any, id?: string): IFixtureBuilder;
+    awaySubmission(submissionOrBuilderFunc?: any, id?: string): IFixtureBuilder;
+    updated(time: string): IFixtureBuilder;
 }
 
-export function fixtureBuilder(date?: string, id?: string, omitSubmission?: boolean): IFixtureBuilder {
+export function fixtureBuilder(date?: string, id?: string): IFixtureBuilder {
     const fixture: IDatedDivisionFixtureDto & GameDto = {
         id: id || createTemporaryId(),
         date: date,
@@ -159,36 +159,31 @@ export function fixtureBuilder(date?: string, id?: string, omitSubmission?: bool
         updated: (date: string) => {
             fixture.updated = date;
             return builder;
-        }
-    };
-
-    if (!omitSubmission) {
-        // don't allow home/away submissions for home/away submissions - only at root level
-
-        builder.homeSubmission = (submissionOrBuilderFunc?: any, id?: string) => {
+        },
+        homeSubmission: (submissionOrBuilderFunc?: any, id?: string) => {
             const submission = submissionOrBuilderFunc instanceof Function
-                ? submissionOrBuilderFunc(fixtureBuilder(fixture.date, id || fixture.id, true))
+                ? submissionOrBuilderFunc(fixtureBuilder(fixture.date, id || fixture.id))
                 : submissionOrBuilderFunc;
             fixture.homeSubmission = submission && submission.build ? submission.build() : submission;
             return builder;
-        };
-        builder.awaySubmission = (submissionOrBuilderFunc?: any, id?: string) => {
+        },
+        awaySubmission: (submissionOrBuilderFunc?: any, id?: string) => {
             const submission = submissionOrBuilderFunc instanceof Function
-                ? submissionOrBuilderFunc(fixtureBuilder(fixture.date, id || fixture.id, true))
+                ? submissionOrBuilderFunc(fixtureBuilder(fixture.date, id || fixture.id))
                 : submissionOrBuilderFunc;
             fixture.awaySubmission = submission && submission.build ? submission.build() : submission;
             return builder;
-        };
-    }
+        },
+    };
 
     return builder;
 }
 
 export interface IMatchBuilder extends IBuilder<GameMatchDto> {
-    withHome: (playerOrName?: any) => IMatchBuilder;
-    withAway: (playerOrName?: any) => IMatchBuilder;
-    scores: (home: any, away: any) => IMatchBuilder;
-    sayg: (saygOrBuilderFunc: any, id?: any) => IMatchBuilder;
+    withHome(playerOrName?: any): IMatchBuilder;
+    withAway(playerOrName?: any): IMatchBuilder;
+    scores(home: any, away: any): IMatchBuilder;
+    sayg(saygOrBuilderFunc: any, id?: any): IMatchBuilder;
 }
 
 export function matchBuilder(): IMatchBuilder {
@@ -230,9 +225,9 @@ export function matchBuilder(): IMatchBuilder {
 }
 
 export interface IMatchOptionsBuilder extends IBuilder<GameMatchOptionDto>{
-    numberOfLegs: (legs: number) => IMatchOptionsBuilder;
-    startingScore: (score: number) => IMatchOptionsBuilder;
-    playerCount: (count: number) => IMatchOptionsBuilder;
+    numberOfLegs(legs: number): IMatchOptionsBuilder;
+    startingScore(score: number): IMatchOptionsBuilder;
+    playerCount(count: number): IMatchOptionsBuilder;
 }
 
 export function matchOptionsBuilder(): IMatchOptionsBuilder {

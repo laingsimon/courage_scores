@@ -12,26 +12,26 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {matchOptionsBuilder} from "./games";
 
 export interface ITournamentBuilder extends IAddableBuilder<TournamentGameDto & DivisionTournamentFixtureDetailsDto> {
-    type: (type: string) => ITournamentBuilder;
-    address: (address: string) => ITournamentBuilder;
-    winner: (name: string, id?: string, teamId?: string) => ITournamentBuilder;
-    withSide: (sideOrBuilderFunc: any) => ITournamentBuilder;
-    withPlayer: (playerOrId: any) => ITournamentBuilder;
-    date: (date: string) => ITournamentBuilder;
-    notes: (notes: string) => ITournamentBuilder;
-    bestOf: (numberOfLegs: number) => ITournamentBuilder;
-    forSeason: (seasonOrId: any) => ITournamentBuilder;
-    forDivision: (divisionOrId: any) => ITournamentBuilder;
-    proposed: () => ITournamentBuilder;
-    accoladesCount: () => ITournamentBuilder;
-    updated: (date: string) => ITournamentBuilder;
-    round: (roundOrBuilderFunc: any) => ITournamentBuilder;
-    host: (host: string) => ITournamentBuilder;
-    opponent: (opponent: string) => ITournamentBuilder;
-    gender: (gender: string) => ITournamentBuilder;
-    singleRound: () => ITournamentBuilder;
-    withHiCheck: (playerOrName: any, score: number) => ITournamentBuilder;
-    withOneEighty: (playerOrName: any) => ITournamentBuilder;
+    type(type: string): ITournamentBuilder;
+    address(address: string): ITournamentBuilder;
+    winner(name: string, id?: string, teamId?: string): ITournamentBuilder;
+    withSide(sideOrBuilderFunc: any): ITournamentBuilder;
+    withPlayer(playerOrId: any): ITournamentBuilder;
+    date(date: string): ITournamentBuilder;
+    notes(notes: string): ITournamentBuilder;
+    bestOf(numberOfLegs: number): ITournamentBuilder;
+    forSeason(seasonOrId: any): ITournamentBuilder;
+    forDivision(divisionOrId: any): ITournamentBuilder;
+    proposed(): ITournamentBuilder;
+    accoladesCount(): ITournamentBuilder;
+    updated(date: string): ITournamentBuilder;
+    round(roundOrBuilderFunc: any): ITournamentBuilder;
+    host(host: string): ITournamentBuilder;
+    opponent(opponent: string): ITournamentBuilder;
+    gender(gender: string): ITournamentBuilder;
+    singleRound(): ITournamentBuilder;
+    withHiCheck(playerOrName: any, score: number): ITournamentBuilder;
+    withOneEighty(playerOrName: any): ITournamentBuilder;
 }
 
 export function tournamentBuilder(id?: string): ITournamentBuilder {
@@ -169,11 +169,11 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
 }
 
 export interface ITournamentSideBuilder extends IBuilder<TournamentSideDto> {
-    id: (id: string) => ITournamentSideBuilder;
-    name: (name: string) => ITournamentSideBuilder;
-    teamId: (id: string) => ITournamentSideBuilder;
-    noShow: () => ITournamentSideBuilder;
-    withPlayer: (nameOrPlayer: any, id?: string, divisionId?: string) => ITournamentSideBuilder
+    id(id: string): ITournamentSideBuilder;
+    name(name: string): ITournamentSideBuilder;
+    teamId(id: string): ITournamentSideBuilder;
+    noShow(): ITournamentSideBuilder;
+    withPlayer(nameOrPlayer: any, id?: string, divisionId?: string): ITournamentSideBuilder
 }
 
 export function sideBuilder(name?: string, id?: string): ITournamentSideBuilder {
@@ -216,9 +216,9 @@ export function sideBuilder(name?: string, id?: string): ITournamentSideBuilder 
 }
 
 export interface ITournamentRoundBuilder extends IBuilder<TournamentRoundDto> {
-    withMatch: (matchOrBuilderFunc: any, id?: string) => ITournamentRoundBuilder;
-    round: (roundOrBuilderFunc: any) => ITournamentRoundBuilder;
-    withMatchOption: (matchOptionOrBuilderFunc: any) => ITournamentRoundBuilder;
+    withMatch(matchOrBuilderFunc: any, id?: string): ITournamentRoundBuilder;
+    round(roundOrBuilderFunc: any): ITournamentRoundBuilder;
+    withMatchOption(matchOptionOrBuilderFunc: any): ITournamentRoundBuilder;
 }
 
 export function roundBuilder(): ITournamentRoundBuilder {
@@ -257,10 +257,10 @@ export function roundBuilder(): ITournamentRoundBuilder {
 }
 
 export interface ITournamentMatchBuilder extends IBuilder<TournamentMatchDto> {
-    sideA: (side: any, score?: number) => ITournamentMatchBuilder;
-    sideB: (side: any, score?: number) => ITournamentMatchBuilder;
-    saygId: (id: string) => ITournamentMatchBuilder;
-    noId: () => ITournamentMatchBuilder;
+    sideA(side: any, score?: number): ITournamentMatchBuilder;
+    sideB(side: any, score?: number): ITournamentMatchBuilder;
+    saygId(id: string): ITournamentMatchBuilder;
+    noId(): ITournamentMatchBuilder;
 }
 
 export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {

@@ -3,7 +3,7 @@ import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOpt
 
 export interface IEditMatchOptionsProps {
     matchOptions: GameMatchOptionDto;
-    onMatchOptionsChanged: (newOptions: GameMatchOptionDto) => Promise<any>;
+    onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;
     hideNumberOfPlayers?: boolean;
 }
 
