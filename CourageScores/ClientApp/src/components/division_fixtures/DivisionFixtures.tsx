@@ -108,6 +108,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                     id: null,
                     address: team.address,
                     proposed: true,
+                    sides: [],
                 };
             }),
             notes: [],
