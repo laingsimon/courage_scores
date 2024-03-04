@@ -276,7 +276,8 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                                 matchOptions={matchOptions}
                                 matchIndex={matchIndex}
                                 patchData={patchRoundData}
-                                readOnly={readOnly} />) : null}
+                                readOnly={readOnly}
+                                showViewSayg={true} />) : null}
                         </span>
                     </div>)}
             {matchData.bye

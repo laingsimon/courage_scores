@@ -31,9 +31,10 @@ export interface IMatchSaygProps {
     onChange?(round: TournamentRoundDto): Promise<any>;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
     readOnly?: boolean;
+    showViewSayg?: boolean;
 }
 
-export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly } : IMatchSaygProps) {
+export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();

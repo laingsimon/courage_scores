@@ -75,7 +75,8 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                                         matchOptions={matchOptions}
                                         matchIndex={index}
                                         patchData={patchRoundData}
-                                        readOnly={readOnly} />
+                                        readOnly={readOnly}
+                                        showViewSayg={false} />
                                 </td>
                             </tr>);
                         })}
