@@ -8,15 +8,15 @@ import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegC
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
 export interface IRecordedSaygBuilder extends IAddableBuilder<RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto> {
-    scores: (home: number, away?: number) => IRecordedSaygBuilder;
-    withLeg: (id: number, legOrBuilderFunc: any) => IRecordedSaygBuilder;
-    yourName: (name: string) => IRecordedSaygBuilder;
-    opponentName: (name?: string) => IRecordedSaygBuilder;
-    updated: (updated: string) => IRecordedSaygBuilder;
-    numberOfLegs: (legs: number) => IRecordedSaygBuilder;
-    startingScore: (score: number) => IRecordedSaygBuilder;
-    lastUpdated: (lastUpdated: string) => IRecordedSaygBuilder;
-    noId: () => IRecordedSaygBuilder;
+    scores(home: number, away?: number): IRecordedSaygBuilder;
+    withLeg(id: number, legOrBuilderFunc: any): IRecordedSaygBuilder;
+    yourName(name: string): IRecordedSaygBuilder;
+    opponentName(name?: string): IRecordedSaygBuilder;
+    updated(updated: string): IRecordedSaygBuilder;
+    numberOfLegs(legs: number): IRecordedSaygBuilder;
+    startingScore(score: number): IRecordedSaygBuilder;
+    lastUpdated(lastUpdated: string): IRecordedSaygBuilder;
+    noId(): IRecordedSaygBuilder;
 }
 
 export function saygBuilder(id?: string): IRecordedSaygBuilder {
@@ -78,13 +78,13 @@ export function saygBuilder(id?: string): IRecordedSaygBuilder {
 }
 
 export interface ILegBuilder extends IBuilder<LegDto> {
-    startingScore: (score: number) => ILegBuilder;
-    currentThrow: (homeOrAway: string) => ILegBuilder;
-    playerSequence: (homeOrAway: string, awayOrHome: string) => ILegBuilder;
-    lastLeg: () => ILegBuilder;
-    home: (competitorOrBuilderFunc: any) => ILegBuilder;
-    away: (competitorOrBuilderFunc: any) => ILegBuilder;
-    winner: (designation: string) => ILegBuilder;
+    startingScore(score: number): ILegBuilder;
+    currentThrow(homeOrAway: string): ILegBuilder;
+    playerSequence(homeOrAway: string, awayOrHome: string): ILegBuilder;
+    lastLeg(): ILegBuilder;
+    home(competitorOrBuilderFunc: any): ILegBuilder;
+    away(competitorOrBuilderFunc: any): ILegBuilder;
+    winner(designation: string): ILegBuilder;
 }
 
 export function legBuilder(): ILegBuilder {
@@ -139,10 +139,10 @@ export function legBuilder(): ILegBuilder {
 }
 
 export interface ILegCompetitorScoreBuilder extends IBuilder<LegCompetitorScoreDto> {
-    withThrow: (score: number, bust?: boolean, noOfDarts?: number) => ILegCompetitorScoreBuilder;
-    score: (score: number) => ILegCompetitorScoreBuilder;
-    noOfDarts: (noOfDarts: number) => ILegCompetitorScoreBuilder;
-    bust: () => ILegCompetitorScoreBuilder;
+    withThrow(score: number, bust?: boolean, noOfDarts?: number): ILegCompetitorScoreBuilder;
+    score(score: number): ILegCompetitorScoreBuilder;
+    noOfDarts(noOfDarts: number): ILegCompetitorScoreBuilder;
+    bust(): ILegCompetitorScoreBuilder;
 }
 
 export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {

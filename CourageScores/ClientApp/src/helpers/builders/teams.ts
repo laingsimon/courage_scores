@@ -9,13 +9,13 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
 
 export interface ITeamBuilder extends IAddableBuilder<TeamDto & EditTeamDto & GameTeamDto> {
-    forSeason: (seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[], deleted?: boolean) => ITeamBuilder;
-    address: (address: string) => ITeamBuilder;
-    season: (seasonOrId: any) => ITeamBuilder;
-    division: (divisionOrId: any) => ITeamBuilder;
-    updated: (updated: string) => ITeamBuilder;
-    newDivisionId: (id: string) => ITeamBuilder;
-    noId: () => ITeamBuilder;
+    forSeason(seasonOrId: any, divisionOrId?: any, players?: TeamPlayerDto[], deleted?: boolean): ITeamBuilder;
+    address(address: string): ITeamBuilder;
+    season(seasonOrId: any): ITeamBuilder;
+    division(divisionOrId: any): ITeamBuilder;
+    updated(updated: string): ITeamBuilder;
+    newDivisionId(id: string): ITeamBuilder;
+    noId(): ITeamBuilder;
 }
 
 export function teamBuilder(name?: string, id?: string): ITeamBuilder {

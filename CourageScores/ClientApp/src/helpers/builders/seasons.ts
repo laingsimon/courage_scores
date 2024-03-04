@@ -6,12 +6,12 @@ import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 import {createTemporaryId} from "../projection";
 
 export interface ISeasonBuilder extends IAddableBuilder<SeasonDto & EditSeasonDto> {
-    withDivision: (divisionOrId: any) => ISeasonBuilder;
-    starting: (date: string) => ISeasonBuilder;
-    ending: (date: string) => ISeasonBuilder;
-    withDivisionId: (divisionOrId: any) => ISeasonBuilder;
-    isCurrent: () => ISeasonBuilder;
-    updated: (date: string) => ISeasonBuilder;
+    withDivision(divisionOrId: any): ISeasonBuilder;
+    starting(date: string): ISeasonBuilder;
+    ending(date: string): ISeasonBuilder;
+    withDivisionId(divisionOrId: any): ISeasonBuilder;
+    isCurrent(): ISeasonBuilder;
+    updated(date: string): ISeasonBuilder;
 }
 
 export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
