@@ -37,7 +37,7 @@ export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}
 
         try {
             setSaving(true);
-            const result: IClientActionResultDto<DivisionDto> = await divisionApi.update(data);
+            const result: IClientActionResultDto<DivisionDto> = await divisionApi.update(Object.assign({ lastUpdated: data.updated }, data));
 
             if (result.success) {
                 await onSave();

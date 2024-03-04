@@ -214,6 +214,7 @@ export function noteBuilder(date?: string, id?: string): INoteBuilder {
 }
 
 export interface IDivisionBuilder extends IAddableBuilder<DivisionDto> {
+    updated(updated: string): IDivisionBuilder;
 }
 
 export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
@@ -228,6 +229,10 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
             map[division.id] = division;
             return builder;
         },
+        updated(updated: string): IDivisionBuilder {
+            division.updated = updated;
+            return builder;
+        }
     };
 
     return builder;
