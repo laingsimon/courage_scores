@@ -17,7 +17,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export interface IDivisionControlsProps {
     originalSeasonData: DivisionDataSeasonDto;
-    onDivisionOrSeasonChanged?(type?: boolean): Promise<any>;
+    onDivisionOrSeasonChanged?(preventReloadIfIdsAreTheSame?: boolean): Promise<any>;
     originalDivisionData: DivisionDataDto;
     overrideMode?: string;
 }
@@ -64,7 +64,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                 onSave={async () => {
                     await reloadDivisions();
                     if (onDivisionOrSeasonChanged) {
-                        await onDivisionOrSeasonChanged(true);
+                        await onDivisionOrSeasonChanged(false);
                     }
                     setDivisionData(null);
                 }}
@@ -81,7 +81,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                 onSave={async () => {
                     await reloadSeasons();
                     if (onDivisionOrSeasonChanged) {
-                        await onDivisionOrSeasonChanged(true);
+                        await onDivisionOrSeasonChanged(false);
                     }
                     setSeasonData(null);
                 }}
