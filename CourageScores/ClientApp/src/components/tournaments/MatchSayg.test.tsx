@@ -280,6 +280,7 @@ describe('MatchSayg', () => {
                 onChange,
                 patchData,
                 matchOptions,
+                showViewSayg: true,
             });
 
             reportedError.verifyNoError();
@@ -302,10 +303,34 @@ describe('MatchSayg', () => {
                 onChange,
                 patchData,
                 matchOptions,
+                showViewSayg: true,
             }, notPermitted);
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
+        });
+
+        it('does not show view sayg link when data and not permitted and not requested', async () => {
+            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
+            const round = roundBuilder().withMatch(match).build();
+            const tournamentData = tournamentBuilder().round(round).build();
+
+            await renderComponent({
+                setTournamentData,
+                tournamentData,
+            }, {
+                match,
+                matchIndex: 0,
+                round,
+                onChange,
+                patchData,
+                matchOptions,
+                showViewSayg: false,
+            }, notPermitted);
+
+            reportedError.verifyNoError();
+            expect(context.container.innerHTML).not.toContain('👁️');
             expect(context.container.innerHTML).not.toContain('📊');
         });
 
@@ -508,6 +533,7 @@ describe('MatchSayg', () => {
                 onChange,
                 patchData,
                 matchOptions,
+                showViewSayg: true,
             });
             reportedError.verifyNoError();
 
