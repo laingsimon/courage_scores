@@ -11,6 +11,7 @@ export interface ISeasonBuilder extends IAddableBuilder<SeasonDto & EditSeasonDt
     ending: (date: string) => ISeasonBuilder;
     withDivisionId: (divisionOrId: any) => ISeasonBuilder;
     isCurrent: () => ISeasonBuilder;
+    updated: (date: string) => ISeasonBuilder;
 }
 
 export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
@@ -50,7 +51,11 @@ export function seasonBuilder(name?: string, id?: string): ISeasonBuilder {
         isCurrent: () => {
             season.isCurrent = true;
             return builder;
-        }
+        },
+        updated: (date: string) => {
+            season.updated = date;
+            return builder;
+        },
     };
 
     return builder;

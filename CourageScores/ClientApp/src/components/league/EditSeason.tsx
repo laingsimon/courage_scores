@@ -38,7 +38,7 @@ export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: 
 
         try {
             setSaving(true);
-            const result = await seasonApi.update(data);
+            const result = await seasonApi.update(Object.assign({lastUpdated: data.updated}, data));
 
             if (result.success) {
                 await onSave();

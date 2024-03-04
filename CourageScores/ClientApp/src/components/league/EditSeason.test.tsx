@@ -108,6 +108,7 @@ describe('EditSeason', () => {
         .ending('2023-05-01T00:00:00')
         .withDivision(division1)
         .withDivisionId(division1)
+        .updated('2024-01-01')
         .build();
     const divisions = [division1, division2];
 
@@ -256,6 +257,7 @@ describe('EditSeason', () => {
         expect(alert).toBeNull();
         expect(saved).toEqual(true);
         expect(updatedSeason).not.toBeNull();
+        expect(updatedSeason.lastUpdated).toEqual(season.updated);
     });
 
     it('reports saveError if an error during save', async () => {
