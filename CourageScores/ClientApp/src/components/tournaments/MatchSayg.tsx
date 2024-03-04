@@ -238,7 +238,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
     }
 
     return (<>
-        {canShowLiveSayg() && !canOpenSaygDialog()
+        {canShowLiveSayg() && !canOpenSaygDialog() && showViewSayg
             ? (<Link className="btn btn-sm float-start p-0" to={`/live/match/${saygId}`}>👁️</Link>)
             : null}
         {canOpenSaygDialog()
