@@ -68,8 +68,8 @@ describe('DivisionControls', () => {
         updatedDivision = null;
     });
 
-    async function divisionOrSeasonChanged(x?: boolean) {
-        changedDivisionOrSeason = x;
+    async function divisionOrSeasonChanged(preventReloadIfIdsAreTheSame?: boolean) {
+        changedDivisionOrSeason = preventReloadIfIdsAreTheSame;
     }
 
     async function renderComponent(props: IDivisionControlsProps, account: UserDto, seasons: SeasonDto[], divisions: DivisionDto[], route?: string, currentPath?: string) {
@@ -601,7 +601,7 @@ describe('DivisionControls', () => {
                 reportedError.verifyNoError();
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();
-                expect(changedDivisionOrSeason).toEqual(true);
+                expect(changedDivisionOrSeason).toEqual(false);
                 expect(reloadSeasonsCalled).toEqual(true);
                 expect(updatedSeason).not.toBeNull();
             });
@@ -665,7 +665,7 @@ describe('DivisionControls', () => {
                 reportedError.verifyNoError();
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();
-                expect(changedDivisionOrSeason).toEqual(true);
+                expect(changedDivisionOrSeason).toEqual(false);
                 expect(reloadDivisionsCalled).toEqual(true);
                 expect(updatedDivision).not.toBeNull();
             });
