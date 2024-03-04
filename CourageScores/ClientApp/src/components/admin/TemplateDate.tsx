@@ -10,8 +10,8 @@ export interface ITemplateDateProps {
     onDelete(): Promise<any>;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
-    moveEarlier?: () => Promise<any>;
-    moveLater?: () => Promise<any>;
+    moveEarlier?(): Promise<any>;
+    moveLater?(): Promise<any>;
 }
 
 export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }: ITemplateDateProps) {

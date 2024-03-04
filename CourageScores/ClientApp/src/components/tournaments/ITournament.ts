@@ -7,15 +7,15 @@ import {ISelectablePlayer} from "../common/PlayerSelection";
 
 export interface ITournament {
     tournamentData: TournamentGameDto;
-    setTournamentData?: (newData: TournamentGameDto) => Promise<any>;
+    setTournamentData?(newData: TournamentGameDto): Promise<any>;
     season?: SeasonDto;
     division?: DivisionDto;
     alreadyPlaying?: ITournamentPlayerMap;
     allPlayers?: ISelectablePlayer[];
-    saveTournament?: (preventLoading?: boolean) => Promise<TournamentGameDto>;
-    setWarnBeforeSave?: (warning: string) => Promise<any>;
+    saveTournament?(preventLoading?: boolean): Promise<TournamentGameDto>;
+    setWarnBeforeSave?(warning: string): Promise<any>;
     matchOptionDefaults?: GameMatchOptionDto;
     saving?: boolean;
     editTournament?: string;
-    setEditTournament?: (edit: string) => Promise<any>;
+    setEditTournament?(edit: string): Promise<any>;
 }

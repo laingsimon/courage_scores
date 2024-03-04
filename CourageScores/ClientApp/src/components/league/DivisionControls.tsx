@@ -17,7 +17,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 
 export interface IDivisionControlsProps {
     originalSeasonData: DivisionDataSeasonDto;
-    onDivisionOrSeasonChanged?: (type?: boolean) => Promise<any>;
+    onDivisionOrSeasonChanged?(type?: boolean): Promise<any>;
     originalDivisionData: DivisionDataDto;
     overrideMode?: string;
 }

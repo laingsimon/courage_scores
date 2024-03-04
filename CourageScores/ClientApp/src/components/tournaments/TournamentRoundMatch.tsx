@@ -16,7 +16,7 @@ export interface ITournamentRoundMatchProps {
     sideMap: DataMap<TournamentSideDto>;
     exceptSelected(side: TournamentSideDto, matchIndex: number, sideAOrB: string): boolean;
     matchIndex: number;
-    onChange?: (round: TournamentRoundDto) => Promise<any>;
+    onChange?(round: TournamentRoundDto): Promise<any>;
     round: TournamentRoundDto;
     matchOptions: GameMatchOptionDto;
     onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;

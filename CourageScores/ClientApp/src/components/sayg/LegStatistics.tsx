@@ -15,7 +15,7 @@ export interface ILegStatisticsProps {
     legNumber: number;
     singlePlayer?: boolean;
     oneDartAverage?: boolean;
-    onChangeLeg?: (newLeg: LegDto) => Promise<any>;
+    onChangeLeg?(newLeg: LegDto): Promise<any>;
     updateLegDisplayOptions(options: ILegDisplayOptions): Promise<any>;
     legDisplayOptions: ILegDisplayOptions;
 }

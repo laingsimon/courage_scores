@@ -37,7 +37,7 @@ import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 export interface IPrintableSheetProps {
     printOnly: boolean;
     editable?: boolean;
-    patchData?: (patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) => Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
 }
 
 interface IMovement {

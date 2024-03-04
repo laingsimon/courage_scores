@@ -13,7 +13,7 @@ export interface IWidescreenSaygPlayerProps {
     player: 'home' | 'away';
     scoreFirst?: boolean;
     finished: boolean;
-    changeStatisticsView?: (widescreen: boolean) => Promise<any>;
+    changeStatisticsView?(widescreen: boolean): Promise<any>;
     showOptions?: boolean;
 }
 

@@ -23,14 +23,14 @@ export interface ISaygLoadingContainerProps extends IBaseSayg {
     id: string;
     defaultData?: ILoadedScoreAsYouGoDto;
     autoSave?: boolean;
-    on180?: (sideName: string) => Promise<any>;
-    onHiCheck?: (sideName: string, score: number) => Promise<any>;
-    onSaved?: (data: ILoadedScoreAsYouGoDto) => Promise<any>;
-    onLoadError?: (error: string) => Promise<any>;
+    on180?(sideName: string): Promise<any>;
+    onHiCheck?(sideName: string, score: number): Promise<any>;
+    onSaved?(data: ILoadedScoreAsYouGoDto): Promise<any>;
+    onLoadError?(error: string): Promise<any>;
     liveOptions: ILiveOptions;
 
     // for testing only
-    onScoreChange?: (homeScore: number, awayScore: number) => Promise<any>;
+    onScoreChange?(homeScore: number, awayScore: number): Promise<any>;
 }
 
 export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {

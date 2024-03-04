@@ -10,7 +10,7 @@ import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDa
 
 export interface IFixtureDateNoteProps {
     note: EditFixtureDateNoteDto;
-    setEditNote?: (note: EditFixtureDateNoteDto) => Promise<any>;
+    setEditNote?(note: EditFixtureDateNoteDto): Promise<any>;
     preventDelete?: boolean;
 }
 

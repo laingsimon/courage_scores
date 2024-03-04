@@ -12,7 +12,7 @@ import {createTemporaryId} from "../../helpers/projection";
 
 export interface ITournamentRoundProps {
     round: TournamentRoundDto;
-    onChange?: (newRound: TournamentRoundDto) => Promise<any>;
+    onChange?(newRound: TournamentRoundDto): Promise<any>;
     sides: TournamentSideDto[];
     readOnly?: boolean;
     depth: number;

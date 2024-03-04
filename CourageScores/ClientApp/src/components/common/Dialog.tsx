@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface IDialogProps {
     children: React.ReactNode;
-    onClose?: () => Promise<any>;
+    onClose?(): Promise<any>;
     title?: string;
     slim?: boolean;
     className?: string;

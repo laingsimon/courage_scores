@@ -22,7 +22,7 @@ export interface IDivisionFixtureProps {
     date: string;
     readOnly?: boolean;
     onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): Promise<any>;
-    beforeReloadDivision?: () => Promise<any>;
+    beforeReloadDivision?(): Promise<any>;
 }
 
 export interface IEditableDivisionFixtureDto extends DivisionFixtureDto {

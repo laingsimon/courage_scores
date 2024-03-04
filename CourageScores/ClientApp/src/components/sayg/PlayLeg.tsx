@@ -9,8 +9,8 @@ export interface IPlayLegProps {
     away: string;
     onChange(newLeg: LegDto): Promise<any>;
     onLegComplete(accumulatorName: string): Promise<any>;
-    on180?: (accumulatorName: string) => Promise<any>;
-    onHiCheck?: (accumulatorName: string, score: number) => Promise<any>;
+    on180?(accumulatorName: string): Promise<any>;
+    onHiCheck?(accumulatorName: string, score: number): Promise<any>;
     homeScore: number;
     awayScore?: number;
     singlePlayer?: boolean;

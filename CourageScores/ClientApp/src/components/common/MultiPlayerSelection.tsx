@@ -12,11 +12,11 @@ import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 export interface IMultiPlayerSelectionProps {
-    onAddPlayer?: (player: ISelectablePlayer, score: number) => Promise<any>;
+    onAddPlayer?(player: ISelectablePlayer, score: number): Promise<any>;
     players?: NotablePlayerDto[] | TeamPlayerDto[] | GamePlayerDto[];
     disabled?: boolean;
     allPlayers: ISelectablePlayer[];
-    onRemovePlayer?: (playerId: string, playerIndex: number) => Promise<any>;
+    onRemovePlayer?(playerId: string, playerIndex: number): Promise<any>;
     readOnly?: boolean;
     showScore?: boolean;
     scoreClassName?: string;

@@ -13,7 +13,7 @@ export function useLive(): ILive {
 
 export interface ILiveContainerProps {
     children?: React.ReactNode;
-    onDataUpdate?: (data: any) => Promise<any>;
+    onDataUpdate?(data: any): Promise<any>;
     liveOptions: ILiveOptions;
 }
 
