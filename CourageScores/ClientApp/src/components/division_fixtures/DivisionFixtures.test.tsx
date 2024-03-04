@@ -741,6 +741,7 @@ describe('DivisionFixtures', () => {
             expect(newFixtures[0].fixtures[0].fixturesUsingAddress).toEqual([]);
             expect(newFixtures[0].tournamentFixtures[0].address).toEqual('ADDRESS');
             expect(newFixtures[0].tournamentFixtures[0].proposed).toEqual(true);
+            expect(newFixtures[0].tournamentFixtures[0].sides).toEqual([]);
         });
 
         it('does not add teams with deleted seasons to new date', async () => {
