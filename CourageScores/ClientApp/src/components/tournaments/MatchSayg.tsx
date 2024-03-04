@@ -63,12 +63,12 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             return;
         }
 
+        setCreatingSayg(true);
+
         // save any existing data, to ensure any pending changes aren't lost.
         await saveTournament(true); // prevent a loading display; which will corrupt the state of this component instance
 
         try {
-            setCreatingSayg(true);
-
             const request: CreateTournamentSaygDto = {
                 matchOptions: matchOptions,
                 matchId: match.id,

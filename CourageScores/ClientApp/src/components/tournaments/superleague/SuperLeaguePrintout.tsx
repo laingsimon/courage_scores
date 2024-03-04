@@ -38,6 +38,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
     const {subscriptions} = useLive();
     const [saygDataMap, setSaygDataMap] = useState<ISaygDataMap>({});
     const [loading, setLoading] = useState<boolean>(false);
+    const [finishedLoading, setFinishedLoading] = useState<boolean>(false);
     const matches: TournamentMatchDto[] = (tournamentData.round || {}).matches || [];
     const unloadedIds: string[] = matches.map((m: TournamentMatchDto) => m.saygId).filter((id: string) => id && !any(Object.keys(saygDataMap), (key: string) => key === id));
     const showWinner: boolean = location.search.indexOf('winner') !== -1;
@@ -51,7 +52,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
             loadSaygData(unloadedIds);
         },
         // eslint-disable-next-line
-        [loading, saygDataMap]);
+        [loading, saygDataMap, unloadedIds]);
 
     useEffect(() => {
             if (loading) {
@@ -91,6 +92,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
     async function loadSaygData(ids: string[]) {
         if (!any(ids)) {
             setLoading(false);
+            setFinishedLoading(true);
             return;
         }
 
@@ -108,7 +110,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
         }
     }
 
-    if (any(unloadedIds) || loading) {
+    if ((any(unloadedIds) || loading) && !finishedLoading) {
         return (<div>Loading...</div>);
     }
 
