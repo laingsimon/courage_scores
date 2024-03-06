@@ -17,10 +17,6 @@ export function Tv() {
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
         reloadConnections();
-
-        window.setInterval(async () => {
-            await reloadConnections();
-        }, 10000);
     },
     // eslint-disable-next-line
     []);
@@ -88,7 +84,17 @@ export function Tv() {
         <h3>Connections</h3>
         {connections ? (<div className="list-group">
             {(connections || []).map((c: WatchableDataDto) => (<a target="_blank" rel="noreferrer" key={c.id} href={getHref(c)} className="list-group-item d-flex justify-content-between" title={`${c.id} @ ${c.lastUpdate}`}>
-                {getDataType(c.dataType as LiveDataType)} - {c.userName}
+                {!c.eventDetails ? (getDataType(c.dataType as LiveDataType)) : null}
+                {c.dataType === LiveDataType.sayg && c.eventDetails
+                    ? (<span>
+                        🎯 {c.eventDetails.opponents[0]} vs {c.eventDetails.opponents[1]}{c.eventDetails.venue ? ` at ${c.eventDetails.venue}` : ''}
+                    </span>)
+                    : null}
+                {c.dataType === LiveDataType.tournament && c.eventDetails
+                    ? (<span>
+                        🏆 {c.eventDetails.type} at {c.eventDetails.venue}
+                    </span>)
+                    : null}
                 {getPublicationMode(c)}
             </a>))}
         </div>) : null}

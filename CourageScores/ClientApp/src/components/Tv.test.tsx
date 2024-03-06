@@ -124,6 +124,60 @@ describe('Tv', () => {
             });
         });
 
+        it('renders connections with tournament event details', async () => {
+            connections = [{
+                id: createTemporaryId(),
+                dataType: LiveDataType.tournament,
+                absoluteUrl: 'http://somewhere/match/ID',
+                relativeUrl: '/match/ID',
+                eventDetails: {
+                    type: 'TYPE',
+                    venue: 'VENUE',
+                },
+            }];
+
+            await renderComponent(appProps({account}));
+
+            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
+            expect(items.map(i => i.textContent)).toEqual(['🏆 TYPE at VENUE']);
+        });
+
+        it('renders connections with sayg and tournament event details', async () => {
+            connections = [{
+                id: createTemporaryId(),
+                dataType: LiveDataType.sayg,
+                absoluteUrl: 'http://somewhere/match/ID',
+                relativeUrl: '/match/ID',
+                eventDetails: {
+                    type: 'TYPE',
+                    venue: 'VENUE',
+                    opponents: [ 'CHALLENGER', 'OPPONENT' ],
+                },
+            }];
+
+            await renderComponent(appProps({account}));
+
+            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
+            expect(items.map(i => i.textContent)).toEqual(['🎯 CHALLENGER vs OPPONENT at VENUE']);
+        });
+
+        it('renders connections with sayg event details but no tournament event details', async () => {
+            connections = [{
+                id: createTemporaryId(),
+                dataType: LiveDataType.sayg,
+                absoluteUrl: 'http://somewhere/match/ID',
+                relativeUrl: '/match/ID',
+                eventDetails: {
+                    opponents: [ 'CHALLENGER', 'OPPONENT' ],
+                },
+            }];
+
+            await renderComponent(appProps({account}));
+
+            const items = Array.from(context.container.querySelectorAll('.list-group-item')) as HTMLAnchorElement[];
+            expect(items.map(i => i.textContent)).toEqual(['🎯 CHALLENGER vs OPPONENT']);
+        });
+
         it('renders connections with absolute urls', async () => {
             connections = [{
                 id: createTemporaryId(),
