@@ -17,6 +17,10 @@ export function Tv() {
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
         reloadConnections();
+
+        window.setInterval(async () => {
+            await reloadConnections();
+        }, 10000);
     },
     // eslint-disable-next-line
     []);
