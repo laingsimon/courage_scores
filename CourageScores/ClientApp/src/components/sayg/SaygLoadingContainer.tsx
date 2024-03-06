@@ -64,18 +64,24 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                 return;
             }
 
-            const sayg: ILoadedScoreAsYouGoDto = await saygApi.get(id);
+            const saygData: ILoadedScoreAsYouGoDto = await saygApi.get(id);
 
-            if (!sayg || !sayg.legs) {
+            if (!saygData || !saygData.legs) {
                 if (onLoadError) {
                     await onLoadError('Data not found');
                 }
                 return;
             }
 
-            sayg.lastUpdated = sayg.updated;
-            setSayg(sayg);
-            return sayg;
+            saygData.lastUpdated = saygData.updated;
+            if (liveOptions.publish && !sayg) {
+                // first load and updates will be published, send an empty publication so the match appears in the TV connections list
+                await webSocket.publish(id, LiveDataType.sayg, saygData);
+            }
+
+            setSayg(saygData);
+
+            return saygData;
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
