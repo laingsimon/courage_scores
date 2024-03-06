@@ -36,4 +36,9 @@ public class WatchableDataDto
     /// The method used to publish updates
     /// </summary>
     public PublicationMode PublicationMode { get; set; }
+
+    /// <summary>
+    /// Any additional details about the event
+    /// </summary>
+    public EventDetailsDto? EventDetails { get; set; } = new();
 }

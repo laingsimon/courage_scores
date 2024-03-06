@@ -4,22 +4,32 @@ import {WatchableDataDto} from "../interfaces/models/dtos/Live/WatchableDataDto"
 import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 import {PublicationMode} from "../interfaces/models/dtos/Live/PublicationMode";
+import {useApp} from "./common/AppContainer";
+import {useLocation} from "react-router-dom";
 
 export function Tv() {
-    const {liveApi} = useDependencies();
+    const {liveApi, settings} = useDependencies();
+    const {account, appLoading} = useApp();
     const [loading, setLoading] = useState(false);
     const [connections, setConnections] = useState(null);
+    const location = useLocation();
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
         reloadConnections();
     },
     // eslint-disable-next-line
-    []);
+    [appLoading]);
+
+    function getAccountUrl(action: string) {
+        const currentLink: string = 'https://' + document.location.host + location.pathname + location.search;
+
+        return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
+    }
 
     async function reloadConnections() {
         /* istanbul ignore next */
-        if (loading) {
+        if (loading || !account || !account.access || !account.access.useWebSockets) {
             /* istanbul ignore next */
             return;
         }
@@ -73,16 +83,30 @@ export function Tv() {
     return (<div className="content-background p-3">
         <h3>Connections</h3>
         {connections ? (<div className="list-group">
-            {connections.map((c: WatchableDataDto) => (<a target="_blank" rel="noreferrer" key={c.id} href={getHref(c)} className="list-group-item d-flex justify-content-between" title={`${c.id} @ ${c.lastUpdate}`}>
-                {getDataType(c.dataType as LiveDataType)} - {c.userName}
+            {(connections || []).map((c: WatchableDataDto) => (<a target="_blank" rel="noreferrer" key={c.id} href={getHref(c)} className="list-group-item d-flex justify-content-between" title={`${c.id} @ ${c.lastUpdate}`}>
+                {!c.eventDetails ? (getDataType(c.dataType as LiveDataType)) : null}
+                {c.dataType === LiveDataType.sayg && c.eventDetails
+                    ? (<span>
+                        🎯 {c.eventDetails.opponents[0]} vs {c.eventDetails.opponents[1]}{c.eventDetails.venue ? ` at ${c.eventDetails.venue}` : ''}
+                    </span>)
+                    : null}
+                {c.dataType === LiveDataType.tournament && c.eventDetails
+                    ? (<span>
+                        🏆 {c.eventDetails.type} at {c.eventDetails.venue}
+                    </span>)
+                    : null}
                 {getPublicationMode(c)}
             </a>))}
-        </div>) : (<LoadingSpinnerSmall />)}
+        </div>) : null}
+        {account && !appLoading && (!account.access || !account.access.useWebSockets) ? (<div>No access</div>) : null}
         <div className="mt-1">
-            <button className="btn btn-primary" onClick={reloadConnections}>
+            {account && account.access && account.access.useWebSockets && !appLoading ? (<button className="btn btn-primary" onClick={reloadConnections}>
                 {loading ? <LoadingSpinnerSmall /> : null}
                 Refresh
-            </button>
-        </div>
-    </div>);
+            </button>) : null}
+            {!account && !appLoading ? (<a className="btn btn-primary" href={getAccountUrl('Login')}>Login</a>) : null}
+            {appLoading ? (<LoadingSpinnerSmall />) : null}
+    </div>
+</div>)
+    ;
 }
