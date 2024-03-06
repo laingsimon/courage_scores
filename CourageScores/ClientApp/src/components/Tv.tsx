@@ -19,7 +19,7 @@ export function Tv() {
         reloadConnections();
     },
     // eslint-disable-next-line
-    []);
+    [appLoading]);
 
     function getAccountUrl(action: string) {
         const currentLink: string = 'https://' + document.location.host + location.pathname + location.search;
