@@ -749,7 +749,7 @@ describe('Division', () => {
                     teams: [homeTeam, awayTeam],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
                 expect(dataRequested).toEqual([
-                    {divisionId: division.id, seasonId: null},
+                    {divisionId: division.id},
                 ]); // data loaded once
                 reportedError.verifyNoError();
                 const fixtureContainer = (context.container.querySelector('div[data-fixture-date="2023-07-01"]') as HTMLElement).parentElement as HTMLElement;
@@ -759,8 +759,8 @@ describe('Division', () => {
 
                 reportedError.verifyNoError();
                 expect(dataRequested).toEqual([
-                    {divisionId: division.id, seasonId: null},
-                    {divisionId: division.id, seasonId: null},
+                    {divisionId: division.id},
+                    {divisionId: division.id},
                 ]); // data loaded twice
             });
 
@@ -786,7 +786,7 @@ describe('Division', () => {
                     teams: [homeTeam, awayTeam],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
                 expect(dataRequested).toEqual([
-                    {divisionId: division.id, seasonId: null},
+                    {divisionId: division.id},
                 ]); // data loaded once
                 reportedError.verifyNoError();
                 const fixtureContainer = (context.container.querySelector('div[data-fixture-date="2023-07-01"]') as HTMLElement).parentElement as HTMLElement;
@@ -796,8 +796,8 @@ describe('Division', () => {
 
                 reportedError.verifyNoError();
                 expect(dataRequested).toEqual([
-                    {divisionId: division.id, seasonId: null},
-                    {divisionId: division.id, seasonId: null},
+                    {divisionId: division.id},
+                    {divisionId: division.id},
                 ]); // data loaded twice
             });
         });
