@@ -18,7 +18,7 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
 
     public async Task<SeasonDto> Adapt(Cosmos.Season.Season model, CancellationToken token)
     {
-        var now = _clock.UtcNow.UtcDateTime;
+        var now = _clock.UtcNow.UtcDateTime.Date;
 
         return new SeasonDto
         {
@@ -27,7 +27,7 @@ public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
             EndDate = model.EndDate,
             StartDate = model.StartDate,
             Name = model.Name,
-            IsCurrent = now >= model.StartDate && now <= model.EndDate,
+            IsCurrent = now >= model.StartDate.Date && now <= model.EndDate.Date,
         }.AddAuditProperties(model);
     }
 
