@@ -121,9 +121,11 @@ export function Division() {
                 }
             }
 
-            const filter: DivisionDataFilter = {
-                seasonId: seasonId
-            };
+            const filter: DivisionDataFilter = {};
+            if (seasonId) {
+                filter.seasonId = seasonId;
+            }
+
             const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(divisionId, filter);
             newDivisionData.requested = {
                 divisionId,
