@@ -13,9 +13,11 @@ import {DivisionTournamentFixtureDetailsDto} from "../../interfaces/models/dtos/
 
 export interface IPlayerOverviewProps {
     playerId: string;
+    teamName?: string;
+    playerName?: string;
 }
 
-export function PlayerOverview({playerId}: IPlayerOverviewProps) {
+export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverviewProps) {
     const {name} = useBranding();
     const {players, teams, fixtures: divisionDataFixtures, season, name: divisionName} = useDivisionData();
     const player: DivisionPlayerDto = players.filter(p => p.id === playerId)[0] || {id: null, name: 'Unknown', fixtures: {}, teamId: null, team: 'Unknown'};
@@ -112,7 +114,8 @@ export function PlayerOverview({playerId}: IPlayerOverviewProps) {
 
     if (!player.id) {
         return (<div className="content-background p-3">
-            <h5 className="text-danger">⚠ Player could not be found</h5>
+            <h5 className="text-danger">⚠ {playerName ? playerName : 'Player'} could not be found</h5>
+            {teamName ? (<p>View <EmbedAwareLink to={`/division/${divisionName}/team:${teamName}/${season.name}`}>{teamName}</EmbedAwareLink> team</p>) : null}
         </div>)
     }
 

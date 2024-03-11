@@ -7,7 +7,7 @@ import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {DivisionControls} from "./DivisionControls";
 import {DivisionReports} from "../division_reports/DivisionReports";
 import {TeamOverview} from "../division_teams/TeamOverview";
-import {PlayerOverview} from "../division_players/PlayerOverview";
+import {IPlayerOverviewProps, PlayerOverview} from "../division_players/PlayerOverview";
 import {Loading} from "../common/Loading";
 import {any} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
@@ -71,32 +71,46 @@ export function Division() {
         return season ? season.id : INVALID;
     }
 
-    function getPlayerId(idish?: string) {
+    function getPlayerProps(idish?: string): IPlayerOverviewProps {
         if (isGuid(idish)) {
-            return idish;
+            return {
+                playerId: idish,
+            };
         }
 
         if (!divisionData || !idish) {
-            return null;
+            return {
+                playerId: null,
+            };
         }
 
         const matchItem = idish.matchAll(/(.+)@(.+)/g).next();
-        const match = matchItem.value;
+        const match: string = matchItem.value;
         if (!match || match.length < 3) {
-            return idish;
+            return {
+                playerId: idish,
+            };
         }
 
-        const playerName = match[1];
-        const teamName = match[2];
+        const playerName: string = match[1];
+        const teamName: string = match[2];
 
-        const team = divisionData.teams.filter((t: DivisionTeamDto) => t.name.toLowerCase() === teamName.toLowerCase())[0];
+        const team: DivisionTeamDto = divisionData.teams.filter((t: DivisionTeamDto) => t.name.toLowerCase() === teamName.toLowerCase())[0];
         if (!team) {
             // team not found
-            return idish;
+            return {
+                playerId: idish,
+                teamName: teamName,
+                playerName: playerName,
+            };
         }
 
-        const teamPlayer = divisionData.players.filter((p: DivisionPlayerDto) => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
-        return teamPlayer ? teamPlayer.id : INVALID;
+        const teamPlayer: DivisionPlayerDto = divisionData.players.filter((p: DivisionPlayerDto) => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
+        return {
+            playerId: teamPlayer ? teamPlayer.id : INVALID,
+            teamName: teamName,
+            playerName: playerName,
+        };
     }
 
     function getTeamId(idish?: string) {
@@ -253,7 +267,7 @@ export function Division() {
                     <NavLink tag={Link}
                              className="active"
                              to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>
-                        Player Details
+                        {getPlayerProps(effectiveTab.substring('player:'.length)).playerName || 'Player Details'}
                     </NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
@@ -295,7 +309,7 @@ export function Division() {
                     ? (<TeamOverview teamId={getTeamId(effectiveTab.substring('team:'.length))}/>)
                     : null}
                 {effectiveTab && effectiveTab.startsWith('player:') && divisionDataToUse.season
-                    ? (<PlayerOverview playerId={getPlayerId(effectiveTab.substring('player:'.length))}/>)
+                    ? (<PlayerOverview {...getPlayerProps(effectiveTab.substring('player:'.length))}/>)
                     : null}
             </DivisionDataContainer>)}
         </div>);

@@ -375,7 +375,7 @@ describe('Division', () => {
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
-                expect(heading.textContent).toContain('⚠ Player could not be found');
+                expect(heading.textContent).toContain('⚠ PLAYER_NAME could not be found');
             });
 
             it('renders player not found when provided with missing player', async () => {
@@ -386,7 +386,7 @@ describe('Division', () => {
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
-                expect(heading.textContent).toContain('⚠ Player could not be found');
+                expect(heading.textContent).toContain('⚠ UNKNOWN_PLAYER could not be found');
             });
 
             it('renders player not found when provided no player name', async () => {
