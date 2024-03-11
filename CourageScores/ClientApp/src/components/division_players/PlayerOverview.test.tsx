@@ -2,7 +2,7 @@ import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestC
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
-import {PlayerOverview} from "./PlayerOverview";
+import {IPlayerOverviewProps, PlayerOverview} from "./PlayerOverview";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
@@ -30,13 +30,13 @@ describe('PlayerOverview', () => {
         reportedError = new ErrorState();
     });
 
-    async function renderComponent(playerId: string, divisionData: IDivisionDataContainerProps) {
+    async function renderComponent(props: IPlayerOverviewProps, divisionData: IDivisionDataContainerProps) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps({}, reportedError),
             (<DivisionDataContainer {...divisionData}>
-                <PlayerOverview playerId={playerId}/>
+                <PlayerOverview {...props}/>
             </DivisionDataContainer>));
     }
 
@@ -67,7 +67,7 @@ describe('PlayerOverview', () => {
 
         it('player and team details', async () => {
             await renderComponent(
-                player.id,
+                { playerId: player.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -84,9 +84,9 @@ describe('PlayerOverview', () => {
             expect(linkToTeam.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
         });
 
-        it('when player not found', async () => {
+        it('when player not found given no player name', async () => {
             await renderComponent(
-                createTemporaryId(),
+                { playerId: createTemporaryId(), playerName: '' },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -97,9 +97,36 @@ describe('PlayerOverview', () => {
             expect(context.container.textContent).toContain('⚠ Player could not be found');
         });
 
+        it('when player not found and no team', async () => {
+            await renderComponent(
+                { playerId: createTemporaryId(), playerName: 'PLAYER' },
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .season(season)
+                    .build());
+
+            reportedError.verifyNoError();
+            expect(context.container.textContent).toContain('⚠ PLAYER could not be found');
+        });
+
+        it('when player not found and team identified', async () => {
+            await renderComponent(
+                { playerId: createTemporaryId(), playerName: 'PLAYER', teamName: 'TEAM' },
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .season(season)
+                    .build());
+
+            reportedError.verifyNoError();
+            expect(context.container.textContent).toContain('⚠ PLAYER could not be found');
+            expect(context.container.textContent).toContain('View TEAM team');
+        });
+
         it('table headings', async () => {
             await renderComponent(
-                player.id,
+                { playerId: player.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -121,7 +148,7 @@ describe('PlayerOverview', () => {
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
-                playerWithLeagueFixture.id,
+                { playerId: playerWithLeagueFixture.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -161,7 +188,7 @@ describe('PlayerOverview', () => {
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
-                playerWithLeagueFixture.id,
+                { playerId: playerWithLeagueFixture.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -203,7 +230,7 @@ describe('PlayerOverview', () => {
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
-                playerWithLeagueFixture.id,
+                { playerId: playerWithLeagueFixture.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -245,7 +272,7 @@ describe('PlayerOverview', () => {
             const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
-                playerWithLeagueFixture.id,
+                { playerId: playerWithLeagueFixture.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(playerWithLeagueFixture)
@@ -285,7 +312,7 @@ describe('PlayerOverview', () => {
                     .address('ADDRESS'), tournamentId)
                 .build();
             await renderComponent(
-                player.id,
+                { playerId: player.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -318,7 +345,7 @@ describe('PlayerOverview', () => {
                     .winner('WINNER'), tournamentId)
                 .build();
             await renderComponent(
-                player.id,
+                { playerId: player.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
@@ -351,7 +378,7 @@ describe('PlayerOverview', () => {
                     .proposed())
                 .build();
             await renderComponent(
-                player.id,
+                { playerId: player.id },
                 divisionDataBuilder(division)
                     .withTeam(team)
                     .withPlayer(player)
