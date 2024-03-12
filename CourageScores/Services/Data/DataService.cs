@@ -109,43 +109,6 @@ public class DataService : IDataService
         return await DoImport(request, token);
     }
 
-    public async Task<ActionResultDto<SingleDataResultDto>> Browse(string table, Guid id, CancellationToken token)
-    {
-        var user = await _userService.GetUser(token);
-        if (user == null)
-        {
-            return Unsuccessful<SingleDataResultDto>("Not logged in");
-        }
-
-        if (user.Access?.ExportData != true)
-        {
-            return Unsuccessful<SingleDataResultDto>("Not permitted");
-        }
-
-        if (string.IsNullOrEmpty(table))
-        {
-            return Unsuccessful<SingleDataResultDto>("Table not supplied");
-        }
-
-        var tableExists = await _dataBrowserRepository.TableExists(table);
-        if (!tableExists)
-        {
-            return Unsuccessful<SingleDataResultDto>($"Table not found: {table}");
-        }
-
-        var item = await _dataBrowserRepository.GetItem(table, id, token);
-        if (item == null)
-        {
-            return Unsuccessful<SingleDataResultDto>("Record not found");
-        }
-
-        return new ActionResultDto<SingleDataResultDto>
-        {
-            Result = item,
-            Success = true,
-        };
-    }
-
     public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token)
     {
         var user = await _userService.GetUser(token);

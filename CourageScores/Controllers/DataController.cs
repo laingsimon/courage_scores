@@ -63,12 +63,6 @@ public class DataController : Controller
         return await _dataService.Browse(table, token);
     }
 
-    [HttpGet("/api/Data/Browse/{table}/{id}")]
-    public async Task<ActionResultDto<SingleDataResultDto>> GetRecord(string table, Guid id, CancellationToken token)
-    {
-        return await _dataService.Browse(table, id, token);
-    }
-
     [HttpGet("/api/Data/View/{table}/{id}")]
     public async Task<ActionResultDto<object>> View(string table, Guid id, CancellationToken token)
     {

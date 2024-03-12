@@ -16,7 +16,7 @@ export function DataBrowser() {
     const [table, setTable] = useState<string>(search.has('table') ? search.get('table') : '');
     const [id, setId] = useState<string>(search.has('id') ? search.get('id') : '');
     const [loading, setLoading] = useState<boolean>(false);
-    const [response, setResponse] = useState<IClientActionResultDto<SingleDataResultDto[]> | IClientActionResultDto<SingleDataResultDto> | null>(null);
+    const [response, setResponse] = useState<IClientActionResultDto<SingleDataResultDto[]> | IClientActionResultDto<object> | null>(null);
     const pageSize = 10;
     const [lastRequest, setLastRequest] = useState<{ table: string, id: string } | null>(null);
 
@@ -53,8 +53,8 @@ export function DataBrowser() {
         setLoading(true);
         try {
             setResponse(null);
-            const response: IClientActionResultDto<SingleDataResultDto> | IClientActionResultDto<SingleDataResultDto[]> = id
-                ? await dataApi.getRecord(table, id)
+            const response: IClientActionResultDto<object> | IClientActionResultDto<SingleDataResultDto[]> = id
+                ? await dataApi.view(table, id)
                 : await dataApi.getRows(table);
             setResponse(response);
         }

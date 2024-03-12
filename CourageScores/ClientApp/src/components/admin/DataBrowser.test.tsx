@@ -29,11 +29,11 @@ jest.mock('react-router-dom', () => ({
 describe('DataBrowser', () => {
     let context: TestContext;
     let requestedData: { table: string, id?: string };
-    let singleApiResult: IClientActionResultDto<SingleDataResultDto>;
+    let singleApiResult: IClientActionResultDto<object>;
     let multiApiResult: IClientActionResultDto<SingleDataResultDto[]>;
     let apiException: IError;
     const dataApi = api<IDataApi>({
-        getRecord: async (table: string, id: string): Promise<IClientActionResultDto<SingleDataResultDto>> => {
+        view: async (table: string, id: string): Promise<IClientActionResultDto<object>> => {
             requestedData = { table, id };
             if (apiException) {
                 throw apiException;
