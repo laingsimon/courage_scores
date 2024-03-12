@@ -20,7 +20,7 @@ public class DataController : Controller
         _cosmosTableService = cosmosTableService;
     }
 
-    [HttpPost("/api/Data/Export")]
+    [HttpPost("/api/Data/View")]
     public async Task<ActionResultDto<ExportDataResultDto>> Export(ExportDataRequestDto request, CancellationToken token)
     {
         return await _dataService.ExportData(request, token);
@@ -63,9 +63,9 @@ public class DataController : Controller
         return await _dataService.Browse(table, token);
     }
 
-    [HttpGet("/api/Data/Browse/{table}/{id}")]
-    public async Task<ActionResultDto<SingleDataResultDto>> GetRecord(string table, Guid id, CancellationToken token)
+    [HttpGet("/api/Data/View/{table}/{id}")]
+    public async Task<ActionResultDto<object>> View(string table, Guid id, CancellationToken token)
     {
-        return await _dataService.Browse(table, id, token);
+        return await _dataService.View(table, id, token);
     }
 }

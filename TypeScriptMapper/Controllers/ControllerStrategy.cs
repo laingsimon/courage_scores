@@ -23,6 +23,7 @@ public class ControllerStrategy: IStrategy
     {
         var controllers = _assembly.GetTypes()
             .Where(t => t.IsAssignableTo(typeof(Controller)))
+            .Where(t => t.GetCustomAttribute<ExcludeFromTypeScriptAttribute>() == null)
             .Where(t => onlyType == null || Regex.IsMatch(t.Name, onlyType));
         var controllerMeta = controllers.Select(c => _metaDataFactory.Create(c)).ToList();
 
