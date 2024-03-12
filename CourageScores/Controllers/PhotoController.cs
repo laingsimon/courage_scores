@@ -2,10 +2,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using CourageScores.Services;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromTypeScript]
 [ExcludeFromCodeCoverage]
 public class PhotoController : Controller
 {
