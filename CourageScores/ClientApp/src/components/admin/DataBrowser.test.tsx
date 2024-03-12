@@ -146,9 +146,117 @@ describe('DataBrowser', () => {
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
-            const rows = Array.from(table.querySelectorAll('tr')) as HTMLTableRowElement[];
+            const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
             expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id', 'date', 'name']);
             expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual([game.id, renderDate(game.date), game.name]);
+        });
+
+        it('single record excluding cosmos properties', async () => {
+            const game = {'_id': 'COSMOS'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + createTemporaryId());
+
+            const table = context.container.querySelector('table') as HTMLTableElement;
+            expect(table).toBeTruthy();
+            const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual([]);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual([]);
+        });
+
+        it('single record including empty values', async () => {
+            const game = {empty: ''};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
+
+            const table = context.container.querySelector('table') as HTMLTableElement;
+            expect(table).toBeTruthy();
+            const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['empty']);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['']);
+        });
+
+        it('single record including null values', async () => {
+            const game = {nullValue: ''};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
+
+            const table = context.container.querySelector('table') as HTMLTableElement;
+            expect(table).toBeTruthy();
+            const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['nullValue']);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['']);
+        });
+
+        it('single record including undefined values', async () => {
+            const game = {undefinedValue: undefined};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
+
+            const table = context.container.querySelector('table') as HTMLTableElement;
+            expect(table).toBeTruthy();
+            const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['undefinedValue']);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['']);
+        });
+
+        it('single record including audit values', async () => {
+            const game = {Remover: 'REMOVER', Deleted: 'DELETED', Editor: 'EDITOR', Updated: 'UPDATED', Author: 'AUTHOR', Created: 'CREATED'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + createTemporaryId() + '&showAuditValues=true');
+
+            const table = context.container.querySelector('table') as HTMLTableElement;
+            expect(table).toBeTruthy();
+            const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Remover', 'Deleted', 'Editor', 'Updated', 'Author', 'Created']);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['REMOVER', 'DELETED', 'EDITOR', 'UPDATED', 'AUTHOR', 'CREATED']);
+        });
+
+        it('single record including id', async () => {
+            const game = {Id: 'PARENT_ID', child: { Id: 'CHILD_ID', grandChild: { Id: 'GRANDCHILD_ID' }}};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + createTemporaryId() + '&showIdsUptoDepth=2');
+
+            const rows = Array.from(context.container.querySelectorAll('div > table > tbody > tr')) as HTMLTableRowElement[];
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Id', 'child']);
+            const childRows = Array.from(rows[1].querySelectorAll('table > tbody > tr')) as HTMLTableRowElement[];
+            expect(childRows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Id', 'grandChild']);
+            expect(context.container.textContent).not.toContain('GRANDCHILD_ID');
         });
 
         it('error when fetching', async () => {

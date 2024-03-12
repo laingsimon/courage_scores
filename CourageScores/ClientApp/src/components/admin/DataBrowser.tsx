@@ -1,5 +1,5 @@
 import {Link, useLocation, useNavigate} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {useEffect, useState, ChangeEvent} from "react";
 import {stateChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useDependencies} from "../common/IocContainer";
@@ -17,8 +17,12 @@ export function DataBrowser() {
     const [id, setId] = useState<string>(search.has('id') ? search.get('id') : '');
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<IClientActionResultDto<SingleDataResultDto[]> | IClientActionResultDto<object> | null>(null);
-    const pageSize = 10;
     const [lastRequest, setLastRequest] = useState<{ table: string, id: string } | null>(null);
+    const pageSize: number = getViewParameter('pageSize', 10);
+    const showEmptyValues = getViewParameter('showEmptyValues', false);
+    const showAuditValues = getViewParameter('showAuditValues', false);
+    const showVersion = getViewParameter('showVersion', false);
+    const showIdsUptoDepth: number = getViewParameter('showIdsUptoDepth', 1);
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
@@ -26,6 +30,25 @@ export function DataBrowser() {
     },
     // eslint-disable-next-line
     [location]);
+
+    function getViewParameter<T>(name: string, defaultValue: T): T {
+        if (!search.has(name) || !search.get(name)) {
+            return defaultValue;
+        }
+
+        const value: string = search.get(name).toLowerCase().trim();
+        if (typeof defaultValue === 'boolean') {
+            return (value === 'true' || value === '1') as any;
+        }
+        if (typeof defaultValue === 'number') {
+            const numberValue = Number.parseInt(value);
+            if (Number.isFinite(numberValue)) {
+                return numberValue as any;
+            }
+        }
+
+        return value as any;
+    }
 
     async function fetchData() {
         const table = search.has('table') ? search.get('table') : '';
@@ -85,28 +108,91 @@ export function DataBrowser() {
         navigate(`/admin/browser/?table=${table}${idQuery}`);
     }
 
-    function renderValue(_: string, value: string) {
-        if (value && value.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
-            return (<abbr title={value}>{renderDate(value)}</abbr>);
+    function renderValue(value: any, depth: number) {
+        if (typeof value === "string" && value.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+            return (<abbr title={value} onClick={() => window.alert(value)}>{renderDate(value)}</abbr>);
+        }
+
+        if (value && typeof value === "object") {
+            return renderItem(value, depth + 1);
         }
 
         return value;
     }
 
-    function renderItem(data: SingleDataResultDto) {
+    function shouldShowProperty(key: string, value: any, depth: number): boolean {
+        if (key.startsWith('_')) {
+            return false;
+        }
+
+        switch (key) {
+            case 'Remover':
+            case 'Deleted':
+            case 'Updated':
+            case 'Editor':
+            case 'Created':
+            case 'Author':
+                return !!value && showAuditValues;
+            case 'Version':
+                return value !== '1' && showVersion;
+            case 'id':
+            case 'Id':
+                return depth <= showIdsUptoDepth;
+        }
+
+        return value || showEmptyValues;
+    }
+
+    function renderViewToggleOption(name: string, currentValue: boolean, description: string, defaultValue: boolean) {
+        async function updateViewOption(event: ChangeEvent<HTMLInputElement>) {
+            const checkedState: boolean = event.target.checked;
+            const currentSearch: URLSearchParams = search;
+            if (checkedState === defaultValue) {
+                currentSearch.delete(name);
+            } else {
+                currentSearch.set(name, checkedState ? 'true' : 'false');
+            }
+
+            navigate(location.pathname + '?' + currentSearch);
+        }
+
+        return (<div className="input-group mb-3">
+            <div className="form-check form-switch margin-right">
+                <input className="form-check-input" type="checkbox" id={name} name={name} checked={currentValue} onChange={updateViewOption} />
+                <label className="form-check-label" htmlFor={name}>
+                    {description}
+                </label>
+            </div>
+        </div>);
+    }
+
+    function renderViewOptions() {
+        return (<tr>
+            <td colSpan={2}>
+                <div className="d-flex flex-row">
+                {renderViewToggleOption('showAuditValues', showAuditValues, 'Show audit values', false)}
+                {renderViewToggleOption('showEmptyValues', showEmptyValues, 'Show empty values', false)}
+                {renderViewToggleOption('showVersion', showVersion, 'Show version', false)}
+                </div>
+            </td>
+        </tr>);
+    }
+
+    function renderItem(data: object, depth: number) {
         return (<table className="table table-sm">
+            {depth === 1 ? (<thead>{renderViewOptions()}</thead>) : null}
             <tbody>
-            {Object.keys(data).map((key: string) => (<tr key={key}>
+            {Object.keys(data).filter(key => shouldShowProperty(key, data[key], depth)).map((key: string) => (<tr key={key}>
                 <td style={{ textTransform: 'capitalize' }}>{key}</td>
-                <td>{renderValue(key, data[key])}</td>
+                <td>{renderValue(data[key], depth)}</td>
             </tr>))}
             </tbody>
         </table>);
     }
 
     function renderResponse() {
-        if ((response as IClientActionResultDto<SingleDataResultDto>).result.id) {
-            return renderItem((response as IClientActionResultDto<SingleDataResultDto>).result);
+        if (id) {
+            return renderItem((response as IClientActionResultDto<object>).result, 1);
         }
 
         const pageIndex = search.has('page') ? Number.parseInt(search.get('page')) : 0;
