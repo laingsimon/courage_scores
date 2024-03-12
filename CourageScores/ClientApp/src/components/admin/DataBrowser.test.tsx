@@ -440,5 +440,95 @@ describe('DataBrowser', () => {
 
             expect(requestedData).toBeNull();
         });
+
+        it('can change view option, to show empty values', async () => {
+            const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + game.id);
+
+            await doClick(context.container, 'input[type="checkbox"][id="showEmptyValues"]');
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}&showEmptyValues=true`);
+        });
+
+        it('can change view option, to un-show empty values', async () => {
+            const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + game.id + '&showEmptyValues=true');
+
+            await doClick(context.container, 'input[type="checkbox"][id="showEmptyValues"]');
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}`);
+        });
+
+        it('can change view option, to show audit values', async () => {
+            const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + game.id);
+
+            await doClick(context.container, 'input[type="checkbox"][id="showAuditValues"]');
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}&showAuditValues=true`);
+        });
+
+        it('can change view option, to un-show audit values', async () => {
+            const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + game.id + '&showAuditValues=true');
+
+            await doClick(context.container, 'input[type="checkbox"][id="showAuditValues"]');
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}`);
+        });
+
+        it('can change view option, to show version', async () => {
+            const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + game.id);
+
+            await doClick(context.container, 'input[type="checkbox"][id="showVersion"]');
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}&showVersion=true`);
+        });
+
+        it('can change view option, to un-show version', async () => {
+            const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+            await renderComponent(appProps({
+                account: {},
+            }), '?table=game&id=' + game.id + '&showVersion=true');
+
+            await doClick(context.container, 'input[type="checkbox"][id="showVersion"]');
+
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}`);
+        });
     });
 });
