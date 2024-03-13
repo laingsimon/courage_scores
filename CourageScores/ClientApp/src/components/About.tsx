@@ -5,6 +5,7 @@ import {useBranding} from "./common/BrandingContainer";
 export function About() {
     const {build} = useApp();
     const {name, website, custodians} = useBranding();
+    const connection: { type?: ConnectionType } = (window.navigator.connection || {});
 
     return (<div className="content-background p-3">
         <h3>About</h3>
@@ -59,6 +60,32 @@ export function About() {
                 <td title={build.date!}>{renderDate(build.date!)} {new Date(build.date!).toLocaleTimeString()}</td>
             </tr>
             </tbody>
+            <tfoot>
+            <tr>
+                <th colSpan={2}>Your information</th>
+            </tr>
+            <tr>
+                <th>IP address</th>
+                <td>
+                    <a href="https://www.whatismyip.com/" rel="noreferrer" target="_blank">What is my IP?</a>
+                </td>
+            </tr>
+            <tr>
+                <th>Connection</th>
+                <td>
+                    <span className="margin-right">
+                        {window.navigator.onLine ? '▶' : '⏸'}
+                    </span>
+                    {connection.type || 'unknown type'}
+                </td>
+            </tr>
+            <tr>
+                <th>User agent</th>
+                <td>
+                    {window.navigator.userAgent}
+                </td>
+            </tr>
+            </tfoot>
         </table>
     </div>);
 }

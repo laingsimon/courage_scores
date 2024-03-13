@@ -7,8 +7,10 @@ import {renderDate} from "../../helpers/rendering";
 import {repeat} from "../../helpers/projection";
 import {SingleDataResultDto} from "../../interfaces/models/dtos/Data/SingleDataResultDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {useApp} from "../common/AppContainer";
 
 export function DataBrowser() {
+    const {onError} = useApp();
     const {dataApi} = useDependencies();
     const location = useLocation();
     const navigate = useNavigate();
@@ -136,7 +138,6 @@ export function DataBrowser() {
             case 'Version':
                 return value !== '1' && showVersion;
             case 'id':
-            case 'Id':
                 return depth <= showIdsUptoDepth;
         }
 
@@ -153,7 +154,7 @@ export function DataBrowser() {
                 currentSearch.set(name, checkedState ? 'true' : 'false');
             }
 
-            navigate(location.pathname + '?' + currentSearch);
+            navigate(location.pathname + '/?' + currentSearch);
         }
 
         return (<div className="input-group mb-3">
@@ -191,7 +192,8 @@ export function DataBrowser() {
     }
 
     function renderResponse() {
-        if (id) {
+        const maybeSingleResponse: IClientActionResultDto<object & { id: string }> = response as IClientActionResultDto<object & { id: string }>;
+        if (maybeSingleResponse && maybeSingleResponse.result && maybeSingleResponse.result.id) {
             return renderItem((response as IClientActionResultDto<object>).result, 1);
         }
 
@@ -219,31 +221,37 @@ export function DataBrowser() {
         </>);
     }
 
-    return (<div className="content-background p-3">
-        <h3>Data Browser</h3>
-        <div className="input-group mb-3">
-            <div className="input-group-prepend">
-                <span className="input-group-text">Table</span>
+    try {
+        return (<div className="content-background p-3">
+            <h3>Data Browser</h3>
+            <div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Table</span>
+                </div>
+                <input disabled={loading} className="form-control" name="table" value={table}
+                       onChange={stateChanged(setTable)}/>
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Id</span>
+                </div>
+                <input disabled={loading} className="form-control" name="id" value={id} placeholder="optional"
+                       onChange={stateChanged(setId)}/>
+                <button className="btn btn-primary" disabled={loading} onClick={() => updateSearch(id)}>
+                    {loading ? <LoadingSpinnerSmall/> : null}
+                    Fetch
+                </button>
             </div>
-            <input disabled={loading} className="form-control" name="table" value={table}
-                   onChange={stateChanged(setTable)}/>
-            <div className="input-group-prepend">
-                <span className="input-group-text">Id</span>
-            </div>
-            <input disabled={loading} className="form-control" name="id" value={id} placeholder="optional"
-                   onChange={stateChanged(setId)}/>
-            <button className="btn btn-primary" disabled={loading} onClick={() => updateSearch(id)}>
-                {loading ? <LoadingSpinnerSmall /> : null}
-                Fetch
-            </button>
-        </div>
-        {loading || !response ? null : (<div>
-            {response.success ? renderResponse() : null}
-            {response.errors && response.errors.length ? (<ol>{response.errors.map((msg, index) => (<li key={index}>{msg}</li>))}</ol>) : null}
-            {response.errors && response.status ? (<div className="text-danger">
-                Status: {response.status}
-                {Object.keys(response.errors).map((key: string) => (<li key={key}>{key}: {response.errors[key]}</li>))}
-            </div>) : null}
-        </div>)}
-    </div>);
+            {loading || !response ? null : (<div>
+                {response.success ? renderResponse() : null}
+                {response.errors && response.errors.length ? (
+                    <ol>{response.errors.map((msg, index) => (<li key={index}>{msg}</li>))}</ol>) : null}
+                {response.errors && response.status ? (<div className="text-danger">
+                    Status: {response.status}
+                    {Object.keys(response.errors).map((key: string) => (
+                        <li key={key}>{key}: {response.errors[key]}</li>))}
+                </div>) : null}
+            </div>)}
+        </div>);
+    } catch (e) {
+        onError(e);
+    }
 }
