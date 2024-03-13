@@ -4,6 +4,7 @@ import React, {useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
+import {NumberKeyboard} from "../common/NumberKeyboard";
 
 export interface IPlayerInputProps {
     home: string;
@@ -19,6 +20,7 @@ export interface IPlayerInputProps {
 }
 
 export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }: IPlayerInputProps) {
+    const {isMobile} = useApp();
     const [score, setScore] = useState('');
     const {onError} = useApp();
     const [focusEventHandle, setFocusEventHandle] = useState<number>(null);
@@ -203,40 +205,52 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                 </span>
                 <input data-score-input="true" autoFocus type="number" min="0" max="180"
                        className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)}
-                       onKeyUp={keyUp}/>
+                       onKeyUp={keyUp} readOnly={isMobile}/>
                 {savingInput ? (<span
                     className="position-absolute spinner-border spinner-border-sm mt-3 top-50 opacity-50 margin-left text-secondary"
                     role="status"
                     aria-hidden="true"></span>) : null}
             </label>
         </h4>
-        <p className="my-3">
-            {!savingInput && checkout && isSingleDartScore(intScore, true)
-                ? (<button className="btn btn-primary margin-right fs-3 border-1"
-                           onClick={() => addThrow(score, 1, true, false)}>📌</button>)
-                : null}
-            {!savingInput && checkout && isTwoDartScore(intScore)
-                ? (<button className="btn btn-primary margin-right fs-3"
-                           onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
-                : null}
-            {!savingInput && isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
-                ? (<button className="btn btn-primary margin-right fs-3"
-                           onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>)
-                : null}
-        </p>
-        <p className="my-3">
-            {!savingInput && isSingleDartScore(intScore) && !hasRemainingDouble && canBeBust
-                ? (<button className="btn btn-warning margin-right fs-3"
-                           onClick={() => addThrow(score, 1, true, true)}>💥</button>)
-                : null}
-            {!savingInput && isTwoDartScore(intScore) && !hasRemainingDouble && canBeBust
-                ? (<button className="btn btn-warning margin-right fs-3"
-                           onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
-                : null}
-            {!savingInput && isThreeDartScore(intScore) && !hasRemainingDouble && canBeBust
-                ? (<button className="btn btn-warning margin-right fs-3"
-                           onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>)
-                : null}
-        </p>
+        <div className="d-flex flex-row justify-content-evenly">
+            <div className="my-3 flex-grow-0 flex-shrink-0 d-flex flex-column" datatype="gameshot-buttons-bust">
+                <h6>Bust</h6>
+                <p>No of darts</p>
+                {!savingInput && isSingleDartScore(intScore) && !hasRemainingDouble && canBeBust
+                    ? (<button className="btn btn-warning margin-right fs-3 my-2"
+                               onClick={() => addThrow(score, 1, true, true)}>💥</button>)
+                    : null}
+                {!savingInput && isTwoDartScore(intScore) && !hasRemainingDouble && canBeBust
+                    ? (<button className="btn btn-warning margin-right fs-3 my-2"
+                               onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
+                    : null}
+                {!savingInput && isThreeDartScore(intScore) && !hasRemainingDouble && canBeBust
+                    ? (<button className="btn btn-warning margin-right fs-3 my-2"
+                               onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>)
+                    : null}
+                <span className="btn btn-secondary margin-right fs-3 my-2 invisible">💥💥💥</span>
+            </div>
+            {isMobile ? (<div><NumberKeyboard value={score} maxValue={180}
+                                              onChange={async (score: string) => setScore(score)}/></div>) : null}
+
+            <div className="my-3 flex-grow-0 flex-shrink-0 d-flex flex-column" datatype="gameshot-buttons-score">
+                <h6>{checkout ? 'Checkout' : 'Score'}</h6>
+                <p>No of darts</p>
+                {!savingInput && checkout && isSingleDartScore(intScore, true)
+                    ? (<button className="btn btn-primary margin-right fs-3 my-2"
+                               onClick={() => addThrow(score, 1, true, false)}>📌</button>)
+                    : null}
+                {!savingInput && checkout && isTwoDartScore(intScore)
+                    ? (<button className="btn btn-primary margin-right fs-3 my-2"
+                               onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
+                    : null}
+                {!savingInput && isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
+                    ? (<button className="btn btn-primary margin-right fs-3 my-2"
+                               onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>)
+                    : null}
+                <span className="btn btn-secondary margin-right fs-3 my-2 invisible">📌📌📌</span>
+            </div>
+        </div>
+        {Number.isFinite(intScore) && remainingScore - intScore >= 0 ? (<p>Remaining: {remainingScore - intScore}</p>) : null}
     </div>);
 }
