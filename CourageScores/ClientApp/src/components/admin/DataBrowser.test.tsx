@@ -7,7 +7,7 @@ import {
     noop,
     TestContext,
     iocProps,
-    brandingProps, api, appProps
+    brandingProps, api, appProps, ErrorState
 } from "../../helpers/tests";
 import {DataBrowser} from "./DataBrowser";
 import {createTemporaryId, repeat} from "../../helpers/projection";
@@ -28,6 +28,7 @@ jest.mock('react-router-dom', () => ({
 
 describe('DataBrowser', () => {
     let context: TestContext;
+    let reportedError: ErrorState;
     let requestedData: { table: string, id?: string };
     let singleApiResult: IClientActionResultDto<object>;
     let multiApiResult: IClientActionResultDto<SingleDataResultDto[]>;
@@ -66,6 +67,7 @@ describe('DataBrowser', () => {
         requestedData = null;
         singleApiResult = null;
         multiApiResult = null;
+        reportedError = new ErrorState();
     });
 
     async function renderComponent(props: IAppContainerProps, queryString?: string) {
@@ -82,7 +84,7 @@ describe('DataBrowser', () => {
         it('with no query string', async () => {
             await renderComponent(appProps({
                 account: {},
-            }));
+            }, reportedError));
 
             const tableInput = context.container.querySelector('input[name="table"]') as HTMLInputElement;
             const idInput = context.container.querySelector('input[name="id"]') as HTMLInputElement;
@@ -93,7 +95,7 @@ describe('DataBrowser', () => {
         it('table name from query string', async () => {
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game');
+            }, reportedError), '?table=game');
 
             const tableInput = context.container.querySelector('input[name="table"]') as HTMLInputElement;
             expect(tableInput).toBeTruthy();
@@ -104,7 +106,7 @@ describe('DataBrowser', () => {
             const id = createTemporaryId();
             await renderComponent(appProps({
                 account: {},
-            }), '?id=' + id);
+            }, reportedError), '?id=' + id);
 
             const idInput = context.container.querySelector('input[name="id"]') as HTMLInputElement;
             expect(idInput).toBeTruthy();
@@ -121,7 +123,7 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game');
+            }, reportedError), '?table=game');
 
             const list = context.container.querySelector('.list-group') as HTMLElement;
             expect(list).toBeTruthy();
@@ -142,7 +144,7 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + game.id);
+            }, reportedError), '?table=game&id=' + game.id);
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
@@ -152,7 +154,7 @@ describe('DataBrowser', () => {
         });
 
         it('single record excluding cosmos properties', async () => {
-            const game = {'_id': 'COSMOS'};
+            const game = {'_id': 'COSMOS', id: createTemporaryId()};
             singleApiResult = {
                 success: true,
                 result: game,
@@ -160,17 +162,16 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + createTemporaryId());
+            }, reportedError), '?table=game&id=' + createTemporaryId());
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual([]);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual([]);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id']);
         });
 
         it('single record including empty values', async () => {
-            const game = {empty: ''};
+            const game = {empty: '', id: createTemporaryId()};
             singleApiResult = {
                 success: true,
                 result: game,
@@ -178,17 +179,16 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
+            }, reportedError), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['empty']);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['empty', 'id']);
         });
 
         it('single record including null values', async () => {
-            const game = {nullValue: ''};
+            const game = {nullValue: '', id: createTemporaryId()};
             singleApiResult = {
                 success: true,
                 result: game,
@@ -196,17 +196,16 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
+            }, reportedError), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['nullValue']);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['nullValue', 'id']);
         });
 
         it('single record including undefined values', async () => {
-            const game = {undefinedValue: undefined};
+            const game = {undefinedValue: undefined, id: createTemporaryId()};
             singleApiResult = {
                 success: true,
                 result: game,
@@ -214,17 +213,16 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
+            }, reportedError), '?table=game&id=' + createTemporaryId() + '&showEmptyValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['undefinedValue']);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['undefinedValue', 'id']);
         });
 
         it('single record including audit values', async () => {
-            const game = {Remover: 'REMOVER', Deleted: 'DELETED', Editor: 'EDITOR', Updated: 'UPDATED', Author: 'AUTHOR', Created: 'CREATED'};
+            const game = {Remover: 'REMOVER', Deleted: 'DELETED', Editor: 'EDITOR', Updated: 'UPDATED', Author: 'AUTHOR', Created: 'CREATED', id: createTemporaryId()};
             singleApiResult = {
                 success: true,
                 result: game,
@@ -232,17 +230,17 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + createTemporaryId() + '&showAuditValues=true');
+            }, reportedError), '?table=game&id=' + game.id + '&showAuditValues=true');
 
             const table = context.container.querySelector('table') as HTMLTableElement;
             expect(table).toBeTruthy();
             const rows = Array.from(table.querySelectorAll('tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Remover', 'Deleted', 'Editor', 'Updated', 'Author', 'Created']);
-            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['REMOVER', 'DELETED', 'EDITOR', 'UPDATED', 'AUTHOR', 'CREATED']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Remover', 'Deleted', 'Editor', 'Updated', 'Author', 'Created', 'id']);
+            expect(rows.map(row => row.querySelector('td:nth-child(2)').textContent)).toEqual(['REMOVER', 'DELETED', 'EDITOR', 'UPDATED', 'AUTHOR', 'CREATED', game.id]);
         });
 
         it('single record including id', async () => {
-            const game = {Id: 'PARENT_ID', child: { Id: 'CHILD_ID', grandChild: { Id: 'GRANDCHILD_ID' }}};
+            const game = {id: 'PARENT_ID', child: { id: 'CHILD_ID', grandChild: { id: 'GRANDCHILD_ID' }}};
             singleApiResult = {
                 success: true,
                 result: game,
@@ -250,12 +248,12 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + createTemporaryId() + '&showIdsUptoDepth=2');
+            }, reportedError), '?table=game&id=' + createTemporaryId() + '&showIdsUptoDepth=2');
 
             const rows = Array.from(context.container.querySelectorAll('div > table > tbody > tr')) as HTMLTableRowElement[];
-            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Id', 'child']);
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id', 'child']);
             const childRows = Array.from(rows[1].querySelectorAll('table > tbody > tr')) as HTMLTableRowElement[];
-            expect(childRows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['Id', 'grandChild']);
+            expect(childRows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual(['id', 'grandChild']);
             expect(context.container.textContent).not.toContain('GRANDCHILD_ID');
         });
 
@@ -267,7 +265,7 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game');
+            }, reportedError), '?table=game');
 
             expect(context.container.textContent).toContain('SOME ERROR');
         });
@@ -286,7 +284,7 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {}
-            }), '?table=game&id=abcd');
+            }, reportedError), '?table=game&id=abcd');
 
             expect(context.container.textContent).toContain('id: The value \'abcd\' is not valid.');
         });
@@ -296,7 +294,7 @@ describe('DataBrowser', () => {
 
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=abcd');
+            }, reportedError), '?table=game&id=abcd');
 
             expect(context.container.textContent).toContain('Some error');
         });
@@ -310,7 +308,7 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&page=1');
+            }, reportedError), '?table=game&page=1');
 
             const list = context.container.querySelector('.list-group') as HTMLElement;
             expect(list).toBeTruthy();
@@ -334,7 +332,7 @@ describe('DataBrowser', () => {
         it('does not fetch if no table name on load', async () => {
             await renderComponent(appProps({
                 account: {},
-            }));
+            }, reportedError));
 
             expect(requestedData).toBeNull();
         });
@@ -342,7 +340,7 @@ describe('DataBrowser', () => {
         it('does not fetch if no table name', async () => {
             await renderComponent(appProps({
                 account: {},
-            }));
+            }, reportedError));
             let alert: string;
             window.alert = (msg) => alert = msg;
 
@@ -354,7 +352,7 @@ describe('DataBrowser', () => {
         it('fetches when only table name supplied', async () => {
             await renderComponent(appProps({
                 account: {},
-            }));
+            }, reportedError));
             await doChange(context.container, 'input[name="table"]', 'TABLE', context.user);
 
             await doClick(findButton(context.container, 'Fetch'));
@@ -365,7 +363,7 @@ describe('DataBrowser', () => {
         it('fetches when table name and id supplied', async () => {
             await renderComponent(appProps({
                 account: {},
-            }));
+            }, reportedError));
             const id = createTemporaryId();
             await doChange(context.container, 'input[name="table"]', 'TABLE', context.user);
             await doChange(context.container, 'input[name="id"]', id, context.user);
@@ -384,7 +382,7 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game');
+            }, reportedError), '?table=game');
             console.error = noop; //silence warnings about navigation in tests
 
             requestedData = null;
@@ -397,7 +395,7 @@ describe('DataBrowser', () => {
         it('fetches immediately if table name set in query string', async () => {
             await renderComponent(appProps({
                 account: {},
-            }), '?table=TABLE');
+            }, reportedError), '?table=TABLE');
 
             expect(requestedData).toEqual({
                 id: null,
@@ -409,7 +407,7 @@ describe('DataBrowser', () => {
             const id = createTemporaryId();
             await renderComponent(appProps({
                 account: {},
-            }), '?table=TABLE&id=' + id);
+            }, reportedError), '?table=TABLE&id=' + id);
 
             expect(requestedData).toEqual({
                 id: id,
@@ -420,7 +418,7 @@ describe('DataBrowser', () => {
         it('does not re-fetch immediately if table name changes when initially set in query string', async () => {
             await renderComponent(appProps({
                 account: {},
-            }), '?table=TABLE');
+            }, reportedError), '?table=TABLE');
 
             requestedData = null;
             await doChange(context.container, 'input[name="table"]', 'NEW NAME', context.user);
@@ -433,7 +431,7 @@ describe('DataBrowser', () => {
             const id2 = createTemporaryId();
             await renderComponent(appProps({
                 account: {},
-            }), '?table=TABLE&id=' + id1);
+            }, reportedError), '?table=TABLE&id=' + id1);
 
             requestedData = null;
             await doChange(context.container, 'input[name="id"]', id2, context.user);
@@ -449,11 +447,11 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + game.id);
+            }, reportedError), '?table=game&id=' + game.id);
 
             await doClick(context.container, 'input[type="checkbox"][id="showEmptyValues"]');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}&showEmptyValues=true`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser/?table=game&id=${game.id}&showEmptyValues=true`);
         });
 
         it('can change view option, to un-show empty values', async () => {
@@ -464,11 +462,11 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + game.id + '&showEmptyValues=true');
+            }, reportedError), '?table=game&id=' + game.id + '&showEmptyValues=true');
 
             await doClick(context.container, 'input[type="checkbox"][id="showEmptyValues"]');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser/?table=game&id=${game.id}`);
         });
 
         it('can change view option, to show audit values', async () => {
@@ -479,11 +477,11 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + game.id);
+            }, reportedError), '?table=game&id=' + game.id);
 
             await doClick(context.container, 'input[type="checkbox"][id="showAuditValues"]');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}&showAuditValues=true`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser/?table=game&id=${game.id}&showAuditValues=true`);
         });
 
         it('can change view option, to un-show audit values', async () => {
@@ -494,11 +492,11 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + game.id + '&showAuditValues=true');
+            }, reportedError), '?table=game&id=' + game.id + '&showAuditValues=true');
 
             await doClick(context.container, 'input[type="checkbox"][id="showAuditValues"]');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser/?table=game&id=${game.id}`);
         });
 
         it('can change view option, to show version', async () => {
@@ -509,11 +507,11 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + game.id);
+            }, reportedError), '?table=game&id=' + game.id);
 
             await doClick(context.container, 'input[type="checkbox"][id="showVersion"]');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}&showVersion=true`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser/?table=game&id=${game.id}&showVersion=true`);
         });
 
         it('can change view option, to un-show version', async () => {
@@ -524,11 +522,30 @@ describe('DataBrowser', () => {
             };
             await renderComponent(appProps({
                 account: {},
-            }), '?table=game&id=' + game.id + '&showVersion=true');
+            }, reportedError), '?table=game&id=' + game.id + '&showVersion=true');
 
             await doClick(context.container, 'input[type="checkbox"][id="showVersion"]');
 
-            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser?table=game&id=${game.id}`);
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser/?table=game&id=${game.id}`);
+        });
+
+        it('can navigate from item view to search results', async () => {
+            const game = {id: createTemporaryId(), date: '2023-10-13T00:00:00',name:'GAME 1'};
+            singleApiResult = {
+                success: true,
+                result: game,
+            };
+            await renderComponent(appProps({
+                account: {},
+            }, reportedError), '?table=TABLE&id=' + game.id);
+            requestedData = null;
+
+            await doChange(context.container, 'input[name="id"]', '', context.user);
+            reportedError.verifyNoError();
+            await doClick(findButton(context.container, 'Fetch'));
+
+            reportedError.verifyNoError();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/admin/browser/?table=TABLE`);
         });
     });
 });
