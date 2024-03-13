@@ -11,19 +11,20 @@ export interface IApp {
     onError(error: any): void;
     embed?: boolean;
 
-    divisions: DataMap<DivisionDto>,
-    seasons: DataMap<SeasonDto>,
-    teams: DataMap<TeamDto>,
-    account?: UserDto | null,
-    appLoading?: boolean,
-    controls?: boolean,
-    reloadDivisions(): Promise<any>,
-    reloadAccount(): Promise<any>,
-    reloadAll(): Promise<any>,
-    reloadTeams(): Promise<any>,
-    reloadSeasons(): Promise<any>,
-    clearError(): Promise<any>,
-    invalidateCacheAndTryAgain(): Promise<any>,
-    build: IBuild,
-    reportClientSideException: any,
+    divisions: DataMap<DivisionDto>;
+    seasons: DataMap<SeasonDto>;
+    teams: DataMap<TeamDto>;
+    account?: UserDto | null;
+    appLoading?: boolean;
+    controls?: boolean;
+    reloadDivisions(): Promise<any>;
+    reloadAccount(): Promise<any>;
+    reloadAll(): Promise<any>;
+    reloadTeams(): Promise<any>;
+    reloadSeasons(): Promise<any>;
+    clearError(): Promise<any>;
+    invalidateCacheAndTryAgain(): Promise<any>;
+    build: IBuild;
+    reportClientSideException: (err: any) => void;
+    isMobile: boolean;
 }
