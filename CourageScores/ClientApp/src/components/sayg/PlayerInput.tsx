@@ -185,7 +185,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const intScore: number = Number.parseInt(score);
     const checkout: boolean = intScore === remainingScore;
     const hasRemainingDouble: boolean = remainingScore - intScore >= 2;
-    const canBeBust: boolean = score && remainingScore <= 180 && intScore >= 0;
 
     return (<div className="text-center">
         <h2>
@@ -213,23 +212,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             </label>
         </h4>
         <div className="d-flex flex-row justify-content-evenly">
-            <div className="my-3 flex-grow-0 flex-shrink-0 d-flex flex-column" datatype="gameshot-buttons-bust">
-                <h6>Bust</h6>
-                <p>No of darts</p>
-                {!savingInput && isSingleDartScore(intScore) && !hasRemainingDouble && canBeBust
-                    ? (<button className="btn btn-warning margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 1, true, true)}>💥</button>)
-                    : null}
-                {!savingInput && isTwoDartScore(intScore) && !hasRemainingDouble && canBeBust
-                    ? (<button className="btn btn-warning margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
-                    : null}
-                {!savingInput && isThreeDartScore(intScore) && !hasRemainingDouble && canBeBust
-                    ? (<button className="btn btn-warning margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>)
-                    : null}
-                <span className="btn btn-secondary margin-right fs-3 my-2 invisible">💥💥💥</span>
-            </div>
             {isMobile ? (<div><NumberKeyboard value={score} maxValue={180}
                                               onChange={async (score: string) => setScore(score)}/></div>) : null}
 

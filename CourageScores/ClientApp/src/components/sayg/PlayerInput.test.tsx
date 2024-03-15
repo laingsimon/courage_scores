@@ -73,8 +73,7 @@ describe('PlayerInput', () => {
         await setScoreInput(inputScore);
 
         const scoreButtons = Array.from(context.container.querySelectorAll('div[datatype="gameshot-buttons-score"] button'));
-        const bustButtons = Array.from(context.container.querySelectorAll('div[datatype="gameshot-buttons-bust"] button'));
-        return scoreButtons.concat(bustButtons).map(button => button.textContent);
+        return scoreButtons.map(button => button.textContent);
     }
 
     it('Renders initial heading correctly - multi-player', async () => {
@@ -145,31 +144,19 @@ describe('PlayerInput', () => {
     it('Renders correct options for checkout score', async () => {
         const buttons = await runScoreTest(401, '100');
 
-        expect(buttons).toEqual(['📌📌', '📌📌📌', '💥💥', '💥💥💥']);
-    });
-
-    it('Renders correct options for bust score', async () => {
-        const buttons = await runScoreTest(451, '60');
-
-        expect(buttons).toEqual(['💥', '💥💥', '💥💥💥']);
+        expect(buttons).toEqual(['📌📌', '📌📌📌']);
     });
 
     it('Renders correct options for double-1 score', async () => {
         const buttons = await runScoreTest(499, '2');
 
-        expect(buttons).toEqual(['📌', '📌📌', '📌📌📌', '💥', '💥💥', '💥💥💥']);
-    });
-
-    it('Renders correct options for double-1 bust score', async () => {
-        const buttons = await runScoreTest(499, '5');
-
-        expect(buttons).toEqual(['💥', '💥💥', '💥💥💥']);
+        expect(buttons).toEqual(['📌', '📌📌', '📌📌📌']);
     });
 
     it('Renders correct options for double-1 score', async () => {
         const buttons = await runScoreTest(480, '21');
 
-        expect(buttons).toEqual(['📌📌', '📌📌📌', '💥', '💥💥', '💥💥💥']);
+        expect(buttons).toEqual(['📌📌', '📌📌📌']);
     });
 
     it('Renders no options for negative score', async () => {
@@ -200,12 +187,6 @@ describe('PlayerInput', () => {
         const buttons = await runScoreTest(499, '0');
 
         expect(buttons).toEqual(['📌📌📌']);
-    });
-
-    it('Renders correct options for 1 bust score', async () => {
-        const buttons = await runScoreTest(499, '1');
-
-        expect(buttons).toEqual(['💥', '💥💥', '💥💥💥']);
     });
 
     it('records 3 dart throw', async () => {
@@ -320,123 +301,6 @@ describe('PlayerInput', () => {
                     bust: false,
                     noOfDarts: 1,
                     score: 50,
-                }],
-            },
-            isLastLeg: false,
-            away: null,
-        }]);
-    });
-
-    it('records 3 dart bust', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.score(331).noOfDarts(0))
-            .build();
-        await renderComponent({
-            home: home,
-            homeScore: 0,
-            leg: leg,
-            singlePlayer: true,
-            on180,
-            onLegComplete,
-            onChange,
-            onHiCheck,
-        });
-
-        await setScoreInput("180");
-        await doClick(findButton(context.container, '💥💥💥'));
-
-        reportedError.verifyNoError();
-        expect(changedLegs).toEqual([{
-            currentThrow: 'home',
-            startingScore: 501,
-            home: {
-                score: 331,
-                noOfDarts: 3,
-                bust: true,
-                throws: [{
-                    bust: true,
-                    noOfDarts: 3,
-                    score: 180,
-                }],
-            },
-            isLastLeg: false,
-            away: null,
-        }]);
-    });
-
-    it('records 2 dart bust', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.score(391).noOfDarts(0))
-            .build();
-        await renderComponent({
-            home: home,
-            homeScore: 0,
-            leg: leg,
-            singlePlayer: true,
-            on180,
-            onLegComplete,
-            onChange,
-            onHiCheck,
-        });
-
-        await setScoreInput("120");
-        await doClick(findButton(context.container, '💥💥'));
-
-        reportedError.verifyNoError();
-        expect(changedLegs).toEqual([{
-            currentThrow: 'home',
-            startingScore: 501,
-            home: {
-                score: 391,
-                noOfDarts: 2,
-                bust: true,
-                throws: [{
-                    bust: true,
-                    noOfDarts: 2,
-                    score: 120,
-                }],
-            },
-            isLastLeg: false,
-            away: null,
-        }]);
-    });
-
-    it('records 1 dart bust', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.score(461).noOfDarts(0))
-            .build();
-        await renderComponent({
-            home: home,
-            homeScore: 0,
-            leg: leg,
-            singlePlayer: true,
-            on180,
-            onLegComplete,
-            onChange,
-            onHiCheck,
-        });
-
-        await setScoreInput("60");
-        await doClick(findButton(context.container, '💥'));
-
-        reportedError.verifyNoError();
-        expect(changedLegs).toEqual([{
-            currentThrow: 'home',
-            startingScore: 501,
-            home: {
-                score: 461,
-                noOfDarts: 1,
-                bust: true,
-                throws: [{
-                    bust: true,
-                    noOfDarts: 1,
-                    score: 60,
                 }],
             },
             isLastLeg: false,
