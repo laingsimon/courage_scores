@@ -124,7 +124,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         invalidateCacheAndTryAgain,
         build: getBuild(),
         reportClientSideException,
-        isMobile: window.navigator.userAgent.indexOf(' Mobile ') !== -1,
+        isMobile: window.navigator.userAgent.indexOf(' Mobile ') !== -1 || window.location.search.indexOf('mobile') !== -1,
     };
 
     try {
