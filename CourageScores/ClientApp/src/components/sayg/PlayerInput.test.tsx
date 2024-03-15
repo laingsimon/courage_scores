@@ -72,8 +72,10 @@ describe('PlayerInput', () => {
 
         await setScoreInput(inputScore);
 
-        const scoreButtons = Array.from(context.container.querySelectorAll('div[datatype="gameshot-buttons-score"] button'));
-        return scoreButtons.map(button => button.textContent);
+        const scoreButtons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('div[datatype="gameshot-buttons-score"] button')) as HTMLButtonElement[];
+        return scoreButtons
+            .filter((b: HTMLButtonElement) => !b.disabled)
+            .map((b: HTMLButtonElement) => b.textContent);
     }
 
     it('Renders initial heading correctly - multi-player', async () => {

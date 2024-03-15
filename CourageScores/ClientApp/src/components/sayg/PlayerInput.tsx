@@ -194,28 +194,32 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                     aria-hidden="true"></span>) : null}
             </label>
         </h4>
-        <div className="d-flex flex-row justify-content-evenly">
-            {isMobile ? (<div><NumberKeyboard value={score} maxValue={180}
-                                              onChange={async (score: string) => setScore(score)}/></div>) : null}
-
-            <div className="my-3 flex-grow-0 flex-shrink-0 d-flex flex-column" datatype="gameshot-buttons-score">
-                <h6>{checkout ? 'Checkout' : 'Score'}</h6>
-                <p>No of darts</p>
-                {!savingInput && checkout && isSingleDartScore(intScore, true)
-                    ? (<button className="btn btn-primary margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 1)}>📌</button>)
-                    : null}
-                {!savingInput && checkout && isTwoDartScore(intScore)
-                    ? (<button className="btn btn-primary margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 2)}>📌📌</button>)
-                    : null}
-                {!savingInput && isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
-                    ? (<button className="btn btn-primary margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 3)}>📌📌📌</button>)
-                    : null}
-                <span className="btn btn-secondary margin-right fs-3 my-2 invisible">📌📌📌</span>
+        <div className="d-flex flex-row justify-content-center">
+            <div>
+                <NumberKeyboard value={score} maxValue={180} onChange={async (score: string) => setScore(score)}/>
+            </div>
+            <div className="my-3 flex-grow-0 flex-shrink-0 d-flex flex-column justify-content-end" datatype="gameshot-buttons-score">
+                <button
+                    disabled={savingInput || !checkout || !isSingleDartScore(intScore, true)}
+                    className="btn btn-success margin-right fs-3 my-2"
+                    onClick={async () => await addThrow(score, 1)}>
+                    📌
+                </button>
+                <button
+                    disabled={savingInput || !checkout || !isTwoDartScore(intScore)}
+                    className="btn btn-success margin-right fs-3 my-2"
+                    onClick={async () => await addThrow(score, 2)}>
+                    📌📌
+                </button>
+                <button
+                    disabled={savingInput || !isThreeDartScore(intScore) || (!hasRemainingDouble && !checkout)}
+                    className="btn btn-success margin-right fs-3 my-2"
+                    onClick={async () => await addThrow(score, 3)}>
+                    📌📌📌
+                </button>
             </div>
         </div>
-        {Number.isFinite(intScore) && remainingScore - intScore >= 0 ? (<p>Remaining: {remainingScore - intScore}</p>) : null}
+        {Number.isFinite(intScore) && remainingScore - intScore >= 0 ? (
+            <p>Remaining: {remainingScore - intScore}</p>) : null}
     </div>);
 }
