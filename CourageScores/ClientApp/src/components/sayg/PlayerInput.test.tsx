@@ -218,7 +218,6 @@ describe('PlayerInput', () => {
                 noOfDarts: 3,
                 bust: false,
                 throws: [{
-                    bust: false,
                     noOfDarts: 3,
                     score: 50,
                 }],
@@ -258,7 +257,6 @@ describe('PlayerInput', () => {
                 noOfDarts: 2,
                 bust: false,
                 throws: [{
-                    bust: false,
                     noOfDarts: 2,
                     score: 100,
                 }],
@@ -298,7 +296,6 @@ describe('PlayerInput', () => {
                 noOfDarts: 1,
                 bust: false,
                 throws: [{
-                    bust: false,
                     noOfDarts: 1,
                     score: 50,
                 }],

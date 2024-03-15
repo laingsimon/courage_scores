@@ -48,11 +48,11 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             }
 
             if (singleDartScore) {
-                await addThrow(score, 1, true);
+                await addThrow(score, 1);
             } else if (twoDartScore) {
-                await addThrow(score, 2, true);
+                await addThrow(score, 2);
             } else if (threeDartScore) {
-                await addThrow(score, 3, true);
+                await addThrow(score, 3);
             }
             return false;
         }
@@ -62,18 +62,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         return player === 'home' ? 'away' : 'home';
     }
 
-    function createFocusEvent() {
-        const handle = window.setTimeout(() => {
-            const input = document.querySelector('input[data-score-input="true"]') as HTMLInputElement;
-            if (input) {
-                input.focus();
-            }
-            setFocusEventHandle(null);
-        }, 300);
-        setFocusEventHandle(handle);
-    }
-
-    async function addThrow(scoreInput: string, noOfDarts: number, setFocusEvent: boolean, bust?: boolean) {
+    async function addThrow(scoreInput: string, noOfDarts: number) {
         try {
             if (focusEventHandle) {
                 window.clearTimeout(focusEventHandle);
@@ -92,11 +81,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             accumulator.throws.push({
                 score,
                 noOfDarts,
-                bust
             });
 
             accumulator.noOfDarts += noOfDarts;
-            accumulator.bust = bust;
 
             const remainingScore: number = leg.startingScore - (accumulator.score + score);
             if ((remainingScore !== 0 && remainingScore <= 1) || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
@@ -142,10 +129,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             onError(e);
         } finally {
             setSavingInput(false);
-
-            if (setFocusEvent) {
-                createFocusEvent();
-            }
         }
     }
 
@@ -220,15 +203,15 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                 <p>No of darts</p>
                 {!savingInput && checkout && isSingleDartScore(intScore, true)
                     ? (<button className="btn btn-primary margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 1, true, false)}>📌</button>)
+                               onClick={() => addThrow(score, 1)}>📌</button>)
                     : null}
                 {!savingInput && checkout && isTwoDartScore(intScore)
                     ? (<button className="btn btn-primary margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
+                               onClick={() => addThrow(score, 2)}>📌📌</button>)
                     : null}
                 {!savingInput && isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
                     ? (<button className="btn btn-primary margin-right fs-3 my-2"
-                               onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>)
+                               onClick={() => addThrow(score, 3)}>📌📌📌</button>)
                     : null}
                 <span className="btn btn-secondary margin-right fs-3 my-2 invisible">📌📌📌</span>
             </div>
