@@ -20,7 +20,7 @@ export interface IPlayerInputProps {
 }
 
 export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }: IPlayerInputProps) {
-    const {isMobile} = useApp();
+    const {browser} = useApp();
     const [score, setScore] = useState('');
     const {onError} = useApp();
     const [focusEventHandle, setFocusEventHandle] = useState<number>(null);
@@ -187,7 +187,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                 </span>
                 <input data-score-input="true" autoFocus type="number" min="0" max="180"
                        className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)}
-                       onKeyUp={keyUp} readOnly={isMobile}/>
+                       onKeyUp={keyUp} readOnly={browser.mobile}/>
                 {savingInput ? (<span
                     className="position-absolute spinner-border spinner-border-sm mt-3 top-50 opacity-50 margin-left text-secondary"
                     role="status"

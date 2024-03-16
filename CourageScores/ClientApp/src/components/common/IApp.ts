@@ -5,6 +5,7 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {DataMap} from "../../helpers/collections";
 import {IError} from "./IError";
+import {IBrowserType} from "./IBrowserType";
 
 export interface IApp {
     error?: IError;
@@ -26,5 +27,5 @@ export interface IApp {
     invalidateCacheAndTryAgain(): Promise<any>;
     build: IBuild;
     reportClientSideException: (err: any) => void;
-    isMobile: boolean;
+    browser: IBrowserType;
 }

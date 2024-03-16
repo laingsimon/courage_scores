@@ -8,6 +8,7 @@ import {useState} from "react";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {ScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
+import {IBrowserType} from "../common/IBrowserType";
 
 export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
@@ -28,14 +29,14 @@ export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer
                              }: IScoreAsYouGoProps) {
-    const {onError, account} = useApp();
+    const {onError, account, browser} = useApp();
     const {saveDataAndGetId, matchStatisticsOnly} = useSayg();
     const canEditThrows: boolean = account && account.access && account.access.recordScoresAsYouGo;
     const location: Location = useLocation();
-    const [useWidescreenStatistics, setUseWidescreenStatistics] = useState<boolean>(shouldUseWidescreenStatistics(location));
+    const [useWidescreenStatistics, setUseWidescreenStatistics] = useState<boolean>(shouldUseWidescreenStatistics(location, browser));
 
-    function shouldUseWidescreenStatistics(location: Location): boolean {
-        return location.search.indexOf('widescreen=true') !== -1;
+    function shouldUseWidescreenStatistics(location: Location, browser: IBrowserType): boolean {
+        return browser.tv || location.search.indexOf('widescreen=true') !== -1;
     }
 
     function getLeg(legIndex: number): LegDto {

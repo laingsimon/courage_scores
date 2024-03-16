@@ -20,6 +20,7 @@ import {SeasonDto} from "./interfaces/models/dtos/Season/SeasonDto";
 import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
 import {Tv} from "./components/Tv";
+import {IBrowserType} from "./components/common/IBrowserType";
 
 export interface IAppProps {
     embed: boolean;
@@ -104,6 +105,11 @@ export function App({embed, controls, testRoute}: IAppProps) {
         await errorApi.add(mapForLogging(error, account));
     }
 
+    const browser: IBrowserType = {
+        mobile: window.navigator.userAgent.indexOf(' Mobile ') !== -1 || window.location.search.indexOf('mobile') !== -1,
+        tv: window.navigator.userAgent.indexOf(' TV ') !== -1 || window.location.search.indexOf('tv') !== -1,
+    };
+
     // noinspection JSUnusedGlobalSymbols
     const appData: IApp = {
         divisions,
@@ -124,7 +130,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         invalidateCacheAndTryAgain,
         build: getBuild(),
         reportClientSideException,
-        isMobile: window.navigator.userAgent.indexOf(' Mobile ') !== -1 || window.location.search.indexOf('mobile') !== -1,
+        browser,
     };
 
     try {
