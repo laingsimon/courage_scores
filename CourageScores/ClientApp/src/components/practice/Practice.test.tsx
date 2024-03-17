@@ -341,9 +341,7 @@ describe('Practice', () => {
             expect(saygData[id].legs[0].home).toEqual({
                 noOfDarts: 3,
                 score: 180,
-                bust: false,
                 throws: [{
-                    bust: false,
                     noOfDarts: 3,
                     score: 180,
                 }],

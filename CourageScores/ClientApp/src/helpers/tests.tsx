@@ -198,6 +198,10 @@ export function appProps(props?: any, errorState?: ErrorState): IAppContainerPro
         reloadAll: noop,
         reloadSeasons: noop,
         reloadTeams: noop,
+        browser: {
+            mobile: false,
+            tv: false,
+        },
     };
 
     return Object.assign({}, defaultProps, props);
