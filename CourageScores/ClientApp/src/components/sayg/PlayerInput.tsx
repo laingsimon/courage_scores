@@ -23,7 +23,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const {browser} = useApp();
     const [score, setScore] = useState('');
     const {onError} = useApp();
-    const [focusEventHandle, setFocusEventHandle] = useState<number>(null);
     const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
     const [savingInput, setSavingInput] = useState<boolean>(false);
@@ -64,11 +63,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
     async function addThrow(scoreInput: string, noOfDarts: number) {
         try {
-            if (focusEventHandle) {
-                window.clearTimeout(focusEventHandle);
-                setFocusEventHandle(null);
-            }
-
             const score = Number.parseInt(scoreInput);
             if (!Number.isFinite(score)) {
                 return;
