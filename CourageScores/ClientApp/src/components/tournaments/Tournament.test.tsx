@@ -749,11 +749,11 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toEqual('Add the (new) match before saving, otherwise it would be lost.\n' +
                 '\n' +
-                'Final: SIDE 1 vs SIDE 2');
+                'SIDE 1 vs SIDE 2');
         });
 
         it('can save changes after match added', async () => {

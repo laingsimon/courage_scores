@@ -16,11 +16,11 @@ export interface ITournamentContainerProps extends ITournament {
 
 /* istanbul ignore next */
 export function TournamentContainer({children, tournamentData, setTournamentData, season, division, alreadyPlaying,
-                                        allPlayers, saveTournament, setWarnBeforeSave, matchOptionDefaults, liveOptions, saving, editTournament, setEditTournament }: ITournamentContainerProps) {
+                                        allPlayers, saveTournament, setWarnBeforeEditDialogClose, matchOptionDefaults, liveOptions, saving, editTournament, setEditTournament }: ITournamentContainerProps) {
     const data: ITournament = {
         tournamentData, setTournamentData,
         season, division, alreadyPlaying,
-        allPlayers, saveTournament, setWarnBeforeSave, matchOptionDefaults,
+        allPlayers, saveTournament, setWarnBeforeEditDialogClose, matchOptionDefaults,
         saving, editTournament, setEditTournament
     };
 

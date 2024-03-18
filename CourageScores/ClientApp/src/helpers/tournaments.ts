@@ -81,23 +81,6 @@ export function getAlphaMnemonicCalculator(): IMnemonicAccumulator {
     };
 }
 
-export function getRoundNameFromSides(round: { name?: string | null }, sideLength: number, depth: number): string {
-    if (round.name) {
-        return round.name;
-    }
-    if (sideLength === 2) {
-        return 'Final';
-    }
-    if (sideLength === 4) {
-        return 'Semi-Final';
-    }
-    if (sideLength >= 6 && sideLength <= 8) {
-        return 'Quarter-Final';
-    }
-
-    return `Round: ${depth}`;
-}
-
 export function hasScore(score?: number | null): boolean {
     return score !== null && score !== undefined;
 }

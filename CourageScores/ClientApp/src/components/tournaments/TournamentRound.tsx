@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {any, DataMap, elementAt, isEmpty, toMap} from "../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
-import {getRoundNameFromSides, sideSelection} from "../../helpers/tournaments";
+import {sideSelection} from "../../helpers/tournaments";
 import {useTournament} from "./TournamentContainer";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
@@ -15,21 +15,20 @@ export interface ITournamentRoundProps {
     onChange?(newRound: TournamentRoundDto): Promise<any>;
     sides: TournamentSideDto[];
     readOnly?: boolean;
-    depth: number;
 }
 
-export function TournamentRound({ round, onChange, sides, readOnly, depth }: ITournamentRoundProps) {
+export function TournamentRound({ round, onChange, sides, readOnly }: ITournamentRoundProps) {
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
     const sideMap: DataMap<TournamentSideDto> = toMap(sides);
-    const {setWarnBeforeSave, matchOptionDefaults} = useTournament();
+    const {setWarnBeforeEditDialogClose, matchOptionDefaults} = useTournament();
 
     async function setNewSide(sideId: string, property: string) {
         const newNewMatch: TournamentMatchDto = Object.assign({}, newMatch);
         newNewMatch[property] = sideMap[sideId];
         setNewMatch(newNewMatch);
-        await setWarnBeforeSave(`Add the (new) match before saving, otherwise it would be lost.
+        await setWarnBeforeEditDialogClose(`Add the (new) match before saving, otherwise it would be lost.
 
-${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newNewMatch.sideB.name : ''}`);
+${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newNewMatch.sideB.name : ''}`);
     }
 
     function createNewMatch(): TournamentMatchDto {
@@ -78,7 +77,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         newRound.matchOptions = newRound.matchOptions || [];
         newRound.matchOptions.push(matchOptionDefaults);
         setNewMatch(createNewMatch());
-        await setWarnBeforeSave(null);
+        await setWarnBeforeEditDialogClose(null);
 
         if (onChange) {
             await onChange(newRound);
@@ -102,7 +101,6 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
     }
 
     return (<div className="mt-3">
-        <strong>{getRoundNameFromSides(round, sides.length, depth)}</strong>
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}>
             <tbody>
             {(round.matches || []).map((match: TournamentMatchDto, matchIndex: number) => {

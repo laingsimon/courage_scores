@@ -13,7 +13,7 @@ export interface ITournament {
     alreadyPlaying?: ITournamentPlayerMap;
     allPlayers?: ISelectablePlayer[];
     saveTournament?(preventLoading?: boolean): Promise<TournamentGameDto>;
-    setWarnBeforeSave?(warning: string): Promise<any>;
+    setWarnBeforeEditDialogClose?(warning: string): Promise<any>;
     matchOptionDefaults?: GameMatchOptionDto;
     saving?: boolean;
     editTournament?: string;

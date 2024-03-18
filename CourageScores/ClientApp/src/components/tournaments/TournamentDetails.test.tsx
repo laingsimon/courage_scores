@@ -108,28 +108,29 @@ describe('TournamentDetails', () => {
             }));
 
             // address
-            const address = context.container.querySelector('div:nth-child(2)');
+            const address = context.container.querySelector('div[datatype="address"]');
             expect(address).toBeTruthy();
             expect(address.textContent).toContain('Address');
             expect(address.querySelector('input').value).toEqual('ADDRESS');
             // type
-            const type = context.container.querySelector('div:nth-child(3)');
+            const type = context.container.querySelector('div[datatype="type"]');
             expect(type).toBeTruthy();
             expect(type.textContent).toContain('Type');
             expect(type.querySelector('input').value).toEqual('TYPE');
             // notes
-            const notes = context.container.querySelector('div:nth-child(4)');
+            const notes = context.container.querySelector('div[datatype="notes"]');
             expect(notes).toBeTruthy();
             expect(notes.textContent).toContain('Notes');
             expect(notes.querySelector('textarea').value).toEqual('NOTES');
             // accolades qualify
-            const accoladesCountAndDivision = context.container.querySelector('div:nth-child(5)');
-            expect(accoladesCountAndDivision).toBeTruthy();
-            expect(accoladesCountAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
-            expect(accoladesCountAndDivision.querySelector('input').checked).toEqual(true);
+            const accoladesCount = context.container.querySelector('div[datatype="accolades-count"]');
+            expect(accoladesCount).toBeTruthy();
+            expect(accoladesCount.textContent).toContain('Include 180s and Hi-checks in players table?');
+            expect(accoladesCount.querySelector('input').checked).toEqual(true);
             // division
-            expect(accoladesCountAndDivision.textContent).toContain('Division');
-            expect(accoladesCountAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
+            const divisionAndBestOf = context.container.querySelector('div[datatype="tournament-division"]');
+            expect(divisionAndBestOf.textContent).toContain('Division');
+            expect(divisionAndBestOf.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
         });
 
         it('super league options when single round', async () => {
@@ -247,7 +248,6 @@ describe('TournamentDetails', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .updated('2023-07-01T00:00:00')
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
@@ -257,8 +257,7 @@ describe('TournamentDetails', () => {
                 divisions: [division],
             }));
 
-            const accoladesCountAndDivision = context.container.querySelector('div:nth-child(5)');
-            await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
+            await doClick(context.container, 'input[name="accoladesCount"]');
 
             expect(updatedTournamentData.accoladesCount).toEqual(false);
         });
@@ -282,8 +281,7 @@ describe('TournamentDetails', () => {
                 divisions: [division],
             }));
 
-            const accoladesCountAndDivision = context.container.querySelector('div:nth-child(5)');
-            await doSelectOption(accoladesCountAndDivision.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
+            await doSelectOption(context.container.querySelector('div[datatype="tournament-division"] .dropdown-menu'), 'All divisions');
 
             expect(updatedTournamentData.divisionId).toEqual(null);
         });
@@ -382,7 +380,7 @@ describe('TournamentDetails', () => {
                 divisions: [division],
             }));
 
-            const notes = context.container.querySelector('div:nth-child(4)');
+            const notes = context.container.querySelector('div[datatype="notes"]');
             await doChange(notes, 'textarea', 'NEW NOTES', context.user);
 
             expect(updatedTournamentData.notes).toEqual('NEW NOTES');
@@ -407,7 +405,7 @@ describe('TournamentDetails', () => {
                 divisions: [division],
             }));
 
-            const type = context.container.querySelector('div:nth-child(3)');
+            const type = context.container.querySelector('div[datatype="type"]');
             await doChange(type, 'input', 'NEW TYPE', context.user);
 
             expect(updatedTournamentData.type).toEqual('NEW TYPE');
@@ -432,7 +430,7 @@ describe('TournamentDetails', () => {
                 divisions: [division],
             }));
 
-            const address = context.container.querySelector('div:nth-child(2)');
+            const address = context.container.querySelector('div[datatype="address"]');
             await doChange(address, 'input', 'NEW ADDRESS', context.user);
 
             expect(updatedTournamentData.address).toEqual('NEW ADDRESS');
