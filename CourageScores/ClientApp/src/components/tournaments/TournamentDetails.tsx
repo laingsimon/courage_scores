@@ -10,6 +10,8 @@ import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {useApp} from "../common/AppContainer";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;
@@ -27,11 +29,11 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
     ];
 
     function getExportTables(): { [key: string]: string[] } {
-        let saygDataIds = [];
-        let teamIds = [];
-        let round = tournamentData.round;
+        let saygDataIds: string[] = [];
+        let teamIds: string[] = [];
+        let round: TournamentRoundDto = tournamentData.round;
         while (round) {
-            saygDataIds = saygDataIds.concat(round.matches.map((m: TournamentMatchDto) => m.saygId).filter((id: string) => id));
+            saygDataIds = saygDataIds.concat(round.matches.map((m: TournamentMatchDto) => m.saygId).filter((id?: string) => id));
             round = round.nextRound;
         }
 
@@ -45,7 +47,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
         }
 
         for (let i = 0; i < tournamentData.sides.length; i++) {
-            const side = tournamentData.sides[i];
+            const side: TournamentSideDto = tournamentData.sides[i];
 
             if (side.teamId) {
                 teamIds = teamIds.concat([side.teamId]);
@@ -60,7 +62,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
             exportRequest.recordedScoreAsYouGo = saygDataIds;
         }
 
-        teamIds = distinct(teamIds.filter(id => id));
+        teamIds = distinct(teamIds.filter((id?: string) => id));
         if (any(teamIds)) {
             exportRequest.team = teamIds;
         }
@@ -68,14 +70,15 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
         return exportRequest;
     }
 
-    function getTeamIdForPlayer(player: TournamentPlayerDto) {
+    function getTeamIdForPlayer(player: TournamentPlayerDto): string {
         const teamToSeasonMaps = teams.map((t: TeamDto) => {
             return {
                 teamSeason: t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === tournamentData.seasonId && !ts.deleted)[0],
                 team: t,
             }
         });
-        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, (p: TeamPlayerDto) => p.id === player.id));
+        const teamsWithPlayer = teamToSeasonMaps
+            .filter(map => map.teamSeason && any(map.teamSeason.players, (p: TeamPlayerDto) => p.id === player.id));
 
         if (any(teamsWithPlayer)) {
             return teamsWithPlayer[0].team.id
@@ -93,7 +96,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
             </button>
             <ExportDataButton tables={getExportTables()}/>
         </h4>
-        <div className="input-group mb-1">
+        <div className="input-group mb-1" datatype="address">
             <div className="input-group-prepend">
                 <label htmlFor="address" className="input-group-text width-75">Address</label>
             </div>
@@ -101,7 +104,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                    value={tournamentData.address}
                    name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
         </div>
-        <div className="form-group input-group mb-1">
+        <div className="form-group input-group mb-1" datatype="type">
             <div className="input-group-prepend">
                 <label htmlFor="type" className="input-group-text width-75">Type</label>
             </div>
@@ -110,7 +113,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                    onChange={valueChanged(tournamentData, setTournamentData)}
                    placeholder="Optional type for the tournament"/>
 
-            <div className="form-check form-switch my-1 ms-2">
+            <div className="form-check form-switch my-1 ms-2" datatype="single-round">
                 <input disabled={disabled} type="checkbox" className="form-check-input margin-left"
                        name="singleRound"
                        id="singleRound"
@@ -119,26 +122,44 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                 <label className="form-check-label" htmlFor="singleRound">Super league</label>
             </div>
         </div>
-        <div className="form-group input-group mb-1">
+        {tournamentData.singleRound ? (<div className="form-group input-group mb-1" datatype="tournament-options">
+            <label className="input-group-text width-75">Super<br />league</label>
+            <div className="form-control">
+                <div className="input-group mb-1" datatype="superleague-host">
+                    <label htmlFor="host" className="input-group-text">Host</label>
+                    <input id="host" className="form-control margin-right" disabled={disabled}
+                           value={tournamentData.host || ''} name="host"
+                           onChange={valueChanged(tournamentData, setTournamentData)}
+                           placeholder="Host name"/>
+
+                    <label htmlFor="opponent" className="input-group-text">vs</label>
+                    <input id="opponent" className="form-control" disabled={disabled}
+                           value={tournamentData.opponent || ''} name="opponent"
+                           onChange={valueChanged(tournamentData, setTournamentData)}
+                           placeholder="Opponent name"/>
+                </div>
+
+                <div className="input-group mb-1" datatype="superleague-gender">
+                    <label htmlFor="gender" className="input-group-text width-75">Gender</label>
+                    <BootstrapDropdown
+                        value={tournamentData.gender}
+                        onChange={propChanged(tournamentData, setTournamentData, 'gender')}
+                        options={genderOptions}
+                        disabled={disabled}/>
+                </div>
+            </div>
+        </div>) : null}
+        <div className="form-group input-group mb-1" datatype="notes">
             <label htmlFor="note-text" className="input-group-text width-75">Notes</label>
             <textarea id="note-text" className="form-control" disabled={disabled}
                       value={tournamentData.notes || ''} name="notes"
                       onChange={valueChanged(tournamentData, setTournamentData)}
-                      placeholder="Notes for the tournament">
+                      placeholder={tournamentData.singleRound ? 'Notes (e.g. board number)' : 'Notes for the tournament'}>
                         </textarea>
         </div>
-        <div className="form-group input-group mb-3" datatype="tournament-options">
+        <div className="form-group input-group" datatype="tournament-options">
             <label className="input-group-text width-75">Options</label>
             <div className="form-control">
-                <div className="form-check form-switch margin-right my-1">
-                    <input disabled={disabled} type="checkbox" className="form-check-input"
-                           name="accoladesCount" id="accoladesCount"
-                           checked={tournamentData.accoladesCount}
-                           onChange={valueChanged(tournamentData, setTournamentData)}/>
-                    <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks
-                        in players table?</label>
-                </div>
-
                 <div className="input-group mb-1" datatype="tournament-division">
                     <label className="input-group-text">Division</label>
                     <BootstrapDropdown
@@ -153,35 +174,21 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                     <input disabled={disabled} className="form-control no-spinner width-50 d-inline"
                            id="bestOf" type="number" min="3" value={tournamentData.bestOf || ''}
                            name="bestOf" onChange={valueChanged(tournamentData, setTournamentData, '')}
-                           placeholder="Number of legs"/>
+                           placeholder="# legs"/>
                 </div>
 
                 {tournamentData.singleRound
-                    ? (<>
-                        <div className="input-group mb-1" datatype="superleague-host">
-                            <label htmlFor="host" className="input-group-text">Host</label>
-                            <input id="host" className="form-control margin-right" disabled={disabled}
-                                   value={tournamentData.host || ''} name="host"
-                                   onChange={valueChanged(tournamentData, setTournamentData)}
-                                   placeholder="Host name"/>
-
-                            <label htmlFor="opponent" className="input-group-text">vs</label>
-                            <input id="opponent" className="form-control" disabled={disabled}
-                                   value={tournamentData.opponent || ''} name="opponent"
-                                   onChange={valueChanged(tournamentData, setTournamentData)}
-                                   placeholder="Opponent name"/>
+                    ? null
+                    : (<>
+                        <div className="form-check form-switch margin-right my-1" datatype="accolades-count">
+                            <input disabled={disabled} type="checkbox" className="form-check-input"
+                                   name="accoladesCount" id="accoladesCount"
+                                   checked={tournamentData.accoladesCount}
+                                   onChange={valueChanged(tournamentData, setTournamentData)}/>
+                            <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks
+                                in players table?</label>
                         </div>
-
-                        <div className="input-group mb-1" datatype="superleague-gender">
-                            <label htmlFor="gender" className="input-group-text width-75">Gender</label>
-                            <BootstrapDropdown
-                                value={tournamentData.gender}
-                                onChange={propChanged(tournamentData, setTournamentData, 'gender')}
-                                options={genderOptions}
-                                disabled={disabled}/>
-                        </div>
-                    </>)
-                    : null}
+                    </>)}
             </div>
         </div>
     </>);
