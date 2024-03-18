@@ -35,7 +35,7 @@ describe('TournamentRound', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedRound: TournamentRoundDto;
-    let warnBeforeSave: string;
+    let warnBeforeEditDialogClose: string;
     let saygApiData: { [id: string]: RecordedScoreAsYouGoDto };
     const tournamentApi = api<ITournamentGameApi>({
         addSayg: async (id: string, _: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> => {
@@ -73,7 +73,7 @@ describe('TournamentRound', () => {
         reportedError = new ErrorState();
         saygApiData = {};
         updatedRound = null;
-        warnBeforeSave = null;
+        warnBeforeEditDialogClose = null;
     });
 
     async function onChange(newRound: TournamentRoundDto) {
@@ -83,8 +83,8 @@ describe('TournamentRound', () => {
     async function setTournamentData() {
     }
 
-    async function setWarnBeforeSave(msg: string) {
-        warnBeforeSave = msg;
+    async function setWarnBeforeEditDialogClose(msg: string) {
+        warnBeforeEditDialogClose = msg;
     }
 
     async function saveTournament() {
@@ -134,7 +134,7 @@ describe('TournamentRound', () => {
         const defaultTournamentContainerProps: ITournamentContainerProps = {
             tournamentData: emptyTournamentGame,
             setTournamentData,
-            setWarnBeforeSave,
+            setWarnBeforeEditDialogClose,
             saveTournament,
         };
 
@@ -144,7 +144,6 @@ describe('TournamentRound', () => {
                     round: roundBuilder().build(),
                     sides: [],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
 
@@ -160,12 +159,10 @@ describe('TournamentRound', () => {
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
 
                 reportedError.verifyNoError();
-                expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2']);
             });
@@ -179,12 +176,10 @@ describe('TournamentRound', () => {
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
 
                 reportedError.verifyNoError();
-                expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
                 assertMatch(table, 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4']);
@@ -203,30 +198,12 @@ describe('TournamentRound', () => {
                     .build(),
                 sides: [side1, side2, side3, side4],
                 readOnly,
-                depth: 1,
                 onChange,
             });
 
             reportedError.verifyNoError();
-            expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
             const roundTables = context.container.querySelectorAll('table');
             expect(roundTables.length).toEqual(1);
-        });
-
-        it('cannot change round name', async () => {
-            const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-            await renderComponent(defaultTournamentContainerProps, {
-                round: roundBuilder().withMatch(match).build(),
-                sides: [side1, side2, side3, side4],
-                readOnly,
-                depth: 1,
-                onChange,
-            });
-            reportedError.verifyNoError();
-
-            await doClick(context.container.querySelector('strong'));
-
-            expect(context.container.querySelector('input')).toBeFalsy();
         });
     });
 
@@ -240,7 +217,7 @@ describe('TournamentRound', () => {
         const defaultTournamentContainerProps: ITournamentContainerProps = {
             tournamentData: emptyTournamentGame,
             setTournamentData: setTournamentData,
-            setWarnBeforeSave,
+            setWarnBeforeEditDialogClose,
             saveTournament,
         }
 
@@ -250,7 +227,6 @@ describe('TournamentRound', () => {
                     round: roundBuilder().build(),
                     sides: [side1, side2],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
 
@@ -266,12 +242,10 @@ describe('TournamentRound', () => {
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
 
                 reportedError.verifyNoError();
-                expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertEditableMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2', '🗑🛠']);
             });
@@ -291,12 +265,10 @@ describe('TournamentRound', () => {
                             .build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
-                        depth: 1,
                         onChange,
                     });
 
                 reportedError.verifyNoError();
-                expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
                 assertEditableMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2', '🗑🛠']);
                 assertEditableMatch(table, 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4', '🗑🛠']);
@@ -314,12 +286,10 @@ describe('TournamentRound', () => {
                         .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
 
                 reportedError.verifyNoError();
-                expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
                 expect(roundTables.length).toEqual(1);
             });
@@ -332,7 +302,7 @@ describe('TournamentRound', () => {
                         tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
-                        setWarnBeforeSave,
+                        setWarnBeforeEditDialogClose,
                     },
                     {
                         round: roundBuilder()
@@ -340,7 +310,6 @@ describe('TournamentRound', () => {
                             .build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
-                        depth: 1,
                         onChange,
                     });
                 reportedError.verifyNoError();
@@ -364,13 +333,12 @@ describe('TournamentRound', () => {
                         tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 5, startingScore: 501},
                         setTournamentData,
-                        setWarnBeforeSave,
+                        setWarnBeforeEditDialogClose,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
-                        depth: 1,
                         onChange,
                     });
                 reportedError.verifyNoError();
@@ -405,13 +373,12 @@ describe('TournamentRound', () => {
                         tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
-                        setWarnBeforeSave,
+                        setWarnBeforeEditDialogClose,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
-                        depth: 1,
                         onChange,
                     },
                     permittedAccount);
@@ -428,13 +395,12 @@ describe('TournamentRound', () => {
                         tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
-                        setWarnBeforeSave,
+                        setWarnBeforeEditDialogClose,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
-                        depth: 1,
                         onChange,
                     });
                 reportedError.verifyNoError();
@@ -464,13 +430,12 @@ describe('TournamentRound', () => {
                         tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
-                        setWarnBeforeSave,
+                        setWarnBeforeEditDialogClose,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
-                        depth: 1,
                         onChange,
                     });
                 reportedError.verifyNoError();
@@ -498,7 +463,6 @@ describe('TournamentRound', () => {
                     round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
                 reportedError.verifyNoError();
@@ -518,7 +482,6 @@ describe('TournamentRound', () => {
                     round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
                 reportedError.verifyNoError();
@@ -539,13 +502,12 @@ describe('TournamentRound', () => {
                         tournamentData: tournamentBuilder().bestOf(3).build(),
                         matchOptionDefaults: {numberOfLegs: 3, startingScore: 501},
                         setTournamentData,
-                        setWarnBeforeSave,
+                        setWarnBeforeEditDialogClose,
                     },
                     {
                         round: roundBuilder().build(),
                         sides: [side1, side2, side3, side4],
                         readOnly,
-                        depth: 1,
                         onChange,
                     });
                 reportedError.verifyNoError();
@@ -572,7 +534,6 @@ describe('TournamentRound', () => {
                     round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
-                    depth: 1,
                     onChange,
                 });
                 reportedError.verifyNoError();
@@ -582,9 +543,9 @@ describe('TournamentRound', () => {
                 await doSelectOption(matchRow.querySelector('td:nth-child(5) .dropdown-menu'), 'SIDE 2');
 
                 expect(updatedRound).toBeNull();
-                expect(warnBeforeSave).toEqual('Add the (new) match before saving, otherwise it would be lost.\n' +
+                expect(warnBeforeEditDialogClose).toEqual('Add the (new) match before saving, otherwise it would be lost.\n' +
                     '\n' +
-                    'Semi-Final: SIDE 1 vs SIDE 2');
+                    'SIDE 1 vs SIDE 2');
             });
         });
     });

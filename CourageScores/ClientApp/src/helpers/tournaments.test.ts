@@ -1,76 +1,15 @@
 ﻿import {
     getPlayedLayoutData,
-    getRoundNameFromSides,
     getUnplayedLayoutData,
     hasScore, ILayoutDataForMatch,
     ILayoutDataForRound, ITournamentLayoutGenerationContext, setRoundNames
 } from "./tournaments";
-import {distinct} from "./collections";
 import {repeat} from "./projection";
 import {ITournamentMatchBuilder, roundBuilder, sideBuilder} from "./builders/tournaments";
 import {matchOptionsBuilder} from "./builders/games";
 import {GameMatchOptionDto} from "../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 describe('tournaments', () => {
-    describe('getRoundNameFromSides', () => {
-        it('returns round name if exists', () => {
-            const round = {
-                name: 'ROUND',
-            };
-
-            const name = getRoundNameFromSides(round, 2, 1);
-
-            expect(name).toEqual('ROUND');
-        });
-
-        it('returns Final if 2 sides', () => {
-            const round = {
-                name: null,
-            };
-
-            const name = getRoundNameFromSides(round, 2, 1);
-
-            expect(name).toEqual('Final');
-        });
-
-        it('returns Semi-Final if 4 sides', () => {
-            const round = {
-                name: null,
-            };
-
-            const name = getRoundNameFromSides(round, 4, 1);
-
-            expect(name).toEqual('Semi-Final');
-        });
-
-        it('returns Quarter-Final if 6,7 or 8 sides', () => {
-            const round = {
-                name: null,
-            };
-
-            expect(getRoundNameFromSides(round, 6, 1)).toEqual('Quarter-Final');
-            expect(getRoundNameFromSides(round, 7, 1)).toEqual('Quarter-Final');
-            expect(getRoundNameFromSides(round, 8, 1)).toEqual('Quarter-Final');
-        });
-
-        it('returns depth if unimportant number of sides', () => {
-            const round = {
-                name: null,
-            };
-
-            const names = [
-                getRoundNameFromSides(round, 1, 1),
-                getRoundNameFromSides(round, 3, 1),
-                getRoundNameFromSides(round, 5, 1),
-                getRoundNameFromSides(round, 9, 1),
-                getRoundNameFromSides(round, 0, 1),
-                getRoundNameFromSides(round, 10, 1),
-            ];
-
-            expect(distinct(names)).toEqual(['Round: 1']);
-        });
-    });
-
     describe('hasScore', () => {
         it('returns true if there is a score', () => {
             expect(hasScore(0)).toEqual(true);

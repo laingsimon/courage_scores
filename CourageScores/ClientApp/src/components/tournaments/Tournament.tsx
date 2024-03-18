@@ -60,7 +60,7 @@ export function Tournament() {
     const [alreadyPlaying, setAlreadyPlaying] = useState<ITournamentPlayerMap | null>(null);
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
-    const [warnBeforeSave, setWarnBeforeSave] = useState(null);
+    const [warnBeforeEditDialogClose, setWarnBeforeEditDialogClose] = useState(null);
     const division: DivisionDto = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
     const [editTournament, setEditTournament] = useState<string>(null);
     const [showPhotoManager, setShowPhotoManager] = useState(false);
@@ -150,12 +150,6 @@ export function Tournament() {
         /* istanbul ignore next */
         if (saving || patching) {
             /* istanbul ignore next */
-            return;
-        }
-
-        // if any matches exist, but have not been added, add them?
-        if (warnBeforeSave) {
-            window.alert(warnBeforeSave);
             return;
         }
 
@@ -285,6 +279,16 @@ export function Tournament() {
         return false;
     }
 
+    async function closeEditTournamentDialog() {
+        // if any matches exist, but have not been added, add them?
+        if (warnBeforeEditDialogClose) {
+            window.alert(warnBeforeEditDialogClose);
+            return;
+        }
+
+        setEditTournament(null);
+    }
+
     if (loading !== 'ready') {
         return (<Loading/>);
     }
@@ -324,14 +328,14 @@ export function Tournament() {
                     alreadyPlaying={alreadyPlaying}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
-                    setWarnBeforeSave={async (warning: string) => setWarnBeforeSave(warning)}
+                    setWarnBeforeEditDialogClose={async (warning: string) => setWarnBeforeEditDialogClose(warning)}
                     matchOptionDefaults={getMatchOptionDefaults(tournamentData)}
                     saving={saving}
                     editTournament={editTournament}
                     setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : null}
                     liveOptions={liveOptions}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
-                        ? (<Dialog title="Edit sides and matches" onClose={async () => setEditTournament(null)}>
+                        ? (<Dialog title="Edit sides and matches" onClose={closeEditTournamentDialog}>
                             <EditTournament canSave={true} saving={saving} />
                         </Dialog>)
                         : null}
