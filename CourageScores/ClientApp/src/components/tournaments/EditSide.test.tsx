@@ -11,7 +11,7 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {toMap} from "../../helpers/collections";
-import {EditSide, IEditSideProps} from "./EditSide";
+import {EditSide, IEditSideProps, ISaveSideOptions} from "./EditSide";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
@@ -38,6 +38,7 @@ describe('EditSide', () => {
     let applied: boolean;
     let deleted: boolean;
     let teamsReloaded: boolean;
+    let applyOptions: ISaveSideOptions;
     let createdPlayer: {
         divisionId: string,
         seasonId: string,
@@ -79,6 +80,7 @@ describe('EditSide', () => {
         closed = false;
         applied = false;
         deleted = false;
+        applyOptions = null;
         teamsReloaded = false;
         createdPlayer = null;
     });
@@ -91,7 +93,8 @@ describe('EditSide', () => {
         closed = true;
     }
 
-    async function onApply() {
+    async function onApply(options: ISaveSideOptions) {
+        applyOptions = options;
         applied = true;
     }
 
@@ -890,6 +893,9 @@ describe('EditSide', () => {
 
             reportedError.verifyNoError();
             expect(applied).toEqual(true);
+            expect(applyOptions).toEqual({
+                addAsIndividuals: false
+            });
         });
 
         it('can close', async () => {

@@ -19,8 +19,12 @@ export interface IEditSideProps {
     side: TournamentSideDto;
     onChange?(side: TournamentSideDto): Promise<any>;
     onClose(): Promise<any>;
-    onApply(): Promise<any>;
+    onApply(saveOptions: ISaveSideOptions): Promise<any>;
     onDelete?(side: TournamentSideDto): Promise<any>;
+}
+
+export interface ISaveSideOptions {
+    addAsIndividuals: boolean;
 }
 
 interface ITeamPlayerMap {
@@ -39,6 +43,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     const {tournamentData, season, alreadyPlaying} = useTournament();
     const [playerFilter, setPlayerFilter] = useState('');
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
+    const [saveOptions, setSaveOptions] = useState<ISaveSideOptions>({addAsIndividuals: false});
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
     const divisionId: string = tournamentData.divisionId;
     const selectATeam: IBootstrapDropdownItem = {value: '', text: 'Select team', className: 'text-warning'};
@@ -185,7 +190,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
             return;
         }
 
-        await onApply();
+        await onApply(saveOptions);
     }
 
     function matchesPlayerFilter(player: TournamentPlayerDto): boolean {
@@ -231,32 +236,34 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     try {
         const filteredPlayers: ITeamPlayerMap[] = allPossiblePlayers.filter(matchesPlayerFilter);
 
-        return (<Dialog title={side.id ? 'Edit side' : 'Add side'} slim={true}>
-            <div className="form-group input-group mb-3 d-print-none">
+        return (<Dialog title={side.id ? 'Edit side' : (saveOptions.addAsIndividuals ? 'Add players' : 'Add side')} slim={true}>
+            {saveOptions.addAsIndividuals ? null : (<div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
                     <label htmlFor="name" className="input-group-text">Name</label>
                 </div>
                 <input className="form-control" value={side.name || ''} name="name" id="name"
                        onChange={valueChanged(side, onChange)}/>
-            </div>
-            <div className="form-check form-switch margin-right my-1">
-                <input type="checkbox" className="form-check-input" checked={side.noShow || false} name="noShow"
+            </div>)}
+            <div className="form-switch margin-right my-1 me-2">
+                <input type="checkbox" className="form-check-input margin-right" checked={side.noShow || false} name="noShow"
                        id="noShow"
                        onChange={valueChanged(side, onChange)}/>
                 <label className="form-check-label" htmlFor="noShow">No show on the night?</label>
             </div>
-            {any(side.players || []) || !tournamentSideType.canSelectTeams ? null : (<div className="form-group input-group mb-3 d-print-none">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Team</span>
-                </div>
-                <BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId}/>
-            </div>)}
+            {any(side.players || []) || !tournamentSideType.canSelectTeams ? null : (
+                <div className="form-group input-group mb-3 d-print-none">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Team</span>
+                    </div>
+                    <BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId}/>
+                </div>)}
             {side.teamId || !tournamentSideType.canSelectPlayers ? null : (<div>
                 <div className="d-flex justify-content-between align-items-center p-2 pt-0">
                     <div>Who's playing</div>
                     <div>
                         <label htmlFor="playerFilter" className="margin-right">Filter</label>
-                        <input id="playerFilter" name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter}/>
+                        <input id="playerFilter" name="playerFilter" onChange={stateChanged(setPlayerFilter)}
+                               value={playerFilter}/>
                         {playerFilter
                             ? (<span className="margin-left">
                                 {filteredPlayers.length} of {allPossiblePlayers.length} player/s
@@ -288,8 +295,15 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                 <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
+                {!side.id && (side.players || []).length >= 2 ? (<span className="form-switch margin-right my-1">
+                    <input type="checkbox" className="form-check-input margin-right" checked={saveOptions.addAsIndividuals} name="addAsIndividuals"
+                           id="addAsIndividuals"
+                           onChange={valueChanged(saveOptions, setSaveOptions)}/>
+                    <label className="form-check-label no-wrap" htmlFor="addAsIndividuals">Add as individuals</label>
+                </span>) : null}
                 {canAddPlayers
-                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add player/s</button>)
+                    ? (<button className="btn btn-primary" onClick={() => setAddPlayerDialogOpen(true)}>Add
+                        player/s</button>)
                     : null}
                 {side.id ? (<button className="btn btn-danger margin-right" onClick={onRemoveSide}>
                     Delete side

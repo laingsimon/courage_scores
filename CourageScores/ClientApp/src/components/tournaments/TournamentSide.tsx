@@ -1,12 +1,12 @@
 import {useState} from 'react';
-import {EditSide} from "./EditSide";
+import {EditSide, ISaveSideOptions} from "./EditSide";
 import {count, isEmpty} from "../../helpers/collections";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 
 export interface ITournamentSideProps {
     side: TournamentSideDto;
-    onChange?(editSide: TournamentSideDto): Promise<any>;
+    onChange?(editSide: TournamentSideDto, options: ISaveSideOptions): Promise<any>;
     winner?: boolean;
     readOnly?: boolean;
     onRemove(): Promise<any>;
@@ -40,9 +40,9 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITo
             side={editSide}
             onChange={async (side: TournamentSideDto) => setEditSide(side)}
             onClose={async () => setEditSide(null)}
-            onApply={async () => {
+            onApply={async (options: ISaveSideOptions) => {
                 if (onChange) {
-                    await onChange(editSide);
+                    await onChange(editSide, options);
                 }
                 setEditSide(null);
             }}

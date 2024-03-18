@@ -5,7 +5,7 @@ import {TournamentRound} from "./TournamentRound";
 import {useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {useTournament} from "./TournamentContainer";
-import {EditSide} from "./EditSide";
+import {EditSide, ISaveSideOptions} from "./EditSide";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
@@ -55,8 +55,8 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
             side={newSide}
             onChange={async (side: TournamentSideDto) => setNewSide(side)}
             onClose={async () => setNewSide(null)}
-            onApply={async () => {
-                await setTournamentData(addSide(tournamentData, newSide));
+            onApply={async (options: ISaveSideOptions) => {
+                await setTournamentData(addSide(tournamentData, newSide, options));
                 setNewSide(null);
             }}/>);
     }
@@ -65,13 +65,13 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
     return (<div datatype="edit-tournament">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
-            {tournamentData.sides.sort(sortBy('name')).map((side, sideIndex) => {
+            {tournamentData.sides.sort(sortBy('name')).map((side: TournamentSideDto, sideIndex: number) => {
                 return (<TournamentSide
                     key={sideIndex}
                     winner={winningSideId === side.id}
                     readOnly={readOnly}
                     side={side}
-                    onChange={async (newSide: TournamentSideDto) => await setTournamentData(sideChanged(tournamentData, newSide, sideIndex))}
+                    onChange={async (newSide: TournamentSideDto, options: ISaveSideOptions) => await setTournamentData(sideChanged(tournamentData, newSide, sideIndex, options))}
                     onRemove={async () => {
                         await setTournamentData(removeSide(tournamentData, side));
                         setNewSide(null);
