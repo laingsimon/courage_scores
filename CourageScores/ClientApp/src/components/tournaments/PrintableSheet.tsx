@@ -23,7 +23,7 @@ import {
 } from "../../helpers/tournaments";
 import {NotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {PrintableSheetMatch} from "./PrintableSheetMatch";
-import {EditSide} from "./EditSide";
+import {EditSide, ISaveSideOptions} from "./EditSide";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
@@ -78,9 +78,9 @@ export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheet
             side={editSide}
             onChange={async (side: TournamentSideDto) => setEditSide(side)}
             onClose={async () => setEditSide(null)}
-            onApply={async () => {
+            onApply={async (options: ISaveSideOptions) => {
                 const sideIndex: number = tournamentData.sides.map((side: TournamentSideDto, index: number) => side.id === editSide.id ? index : null).filter((index: number) => index !== null)[0];
-                await setTournamentData(sideChanged(tournamentData, editSide, sideIndex));
+                await setTournamentData(sideChanged(tournamentData, editSide, sideIndex, options));
                 setEditSide(null);
             }}
             onDelete={async () => {
@@ -94,8 +94,8 @@ export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheet
             side={newSide}
             onChange={async (side: TournamentSideDto) => setNewSide(side)}
             onClose={async () => setNewSide(null)}
-            onApply={async () => {
-                await setTournamentData(addSide(tournamentData, newSide));
+            onApply={async (options: ISaveSideOptions) => {
+                await setTournamentData(addSide(tournamentData, newSide, options));
                 setNewSide(null);
             }}/>);
     }

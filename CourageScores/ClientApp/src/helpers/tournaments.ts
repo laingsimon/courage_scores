@@ -1,11 +1,13 @@
 import {createTemporaryId, repeat} from "./projection";
-import {any} from "./collections";
+import {any, sortBy} from "./collections";
 import {IBootstrapDropdownItem} from "../components/common/BootstrapDropdown";
 import {TournamentSideDto} from "../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentGameDto} from "../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentRoundDto} from "../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../interfaces/models/dtos/Game/TournamentMatchDto";
 import {GameMatchOptionDto} from "../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {ISaveSideOptions} from "../components/tournaments/EditSide";
+import {TournamentPlayerDto} from "../interfaces/models/dtos/Game/TournamentPlayerDto";
 
 export interface ILayoutDataForSide {
     id: string;
@@ -318,7 +320,7 @@ function getLayoutSide(id?: string, name?: string, link?: JSX.Element, mnemonic?
     };
 }
 
-export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number): TournamentGameDto {
+export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number, options: ISaveSideOptions): TournamentGameDto {
     const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
     newSide.name = (newSide.name || '').trim();
     newTournamentData.sides[sideIndex] = newSide;
@@ -351,10 +353,24 @@ export function removeSide(tournamentData: TournamentGameDto, side: TournamentSi
     return newTournamentData;
 }
 
-export function addSide(tournamentData: TournamentGameDto, newSide: TournamentSideDto): TournamentGameDto {
+export function addSide(tournamentData: TournamentGameDto, newSide: TournamentSideDto, options: ISaveSideOptions): TournamentGameDto {
     const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-    newSide.name = (newSide.name || '').trim();
-    newSide.id = createTemporaryId();
-    newTournamentData.sides.push(newSide);
+    let sidesToAdd: TournamentSideDto[];
+
+    if (options.addAsIndividuals) {
+        sidesToAdd = newSide.players.map((player: TournamentPlayerDto): TournamentSideDto => {
+            return {
+                id: createTemporaryId(),
+                name: player.name.trim(),
+                players: [ player ],
+            };
+        });
+    } else {
+        newSide.name = (newSide.name || '').trim();
+        newSide.id = createTemporaryId();
+        sidesToAdd = [newSide];
+    }
+
+    newTournamentData.sides = newTournamentData.sides.concat(sidesToAdd).sort(sortBy('name'));
     return newTournamentData;
 }

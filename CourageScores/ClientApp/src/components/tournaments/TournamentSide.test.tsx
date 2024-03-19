@@ -21,12 +21,14 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {ISaveSideOptions} from "./EditSide";
 
 describe('TournamentSide', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedData: TournamentSideDto;
     let removed: boolean;
+    let changeOptions: ISaveSideOptions;
 
     afterEach(() => {
         cleanUp(context);
@@ -36,9 +38,11 @@ describe('TournamentSide', () => {
         reportedError = new ErrorState();
         updatedData = null;
         removed = false;
+        changeOptions = null;
     });
 
-    async function onChange(newData: TournamentSideDto) {
+    async function onChange(newData: TournamentSideDto, options: ISaveSideOptions) {
+        changeOptions = options;
         updatedData = newData;
     }
 
@@ -381,6 +385,9 @@ describe('TournamentSide', () => {
                 teamId: team.id,
                 name: 'NEW NAME',
                 players: [],
+            });
+            expect(changeOptions).toEqual({
+               addAsIndividuals: false,
             });
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
