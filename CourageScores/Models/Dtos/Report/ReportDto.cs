@@ -24,9 +24,9 @@ public class ReportDto
     public List<ReportRowDto> Rows { get; set; } = new();
 
     /// <summary>
-    /// The text to display to explain the value column
+    /// The headings for the columns
     /// </summary>
-    public string ValueHeading { get; set; } = "Value";
+    public List<string> Columns { get; set; } = new();
 
     /// <summary>
     /// Whether this report driven from data from this division only

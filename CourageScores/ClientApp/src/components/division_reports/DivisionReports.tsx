@@ -92,7 +92,10 @@ export function DivisionReports() {
             {activeReport ? (<div className="d-screen-none">
                 <strong className="fs-3 float-left">{activeReport}</strong>
             </div>) : null}
-            {report && !gettingData ? (<Report rows={report.rows} valueHeading={report.valueHeading}/>) : null}
+            {report && !gettingData ? (<Report
+                rows={report.rows}
+                columns={report.columns}
+            />) : null}
         </div>
     </div>);
 }

@@ -15,14 +15,19 @@ public class MostPlayedPlayerReport : IReport
         _topCount = topCount;
     }
 
-    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
+    public async Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token)
     {
         return new ReportDto
         {
             Description = $"The top {_topCount} most played players {(_singlesOnly ? "(singles only)" : "(singles, pairs and triples)")}",
             Name = "Most played player",
-            Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
-            ValueHeading = "Played",
+            Rows = await GetRows(request, playerLookup).TakeAsync(_topCount).ToList(),
+            Columns =
+            {
+                "Team",
+                "Player",
+                "Played",
+            },
         };
     }
 
@@ -60,18 +65,36 @@ public class MostPlayedPlayerReport : IReport
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> GetRows(IPlayerLookup playerLookup)
+    private async IAsyncEnumerable<ReportRowDto> GetRows(ReportRequestDto request, IPlayerLookup playerLookup)
     {
         foreach (var pair in _playerGamesRecord.OrderByDescending(pair => pair.Value))
         {
             var player = await playerLookup.GetPlayer(pair.Key);
             yield return new ReportRowDto
             {
-                PlayerId = pair.Key,
-                PlayerName = player.PlayerName,
-                TeamId = player.TeamId,
-                TeamName = player.TeamName,
-                Value = pair.Value,
+                Cells =
+                {
+                    new ReportCellDto
+                    {
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        DivisionId = request.DivisionId,
+                        Text = player.TeamName,
+                    },
+                    new ReportCellDto
+                    {
+                        PlayerId = pair.Key,
+                        PlayerName = player.PlayerName,
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        DivisionId = request.DivisionId,
+                        Text = player.PlayerName,
+                    },
+                    new ReportCellDto
+                    {
+                        Text = pair.Value.ToString(),
+                    },
+                },
             };
         }
     }

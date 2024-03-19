@@ -34,25 +34,43 @@ public class FinalsNightReport : CompositeReport
         _tournamentService = tournamentService;
     }
 
-    public override async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
+    public override async Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token)
     {
         return new ReportDto
         {
             Description = "Finals night report",
             Name = "Finals night report",
-            ValueHeading = "Value/s",
+            Columns =
+            {
+                "Award",
+                "Goes to",
+                "Value/s",
+            },
             ThisDivisionOnly = false,
-            Rows = await GetReportRows(playerLookup, token).ToList(),
+            Rows = await GetReportRows(request, playerLookup, token).ToList(),
         };
     }
 
-    private static ReportRowDto Row(string player, string team, double? value = null)
+    private static ReportCellDto Cell(DivisionPlayerDto? player = null, DivisionTeamDto? team = null, string? text = null, Guid? tournamentId = null, DivisionDataDto? division = null)
+    {
+        return new ReportCellDto
+        {
+            PlayerName = player?.Name,
+            TeamName = player?.Team ?? team?.Name,
+            Text = text ?? "",
+            TeamId = player?.TeamId ?? team?.Id,
+            PlayerId = player?.Id,
+            TournamentId = tournamentId,
+            DivisionId = division?.Id,
+            DivisionName = division?.Name,
+        };
+    }
+
+    private static ReportRowDto Row(params ReportCellDto[] cells)
     {
         return new ReportRowDto
         {
-            PlayerName = player,
-            TeamName = team,
-            Value = value,
+            Cells = cells.ToList(),
         };
     }
 
@@ -62,11 +80,15 @@ public class FinalsNightReport : CompositeReport
     {
         var highestCheckout = division.Players.MaxBy(p => p.Over100Checkouts)?.Over100Checkouts;
         var playersWithHighestCheckout = division.Players.Where(p => p.Over100Checkouts == highestCheckout && highestCheckout > 0).ToArray();
+        var uniqueTeam = playersWithHighestCheckout.DistinctBy(p => p.TeamId).ToArray();
 
         yield return Row(
-            $"{division.Name}: Highest checkout",
-            string.Join(", ", playersWithHighestCheckout.Select(p => p.Name)),
-            highestCheckout > 0 ? highestCheckout : null);
+            Cell(text: $"{division.Name}: Highest checkout"),
+            Cell(
+                text: string.Join(", ", playersWithHighestCheckout.Select(p => p.Name)),
+                player: (playersWithHighestCheckout.Length == 1 ? playersWithHighestCheckout[0] : null) ?? (uniqueTeam.Length == 1 ? uniqueTeam[0] : null),
+                division: division),
+            Cell(text: highestCheckout > 0 ? highestCheckout.ToString() : null));
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -76,11 +98,15 @@ public class FinalsNightReport : CompositeReport
     {
         var most180 = division.Players.MaxBy(p => p.OneEighties)?.OneEighties;
         var players = division.Players.Where(p => p.OneEighties == most180 && most180 > 0).ToArray();
+        var uniqueTeam = players.DistinctBy(p => p.TeamId).ToArray();
 
         yield return Row(
-            $"{division.Name}: Most 180s",
-            string.Join(", ", players.Select(p => p.Name)),
-            most180 > 0 ? most180 : null);
+            Cell(text: $"{division.Name}: Most 180s"),
+            Cell(
+                text: string.Join(", ", players.Select(p => p.Name)),
+                player: (players.Length == 1 ? players[0] : null) ?? (uniqueTeam.Length == 1 ? uniqueTeam[0] : null),
+                division: division),
+            Cell(text: most180 > 0 ? most180.ToString() : null));
     }
 
     private static async IAsyncEnumerable<ReportRowDto> TeamRunnerUpThenWinner(
@@ -90,8 +116,13 @@ public class FinalsNightReport : CompositeReport
         var secondTeam = division.Teams.Skip(1).FirstOrDefault();
         var firstTeam = division.Teams.FirstOrDefault();
 
-        yield return Row($"{division.Name}: runner up", secondTeam?.Name ?? "⚠️ Not found");
-        yield return Row($"{division.Name}: winner", firstTeam?.Name ?? "⚠️ Not found");
+        yield return Row(
+            Cell(text: $"{division.Name}: runner up"),
+            Cell(text: secondTeam?.Name ?? "⚠️ Not found", team: secondTeam, division: division));
+
+        yield return Row(
+            Cell(text: $"{division.Name}: winner"),
+            Cell(text: firstTeam?.Name ?? "⚠️ Not found", team: firstTeam, division: division));
     }
 
     private static TournamentMatchDto? GetFinal(TournamentRoundDto? round)
@@ -133,16 +164,18 @@ public class FinalsNightReport : CompositeReport
                 .Any(fd => fd.Notes.Any(n => n.Note.Contains(dateNote, StringComparison.OrdinalIgnoreCase)));
 
             yield return Row(
-                division.Name + ": " + dateNote,
-                dateExistsWithNote
+                Cell(text: division.Name + ": " + dateNote),
+                Cell(text: dateExistsWithNote
                     ? "⚠️ No tournaments exist on this date"
-                    : "⚠️ No date found with this note");
+                    : "⚠️ No date found with this note", division: division));
             yield break;
         }
 
         if (dates.Length > 1)
         {
-            yield return Row(division.Name + ": " + dateNote, $"⚠️ Multiple dates ({dates.Length}) found with this note");
+            yield return Row(
+                Cell(text: division.Name + ": " + dateNote),
+                Cell(text: $"⚠️ Multiple dates ({dates.Length}) found with this note", division: division));
             yield break;
         }
 
@@ -155,13 +188,17 @@ public class FinalsNightReport : CompositeReport
 
             if (tournaments.Length == 0)
             {
-                yield return Row($"{division.Name}: {dateNote} - {tournamentType}", "⚠️ No tournament found with this type");
+                yield return Row(
+                    Cell(text: $"{division.Name}: {dateNote} - {tournamentType}"),
+                    Cell(text: "⚠️ No tournament found with this type", division: division));
                 continue;
             }
 
             if (tournaments.Length > 1)
             {
-                yield return Row($"{division.Name}: {dateNote} - {tournamentType}", $"⚠️ Multiple tournaments ({tournaments.Length}) found with this type");
+                yield return Row(
+                    Cell(text: $"{division.Name}: {dateNote} - {tournamentType}"),
+                    Cell(text: $"⚠️ Multiple tournaments ({tournaments.Length}) found with this type", division: division));
                 continue;
             }
 
@@ -169,7 +206,9 @@ public class FinalsNightReport : CompositeReport
 
             if (tournament == null)
             {
-                yield return Row($"{division.Name}: {dateNote} - {tournamentType}", "⚠️ Unable to access tournament");
+                yield return Row(
+                    Cell(text: $"{division.Name}: {dateNote} - {tournamentType}"),
+                    Cell(text: "⚠️ Unable to access tournament", tournamentId: tournaments[0].Id, division: division));
                 continue;
             }
 
@@ -180,7 +219,9 @@ public class FinalsNightReport : CompositeReport
 
             if (final == null || final.ScoreA == final.ScoreB)
             {
-                yield return Row($"{divisionPrefix}{tournamentType}", "⚠️ Has not been played or has no winner");
+                yield return Row(
+                    Cell(text: $"{divisionPrefix}{tournamentType}"),
+                    Cell(text: "⚠️ Has not been played or has no winner", tournamentId: tournament.Id, division: division));
                 continue;
             }
 
@@ -191,12 +232,16 @@ public class FinalsNightReport : CompositeReport
                 ? final.SideB
                 : final.SideA;
 
-            yield return Row($"{divisionPrefix}{tournamentType} runner up", string.IsNullOrEmpty(runnerUp.Name) ? "⚠️ <no side name>" : runnerUp.Name);
-            yield return Row($"{divisionPrefix}{tournamentType} winner", string.IsNullOrEmpty(winner.Name) ? "⚠️ <no side name>" : winner.Name);
+            yield return Row(
+                Cell(text: $"{divisionPrefix}{tournamentType} runner up"),
+                Cell(text: string.IsNullOrEmpty(runnerUp.Name) ? "⚠️ <no side name>" : runnerUp.Name, tournamentId: tournament.Id, division: division));
+            yield return Row(
+                Cell(text: $"{divisionPrefix}{tournamentType} winner"),
+                Cell(text: string.IsNullOrEmpty(winner.Name) ? "⚠️ <no side name>" : winner.Name, tournamentId: tournament.Id, division: division));
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> GetReportRows(IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<ReportRowDto> GetReportRows(ReportRequestDto request, IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
     {
         var divisions = await _divisionService.GetAll(token).ToList();
         var divisionData = await divisions
@@ -205,7 +250,9 @@ public class FinalsNightReport : CompositeReport
 
         if (divisionData.Count == 0)
         {
-            yield return Row("Could not produce report", "⚠ No divisions found");
+            yield return Row(
+                Cell(text: "Could not produce report"),
+                Cell(text: "⚠️ No divisions found"));
             yield break;
         }
 
@@ -215,7 +262,7 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ManOfTheMatch(playerLookup, token))
+        await foreach (var row in ManOfTheMatch(request, playerLookup, token))
         {
             yield return row;
         }
@@ -239,15 +286,15 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        yield return Row("Pairs runners up*", "");
-        yield return Row("Pairs winner*", "");
-        yield return Row("Singles semi-finalists*", "");
-        yield return Row("Singles semi-finalists*", "");
-        yield return Row("Singles semi-finalists*", "");
-        yield return Row("Singles semi-finalists*", "");
-        yield return Row("Singles runners up*", "");
-        yield return Row("Singles runners up*", "");
-        yield return Row("Singles winner*", "");
+        yield return Row(Cell(text: "Pairs runners up*"));
+        yield return Row(Cell(text: "Pairs winner*"));
+        yield return Row(Cell(text: "Singles semi-finalists*"));
+        yield return Row(Cell(text: "Singles semi-finalists*"));
+        yield return Row(Cell(text: "Singles semi-finalists*"));
+        yield return Row(Cell(text: "Singles semi-finalists*"));
+        yield return Row(Cell(text: "Singles runners up*"));
+        yield return Row(Cell(text: "Singles runners up*"));
+        yield return Row(Cell(text: "Singles winner*"));
 
         token.ThrowIfCancellationRequested();
         await foreach (var row in ForEachDivision(divisionData, TeamRunnerUpThenWinner, token))
@@ -278,23 +325,26 @@ public class FinalsNightReport : CompositeReport
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> ManOfTheMatch(IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<ReportRowDto> ManOfTheMatch(ReportRequestDto request, IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
         if (user?.Access?.ManageScores != true)
         {
-            yield return Row("Man of the match", "");
+            yield return Row(Cell(text: "Man of the match"));
             yield break;
         }
 
-        var manOfTheMatch = await _manOfTheMatchReport.GetReport(playerLookup, token);
-        var times = manOfTheMatch.Rows.MaxBy(r => r.Value)?.Value;
+        var manOfTheMatchReport = await _manOfTheMatchReport.GetReport(request, playerLookup, token);
+        var rowsDescending = manOfTheMatchReport.Rows.OrderByDescending(r => int.Parse(r.Cells[2].Text)).ToArray(); // TODO: safely parse the text
+        var topPlayers = rowsDescending.Where(r => r.Cells[2].Text.Equals(rowsDescending[0].Cells[2].Text)).ToArray();
         yield return Row(
-            "Man of the match",
-            string.Join(", ", manOfTheMatch.Rows
-                .Where(r => r.Value?.Equals(times) == true)
-                .Select(r => r.PlayerName)),
-            times);
+            Cell(text: "Man of the match"),
+            topPlayers.Length == 1
+                ? topPlayers[0].Cells[1]
+                : Cell(text: string.Join(", ", topPlayers.Select(r => r.Cells[1].Text))),
+            topPlayers.Length == 1
+                ? topPlayers[0].Cells[2]
+                : Cell(text: rowsDescending.Select(r => r.Cells[2].Text).FirstOrDefault()));
     }
 }

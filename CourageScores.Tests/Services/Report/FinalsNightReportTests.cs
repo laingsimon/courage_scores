@@ -33,10 +33,12 @@ public class FinalsNightReportTests
     private PlayerLookup _playerLookup = null!;
     private ReportDto _momReport = null!;
     private TournamentGameDto _tournament = null!;
+    private ReportRequestDto _request = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _request = new ReportRequestDto();
         _userService = new Mock<IUserService>();
         _manOfTheMatchReport = new Mock<IReport>();
         _division1 = new DivisionDto { Id = Guid.NewGuid(), Name = "Division 1", };
@@ -74,9 +76,12 @@ public class FinalsNightReportTests
             {
                 new ReportRowDto
                 {
-                    PlayerName = "MOM",
-                    TeamName = "TEAM",
-                    Value = 5,
+                    Cells =
+                    {
+                        new ReportCellDto { Text = "TEAM" },
+                        new ReportCellDto { Text = "MOM" },
+                        new ReportCellDto { Text = "5" },
+                    },
                 },
             },
         };
@@ -113,7 +118,7 @@ public class FinalsNightReportTests
             .ReturnsAsync(_divisionData2);
         _divisionService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_divisions));
         _manOfTheMatchReport
-            .Setup(r => r.GetReport(_playerLookup, _token))
+            .Setup(r => r.GetReport(_request, _playerLookup, _token))
             .ReturnsAsync(() => _momReport);
         _tournamentService.Setup(s => s.Get(_tournament.Id, _token)).ReturnsAsync(_tournament);
     }
@@ -123,17 +128,17 @@ public class FinalsNightReportTests
     {
         _divisions = Array.Empty<DivisionDto>();
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        Assert.That(report.Rows.Select(r => r.PlayerName), Is.EqualTo(new[] { "Could not produce report" }));
-        Assert.That(report.Rows.Select(r => r.TeamName), Is.EqualTo(new[] { "⚠ No divisions found" }));
+        Assert.That(report.Rows.Select(r => r.Cells[0].Text), Is.EqualTo(new[] { "Could not produce report" }));
+        Assert.That(report.Rows.Select(r => r.Cells[1].Text), Is.EqualTo(new[] { "⚠️ No divisions found" }));
     }
 
     [Test]
     public async Task GetReport_WhenKnockoutDateDoesNotExist_ReturnsWarning()
     {
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Knockout", "⚠️ No date found with this note");
@@ -160,7 +165,7 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Knockout", "⚠️ No tournaments exist on this date");
@@ -204,7 +209,7 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Knockout", "⚠️ Multiple dates (2) found with this note");
@@ -237,7 +242,7 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Knockout - Knockout", "⚠️ Multiple tournaments (2) found with this type");
@@ -264,7 +269,7 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Knockout - Knockout", "⚠️ No tournament found with this type");
@@ -291,7 +296,7 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Knockout - Subsid", "⚠️ No tournament found with this type");
@@ -300,6 +305,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenKnockoutTournamentCannotBeAccessed_ReturnsWarning()
     {
+        var inaccessibleTournamentId = Guid.NewGuid();
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
         {
             Date = new DateTime(2001, 02, 03),
@@ -307,7 +313,7 @@ public class FinalsNightReportTests
             {
                 new DivisionTournamentFixtureDetailsDto
                 {
-                    Id = Guid.NewGuid(),
+                    Id = inaccessibleTournamentId,
                     Proposed = false,
                     Type = "Knockout",
                 },
@@ -318,10 +324,11 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Knockout - Knockout", "⚠️ Unable to access tournament");
+        AssertTournamentLink(report, "Division 1: Knockout - Knockout", 1, inaccessibleTournamentId);
     }
 
     [Test]
@@ -346,10 +353,11 @@ public class FinalsNightReportTests
         });
         _tournament.Round!.Matches.Clear();
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout", "⚠️ Has not been played or has no winner");
+        AssertTournamentLink(report, "Knockout", 1, _tournament.Id);
     }
 
     [Test]
@@ -375,10 +383,11 @@ public class FinalsNightReportTests
         _tournament.Round!.Matches[0].ScoreA = 1;
         _tournament.Round!.Matches[0].ScoreB = 1;
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout", "⚠️ Has not been played or has no winner");
+        AssertTournamentLink(report, "Knockout", 1, _tournament.Id);
     }
 
     [Test]
@@ -402,11 +411,13 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout winner", "SIDE B");
         AssertReportRow(report, "Knockout runner up", "SIDE A");
+        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
     }
 
     [Test]
@@ -449,11 +460,13 @@ public class FinalsNightReportTests
             },
         };
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout winner", "SIDE D");
         AssertReportRow(report, "Knockout runner up", "SIDE C");
+        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
     }
 
     [Test]
@@ -478,10 +491,11 @@ public class FinalsNightReportTests
         });
         _tournament.Round = null;
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout", "⚠️ Has not been played or has no winner");
+        AssertTournamentLink(report, "Knockout", 1, _tournament.Id);
     }
 
     [Test]
@@ -505,11 +519,13 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout winner", "SIDE B");
         AssertReportRow(report, "Knockout runner up", "SIDE A");
+        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
     }
 
     [Test]
@@ -533,11 +549,13 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Subsid winner", "SIDE B");
         AssertReportRow(report, "Subsid runner up", "SIDE A");
+        AssertTournamentLink(report, "Subsid winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "Subsid runner up", 1, _tournament.Id);
     }
 
     [Test]
@@ -563,11 +581,13 @@ public class FinalsNightReportTests
         _tournament.Round!.Matches[0].SideA.Name = null;
         _tournament.Round!.Matches[0].SideB.Name = null;
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout winner", "⚠️ <no side name>");
         AssertReportRow(report, "Knockout runner up", "⚠️ <no side name>");
+        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
     }
 
     [Test]
@@ -593,11 +613,13 @@ public class FinalsNightReportTests
         _tournament.Round!.Matches[0].SideA.Name = "";
         _tournament.Round!.Matches[0].SideB.Name = "";
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout winner", "⚠️ <no side name>");
         AssertReportRow(report, "Knockout runner up", "⚠️ <no side name>");
+        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
     }
 
     [Test]
@@ -605,19 +627,19 @@ public class FinalsNightReportTests
     {
         _user!.Access!.ManageScores = false;
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Man of the match", "");
+        AssertReportRow(report, "Man of the match");
     }
 
     [Test]
     public async Task GetReport_WhenPermitted_ReturnsManOfTheMatchDetail()
     {
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Man of the match", "MOM", 5);
+        AssertReportRow(report, "Man of the match", "MOM", "5");
     }
 
     [Test]
@@ -625,19 +647,27 @@ public class FinalsNightReportTests
     {
         _momReport.Rows.Add(new ReportRowDto
         {
-            PlayerName = "MOM_1",
-            Value = 10,
+            Cells =
+            {
+                new ReportCellDto { Text = "TEAM", TeamId = Guid.NewGuid() },
+                new ReportCellDto { Text = "MOM_1", PlayerId = Guid.NewGuid(), },
+                new ReportCellDto { Text = "10" },
+            },
         });
         _momReport.Rows.Add(new ReportRowDto
         {
-            PlayerName = "MOM_2",
-            Value = 10,
+            Cells =
+            {
+                new ReportCellDto { Text = "TEAM", TeamId = Guid.NewGuid() },
+                new ReportCellDto { Text = "MOM_2", PlayerId = Guid.NewGuid(), },
+                new ReportCellDto { Text = "10" },
+            },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Man of the match", "MOM_1, MOM_2", 10);
+        AssertReportRow(report, "Man of the match", "MOM_1, MOM_2", "10");
     }
 
     [Test]
@@ -645,7 +675,7 @@ public class FinalsNightReportTests
     {
         _momReport.Rows.Clear();
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Man of the match", "");
@@ -654,59 +684,132 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenSinglePlayerWithMost180s_Returns180sForEachDivisions()
     {
-        _divisionData1.Players.Add(new DivisionPlayerDto
+        var division1Player = new DivisionPlayerDto
         {
             Name = "PLAYER",
             OneEighties = 2,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+        };
+        var division2Player = new DivisionPlayerDto
         {
             Name = "PLAYER",
             OneEighties = 3,
-        });
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+        };
+        _divisionData1.Players.Add(division1Player);
+        _divisionData2.Players.Add(division2Player);
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Most 180s", "PLAYER", 2);
-        AssertReportRow(report, "Division 2: Most 180s", "PLAYER", 3);
+        AssertReportRow(report, "Division 1: Most 180s", "PLAYER", "2");
+        AssertReportRow(report, "Division 2: Most 180s", "PLAYER", "3");
+        AssertPlayerLink(report, "Division 1: Most 180s", 1, division1Player, _division1);
+        AssertPlayerLink(report, "Division 2: Most 180s", 1, division2Player, _division2);
     }
 
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithMost180s_Returns180sForEachDivisions()
     {
-        _divisionData1.Players.Add(new DivisionPlayerDto
+        var player1 = new DivisionPlayerDto
         {
             Name = "PLAYER_1",
             OneEighties = 2,
-        });
-        _divisionData1.Players.Add(new DivisionPlayerDto
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 1",
+        };
+        var player2 = new DivisionPlayerDto
         {
             Name = "PLAYER_2",
             OneEighties = 2,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 2",
+        };
+        var player3 = new DivisionPlayerDto
         {
             Name = "PLAYER_3",
             OneEighties = 3,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 3",
+        };
+        var player4 = new DivisionPlayerDto
         {
             Name = "PLAYER_4",
             OneEighties = 3,
-        });
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 4",
+        };
+        _divisionData1.Players.Add(player1);
+        _divisionData1.Players.Add(player2);
+        _divisionData2.Players.Add(player3);
+        _divisionData2.Players.Add(player4);
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1, PLAYER_2", 2);
-        AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3, PLAYER_4", 3);
+        AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1, PLAYER_2", "2");
+        AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3, PLAYER_4", "3");
+    }
+
+    [Test]
+    public async Task GetReport_WhenMultiplePlayersWithMost180sFromTheSameTeam_Returns180sForEachDivisions()
+    {
+        var player1 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_1",
+            OneEighties = 2,
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 1",
+        };
+        var player2 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_2",
+            OneEighties = 2,
+            Id = Guid.NewGuid(),
+            TeamId = player1.TeamId,
+            Team = player1.Team,
+        };
+        var player3 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_3",
+            OneEighties = 3,
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 3",
+        };
+        var player4 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_4",
+            OneEighties = 3,
+            Id = Guid.NewGuid(),
+            TeamId = player3.TeamId,
+            Team = player3.Team,
+        };
+        _divisionData1.Players.Add(player1);
+        _divisionData1.Players.Add(player2);
+        _divisionData2.Players.Add(player3);
+        _divisionData2.Players.Add(player4);
+
+        var report = await _report.GetReport(_request, _playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1, PLAYER_2", "2");
+        AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3, PLAYER_4", "3");
+        AssertTeamLink(report, "Division 1: Most 180s", 1, player1.Team, player1.TeamId, _division1);
+        AssertTeamLink(report, "Division 2: Most 180s", 1, player3.Team, player3.TeamId, _division2);
     }
 
     [Test]
     public async Task GetReport_WhenNoPlayersWith180s_Returns180sForEachDivisions()
     {
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "");
@@ -727,7 +830,7 @@ public class FinalsNightReportTests
             OneEighties = 0,
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "");
@@ -737,59 +840,128 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenSinglePlayerWithHiCheck_ReturnsHiChecksForEachDivisions()
     {
-        _divisionData1.Players.Add(new DivisionPlayerDto
+        var division1Player = new DivisionPlayerDto
         {
             Name = "PLAYER",
             Over100Checkouts = 101,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
+        };
+        var division2Player = new DivisionPlayerDto
         {
             Name = "PLAYER",
             Over100Checkouts = 102,
-        });
+        };
+        _divisionData1.Players.Add(division1Player);
+        _divisionData2.Players.Add(division2Player);
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER", 101);
-        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER", 102);
+        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER", "101");
+        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER", "102");
+        AssertPlayerLink(report, "Division 1: Highest checkout", 1, division1Player, _division1);
+        AssertPlayerLink(report, "Division 2: Highest checkout", 1, division2Player, _division2);
     }
 
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithHighestCheck_ReturnsHiChecksForEachDivisions()
     {
-        _divisionData1.Players.Add(new DivisionPlayerDto
+        var player1 = new DivisionPlayerDto
         {
             Name = "PLAYER_1",
             Over100Checkouts = 101,
-        });
-        _divisionData1.Players.Add(new DivisionPlayerDto
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 1",
+        };
+        var player2 = new DivisionPlayerDto
         {
             Name = "PLAYER_2",
             Over100Checkouts = 101,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 2",
+        };
+        var player3 = new DivisionPlayerDto
         {
             Name = "PLAYER_3",
             Over100Checkouts = 102,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 3",
+        };
+        var player4 = new DivisionPlayerDto
         {
             Name = "PLAYER_4",
             Over100Checkouts = 102,
-        });
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 4",
+        };
+        _divisionData1.Players.Add(player1);
+        _divisionData1.Players.Add(player2);
+        _divisionData2.Players.Add(player3);
+        _divisionData2.Players.Add(player4);
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1, PLAYER_2", 101);
-        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3, PLAYER_4", 102);
+        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1, PLAYER_2", "101");
+        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3, PLAYER_4", "102");
+    }
+
+    [Test]
+    public async Task GetReport_WhenMultiplePlayersWithHighestCheckFromTheSameTeam_ReturnsHiChecksForEachDivisions()
+    {
+        var player1 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_1",
+            Over100Checkouts = 101,
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 1",
+        };
+        var player2 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_2",
+            Over100Checkouts = 101,
+            Id = Guid.NewGuid(),
+            TeamId = player1.TeamId,
+            Team = player1.Team,
+        };
+        var player3 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_3",
+            Over100Checkouts = 102,
+            Id = Guid.NewGuid(),
+            TeamId = Guid.NewGuid(),
+            Team = "TEAM 3",
+        };
+        var player4 = new DivisionPlayerDto
+        {
+            Name = "PLAYER_4",
+            Over100Checkouts = 102,
+            Id = Guid.NewGuid(),
+            TeamId = player3.TeamId,
+            Team = player3.Team,
+        };
+        _divisionData1.Players.Add(player1);
+        _divisionData1.Players.Add(player2);
+        _divisionData2.Players.Add(player3);
+        _divisionData2.Players.Add(player4);
+
+        var report = await _report.GetReport(_request, _playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1, PLAYER_2", "101");
+        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3, PLAYER_4", "102");
+        AssertTeamLink(report, "Division 1: Highest checkout", 1, player1.Team, player1.TeamId, _division1);
+        AssertTeamLink(report, "Division 2: Highest checkout", 1, player3.Team, player3.TeamId, _division2);
     }
 
     [Test]
     public async Task GetReport_WhenNoPlayersWithHiCheck_ReturnsHiChecksForEachDivisions()
     {
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "");
@@ -810,7 +982,7 @@ public class FinalsNightReportTests
             Over100Checkouts = 0,
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "");
@@ -820,7 +992,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenNoDivisionalSinglesDate_ReturnsNoDivisionalSinglesRows()
     {
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Divisional Singles", "⚠️ No date found with this note");
@@ -847,7 +1019,7 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Divisional Singles - Divisional Singles", "⚠️ No tournament found with this type");
@@ -875,11 +1047,13 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Divisional Singles runner up", "SIDE A");
         AssertReportRow(report, "Division 1: Divisional Singles winner", "SIDE B");
+        AssertTournamentLink(report, "Division 1: Divisional Singles runner up", 1, _tournament.Id);
+        AssertTournamentLink(report, "Division 1: Divisional Singles winner", 1, _tournament.Id);
     }
 
     [Test]
@@ -921,48 +1095,64 @@ public class FinalsNightReportTests
             },
         });
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Divisional Singles runner up", "SIDE A");
         AssertReportRow(report, "Division 1: Divisional Singles winner", "SIDE B");
         AssertReportRow(report, "Division 2: Divisional Singles runner up", "SIDE A");
         AssertReportRow(report, "Division 2: Divisional Singles winner", "SIDE B");
+        AssertTournamentLink(report, "Division 1: Divisional Singles runner up", 1, _tournament.Id);
+        AssertTournamentLink(report, "Division 1: Divisional Singles winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "Division 2: Divisional Singles runner up", 1, _tournament.Id);
+        AssertTournamentLink(report, "Division 2: Divisional Singles winner", 1, _tournament.Id);
     }
 
     [Test]
     public async Task GetReport_WhenMultipleTeamsRanked_ReturnsWinningAndRunnerUpTeams()
     {
-        _divisionData1.Teams.Add(new DivisionTeamDto
+        var team1 = new DivisionTeamDto
         {
             Name = "TEAM 1",
-        });
-        _divisionData1.Teams.Add(new DivisionTeamDto
+            Id = Guid.NewGuid(),
+        };
+        var team2 = new DivisionTeamDto
         {
             Name = "TEAM 2",
-        });
-        _divisionData2.Teams.Add(new DivisionTeamDto
+            Id = Guid.NewGuid(),
+        };
+        var team3 = new DivisionTeamDto
         {
             Name = "TEAM 3",
-        });
-        _divisionData2.Teams.Add(new DivisionTeamDto
+            Id = Guid.NewGuid(),
+        };
+        var team4 = new DivisionTeamDto
         {
             Name = "TEAM 4",
-        });
+            Id = Guid.NewGuid(),
+        };
+        _divisionData1.Teams.Add(team1);
+        _divisionData1.Teams.Add(team2);
+        _divisionData2.Teams.Add(team3);
+        _divisionData2.Teams.Add(team4);
 
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: runner up", "TEAM 2");
         AssertReportRow(report, "Division 1: winner", "TEAM 1");
         AssertReportRow(report, "Division 2: runner up", "TEAM 4");
         AssertReportRow(report, "Division 2: winner", "TEAM 3");
+        AssertTeamLink(report, "Division 1: runner up", 1, team2.Name, team2.Id, _division1);
+        AssertTeamLink(report, "Division 1: winner", 1, team1.Name, team1.Id, _division1);
+        AssertTeamLink(report, "Division 2: runner up", 1, team4.Name, team4.Id, _division2);
+        AssertTeamLink(report, "Division 2: winner", 1, team3.Name, team3.Id, _division2);
     }
 
     [Test]
     public async Task GetReport_WhenNoTeams_ReturnsEmpty()
     {
-        var report = await _report.GetReport(_playerLookup, _token);
+        var report = await _report.GetReport(_request, _playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: runner up", "⚠️ Not found");
@@ -971,11 +1161,52 @@ public class FinalsNightReportTests
         AssertReportRow(report, "Division 2: winner", "⚠️ Not found");
     }
 
-    private static void AssertReportRow(ReportDto report, string playerName, string teamName, double? value = null)
+    private static void AssertReportRow(ReportDto report, string firstColumn, string? secondColumn = null, string? value = null)
     {
-        Assert.That(report.Rows.Select(r => r.PlayerName).ToArray(), Has.Member(playerName));
-        var reportRow = report.Rows.Single(r => r.PlayerName == playerName);
-        Assert.That(reportRow.TeamName, Is.EqualTo(teamName));
-        Assert.That(reportRow.Value, Is.EqualTo(value));
+        Assert.That(report.Rows.Select(r => r.Cells[0].Text).ToArray(), Has.Member(firstColumn));
+        var reportRow = report.Rows.Single(r => r.Cells[0].Text == firstColumn);
+        if (secondColumn != null)
+        {
+            Assert.That(reportRow.Cells[1].Text, Is.EqualTo(secondColumn));
+        }
+        if (value != null)
+        {
+            Assert.That(reportRow.Cells[2].Text, Is.EqualTo(value));
+        }
+    }
+
+    private static void AssertTeamLink(ReportDto report, string firstColumn, int columnIndex, string teamName, Guid teamId, DivisionDto division)
+    {
+        Assert.That(report.Rows.Select(r => r.Cells[0].Text).ToArray(), Has.Member(firstColumn));
+        var reportRow = report.Rows.Single(r => r.Cells[0].Text == firstColumn);
+        Assert.That(reportRow.Cells.Count, Is.GreaterThan(columnIndex));
+        var reportCell = reportRow.Cells[columnIndex];
+        Assert.That(reportCell.TeamName, Is.EqualTo(teamName));
+        Assert.That(reportCell.TeamId, Is.EqualTo(teamId));
+        Assert.That(reportCell.DivisionId, Is.EqualTo(division.Id));
+        Assert.That(reportCell.DivisionName, Is.EqualTo(division.Name));
+    }
+
+    private static void AssertPlayerLink(ReportDto report, string firstColumn, int columnIndex, DivisionPlayerDto player, DivisionDto division)
+    {
+        Assert.That(report.Rows.Select(r => r.Cells[0].Text).ToArray(), Has.Member(firstColumn));
+        var reportRow = report.Rows.Single(r => r.Cells[0].Text == firstColumn);
+        Assert.That(reportRow.Cells.Count, Is.GreaterThan(columnIndex));
+        var reportCell = reportRow.Cells[columnIndex];
+        Assert.That(reportCell.TeamName, Is.EqualTo(player.Team));
+        Assert.That(reportCell.TeamId, Is.EqualTo(player.TeamId));
+        Assert.That(reportCell.PlayerName, Is.EqualTo(player.Name));
+        Assert.That(reportCell.PlayerId, Is.EqualTo(player.Id));
+        Assert.That(reportCell.DivisionId, Is.EqualTo(division.Id));
+        Assert.That(reportCell.DivisionName, Is.EqualTo(division.Name));
+    }
+
+    private static void AssertTournamentLink(ReportDto report, string firstColumn, int columnIndex, Guid tournamentId)
+    {
+        Assert.That(report.Rows.Select(r => r.Cells[0].Text).ToArray(), Has.Member(firstColumn));
+        var reportRow = report.Rows.Single(r => r.Cells[0].Text == firstColumn);
+        Assert.That(reportRow.Cells.Count, Is.GreaterThan(columnIndex));
+        var reportCell = reportRow.Cells[columnIndex];
+        Assert.That(reportCell.TournamentId, Is.EqualTo(tournamentId));
     }
 }

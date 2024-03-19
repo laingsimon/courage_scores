@@ -99,7 +99,7 @@ describe('DivisionReports', () => {
                 reports: [{
                     name: 'A report',
                     description: 'A report description',
-                    valueHeading: 'Value',
+                    columns: [],
                     rows: []
                 }],
                 messages: []
@@ -129,13 +129,13 @@ describe('DivisionReports', () => {
             const report1: ReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
-                valueHeading: 'Value',
+                columns: [],
                 rows: []
             };
             const report2: ReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
-                valueHeading: 'Value',
+                columns: [],
                 rows: []
             };
             const divisionId = createTemporaryId();
@@ -158,13 +158,13 @@ describe('DivisionReports', () => {
             const report1: ReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
-                valueHeading: 'Value',
+                columns: [],
                 rows: []
             };
             const report2: ReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
-                valueHeading: 'Value',
+                columns: [],
                 rows: []
             };
             const divisionId = createTemporaryId();
@@ -191,13 +191,13 @@ describe('DivisionReports', () => {
             const report1: ReportDto = {
                 name: 'report-1',
                 description: 'Report 1',
-                valueHeading: 'Value',
+                columns: [],
                 rows: []
             };
             const report2: ReportDto = {
                 name: 'report-2',
                 description: 'Report 2',
-                valueHeading: 'Value',
+                columns: [],
                 rows: []
             };
             const divisionId = createTemporaryId();
@@ -228,7 +228,7 @@ describe('DivisionReports', () => {
                 reports: [{
                     name: 'A report',
                     description: 'A report description',
-                    valueHeading: 'Value',
+                    columns: [],
                     rows: []
                 }],
                 messages: ['A message']
@@ -249,12 +249,12 @@ describe('DivisionReports', () => {
                 reports: [{
                     name: 'A report',
                     description: 'A report description',
-                    valueHeading: 'Value',
+                    columns: [],
                     rows: []
                 }, {
                     name: 'Another report',
                     description: 'Another report description',
-                    valueHeading: 'Count',
+                    columns: [],
                     rows: []
                 }],
                 messages: []
@@ -275,16 +275,24 @@ describe('DivisionReports', () => {
                 reports: [{
                     name: 'A report',
                     description: 'A report description',
-                    valueHeading: 'A value heading',
+                    columns: ['A team heading', 'A player heading', 'A value heading'],
                     rows: [{
-                        playerName: 'A player',
-                        teamName: 'A team',
-                        value: 1
+                        cells: [{
+                            text: 'A team',
+                        }, {
+                            text: 'A player',
+                        }, {
+                            text: '1'
+                        }],
                     }, {
-                        playerName: 'Another player',
-                        teamName: 'Another team',
-                        value: 2
-                    }]
+                        cells: [ {
+                            text: 'Another team',
+                        }, {
+                            text: 'Another player',
+                        }, {
+                            text: '2'
+                        } ],
+                    }],
                 }],
                 messages: []
             }
@@ -295,11 +303,11 @@ describe('DivisionReports', () => {
             const reportTable = context.container.querySelector('.content-background table');
             expect(reportTable).toBeTruthy();
             const reportHeadings = Array.from(reportTable.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
-            expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual(['', 'Player', 'Team', 'A value heading']);
+            expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual(['', 'A team heading', 'A player heading', 'A value heading']);
             const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             expect(reportRows.length).toEqual(2);
-            assertReportRow(reportRows[0], ['1', 'A player', 'A team', '1']);
-            assertReportRow(reportRows[1], ['2', 'Another player', 'Another team', '2']);
+            assertReportRow(reportRows[0], ['1', 'A team', 'A player', '1']);
+            assertReportRow(reportRows[1], ['2', 'Another team', 'Another player', '2']);
         });
 
         it('renders per-division print heading', async () => {
@@ -310,15 +318,23 @@ describe('DivisionReports', () => {
                 reports: [{
                     name: 'A report',
                     description: 'A report description',
-                    valueHeading: 'A value heading',
+                    columns: ['A team heading', 'A player heading', 'A value heading'],
                     rows: [{
-                        playerName: 'A player',
-                        teamName: 'A team',
-                        value: 1
+                        cells: [{
+                            text: 'A team',
+                        }, {
+                            text: 'A player',
+                        }, {
+                            text: '1'
+                        }],
                     }, {
-                        playerName: 'Another player',
-                        teamName: 'Another team',
-                        value: 2
+                        cells: [ {
+                            text: 'Another team',
+                        }, {
+                            text: 'Another player',
+                        }, {
+                            text: '2'
+                        } ],
                     }],
                     thisDivisionOnly: true,
                 }],
@@ -341,15 +357,23 @@ describe('DivisionReports', () => {
                 reports: [{
                     name: 'A report',
                     description: 'A report description',
-                    valueHeading: 'A value heading',
+                    columns: ['A team heading', 'A player heading', 'A value heading'],
                     rows: [{
-                        playerName: 'A player',
-                        teamName: 'A team',
-                        value: 1
+                        cells: [{
+                            text: 'A team',
+                        }, {
+                            text: 'A player',
+                        }, {
+                            text: '1'
+                        }],
                     }, {
-                        playerName: 'Another player',
-                        teamName: 'Another team',
-                        value: 2
+                        cells: [ {
+                            text: 'Another team',
+                        }, {
+                            text: 'Another player',
+                        }, {
+                            text: '2'
+                        } ],
                     }],
                     thisDivisionOnly: false,
                 }],
