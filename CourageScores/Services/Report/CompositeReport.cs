@@ -14,7 +14,7 @@ public abstract class CompositeReport : IReport
         _reports = reports.ToArray();
     }
 
-    public abstract Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token);
+    public abstract Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token);
 
     private void ForEachReport(Action<IReport> action)
     {

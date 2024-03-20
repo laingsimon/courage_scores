@@ -31,9 +31,9 @@ public class RequestedDivisionOnlyReport : IReport
         return false;
     }
 
-    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
+    public async Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token)
     {
-        var report = await _report.GetReport(playerLookup, token);
+        var report = await _report.GetReport(request, playerLookup, token);
         report.ThisDivisionOnly = true;
         return report;
     }

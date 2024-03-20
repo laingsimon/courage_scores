@@ -80,7 +80,7 @@ public class ReportService : IReportService
         {
             DivisionId = request.DivisionId,
             SeasonId = request.SeasonId,
-            Reports = await reportVisitors.SelectAsync(v => v.GetReport(playerLookup, token)).ToList(),
+            Reports = await reportVisitors.SelectAsync(v => v.GetReport(request, playerLookup, token)).ToList(),
             Messages =
             {
                 $"{gameCount} games inspected",
