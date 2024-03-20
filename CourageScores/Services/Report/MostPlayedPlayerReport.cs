@@ -15,13 +15,13 @@ public class MostPlayedPlayerReport : IReport
         _topCount = topCount;
     }
 
-    public async Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token)
+    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
     {
         return new ReportDto
         {
             Description = $"The top {_topCount} most played players {(_singlesOnly ? "(singles only)" : "(singles, pairs and triples)")}",
             Name = "Most played player",
-            Rows = await GetRows(request, playerLookup).TakeAsync(_topCount).ToList(),
+            Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
             Columns =
             {
                 "Team",
@@ -65,7 +65,7 @@ public class MostPlayedPlayerReport : IReport
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> GetRows(ReportRequestDto request, IPlayerLookup playerLookup)
+    private async IAsyncEnumerable<ReportRowDto> GetRows(IPlayerLookup playerLookup)
     {
         foreach (var pair in _playerGamesRecord.OrderByDescending(pair => pair.Value))
         {
@@ -78,7 +78,7 @@ public class MostPlayedPlayerReport : IReport
                     {
                         TeamId = player.TeamId,
                         TeamName = player.TeamName,
-                        DivisionId = request.DivisionId,
+                        DivisionId = player.DivisionId,
                         Text = player.TeamName,
                     },
                     new ReportCellDto
@@ -87,7 +87,7 @@ public class MostPlayedPlayerReport : IReport
                         PlayerName = player.PlayerName,
                         TeamId = player.TeamId,
                         TeamName = player.TeamName,
-                        DivisionId = request.DivisionId,
+                        DivisionId = player.DivisionId,
                         Text = player.PlayerName,
                     },
                     new ReportCellDto

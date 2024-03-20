@@ -34,7 +34,7 @@ public class FinalsNightReport : CompositeReport
         _tournamentService = tournamentService;
     }
 
-    public override async Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token)
+    public override async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
     {
         return new ReportDto
         {
@@ -47,7 +47,7 @@ public class FinalsNightReport : CompositeReport
                 "Value/s",
             },
             ThisDivisionOnly = false,
-            Rows = await GetReportRows(request, playerLookup, token).ToList(),
+            Rows = await GetReportRows(playerLookup, token).ToList(),
         };
     }
 
@@ -241,7 +241,7 @@ public class FinalsNightReport : CompositeReport
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> GetReportRows(ReportRequestDto request, IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<ReportRowDto> GetReportRows(IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
     {
         var divisions = await _divisionService.GetAll(token).ToList();
         var divisionData = await divisions
@@ -262,7 +262,7 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ManOfTheMatch(request, playerLookup, token))
+        await foreach (var row in ManOfTheMatch(playerLookup, token))
         {
             yield return row;
         }
@@ -325,7 +325,7 @@ public class FinalsNightReport : CompositeReport
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> ManOfTheMatch(ReportRequestDto request, IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<ReportRowDto> ManOfTheMatch(IPlayerLookup playerLookup, [EnumeratorCancellation] CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
@@ -335,7 +335,7 @@ public class FinalsNightReport : CompositeReport
             yield break;
         }
 
-        var manOfTheMatchReport = await _manOfTheMatchReport.GetReport(request, playerLookup, token);
+        var manOfTheMatchReport = await _manOfTheMatchReport.GetReport(playerLookup, token);
         var rowsDescending = manOfTheMatchReport.Rows.OrderByDescending(r => int.Parse(r.Cells[2].Text)).ToArray(); // TODO: safely parse the text
         var topPlayers = rowsDescending.Where(r => r.Cells[2].Text.Equals(rowsDescending[0].Cells[2].Text)).ToArray();
         yield return Row(

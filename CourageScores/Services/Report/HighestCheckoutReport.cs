@@ -13,13 +13,13 @@ public class HighestCheckoutReport : IReport
         _topCount = topCount;
     }
 
-    public async Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token)
+    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
     {
         return new ReportDto
         {
             Description = $"The top {_topCount} checkouts",
             Name = "Highest checkouts",
-            Rows = await GetRows(request, playerLookup).TakeAsync(_topCount).ToList(),
+            Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
             Columns =
             {
                 "Team",
@@ -46,7 +46,7 @@ public class HighestCheckoutReport : IReport
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> GetRows(ReportRequestDto request, IPlayerLookup playerLookup)
+    private async IAsyncEnumerable<ReportRowDto> GetRows(IPlayerLookup playerLookup)
     {
         foreach (var pair in _playerCheckoutRecord.OrderByDescending(pair => pair.Value))
         {
@@ -60,7 +60,7 @@ public class HighestCheckoutReport : IReport
                         TeamId = player.TeamId,
                         TeamName = player.TeamName,
                         Text = player.TeamName,
-                        DivisionId = request.DivisionId,
+                        DivisionId = player.DivisionId,
                     },
                     new ReportCellDto
                     {
@@ -69,7 +69,7 @@ public class HighestCheckoutReport : IReport
                         TeamId = player.TeamId,
                         TeamName = player.TeamName,
                         Text = player.PlayerName,
-                        DivisionId = request.DivisionId,
+                        DivisionId = player.DivisionId,
                     },
                     new ReportCellDto
                     {
