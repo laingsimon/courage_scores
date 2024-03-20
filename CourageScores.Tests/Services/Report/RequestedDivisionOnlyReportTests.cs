@@ -19,18 +19,17 @@ public class RequestedDivisionOnlyReportTests
         var underlying = new Mock<IReport>();
         var playerLookup = new Mock<IPlayerLookup>();
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
-        var request = new ReportRequestDto();
         var reportDto = new ReportDto
         {
             ThisDivisionOnly = false,
         };
         underlying
-            .Setup(r => r.GetReport(request, playerLookup.Object, _token))
+            .Setup(r => r.GetReport(playerLookup.Object, _token))
             .ReturnsAsync(reportDto);
 
-        var result = await report.GetReport(request, playerLookup.Object, _token);
+        var result = await report.GetReport(playerLookup.Object, _token);
 
-        underlying.Verify(r => r.GetReport(request, playerLookup.Object, _token));
+        underlying.Verify(r => r.GetReport(playerLookup.Object, _token));
         Assert.That(result, Is.SameAs(reportDto));
         Assert.That(result.ThisDivisionOnly, Is.EqualTo(true));
     }

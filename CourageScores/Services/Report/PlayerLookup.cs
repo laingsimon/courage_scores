@@ -13,8 +13,8 @@ public class PlayerLookup : IPlayerLookup, IGameVisitor
             return;
         }
 
-        AddPlayers(game.Home, game.Matches.SelectMany(m => m.HomePlayers));
-        AddPlayers(game.Away, game.Matches.SelectMany(m => m.AwayPlayers));
+        AddPlayers(game.Home, game.Matches.SelectMany(m => m.HomePlayers), game.DivisionId);
+        AddPlayers(game.Away, game.Matches.SelectMany(m => m.AwayPlayers), game.DivisionId);
     }
 
     public Task<PlayerDetails> GetPlayer(Guid playerId)
@@ -24,7 +24,7 @@ public class PlayerLookup : IPlayerLookup, IGameVisitor
             : new PlayerDetails());
     }
 
-    private void AddPlayers(GameTeam team, IEnumerable<GamePlayer> players)
+    private void AddPlayers(GameTeam team, IEnumerable<GamePlayer> players, Guid divisionId)
     {
         foreach (var player in players)
         {
@@ -35,6 +35,7 @@ public class PlayerLookup : IPlayerLookup, IGameVisitor
                     PlayerName = player.Name,
                     TeamId = team.Id,
                     TeamName = team.Name,
+                    DivisionId = divisionId,
                 });
         }
     }

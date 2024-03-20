@@ -13,13 +13,13 @@ public class MostOneEightiesReport : IReport
         _topCount = topCount;
     }
 
-    public async Task<ReportDto> GetReport(ReportRequestDto request, IPlayerLookup playerLookup, CancellationToken token)
+    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
     {
         return new ReportDto
         {
             Description = $"The top {_topCount} most 180s",
             Name = "Most 180s",
-            Rows = await GetRows(request, playerLookup).TakeAsync(_topCount).ToList(),
+            Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
             Columns =
             {
                 "Team",
@@ -41,7 +41,7 @@ public class MostOneEightiesReport : IReport
         }
     }
 
-    private async IAsyncEnumerable<ReportRowDto> GetRows(ReportRequestDto request, IPlayerLookup playerLookup)
+    private async IAsyncEnumerable<ReportRowDto> GetRows(IPlayerLookup playerLookup)
     {
         foreach (var pair in _playerOneEightiesRecord.OrderByDescending(pair => pair.Value))
         {
@@ -55,7 +55,7 @@ public class MostOneEightiesReport : IReport
                         TeamId = player.TeamId,
                         TeamName = player.TeamName,
                         Text = player.TeamName,
-                        DivisionId = request.DivisionId,
+                        DivisionId = player.DivisionId,
                     },
                     new ReportCellDto
                     {
@@ -64,7 +64,7 @@ public class MostOneEightiesReport : IReport
                         TeamId = player.TeamId,
                         TeamName = player.TeamName,
                         Text = player.PlayerName,
-                        DivisionId = request.DivisionId,
+                        DivisionId = player.DivisionId,
                     },
                     new ReportCellDto
                     {

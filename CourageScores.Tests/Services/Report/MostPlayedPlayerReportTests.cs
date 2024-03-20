@@ -1,5 +1,4 @@
 ﻿using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Dtos.Report;
 using CourageScores.Services.Report;
 using Moq;
 using NUnit.Framework;
@@ -26,12 +25,10 @@ public class MostPlayedPlayerReportTests
     };
     private Mock<IPlayerLookup> _playerLookup = null!;
     private static readonly IVisitorScope VisitorScope = new VisitorScope();
-    private ReportRequestDto _request = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _request = new ReportRequestDto();
         _playerLookup = new Mock<IPlayerLookup>();
         _playerLookup.Setup(l => l.GetPlayer(_daveId)).ReturnsAsync(_dave);
         _playerLookup.Setup(l => l.GetPlayer(_jonId)).ReturnsAsync(_jon);
@@ -44,7 +41,7 @@ public class MostPlayedPlayerReportTests
     {
         var report = new MostPlayedPlayerReport(topCount: 3);
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows, Is.Empty);
     }
@@ -63,7 +60,7 @@ public class MostPlayedPlayerReportTests
             Id = _jonId,
         }, 1);
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {
@@ -101,7 +98,7 @@ public class MostPlayedPlayerReportTests
             Id = _jonId,
         }, 2);
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {
@@ -139,7 +136,7 @@ public class MostPlayedPlayerReportTests
             Id = _jonId,
         }, 3);
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {
@@ -172,7 +169,7 @@ public class MostPlayedPlayerReportTests
             Id = _jonId,
         });
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows, Is.Empty);
     }
@@ -186,7 +183,7 @@ public class MostPlayedPlayerReportTests
             Id = _jonId,
         });
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {
@@ -223,7 +220,7 @@ public class MostPlayedPlayerReportTests
             Id = _daveId,
         }, 1);
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {
@@ -260,7 +257,7 @@ public class MostPlayedPlayerReportTests
             Id = _jonId,
         });
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {
@@ -297,7 +294,7 @@ public class MostPlayedPlayerReportTests
             Id = _daveId,
         });
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {
@@ -346,7 +343,7 @@ public class MostPlayedPlayerReportTests
             Id = Guid.NewGuid(),
         }, 1);
 
-        var result = await report.GetReport(_request, _playerLookup.Object, _token);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.Cells[1].PlayerId), Is.EquivalentTo(new[]
         {

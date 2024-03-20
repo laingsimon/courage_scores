@@ -96,7 +96,7 @@ public class ReportServiceTests
         _reportFactory
             .Setup(f => f.GetReports(It.IsAny<ReportRequestDto>(), _token))
             .Returns(TestUtilities.AsyncEnumerable(_report.Object));
-        _report.Setup(r => r.GetReport(It.IsAny<ReportRequestDto>(), It.IsAny<IPlayerLookup>(), _token))
+        _report.Setup(r => r.GetReport(It.IsAny<IPlayerLookup>(), _token))
             .ReturnsAsync(new ReportDto
             {
                 Name = "Report",
