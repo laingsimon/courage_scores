@@ -387,5 +387,196 @@ describe('DivisionReports', () => {
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('A season');
         });
+
+        it('renders link to tournament', async () => {
+            const divisionId = createTemporaryId();
+            const tournamentId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [{
+                    name: 'A report',
+                    description: 'A report description',
+                    columns: ['heading'],
+                    rows: [{
+                        cells: [{
+                            text: 'TEXT',
+                            tournamentId: tournamentId,
+                        }],
+                    }],
+                }],
+                messages: []
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            reportedError.verifyNoError();
+            const reportTable = context.container.querySelector('.content-background table');
+            expect(reportTable).toBeTruthy();
+            const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            expect(reportRows.length).toEqual(1);
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            expect(link.href).toEqual(`http://localhost/tournament/${tournamentId}`);
+            expect(link.text).toEqual('TEXT');
+        });
+
+        it('renders link to player by name', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [{
+                    name: 'A report',
+                    description: 'A report description',
+                    columns: ['heading'],
+                    rows: [{
+                        cells: [{
+                            text: 'TEXT',
+                            playerName: 'PLAYER',
+                            teamName: 'TEAM',
+                            divisionName: 'DIVISION',
+                        }],
+                    }],
+                }],
+                messages: []
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            reportedError.verifyNoError();
+            const reportTable = context.container.querySelector('.content-background table');
+            expect(reportTable).toBeTruthy();
+            const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            expect(reportRows.length).toEqual(1);
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            expect(link.href).toEqual(`http://localhost/division/DIVISION/player:PLAYER@TEAM/A%20season`);
+            expect(link.text).toEqual('TEXT');
+        });
+
+        it('renders link to team by name', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [{
+                    name: 'A report',
+                    description: 'A report description',
+                    columns: ['heading'],
+                    rows: [{
+                        cells: [{
+                            text: 'TEXT',
+                            teamName: 'TEAM',
+                            divisionName: 'DIVISION',
+                        }],
+                    }],
+                }],
+                messages: []
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            reportedError.verifyNoError();
+            const reportTable = context.container.querySelector('.content-background table');
+            expect(reportTable).toBeTruthy();
+            const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            expect(reportRows.length).toEqual(1);
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            expect(link.href).toEqual(`http://localhost/division/DIVISION/team:TEAM/A%20season`);
+            expect(link.text).toEqual('TEXT');
+        });
+
+        it('renders link to player by id', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [{
+                    name: 'A report',
+                    description: 'A report description',
+                    columns: ['heading'],
+                    rows: [{
+                        cells: [{
+                            text: 'TEXT',
+                            playerId: 'PLAYER_ID',
+                            teamId: 'TEAM_ID',
+                            divisionId: 'DIVISION_ID',
+                        }],
+                    }],
+                }],
+                messages: []
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            reportedError.verifyNoError();
+            const reportTable = context.container.querySelector('.content-background table');
+            expect(reportTable).toBeTruthy();
+            const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            expect(reportRows.length).toEqual(1);
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            expect(link.href).toEqual(`http://localhost/division/DIVISION_ID/player:PLAYER_ID@TEAM_ID/A%20season`);
+            expect(link.text).toEqual('TEXT');
+        });
+
+        it('renders link to team by id', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [{
+                    name: 'A report',
+                    description: 'A report description',
+                    columns: ['heading'],
+                    rows: [{
+                        cells: [{
+                            text: 'TEXT',
+                            teamId: 'TEAM_ID',
+                            divisionId: 'DIVISION_ID',
+                        }],
+                    }],
+                }],
+                messages: []
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            reportedError.verifyNoError();
+            const reportTable = context.container.querySelector('.content-background table');
+            expect(reportTable).toBeTruthy();
+            const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            expect(reportRows.length).toEqual(1);
+            const link: HTMLAnchorElement = reportRows[0].querySelector('a');
+            expect(link.href).toEqual(`http://localhost/division/DIVISION_ID/team:TEAM_ID/A%20season`);
+            expect(link.text).toEqual('TEXT');
+        });
+
+        it('renders missing cells', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [{
+                    name: 'A report',
+                    description: 'A report description',
+                    columns: ['heading', 'optional column '],
+                    rows: [{
+                        cells: [{
+                            text: 'TEXT',
+                        }],
+                    }],
+                }],
+                messages: []
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            reportedError.verifyNoError();
+            const reportTable = context.container.querySelector('.content-background table');
+            expect(reportTable).toBeTruthy();
+            const reportRows = Array.from(reportTable.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
+            expect(reportRows.length).toEqual(1);
+            const cells = Array.from(reportRows[0].querySelectorAll('td')) as HTMLTableCellElement[];
+            expect(cells.length).toEqual(1 + 2);
+        });
     });
 });
