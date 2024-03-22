@@ -28,6 +28,10 @@ describe('NumberKeyboard', () => {
     });
 
     async function renderComponent(props: INumberKeyboardProps) {
+        navigator.vibrate = (_: Iterable<number> | number | number[]) => {
+            return true;
+        }
+
         context = await renderApp(
             iocProps(),
             brandingProps(),

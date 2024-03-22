@@ -13,6 +13,7 @@ export function NumberKeyboard({ value, onChange, maxValue }: INumberKeyboardPro
 
         const newValue: number = Number.parseInt(value + buttonValue);
         await onChange(newValue.toString());
+        await hapticFeedback();
     }
 
     async function onDelete() {
@@ -20,7 +21,12 @@ export function NumberKeyboard({ value, onChange, maxValue }: INumberKeyboardPro
         const newValue: number = Number.parseInt(newStringValue);
         if (Number.isFinite(newValue) || newStringValue === '') {
             await onChange(newStringValue);
+            await hapticFeedback();
         }
+    }
+
+    async function hapticFeedback() {
+        navigator.vibrate([50]);
     }
 
     function renderNumberButton(buttonValue: number) {
