@@ -214,6 +214,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             </div>
         </div>
         {Number.isFinite(intScore) && remainingScore - intScore >= 0 ? (
-            <p>Remaining: {remainingScore - intScore}</p>) : null}
+            <p>Remaining: {remainingScore - intScore}</p>) : <p>&nbsp;</p>}
     </div>);
 }
