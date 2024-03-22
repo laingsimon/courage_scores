@@ -1247,7 +1247,7 @@ describe('MatchPlayerSelection', () => {
 
             await doChange(saygDialog, 'input[data-score-input="true"]', '101', context.user);
             await doClick(findButton(saygDialog, ENTER_SCORE_BUTTON));
-            await doClick(findButton(saygDialog, CHECKOUT_3_DART));
+            await doClick(findButton(saygDialog.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
             expect(additionalHiCheck).toEqual({
                 notablePlayer: {
@@ -1297,7 +1297,7 @@ describe('MatchPlayerSelection', () => {
 
             await doChange(saygDialog, 'input[data-score-input="true"]', '101', context.user);
             await doClick(findButton(saygDialog, ENTER_SCORE_BUTTON));
-            await doClick(findButton(saygDialog, CHECKOUT_3_DART));
+            await doClick(findButton(saygDialog.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
             expect(additionalHiCheck).toEqual({
                 notablePlayer: {

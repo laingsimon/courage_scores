@@ -914,7 +914,7 @@ describe('Tournament', () => {
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
             await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container, CHECKOUT_3_DART));
+            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
@@ -1039,7 +1039,7 @@ describe('Tournament', () => {
 
             await doChange(context.container, 'input[data-score-input="true"]', '100', context.user);
             await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container, CHECKOUT_3_DART));
+            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{

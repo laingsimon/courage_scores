@@ -238,7 +238,7 @@ describe('PlayerInput', () => {
 
         await setScoreInput("100");
         await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-        await doClick(findButton(context.container, CHECKOUT_2_DART));
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
 
         reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
@@ -278,7 +278,7 @@ describe('PlayerInput', () => {
 
         await setScoreInput("50");
         await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-        await doClick(findButton(context.container, CHECKOUT_1_DART));
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_1_DART));
 
         reportedError.verifyNoError();
         expect(changedLegs).toEqual([{

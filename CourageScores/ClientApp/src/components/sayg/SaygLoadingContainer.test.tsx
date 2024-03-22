@@ -452,7 +452,7 @@ describe('SaygLoadingContainer', () => {
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
             await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container, CHECKOUT_2_DART));
+            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
 
             expect(upsertedData).not.toBeNull();
             expect(saved).not.toBeNull();
@@ -515,7 +515,7 @@ describe('SaygLoadingContainer', () => {
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
             await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container, CHECKOUT_2_DART));
+            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
 
             expect(upsertedData).toBeNull();
             expect(saved).toBeNull();

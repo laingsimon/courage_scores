@@ -478,13 +478,13 @@ describe('MatchSayg', () => {
 
             switch (noOfDarts) {
                 case 1:
-                    await doClick(findButton(context.container, CHECKOUT_1_DART));
+                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_1_DART));
                     break;
                 case 2:
-                    await doClick(findButton(context.container, CHECKOUT_2_DART));
+                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
                     break;
                 case 3:
-                    await doClick(findButton(context.container, CHECKOUT_3_DART));
+                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
                     break;
             }
         }

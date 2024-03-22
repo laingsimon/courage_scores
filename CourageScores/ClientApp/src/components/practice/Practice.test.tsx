@@ -360,7 +360,7 @@ describe('Practice', () => {
             await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
             await doChange(context.container, 'input[data-score-input="true"]', '141', context.user);
             await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container, CHECKOUT_3_DART)); // checkout
+            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART)); // checkout
 
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];

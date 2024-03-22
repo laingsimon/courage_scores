@@ -212,7 +212,7 @@ describe('ScoreAsYouGo', () => {
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-        await doClick(findButton(context.container, CHECKOUT_3_DART));
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
         expect(completedLegs).toEqual([{homeScore: 1, awayScore: 0}]);
         expect(changedLegs).toEqual([{
@@ -273,7 +273,7 @@ describe('ScoreAsYouGo', () => {
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-        await doClick(findButton(context.container, CHECKOUT_3_DART));
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
         expect(completedLegs).toEqual([{homeScore: 1, awayScore: 0}]);
         expect(changedLegs[1]).toEqual({
@@ -362,7 +362,7 @@ describe('ScoreAsYouGo', () => {
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-        await doClick(findButton(context.container, CHECKOUT_3_DART));
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
         expect(completedLegs).toEqual([{homeScore: 2, awayScore: 0}]);
         expect(changedLegs.length).toEqual(1);
@@ -405,7 +405,7 @@ describe('ScoreAsYouGo', () => {
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-        await doClick(findButton(context.container, CHECKOUT_3_DART));
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
         expect(completedLegs).toEqual([{homeScore: 0, awayScore: 2}]);
         expect(changedLegs.length).toEqual(1);
@@ -438,7 +438,7 @@ describe('ScoreAsYouGo', () => {
 
         await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-        await doClick(findButton(context.container, CHECKOUT_3_DART));
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
         expect(completedLegs).toEqual([{homeScore: 1, awayScore: 0}]);
         expect(changedLegs).toEqual([{
