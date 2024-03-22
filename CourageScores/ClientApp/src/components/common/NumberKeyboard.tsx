@@ -39,8 +39,8 @@ export function NumberKeyboard({ value, onChange, maxValue }: INumberKeyboardPro
             disabled = true;
         }
 
-        return (<button className="btn btn-success m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={numberClick} disabled={disabled}>
-            {buttonValue}
+        return (<button className="btn btn-success m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-3" onClick={numberClick} disabled={disabled}>
+            <span className="px-2 py-1 d-inline-block">{buttonValue}</span>
         </button>);
     }
 

@@ -24,7 +24,7 @@ import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {createTemporaryId, repeat} from "../../helpers/projection";
+import {createTemporaryId} from "../../helpers/projection";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateTournamentSaygDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
@@ -33,6 +33,7 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../helpers/builders/sayg";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -474,7 +475,19 @@ describe('MatchSayg', () => {
         async function enterScore(score: number, noOfDarts?: number) {
             await doChange(context.container, 'input[data-score-input="true"]', score.toString(), context.user);
 
-            const text: string = repeat(noOfDarts || 3, _ => '📌').join('');
+            let text: string;
+            switch (noOfDarts || 3) {
+                case 1:
+                    text = CHECKOUT_1_DART;
+                    break;
+                case 2:
+                    text = CHECKOUT_2_DART;
+                    break;
+                case 3:
+                    text = CHECKOUT_3_DART;
+                    break;
+            }
+
             await doClick(findButton(context.container, text));
         }
 

@@ -5,6 +5,7 @@ import {useApp} from "../common/AppContainer";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {NumberKeyboard} from "../common/NumberKeyboard";
+import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
 
 export interface IPlayerInputProps {
     home: string;
@@ -197,19 +198,19 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                     disabled={savingInput || !checkout || !isSingleDartScore(intScore, true)}
                     className="btn btn-success margin-right fs-3 my-2"
                     onClick={async () => await addThrow(score, 1)}>
-                    📌
+                    {CHECKOUT_1_DART}
                 </button>
                 <button
                     disabled={savingInput || !checkout || !isTwoDartScore(intScore)}
                     className="btn btn-success margin-right fs-3 my-2"
                     onClick={async () => await addThrow(score, 2)}>
-                    📌📌
+                    {CHECKOUT_2_DART}
                 </button>
                 <button
                     disabled={savingInput || !isThreeDartScore(intScore) || (!hasRemainingDouble && !checkout)}
                     className="btn btn-success margin-right fs-3 my-2"
                     onClick={async () => await addThrow(score, 3)}>
-                    📌📌📌
+                    {CHECKOUT_3_DART}
                 </button>
             </div>
         </div>
