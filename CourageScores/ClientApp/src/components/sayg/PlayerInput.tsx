@@ -187,7 +187,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             thrown
             <strong> {accumulator.noOfDarts} </strong>
             darts, average: <strong>{round2dp(accumulator.score / (accumulator.noOfDarts / 3))}</strong>
-        </p>) : null}
+        </p>) : <p>&nbsp;</p>}
         <h4>
             <label>
                 <span className="margin-right">
