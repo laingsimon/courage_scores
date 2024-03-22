@@ -1,0 +1,5 @@
+export const CHECKOUT_1_DART: string = '1';
+export const CHECKOUT_2_DART: string = '2';
+export const CHECKOUT_3_DART: string = '3';
+export const ENTER_SCORE_BUTTON: string = '→';
+export const DELETE_SCORE_BUTTON: string = '←';

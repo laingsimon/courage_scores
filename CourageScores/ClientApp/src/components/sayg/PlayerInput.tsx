@@ -5,6 +5,8 @@ import {useApp} from "../common/AppContainer";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {NumberKeyboard} from "../common/NumberKeyboard";
+import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
+import {Dialog} from "../common/Dialog";
 
 export interface IPlayerInputProps {
     home: string;
@@ -30,6 +32,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         home: home,
         away: away
     }
+    const [showCheckout, setShowCheckout] = useState(false);
 
     async function keyUp(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
@@ -69,6 +72,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             }
 
             setSavingInput(true);
+            setShowCheckout(false);
             const accumulatorName = leg.currentThrow as 'home' | 'away';
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
@@ -159,6 +163,16 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         return value <= 180;
     }
 
+    async function handleScore(value: string) {
+        const score = Number.parseInt(value);
+        if (score === remainingScore) {
+            setShowCheckout(true);
+        }
+        else {
+            await addThrow(value, 3);
+        }
+    }
+
     const intScore: number = Number.parseInt(score);
     const checkout: boolean = intScore === remainingScore;
     const hasRemainingDouble: boolean = remainingScore - intScore >= 2;
@@ -173,7 +187,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             thrown
             <strong> {accumulator.noOfDarts} </strong>
             darts, average: <strong>{round2dp(accumulator.score / (accumulator.noOfDarts / 3))}</strong>
-        </p>) : null}
+        </p>) : <p>&nbsp;</p>}
         <h4>
             <label>
                 <span className="margin-right">
@@ -190,30 +204,35 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         </h4>
         <div className="d-flex flex-row justify-content-center">
             <div>
-                <NumberKeyboard value={score} maxValue={180} onChange={async (score: string) => setScore(score)}/>
+                <NumberKeyboard value={score} maxValue={180} onChange={async (score: string) => setScore(score)} onEnter={handleScore} />
             </div>
-            <div className="my-3 flex-grow-0 flex-shrink-0 d-flex flex-column justify-content-end" datatype="gameshot-buttons-score">
-                <button
-                    disabled={savingInput || !checkout || !isSingleDartScore(intScore, true)}
-                    className="btn btn-success margin-right fs-3 my-2"
-                    onClick={async () => await addThrow(score, 1)}>
-                    📌
-                </button>
-                <button
-                    disabled={savingInput || !checkout || !isTwoDartScore(intScore)}
-                    className="btn btn-success margin-right fs-3 my-2"
-                    onClick={async () => await addThrow(score, 2)}>
-                    📌📌
-                </button>
-                <button
-                    disabled={savingInput || !isThreeDartScore(intScore) || (!hasRemainingDouble && !checkout)}
-                    className="btn btn-success margin-right fs-3 my-2"
-                    onClick={async () => await addThrow(score, 3)}>
-                    📌📌📌
-                </button>
-            </div>
+            {showCheckout ? (<Dialog onClose={async () => setShowCheckout(false)} title="Checkout">
+                <div className="my-3" datatype="gameshot-buttons-score">
+                    <h6>How many darts to checkout?</h6>
+                    <div className="d-flex flex-row justify-content-stretch">
+                        <button
+                            disabled={savingInput || !checkout || !isSingleDartScore(intScore, true)}
+                            className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
+                            onClick={async () => await addThrow(score, 1)}>
+                            {CHECKOUT_1_DART}
+                        </button>
+                        <button
+                            disabled={savingInput || !checkout || !isTwoDartScore(intScore)}
+                            className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
+                            onClick={async () => await addThrow(score, 2)}>
+                            {CHECKOUT_2_DART}
+                        </button>
+                        <button
+                            disabled={savingInput || !isThreeDartScore(intScore) || (!hasRemainingDouble && !checkout)}
+                            className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
+                            onClick={async () => await addThrow(score, 3)}>
+                            {CHECKOUT_3_DART}
+                        </button>
+                    </div>
+                </div>
+            </Dialog>) : null}
         </div>
         {Number.isFinite(intScore) && remainingScore - intScore >= 0 ? (
-            <p>Remaining: {remainingScore - intScore}</p>) : null}
+            <p>Remaining: {remainingScore - intScore}</p>) : <p>&nbsp;</p>}
     </div>);
 }

@@ -34,6 +34,7 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {MessageType} from "../../interfaces/models/dtos/MessageType";
+import {CHECKOUT_2_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
@@ -450,7 +451,8 @@ describe('SaygLoadingContainer', () => {
             });
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
-            await doClick(findButton(context.container, '📌📌'));
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
+            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
 
             expect(upsertedData).not.toBeNull();
             expect(saved).not.toBeNull();
@@ -512,7 +514,8 @@ describe('SaygLoadingContainer', () => {
             });
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
-            await doClick(findButton(context.container, '📌📌'));
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
+            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
 
             expect(upsertedData).toBeNull();
             expect(saved).toBeNull();

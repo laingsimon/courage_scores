@@ -4,15 +4,17 @@ export interface INumberKeyboardProps {
     value: string;
     onChange: (newValue: string) => Promise<any>;
     maxValue?: number;
+    onEnter: (value: string) => Promise<any>;
 }
 
-export function NumberKeyboard({ value, onChange, maxValue }: INumberKeyboardProps) {
+export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKeyboardProps) {
     async function numberClick(event: MouseEvent<HTMLButtonElement>) {
         const button: HTMLButtonElement = event.target as HTMLButtonElement;
         const buttonValue: string = button.textContent;
 
         const newValue: number = Number.parseInt(value + buttonValue);
         await onChange(newValue.toString());
+        await hapticFeedback();
     }
 
     async function onDelete() {
@@ -20,7 +22,12 @@ export function NumberKeyboard({ value, onChange, maxValue }: INumberKeyboardPro
         const newValue: number = Number.parseInt(newStringValue);
         if (Number.isFinite(newValue) || newStringValue === '') {
             await onChange(newStringValue);
+            await hapticFeedback();
         }
+    }
+
+    async function hapticFeedback() {
+        navigator.vibrate([50]);
     }
 
     function renderNumberButton(buttonValue: number) {
@@ -39,8 +46,8 @@ export function NumberKeyboard({ value, onChange, maxValue }: INumberKeyboardPro
             disabled = true;
         }
 
-        return (<button className="btn btn-success m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={numberClick} disabled={disabled}>
-            {buttonValue}
+        return (<button className="btn btn-success m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-3" onClick={numberClick} disabled={disabled}>
+            <span className="px-2 py-1 d-inline-block">{buttonValue}</span>
         </button>);
     }
 
@@ -61,10 +68,14 @@ export function NumberKeyboard({ value, onChange, maxValue }: INumberKeyboardPro
             {renderNumberButton(3)}
         </div>
         <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
-            <button className="btn btn-warning m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={onDelete} disabled={(value || '') === ''}>
+            <button className="btn btn-warning m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={onDelete}
+                    disabled={(value || '') === ''}>
                 &larr;
             </button>
             {renderNumberButton(0)}
+            <button className="btn btn-primary m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={async () => await onEnter(value)} disabled={!value}>
+                &rarr;
+            </button>
         </div>
     </div>)
 }

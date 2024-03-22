@@ -24,7 +24,7 @@ import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
-import {createTemporaryId, repeat} from "../../helpers/projection";
+import {createTemporaryId} from "../../helpers/projection";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {CreateTournamentSaygDto} from "../../interfaces/models/dtos/Game/CreateTournamentSaygDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
@@ -33,6 +33,7 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../helpers/builders/sayg";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -473,16 +474,29 @@ describe('MatchSayg', () => {
 
         async function enterScore(score: number, noOfDarts?: number) {
             await doChange(context.container, 'input[data-score-input="true"]', score.toString(), context.user);
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
 
-            const text: string = repeat(noOfDarts || 3, _ => '📌').join('');
-            await doClick(findButton(context.container, text));
+            switch (noOfDarts) {
+                case 1:
+                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_1_DART));
+                    break;
+                case 2:
+                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
+                    break;
+                case 3:
+                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
+                    break;
+            }
         }
 
         async function enterFirstPlayerScores(threeDartScores: number[]) {
+            let cumulativeScore = 0;
+
             for (let i = 0; i < threeDartScores.length; i++) {
                 const score = threeDartScores[i];
-                await enterScore(score, 3);
-                await enterScore(1, 3); // opponent score
+                cumulativeScore+= score;
+                await enterScore(score, cumulativeScore === 501 ? 3 : null);
+                await enterScore(1); // opponent score
             }
         }
 
