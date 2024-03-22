@@ -18,7 +18,7 @@ import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
-import {CHECKOUT_3_DART} from "../../helpers/constants";
+import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 describe('Practice', () => {
     let context: TestContext;
@@ -335,7 +335,7 @@ describe('Practice', () => {
             assertNoDataError();
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, CHECKOUT_3_DART));
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
 
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
@@ -355,10 +355,11 @@ describe('Practice', () => {
             assertNoDataError();
             await doChange(context.container, 'input[name="startingScore"]', '501', context.user);
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, CHECKOUT_3_DART)); // 321 left
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, CHECKOUT_3_DART)); // 141 left
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
             await doChange(context.container, 'input[data-score-input="true"]', '141', context.user);
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
             await doClick(findButton(context.container, CHECKOUT_3_DART)); // checkout
 
             await doClick(findButton(context.container, 'Save '));

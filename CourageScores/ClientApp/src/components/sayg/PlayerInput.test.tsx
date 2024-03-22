@@ -11,7 +11,7 @@ import {
 import {IPlayerInputProps, PlayerInput} from "./PlayerInput";
 import {ILegCompetitorScoreBuilder, legBuilder} from "../../helpers/builders/sayg";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
+import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 describe('PlayerInput', () => {
     let context: TestContext;
@@ -72,6 +72,7 @@ describe('PlayerInput', () => {
         });
 
         await setScoreInput(inputScore);
+        await doClick(findButton(context.container, ENTER_SCORE_BUTTON), null, true);
 
         const scoreButtons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('div[datatype="gameshot-buttons-score"] button')) as HTMLButtonElement[];
         return scoreButtons
@@ -132,18 +133,6 @@ describe('PlayerInput', () => {
         expect(score.textContent).toEqual('Leg 1');
     });
 
-    it('Renders correct options for initial score', async () => {
-        const buttons = await runScoreTest(0, '100');
-
-        expect(buttons).toEqual([CHECKOUT_3_DART]);
-    });
-
-    it('Renders correct options for mid-range score', async () => {
-        const buttons = await runScoreTest(100, '100');
-
-        expect(buttons).toEqual([CHECKOUT_3_DART]);
-    });
-
     it('Renders correct options for checkout score', async () => {
         const buttons = await runScoreTest(401, '100');
 
@@ -189,7 +178,7 @@ describe('PlayerInput', () => {
     it('Renders correct options for 0 score', async () => {
         const buttons = await runScoreTest(499, '0');
 
-        expect(buttons).toEqual([CHECKOUT_3_DART]);
+        expect(buttons).toEqual([]);
     });
 
     it('records 3 dart throw', async () => {
@@ -210,7 +199,7 @@ describe('PlayerInput', () => {
         });
 
         await setScoreInput("50");
-        await doClick(findButton(context.container, CHECKOUT_3_DART));
+        await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
 
         reportedError.verifyNoError();
         expect(changedLegs).toEqual([{
@@ -248,6 +237,7 @@ describe('PlayerInput', () => {
         });
 
         await setScoreInput("100");
+        await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
         await doClick(findButton(context.container, CHECKOUT_2_DART));
 
         reportedError.verifyNoError();
@@ -287,6 +277,7 @@ describe('PlayerInput', () => {
         });
 
         await setScoreInput("50");
+        await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
         await doClick(findButton(context.container, CHECKOUT_1_DART));
 
         reportedError.verifyNoError();

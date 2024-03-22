@@ -46,7 +46,7 @@ import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
-import {CHECKOUT_3_DART} from "../../helpers/constants";
+import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 interface IScenario {
     account?: UserDto;
@@ -913,6 +913,7 @@ describe('Tournament', () => {
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
             await doClick(findButton(context.container, CHECKOUT_3_DART));
 
             reportedError.verifyNoError();
@@ -978,7 +979,7 @@ describe('Tournament', () => {
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, CHECKOUT_3_DART));
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
@@ -1037,6 +1038,7 @@ describe('Tournament', () => {
             apiResponse = {success: true, result: tournamentData};
 
             await doChange(context.container, 'input[data-score-input="true"]', '100', context.user);
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
             await doClick(findButton(context.container, CHECKOUT_3_DART));
 
             reportedError.verifyNoError();
@@ -1112,7 +1114,7 @@ describe('Tournament', () => {
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, CHECKOUT_3_DART));
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).not.toBeNull();

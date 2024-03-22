@@ -8,14 +8,20 @@ import {
 } from "../../helpers/tests";
 import {INumberKeyboardProps, NumberKeyboard} from "./NumberKeyboard";
 import {StringMapObject, toDictionary} from "../../helpers/collections";
+import {DELETE_SCORE_BUTTON, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 describe('NumberKeyboard', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let newValue: string;
+    let enteredValue: string;
 
     async function onChange(value: string) {
         newValue = value;
+    }
+
+    async function onEnter(value: string) {
+        enteredValue = value;
     }
 
     afterEach(() => {
@@ -25,6 +31,7 @@ describe('NumberKeyboard', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         newValue = null;
+        enteredValue = null;
     });
 
     async function renderComponent(props: INumberKeyboardProps) {
@@ -69,25 +76,26 @@ describe('NumberKeyboard', () => {
 
     describe('renders', () => {
         const allNumbers: string[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-        const deleteButton: string = '←';
 
         it('when value is empty', async () => {
             await renderComponent({
                 value: '',
                 onChange,
+                onEnter,
             });
 
             assertEnabledButtons(allNumbers.filter((b: string) => b !== '0'));
-            assertDisabledButtons([ deleteButton ]);
+            assertDisabledButtons([ DELETE_SCORE_BUTTON ]);
         });
 
         it('when value is 0', async () => {
             await renderComponent({
                 value: '0',
                 onChange,
+                onEnter,
             });
 
-            assertEnabledButtons(allNumbers.filter((b: string) => b !== '0').concat([ deleteButton ]));
+            assertEnabledButtons(allNumbers.filter((b: string) => b !== '0').concat([ DELETE_SCORE_BUTTON ]));
             assertDisabledButtons([ '0' ]);
         });
 
@@ -95,9 +103,10 @@ describe('NumberKeyboard', () => {
             await renderComponent({
                 value: '10',
                 onChange,
+                onEnter,
             });
 
-            assertEnabledButtons(allNumbers.concat([ deleteButton ]));
+            assertEnabledButtons(allNumbers.concat([ DELETE_SCORE_BUTTON ]));
         });
 
         it('when value is equal to max value', async () => {
@@ -105,9 +114,10 @@ describe('NumberKeyboard', () => {
                 value: '180',
                 onChange,
                 maxValue: 180,
+                onEnter,
             });
 
-            assertEnabledButtons([ deleteButton ]);
+            assertEnabledButtons([ DELETE_SCORE_BUTTON ]);
             assertDisabledButtons(allNumbers);
         });
 
@@ -116,9 +126,10 @@ describe('NumberKeyboard', () => {
                 value: '200',
                 onChange,
                 maxValue: 180,
+                onEnter,
             });
 
-            assertEnabledButtons([ deleteButton ]);
+            assertEnabledButtons([ DELETE_SCORE_BUTTON ]);
             assertDisabledButtons(allNumbers);
         });
 
@@ -127,9 +138,10 @@ describe('NumberKeyboard', () => {
                 value: '10',
                 onChange,
                 maxValue: 0,
+                onEnter,
             });
 
-            assertEnabledButtons(allNumbers.concat([ deleteButton ]));
+            assertEnabledButtons(allNumbers.concat([ DELETE_SCORE_BUTTON ]));
         });
 
         it('given non-number value', async () => {
@@ -137,23 +149,23 @@ describe('NumberKeyboard', () => {
                 value: 'foo',
                 onChange,
                 maxValue: 0,
+                onEnter,
             });
 
             assertDisabledButtons(allNumbers);
-            assertEnabledButtons([ deleteButton ]);
+            assertEnabledButtons([ DELETE_SCORE_BUTTON ]);
         });
     });
 
     describe('interactivity', () => {
-        const deleteButton: string = '←';
-
         it('can delete last digit', async () => {
             await renderComponent({
                 value: '10',
                 onChange,
+                onEnter,
             });
 
-            await doClick(findButton(context.container, deleteButton));
+            await doClick(findButton(context.container, DELETE_SCORE_BUTTON));
 
             expect(newValue).toEqual('1');
         });
@@ -162,6 +174,7 @@ describe('NumberKeyboard', () => {
             await renderComponent({
                 value: '10',
                 onChange,
+                onEnter,
             });
 
             await doClick(findButton(context.container, '5'));
@@ -173,9 +186,10 @@ describe('NumberKeyboard', () => {
             await renderComponent({
                 value: '',
                 onChange,
+                onEnter,
             });
 
-            const zeroButton: HTMLButtonElement = findButton(context.container, deleteButton);
+            const zeroButton: HTMLButtonElement = findButton(context.container, DELETE_SCORE_BUTTON);
             expect(zeroButton.disabled).toEqual(true);
         });
 
@@ -183,6 +197,7 @@ describe('NumberKeyboard', () => {
             await renderComponent({
                 value: '',
                 onChange,
+                onEnter,
             });
 
             await doClick(findButton(context.container, '0'));
@@ -194,6 +209,7 @@ describe('NumberKeyboard', () => {
             await renderComponent({
                 value: '0',
                 onChange,
+                onEnter,
             });
 
             const zeroButton: HTMLButtonElement = findButton(context.container, '0');
@@ -204,11 +220,24 @@ describe('NumberKeyboard', () => {
             await renderComponent({
                 value: '5',
                 onChange,
+                onEnter,
             });
 
             await doClick(findButton(context.container, '0'));
 
             expect(newValue).toEqual('50');
+        });
+
+        it('triggers callback when enter pressed', async () => {
+            await renderComponent({
+                value: '10',
+                onChange,
+                onEnter,
+            });
+
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
+
+            expect(enteredValue).toEqual('10');
         });
     });
 });

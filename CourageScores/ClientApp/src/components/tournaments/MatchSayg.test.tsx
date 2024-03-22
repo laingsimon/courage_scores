@@ -33,7 +33,7 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../helpers/builders/sayg";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
+import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -474,28 +474,29 @@ describe('MatchSayg', () => {
 
         async function enterScore(score: number, noOfDarts?: number) {
             await doChange(context.container, 'input[data-score-input="true"]', score.toString(), context.user);
+            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
 
-            let text: string;
-            switch (noOfDarts || 3) {
+            switch (noOfDarts) {
                 case 1:
-                    text = CHECKOUT_1_DART;
+                    await doClick(findButton(context.container, CHECKOUT_1_DART));
                     break;
                 case 2:
-                    text = CHECKOUT_2_DART;
+                    await doClick(findButton(context.container, CHECKOUT_2_DART));
                     break;
                 case 3:
-                    text = CHECKOUT_3_DART;
+                    await doClick(findButton(context.container, CHECKOUT_3_DART));
                     break;
             }
-
-            await doClick(findButton(context.container, text));
         }
 
         async function enterFirstPlayerScores(threeDartScores: number[]) {
+            let cumulativeScore = 0;
+
             for (let i = 0; i < threeDartScores.length; i++) {
                 const score = threeDartScores[i];
-                await enterScore(score, 3);
-                await enterScore(1, 3); // opponent score
+                cumulativeScore+= score;
+                await enterScore(score, cumulativeScore === 501 ? 3 : null);
+                await enterScore(1); // opponent score
             }
         }
 
