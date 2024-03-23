@@ -150,7 +150,8 @@ public class SeasonTemplateService : ISeasonTemplateService
 
         var teamsInSeason = await _teamService.GetTeamsForSeason(season.Id, token).ToList();
         var teams = teamsInSeason
-            .GroupBy(t => t.Seasons.Single(ts => ts.SeasonId == season.Id).DivisionId)
+            .Where(t => t.Seasons.Any(ts => ts.SeasonId == season.Id && ts.Deleted == null))
+            .GroupBy(t => t.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id && ts.Deleted == null)!.DivisionId)
             .ToDictionary(g => g.Key, g => g.ToArray());
 
         return new TemplateMatchContext(season, divisions, teams, request.PlaceholderMappings);
@@ -189,7 +190,8 @@ public class SeasonTemplateService : ISeasonTemplateService
     }
 
     [ExcludeFromCodeCoverage]
-    public Task<ActionResultDto<TemplateDto>> Upsert<TOut>(Guid id, IUpdateCommand<Template, TOut> updateCommand, CancellationToken token)
+    public Task<ActionResultDto<TemplateDto>> Upsert<TOut>(Guid? id, IUpdateCommand<Template, TOut> updateCommand,
+        CancellationToken token)
     {
         return _underlyingService.Upsert(id, updateCommand, token);
     }

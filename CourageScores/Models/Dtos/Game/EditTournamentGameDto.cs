@@ -5,7 +5,7 @@ namespace CourageScores.Models.Dtos.Game;
 [ExcludeFromCodeCoverage]
 public class EditTournamentGameDto : IIntegrityCheckDto
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public string? Address { get; set; }
     public DateTime Date { get; set; }
     public string? Notes { get; set; }
@@ -47,6 +47,9 @@ public class EditTournamentGameDto : IIntegrityCheckDto
     [ExcludeFromCodeCoverage]
     public class TournamentOver100CheckoutDto : RecordTournamentScoresPlayerDto
     {
+        [Obsolete("Use " + nameof(Score) + " instead")]
         public string? Notes { get; set; }
+
+        public int? Score { get; set; }
     }
 }

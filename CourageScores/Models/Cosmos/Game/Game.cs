@@ -6,7 +6,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// <summary>
 /// A record of a number of matches played at a venue between 2 teams on a given date and time
 /// </summary>
-public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
+public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEntity
 {
     public const int CurrentVersion = 2;
 
@@ -87,6 +87,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 
     public bool AccoladesCount { get; set; }
 
+    /// <summary>
+    /// Photos of the score card
+    /// </summary>
+    public List<PhotoReference> Photos { get; set; } = new();
+
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
         scope = scope.With(new VisitorScope
@@ -145,7 +150,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto? user)
     {
-        return user?.Access?.ManageGames == true || user?.Access?.InputResults == true;
+        return user?.Access?.ManageGames == true || user?.Access?.InputResults == true || user?.Access?.UploadPhotos == true;
     }
 
     [ExcludeFromCodeCoverage]

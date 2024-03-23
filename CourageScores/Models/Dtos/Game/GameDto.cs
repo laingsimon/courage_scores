@@ -83,5 +83,13 @@ public class GameDto : AuditedDto, IEditGameDto
     /// </summary>
     public bool IsKnockout { get; set; }
 
+    /// <summary>
+    /// Should the 180s and hi-checks from this fixture count towards the league tables?
+    /// </summary>
     public bool AccoladesCount { get; set; }
+
+    /// <summary>
+    /// Any photos (of the results) uploaded to this fixture
+    /// </summary>
+    public List<PhotoReferenceDto> Photos { get; set; } = new();
 }

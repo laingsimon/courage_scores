@@ -20,7 +20,12 @@ public class HighestCheckoutReport : IReport
             Description = $"The top {_topCount} checkouts",
             Name = "Highest checkouts",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
-            ValueHeading = "Checkout",
+            Columns =
+            {
+                "Team",
+                "Player",
+                "Checkout",
+            },
         };
     }
 
@@ -48,11 +53,29 @@ public class HighestCheckoutReport : IReport
             var player = await playerLookup.GetPlayer(pair.Key);
             yield return new ReportRowDto
             {
-                PlayerId = pair.Key,
-                PlayerName = player.PlayerName,
-                TeamId = player.TeamId,
-                TeamName = player.TeamName,
-                Value = pair.Value,
+                Cells =
+                {
+                    new ReportCellDto
+                    {
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        Text = player.TeamName,
+                        DivisionId = player.DivisionId,
+                    },
+                    new ReportCellDto
+                    {
+                        PlayerId = pair.Key,
+                        PlayerName = player.PlayerName,
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        Text = player.PlayerName,
+                        DivisionId = player.DivisionId,
+                    },
+                    new ReportCellDto
+                    {
+                        Text = pair.Value.ToString(),
+                    },
+                },
             };
         }
     }

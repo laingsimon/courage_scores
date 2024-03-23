@@ -57,7 +57,8 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         }
     }
 
-    public async Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
+    public async Task<ActionResultDto<TDto>> Upsert<TOut>(Guid? id, IUpdateCommand<TModel, TOut> updateCommand,
+        CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
@@ -66,14 +67,11 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             return await _actionResultAdapter.Warning<TDto>("Not logged in");
         }
 
-        var item = await _repository.Get(id, token);
+        var item = id != null ? await _repository.Get(id.Value, token) : null;
 
         if (item == null)
         {
-            item = new TModel
-            {
-                Id = id,
-            };
+            item = new TModel();
 
             if (!item.CanCreate(user))
             {

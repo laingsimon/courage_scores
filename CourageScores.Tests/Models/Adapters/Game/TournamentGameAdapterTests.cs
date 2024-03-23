@@ -1,5 +1,7 @@
 using CourageScores.Models.Adapters.Game;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using NUnit.Framework;
 
@@ -16,13 +18,16 @@ public class TournamentGameAdapterTests
     private static readonly TournamentPlayerDto OneEightyPlayerDto = new();
     private static readonly NotableTournamentPlayer HiCheckPlayer = new();
     private static readonly NotableTournamentPlayerDto HiCheckPlayerDto = new();
+    private static readonly PhotoReference PhotoReference = new();
+    private static readonly PhotoReferenceDto PhotoReferenceDto = new();
 
     private readonly CancellationToken _token = new();
     private readonly TournamentGameAdapter _adapter = new(
         new MockAdapter<TournamentRound, TournamentRoundDto>(Round, RoundDto),
         new MockAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
         new MockAdapter<TournamentPlayer, TournamentPlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
-        new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
+        new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
+        new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto));
 
     [Test]
     public async Task Adapt_GivenModelWithRound_SetsPropertiesCorrectly()
@@ -54,6 +59,10 @@ public class TournamentGameAdapterTests
             Host = "host",
             Opponent = "opponent",
             Gender = "gender",
+            Photos =
+            {
+                PhotoReference,
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -83,6 +92,7 @@ public class TournamentGameAdapterTests
         Assert.That(result.Host, Is.EqualTo(model.Host));
         Assert.That(result.Opponent, Is.EqualTo(model.Opponent));
         Assert.That(result.Gender, Is.EqualTo(model.Gender));
+        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReferenceDto }));
     }
 
     [Test]
@@ -125,6 +135,10 @@ public class TournamentGameAdapterTests
             Host = "host",
             Opponent = "opponent",
             Gender = "gender",
+            Photos =
+            {
+                PhotoReferenceDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -154,6 +168,7 @@ public class TournamentGameAdapterTests
         Assert.That(result.Host, Is.EqualTo(dto.Host));
         Assert.That(result.Opponent, Is.EqualTo(dto.Opponent));
         Assert.That(result.Gender, Is.EqualTo(dto.Gender));
+        Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReference }));
     }
 
     [Test]

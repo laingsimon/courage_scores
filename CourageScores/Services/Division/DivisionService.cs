@@ -74,14 +74,14 @@ public class DivisionService : IDivisionService
         }
 
         var allTeamsInSeason = await _genericTeamService.GetAll(token)
-            .WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id) || !t.Seasons.Any()).ToList();
+            .WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id && ts.Deleted == null) || !t.Seasons.Any()).ToList();
         var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, token);
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, division, !filter.ExcludeProposals, token);
     }
 
     private static bool IsTeamInDivision(TeamDto teamInSeason, DivisionDataFilter filter, SeasonDto season)
     {
-        var teamSeason = teamInSeason.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id);
+        var teamSeason = teamInSeason.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id && ts.Deleted == null);
         return teamSeason != null && teamSeason.DivisionId == filter.DivisionId;
     }
 
@@ -142,7 +142,8 @@ public class DivisionService : IDivisionService
     }
 
     [ExcludeFromCodeCoverage]
-    public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
+    public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid? id,
+        IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
     {
         return _genericDivisionService.Upsert(id, updateCommand, token);
     }

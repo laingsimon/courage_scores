@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using Microsoft.AspNetCore.Mvc;
+using TypeScriptMapper;
 
 namespace CourageScores.Controllers;
 
@@ -21,13 +22,13 @@ public class DivisionController : Controller
     }
 
     [HttpGet("/api/Division/{id}")]
-    public async Task<DivisionDto?> GetDivision(Guid id, CancellationToken token)
+    public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {
         return await _divisionService.Get(id, token);
     }
 
     [HttpGet("/api/Division/{divisionId}/Data")]
-    public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
+    public async Task<DivisionDataDto> Data(Guid divisionId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
         filter ??= new DivisionDataFilter();
         filter.DivisionId = divisionId;
@@ -35,8 +36,9 @@ public class DivisionController : Controller
         return await _divisionService.GetDivisionData(filter, token);
     }
 
+    [ExcludeFromTypeScript]
     [HttpGet("/api/Division/{divisionId}/{seasonId}/Data")]
-    public async Task<DivisionDataDto> GetDivisionData(Guid? divisionId, Guid seasonId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
+    public async Task<DivisionDataDto> Data(Guid? divisionId, Guid seasonId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
         filter ??= new DivisionDataFilter();
         filter.DivisionId = divisionId == null || divisionId == Guid.Empty
@@ -48,20 +50,20 @@ public class DivisionController : Controller
     }
 
     [HttpGet("/api/Division")]
-    public IAsyncEnumerable<DivisionDto> GetDivisions(CancellationToken token)
+    public IAsyncEnumerable<DivisionDto> GetAll(CancellationToken token)
     {
         return _divisionService.GetAll(token);
     }
 
     [HttpPut("/api/Division")]
-    public async Task<ActionResultDto<DivisionDto>> AddOrUpdateDivision(EditDivisionDto division, CancellationToken token)
+    public async Task<ActionResultDto<DivisionDto>> Update(EditDivisionDto division, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateDivisionCommand>().WithData(division);
         return await _divisionService.Upsert(division.Id, command, token);
     }
 
     [HttpDelete("/api/Division/{id}")]
-    public async Task<ActionResultDto<DivisionDto>> DeleteDivision(Guid id, CancellationToken token)
+    public async Task<ActionResultDto<DivisionDto>> Delete(Guid id, CancellationToken token)
     {
         return await _divisionService.Delete(id, token);
     }

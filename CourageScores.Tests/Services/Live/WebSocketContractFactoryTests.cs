@@ -46,7 +46,7 @@ public class WebSocketContractFactoryTests
 
         var result = await _factory.Create(_webSocket.Object, "originatingUrl", _token);
 
-        Assert.That(result.WebSocketDto.UserName, Is.Null);
+        Assert.That(result.Details.UserName, Is.Null);
     }
 
     [Test]
@@ -54,7 +54,7 @@ public class WebSocketContractFactoryTests
     {
         var result = await _factory.Create(_webSocket.Object, "originatingUrl", _token);
 
-        Assert.That(result.WebSocketDto.UserName, Is.EqualTo(_user!.Name));
+        Assert.That(result.Details.UserName, Is.EqualTo(_user!.Name));
     }
 
     [Test]
@@ -65,7 +65,7 @@ public class WebSocketContractFactoryTests
 
         var result = await _factory.Create(_webSocket.Object, "originatingUrl", _token);
 
-        Assert.That(result.WebSocketDto.Connected, Is.EqualTo(now));
+        Assert.That(result.Details.Connected, Is.EqualTo(now));
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class WebSocketContractFactoryTests
     {
         var result = await _factory.Create(_webSocket.Object, "originatingUrl", _token);
 
-        Assert.That(result.WebSocketDto.OriginatingUrl, Is.EqualTo("originatingUrl"));
+        Assert.That(result.Details.OriginatingUrl, Is.EqualTo("originatingUrl"));
     }
 
     [Test]
@@ -81,6 +81,6 @@ public class WebSocketContractFactoryTests
     {
         var result = await _factory.Create(_webSocket.Object, "originatingUrl", _token);
 
-        Assert.That(result.WebSocketDto.Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(result.Details.Id, Is.Not.EqualTo(Guid.Empty));
     }
 }

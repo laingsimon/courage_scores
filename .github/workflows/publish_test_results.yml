@@ -11,16 +11,18 @@ jobs:
     name: 'Test Results'
     runs-on: ubuntu-latest
     steps:
-      - uses: dorny/test-reporter@v1
+      - uses: dorny/test-reporter@v1.8.0
         with:
           artifact: NUnitTestResults
           name: NUnit Tests
           path: 'TestResults.trx'
           reporter: dotnet-trx
+          fail-on-error: false
 
-      - uses: dorny/test-reporter@v1
+      - uses: dorny/test-reporter@v1.8.0
         with:
            artifact: JestTestResults
            name: Jest Tests
            path: '*.xml'
            reporter: jest-junit
+           fail-on-error: false

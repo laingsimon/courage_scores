@@ -22,7 +22,12 @@ public class MostPlayedPlayerReport : IReport
             Description = $"The top {_topCount} most played players {(_singlesOnly ? "(singles only)" : "(singles, pairs and triples)")}",
             Name = "Most played player",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
-            ValueHeading = "Played",
+            Columns =
+            {
+                "Team",
+                "Player",
+                "Played",
+            },
         };
     }
 
@@ -67,11 +72,29 @@ public class MostPlayedPlayerReport : IReport
             var player = await playerLookup.GetPlayer(pair.Key);
             yield return new ReportRowDto
             {
-                PlayerId = pair.Key,
-                PlayerName = player.PlayerName,
-                TeamId = player.TeamId,
-                TeamName = player.TeamName,
-                Value = pair.Value,
+                Cells =
+                {
+                    new ReportCellDto
+                    {
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        DivisionId = player.DivisionId,
+                        Text = player.TeamName,
+                    },
+                    new ReportCellDto
+                    {
+                        PlayerId = pair.Key,
+                        PlayerName = player.PlayerName,
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        DivisionId = player.DivisionId,
+                        Text = player.PlayerName,
+                    },
+                    new ReportCellDto
+                    {
+                        Text = pair.Value.ToString(),
+                    },
+                },
             };
         }
     }

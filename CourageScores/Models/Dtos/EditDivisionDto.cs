@@ -8,7 +8,7 @@ public class EditDivisionDto : IIntegrityCheckDto
     /// <summary>
     /// The id for the entity
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     /// <summary>
     /// The name of this division

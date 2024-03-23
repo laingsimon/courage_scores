@@ -369,6 +369,64 @@ public class DivisionServiceTests
     }
 
     [Test]
+    public async Task? GetDivisionData_GivenNoDivisionIdFilterAndDeletedTeamSeasons_IncludesAllActiveTeams()
+    {
+        var data = new DivisionDataDto();
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var filter = new DivisionDataFilter
+        {
+            SeasonId = season.Id,
+        };
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = division.Id,
+                },
+            },
+        };
+        var otherDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = division.Id,
+                    Deleted = DateTime.UtcNow,
+                },
+            },
+        };
+        _allTeams.AddRange(new[]
+        {
+            team, otherDivisionTeam,
+        });
+        _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
+        _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
+
+        await _service.GetDivisionData(filter, _token);
+
+        _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), null, true, _token));
+        Assert.That(_divisionDataContext, Is.Not.Null);
+        Assert.That(_divisionDataContext!.TeamsInSeasonAndDivision, Is.EquivalentTo(new[] { team }));
+    }
+
+    [Test]
     public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingNotesOnly()
     {
         var data = new DivisionDataDto();

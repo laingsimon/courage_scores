@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourageScores.Tests", "Cour
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataImport", "DataImport\DataImport.csproj", "{0C086FC1-4DAD-46BB-8396-9159D6C84E1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeScriptMapper", "TypeScriptMapper\TypeScriptMapper.csproj", "{AEA39FE4-DBD9-492A-BD8F-9F501510B929}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,5 +24,9 @@ Global
 		{08BF07A4-A093-4E95-93DF-9B70CBE1288A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C086FC1-4DAD-46BB-8396-9159D6C84E1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C086FC1-4DAD-46BB-8396-9159D6C84E1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEA39FE4-DBD9-492A-BD8F-9F501510B929}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEA39FE4-DBD9-492A-BD8F-9F501510B929}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEA39FE4-DBD9-492A-BD8F-9F501510B929}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEA39FE4-DBD9-492A-BD8F-9F501510B929}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

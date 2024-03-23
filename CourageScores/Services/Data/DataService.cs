@@ -17,6 +17,7 @@ public class DataService : IDataService
     private readonly IZipBuilderFactory _zipBuilderFactory;
     private readonly IZipFileReaderFactory _zipFileReaderFactory;
     private readonly IDataBrowserRepository<SingleDataResultDto> _dataBrowserRepository;
+    private readonly IDataBrowserRepository<object> _dataViewRepository;
 
     public DataService(
         Database database,
@@ -26,7 +27,8 @@ public class DataService : IDataService
         ICosmosTableService cosmosTableService,
         IZipBuilderFactory zipBuilderFactory,
         IConfiguration configuration,
-        IDataBrowserRepository<SingleDataResultDto> dataBrowserRepository)
+        IDataBrowserRepository<SingleDataResultDto> dataBrowserRepository,
+        IDataBrowserRepository<object> dataViewRepository)
     {
         _database = database;
         _userService = userService;
@@ -36,6 +38,7 @@ public class DataService : IDataService
         _zipBuilderFactory = zipBuilderFactory;
         _configuration = configuration;
         _dataBrowserRepository = dataBrowserRepository;
+        _dataViewRepository = dataViewRepository;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
@@ -106,43 +109,6 @@ public class DataService : IDataService
         return await DoImport(request, token);
     }
 
-    public async Task<ActionResultDto<SingleDataResultDto>> Browse(string table, Guid id, CancellationToken token)
-    {
-        var user = await _userService.GetUser(token);
-        if (user == null)
-        {
-            return Unsuccessful<SingleDataResultDto>("Not logged in");
-        }
-
-        if (user.Access?.ExportData != true)
-        {
-            return Unsuccessful<SingleDataResultDto>("Not permitted");
-        }
-
-        if (string.IsNullOrEmpty(table))
-        {
-            return Unsuccessful<SingleDataResultDto>("Table not supplied");
-        }
-
-        var tableExists = await _dataBrowserRepository.TableExists(table);
-        if (!tableExists)
-        {
-            return Unsuccessful<SingleDataResultDto>($"Table not found: {table}");
-        }
-
-        var item = await _dataBrowserRepository.GetItem(table, id, token);
-        if (item == null)
-        {
-            return Unsuccessful<SingleDataResultDto>("Record not found");
-        }
-
-        return new ActionResultDto<SingleDataResultDto>
-        {
-            Result = item,
-            Success = true,
-        };
-    }
-
     public async Task<ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>> Browse(string table, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
@@ -170,6 +136,43 @@ public class DataService : IDataService
         return new ActionResultDto<IReadOnlyCollection<SingleDataResultDto>>
         {
             Result = await _dataBrowserRepository.GetAll(table, token).ToList(),
+            Success = true,
+        };
+    }
+
+    public async Task<ActionResultDto<object>> View(string table, Guid id, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            return Unsuccessful<object>("Not logged in");
+        }
+
+        if (user.Access?.ExportData != true)
+        {
+            return Unsuccessful<object>("Not permitted");
+        }
+
+        if (string.IsNullOrEmpty(table))
+        {
+            return Unsuccessful<object>("Table not supplied");
+        }
+
+        var tableExists = await _dataViewRepository.TableExists(table);
+        if (!tableExists)
+        {
+            return Unsuccessful<object>($"Table not found: {table}");
+        }
+
+        var item = await _dataViewRepository.GetItem(table, id, token);
+        if (item == null)
+        {
+            return Unsuccessful<object>("Record not found");
+        }
+
+        return new ActionResultDto<object>
+        {
+            Result = item,
             Success = true,
         };
     }

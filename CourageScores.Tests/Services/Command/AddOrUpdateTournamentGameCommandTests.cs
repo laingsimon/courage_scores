@@ -126,7 +126,7 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "player",
-            Notes = "120",
+            Score = 120,
         };
         var oneEightyPlayer = new TournamentPlayer
         {
@@ -188,7 +188,7 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "player",
-            Notes = "120",
+            Score = 120,
         };
         var oneEightyPlayer = new TournamentPlayer
         {

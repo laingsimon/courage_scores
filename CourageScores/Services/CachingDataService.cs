@@ -49,7 +49,8 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         }
     }
 
-    public Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
+    public Task<ActionResultDto<TDto>> Upsert<TOut>(Guid? id, IUpdateCommand<TModel, TOut> updateCommand,
+        CancellationToken token)
     {
         InvalidateCaches(new[]
         {

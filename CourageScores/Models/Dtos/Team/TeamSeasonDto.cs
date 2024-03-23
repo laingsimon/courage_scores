@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Team;
 
@@ -6,6 +7,7 @@ namespace CourageScores.Models.Dtos.Team;
 /// A record of a season that a team has played within
 /// </summary>
 [ExcludeFromCodeCoverage]
+[PartialExtension(nameof(AuditedDto))] // to make Id optional
 public class TeamSeasonDto : AuditedDto
 {
     /// <summary>

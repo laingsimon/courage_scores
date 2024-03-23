@@ -102,7 +102,7 @@ public class SeasonAdapterTests
     [Test]
     public async Task Adapt_GivenNowSameAsStartDate_SetsIsCurrentToTrue()
     {
-        _now = new DateTimeOffset(2001, 02, 03, 0, 0, 0, TimeSpan.Zero);
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var model = new CourageScores.Models.Cosmos.Season.Season
         {
             Id = Guid.NewGuid(),
@@ -123,7 +123,7 @@ public class SeasonAdapterTests
     [Test]
     public async Task Adapt_GivenNowSameAsEndDate_SetsIsCurrentToTrue()
     {
-        _now = new DateTimeOffset(2002, 03, 04, 0, 0, 0, TimeSpan.Zero);
+        _now = new DateTimeOffset(2002, 03, 04, 05, 06, 07, TimeSpan.Zero);
         var model = new CourageScores.Models.Cosmos.Season.Season
         {
             Id = Guid.NewGuid(),

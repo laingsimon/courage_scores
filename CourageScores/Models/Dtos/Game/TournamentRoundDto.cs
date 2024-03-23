@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -6,6 +7,7 @@ namespace CourageScores.Models.Dtos.Game;
 /// Represents the matches within a round of a tournament game
 /// </summary>
 [ExcludeFromCodeCoverage]
+[PartialExtension(nameof(AuditedDto))] // to make Id optional
 public class TournamentRoundDto : AuditedDto
 {
     /// <summary>

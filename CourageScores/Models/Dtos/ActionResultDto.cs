@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using TypeScriptMapper;
 
 namespace CourageScores.Models.Dtos;
 
@@ -39,6 +40,7 @@ public class ActionResultDto<TDto>
     /// </summary>
     public List<string> Warnings { get; set; } = new();
 
+    [ExcludeFromTypeScript]
     public ActionResultDto<TDto> Merge(IActionResult<TDto> from)
     {
         return new ActionResultDto<TDto>
@@ -52,6 +54,7 @@ public class ActionResultDto<TDto>
         };
     }
 
+    [ExcludeFromTypeScript]
     public ActionResultDto<TDto> Merge(ActionResultDto<TDto> from)
     {
         return new ActionResultDto<TDto>
@@ -65,6 +68,7 @@ public class ActionResultDto<TDto>
         };
     }
 
+    [ExcludeFromTypeScript]
     public ActionResultDto<TOther> As<TOther>(TOther? result = default)
     {
         return new ActionResultDto<TOther>
@@ -77,6 +81,7 @@ public class ActionResultDto<TDto>
         };
     }
 
+    [ExcludeFromTypeScript]
     public ActionResult<TDto> ToActionResult()
     {
         return new ActionResult<TDto>

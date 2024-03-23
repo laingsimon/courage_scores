@@ -66,25 +66,15 @@ public class ManOfTheMatchReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[]
+        result.AssertPlayerLinks(
+            1,
+            new ReportTestingExtensions.PlayerLink(_jon, _jonId));
+        result.AssertTeamLinks(
+            0,
+            new ReportTestingExtensions.TeamLink(_jon));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
         {
-            _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Value), Is.EquivalentTo(new[]
-        {
-            2,
+            "2",
         }));
     }
 
@@ -97,25 +87,17 @@ public class ManOfTheMatchReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[]
+        result.AssertPlayerLinks(
+            1,
+            new ReportTestingExtensions.PlayerLink(_jon, _jonId),
+            new ReportTestingExtensions.PlayerLink(_dave, _daveId));
+        result.AssertTeamLinks(
+            0,
+            new ReportTestingExtensions.TeamLink(_jon),
+            new ReportTestingExtensions.TeamLink(_dave));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
         {
-            _jonId, _daveId,
-        }));
-        Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName, _dave.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId, _dave.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName, _dave.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Value), Is.EquivalentTo(new[]
-        {
-            1, 1,
+            "1", "1",
         }));
     }
 
@@ -131,25 +113,17 @@ public class ManOfTheMatchReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[]
+        result.AssertPlayerLinks(
+            1,
+            new ReportTestingExtensions.PlayerLink(_jon, _jonId),
+            new ReportTestingExtensions.PlayerLink(_dave, _daveId));
+        result.AssertTeamLinks(
+            0,
+            new ReportTestingExtensions.TeamLink(_jon),
+            new ReportTestingExtensions.TeamLink(_dave));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
         {
-            _jonId, _daveId,
-        }));
-        Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[]
-        {
-            _jon.PlayerName, _dave.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamId), Is.EquivalentTo(new[]
-        {
-            _jon.TeamId, _dave.TeamId,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[]
-        {
-            _jon.TeamName, _dave.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Value), Is.EquivalentTo(new[]
-        {
-            2, 2,
+            "2", "2",
         }));
     }
 }

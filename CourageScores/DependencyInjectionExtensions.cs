@@ -1,10 +1,12 @@
-﻿using CourageScores.Filters;
+﻿using System.Collections.Concurrent;
+using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Adapters.Identity;
+using CourageScores.Models.Adapters.Live;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Adapters.Team;
@@ -21,9 +23,11 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Models.Dtos.Live;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Models.Live;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services;
@@ -88,8 +92,19 @@ public static class DependencyInjectionExtensions
     private static void AddLive(IServiceCollection services)
     {
         services.AddSingleton<ICollection<IWebSocketContract>>(new List<IWebSocketContract>());
+        services.AddSingleton(new ConcurrentDictionary<Guid, PollingUpdatesProcessor.UpdateData>());
+
         services.AddScoped<ILiveService, LiveService>();
-        services.AddScoped<IWebSocketMessageProcessor, PublishUpdatesProcessor>();
+        services.AddScoped<IWebSocketMessageProcessor, CompositeWebSocketMessageProcessor>(p =>
+        {
+            return new CompositeWebSocketMessageProcessor(new IWebSocketMessageProcessor[] {
+                p.GetService<PollingUpdatesProcessor>()!,
+                p.GetService<PublishUpdatesProcessor>()!,
+            });
+        });
+        services.AddScoped<PollingUpdatesProcessor>();
+        services.AddScoped<PublishUpdatesProcessor>();
+        services.AddScoped<IUpdatedDataSource, PollingUpdatesProcessor>();
     }
 
     private static void AddComparers(IServiceCollection services)
@@ -150,6 +165,9 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IReportFactory, ReportFactory>();
+        services.AddScoped<IPhotoService, PhotoService>();
+        services.AddScoped<IPhotoHelper, PhotoHelper>();
+        services.AddSingleton<IPhotoSettings, PhotoSettings>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -157,6 +175,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped(typeof(IDataBrowserRepository<>), typeof(DataBrowserRepository<>));
+        services.AddScoped<IPhotoRepository, PhotoRepository>();
+        services.AddSingleton<IBlobStorageRepository, BlobStorageRepository>();
     }
 
     private static void AddAdapters(IServiceCollection services)
@@ -221,6 +241,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleOnewayAdapter<Template, SeasonHealthDto>, TemplateToHealthCheckAdapter>();
 
         services.AddScoped<IUpdateScoresAdapter, UpdateScoresAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>, WebSocketDtoAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>, WatchableDataDtoAdapter>();
+        services.AddScoped<ISimpleAdapter<PhotoReference, PhotoReferenceDto>, PhotoReferenceAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

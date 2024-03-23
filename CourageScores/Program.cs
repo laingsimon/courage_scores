@@ -28,6 +28,7 @@ builder.Services
         options.SerializerSettings.Converters.Add(new StringEnumConverter());
     });
 
+builder.Services.AddSwaggerGenNewtonsoftSupport();
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

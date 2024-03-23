@@ -88,25 +88,15 @@ public class HighestCheckoutReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[]
+        result.AssertPlayerLinks(
+            1,
+            new ReportTestingExtensions.PlayerLink(_dave, _daveId));
+        result.AssertTeamLinks(
+            0,
+            new ReportTestingExtensions.TeamLink(_dave));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
         {
-            _dave.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[]
-        {
-            _dave.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Value), Is.EquivalentTo(new[]
-        {
-            110d,
-        }));
-        Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[]
-        {
-            _daveId,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamId), Is.EquivalentTo(new[]
-        {
-            _dave.TeamId,
+            "110",
         }));
     }
 
@@ -127,25 +117,17 @@ public class HighestCheckoutReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[]
+        result.AssertPlayerLinks(
+            1,
+            new ReportTestingExtensions.PlayerLink(_dave, _daveId),
+            new ReportTestingExtensions.PlayerLink(_jon, _jonId));
+        result.AssertTeamLinks(
+            0,
+            new ReportTestingExtensions.TeamLink(_dave),
+            new ReportTestingExtensions.TeamLink(_jon));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
         {
-            _dave.PlayerName, _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[]
-        {
-            _dave.TeamName, _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Value), Is.EquivalentTo(new[]
-        {
-            100d, 100d,
-        }));
-        Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[]
-        {
-            _daveId, _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamId), Is.EquivalentTo(new[]
-        {
-            _dave.TeamId, _jon.TeamId,
+            "100", "100",
         }));
     }
 
@@ -171,25 +153,17 @@ public class HighestCheckoutReportTests
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
-        Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[]
+        result.AssertPlayerLinks(
+            1,
+            new ReportTestingExtensions.PlayerLink(_dave, _daveId),
+            new ReportTestingExtensions.PlayerLink(_jon, _jonId));
+        result.AssertTeamLinks(
+            0,
+            new ReportTestingExtensions.TeamLink(_dave),
+            new ReportTestingExtensions.TeamLink(_jon));
+        Assert.That(result.Rows.Select(r => r.Cells[2].Text), Is.EquivalentTo(new[]
         {
-            _dave.PlayerName, _jon.PlayerName,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[]
-        {
-            _dave.TeamName, _jon.TeamName,
-        }));
-        Assert.That(result.Rows.Select(r => r.Value), Is.EquivalentTo(new[]
-        {
-            103d, 102d,
-        }));
-        Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[]
-        {
-            _daveId, _jonId,
-        }));
-        Assert.That(result.Rows.Select(r => r.TeamId), Is.EquivalentTo(new[]
-        {
-            _dave.TeamId, _jon.TeamId,
+            "103", "102",
         }));
     }
 }

@@ -1,5 +1,6 @@
 ﻿/* istanbul ignore file */
-const fs = require('fs');
+import {readFile, writeFile, cp, readdir, existsSync} from 'fs';
+
 const projectDir = process.argv[2].replaceAll('\\\\', '\\');
 const publishDir = process.argv[3].replaceAll('\\\\', '\\');
 
@@ -10,9 +11,10 @@ const workingDir = publishDir.indexOf(projectDir) === 0
 
 console.log(`WorkingDir = ${workingDir}`);
 const contentPath = `${workingDir}wwwroot`;
+console.log(`ContentPath = ${contentPath}`);
 
 function readContent(path, callback) {
-    fs.readFile(path, 'utf-8', (err, data) => {
+    readFile(path, 'utf-8', (err, data) => {
         if (err) {
             console.error('Error reading: ' + path);
             console.error(err);
@@ -27,13 +29,13 @@ function replaceContent(path, replacement, callback) {
     readContent(path, (content) => {
         const newContent = content.replace(/<\/title>(.+)<\/head>/s, '</title>' + replacement + '</head>');
         console.log('Writing whitelabel content to ' + path);
-        fs.writeFile(path, newContent, callback);
+        writeFile(path, newContent, callback);
     });
 }
 
 function copyFile(path, fileName, callback) {
     console.log(`Copying ${fileName} to ${path}/${fileName}`);
-    fs.cp(contentPath + `/${fileName}`, path + `/${fileName}`, callback);
+    cp(contentPath + `/${fileName}`, path + `/${fileName}`, callback);
 }
 
 function exhaustArray(array, itemCallback, completeCallback) {
@@ -51,7 +53,7 @@ function exhaustArray(array, itemCallback, completeCallback) {
 function getContentForReplacement(content) {
     const result = content.match(/<\/title>(.+)<\/head>/s);
     const fragment = result[1].replaceAll('>', '>\n');
-    console.log(`Built content: ${fragment}`);
+    // console.log(`Built content: ${fragment}`);
     return fragment;
 }
 
@@ -61,7 +63,7 @@ function removeCustomHeaderFromWebConfig(path, callback) {
     readContent(webConfigPath, (content) => {
         const newContent = content.replace(/<customHeaders>(.+)<\/customHeaders>/s, '');
         console.log('Writing updated web.config content to ' + webConfigPath);
-        fs.writeFile(webConfigPath, newContent, callback);
+        writeFile(webConfigPath, newContent, callback);
     });
 }
 
@@ -69,12 +71,12 @@ readContent(contentPath + '/index.html', (content) => {
     const segment = getContentForReplacement(content); // find the segment to replace in the other files
     const filesToCopyIntoBrand = ['layout.css', 'web.config', 'manifest.json', 'host.html', 'parentHeight.js'];
 
-    fs.readdir(contentPath, (x, fileOrDirectoryName) => {
+    readdir(contentPath, (_, fileOrDirectoryName) => {
         const brandedPagePaths = fileOrDirectoryName
             .filter(f => f.indexOf('.') === -1) /* is a directory*/
             .map(brandDirectory => contentPath + '/' + brandDirectory)
             .filter(path => {
-                if (fs.existsSync(path + '/index.html')) {
+                if (existsSync(path + '/index.html')) {
                     return true;
                 }
 

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -9,7 +10,7 @@ namespace CourageScores.Services.Division;
 
 public class CachingDivisionService : ICachingDivisionService
 {
-    private static readonly HashSet<CacheKey> CacheKeys = new();
+    private static readonly ConcurrentDictionary<CacheKey, object> CacheKeys = new();
     private readonly IHttpContextAccessor _accessor;
     private readonly IDivisionService _divisionService;
     private readonly IMemoryCache _memoryCache;
@@ -33,7 +34,7 @@ public class CachingDivisionService : ICachingDivisionService
         if (divisionId != null)
         {
             // invalidate caches where division id matches, any season id
-            var keys = CacheKeys.Where(key =>
+            var keys = CacheKeys.Keys.Where(key =>
                 key.Filter.DivisionId == divisionId.Value ||
                 divisionId == Guid.Empty && key.Filter.DivisionId != null).ToArray();
             InvalidateCaches(keys);
@@ -42,7 +43,7 @@ public class CachingDivisionService : ICachingDivisionService
         if (seasonId != null)
         {
             // invalidate caches where season id matches, any division id
-            var keys = CacheKeys.Where(key =>
+            var keys = CacheKeys.Keys.Where(key =>
                     key.Filter.SeasonId == seasonId.Value || seasonId == Guid.Empty && key.Filter.SeasonId != null)
                 .ToArray();
             InvalidateCaches(keys);
@@ -61,7 +62,7 @@ public class CachingDivisionService : ICachingDivisionService
 
         var key = new CacheKey(filter, "GetDivisionData");
         InvalidateCacheIfCacheControlHeaderPresent(key);
-        CacheKeys.Add(key);
+        CacheKeys.TryAdd(key, new object());
         return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token));
     }
 
@@ -72,7 +73,7 @@ public class CachingDivisionService : ICachingDivisionService
             DivisionId = id,
         }, "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
-        CacheKeys.Add(key);
+        CacheKeys.TryAdd(key, new object());
         return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.Get(id, token));
     }
 
@@ -80,7 +81,7 @@ public class CachingDivisionService : ICachingDivisionService
     {
         var key = new CacheKey(new DivisionDataFilter(), "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
-        CacheKeys.Add(key);
+        CacheKeys.TryAdd(key, new object());
 
         foreach (var division in await _memoryCache.GetOrCreateAsync(key, async _ => await _divisionService.GetAll(token).ToList()))
         {
@@ -93,7 +94,8 @@ public class CachingDivisionService : ICachingDivisionService
         return _divisionService.GetWhere(query, token);
     }
 
-    public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
+    public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid? id,
+        IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
     {
         try
         {
@@ -119,7 +121,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     private void InvalidateCacheIfCacheControlHeaderPresent(CacheKey key)
     {
-        if (!CacheKeys.Contains(key))
+        if (!CacheKeys.ContainsKey(key))
         {
             return;
         }
@@ -128,14 +130,14 @@ public class CachingDivisionService : ICachingDivisionService
         var noCacheHeaderPresent = request?.Headers.CacheControl.Contains("no-cache");
         if (noCacheHeaderPresent == true)
         {
-            CacheKeys.Remove(key);
+            CacheKeys.TryRemove(key, out _);
             _memoryCache.Remove(key);
         }
     }
 
     private void InvalidateCaches(Guid divisionId, string? type)
     {
-        var cacheKeys = CacheKeys.Where(k =>
+        var cacheKeys = CacheKeys.Keys.Where(k =>
                 (k.Filter.DivisionId == divisionId || k.Filter.DivisionId == null) && (k.Type == type || type == null))
             .ToArray();
         InvalidateCaches(cacheKeys);
@@ -146,7 +148,7 @@ public class CachingDivisionService : ICachingDivisionService
         foreach (var key in keys)
         {
             _memoryCache.Remove(key);
-            CacheKeys.Remove(key);
+            CacheKeys.TryRemove(key, out _);
         }
     }
 

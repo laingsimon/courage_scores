@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Game.Sayg;
+using TypeScriptMapper.Dtos;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -7,6 +8,7 @@ namespace CourageScores.Models.Dtos.Game;
 /// The record of a series of legs of a match between two players
 /// </summary>
 [ExcludeFromCodeCoverage]
+[PartialExtension(nameof(AuditedDto))] // to make Id optional
 public class GameMatchDto : AuditedDto
 {
     /// <summary>

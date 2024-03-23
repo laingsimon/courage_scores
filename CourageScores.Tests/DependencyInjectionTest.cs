@@ -22,6 +22,8 @@ public class DependencyInjectionTest
         configuration["CosmosDb_DatabaseName"] = "test_db";
         configuration["CosmosDb_Endpoint"] = "url";
         configuration["CosmosDb_Key"] = "key";
+        configuration["BlobStorage_AccountName"] = "account";
+        configuration["BlobStorage_Key"] = "key";
 
         IServiceCollection services = new ServiceCollection();
         foreach (var controller in Controllers())
@@ -32,6 +34,7 @@ public class DependencyInjectionTest
         services.AddScoped<ICosmosDatabaseFactory, MockCosmosDatabaseFactory>();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddSingleton<ISystemClock>(new SystemClock());
+        services.AddSingleton(new Mock<IBlobStorageRepository>().Object);
 
         _serviceProvider = services.BuildServiceProvider();
     }
@@ -65,7 +68,18 @@ public class DependencyInjectionTest
         var types = typeof(DependencyInjectionExtensions).Assembly.GetTypes();
         var commands = types.Where(t => t.IsAssignableTo(typeof(IUpdateCommand)));
 
-        return commands.Where(t => t.IsClass && !t.IsAbstract);
+        return commands
+            .Where(t => t.IsClass && !t.IsAbstract)
+            .Select(t =>
+            {
+                if (!t.IsGenericTypeDefinition)
+                {
+                    return t;
+                }
+
+                var genericArguments = t.GetGenericArguments().Select(gta => gta.GetGenericParameterConstraints().First()).ToArray();
+                return t.MakeGenericType(genericArguments);
+            });
     }
 
     private class MockCosmosDatabaseFactory : ICosmosDatabaseFactory

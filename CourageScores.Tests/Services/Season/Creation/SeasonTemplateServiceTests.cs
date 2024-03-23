@@ -264,6 +264,71 @@ public class SeasonTemplateServiceTests
     }
 
     [Test]
+    public async Task GetForSeason_GivenDeletedSeasonTeams_ResolvesTeamsInSeasonToPerDivisionDictionary()
+    {
+        var division1 = Guid.NewGuid();
+        var division2 = Guid.NewGuid();
+        var template = new TemplateDto();
+        _templates = new[]
+        {
+            template,
+        };
+        var division1Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                    Deleted = DateTime.UtcNow,
+                },
+            },
+        };
+        var division1Team2 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                    Deleted = DateTime.UtcNow,
+                },
+            },
+        };
+        var division2Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division2,
+                    SeasonId = _season.Id,
+                    Deleted = DateTime.UtcNow,
+                },
+            },
+        };
+        _teamsInSeason = new[]
+        {
+            division1Team1,
+            division1Team2,
+            division2Team1,
+        };
+        var expected = new Dictionary<Guid, TeamDto[]>();
+        _check
+            .Setup(c => c.Check(template, It.IsAny<TemplateMatchContext>(), _token))
+            .ReturnsAsync(new ActionResultDto<TemplateDto>
+            {
+                Success = true,
+            });
+
+        await _service.GetForSeason(_season.Id, _token);
+
+        _check.Verify(c => c.Check(template, It.Is<TemplateMatchContext>(context => TeamsAreCorrectlyMapped(context, expected)), _token));
+    }
+
+    [Test]
     public async Task GetForSeason_GivenTemplateIncompatible_ReturnsIncompatible()
     {
         var template = new TemplateDto();
@@ -503,6 +568,70 @@ public class SeasonTemplateServiceTests
                 }
             },
         };
+        var request = new ProposalRequestDto
+        {
+            SeasonId = _season.Id,
+            TemplateId = template.Id,
+        };
+
+        await _service.ProposeForSeason(request, _token);
+
+        _proposalStrategy.Verify(s => s.ProposeFixtures(It.Is<TemplateMatchContext>(context => TeamsAreCorrectlyMapped(context, expected)), template, _token));
+    }
+
+    [Test]
+    public async Task ProposeForSeason_GivenDeletedSeasonTeams_ResolvesTeamsInSeasonToPerDivisionDictionary()
+    {
+        var division1 = Guid.NewGuid();
+        var division2 = Guid.NewGuid();
+        var template = new TemplateDto();
+        _templates = new[]
+        {
+            template,
+        };
+        var division1Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                    Deleted = DateTime.UtcNow,
+                },
+            },
+        };
+        var division1Team2 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division1,
+                    SeasonId = _season.Id,
+                    Deleted = DateTime.UtcNow,
+                },
+            },
+        };
+        var division2Team1 = new TeamDto
+        {
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    DivisionId = division2,
+                    SeasonId = _season.Id,
+                    Deleted = DateTime.UtcNow,
+                },
+            },
+        };
+        _teamsInSeason = new[]
+        {
+            division1Team1,
+            division1Team2,
+            division2Team1,
+        };
+        var expected = new Dictionary<Guid, TeamDto[]>();
         var request = new ProposalRequestDto
         {
             SeasonId = _season.Id,

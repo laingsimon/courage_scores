@@ -16,12 +16,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
         <PackageReference Include="DotNetZip" Version="1.16.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.10"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.25" />
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.10"/>
         <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.31.0"/>
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,6 +32,10 @@
         <Content Remove="$(SpaRoot)**"/>
         <None Remove="$(SpaRoot)**"/>
         <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TypeScriptMapper\TypeScriptMapper.csproj" />
     </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
@@ -41,12 +48,22 @@
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install"/>
     </Target>
 
+    <Target Name="Clean typescript interfaces" BeforeTargets="Clean">
+        <Message Importance="high" Text="Removing existing typescript generated files..." Condition=" '$(Configuration)' == 'Debug' "/>
+        <RemoveDir Directories="$(ProjectDir)$(SpaRoot)src/interfaces/models" Condition=" '$(Configuration)' == 'Debug' " />
+        <RemoveDir Directories="$(ProjectDir)$(SpaRoot)src/interfaces/apis" Condition=" '$(Configuration)' == 'Debug' " />
+    </Target>
+
+    <Target Name="Write typescript interfaces" AfterTargets="Build">
+        <Exec WorkingDirectory="$(OutDir)" Command="dotnet TypeScriptMapper.dll $(ProjectDir)$(SpaRoot)src/interfaces"/>
+    </Target>
+
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm audit --omit=dev"/>
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build"/>
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage --reporters=jest-junit" UseUtf8Encoding="Always"/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --outDir $(ProjectDir)$(PublishDir)wwwroot"/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage --reporters=jest-junit --reporters=default" UseUtf8Encoding="Always"/>
 
         <!-- Include the newly-built files in the publish output -->
         <ItemGroup>

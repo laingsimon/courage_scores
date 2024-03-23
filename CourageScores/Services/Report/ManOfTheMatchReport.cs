@@ -20,7 +20,12 @@ public class ManOfTheMatchReport : IReport
             Description = $"The top {_topCount} recorded players of the match",
             Name = "Man of the match",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
-            ValueHeading = "Times",
+            Columns =
+            {
+                "Team",
+                "Player",
+                "Times",
+            },
         };
     }
 
@@ -48,11 +53,29 @@ public class ManOfTheMatchReport : IReport
             var player = await playerLookup.GetPlayer(pair.Key);
             yield return new ReportRowDto
             {
-                PlayerId = pair.Key,
-                PlayerName = player.PlayerName,
-                TeamId = player.TeamId,
-                TeamName = player.TeamName,
-                Value = pair.Value,
+                Cells =
+                {
+                    new ReportCellDto
+                    {
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        Text = player.TeamName,
+                        DivisionId = player.DivisionId,
+                    },
+                    new ReportCellDto
+                    {
+                        PlayerId = pair.Key,
+                        PlayerName = player.PlayerName,
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        Text = player.PlayerName,
+                        DivisionId = player.DivisionId,
+                    },
+                    new ReportCellDto
+                    {
+                        Text = pair.Value.ToString(),
+                    },
+                },
             };
         }
     }

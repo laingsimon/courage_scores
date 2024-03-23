@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Live;
 
 namespace CourageScores.Models.Dtos;
 
@@ -24,4 +25,9 @@ public class LiveMessageDto
     /// The id for the data, if applicable
     /// </summary>
     public Guid? Id { get; set; }
+
+    /// <summary>
+    /// The type of data in this update
+    /// </summary>
+    public LiveDataType DataType { get; set; }
 }

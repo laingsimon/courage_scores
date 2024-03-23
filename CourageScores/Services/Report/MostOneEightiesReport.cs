@@ -20,7 +20,12 @@ public class MostOneEightiesReport : IReport
             Description = $"The top {_topCount} most 180s",
             Name = "Most 180s",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
-            ValueHeading = "180s",
+            Columns =
+            {
+                "Team",
+                "Player",
+                "180s",
+            },
         };
     }
 
@@ -43,11 +48,29 @@ public class MostOneEightiesReport : IReport
             var player = await playerLookup.GetPlayer(pair.Key);
             yield return new ReportRowDto
             {
-                PlayerId = pair.Key,
-                PlayerName = player.PlayerName,
-                TeamId = player.TeamId,
-                TeamName = player.TeamName,
-                Value = pair.Value,
+                Cells =
+                {
+                    new ReportCellDto
+                    {
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        Text = player.TeamName,
+                        DivisionId = player.DivisionId,
+                    },
+                    new ReportCellDto
+                    {
+                        PlayerId = pair.Key,
+                        PlayerName = player.PlayerName,
+                        TeamId = player.TeamId,
+                        TeamName = player.TeamName,
+                        Text = player.PlayerName,
+                        DivisionId = player.DivisionId,
+                    },
+                    new ReportCellDto
+                    {
+                        Text = pair.Value.ToString(),
+                    },
+                },
             };
         }
     }

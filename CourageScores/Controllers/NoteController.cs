@@ -23,7 +23,7 @@ public class NoteController : Controller
     }
 
     [HttpGet("/api/Note/{seasonId}")]
-    public IAsyncEnumerable<FixtureDateNoteDto> GetForSeason(Guid seasonId, CancellationToken token)
+    public IAsyncEnumerable<FixtureDateNoteDto> Get(Guid seasonId, CancellationToken token)
     {
         return _noteService.GetWhere($"t.SeasonId = '{seasonId}'", token);
     }

@@ -8,7 +8,7 @@ public class EditSeasonDto : IIntegrityCheckDto
     /// <summary>
     /// The id for the entity
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
 
     /// <summary>
     /// When the season starts
