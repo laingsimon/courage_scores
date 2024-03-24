@@ -142,80 +142,34 @@ public class FinalsNightReport : CompositeReport
             : null;
     }
 
-    private IAsyncEnumerable<ReportRowDto> DivisionalSinglesRunnerUpThenWinner(DivisionDataDto division, CancellationToken token)
-    {
-        return TournamentRunnersUpThenWinners(division, "Divisional Singles", token, "Divisional Singles");
-    }
-
     private async IAsyncEnumerable<ReportRowDto> TournamentRunnersUpThenWinners(
-        DivisionDataDto division,
-        string dateNote,
-        [EnumeratorCancellation] CancellationToken token,
-        params string[] tournamentTypes)
+        IEnumerable<DivisionTournamentFixtureDetailsDto> tournamentDetails,
+        IEnumerable<DivisionDataDto> divisionData,
+        [EnumeratorCancellation] CancellationToken token)
     {
-        var dates = division.Fixtures
-            .Where(fd => fd.TournamentFixtures.Any(f => !f.Proposed))
-            .Where(fd => fd.Notes.Any(n => n.Note.Contains(dateNote, StringComparison.OrdinalIgnoreCase)))
-            .ToArray();
+        var divisionLookup = divisionData.ToDictionary(dd => dd.Id);
 
-        if (dates.Length == 0)
+        foreach (var tournamentData in tournamentDetails)
         {
-            var dateExistsWithNote = division.Fixtures
-                .Any(fd => fd.Notes.Any(n => n.Note.Contains(dateNote, StringComparison.OrdinalIgnoreCase)));
-
-            yield return Row(
-                Cell(text: division.Name + ": " + dateNote),
-                Cell(text: dateExistsWithNote
-                    ? "⚠️ No tournaments exist on this date"
-                    : "⚠️ No date found with this note", division: division));
-            yield break;
-        }
-
-        if (dates.Length > 1)
-        {
-            yield return Row(
-                Cell(text: division.Name + ": " + dateNote),
-                Cell(text: $"⚠️ Multiple dates ({dates.Length}) found with this note", division: division));
-            yield break;
-        }
-
-        foreach (var tournamentType in tournamentTypes)
-        {
-            var tournaments = dates[0].TournamentFixtures
-                .Where(t => !t.Proposed)
-                .Where(t => t.Type?.Equals(tournamentType, StringComparison.OrdinalIgnoreCase) == true)
-                .ToArray();
-
-            if (tournaments.Length == 0)
-            {
-                yield return Row(
-                    Cell(text: $"{division.Name}: {dateNote} - {tournamentType}"),
-                    Cell(text: "⚠️ No tournament found with this type", division: division));
-                continue;
-            }
-
-            if (tournaments.Length > 1)
-            {
-                yield return Row(
-                    Cell(text: $"{division.Name}: {dateNote} - {tournamentType}"),
-                    Cell(text: $"⚠️ Multiple tournaments ({tournaments.Length}) found with this type", division: division));
-                continue;
-            }
-
-            var tournament = await _tournamentService.Get(tournaments[0].Id, token);
-
+            var tournament = await _tournamentService.Get(tournamentData.Id, token);
             if (tournament == null)
             {
                 yield return Row(
-                    Cell(text: $"{division.Name}: {dateNote} - {tournamentType}"),
-                    Cell(text: "⚠️ Unable to access tournament", tournamentId: tournaments[0].Id, division: division));
+                    Cell(text: $"{tournamentData.Type}"),
+                    Cell(text: "⚠️ Unable to access tournament", tournamentId: tournamentData.Id));
                 continue;
             }
 
-            var divisionPrefix = tournament.DivisionId == null
+            var division = tournament.DivisionId != null
+                ? divisionLookup[tournament.DivisionId.Value]
+                : null;
+            var divisionPrefix = division == null
                 ? ""
                 : $"{division.Name}: ";
             var final = GetFinal(tournament.Round);
+            var tournamentType = string.IsNullOrEmpty(tournament.Type)
+                ? $"Tournament at {tournament.Address} on {tournament.Date:dd MMM}"
+                : tournament.Type;
 
             if (final == null || final.ScoreA == final.ScoreB)
             {
@@ -225,10 +179,11 @@ public class FinalsNightReport : CompositeReport
                 continue;
             }
 
-            var winner = final.ScoreA > final.ScoreB
+            var winnerThreshold = tournament.BestOf / 2.0;
+            var winner = final.ScoreA > winnerThreshold
                 ? final.SideA
                 : final.SideB;
-            var runnerUp = final.ScoreA > final.ScoreB
+            var runnerUp = final.ScoreA > winnerThreshold
                 ? final.SideB
                 : final.SideA;
 
@@ -238,6 +193,36 @@ public class FinalsNightReport : CompositeReport
             yield return Row(
                 Cell(text: $"{divisionPrefix}{tournamentType} winner"),
                 Cell(text: string.IsNullOrEmpty(winner.Name) ? "⚠️ <no side name>" : winner.Name, tournamentId: tournament.Id, division: division));
+        }
+    }
+
+    private async IAsyncEnumerable<ReportRowDto> TournamentWinnersAndRunnersUp(
+        IReadOnlyCollection<DivisionDataDto> divisionData,
+        [EnumeratorCancellation] CancellationToken token)
+    {
+        var allDivisionsFixtureDates =
+            divisionData.SelectMany(dd => dd.Fixtures)
+                .Where(fd => fd.TournamentFixtures.Any())
+                .GroupBy(fd => fd.Date)
+                .OrderBy(g => g.Key);
+
+        foreach (var fixtureDateGroup in allDivisionsFixtureDates)
+        {
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            var allDivisionTournaments = fixtureDateGroup
+                .SelectMany(g => g.TournamentFixtures)
+                .Where(t => !t.Proposed)
+                .DistinctBy(t => t.Id)
+                .ToArray();
+
+            await foreach (var row in TournamentRunnersUpThenWinners(allDivisionTournaments, divisionData, token))
+            {
+                yield return row;
+            }
         }
     }
 
@@ -256,7 +241,8 @@ public class FinalsNightReport : CompositeReport
             yield break;
         }
 
-        await foreach (var row in TournamentRunnersUpThenWinners(divisionData.First(), "Knockout", token, "Subsid", "Knockout"))
+        token.ThrowIfCancellationRequested();
+        await foreach (var row in TournamentWinnersAndRunnersUp(divisionData, token))
         {
             yield return row;
         }
@@ -275,12 +261,6 @@ public class FinalsNightReport : CompositeReport
 
         token.ThrowIfCancellationRequested();
         await foreach (var row in ForEachDivision(divisionData, HighestCheckout, token))
-        {
-            yield return row;
-        }
-
-        token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, DivisionalSinglesRunnerUpThenWinner, token))
         {
             yield return row;
         }

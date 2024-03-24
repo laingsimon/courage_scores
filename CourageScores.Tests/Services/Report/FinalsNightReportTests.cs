@@ -86,6 +86,7 @@ public class FinalsNightReportTests
         _tournament = new TournamentGameDto
         {
             Id = Guid.NewGuid(),
+            DivisionId = _division1.Id,
             Round = new TournamentRoundDto
             {
                 Matches =
@@ -134,174 +135,7 @@ public class FinalsNightReportTests
     }
 
     [Test]
-    public async Task GetReport_WhenKnockoutDateDoesNotExist_ReturnsWarning()
-    {
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout", "⚠️ No date found with this note");
-    }
-
-    [Test]
-    public async Task GetReport_WhenSingleKnockoutDateExistsButWithProposedTournamentsOnly_ReturnsWarning()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Knockout",
-                    Proposed = true,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout", "⚠️ No tournaments exist on this date");
-    }
-
-    [Test]
-    public async Task GetReport_WhenMultipleKnockoutDatesExist_ReturnsWarning()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Knockout",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 03, 04),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Knockout",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout", "⚠️ Multiple dates (2) found with this note");
-    }
-
-    [Test]
-    public async Task GetReport_WhenMultipleTournamentsExistOnTheSameDate_ReturnsWarning()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Knockout",
-                    Proposed = false,
-                },
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Knockout",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout - Knockout", "⚠️ Multiple tournaments (2) found with this type");
-    }
-
-    [Test]
-    public async Task GetReport_WhenKnockoutTournamentDoesNotExistWithKnockoutType_ReturnsWarning()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Something else",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout - Knockout", "⚠️ No tournament found with this type");
-    }
-
-    [Test]
-    public async Task GetReport_WhenSubsidTournamentDoesNotExistWithSubsidType_ReturnsWarning()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Something else",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout - Subsid", "⚠️ No tournament found with this type");
-    }
-
-    [Test]
-    public async Task GetReport_WhenKnockoutTournamentCannotBeAccessed_ReturnsWarning()
+    public async Task GetReport_WhenTournamentCannotBeAccessed_ReturnsWarning()
     {
         var inaccessibleTournamentId = Guid.NewGuid();
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
@@ -316,21 +150,17 @@ public class FinalsNightReportTests
                     Type = "Knockout",
                 },
             },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
         });
 
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout - Knockout", "⚠️ Unable to access tournament");
-        AssertTournamentLink(report, "Division 1: Knockout - Knockout", 1, inaccessibleTournamentId);
+        AssertReportRow(report, "Knockout", "⚠️ Unable to access tournament");
+        AssertTournamentLink(report, "Knockout", 1, inaccessibleTournamentId);
     }
 
     [Test]
-    public async Task GetReport_WhenKnockoutTournamentHasNotBeenPlayed_ReturnsWarning()
+    public async Task GetReport_WhenTournamentHasNoType_ReturnsAddressAndDate()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
         {
@@ -341,14 +171,94 @@ public class FinalsNightReportTests
                 {
                     Id = _tournament.Id,
                     Proposed = false,
-                    Type = "Knockout",
                 },
             },
-            Notes =
+        });
+        _tournament.Date = new DateTime(2001, 02, 03);
+        _tournament.Type = null;
+        _tournament.Address = "ADDRESS";
+        _tournament.Round!.Matches.Clear();
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        AssertReportRow(report, "Division 1: Tournament at ADDRESS on 03 Feb", "⚠️ Has not been played or has no winner");
+        AssertTournamentLink(report, "Division 1: Tournament at ADDRESS on 03 Feb", 1, _tournament.Id);
+    }
+
+    [Test]
+    public async Task GetReport_WhenTournamentHasEmptyType_ReturnsAddressAndDate()
+    {
+        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
             {
-                new FixtureDateNoteDto { Note = "Knockout" },
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Proposed = false,
+                },
             },
         });
+        _tournament.Date = new DateTime(2001, 02, 03);
+        _tournament.Type = "";
+        _tournament.Address = "ADDRESS";
+        _tournament.Round!.Matches.Clear();
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        AssertReportRow(report, "Division 1: Tournament at ADDRESS on 03 Feb", "⚠️ Has not been played or has no winner");
+        AssertTournamentLink(report, "Division 1: Tournament at ADDRESS on 03 Feb", 1, _tournament.Id);
+    }
+
+    [Test]
+    public async Task GetReport_WhenTournamentIsCrossDivisional_ReturnsAddressAndDate()
+    {
+        var tournamentData = new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Proposed = false,
+                },
+            },
+        };
+        _divisionData1.Fixtures.Add(tournamentData);
+        _divisionData2.Fixtures.Add(tournamentData);
+        _tournament.Type = "Finals Night";
+        _tournament.DivisionId = null;
+        _tournament.Round!.Matches.Clear();
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        Assert.That(report.Rows.Select(r => r.Cells[0].Text).Count(t => t == "Finals Night"), Is.EqualTo(1));
+        AssertReportRow(report, "Finals Night", "⚠️ Has not been played or has no winner");
+        AssertTournamentLink(report, "Finals Night", 1, _tournament.Id);
+    }
+
+    [Test]
+    public async Task GetReport_WhenTournamentHasNotBeenPlayed_ReturnsWarning()
+    {
+        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Proposed = false,
+                },
+            },
+        });
+        _tournament.Type = "Knockout";
+        _tournament.DivisionId = null;
         _tournament.Round!.Matches.Clear();
 
         var report = await _report.GetReport(_playerLookup, _token);
@@ -359,7 +269,7 @@ public class FinalsNightReportTests
     }
 
     [Test]
-    public async Task GetReport_WhenKnockoutTournamentHasNoWinner_ReturnsWarning()
+    public async Task GetReport_WhenTournamentHasNoWinner_ReturnsWarning()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
         {
@@ -370,14 +280,11 @@ public class FinalsNightReportTests
                 {
                     Id = _tournament.Id,
                     Proposed = false,
-                    Type = "Knockout",
                 },
             },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
         });
+        _tournament.Type = "Knockout";
+        _tournament.DivisionId = null;
         _tournament.Round!.Matches[0].ScoreA = 1;
         _tournament.Round!.Matches[0].ScoreB = 1;
 
@@ -389,7 +296,7 @@ public class FinalsNightReportTests
     }
 
     [Test]
-    public async Task GetReport_WhenKnockoutDateExistsWithExtraTextInNote_ReturnsKnockout()
+    public async Task GetReport_WhenTournamentExistsWithNestedWinner_ReturnsKnockout()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
         {
@@ -399,43 +306,8 @@ public class FinalsNightReportTests
                 new DivisionTournamentFixtureDetailsDto
                 {
                     Id = _tournament.Id,
-                    Type = "Knockout",
                     Proposed = false,
                 },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout and Subsid cup" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Knockout winner", "SIDE B");
-        AssertReportRow(report, "Knockout runner up", "SIDE A");
-        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
-        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
-    }
-
-    [Test]
-    public async Task GetReport_WhenKnockoutDateExistsWithNestedWinner_ReturnsKnockout()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Knockout",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
             },
         });
         _tournament.Round!.NextRound = new TournamentRoundDto
@@ -457,6 +329,8 @@ public class FinalsNightReportTests
                 },
             },
         };
+        _tournament.DivisionId = null;
+        _tournament.Type = "Knockout";
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -468,7 +342,7 @@ public class FinalsNightReportTests
     }
 
     [Test]
-    public async Task GetReport_WhenKnockoutDateExistsWithNoRound_ReturnsKnockout()
+    public async Task GetReport_WhenTournamentExistsWithNoRound_ReturnsKnockout()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
         {
@@ -478,16 +352,13 @@ public class FinalsNightReportTests
                 new DivisionTournamentFixtureDetailsDto
                 {
                     Id = _tournament.Id,
-                    Type = "Knockout",
                     Proposed = false,
                 },
             },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
         });
         _tournament.Round = null;
+        _tournament.DivisionId = null;
+        _tournament.Type = "Knockout";
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -497,7 +368,7 @@ public class FinalsNightReportTests
     }
 
     [Test]
-    public async Task GetReport_WhenKnockoutTournamentExistsWithDifferentCasedType_ReturnsKnockout()
+    public async Task GetReport_WhenTournamentExistsNoSideNames_ReturnsNoSideName()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
         {
@@ -507,89 +378,26 @@ public class FinalsNightReportTests
                 new DivisionTournamentFixtureDetailsDto
                 {
                     Id = _tournament.Id,
-                    Type = "KNOCKOUT",
                     Proposed = false,
                 },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Knockout winner", "SIDE B");
-        AssertReportRow(report, "Knockout runner up", "SIDE A");
-        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
-        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
-    }
-
-    [Test]
-    public async Task GetReport_WhenSubsidTournamentExists_ReturnsSubsid()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Subsid",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Subsid winner", "SIDE B");
-        AssertReportRow(report, "Subsid runner up", "SIDE A");
-        AssertTournamentLink(report, "Subsid winner", 1, _tournament.Id);
-        AssertTournamentLink(report, "Subsid runner up", 1, _tournament.Id);
-    }
-
-    [Test]
-    public async Task GetReport_WhenKnockoutTournamentExistsNoSideNames_ReturnsNoSideName()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "KNOCKOUT",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
             },
         });
         _tournament.Round!.Matches[0].SideA.Name = null;
         _tournament.Round!.Matches[0].SideB.Name = null;
+        _tournament.DivisionId = null;
+        _tournament.Type = "KNOCKOUT";
 
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Knockout winner", "⚠️ <no side name>");
-        AssertReportRow(report, "Knockout runner up", "⚠️ <no side name>");
-        AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
-        AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
+        AssertReportRow(report, "KNOCKOUT winner", "⚠️ <no side name>");
+        AssertReportRow(report, "KNOCKOUT runner up", "⚠️ <no side name>");
+        AssertTournamentLink(report, "KNOCKOUT winner", 1, _tournament.Id);
+        AssertTournamentLink(report, "KNOCKOUT runner up", 1, _tournament.Id);
     }
 
     [Test]
-    public async Task GetReport_WhenKnockoutTournamentExistsEmptySideNames_ReturnsNoSideName()
+    public async Task GetReport_WhenTournamentExistsEmptySideNames_ReturnsNoSideName()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
         {
@@ -599,17 +407,14 @@ public class FinalsNightReportTests
                 new DivisionTournamentFixtureDetailsDto
                 {
                     Id = _tournament.Id,
-                    Type = "KNOCKOUT",
                     Proposed = false,
                 },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Knockout" },
             },
         });
         _tournament.Round!.Matches[0].SideA.Name = "";
         _tournament.Round!.Matches[0].SideB.Name = "";
+        _tournament.DivisionId = null;
+        _tournament.Type = "Knockout";
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -985,125 +790,6 @@ public class FinalsNightReportTests
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "");
         AssertReportRow(report, "Division 2: Highest checkout", "");
-    }
-
-    [Test]
-    public async Task GetReport_WhenNoDivisionalSinglesDate_ReturnsNoDivisionalSinglesRows()
-    {
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Divisional Singles", "⚠️ No date found with this note");
-    }
-
-    [Test]
-    public async Task GetReport_WhenNoTournamentsInDivisionalSinglesDate_ReturnsNoDivisionalSinglesRows()
-    {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "Something else",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Divisional Singles" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Divisional Singles - Divisional Singles", "⚠️ No tournament found with this type");
-    }
-
-    [Test]
-    public async Task GetReport_WhenDivisionalSinglesDateWithOtherTextInNote_ReturnsDivisionalSinglesFromOneDivisionAndEmptyForOther()
-    {
-        _tournament.DivisionId = _division1.Id;
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "DIVISIONAL SINGLES",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Divisional Singles at some address" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Divisional Singles runner up", "SIDE A");
-        AssertReportRow(report, "Division 1: Divisional Singles winner", "SIDE B");
-        AssertTournamentLink(report, "Division 1: Divisional Singles runner up", 1, _tournament.Id);
-        AssertTournamentLink(report, "Division 1: Divisional Singles winner", 1, _tournament.Id);
-    }
-
-    [Test]
-    public async Task GetReport_WhenDivisionalSinglesInBothDivisions_ReturnsDivisionalSinglesFromBothDivisions()
-    {
-        _tournament.DivisionId = _division1.Id;
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "DIVISIONAL SINGLES",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Divisional Singles at some address" },
-            },
-        });
-        _divisionData2.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Type = "DIVISIONAL SINGLES",
-                    Proposed = false,
-                },
-            },
-            Notes =
-            {
-                new FixtureDateNoteDto { Note = "Divisional Singles at some address" },
-            },
-        });
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Divisional Singles runner up", "SIDE A");
-        AssertReportRow(report, "Division 1: Divisional Singles winner", "SIDE B");
-        AssertReportRow(report, "Division 2: Divisional Singles runner up", "SIDE A");
-        AssertReportRow(report, "Division 2: Divisional Singles winner", "SIDE B");
-        AssertTournamentLink(report, "Division 1: Divisional Singles runner up", 1, _tournament.Id);
-        AssertTournamentLink(report, "Division 1: Divisional Singles winner", 1, _tournament.Id);
-        AssertTournamentLink(report, "Division 2: Divisional Singles runner up", 1, _tournament.Id);
-        AssertTournamentLink(report, "Division 2: Divisional Singles winner", 1, _tournament.Id);
     }
 
     [Test]
