@@ -11,6 +11,7 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {useApp} from "../common/AppContainer";
 import {ReportCollectionDto} from "../../interfaces/models/dtos/Report/ReportCollectionDto";
 import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
+import {ReportRequestDto} from "../../interfaces/models/dtos/Report/ReportRequestDto";
 
 export function DivisionReports() {
     const {id: divisionId, season} = useDivisionData();
@@ -25,15 +26,15 @@ export function DivisionReports() {
         setGettingData(true);
 
         try {
-            const request = {
+            const request: ReportRequestDto = {
                 divisionId: divisionId,
                 seasonId: season.id,
                 topCount: topCount
             };
-            const result = await reportApi.getReport(request);
+            const result: ReportCollectionDto = await reportApi.getReport(request);
             setReportData(result);
             if (result.reports && any(result.reports)) {
-                const selectedReportExists = any(result.reports, (r: ReportDto) => r.name === activeReport);
+                const selectedReportExists: boolean = any(result.reports, (r: ReportDto) => r.name === activeReport);
                 if (!selectedReportExists) {
                     setActiveReport(result.reports[0].name);
                 }
@@ -59,7 +60,7 @@ export function DivisionReports() {
             <span className="margin-right">Show:</span>
             <BootstrapDropdown
                 onChange={async (v: string) => setActiveReport(v)}
-                options={reportData.reports.sort(sortBy('name')).map(report => {
+                options={reportData.reports.sort(sortBy('name')).map((report: ReportDto) => {
                     return {value: report.name, text: report.description}
                 })}
                 value={activeReport}
@@ -67,7 +68,7 @@ export function DivisionReports() {
         </div>);
     }
 
-    const report: ReportDto | null = activeReport ? reportData.reports.filter(r => r.name === activeReport)[0] : null;
+    const report: ReportDto | null = activeReport ? reportData.reports.filter((r: ReportDto) => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
         <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly}/>
         <div className="input-group d-print-none">
