@@ -312,6 +312,7 @@ describe('TournamentFixture', () => {
 
             reportedError.verifyNoError();
             expect(savedTournament.data).toEqual({
+                id: expect.any(String),
                 date: '2023-05-06T00:00:00',
                 address: 'ADDRESS',
                 divisionId: division.id,

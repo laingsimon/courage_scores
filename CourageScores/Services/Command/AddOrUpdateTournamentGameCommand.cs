@@ -1,7 +1,6 @@
 using CourageScores.Filters;
 using CourageScores.Models;
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
@@ -16,10 +15,10 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly ICommandFactory _commandFactory;
-    private readonly INotableTournamentPlayerAdapter _notableTournamentPlayerAdapter;
+    private readonly IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _notableTournamentPlayerAdapter;
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private readonly ICachingSeasonService _seasonService;
-    private readonly ITournamentPlayerAdapter _tournamentPlayerAdapter;
+    private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _tournamentPlayerAdapter;
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUpdateRecordedScoreAsYouGoDtoAdapter _updateRecordedScoreAsYouGoDtoAdapter;
@@ -33,8 +32,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygService,
         ICommandFactory commandFactory,
         IUpdateRecordedScoreAsYouGoDtoAdapter updateRecordedScoreAsYouGoDtoAdapter,
-        ITournamentPlayerAdapter tournamentPlayerAdapter,
-        INotableTournamentPlayerAdapter notableTournamentPlayerAdapter)
+        IAdapter<TournamentPlayer, TournamentPlayerDto> tournamentPlayerAdapter,
+        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> notableTournamentPlayerAdapter)
     {
         _seasonService = seasonService;
         _tournamentSideAdapter = tournamentSideAdapter;
@@ -70,7 +69,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             Success = true,
         };
 
-        game.Address = update.Address?.Trim() ?? "";
+        game.Address = update.Address.Trim();
         game.Date = update.Date;
         game.SeasonId = season.Id;
         game.Notes = update.Notes?.Trim();
