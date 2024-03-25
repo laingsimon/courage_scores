@@ -86,6 +86,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round, token) : null;
         game.OneEighties = await update.OneEighties.SelectAsync(p => _tournamentPlayerAdapter.Adapt(p, token)).ToList();
         game.Over100Checkouts = await update.Over100Checkouts.SelectAsync(p => _notableTournamentPlayerAdapter.Adapt(p, token)).ToList();
+        game.ExcludeFromReports = update.ExcludeFromReports;
 
         foreach (var side in game.Sides)
         {

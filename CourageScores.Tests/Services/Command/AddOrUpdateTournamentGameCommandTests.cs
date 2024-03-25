@@ -140,6 +140,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Date = new DateTime(2001, 02, 03);
         _update.Notes = "notes";
         _update.AccoladesCount = true;
+        _update.ExcludeFromReports = true;
         _update.BestOf = 7;
         _update.SingleRound = true;
         _update.Host = "host";
@@ -168,6 +169,7 @@ public class AddOrUpdateTournamentGameCommandTests
             over100CheckoutPlayer,
         }));
         Assert.That(result.Result!.AccoladesCount, Is.True);
+        Assert.That(result.Result!.ExcludeFromReports, Is.True);
         Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
         Assert.That(result.Result!.BestOf, Is.EqualTo(7));
         Assert.That(result.Result!.SingleRound, Is.True);

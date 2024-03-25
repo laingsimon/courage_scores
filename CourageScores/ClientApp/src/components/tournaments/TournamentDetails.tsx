@@ -91,9 +91,6 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
         <h4 className="pb-2">
             <span>Edit tournament: </span>
             <span className="me-4">{renderDate(tournamentData.date)}</span>
-            <button className="btn btn-sm margin-left btn-outline-primary margin-right"
-                    onClick={window.print}>🖨️
-            </button>
             <ExportDataButton tables={getExportTables()}/>
         </h4>
         <div className="input-group mb-1" datatype="address">
@@ -187,6 +184,13 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                                    onChange={valueChanged(tournamentData, setTournamentData)}/>
                             <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks
                                 in players table?</label>
+                        </div>
+                        <div className="form-check form-switch margin-right my-1" datatype="exclude-from-reports">
+                            <input disabled={disabled} type="checkbox" className="form-check-input"
+                                   name="excludeFromReports" id="excludeFromReports"
+                                   checked={tournamentData.excludeFromReports}
+                                   onChange={valueChanged(tournamentData, setTournamentData)}/>
+                            <label className="form-check-label" htmlFor="excludeFromReports">Exclude from reports?</label>
                         </div>
                     </>)}
             </div>
