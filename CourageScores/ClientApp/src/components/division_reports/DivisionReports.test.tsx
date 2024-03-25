@@ -47,7 +47,9 @@ describe('DivisionReports', () => {
             }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <DivisionReports/>
-            </DivisionDataContainer>));
+            </DivisionDataContainer>),
+            '/division/:divisionId/reports/:seasonId',
+            `/division/${divisionData.name}/reports/${divisionData.season.name}/`);
     }
 
     function createDivisionData(divisionId: string): IDivisionDataContainerProps {

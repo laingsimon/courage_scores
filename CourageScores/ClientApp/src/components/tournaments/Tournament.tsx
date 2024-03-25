@@ -312,7 +312,7 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {canManageTournaments && tournamentData && editTournament === 'details'
-                ? (<Dialog onClose={async () => setEditTournament(null)}>
+                ? (<Dialog onClose={async () => setEditTournament(null)} className="d-print-none">
                     <TournamentDetails
                         tournamentData={tournamentData}
                         disabled={saving}
@@ -335,7 +335,7 @@ export function Tournament() {
                     setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : null}
                     liveOptions={liveOptions}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
-                        ? (<Dialog title="Edit sides and matches" onClose={closeEditTournamentDialog}>
+                        ? (<Dialog title="Edit sides and matches" onClose={closeEditTournamentDialog} className="d-print-none">
                             <EditTournament canSave={true} saving={saving} />
                         </Dialog>)
                         : null}
@@ -363,7 +363,7 @@ export function Tournament() {
                         Edit
                     </button>) : null}
                 {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto)
-                    ? (<button className="btn btn-primary margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
+                    ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
                     : null}
             </div>) : (<div>Tournament not found</div>)}
             {showPhotoManager ? (<PhotoManager

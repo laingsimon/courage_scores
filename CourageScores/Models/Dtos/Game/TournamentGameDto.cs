@@ -92,4 +92,9 @@ public class TournamentGameDto : AuditedDto
     /// Photos of the results
     /// </summary>
     public List<PhotoReferenceDto> Photos { get; set; } = new();
+
+    /// <summary>
+    /// Should this tournament be excluded from any reports (e.g. finals night report)
+    /// </summary>
+    public bool ExcludeFromReports { get; set; }
 }

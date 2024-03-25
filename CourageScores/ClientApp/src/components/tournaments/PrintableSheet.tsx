@@ -232,7 +232,7 @@ export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheet
     }
 
     function renderEdit180s() {
-        return <Dialog title="Edit 180s" onClose={async () => setEditAccolades(null)}>
+        return <Dialog title="Edit 180s" onClose={async () => setEditAccolades(null)} className="d-print-none">
             <MultiPlayerSelection
                 allPlayers={allPlayers}
                 division={division}
@@ -265,7 +265,7 @@ export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheet
     }
 
     function renderEditHiChecks() {
-        return <Dialog title="Edit hi-hecks" onClose={async () => setEditAccolades(null)}>
+        return <Dialog title="Edit hi-hecks" onClose={async () => setEditAccolades(null)} className="d-print-none">
             <MultiPlayerSelection
                 allPlayers={allPlayers}
                 division={division}

@@ -38,8 +38,8 @@ public class AddOrUpdateTournamentGameCommandTests
     private MockAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter = null!;
     private Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>> _saygService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
-    private Mock<ITournamentPlayerAdapter> _tournamentPlayerAdapter = null!;
-    private Mock<INotableTournamentPlayerAdapter> _notableTournamentPlayerAdapter = null!;
+    private Mock<IAdapter<TournamentPlayer, TournamentPlayerDto>> _tournamentPlayerAdapter = null!;
+    private Mock<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>> _notableTournamentPlayerAdapter = null!;
     private Mock<IUpdateRecordedScoreAsYouGoDtoAdapter> _updateRecordedScoreAsYouGoDtoAdapter = null!;
     private GameMatchOption _matchOptions = null!;
     private GameMatchOptionDto _matchOptionsDto = null!;
@@ -63,7 +63,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _cacheFlags = new ScopedCacheManagementFlags();
 
         _seasonService = new Mock<ICachingSeasonService>();
-        _tournamentPlayerAdapter = new Mock<ITournamentPlayerAdapter>();
+        _tournamentPlayerAdapter = new Mock<IAdapter<TournamentPlayer, TournamentPlayerDto>>();
         _sideAdapter = new TournamentSideAdapter(_tournamentPlayerAdapter.Object);
         _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOptions, _matchOptionsDto);
         _matchAdapter = new MockAdapter<TournamentMatch, TournamentMatchDto>();
@@ -75,7 +75,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
         _commandFactory = new Mock<ICommandFactory>();
         _updateRecordedScoreAsYouGoDtoAdapter = new Mock<IUpdateRecordedScoreAsYouGoDtoAdapter>(MockBehavior.Strict);
-        _notableTournamentPlayerAdapter = new Mock<INotableTournamentPlayerAdapter>();
+        _notableTournamentPlayerAdapter = new Mock<IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>>();
 
         _command = new AddOrUpdateTournamentGameCommand(
             _seasonService.Object,
@@ -117,12 +117,12 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenLatestSeason_UpdatesSimpleProperties()
     {
-        var oneEightyPlayerDto = new EditTournamentGameDto.RecordTournamentScoresPlayerDto
+        var oneEightyPlayerDto = new TournamentPlayerDto
         {
             Id = Guid.NewGuid(),
             Name = "player",
         };
-        var over100CheckoutPlayerDto = new EditTournamentGameDto.TournamentOver100CheckoutDto
+        var over100CheckoutPlayerDto = new NotableTournamentPlayerDto
         {
             Id = Guid.NewGuid(),
             Name = "player",
@@ -140,6 +140,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Date = new DateTime(2001, 02, 03);
         _update.Notes = "notes";
         _update.AccoladesCount = true;
+        _update.ExcludeFromReports = true;
         _update.BestOf = 7;
         _update.SingleRound = true;
         _update.Host = "host";
@@ -168,6 +169,7 @@ public class AddOrUpdateTournamentGameCommandTests
             over100CheckoutPlayer,
         }));
         Assert.That(result.Result!.AccoladesCount, Is.True);
+        Assert.That(result.Result!.ExcludeFromReports, Is.True);
         Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
         Assert.That(result.Result!.BestOf, Is.EqualTo(7));
         Assert.That(result.Result!.SingleRound, Is.True);
@@ -179,12 +181,12 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenGivenTrailingWhitespace_TrimsWhitespace()
     {
-        var oneEightyPlayerDto = new EditTournamentGameDto.RecordTournamentScoresPlayerDto
+        var oneEightyPlayerDto = new TournamentPlayerDto
         {
             Id = Guid.NewGuid(),
             Name = "player",
         };
-        var over100CheckoutPlayerDto = new EditTournamentGameDto.TournamentOver100CheckoutDto
+        var over100CheckoutPlayerDto = new NotableTournamentPlayerDto
         {
             Id = Guid.NewGuid(),
             Name = "player",
