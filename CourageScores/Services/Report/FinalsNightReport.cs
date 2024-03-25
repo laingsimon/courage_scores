@@ -144,7 +144,7 @@ public class FinalsNightReport : CompositeReport
 
     private static bool ShouldIncludeTournament(TournamentGameDto tournament)
     {
-        return !tournament.SingleRound;
+        return !tournament.SingleRound && !tournament.ExcludeFromReports;
     }
 
     private async IAsyncEnumerable<ReportRowDto> TournamentRunnersUpThenWinners(

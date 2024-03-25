@@ -267,6 +267,30 @@ public class FinalsNightReportTests
     }
 
     [Test]
+    public async Task GetReport_WhenTournamentIsExcludedFromReports_ExcludesTournament()
+    {
+        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Proposed = false,
+                },
+            },
+        });
+        _tournament.Type = "Singles";
+        _tournament.ExcludeFromReports = true;
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        Assert.That(report.Rows.Select(r => r.Cells[0].Text), Has.No.Member("Singles"));
+    }
+
+    [Test]
     public async Task GetReport_WhenTournamentHasNotBeenPlayed_ReturnsWarning()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
