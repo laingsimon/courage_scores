@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
@@ -12,15 +12,50 @@ import {useApp} from "../common/AppContainer";
 import {ReportCollectionDto} from "../../interfaces/models/dtos/Report/ReportCollectionDto";
 import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
 import {ReportRequestDto} from "../../interfaces/models/dtos/Report/ReportRequestDto";
+import {useLocation, useNavigate} from "react-router-dom";
 
 export function DivisionReports() {
-    const {id: divisionId, season} = useDivisionData();
+    const {id: divisionId, name: divisionName, season} = useDivisionData();
+    const {onError} = useApp();
+    const location = useLocation();
+    const navigate = useNavigate();
     const [reportData, setReportData] = useState<ReportCollectionDto | null>(null);
     const [gettingData, setGettingData] = useState<boolean>(false);
-    const [topCount, setTopCount] = useState<number>(15);
-    const [activeReport, setActiveReport] = useState<string | null>(null);
     const {reportApi} = useDependencies();
-    const {onError} = useApp();
+    const topCount: number = getParameterDefault('top', 15, Number.parseInt);
+    const activeReport: string = getParameterDefault<string | null>('report',null, (x: string) => x);
+
+    function getParameterDefault<T>(name: string, defaultValue: T, converter: (value: string) => T): T {
+        const search: URLSearchParams = new URLSearchParams(location.search);
+        if (search.has(name)) {
+            const value: string = search.get(name);
+            return converter(value);
+        }
+
+        return defaultValue;
+    }
+
+    function setParameter(name: string, value: string) {
+        const newSearch: URLSearchParams = new URLSearchParams(location.search);
+        newSearch.set(name, value);
+
+        navigate(`/division/${divisionName}/reports/${season.name}/?${newSearch}`);
+    }
+
+    useEffect(() => {
+        if (activeReport) {
+            // noinspection JSIgnoredPromiseFromCall
+            getReports();
+        }
+    }, []);
+
+    function setActiveReport(report: string) {
+        setParameter('report', report);
+    }
+
+    function setTopCount(top: number) {
+        setParameter('top', top.toString());
+    }
 
     async function getReports() {
         setGettingData(true);
@@ -29,7 +64,7 @@ export function DivisionReports() {
             const request: ReportRequestDto = {
                 divisionId: divisionId,
                 seasonId: season.id,
-                topCount: topCount
+                topCount: getParameterDefault('top', 15, Number.parseInt),
             };
             const result: ReportCollectionDto = await reportApi.getReport(request);
             setReportData(result);
@@ -68,7 +103,7 @@ export function DivisionReports() {
         </div>);
     }
 
-    const report: ReportDto | null = activeReport ? reportData.reports.filter((r: ReportDto) => r.name === activeReport)[0] : null;
+    const report: ReportDto | null = activeReport && reportData ? reportData.reports.filter((r: ReportDto) => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
         <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly}/>
         <div className="input-group d-print-none">
