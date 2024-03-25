@@ -142,6 +142,11 @@ public class FinalsNightReport : CompositeReport
             : null;
     }
 
+    private static bool ShouldIncludeTournament(TournamentGameDto tournament)
+    {
+        return !tournament.SingleRound;
+    }
+
     private async IAsyncEnumerable<ReportRowDto> TournamentRunnersUpThenWinners(
         IEnumerable<DivisionTournamentFixtureDetailsDto> tournamentDetails,
         IEnumerable<DivisionDataDto> divisionData,
@@ -157,6 +162,11 @@ public class FinalsNightReport : CompositeReport
                 yield return Row(
                     Cell(text: $"{tournamentData.Type}"),
                     Cell(text: "⚠️ Unable to access tournament", tournamentId: tournamentData.Id));
+                continue;
+            }
+
+            if (!ShouldIncludeTournament(tournament))
+            {
                 continue;
             }
 
