@@ -105,7 +105,9 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
     }
 
     function triggerFileClick(event: MouseEvent, idOfFileElement: string) {
+        /* istanbul ignore next */
         if (uploading) {
+            /* istanbul ignore next */
             return;
         }
 

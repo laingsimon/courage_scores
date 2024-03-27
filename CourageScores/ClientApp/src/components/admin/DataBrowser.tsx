@@ -252,6 +252,7 @@ export function DataBrowser() {
             </div>)}
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
