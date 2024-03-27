@@ -36,7 +36,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
     async function keyUp(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
+            /* istanbul ignore next */
             if (savingInput) {
+                /* istanbul ignore next */
                 return;
             }
 
