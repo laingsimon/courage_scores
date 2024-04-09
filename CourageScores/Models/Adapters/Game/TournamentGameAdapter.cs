@@ -50,6 +50,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Opponent = model.Opponent,
             Gender = model.Gender,
             Photos = await model.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
+            ExcludeFromReports = model.ExcludeFromReports,
         }.AddAuditProperties(model);
     }
 
@@ -75,6 +76,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Opponent = dto.Opponent?.Trim(),
             Gender = dto.Gender?.Trim(),
             Photos = await dto.Photos.SelectAsync(p => _photoReferenceAdapter.Adapt(p, token)).ToList(),
+            ExcludeFromReports = dto.ExcludeFromReports,
         }.AddAuditProperties(dto);
     }
 }

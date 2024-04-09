@@ -209,7 +209,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             ? matchData.sideB ? matchData.sideB.id : null
             : matchData.sideA ? matchData.sideA.id : null;
 
-        return (<Dialog title="Edit side">
+        return (<Dialog title="Edit match" className="d-print-none">
             <div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
                     <span className="input-group-text">Side</span>

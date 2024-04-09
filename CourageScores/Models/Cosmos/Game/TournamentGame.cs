@@ -3,51 +3,16 @@ using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
-/// <summary>
-/// The details of a tournament game
-/// </summary>
 public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable, IPhotoEntity
 {
-    /// <summary>
-    /// The date for the tournament game
-    /// </summary>
     public DateTime Date { get; set; }
-
-    /// <summary>
-    /// The season for the tournament game
-    /// </summary>
     public Guid SeasonId { get; set; }
-
-    /// <summary>
-    /// The division id for this tournament game, if not cross-divisional
-    /// </summary>
     public Guid? DivisionId { get; set; }
-
-    /// <summary>
-    /// The sides that can play in the game
-    /// </summary>
     public List<TournamentSide> Sides { get; set; } = new();
-
-    /// <summary>
-    /// The first round of the tournament game
-    /// </summary>
     public TournamentRound? Round { get; set; }
-
-    /// <summary>
-    /// The address for the tournament games
-    /// </summary>
     public string Address { get; set; } = null!;
-
-    /// <summary>
-    /// Who scored a 180 in the match
-    /// </summary>
     public List<TournamentPlayer> OneEighties { get; set; } = new();
-
-    /// <summary>
-    /// Who checked out with more than 100
-    /// </summary>
     public List<NotableTournamentPlayer> Over100Checkouts { get; set; } = new();
-
     public string? Notes { get; set; }
     public string? Type { get; set; }
     public bool AccoladesCount { get; set; }
@@ -57,6 +22,7 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     public string? Opponent { get; set; }
     public string? Gender { get; set; }
     public List<PhotoReference> Photos { get; set; } = new();
+    public bool ExcludeFromReports { get; set; }
 
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {

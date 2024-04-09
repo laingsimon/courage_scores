@@ -236,7 +236,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     try {
         const filteredPlayers: ITeamPlayerMap[] = allPossiblePlayers.filter(matchesPlayerFilter);
 
-        return (<Dialog title={side.id ? 'Edit side' : (saveOptions.addAsIndividuals ? 'Add players' : 'Add side')} slim={true}>
+        return (<Dialog title={side.id ? 'Edit side' : (saveOptions.addAsIndividuals ? 'Add players' : 'Add side')} slim={true} className="d-print-none">
             {saveOptions.addAsIndividuals ? null : (<div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
                     <label htmlFor="name" className="input-group-text">Name</label>

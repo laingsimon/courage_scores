@@ -226,8 +226,6 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>, ScoreAsYouGoAdapter>();
 
         services.AddScoped<IUpdateRecordedScoreAsYouGoDtoAdapter, UpdateRecordedScoreAsYouGoDtoAdapter>();
-        services.AddScoped<ITournamentPlayerAdapter, TournamentPlayerAdapter>();
-        services.AddScoped<INotableTournamentPlayerAdapter, NotableTournamentPlayerAdapter>();
 
         services.AddScoped<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>, SeasonHealthDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>, DivisionHealthDtoAdapter>();

@@ -13,6 +13,7 @@ import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentP
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {createTemporaryId} from "../../helpers/projection";
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
@@ -41,6 +42,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
             setCreating(true);
 
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.update({
+                id: createTemporaryId(),
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
