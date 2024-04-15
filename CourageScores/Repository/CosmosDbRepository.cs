@@ -22,6 +22,12 @@ public abstract class CosmosDbRepository<T> where T : CosmosEntity
         await _container.Value.UpsertItemAsync(item, new PartitionKey(item.Id.ToString()), cancellationToken: token);
     }
 
+    protected async Task DeleteItem(Guid id, CancellationToken token)
+    {
+        var partitionKey = new PartitionKey(id.ToString());
+        await _container.Value.DeleteItemAsync<T>(id.ToString(), partitionKey, cancellationToken: token);
+    }
+
     protected async IAsyncEnumerable<T> Query(string? query, [EnumeratorCancellation] CancellationToken token)
     {
         var iterator = _container.Value.GetItemQueryIterator<T>(query);

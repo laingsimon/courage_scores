@@ -108,7 +108,7 @@ public class ContiguousHomeOrAwayFixturesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME is playing 3 fixtures in a row at home from 3 Feb - 17 Feb",
+            "DIVISION: HOME is playing 3 fixtures in a row at home weeks 1 - 3",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -310,7 +310,7 @@ public class ContiguousHomeOrAwayFixturesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME is playing 3 fixtures in a row at home from 3 Feb - 17 Feb",
+            "DIVISION: HOME is playing 3 fixtures in a row at home weeks 1 - 3",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -346,7 +346,7 @@ public class ContiguousHomeOrAwayFixturesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb - 17 Feb",
+            "DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -383,7 +383,7 @@ public class ContiguousHomeOrAwayFixturesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME is playing 4 fixtures in a row at away from 3 Feb - 24 Feb",
+            "DIVISION: HOME is playing 4 fixtures in a row at away weeks 1 - 4",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -420,7 +420,7 @@ public class ContiguousHomeOrAwayFixturesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb - 17 Feb",
+            "DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3",
         }));
         Assert.That(result.Success, Is.False);
     }
@@ -457,7 +457,7 @@ public class ContiguousHomeOrAwayFixturesTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb - 17 Feb",
+            "DIVISION: HOME is playing 3 fixtures in a row at away weeks 1 - 3",
         }));
         Assert.That(result.Success, Is.False);
     }

@@ -81,7 +81,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoSeasonOrDivisionId_ReturnsInsufficientInput()
+    public async Task GetDivisionData_GivenNoSeasonOrDivisionId_ReturnsInsufficientInput()
     {
         var insufficientData = new DivisionDataDto();
         var filter = new DivisionDataFilter();
@@ -93,7 +93,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenDivisionIdFilterWhenDivisionNotFound_ReturnsDivisionNotFound()
+    public async Task GetDivisionData_GivenDivisionIdFilterWhenDivisionNotFound_ReturnsDivisionNotFound()
     {
         var notFound = new DivisionDataDto();
         var filter = new DivisionDataFilter
@@ -109,7 +109,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenDivisionIdFilterWhenDivisionDeleted_ReturnsDivisionNotFound()
+    public async Task GetDivisionData_GivenDivisionIdFilterWhenDivisionDeleted_ReturnsDivisionNotFound()
     {
         var notFound = new DivisionDataDto();
         var division = new DivisionDto
@@ -129,7 +129,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenSeasonIdFilterWhenSeasonNotFound_ReturnsSeasonNotFound()
+    public async Task GetDivisionData_GivenSeasonIdFilterWhenSeasonNotFound_ReturnsSeasonNotFound()
     {
         var seasonNotFound = new DivisionDataDto();
         var division = new DivisionDto
@@ -158,7 +158,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoSeasonIdFilterAndNoSeasons_ReturnsSeasonNotFound()
+    public async Task GetDivisionData_GivenNoSeasonIdFilterAndNoSeasons_ReturnsSeasonNotFound()
     {
         var seasonNotFound = new DivisionDataDto();
         var division = new DivisionDto
@@ -180,7 +180,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoSeasonIdFilterWhenNoActiveSeasons_ReturnsSeasonNotFound()
+    public async Task GetDivisionData_GivenNoSeasonIdFilterWhenNoActiveSeasons_ReturnsSeasonNotFound()
     {
         var seasonNotFound = new DivisionDataDto();
         var division = new DivisionDto
@@ -209,7 +209,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoSeasonIdFilterWhenTwoActiveSeasons_UsesSeasonWithGreatestEndDate()
+    public async Task GetDivisionData_GivenNoSeasonIdFilterWhenTwoActiveSeasons_UsesSeasonWithGreatestEndDate()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -251,7 +251,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTeamsOnly()
+    public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTeamsOnly()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -312,7 +312,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoDivisionIdFilter_IncludesAllTeams()
+    public async Task GetDivisionData_GivenNoDivisionIdFilter_IncludesAllTeams()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -369,7 +369,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoDivisionIdFilterAndDeletedTeamSeasons_IncludesAllActiveTeams()
+    public async Task GetDivisionData_GivenNoDivisionIdFilterAndDeletedTeamSeasons_IncludesAllActiveTeams()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -427,7 +427,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingNotesOnly()
+    public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingNotesOnly()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -482,7 +482,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoDivisionIdFilter_IncludesAllNotes()
+    public async Task GetDivisionData_GivenNoDivisionIdFilter_IncludesAllNotes()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -533,7 +533,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingGamesWithinSeason()
+    public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingGamesWithinSeason()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -583,7 +583,7 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenNoDivisionIdFilter_IncludesAllGamesWithinSeason()
+    public async Task GetDivisionData_GivenNoDivisionIdFilter_IncludesAllGamesWithinSeason()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto
@@ -647,7 +647,73 @@ public class DivisionServiceTests
     }
 
     [Test]
-    public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTournamentsWithinSeason()
+    public async Task GetDivisionData_WhenIgnoringDates_ReturnsFixturesBeforeAndAfterSeasonDates()
+    {
+        var data = new DivisionDataDto();
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var filter = new DivisionDataFilter
+        {
+            SeasonId = season.Id,
+            IgnoreDates = true,
+        };
+        var givenDivisionGameBeforeStartOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2000, 12, 31),
+        };
+        var givenDivisionGameAfterEndOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 06, 01),
+        };
+        var otherDivisionGameBeforeStartOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Date = new DateTime(2000, 12, 31),
+        };
+        var otherDivisionGameAfterEndOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Date = new DateTime(2001, 06, 01),
+        };
+        _someGames.AddRange(new[]
+        {
+            givenDivisionGameBeforeStartOfSeason,
+            givenDivisionGameAfterEndOfSeason,
+            otherDivisionGameBeforeStartOfSeason,
+            otherDivisionGameAfterEndOfSeason,
+        });
+        _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
+        _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
+
+        await _service.GetDivisionData(filter, _token);
+
+        _gameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
+        _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), null, true, _token));
+        Assert.That(_divisionDataContext, Is.Not.Null);
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[]
+        {
+            givenDivisionGameBeforeStartOfSeason, givenDivisionGameAfterEndOfSeason,
+            otherDivisionGameBeforeStartOfSeason, otherDivisionGameAfterEndOfSeason,
+        }));
+    }
+
+    [Test]
+    public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTournamentsWithinSeason()
     {
         var data = new DivisionDataDto();
         var division = new DivisionDto

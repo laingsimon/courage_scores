@@ -97,12 +97,18 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
         return Task.FromResult(result);
     }
 
-    private static string GetWarningMessage(DivisionHealthDto division, DivisionTeamDto team, IReadOnlyCollection<EventDetail> contiguousEvents)
+    private string GetWarningMessage(DivisionHealthDto division, DivisionTeamDto team, IReadOnlyCollection<EventDetail> contiguousEvents)
     {
         var firstEvent = contiguousEvents.First();
         var lastEvent = contiguousEvents.Last();
 
-        return $"{division.Name}: {team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} from {firstEvent.Date:d MMM} - {lastEvent.Date:d MMM}";
+        return $"{division.Name}: {team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} weeks {GetWeekNumber(firstEvent.Date, division)} - {GetWeekNumber(lastEvent.Date, division)}";
+    }
+
+    private int GetWeekNumber(DateTime date, DivisionHealthDto division)
+    {
+        var sinceStartOfSeason = date.Date.Subtract(division.Dates.Select(d => d.Date).Min());
+        return (sinceStartOfSeason.Days / _intervalDays) + 1;
     }
 
     [ExcludeFromCodeCoverage]
