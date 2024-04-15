@@ -2,7 +2,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
 using NUnit.Framework;
 
-namespace CourageScores.Tests.Models.Dtos;
+namespace CourageScores.Tests.Models.Dtos.Division;
 
 [TestFixture]
 public class DivisionDataFilterTests
