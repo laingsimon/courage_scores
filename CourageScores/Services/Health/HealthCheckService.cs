@@ -63,6 +63,7 @@ public class HealthCheckService : IHealthCheckService
                 {
                     DivisionId = d.Id,
                     SeasonId = season.Id,
+                    IgnoreDates = true,
                 },
                 token))
             .ToList();
