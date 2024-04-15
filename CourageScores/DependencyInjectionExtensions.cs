@@ -180,6 +180,8 @@ public static class DependencyInjectionExtensions
 
         // only these data types can be permanently deleted - which is the atypical case
         services.AddScoped<IPermanentDeleteRepository<Game>, GenericRepository<Game>>();
+
+        services.AddSingleton<IFeatureLookup, FeatureLookup>();
     }
 
     private static void AddAdapters(IServiceCollection services)
