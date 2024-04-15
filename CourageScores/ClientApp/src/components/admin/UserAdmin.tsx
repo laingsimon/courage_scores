@@ -203,6 +203,7 @@ export function UserAdmin() {
                 {renderAccessOption('exportData', 'Export data (backup)', 'Export/Backup data')}
                 {renderAccessOption('importData', 'Import data (restore)', 'Import/Restore data')}
                 {renderAccessOption('bulkDeleteLeagueFixtures', 'Bulk delete fixtures', 'Delete all unplayed fixtures in a season in one go')}
+                {renderAccessOption('manageFeatures', 'Manage features', 'Configure system features')}
             </div>
         </div>
         <div>
