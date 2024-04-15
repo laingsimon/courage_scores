@@ -29,4 +29,5 @@ public class Access
     public bool UploadPhotos { get; set; }
     public bool DeleteAnyPhoto { get; set; }
     public bool ViewAnyPhoto { get; set; }
+    public bool BulkDeleteLeagueFixtures { get; set; }
 }

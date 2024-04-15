@@ -33,6 +33,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             UploadPhotos = model.UploadPhotos,
             DeleteAnyPhoto = model.DeleteAnyPhoto,
             ViewAnyPhoto = model.ViewAnyPhoto,
+            BulkDeleteLeagueFixtures = model.BulkDeleteLeagueFixtures,
         });
     }
 
@@ -64,6 +65,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             UploadPhotos = dto.UploadPhotos,
             DeleteAnyPhoto = dto.DeleteAnyPhoto,
             ViewAnyPhoto = dto.ViewAnyPhoto,
+            BulkDeleteLeagueFixtures = dto.BulkDeleteLeagueFixtures,
         });
     }
 }
