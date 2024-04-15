@@ -72,4 +72,10 @@ public class GameController : Controller
         var command = _commandFactory.GetCommand<DeletePhotoCommand<CosmosGame>>().WithId(photoId);
         return await _gameService.Upsert(id, command, token);
     }
+
+    [HttpDelete("/api/Game/{seasonId}/UnplayedLeagueFixtures/{executeDelete}")]
+    public async Task<ActionResultDto<List<string>>> DeleteUnplayedLeagueFixtures(Guid seasonId, bool executeDelete, CancellationToken token)
+    {
+        return await _gameService.DeleteUnplayedLeagueFixtures(seasonId, !executeDelete, token);
+    }
 }
