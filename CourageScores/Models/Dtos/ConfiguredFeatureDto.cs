@@ -1,6 +1,6 @@
 namespace CourageScores.Models.Dtos;
 
-public class ConfiguredFeatureDto : AuditedDto
+public class ConfiguredFeatureDto : AuditedDto, IFeatureDto
 {
     /// <summary>
     /// A short name for this feature
