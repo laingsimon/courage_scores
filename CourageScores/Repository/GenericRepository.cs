@@ -5,7 +5,7 @@ using Microsoft.Azure.Cosmos;
 namespace CourageScores.Repository;
 
 [ExcludeFromCodeCoverage]
-public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>
+public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>, IPermanentDeleteRepository<T>
     where T : CosmosEntity
 {
     public GenericRepository(Database database, ICosmosTableNameResolver tableNameResolver)
@@ -32,5 +32,10 @@ public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>
     {
         await UpsertItem(item, token);
         return await Get(item.Id, token) ?? throw new InvalidOperationException($"{typeof(T).Name} does not exist");
+    }
+
+    public async Task Delete(Guid id, CancellationToken token)
+    {
+        await DeleteItem(id, token);
     }
 }

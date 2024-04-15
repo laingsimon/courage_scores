@@ -1,6 +1,7 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
@@ -20,13 +21,15 @@ public class GameServiceTests
     private Mock<IGenericDataService<CosmosGame, GameDto>> _underlyingService = null!;
     private UserDto? _user;
     private GameService _service = null!;
+    private Mock<IPermanentDeleteRepository<CosmosGame>> _deletableRepository = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
         _underlyingService = new Mock<IGenericDataService<CosmosGame, GameDto>>();
-        _service = new GameService(_underlyingService.Object, _userService.Object);
+        _deletableRepository = new Mock<IPermanentDeleteRepository<CosmosGame>>();
+        _service = new GameService(_underlyingService.Object, _userService.Object, _deletableRepository.Object);
         _game = new GameDto
         {
             Id = Guid.NewGuid(),
@@ -558,6 +561,145 @@ public class GameServiceTests
 
         _underlyingService.Verify(s => s.Upsert(_game.Id, command.Object, _token));
         Assert.That(game.Result, Is.Null);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenNotLoggedOut_ReturnsUnsuccessful()
+    {
+        var seasonId = Guid.NewGuid();
+        _user = null;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenNotPermitted_ReturnsUnsuccessful()
+    {
+        var seasonId = Guid.NewGuid();
+        _user!.Access!.BulkDeleteLeagueFixtures = false;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_FindsButDoesNotDeleteFixtures()
+    {
+        var seasonId = Guid.NewGuid();
+        _game!.SeasonId = seasonId;
+        _underlyingService
+            .Setup(s => s.GetWhere($"t.SeasonId = '{seasonId}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game!));
+        _user!.Access!.BulkDeleteLeagueFixtures = true;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Success, Is.True);
+        _deletableRepository.Verify(d => d.Delete(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldDeleteFixtureWithNoMatches()
+    {
+        var seasonId = Guid.NewGuid();
+        _game!.SeasonId = seasonId;
+        _underlyingService
+            .Setup(s => s.GetWhere($"t.SeasonId = '{seasonId}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game!));
+        _user!.Access!.BulkDeleteLeagueFixtures = true;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldNotDeleteFixtureWhereMatchHasAHomeScore()
+    {
+        var seasonId = Guid.NewGuid();
+        _game!.SeasonId = seasonId;
+        _game.Matches.Add(new GameMatchDto { HomeScore = 1 });
+        _underlyingService
+            .Setup(s => s.GetWhere($"t.SeasonId = '{seasonId}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game!));
+        _user!.Access!.BulkDeleteLeagueFixtures = true;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Result, Is.Empty);
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldNotDeleteFixtureWhereMatchHasAnAwayScore()
+    {
+        var seasonId = Guid.NewGuid();
+        _game!.SeasonId = seasonId;
+        _game.Matches.Add(new GameMatchDto { AwayScore = 2 });
+        _underlyingService
+            .Setup(s => s.GetWhere($"t.SeasonId = '{seasonId}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game!));
+        _user!.Access!.BulkDeleteLeagueFixtures = true;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Result, Is.Empty);
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldDeleteFixtureWhereMatchScoresAre0()
+    {
+        var seasonId = Guid.NewGuid();
+        _game!.SeasonId = seasonId;
+        _game.Matches.Add(new GameMatchDto { HomeScore = 0, AwayScore = 0 });
+        _underlyingService
+            .Setup(s => s.GetWhere($"t.SeasonId = '{seasonId}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game!));
+        _user!.Access!.BulkDeleteLeagueFixtures = true;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenDryRun_WouldDeleteFixtureWhereMatchScoresAreNull()
+    {
+        var seasonId = Guid.NewGuid();
+        _game!.SeasonId = seasonId;
+        _game.Matches.Add(new GameMatchDto());
+        _underlyingService
+            .Setup(s => s.GetWhere($"t.SeasonId = '{seasonId}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game!));
+        _user!.Access!.BulkDeleteLeagueFixtures = true;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, true, _token);
+
+        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task DeleteUnplayedLeagueFixtures_WhenNotDryRun_FindsAndDeletesFixtures()
+    {
+        var seasonId = Guid.NewGuid();
+        _game!.SeasonId = seasonId;
+        _underlyingService
+            .Setup(s => s.GetWhere($"t.SeasonId = '{seasonId}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game!));
+        _user!.Access!.BulkDeleteLeagueFixtures = true;
+
+        var result = await _service.DeleteUnplayedLeagueFixtures(seasonId, false, _token);
+
+        Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
+        Assert.That(result.Success, Is.True);
+        _deletableRepository.Verify(d => d.Delete(_game.Id, _token));
     }
 
     private static void AssertSubmissionHasGameProperties(GameDto submission, GameDto game)

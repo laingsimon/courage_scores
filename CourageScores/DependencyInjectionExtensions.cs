@@ -177,6 +177,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped(typeof(IDataBrowserRepository<>), typeof(DataBrowserRepository<>));
         services.AddScoped<IPhotoRepository, PhotoRepository>();
         services.AddSingleton<IBlobStorageRepository, BlobStorageRepository>();
+
+        // only these data types can be permanently deleted - which is the atypical case
+        services.AddScoped<IPermanentDeleteRepository<Game>, GenericRepository<Game>>();
     }
 
     private static void AddAdapters(IServiceCollection services)
