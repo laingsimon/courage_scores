@@ -98,7 +98,7 @@ public class DivisionService : IDivisionService
         var games = await GetGames(filter, season, token);
         var tournamentGames = await _tournamentGameRepository
             .GetSome($"t.SeasonId = '{season.Id}'", token)
-            .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeTournament(g))
+            .WhereAsync(g => filter.IncludeDate(g.Date, season) && filter.IncludeTournament(g))
             .ToList();
 
         return new DivisionDataContext(games, teamsInSeasonAndDivision, tournamentGames, notes, season);
@@ -113,7 +113,7 @@ public class DivisionService : IDivisionService
             // new games being created at the same address
             return await _gameRepository
                 .GetSome($"t.SeasonId = '{season.Id}'", token)
-                .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeGame(g))
+                .WhereAsync(g => filter.IncludeDate(g.Date, season) && filter.IncludeGame(g))
                 .ToList();
         }
 
@@ -123,7 +123,7 @@ public class DivisionService : IDivisionService
                     ? $"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true"
                     : $"t.SeasonId = '{season.Id}'",
                 token)
-            .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeGame(g))
+            .WhereAsync(g => filter.IncludeDate(g.Date, season) && filter.IncludeGame(g))
             .ToList();
     }
 
