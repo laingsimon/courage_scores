@@ -1,5 +1,4 @@
 import {TemplateDate} from "./TemplateDate";
-import {renderDate} from "../../helpers/rendering";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 export interface ITemplateDatesProps {
@@ -42,13 +41,6 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
         await onUpdate(newDates);
     }
 
-    function getDisplayDate(startDate: Date, index: number): string {
-        const date = new Date(startDate.valueOf());
-        date.setDate(date.getDate() + (index * 7));
-        return date.toDateString();
-    }
-
-    const startDate = new Date(2000, 0, 1);
     return (<ul className="list-group mb-3">
         <li className="list-group-item bg-info text-light">
             Weeks
@@ -56,9 +48,6 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
         </li>
         {dates.map((d, index) => <li className="list-group-item position-relative" key={index}>
             <small className="position-absolute left-0 ps-0 pt-1 text-end width-10">{index+1} </small>
-            <span className="text-secondary-50 position-absolute right-60 me-5 pt-1 small">
-                {renderDate(getDisplayDate(startDate, index))}
-            </span>
             <TemplateDate
                 date={d}
                 onDelete={() => deleteDate(index)}

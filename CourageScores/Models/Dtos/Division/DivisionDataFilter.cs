@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Season;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -11,6 +12,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     public Guid? SeasonId { get; set; }
     public Guid? TeamId { get; set; }
     public bool ExcludeProposals { get; set; }
+    public bool IgnoreDates { get; set; }
     // ReSharper restore UnusedAutoPropertyAccessor.Global
     // ReSharper restore MemberCanBePrivate.Global
 
@@ -18,6 +20,11 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     {
         return (Date == null || game.Date == Date.Value)
                && (TeamId == null || game.Home.Id == TeamId.Value || game.Away.Id == TeamId);
+    }
+
+    public bool IncludeDate(DateTime eventDate, SeasonDto season)
+    {
+        return IgnoreDates || (eventDate >= season.StartDate && eventDate <= season.EndDate);
     }
 
     public bool IncludeTournament(Cosmos.Game.TournamentGame game)

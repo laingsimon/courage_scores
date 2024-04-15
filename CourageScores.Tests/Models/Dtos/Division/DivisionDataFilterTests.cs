@@ -1,8 +1,9 @@
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Season;
 using NUnit.Framework;
 
-namespace CourageScores.Tests.Models.Dtos;
+namespace CourageScores.Tests.Models.Dtos.Division;
 
 [TestFixture]
 public class DivisionDataFilterTests
@@ -169,5 +170,105 @@ public class DivisionDataFilterTests
         var equals = filter1.Equals(filter2);
 
         Assert.That(equals, Is.EqualTo(expectedEquals));
+    }
+
+    [TestCase(true, true)]
+    [TestCase(false, false)]
+    public void IncludeDate_WhenDateIsBeforeSeasonStart_ReturnsCorrectly(bool ignoreDates, bool expectedResult)
+    {
+        var season = new SeasonDto
+        {
+            StartDate = new DateTime(2001, 02, 03),
+            EndDate = new DateTime(2002, 03, 04),
+        };
+        var filter = new DivisionDataFilter
+        {
+            IgnoreDates = ignoreDates,
+            SeasonId = season.Id,
+        };
+
+        var result = filter.IncludeDate(season.StartDate.AddDays(-1), season);
+
+        Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    [TestCase(true, true)]
+    [TestCase(false, false)]
+    public void IncludeDate_WhenDateIsAfterSeasonEnd_ReturnsCorrectly(bool ignoreDates, bool expectedResult)
+    {
+        var season = new SeasonDto
+        {
+            StartDate = new DateTime(2001, 02, 03),
+            EndDate = new DateTime(2002, 03, 04),
+        };
+        var filter = new DivisionDataFilter
+        {
+            IgnoreDates = ignoreDates,
+            SeasonId = season.Id,
+        };
+
+        var result = filter.IncludeDate(season.EndDate.AddDays(1), season);
+
+        Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    [TestCase(true, true)]
+    [TestCase(false, true)]
+    public void IncludeDate_WhenDateIsSameAsSeasonStart_ReturnsCorrectly(bool ignoreDates, bool expectedResult)
+    {
+        var season = new SeasonDto
+        {
+            StartDate = new DateTime(2001, 02, 03),
+            EndDate = new DateTime(2002, 03, 04),
+        };
+        var filter = new DivisionDataFilter
+        {
+            IgnoreDates = ignoreDates,
+            SeasonId = season.Id,
+        };
+
+        var result = filter.IncludeDate(season.StartDate, season);
+
+        Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    [TestCase(true, true)]
+    [TestCase(false, true)]
+    public void IncludeDate_WhenDateIsSameAsSeasonEnd_ReturnsCorrectly(bool ignoreDates, bool expectedResult)
+    {
+        var season = new SeasonDto
+        {
+            StartDate = new DateTime(2001, 02, 03),
+            EndDate = new DateTime(2002, 03, 04),
+        };
+        var filter = new DivisionDataFilter
+        {
+            IgnoreDates = ignoreDates,
+            SeasonId = season.Id,
+        };
+
+        var result = filter.IncludeDate(season.EndDate, season);
+
+        Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    [TestCase(true, true)]
+    [TestCase(false, true)]
+    public void IncludeDate_WhenDateIsBetweenSeasonStartAndEnd_ReturnsCorrectly(bool ignoreDates, bool expectedResult)
+    {
+        var season = new SeasonDto
+        {
+            StartDate = new DateTime(2001, 02, 03),
+            EndDate = new DateTime(2002, 03, 04),
+        };
+        var filter = new DivisionDataFilter
+        {
+            IgnoreDates = ignoreDates,
+            SeasonId = season.Id,
+        };
+
+        var result = filter.IncludeDate(season.StartDate.AddDays(2), season);
+
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 }

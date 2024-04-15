@@ -80,10 +80,10 @@ public class HealthCheckServiceTests
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
-            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division1.Id && f.SeasonId == _season.Id), _token))
+            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division1.Id && f.SeasonId == _season.Id && f.IgnoreDates), _token))
             .ReturnsAsync(_division1);
         _divisionService
-            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division2.Id && f.SeasonId == _season.Id), _token))
+            .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division2.Id && f.SeasonId == _season.Id && f.IgnoreDates), _token))
             .ReturnsAsync(_division2);
         _healthCheckFactory.Setup(f => f.GetHealthChecks()).Returns(new[]
         {

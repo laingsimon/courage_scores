@@ -20,7 +20,7 @@ public class DataController : Controller
         _cosmosTableService = cosmosTableService;
     }
 
-    [HttpPost("/api/Data/View")]
+    [HttpPost("/api/Data/Export")]
     public async Task<ActionResultDto<ExportDataResultDto>> Export(ExportDataRequestDto request, CancellationToken token)
     {
         return await _dataService.ExportData(request, token);

@@ -47,7 +47,9 @@ export function DivisionReports() {
             // noinspection JSIgnoredPromiseFromCall
             getReports();
         }
-    }, []);
+    },
+    // eslint-disable-next-line
+    []);
 
     function setActiveReport(report: string) {
         setParameter('report', report);
