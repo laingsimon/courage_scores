@@ -287,6 +287,7 @@ public class FeatureServiceTests
         _configuredBoolFeatureDto.Editor = "EDITOR";
         _configuredBoolFeatureDto.Updated = new DateTime(2020, 10, 10);
         _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
+        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
 
         var result = await _service.UpdateFeature(update, _token);
 
@@ -323,7 +324,8 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueNull_UpdatesFeature()
     {
-        _configuredBoolFeatureDto.ConfiguredValue = null;
+        _reconfigureBoolFeatureDto.ConfiguredValue = null;
+        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
 
         var result = await _service.UpdateFeature(_reconfigureBoolFeatureDto, _token);
@@ -335,7 +337,8 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueEmpty_UpdatesFeature()
     {
-        _configuredBoolFeatureDto.ConfiguredValue = "";
+        _reconfigureBoolFeatureDto.ConfiguredValue = "";
+        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
 
         var result = await _service.UpdateFeature(_reconfigureBoolFeatureDto, _token);
