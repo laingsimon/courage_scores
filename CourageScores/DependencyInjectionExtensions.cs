@@ -168,6 +168,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IPhotoService, PhotoService>();
         services.AddScoped<IPhotoHelper, PhotoHelper>();
         services.AddSingleton<IPhotoSettings, PhotoSettings>();
+        services.AddScoped<IFeatureService, FeatureService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -180,6 +181,9 @@ public static class DependencyInjectionExtensions
 
         // only these data types can be permanently deleted - which is the atypical case
         services.AddScoped<IPermanentDeleteRepository<Game>, GenericRepository<Game>>();
+
+        services.AddSingleton<IFeatureLookup, FeatureLookup>();
+        services.AddSingleton<LoadedFeatures>();
     }
 
     private static void AddAdapters(IServiceCollection services)
@@ -210,6 +214,8 @@ public static class DependencyInjectionExtensions
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
         AddAdapter<ErrorDetail, ErrorDetailDto, ErrorDetailAdapter>(services);
         AddAdapter<Template, TemplateDto, TemplateAdapter>(services);
+
+        AddAdapter<ConfiguredFeature, ConfiguredFeatureDto, ConfiguredFeatureDtoAdapter>(services);
 
         services.AddScoped<IDivisionFixtureAdapter, DivisionFixtureAdapter>();
         services.AddScoped<IDivisionTournamentFixtureDetailsAdapter, DivisionTournamentFixtureDetailsAdapter>();
@@ -245,6 +251,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleOnewayAdapter<WebSocketDetail, WebSocketDto>, WebSocketDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<WatchableData, WatchableDataDto>, WatchableDataDtoAdapter>();
         services.AddScoped<ISimpleAdapter<PhotoReference, PhotoReferenceDto>, PhotoReferenceAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<ReconfigureFeatureDto, ConfiguredFeature>, ReconfigureFeatureAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<Guid, ConfiguredFeatureDto>, UnconfiguredFeatureAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

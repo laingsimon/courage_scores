@@ -41,6 +41,7 @@ public class AccessAdapterTests
             ViewAnyPhoto = true,
             DeleteAnyPhoto = true,
             BulkDeleteLeagueFixtures = true,
+            ManageFeatures = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -70,6 +71,7 @@ public class AccessAdapterTests
         Assert.That(result.ViewAnyPhoto, Is.EqualTo(model.ViewAnyPhoto));
         Assert.That(result.DeleteAnyPhoto, Is.EqualTo(model.DeleteAnyPhoto));
         Assert.That(result.BulkDeleteLeagueFixtures, Is.EqualTo(model.BulkDeleteLeagueFixtures));
+        Assert.That(result.ManageFeatures, Is.EqualTo(model.ManageFeatures));
     }
 
     [Test]
@@ -102,6 +104,7 @@ public class AccessAdapterTests
             ViewAnyPhoto = true,
             DeleteAnyPhoto = true,
             BulkDeleteLeagueFixtures = true,
+            ManageFeatures = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -130,5 +133,6 @@ public class AccessAdapterTests
         Assert.That(result.ViewAnyPhoto, Is.EqualTo(dto.ViewAnyPhoto));
         Assert.That(result.DeleteAnyPhoto, Is.EqualTo(dto.DeleteAnyPhoto));
         Assert.That(result.BulkDeleteLeagueFixtures, Is.EqualTo(dto.BulkDeleteLeagueFixtures));
+        Assert.That(result.ManageFeatures, Is.EqualTo(dto.ManageFeatures));
     }
 }

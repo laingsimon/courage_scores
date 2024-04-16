@@ -15,6 +15,7 @@ import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {ITeamApi} from "../../interfaces/apis/ITeamApi";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {IDataApi} from "../../interfaces/apis/IDataApi";
+import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 
 export interface IDependencies {
     divisionApi: IDivisionApi;
@@ -34,5 +35,6 @@ export interface IDependencies {
     templateApi: ISeasonTemplateApi;
     liveApi: ILiveApi;
     webSocket: ILiveWebSocket;
+    featureApi: IFeatureApi;
 }
 

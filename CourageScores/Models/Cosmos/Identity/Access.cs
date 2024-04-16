@@ -30,4 +30,5 @@ public class Access
     public bool DeleteAnyPhoto { get; set; }
     public bool ViewAnyPhoto { get; set; }
     public bool BulkDeleteLeagueFixtures { get; set; }
+    public bool ManageFeatures { get; set; }
 }
