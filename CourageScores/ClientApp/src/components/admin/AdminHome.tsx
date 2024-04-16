@@ -15,6 +15,7 @@ import {SocketAdmin} from "./SocketAdmin";
 import {DataBrowser} from "./DataBrowser";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
+import {FeatureAdmin} from "./FeatureAdmin";
 
 export function AdminHome() {
     const {mode} = useParams();
@@ -90,6 +91,10 @@ export function AdminHome() {
                     <NavLink tag={Link} className={effectiveTab === 'browser' ? '  active' : ''}
                              to={`/admin/browser`}>Data Browser</NavLink>
                 </li>) : null}
+                {access.manageFeatures ? (<li className="nav-item">
+                    <NavLink tag={Link} className={effectiveTab === 'features' ? '  active' : ''}
+                             to={`/admin/features`}>Features</NavLink>
+                </li>) : null}
             </ul>) : null}
             {!appLoading && adminLoading ? <Loading/> : (<AdminContainer tables={dataTables} accounts={accounts}>
                 {!account && !appLoading ? (<NotPermitted/>) : null}
@@ -100,6 +105,7 @@ export function AdminHome() {
                 {!appLoading && effectiveTab === 'templates' ? renderIfPermitted(<Templates/>, access.manageSeasonTemplates) : null}
                 {!appLoading && effectiveTab === 'sockets' ? renderIfPermitted(<SocketAdmin/>, access.manageSockets) : null}
                 {!appLoading && effectiveTab === 'browser' ? renderIfPermitted(<DataBrowser />, access.exportData) : null}
+                {!appLoading && effectiveTab === 'features' ? renderIfPermitted(<FeatureAdmin />, access.manageFeatures) : null}
             </AdminContainer>)}
         </div>);
     } catch (e) {
