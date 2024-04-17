@@ -154,11 +154,16 @@ public class GameAdapterTests
             {
                 PublishedGameMatch,
             },
+            MatchOptions =
+            {
+                MatchOption,
+            }
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.ResultsPublished, Is.True);
+        Assert.That(result.MatchOptions, Is.EquivalentTo(new[] { MatchOptionDto }));
     }
 
     [TestCase("true")]
@@ -314,6 +319,10 @@ public class GameAdapterTests
             {
                 PhotoReferenceDto,
             },
+            MatchOptions =
+            {
+                MatchOptionDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -343,6 +352,10 @@ public class GameAdapterTests
         }));
         Assert.That(result.AccoladesCount, Is.EqualTo(dto.AccoladesCount));
         Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReference }));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[]
+        {
+            MatchOption,
+        }));
     }
 
     [Test]
