@@ -53,6 +53,17 @@ public static class AsyncEnumerableExtensions
     }
 
     [DebuggerStepThrough]
+    public static async IAsyncEnumerable<TOut> SelectAsync<TIn, TOut>(this IEnumerable<TIn> enumerable,
+        Func<TIn, int, Task<TOut>> selector)
+    {
+        var index = 0;
+        foreach (var item in enumerable)
+        {
+            yield return await selector(item, index++);
+        }
+    }
+
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<TOut> SelectManyAsync<TIn, TOut>(this IEnumerable<TIn> enumerable,
         Func<TIn, Task<IEnumerable<TOut>>> selector)
     {
