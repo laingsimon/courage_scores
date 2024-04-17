@@ -105,11 +105,10 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
     private async IAsyncEnumerable<GameMatchDto> AdaptMatches(CosmosGame model, [EnumeratorCancellation] CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var access = user?.Access;
-        var permittedToEnterScores = access?.ManageScores == true
-                                     || (access?.InputResults == true && (user!.TeamId == model.Home.Id || user!.TeamId == model.Away.Id));
-        var randomiseSinglesFeature = await _featureService.Get(FeatureLookup.RandomisedSingles, token);
-        var randomiseSingles = !permittedToEnterScores && randomiseSinglesFeature?.ConfiguredValue?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
+        var canInputResultsForHomeOrAwayTeam = user?.Access?.InputResults == true && (user.TeamId == model.Home.Id || user.TeamId == model.Away.Id);
+        var canRecordScoresForFixture = user?.Access?.ManageScores == true || canInputResultsForHomeOrAwayTeam;
+        var isRandomiseSinglesFeatureEnabled = await _featureService.GetFeatureValue(FeatureLookup.RandomisedSingles, token, false);
+        var randomiseSingles = !canRecordScoresForFixture && isRandomiseSinglesFeatureEnabled;
 
         var orderedMatches = await model.Matches
             .SelectAsync(async (match, index) => new
