@@ -6,6 +6,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Authentication;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Adapters.Game;
@@ -19,6 +20,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
     private readonly ISimpleAdapter<PhotoReference, PhotoReferenceDto> _photoReferenceAdapter;
     private readonly IFeatureService _featureService;
     private readonly IUserService _userService;
+    private readonly ISystemClock _clock;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
 
     public GameAdapter(
@@ -29,7 +31,8 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionAdapter,
         ISimpleAdapter<PhotoReference, PhotoReferenceDto> photoReferenceAdapter,
         IFeatureService featureService,
-        IUserService userService)
+        IUserService userService,
+        ISystemClock clock)
     {
         _gameMatchAdapter = gameMatchAdapter;
         _gameTeamAdapter = gameTeamAdapter;
@@ -39,6 +42,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         _photoReferenceAdapter = photoReferenceAdapter;
         _featureService = featureService;
         _userService = userService;
+        _clock = clock;
     }
 
     public async Task<GameDto> Adapt(CosmosGame model, CancellationToken token)
@@ -109,8 +113,9 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         var canRecordScoresForFixture = user?.Access?.ManageScores == true || canInputResultsForHomeOrAwayTeam;
         var isRandomiseSinglesFeatureEnabled = await _featureService.GetFeatureValue(FeatureLookup.RandomisedSingles, token, false);
         var randomiseSingles = !canRecordScoresForFixture && isRandomiseSinglesFeatureEnabled;
+        var obscureScores = !canRecordScoresForFixture && await ShouldObscureScores(model, token);
 
-        var orderedMatches = await model.Matches
+        var orderedMatches = await (obscureScores ? new List<GameMatch>() : model.Matches)
             .SelectAsync(async (match, index) => new
             {
                 matchDto = await _gameMatchAdapter.Adapt(match, token),
@@ -123,5 +128,13 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         {
             yield return matchOrdering.matchDto;
         }
+    }
+
+    private async Task<bool> ShouldObscureScores(CosmosGame game, CancellationToken token)
+    {
+        var delayScoresBy = await _featureService.GetFeatureValue(FeatureLookup.VetoScores, token, TimeSpan.Zero);
+        var earliestTimeForScores = game.Date.Add(delayScoresBy);
+
+        return _clock.UtcNow.UtcDateTime < earliestTimeForScores;
     }
 }

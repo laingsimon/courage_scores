@@ -14,6 +14,14 @@ public class FeatureLookup : IFeatureLookup
         "false",
         AllFeatures);
 
+    public static readonly Feature VetoScores = new(
+        Guid.Parse("E58DA2BC-D82A-48AF-AC9D-46CA0B894C01"),
+        "VetoScores",
+        "Don't show fixture scores until this time/day after the fixture date",
+        Feature.FeatureValueType.TimeSpan,
+        null,
+        AllFeatures);
+
     public IEnumerable<Feature> GetAll()
     {
         return AllFeatures.Values;
