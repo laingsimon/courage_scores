@@ -105,6 +105,23 @@ describe('EditFeature', () => {
             expect(input.checked).toEqual(true);
         });
 
+        it('unconfigured, default ON boolean feature', async () => {
+            const feature: ConfiguredFeatureDto = {
+                name: 'FEATURE 1',
+                description: 'FEATURE DESC',
+                id: createTemporaryId(),
+                configuredValue: null,
+                defaultValue: 'true',
+                valueType: 'Boolean',
+            };
+
+            await renderComponent({ feature, onChanged });
+
+            const input = context.container.querySelector('input');
+            expect(input.type).toEqual('checkbox');
+            expect(input.checked).toEqual(true);
+        });
+
         it('integer feature', async () => {
             const feature: ConfiguredFeatureDto = {
                 name: 'FEATURE 1',

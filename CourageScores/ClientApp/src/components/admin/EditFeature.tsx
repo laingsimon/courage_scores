@@ -111,13 +111,13 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
                         className="form-check-input"
                         type="checkbox"
                         name="configuredValue"
-                        checked={(reconfigure || '').toLowerCase() === 'true'}
+                        checked={(reconfigure || feature.defaultValue || '').toLowerCase() === 'true'}
                         onChange={configurationChanged}/>
                 </div>) : null}
             {feature.valueType === 'Integer' ? (<input
                 name="configuredValue"
                 type="number"
-                value={reconfigure || '0'}
+                value={reconfigure || feature.defaultValue || '0'}
                 onChange={configurationChanged}/>) : null}
             {feature.valueType === 'TimeSpan' ? (<span>
                 <input
@@ -126,22 +126,22 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
                     className="width-50"
                     min="0"
                     placeholder="days"
-                    value={getDays(reconfigure || '0.00:00:00')}
+                    value={getDays(reconfigure || feature.defaultValue || '0.00:00:00')}
                     onChange={timeSpanChanged}/>
                 <input
                     name="time"
                     type="time"
                     step="1"
-                    value={getTime(reconfigure || '0.00:00:00')}
+                    value={getTime(reconfigure || feature.defaultValue || '0.00:00:00')}
                     onChange={timeSpanChanged}/>
             </span>) : null}
             {feature.valueType !== 'Integer' && feature.valueType !== 'Boolean' && feature.valueType !== 'TimeSpan' ? (
                 <input
-                    name="configuredValue"
-              type="text"
-              value={reconfigure || ''}
-              placeholder={getPlaceholder(feature.valueType)}
-              onChange={configurationChanged}/>) : null}
+                  name="configuredValue"
+                  type="text"
+                  value={reconfigure || ''}
+                  placeholder={getPlaceholder(feature.valueType)}
+                  onChange={configurationChanged}/>) : null}
             <button onClick={saveConfiguration} className="btn btn-sm btn-primary">
                 {saving ? <LoadingSpinnerSmall/> : '💾'}
             </button>
