@@ -1,5 +1,6 @@
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Dtos;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
@@ -13,14 +14,22 @@ public class PhotoService : IPhotoService
     private readonly IPhotoHelper _photoHelper;
     private readonly ISystemClock _clock;
     private readonly IPhotoSettings _settings;
+    private readonly IFeatureService _featureService;
 
-    public PhotoService(IUserService userService, IPhotoRepository photoRepository, IPhotoHelper photoHelper, ISystemClock clock, IPhotoSettings settings)
+    public PhotoService(
+        IUserService userService,
+        IPhotoRepository photoRepository,
+        IPhotoHelper photoHelper,
+        ISystemClock clock,
+        IPhotoSettings settings,
+        IFeatureService featureService)
     {
         _userService = userService;
         _photoRepository = photoRepository;
         _photoHelper = photoHelper;
         _clock = clock;
         _settings = settings;
+        _featureService = featureService;
     }
 
     public async Task<ActionResult<PhotoReference>> Upsert(Photo photo, CancellationToken token)
@@ -28,14 +37,12 @@ public class PhotoService : IPhotoService
         var user = await _userService.GetUser(token);
         if (user?.Access?.UploadPhotos != true)
         {
-            return new ActionResult<PhotoReference>
-            {
-                Success = false,
-                Warnings =
-                {
-                    "Not permitted",
-                },
-            };
+            return Warning<PhotoReference>("Not permitted");
+        }
+
+        if (!await PhotosEnabled(token))
+        {
+            return Warning<PhotoReference>("Feature disabled");
         }
 
         var resizedPhoto = await _photoHelper.ResizePhoto(photo.PhotoBytes, _settings.MaxPhotoHeight, token);
@@ -81,6 +88,11 @@ public class PhotoService : IPhotoService
             return null;
         }
 
+        if (!await PhotosEnabled(token))
+        {
+            return null;
+        }
+
         var photo = await _photoRepository.Get(id, token);
         if (photo == null)
         {
@@ -100,40 +112,24 @@ public class PhotoService : IPhotoService
 
         if (!canDeleteOwnPhoto && !canDeleteAnyPhoto)
         {
-            return new ActionResult<Photo>
-            {
-                Success = false,
-                Warnings =
-                {
-                    "Not permitted",
-                },
-            };
+            return Warning<Photo>("Not permitted");
+        }
+
+        if (!await PhotosEnabled(token))
+        {
+            return Warning<Photo>("Feature disabled");
         }
 
         var currentPhoto = await _photoRepository.Get(id, token);
         if (currentPhoto == null)
         {
-            return new ActionResult<Photo>
-            {
-                Success = false,
-                Warnings =
-                {
-                    "Not found",
-                },
-            };
+            return Warning<Photo>("Not found");
         }
 
         var canDelete = canDeleteAnyPhoto || canDeleteOwnPhoto && currentPhoto.Author == user!.Name;
         if (!canDelete)
         {
-            return new ActionResult<Photo>
-            {
-                Success = false,
-                Warnings =
-                {
-                    "You can only delete your own photos",
-                },
-            };
+            return Warning<Photo>("You can only delete your own photos");
         }
 
         currentPhoto.Deleted = _clock.UtcNow.UtcDateTime;
@@ -149,5 +145,22 @@ public class PhotoService : IPhotoService
                 "Photo deleted",
             }
         };
+    }
+
+    private ActionResult<T> Warning<T>(string message)
+    {
+        return new ActionResult<T>
+        {
+            Success = false,
+            Warnings =
+            {
+                message,
+            },
+        };
+    }
+
+    private async Task<bool> PhotosEnabled(CancellationToken token)
+    {
+        return await _featureService.GetFeatureValue(FeatureLookup.Photos, token, true);
     }
 }

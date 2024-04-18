@@ -22,6 +22,14 @@ public class FeatureLookup : IFeatureLookup
         "00:00:00",
         AllFeatures);
 
+    public static readonly Feature Photos = new(
+        Guid.Parse("AF2EF520-8153-42B0-9EF4-D8419DAEBC23"),
+        "PhotosEnabled",
+        "Can photos be uploaded/download",
+        Feature.FeatureValueType.Boolean,
+        "true",
+        AllFeatures);
+
     public IEnumerable<Feature> GetAll()
     {
         return AllFeatures.Values;
