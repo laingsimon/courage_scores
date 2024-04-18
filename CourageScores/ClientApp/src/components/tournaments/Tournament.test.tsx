@@ -47,6 +47,8 @@ import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
+import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
+import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 
 interface IScenario {
     account?: UserDto;
@@ -135,6 +137,17 @@ describe('Tournament', () => {
             };
         },
     });
+    const featureApi = api<IFeatureApi>({
+        async getFeatures(): Promise<ConfiguredFeatureDto[]> {
+            const feature: ConfiguredFeatureDto = {
+                name: 'PhotosEnabled',
+                configuredValue: 'true',
+                id: 'af2ef520-8153-42b0-9ef4-d8419daebc23',
+                description: '',
+            };
+            return [ feature ];
+        }
+    });
 
     function expectDivisionDataRequest(divisionId: string, seasonId: string, data: DivisionDataDto) {
         if (!divisionDataLookup) {
@@ -171,6 +184,7 @@ describe('Tournament', () => {
                 tournamentApi,
                 playerApi,
                 saygApi,
+                featureApi,
             }),
             brandingProps(),
             appProps({

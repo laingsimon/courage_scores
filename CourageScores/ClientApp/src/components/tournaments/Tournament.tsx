@@ -39,6 +39,7 @@ import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRo
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {PhotoManager} from "../common/PhotoManager";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
+import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 
 export interface ITournamentPlayerMap {
     [id: string]: {};
@@ -47,7 +48,7 @@ export interface ITournamentPlayerMap {
 export function Tournament() {
     const {tournamentId} = useParams();
     const {appLoading, account, seasons, onError, teams, reloadTeams, divisions} = useApp();
-    const {divisionApi, tournamentApi, webSocket} = useDependencies();
+    const {divisionApi, tournamentApi, webSocket, featureApi} = useDependencies();
     const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
     const canManagePlayers: boolean = account && account.access && account.access.managePlayers;
     const canEnterTournamentResults = account && account.access && account.access.enterTournamentResults;
@@ -64,6 +65,17 @@ export function Tournament() {
     const division: DivisionDto = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
     const [editTournament, setEditTournament] = useState<string>(null);
     const [showPhotoManager, setShowPhotoManager] = useState(false);
+    const [photosEnabled, setPhotosEnabled] = useState(false);
+
+    useEffect(() => {
+        featureApi.getFeatures().then(features => {
+            const feature: ConfiguredFeatureDto = features.filter(f => f.id === 'af2ef520-8153-42b0-9ef4-d8419daebc23')[0];
+            const featureEnabled = feature && (feature.configuredValue || feature.defaultValue) === 'true';
+            setPhotosEnabled(featureEnabled);
+        });
+    },
+    // eslint-disable-next-line
+    []);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -362,7 +374,7 @@ export function Tournament() {
                     ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setEditTournament('details')}>
                         Edit
                     </button>) : null}
-                {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto)
+                {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto) && photosEnabled
                     ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
                     : null}
             </div>) : (<div>Tournament not found</div>)}
