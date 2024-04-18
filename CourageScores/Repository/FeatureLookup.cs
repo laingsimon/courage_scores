@@ -19,7 +19,7 @@ public class FeatureLookup : IFeatureLookup
         "VetoScores",
         "Obscure scores until this delay after the game date",
         Feature.FeatureValueType.TimeSpan,
-        null,
+        "00:00:00",
         AllFeatures);
 
     public IEnumerable<Feature> GetAll()
