@@ -115,6 +115,22 @@ public class ConfiguredFeatureExtensionsTests
         Assert.That(result, Is.EqualTo(expectedValue));
     }
 
+    [TestCase("0.00:00:00", 0, 0, 0, 0)]
+    [TestCase("02:03:04", 0, 2, 3, 4)]
+    [TestCase("1.20:30:40", 1, 20, 30, 40)]
+    public void GetConfiguredValue_WhenConfiguredValueIsSet_CanConvertToATimeSpan(string configuredValue, int days, int hours, int minutes, int seconds)
+    {
+        var expectedValue = new TimeSpan(days, hours, minutes, seconds);
+        var feature = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = configuredValue,
+        };
+
+        var result = feature.GetConfiguredValue<TimeSpan>();
+
+        Assert.That(result, Is.EqualTo(expectedValue));
+    }
+
     [Test]
     public void GetConfiguredValue_WhenConfiguredValueIsNotADouble_ReturnsDefaultValue()
     {

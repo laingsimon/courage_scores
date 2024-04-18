@@ -467,6 +467,52 @@ public class FeatureServiceTests
         _repository.Verify(r => r.Upsert(It.IsAny<ConfiguredFeature>(), _token), Times.Never);
     }
 
+    [TestCase("1.00:00:00")]
+    [TestCase("10:20:30")]
+    public async Task UpdateFeature_WhenConfiguredValueIsATimeSpan_UpdatesFeature(string value)
+    {
+        var feature = new Feature(Guid.NewGuid(), "TIMESPAN", "DESC", Feature.FeatureValueType.TimeSpan, null, new Dictionary<Guid, Feature>());
+        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
+        var configuredFeature = new ConfiguredFeature
+        {
+            Id = feature.Id,
+            ConfiguredValue = value,
+        };
+        var configuredValueDto = new ReconfigureFeatureDto
+        {
+            Id = feature.Id,
+        };
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+
+        var result = await _service.UpdateFeature(configuredValueDto, _token);
+
+        Assert.That(result.Success, Is.True);
+        _repository.Verify(r => r.Upsert(configuredFeature, _token));
+    }
+
+    [Test]
+    public async Task UpdateFeature_WhenConfiguredValueIsNotATimeSpan_UpdatesFeature()
+    {
+        var feature = new Feature(Guid.NewGuid(), "TIMESPAN", "DESC", Feature.FeatureValueType.TimeSpan, null, new Dictionary<Guid, Feature>());
+        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
+        var configuredFeature = new ConfiguredFeature
+        {
+            Id = feature.Id,
+            ConfiguredValue = "foo",
+        };
+        var configuredValueDto = new ReconfigureFeatureDto
+        {
+            Id = feature.Id,
+        };
+        _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
+
+        var result = await _service.UpdateFeature(configuredValueDto, _token);
+
+        Assert.That(result.Success, Is.False);
+        _repository.Verify(r => r.Upsert(It.IsAny<ConfiguredFeature>(), _token), Times.Never);
+    }
+
+
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueIsAString_UpdatesFeature()
     {

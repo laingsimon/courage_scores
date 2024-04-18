@@ -135,7 +135,7 @@ describe('EditFeature', () => {
             const input = context.container.querySelector('input');
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('5.3');
-            expect(input.placeholder).toEqual('A decimal');
+            expect(input.placeholder).toEqual('A decimal number');
         });
 
         it('string feature', async () => {
@@ -152,10 +152,50 @@ describe('EditFeature', () => {
             const input = context.container.querySelector('input');
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('FOO');
-            expect(input.placeholder).toEqual('A string');
+            expect(input.placeholder).toEqual('text');
         });
 
-        it('string feature', async () => {
+        it('time-only timespan feature', async () => {
+            const feature: ConfiguredFeatureDto = {
+                name: 'FEATURE 1',
+                description: 'FEATURE DESC',
+                id: createTemporaryId(),
+                configuredValue: '01:02:03',
+                valueType: 'TimeSpan',
+            };
+
+            await renderComponent({ feature, onChanged });
+
+            const day: HTMLInputElement = context.container.querySelector('input[name="day"]');
+            const time: HTMLInputElement = context.container.querySelector('input[name="time"]');
+            expect(day.type).toEqual('number');
+            expect(day.value).toEqual('0');
+            expect(day.placeholder).toEqual('days');
+            expect(time.type).toEqual('time');
+            expect(time.value).toEqual('01:02:03');
+        });
+
+        it('day-and-time timespan feature', async () => {
+            const feature: ConfiguredFeatureDto = {
+                name: 'FEATURE 1',
+                description: 'FEATURE DESC',
+                id: createTemporaryId(),
+                configuredValue: '1.02:03:04',
+                valueType: 'TimeSpan',
+            };
+
+            await renderComponent({ feature, onChanged });
+
+            const day: HTMLInputElement = context.container.querySelector('input[name="day"]');
+            const time: HTMLInputElement = context.container.querySelector('input[name="time"]');
+            expect(day.type).toEqual('number');
+            expect(day.value).toEqual('1');
+            expect(day.placeholder).toEqual('days');
+            expect(time.type).toEqual('time');
+            expect(time.value).toEqual('02:03:04');
+        });
+
+        it('unknown feature', async () => {
             const feature: ConfiguredFeatureDto = {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',
@@ -288,6 +328,46 @@ describe('EditFeature', () => {
             expect(updateRequest).toEqual({
                 id: feature.id,
                 configuredValue: 'false',
+            });
+        });
+
+        it('reconfigures a timespan feature - by day', async () => {
+            const feature: ConfiguredFeatureDto = {
+                name: 'FEATURE 1',
+                description: 'FEATURE DESC',
+                id: createTemporaryId(),
+                configuredValue: '00:00:00',
+                defaultValue: null,
+                valueType: 'TimeSpan',
+            };
+            await renderComponent({ feature, onChanged });
+
+            await doChange(context.container, 'input[name="day"]', '2', context.user);
+            await doClick(findButton(context.container, '💾'));
+
+            expect(updateRequest).toEqual({
+                id: feature.id,
+                configuredValue: '2.00:00:00',
+            });
+        });
+
+        it('reconfigures a timespan feature - by time', async () => {
+            const feature: ConfiguredFeatureDto = {
+                name: 'FEATURE 1',
+                description: 'FEATURE DESC',
+                id: createTemporaryId(),
+                configuredValue: '00:00:00',
+                defaultValue: null,
+                valueType: 'TimeSpan',
+            };
+            await renderComponent({ feature, onChanged });
+
+            await doChange(context.container, 'input[name="time"]', '01:02:03', context.user);
+            await doClick(findButton(context.container, '💾'));
+
+            expect(updateRequest).toEqual({
+                id: feature.id,
+                configuredValue: '01:02:03',
             });
         });
 

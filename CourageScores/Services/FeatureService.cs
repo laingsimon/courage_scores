@@ -159,6 +159,8 @@ public class FeatureService : IFeatureService
                 return decimal.TryParse(configuredFeature.ConfiguredValue, out _);
             case Feature.FeatureValueType.Integer:
                 return int.TryParse(configuredFeature.ConfiguredValue, out _);
+            case Feature.FeatureValueType.TimeSpan:
+                return TimeSpan.TryParse(configuredFeature.ConfiguredValue, out _);
             case Feature.FeatureValueType.Unknown:
             case Feature.FeatureValueType.String:
                 return true;

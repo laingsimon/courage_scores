@@ -56,6 +56,52 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
         setReconfigure(value);
     }
 
+    function timeSpanChanged(event: ChangeEvent<HTMLInputElement>) {
+        const inputName: string = event.target.name;
+        let day: string = getDays(reconfigure);
+        let time: string = getTime(reconfigure);
+
+        switch (inputName) {
+            case 'day':
+                day = event.target.value;
+                time = time || '00:00:00';
+                break;
+            case 'time':
+                time = event.target.value;
+                break;
+        }
+
+        const newTimeSpan: string = day !== '0'
+            ? `${day}.${time}`
+            : time;
+        setReconfigure(newTimeSpan);
+    }
+
+    function getDays(timeSpan: string): string {
+        const indexOfDot: number = timeSpan.indexOf('.');
+        return indexOfDot === -1
+            ? '0'
+            : timeSpan.substring(0, indexOfDot);
+    }
+
+    function getTime(timeSpan: string): string {
+        const indexOfDot: number = timeSpan.indexOf('.');
+        return indexOfDot === -1
+            ? timeSpan
+            : timeSpan.substring(indexOfDot + 1);
+    }
+
+    function getPlaceholder(valueType: string): string {
+        switch (valueType) {
+            case 'String':
+                return 'text'
+            case 'Decimal':
+                return 'A decimal number';
+            default:
+                return `A ${valueType.toLowerCase()}`;
+        }
+    }
+
     return (<li className={`list-group-item flex-column${feature.configuredValue !== null ? ' bg-info' : ''}`}>
         <div className="d-flex w-100 justify-content-between">
             <label>{feature.name}</label>
@@ -73,11 +119,28 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
                 type="number"
                 value={reconfigure || '0'}
                 onChange={configurationChanged}/>) : null}
-            {feature.valueType !== 'Integer' && feature.valueType !== 'Boolean' ? (<input
-              name="configuredValue"
+            {feature.valueType === 'TimeSpan' ? (<span>
+                <input
+                    name="day"
+                    type="number"
+                    className="width-50"
+                    min="0"
+                    placeholder="days"
+                    value={getDays(reconfigure || '0.00:00:00')}
+                    onChange={timeSpanChanged}/>
+                <input
+                    name="time"
+                    type="time"
+                    step="1"
+                    value={getTime(reconfigure || '0.00:00:00')}
+                    onChange={timeSpanChanged}/>
+            </span>) : null}
+            {feature.valueType !== 'Integer' && feature.valueType !== 'Boolean' && feature.valueType !== 'TimeSpan' ? (
+                <input
+                    name="configuredValue"
               type="text"
               value={reconfigure || ''}
-              placeholder={`A ${feature.valueType.toLowerCase()}`}
+              placeholder={getPlaceholder(feature.valueType)}
               onChange={configurationChanged}/>) : null}
             <button onClick={saveConfiguration} className="btn btn-sm btn-primary">
                 {saving ? <LoadingSpinnerSmall/> : '💾'}
