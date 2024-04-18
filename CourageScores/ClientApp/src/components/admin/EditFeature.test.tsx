@@ -135,7 +135,7 @@ describe('EditFeature', () => {
             const input = context.container.querySelector('input');
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('5.3');
-            expect(input.placeholder).toEqual('A decimal');
+            expect(input.placeholder).toEqual('A decimal number');
         });
 
         it('string feature', async () => {
@@ -152,10 +152,27 @@ describe('EditFeature', () => {
             const input = context.container.querySelector('input');
             expect(input.type).toEqual('text');
             expect(input.value).toEqual('FOO');
-            expect(input.placeholder).toEqual('A string');
+            expect(input.placeholder).toEqual('text');
         });
 
-        it('string feature', async () => {
+        it('timespan feature', async () => {
+            const feature: ConfiguredFeatureDto = {
+                name: 'FEATURE 1',
+                description: 'FEATURE DESC',
+                id: createTemporaryId(),
+                configuredValue: '00:00:00',
+                valueType: 'TimeSpan',
+            };
+
+            await renderComponent({ feature, onChanged });
+
+            const input = context.container.querySelector('input');
+            expect(input.type).toEqual('text');
+            expect(input.value).toEqual('00:00:00');
+            expect(input.placeholder).toEqual('[day.]hh:mm:ss');
+        });
+
+        it('unknown feature', async () => {
             const feature: ConfiguredFeatureDto = {
                 name: 'FEATURE 1',
                 description: 'FEATURE DESC',

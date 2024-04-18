@@ -56,6 +56,19 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
         setReconfigure(value);
     }
 
+    function getPlaceholder(valueType: string): string {
+        switch (valueType) {
+            case 'TimeSpan':
+                return '[day.]hh:mm:ss'
+            case 'String':
+                return 'text'
+            case 'Decimal':
+                return 'A decimal number';
+            default:
+                return `A ${valueType.toLowerCase()}`;
+        }
+    }
+
     return (<li className={`list-group-item flex-column${feature.configuredValue !== null ? ' bg-info' : ''}`}>
         <div className="d-flex w-100 justify-content-between">
             <label>{feature.name}</label>
@@ -77,7 +90,7 @@ export function EditFeature({ feature, onChanged }: IEditFeatureProps) {
               name="configuredValue"
               type="text"
               value={reconfigure || ''}
-              placeholder={`A ${feature.valueType.toLowerCase()}`}
+              placeholder={getPlaceholder(feature.valueType)}
               onChange={configurationChanged}/>) : null}
             <button onClick={saveConfiguration} className="btn btn-sm btn-primary">
                 {saving ? <LoadingSpinnerSmall/> : '💾'}
