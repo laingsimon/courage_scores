@@ -36,6 +36,8 @@ import {IGameApi} from "../../interfaces/apis/IGameApi";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
+import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
+import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -93,6 +95,17 @@ describe('Score', () => {
             return newPlayerApiResult(createdPlayer);
         },
     });
+    const featureApi = api<IFeatureApi>({
+        async getFeatures(): Promise<ConfiguredFeatureDto[]> {
+            const feature: ConfiguredFeatureDto = {
+                name: 'PhotosEnabled',
+                configuredValue: 'true',
+                id: 'af2ef520-8153-42b0-9ef4-d8419daebc23',
+                description: '',
+            };
+            return [ feature ];
+        }
+    });
     const originalConsoleLog = console.log;
 
     async function reloadTeams() {
@@ -120,7 +133,7 @@ describe('Score', () => {
 
     async function renderComponent(id: string, appContainerProps: IAppContainerProps) {
         context = await renderApp(
-            iocProps({gameApi, playerApi}),
+            iocProps({gameApi, playerApi, featureApi}),
             brandingProps(),
             appContainerProps,
             (<Score/>),

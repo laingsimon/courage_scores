@@ -48,6 +48,7 @@ import {ISelectablePlayer} from "../common/PlayerSelection";
 import {RecordScoresDto} from "../../interfaces/models/dtos/Game/RecordScoresDto";
 import {PhotoManager} from "../common/PhotoManager";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
+import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 
 export interface ICreatePlayerFor {
     side: string;
@@ -65,7 +66,7 @@ interface ICaptainMatchPlayer extends GamePlayerDto {
 
 export function Score() {
     const {fixtureId} = useParams();
-    const {gameApi} = useDependencies();
+    const {gameApi, featureApi} = useDependencies();
     const {appLoading, account, divisions, seasons, onError, teams, reloadTeams} = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState<GameDto | null>(null);
@@ -80,6 +81,7 @@ export function Score() {
     const [newPlayerDetails, setNewPlayerDetails] = useState({name: '', captain: false});
     const [showPhotoManager, setShowPhotoManager] = useState(false);
     const access = getAccess();
+    const [photosEnabled, setPhotosEnabled] = useState(false);
 
     function renderCreatePlayerDialog() {
         const team: GameTeamDto = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
@@ -148,6 +150,16 @@ export function Score() {
 
         return 'readonly';
     }
+
+    useEffect(() => {
+        featureApi.getFeatures().then(features => {
+            const feature: ConfiguredFeatureDto = features.filter(f => f.id === 'af2ef520-8153-42b0-9ef4-d8419daebc23')[0];
+            const featureEnabled = feature && (feature.configuredValue || feature.defaultValue) === 'true';
+            setPhotosEnabled(featureEnabled);
+        });
+    },
+    // eslint-disable-next-line
+    []);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -626,7 +638,7 @@ export function Score() {
                     {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission)
                         ? (<button className="btn btn-warning margin-right" onClick={unpublish}>Unpublish</button>)
                         : null}
-                    {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto)
+                    {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto) && photosEnabled
                         ? (<button className="btn btn-primary margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
                         : null}
                     <DebugOptions>
