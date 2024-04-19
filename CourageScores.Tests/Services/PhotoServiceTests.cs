@@ -1,5 +1,6 @@
 using CourageScores.Models;
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
 using CourageScores.Services;
@@ -18,6 +19,7 @@ public class PhotoServiceTests
     private Mock<IPhotoRepository> _photoRepository = null!;
     private Mock<IPhotoHelper> _photoHelper = null!;
     private Mock<ISystemClock> _clock = null!;
+    private Mock<IFeatureService> _featureService = null!;
     private UserDto? _user;
 
     private PhotoService _service = null!;
@@ -26,6 +28,7 @@ public class PhotoServiceTests
     private byte[] _resizedBytes = null!;
     private DateTimeOffset _now;
     private MutablePhotoSettings _settings = null!;
+    private ConfiguredFeatureDto _featureState = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -33,6 +36,7 @@ public class PhotoServiceTests
         _userService = new Mock<IUserService>();
         _photoRepository = new Mock<IPhotoRepository>();
         _photoHelper = new Mock<IPhotoHelper>();
+        _featureService = new Mock<IFeatureService>();
         _clock = new Mock<ISystemClock>();
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _resizedBytes = new byte[] { 5, 6, 7, 8 };
@@ -61,11 +65,16 @@ public class PhotoServiceTests
                 1, 2, 3, 4,
             },
         };
+        _featureState = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "true",
+        };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _clock.Setup(c => c.UtcNow).Returns(_now);
         _photoRepository.Setup(r => r.Get(_existingPhoto.Id, _token)).ReturnsAsync(_existingPhoto);
+        _featureService.Setup(s => s.Get(FeatureLookup.Photos, _token)).ReturnsAsync(() => _featureState);
 
-        _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object, _settings);
+        _service = new PhotoService(_userService.Object, _photoRepository.Object, _photoHelper.Object, _clock.Object, _settings, _featureService.Object);
     }
 
     [Test]
@@ -88,6 +97,18 @@ public class PhotoServiceTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task Upsert_When_FeatureDisabled_ReturnsFeatureDisabled()
+    {
+        _featureState.ConfiguredValue = "false";
+        _user!.Access!.UploadPhotos = true;
+
+        var result = await _service.Upsert(_photo, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Feature disabled" }));
     }
 
     [Test]
@@ -197,6 +218,17 @@ public class PhotoServiceTests
     }
 
     [Test]
+    public async Task GetPhoto_WhenFeatureDisabled_ReturnsNull()
+    {
+        _featureState.ConfiguredValue = "false";
+        _user!.Access!.UploadPhotos = true;
+
+        var result = await _service.GetPhoto(_existingPhoto.Id, _token);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
     public async Task GetPhoto_ForOwnPhotoWhenNotAdmin_ReturnsBytes()
     {
         _user!.Access!.UploadPhotos = true;
@@ -252,6 +284,18 @@ public class PhotoServiceTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task Delete_WhenFeatureDisabled_ReturnsFeatureDisabled()
+    {
+        _featureState.ConfiguredValue = "false";
+        _user!.Access!.DeleteAnyPhoto = true;
+
+        var result = await _service.Delete(_existingPhoto.Id, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Feature disabled" }));
     }
 
     [Test]

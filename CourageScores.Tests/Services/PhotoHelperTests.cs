@@ -18,7 +18,7 @@ public class PhotoHelperTests
     [SetUp]
     public void SetupEachTest()
     {
-        _maxPhotoHeight = 5000;
+        _maxPhotoHeight = 1000;
         _helper = new PhotoHelper();
     }
 

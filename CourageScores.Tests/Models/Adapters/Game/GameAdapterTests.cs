@@ -1,8 +1,15 @@
+using CourageScores.Models;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
+using CourageScores.Services;
+using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
@@ -36,29 +43,57 @@ public class GameAdapterTests
     private static readonly PhotoReference PhotoReference = new();
     private static readonly PhotoReferenceDto PhotoReferenceDto = new();
     private readonly CancellationToken _token = new();
-    private readonly GameAdapter _adapter = new GameAdapter(
-        new MockAdapter<GameMatch, GameMatchDto>(new[]
+    private Mock<IFeatureService> _featureService = null!;
+    private Mock<IUserService> _userService = null!;
+    private GameAdapter _adapter = null!;
+    private UserDto? _user;
+    private MockAdapter<GameMatch,GameMatchDto> _matchAdapter = null!;
+    private DateTimeOffset _now;
+    private Mock<ISystemClock> _clock = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        _user = new UserDto
         {
-            GameMatch,
-            PublishedGameMatch,
+            Access = new AccessDto
+            {
+                ManageScores = true,
+            },
+        };
+        _featureService = new Mock<IFeatureService>();
+        _userService = new Mock<IUserService>();
+        _clock = new Mock<ISystemClock>();
+        _matchAdapter = new MockAdapter<GameMatch, GameMatchDto>(new[]
+        {
+            GameMatch, PublishedGameMatch,
         }, new[]
         {
-            GameMatchDto,
-            PublishedGameMatchDto,
-        }),
-        new MockAdapter<GameTeam, GameTeamDto>(
-            new[]
-            {
-                HomeTeam, AwayTeam,
-            },
-            new[]
-            {
-                HomeTeamDto, AwayTeamDto,
-            }),
-        new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
-        new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
-        new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto),
-        new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto));
+            GameMatchDto, PublishedGameMatchDto,
+        });
+
+        _adapter = new GameAdapter(
+            _matchAdapter,
+            new MockAdapter<GameTeam, GameTeamDto>(
+                new[]
+                {
+                    HomeTeam, AwayTeam,
+                },
+                new[]
+                {
+                    HomeTeamDto, AwayTeamDto,
+                }),
+            new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
+            new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
+            new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto),
+            new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto),
+            _featureService.Object,
+            _userService.Object,
+            _clock.Object);
+
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _clock.Setup(c => c.UtcNow).Returns(() => _now);
+    }
 
     [Test]
     public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly()
@@ -126,11 +161,272 @@ public class GameAdapterTests
             {
                 PublishedGameMatch,
             },
+            MatchOptions =
+            {
+                MatchOption,
+            }
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.ResultsPublished, Is.True);
+        Assert.That(result.MatchOptions, Is.EquivalentTo(new[] { MatchOptionDto }));
+    }
+
+    [TestCase("true")]
+    [TestCase("TRUE")]
+    public async Task Adapt_GivenRandomiseSinglesConfigurationEnabledAndLoggedOut_RandomisesSingles(string configuredValue)
+    {
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = configuredValue,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
+        _user = null;
+
+        await RunRandomiseSinglesTest(true);
+    }
+
+    [TestCase(false, false, false, true)]
+    [TestCase(false, false, true, false)]
+    [TestCase(false, true, false, false)]
+    [TestCase(true, false, false, false)]
+    public async Task Adapt_GivenRandomiseSinglesConfigurationEnabled_ConditionallyRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway, bool randomises)
+    {
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "true",
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
+        _user!.Access!.ManageScores = canManageScores;
+        if (canInputResultsForHome)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = HomeTeam.Id;
+        }
+        if (canInputResultsForAway)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = AwayTeam.Id;
+        }
+
+        await RunRandomiseSinglesTest(randomises);
+    }
+
+    [TestCase(false, false, false)]
+    [TestCase(false, false, true)]
+    [TestCase(false, true, false)]
+    [TestCase(true, false, false)]
+    public async Task Adapt_GivenRandomiseSinglesConfigurationDisabled_NeverRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway)
+    {
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "false",
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
+        _user!.Access!.ManageScores = canManageScores;
+        if (canInputResultsForHome)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = HomeTeam.Id;
+        }
+        if (canInputResultsForAway)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = AwayTeam.Id;
+        }
+
+        await RunRandomiseSinglesTest(false);
+    }
+
+    [TestCase(false, false, false)]
+    [TestCase(false, false, true)]
+    [TestCase(false, true, false)]
+    [TestCase(true, false, false)]
+    public async Task Adapt_GivenRandomiseSinglesConfigurationValueNull_NeverRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway)
+    {
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = null,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
+        _user!.Access!.ManageScores = canManageScores;
+        if (canInputResultsForHome)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = HomeTeam.Id;
+        }
+        if (canInputResultsForAway)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = AwayTeam.Id;
+        }
+
+        await RunRandomiseSinglesTest(false);
+    }
+
+    [TestCase(false, false, false)]
+    [TestCase(false, false, true)]
+    [TestCase(false, true, false)]
+    [TestCase(true, false, false)]
+    public async Task Adapt_GivenRandomiseSinglesNotConfigured_NeverRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway)
+    {
+        _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(() => null);
+        _user!.Access!.ManageScores = canManageScores;
+        if (canInputResultsForHome)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = HomeTeam.Id;
+        }
+        if (canInputResultsForAway)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = AwayTeam.Id;
+        }
+
+        await RunRandomiseSinglesTest(false);
+    }
+
+    [Test]
+    public async Task Adapt_GivenVetoScoresIsConfiguredAndLoggedOut_DoesNotAdaptMatchesBeforeVeto()
+    {
+        _user = null;
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "2.00:00:00",
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(enabled);
+
+        await RunVetoScoresTest(new DateTime(2001, 02, 03), false);
+    }
+
+    [Test]
+    public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_DoesNotAdaptMatchesBeforeVeto()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = false;
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "2.00:00:00",
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(enabled);
+
+        await RunVetoScoresTest(new DateTime(2001, 02, 03), false);
+    }
+
+    [Test]
+    public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_AdaptMatchesAtVetoBoundaryTime()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = false;
+        _now = new DateTimeOffset(2001, 02, 05, 04, 05, 06, TimeSpan.Zero);
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "2.00:00:00",
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(enabled);
+
+        await RunVetoScoresTest(new DateTime(2001, 02, 03), true);
+    }
+
+    [Test]
+    public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_AdaptMatchesAfterVeto()
+    {
+        _user!.Access!.ManageScores = false;
+        _user!.Access!.InputResults = false;
+        _now = new DateTimeOffset(2001, 02, 06, 04, 05, 06, TimeSpan.Zero);
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "2.00:00:00",
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(enabled);
+
+        await RunVetoScoresTest(new DateTime(2001, 02, 03), true);
+    }
+
+    [TestCase(false, false, false, true)]
+    [TestCase(false, false, true, false)]
+    [TestCase(false, true, false, false)]
+    [TestCase(true, false, false, false)]
+    public async Task Adapt_GivenVetoScoresIsConfigured_DoesNotAdaptMatchesBeforeVeto(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway, bool obscuresMatches)
+    {
+        _user!.Access!.ManageScores = canManageScores;
+        if (canInputResultsForHome)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = HomeTeam.Id;
+        }
+        if (canInputResultsForAway)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = AwayTeam.Id;
+        }
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = "2.00:00:00",
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(enabled);
+
+        await RunVetoScoresTest(new DateTime(2001, 02, 03), !obscuresMatches);
+    }
+
+    [TestCase(false, false, false)]
+    [TestCase(false, false, true)]
+    [TestCase(false, true, false)]
+    [TestCase(true, false, false)]
+    public async Task Adapt_GivenVetoScoresConfigurationValueNull_AlwaysAdaptsMatches(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway)
+    {
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+        var enabled = new ConfiguredFeatureDto
+        {
+            ConfiguredValue = null,
+            ValueType = Feature.FeatureValueType.TimeSpan,
+        };
+        _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
+        _user!.Access!.ManageScores = canManageScores;
+        if (canInputResultsForHome)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = HomeTeam.Id;
+        }
+        if (canInputResultsForAway)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = AwayTeam.Id;
+        }
+
+        await RunVetoScoresTest(new DateTime(2001, 01, 01), true);
+    }
+
+    [TestCase(false, false, false)]
+    [TestCase(false, false, true)]
+    [TestCase(false, true, false)]
+    [TestCase(true, false, false)]
+    public async Task Adapt_GivenVetoScoresNotConfigured_AlwaysAdaptsMatches(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway)
+    {
+        _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
+        _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(() => null);
+        _user!.Access!.ManageScores = canManageScores;
+        if (canInputResultsForHome)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = HomeTeam.Id;
+        }
+        if (canInputResultsForAway)
+        {
+            _user.Access.InputResults = true;
+            _user.TeamId = AwayTeam.Id;
+        }
+
+        await RunVetoScoresTest(new DateTime(2001, 01, 01), true);
     }
 
     [Test]
@@ -172,6 +468,10 @@ public class GameAdapterTests
             {
                 PhotoReferenceDto,
             },
+            MatchOptions =
+            {
+                MatchOptionDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -201,6 +501,10 @@ public class GameAdapterTests
         }));
         Assert.That(result.AccoladesCount, Is.EqualTo(dto.AccoladesCount));
         Assert.That(result.Photos, Is.EquivalentTo(new[] { PhotoReference }));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[]
+        {
+            MatchOption,
+        }));
     }
 
     [Test]
@@ -232,5 +536,116 @@ public class GameAdapterTests
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.HomeSubmission!.Address, Is.EqualTo("address"));
         Assert.That(result.AwaySubmission!.Address, Is.EqualTo("address"));
+    }
+
+    private async Task RunRandomiseSinglesTest(bool randomiseOrderOfSingles)
+    {
+        var model = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Away = AwayTeam,
+            Home = HomeTeam,
+            Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
+        };
+
+        for (var iteration = 1; iteration <= 10; iteration++)
+        {
+            try
+            {
+                // repeat the test a number of times, so that a randomisation of singles resulting
+                // in the same order of matches is ignored
+                await RandomiseSinglesTestIteration(model, randomiseOrderOfSingles);
+                return; // test passed
+            }
+            catch (AssertionException)
+            {
+                if (iteration >= 10)
+                {
+                    throw;
+                }
+            }
+        }
+
+        // should never reach here...
+        Assert.Fail("Issue with test execution; test should have passed or thrown the (assertion) exception");
+    }
+
+    private async Task RandomiseSinglesTestIteration(CosmosGame model, bool randomiseOrderOfSingles)
+    {
+        _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
+
+        var result = await _adapter.Adapt(model, _token);
+
+        var resultSingles = result.Matches.Take(5).Select(m => m.Id).ToList();
+        var modelSingles = model.Matches.Take(5).Select(m => m.Id).ToList();
+        var resultPairsAndTriples = result.Matches.Skip(5).Select(m => m.Id).ToList();
+        var modelPairsAndTriples = model.Matches.Skip(5).Select(m => m.Id).ToList();
+        Assert.That(resultPairsAndTriples, Is.EqualTo(modelPairsAndTriples)); // pairs and triples should always be in the same order
+        if (randomiseOrderOfSingles)
+        {
+            Assert.That(resultSingles, Is.EquivalentTo(modelSingles)); // all singles should be present in the first 5 matches, regardless of order
+            Assert.That(resultSingles, Is.Not.EqualTo(modelSingles), () => "Singles should be in a random order, different to the original order"); // assert that singles aren't in the original order
+        }
+        else
+        {
+            Assert.That(resultSingles, Is.EqualTo(modelSingles)); // assert that all the singles are in the same order
+        }
+    }
+
+    private GameMatch CreateMatch(int matchNo)
+    {
+        var playerCount = 1;
+        if (matchNo == 6 || matchNo == 7)
+        {
+            playerCount = 2;
+        }
+        if (matchNo == 8)
+        {
+            playerCount = 3;
+        }
+
+        var players = Enumerable.Range(1, playerCount)
+            .Select(playerNo => new GamePlayer { Name = $"Player {playerNo} of {playerCount}"})
+            .ToList();
+
+        var match = new GameMatch
+        {
+            Id = Guid.NewGuid(),
+            HomeScore = matchNo,
+            HomePlayers = players,
+            AwayPlayers = players,
+        };
+        var matchDto = new GameMatchDto
+        {
+            Id = match.Id,
+            HomeScore = matchNo,
+        };
+        _matchAdapter.AddMapping(match, matchDto);
+        return match;
+    }
+
+    private async Task RunVetoScoresTest(DateTime date, bool shouldAdaptMatches)
+    {
+        var model = new CosmosGame
+        {
+            Away = AwayTeam,
+            Home = HomeTeam,
+            Matches =
+            {
+                GameMatch,
+            },
+            Date = date,
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        if (shouldAdaptMatches)
+        {
+            Assert.That(result.Matches, Is.EqualTo(new[] { GameMatchDto }));
+        }
+        else
+        {
+            Assert.That(result.Matches, Is.Empty);
+        }
     }
 }

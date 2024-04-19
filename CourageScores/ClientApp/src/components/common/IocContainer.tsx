@@ -24,6 +24,7 @@ import {MultiModeLiveWebSocket} from "../../live/MultiModeLiveWebSocket";
 import {WebSocketUpdateStrategy} from "../../live/WebSocketUpdateStrategy";
 import {PollingUpdateStrategy} from "../../live/PollingUpdateStrategy";
 import {WebSocketMode} from "../../live/WebSocketMode";
+import {FeatureApi} from "../../interfaces/apis/IFeatureApi";
 
 const DependenciesContext = createContext({});
 
@@ -73,6 +74,7 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
             webSocketStrategy: new WebSocketUpdateStrategy(() => (services.socketFactory || socketFactory)(settings)),
             pollingStrategy: new PollingUpdateStrategy(liveApi, oneSecond, 10 * oneSecond),
         }),
+        featureApi: new FeatureApi(http),
     };
 
     const dependencies = Object.assign({}, defaultServices, services);
