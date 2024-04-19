@@ -184,20 +184,28 @@ function getMatchLayoutData(match: TournamentMatchDto, index: number, context: I
         winner: winner,
         saygId: match.saygId,
         mnemonic: context.roundContext.matchMnemonic.next(),
-        hideMnemonic: allSidesSelectedInNextRound(context.round, match) || context.roundContext.sides.length === 2,
+        hideMnemonic: allSidesSelectedInSubsequentRound(context.round, match) || context.roundContext.sides.length === 2,
         matchOptions: matchOptions,
         match,
     };
 }
 
-function allSidesSelectedInNextRound(round: TournamentRoundDto, match: TournamentMatchDto): boolean {
-    const nextRound: TournamentRoundDto = round.nextRound;
-    if (!nextRound) {
+function allSidesSelectedInSubsequentRound(round: TournamentRoundDto, match: TournamentMatchDto): boolean {
+    const sideIdsToFind: string[] = [ match.sideA, match.sideB ].map((s: TournamentSideDto) => s ? s.id : null).filter((id: string) => !!id);
+    return sidesExistInThisOrSubsequentRound(round.nextRound, sideIdsToFind);
+}
+
+function sidesExistInThisOrSubsequentRound(round: TournamentRoundDto, sideIdsToFind: string[]): boolean {
+    if (!round) {
         return false;
     }
 
-    const sideIdsToFind: string[] = [ match.sideA, match.sideB ].map((s: TournamentSideDto) => s ? s.id : null).filter((id: string) => !!id);
-    return any(nextRound.matches, (m: TournamentMatchDto) => any(sideIdsToFind, (id: string) => (m.sideA && m.sideA.id === id) || (m.sideB && m.sideB.id === id)));
+    const found: boolean = any(round.matches, (m: TournamentMatchDto) => any(sideIdsToFind, (id: string) => (m.sideA && m.sideA.id === id) || (m.sideB && m.sideB.id === id)));
+    if (found) {
+        return true;
+    }
+
+    return sidesExistInThisOrSubsequentRound(round.nextRound, sideIdsToFind);
 }
 
 function getRoundLayoutData(round: TournamentRoundDto, roundContext: IRoundLayoutGenerationContext): ILayoutDataForRound {
