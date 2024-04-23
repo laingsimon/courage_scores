@@ -11,6 +11,8 @@ import {AccountApi} from "../../interfaces/apis/IAccountApi";
 import {SeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 import {ILiveApi} from "../../interfaces/apis/ILiveApi";
 import {DataApi} from "../../interfaces/apis/IDataApi";
+import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
+import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 
 describe('AdminHome', () => {
     let context: TestContext;
@@ -38,6 +40,11 @@ describe('AdminHome', () => {
             };
         }
     });
+    const featureApi = api<IFeatureApi>({
+        async getFeatures(): Promise<ConfiguredFeatureDto[]> {
+            return [];
+        }
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -55,7 +62,7 @@ describe('AdminHome', () => {
             emailAddress: '',
         };
         context = await renderApp(
-            iocProps({dataApi, accountApi, templateApi, liveApi}),
+            iocProps({dataApi, accountApi, templateApi, liveApi, featureApi}),
             brandingProps(),
             appProps({account}, reportedError),
             (<AdminContainer tables={[]} accounts={[]}>
@@ -82,7 +89,7 @@ describe('AdminHome', () => {
             givenName: '',
         };
         context = await renderApp(
-            iocProps({dataApi, accountApi, templateApi, liveApi}),
+            iocProps({dataApi, accountApi, templateApi, liveApi, featureApi}),
             brandingProps(),
             appProps({
                 appLoading: false,
@@ -234,24 +241,46 @@ describe('AdminHome', () => {
     });
 
     describe('data browser', () => {
-        it('shows export if permitted', async () => {
+        it('shows browser if permitted', async () => {
             await assertTab({
                 exportData: true
             }, '/admin/browser', true);
         });
 
-        it('excludes export if not permitted', async () => {
+        it('excludes browser if not permitted', async () => {
             await assertTab({
                 exportData: false
             }, '/admin/browser', false);
         });
 
-        it('renders the export data content', async () => {
+        it('renders the browser data content', async () => {
             await assertContent({
                     exportData: true
                 },
                 '/admin/browser',
                 'Data Browser');
+        });
+    });
+
+    describe('features', () => {
+        it('shows features if permitted', async () => {
+            await assertTab({
+                manageFeatures: true
+            }, '/admin/features', true);
+        });
+
+        it('excludes features if not permitted', async () => {
+            await assertTab({
+                manageFeatures: false
+            }, '/admin/features', false);
+        });
+
+        it('renders the features data content', async () => {
+            await assertContent({
+                    manageFeatures: true
+                },
+                '/admin/features',
+                'Manage features');
         });
     });
 
