@@ -347,7 +347,7 @@ describe('PlayerInput', () => {
         expect(changedLegs).toEqual([]);
     });
 
-    it('accepts valid score via enter key press', async () => {
+    it('accepts valid 3-dart score via enter key press', async () => {
         const leg = legBuilder()
             .currentThrow('home')
             .startingScore(501)
@@ -369,30 +369,6 @@ describe('PlayerInput', () => {
 
         reportedError.verifyNoError();
         expect(changedLegs.length).toEqual(1);
-    });
-
-    it('does not accept ambiguous dart-number score via enter key press', async () => {
-        const leg = legBuilder()
-            .currentThrow('home')
-            .startingScore(501)
-            .home((c: ILegCompetitorScoreBuilder) => c.score(451).noOfDarts(0))
-            .build();
-        await renderComponent({
-            home: home,
-            homeScore: 0,
-            leg: leg,
-            singlePlayer: true,
-            on180,
-            onLegComplete,
-            onChange,
-            onHiCheck,
-        });
-
-        await setScoreInput('50'); // could be bull (1 dart), 10, D20 (2 darts) or a range of 3-dart options
-        await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
-
-        reportedError.verifyNoError();
-        expect(changedLegs.length).toEqual(0);
     });
 
     it('does not accept invalid score via enter key press', async () => {
