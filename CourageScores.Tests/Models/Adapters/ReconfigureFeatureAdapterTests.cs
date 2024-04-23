@@ -38,4 +38,18 @@ public class ReconfigureFeatureAdapterTests
 
         Assert.That(result.ConfiguredValue, Is.EqualTo("VALUE"));
     }
+
+    [Test]
+    public async Task Adapt_GivenNullConfiguredValue_SetsConfiguredValueToNull()
+    {
+        var input = new ReconfigureFeatureDto
+        {
+            Id = Guid.NewGuid(),
+            ConfiguredValue = null,
+        };
+
+        var result = await _adapter.Adapt(input, _token);
+
+        Assert.That(result.ConfiguredValue, Is.Null);
+    }
 }
