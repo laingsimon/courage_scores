@@ -7,15 +7,11 @@ namespace CourageScores.Services.Status;
 
 public static class MemoryCacheExtensions
 {
+    private static readonly FieldInfo? MemoryCacheEntriesField = typeof(MemoryCache).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
+
     public static IEnumerable<object> GetKeys(this IMemoryCache cache)
     {
-        var entriesField = typeof(MemoryCache).GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic);
-        if (entriesField == null)
-        {
-            return Array.Empty<object>();
-        }
-
-        var entries = entriesField.GetValue(cache) as IDictionary;
+        var entries = MemoryCacheEntriesField?.GetValue(cache) as IDictionary;
         return entries == null
             ? Array.Empty<object>()
             : entries.Keys.Cast<object>().ToArray();
