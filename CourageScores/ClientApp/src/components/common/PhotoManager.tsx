@@ -23,8 +23,6 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
     const { account } = useApp();
     const [uploading, setUploading] = useState(false);
     const [deleting, setDeleting] = useState(null);
-    // const canViewAllPhotos: boolean = account && account.access && account.access.manageScores;
-    // const canUploadPhotos: boolean = account && account.access && account.access.uploadPhotos;
     const myPhotos: PhotoReferenceDto[] = (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name);
     const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? (photos || []) : myPhotos;
     const showPhotoSize: boolean = account && account.access && (account.access.viewAnyPhoto || account.access.deleteAnyPhoto);
