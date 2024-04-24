@@ -358,7 +358,6 @@ export function Tournament() {
                     {tournamentData.singleRound
                         ? null
                         : (<PrintableSheet
-                            printOnly={false}
                             patchData={applyPatch}
                             editable={canEnterTournamentResults || canManageTournaments} />)}
                 </TournamentContainer>

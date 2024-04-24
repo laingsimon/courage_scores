@@ -146,6 +146,33 @@ public class HiChecksComparerTests
     }
 
     [Test]
+    public void Equals_GivenBothNotesAreNull_ReturnsTrue()
+    {
+        var x = CreatePlayer();
+        var y = CreatePlayer();
+        x.Notes = null;
+        y.Notes = null;
+
+        var result = _comparer.Equals(x, y);
+
+        Assert.That(result, Is.True);
+    }
+
+    [TestCase("X", null)]
+    [TestCase(null, "Y")]
+    public void Equals_GivenExclusivelyOneNoteIsNull_ReturnsFalse(string noteX, string noteY)
+    {
+        var x = CreatePlayer();
+        var y = CreatePlayer();
+        x.Notes = noteX;
+        y.Notes = noteY;
+
+        var result = _comparer.Equals(x, y);
+
+        Assert.That(result, Is.False);
+    }
+
+    [Test]
     public void Equals_GivenDifferentNotes_ReturnsFalse()
     {
         var x = CreatePlayer();

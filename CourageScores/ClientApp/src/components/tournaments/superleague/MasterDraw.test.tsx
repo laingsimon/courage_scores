@@ -1,21 +1,61 @@
 import {
+    api,
     appProps,
     brandingProps,
     cleanUp, doClick,
-    ErrorState,
-    iocProps,
+    ErrorState, findButton,
+    iocProps, noop,
     renderApp,
     TestContext
 } from "../../../helpers/tests";
 import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../helpers/rendering";
-import {tournamentBuilder, tournamentMatchBuilder} from "../../../helpers/builders/tournaments";
+import {
+    ITournamentRoundBuilder,
+    tournamentBuilder,
+    tournamentMatchBuilder
+} from "../../../helpers/builders/tournaments";
 import {ITournamentContainerProps, TournamentContainer} from "../TournamentContainer";
+import {UserDto} from "../../../interfaces/models/dtos/Identity/UserDto";
+import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
+import {ITournamentGameApi} from "../../../interfaces/apis/ITournamentGameApi";
+import {EditTournamentGameDto} from "../../../interfaces/models/dtos/Game/EditTournamentGameDto";
+import {IClientActionResultDto} from "../../common/IClientActionResultDto";
+import {CreateTournamentSaygDto} from "../../../interfaces/models/dtos/Game/CreateTournamentSaygDto";
+import {createTemporaryId} from "../../../helpers/projection";
+import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
+import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
+import {saygBuilder} from "../../../helpers/builders/sayg";
 
 describe('MasterDraw', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let editTournament: string;
+    let saygDeleted: { id: string, matchId: string };
+
+    const tournamentApi = api<ITournamentGameApi>({
+        async update(_: EditTournamentGameDto): Promise<IClientActionResultDto<TournamentGameDto>> {
+            return {
+                success: true,
+            };
+        },
+        async addSayg(_: string, __: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> {
+            return {
+                success: true,
+            };
+        },
+        async deleteSayg(id: string, matchId: string): Promise<IClientActionResultDto<TournamentGameDto>> {
+            saygDeleted = { id, matchId };
+            return {
+                success: true,
+            }
+        }
+    });
+    const saygApi = api<ISaygApi>({
+        async get(id: string): Promise<RecordedScoreAsYouGoDto | null> {
+            return saygBuilder(id).build();
+        }
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -24,17 +64,26 @@ describe('MasterDraw', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         editTournament = null;
+        saygDeleted = null;
     });
 
     async function setEditTournament(value: string) {
         editTournament = value;
     }
 
-    async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps) {
+    async function saveTournament(_?: boolean): Promise<TournamentGameDto> {
+        return null;
+    }
+
+    async function setTournamentData(_: TournamentGameDto): Promise<any> {
+
+    }
+
+    async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps, account?: UserDto) {
         context = await renderApp(
-            iocProps(),
+            iocProps({tournamentApi, saygApi}),
             brandingProps(),
-            appProps({}, reportedError),
+            appProps({ account }, reportedError),
             (<TournamentContainer {...containerProps}>
                 <MasterDraw {...props} />
             </TournamentContainer>));
@@ -124,7 +173,7 @@ describe('MasterDraw', () => {
             expect(editTournament).toEqual('matches');
         });
 
-        it('can edit tournament from table of players', async () => {
+        it('can edit tournament from table of players header', async () => {
             await renderComponent({
                 matches: [],
                 host: 'HOST',
@@ -138,7 +187,123 @@ describe('MasterDraw', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(context.container.querySelector('div[datatype="master-draw"] tr:first-child'));
+            await doClick(context.container.querySelector('div[datatype="master-draw"] thead tr:first-child'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual('matches');
+        });
+
+        it('can edit tournament from table of players row (player number)', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            await renderComponent({
+                matches: [match],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder().build(),
+            });
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody td:nth-child(1)'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual('matches');
+        });
+
+        it('can edit tournament from table of players row (side A)', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            await renderComponent({
+                matches: [match],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder().build(),
+            });
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(2)'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual('matches');
+        });
+
+        it('can edit tournament from table of players row (vs)', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            await renderComponent({
+                matches: [match],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder().build(),
+            });
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(3)'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual('matches');
+        });
+
+        it('can edit tournament from table of players row (side B)', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            await renderComponent({
+                matches: [match],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder().build(),
+            });
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tbody tr:first-child td:nth-child(4)'));
+
+            reportedError.verifyNoError();
+            expect(editTournament).toEqual('matches');
+        });
+
+        it('can edit tournament from table of players footer', async () => {
+            await renderComponent({
+                matches: [],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder().build(),
+            });
+            reportedError.verifyNoError();
+
+            await doClick(context.container.querySelector('div[datatype="master-draw"] tfoot td'));
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual('matches');
@@ -202,6 +367,87 @@ describe('MasterDraw', () => {
 
             reportedError.verifyNoError();
             expect(editTournament).toEqual(null);
+        });
+
+        it('can open sayg dialog when permitted', async () => {
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {
+                    recordScoresAsYouGo: true,
+                },
+            }
+            await renderComponent({
+                matches: [match],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder().singleRound().build(),
+                saveTournament,
+                setTournamentData,
+            }, account);
+            reportedError.verifyNoError();
+
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '📊'));
+
+            reportedError.verifyNoError();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+        });
+
+        it('can delete sayg from match', async () => {
+            const saygId = createTemporaryId();
+            const tournamentId = createTemporaryId();
+            const match = tournamentMatchBuilder()
+                .sideA('SIDE A')
+                .sideB('SIDE B')
+                .saygId(saygId)
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: {
+                    recordScoresAsYouGo: true,
+                    showDebugOptions: true,
+                },
+            }
+            await renderComponent({
+                matches: [match],
+                host: 'HOST',
+                opponent: 'OPPONENT',
+                gender: 'GENDER',
+                date: '2023-05-06',
+                notes: 'NOTES',
+            }, {
+                setEditTournament,
+                tournamentData: tournamentBuilder(tournamentId).round((r: ITournamentRoundBuilder) => r.withMatch(match)).singleRound().build(),
+                saveTournament,
+                setTournamentData,
+            }, account);
+            reportedError.verifyNoError();
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '📊'));
+            reportedError.verifyNoError();
+            const dialog = context.container.querySelector('.modal-dialog');
+            window.confirm = (_: string) => true;
+            window.alert = noop;
+
+            await doClick(findButton(dialog, 'Delete sayg'));
+
+            reportedError.verifyNoError();
+            expect(saygDeleted).toEqual({
+                id: tournamentId,
+                matchId: match.id,
+            })
         });
     });
 });

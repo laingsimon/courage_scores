@@ -42,22 +42,15 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                 return;
             }
 
-            const singleDartScore: boolean = checkout && isSingleDartScore(intScore, true);
-            const twoDartScore: boolean = checkout && isTwoDartScore(intScore);
-            const threeDartScore: boolean = isThreeDartScore(intScore) && (hasRemainingDouble || checkout);
-            let possibleOptions: number = (singleDartScore ? 1 : 0) + (twoDartScore ? 1 : 0) + (threeDartScore ? 1 : 0);
-            if (possibleOptions > 1) {
-                // require user to click if there are 2 or more possible options
-                return false;
+            const intScore: number = Number.parseInt(score);
+            const threeDartScore: boolean = Number.isFinite(intScore)
+                && intScore >= 0
+                && isThreeDartScore(intScore)
+                && (hasRemainingDouble || checkout);
+            if (threeDartScore) {
+                await addThrow(intScore, 3);
             }
 
-            if (singleDartScore) {
-                await addThrow(score, 1);
-            } else if (twoDartScore) {
-                await addThrow(score, 2);
-            } else if (threeDartScore) {
-                await addThrow(score, 3);
-            }
             return false;
         }
     }
@@ -66,13 +59,8 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         return player === 'home' ? 'away' : 'home';
     }
 
-    async function addThrow(scoreInput: string, noOfDarts: number) {
+    async function addThrow(score: number, noOfDarts: number) {
         try {
-            const score = Number.parseInt(scoreInput);
-            if (!Number.isFinite(score)) {
-                return;
-            }
-
             setSavingInput(true);
             setShowCheckout(false);
             const accumulatorName = leg.currentThrow as 'home' | 'away';
@@ -86,9 +74,8 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             accumulator.noOfDarts += noOfDarts;
 
             const remainingScore: number = leg.startingScore - (accumulator.score + score);
-            if ((remainingScore !== 0 && remainingScore <= 1) || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
+            if (remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
                 accumulator.bust = true;
-                // bust
             } else {
                 if (!accumulator.bust) {
                     accumulator.score += score;
@@ -106,7 +93,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                     newLeg.winner = accumulatorName;
 
                     if (score >= 100) {
-                        // hicheck
+                        // hi-check
                         if (onHiCheck) {
                             await onHiCheck(accumulatorName, score);
                         }
@@ -132,36 +119,16 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         }
     }
 
-    function isSingleDartScore(value: number, doubleOnly?: boolean): boolean {
-        if (value <= 0 || !Number.isFinite(value)) {
-            return false;
-        }
-
-        if (doubleOnly) {
-            return (value % 2 === 0 && value / 2 <= 20)
-                || value === 50;
-        }
-
-        return value <= 20
-            || (value % 2 === 0 && value / 2 <= 20)
-            || (value % 3 === 0 && value / 3 <= 20)
-            || value === 25
+    function isSingleDartScore(value: number): boolean {
+        return (value % 2 === 0 && value / 2 <= 20)
             || value === 50;
     }
 
     function isTwoDartScore(value: number): boolean {
-        if (value <= 0 || !Number.isFinite(value)) {
-            return false;
-        }
-
         return value <= 120;
     }
 
     function isThreeDartScore(value: number): boolean {
-        if (value < 0 || !Number.isFinite(value)) {
-            return false;
-        }
-
         return value <= 180;
     }
 
@@ -170,8 +137,8 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         if (score === remainingScore) {
             setShowCheckout(true);
         }
-        else {
-            await addThrow(value, 3);
+        else if (Number.isFinite(score) && score >= 0) {
+            await addThrow(score, 3);
         }
     }
 
@@ -213,21 +180,21 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                     <h6>How many darts to checkout?</h6>
                     <div className="d-flex flex-row justify-content-stretch">
                         <button
-                            disabled={savingInput || !checkout || !isSingleDartScore(intScore, true)}
+                            disabled={savingInput || !checkout || !isSingleDartScore(intScore)}
                             className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
-                            onClick={async () => await addThrow(score, 1)}>
+                            onClick={async () => await addThrow(intScore, 1)}>
                             {CHECKOUT_1_DART}
                         </button>
                         <button
                             disabled={savingInput || !checkout || !isTwoDartScore(intScore)}
                             className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
-                            onClick={async () => await addThrow(score, 2)}>
+                            onClick={async () => await addThrow(intScore, 2)}>
                             {CHECKOUT_2_DART}
                         </button>
                         <button
                             disabled={savingInput || !isThreeDartScore(intScore) || (!hasRemainingDouble && !checkout)}
                             className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
-                            onClick={async () => await addThrow(score, 3)}>
+                            onClick={async () => await addThrow(intScore, 3)}>
                             {CHECKOUT_3_DART}
                         </button>
                     </div>

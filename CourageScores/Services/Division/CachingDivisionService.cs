@@ -10,7 +10,7 @@ namespace CourageScores.Services.Division;
 
 public class CachingDivisionService : ICachingDivisionService
 {
-    private static readonly ConcurrentDictionary<CacheKey, object> CacheKeys = new();
+    private static readonly ConcurrentDictionary<DivisionDataCacheKey, object> CacheKeys = new();
     private readonly IHttpContextAccessor _accessor;
     private readonly IDivisionService _divisionService;
     private readonly IMemoryCache _memoryCache;
@@ -60,7 +60,7 @@ public class CachingDivisionService : ICachingDivisionService
             return await _divisionService.GetDivisionData(filter, token);
         }
 
-        var key = new CacheKey(filter, "GetDivisionData");
+        var key = new DivisionDataCacheKey(filter, "GetDivisionData");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
         return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token));
@@ -68,7 +68,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {
-        var key = new CacheKey(new DivisionDataFilter
+        var key = new DivisionDataCacheKey(new DivisionDataFilter
         {
             DivisionId = id,
         }, "Get");
@@ -79,7 +79,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     public async IAsyncEnumerable<DivisionDto> GetAll([EnumeratorCancellation] CancellationToken token)
     {
-        var key = new CacheKey(new DivisionDataFilter(), "Get");
+        var key = new DivisionDataCacheKey(new DivisionDataFilter(), "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
 
@@ -119,7 +119,7 @@ public class CachingDivisionService : ICachingDivisionService
         }
     }
 
-    private void InvalidateCacheIfCacheControlHeaderPresent(CacheKey key)
+    private void InvalidateCacheIfCacheControlHeaderPresent(DivisionDataCacheKey key)
     {
         if (!CacheKeys.ContainsKey(key))
         {
@@ -143,62 +143,12 @@ public class CachingDivisionService : ICachingDivisionService
         InvalidateCaches(cacheKeys);
     }
 
-    private void InvalidateCaches(IReadOnlyCollection<CacheKey> keys)
+    private void InvalidateCaches(IReadOnlyCollection<DivisionDataCacheKey> keys)
     {
         foreach (var key in keys)
         {
             _memoryCache.Remove(key);
             CacheKeys.TryRemove(key, out _);
-        }
-    }
-
-    private class CacheKey : IEquatable<CacheKey>
-    {
-        // ReSharper disable once UnusedMember.Local
-        private readonly DateTime _created = DateTime.UtcNow;
-
-        public CacheKey(DivisionDataFilter filter, string type)
-        {
-            Filter = filter;
-            Type = type;
-        }
-
-        public DivisionDataFilter Filter { get; }
-        public string Type { get; }
-
-        public bool Equals(CacheKey? other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return Filter.Equals(other.Filter) && Type == other.Type;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-            return Equals((CacheKey)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Filter, Type);
         }
     }
 }
