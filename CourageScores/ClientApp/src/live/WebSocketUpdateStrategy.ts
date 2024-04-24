@@ -105,6 +105,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
                         resolve(null); // report that this strategy was unable to connect
                     }
                 } catch (e: any) {
+                    /* istanbul ignore next */
                     console.error(e);
                     window.clearInterval(handle);
                     reject(e.message || 'Error waiting for socket to be ready');
