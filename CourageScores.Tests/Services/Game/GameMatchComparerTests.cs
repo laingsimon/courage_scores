@@ -114,7 +114,7 @@ public class GameMatchComparerTests
     }
 
     [Test]
-    public void Equals_GivenSameMatch_ReturnsSameHashCode()
+    public void GetHashCode_GivenSameMatch_ReturnsSameHashCode()
     {
         var x = CreateMatch();
         var y = CreateMatch();
@@ -123,6 +123,18 @@ public class GameMatchComparerTests
         var hashCodeY = _comparer.GetHashCode(y);
 
         Assert.That(hashCodeX, Is.EqualTo(hashCodeY));
+    }
+
+    [Test]
+    public void GetHashCode_GivenNoScores_Returns0HashCode()
+    {
+        var x = CreateMatch();
+        x.HomeScore = null;
+        x.AwayScore = null;
+
+        var hashCode = _comparer.GetHashCode(x);
+
+        Assert.That(hashCode, Is.EqualTo(0));
     }
 
     private static GameMatch CreateMatch()
