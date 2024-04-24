@@ -74,7 +74,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             accumulator.noOfDarts += noOfDarts;
 
             const remainingScore: number = leg.startingScore - (accumulator.score + score);
-            if ((remainingScore === 1) || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
+            if (remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
                 accumulator.bust = true;
             } else {
                 if (!accumulator.bust) {
@@ -93,7 +93,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                     newLeg.winner = accumulatorName;
 
                     if (score >= 100) {
-                        // hicheck
+                        // hi-check
                         if (onHiCheck) {
                             await onHiCheck(accumulatorName, score);
                         }
@@ -119,16 +119,8 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         }
     }
 
-    function isSingleDartScore(value: number, doubleOnly?: boolean): boolean {
-        if (doubleOnly) {
-            return (value % 2 === 0 && value / 2 <= 20)
-                || value === 50;
-        }
-
-        return value <= 20
-            || (value % 2 === 0 && value / 2 <= 20)
-            || (value % 3 === 0 && value / 3 <= 20)
-            || value === 25
+    function isSingleDartScore(value: number): boolean {
+        return (value % 2 === 0 && value / 2 <= 20)
             || value === 50;
     }
 
@@ -188,7 +180,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                     <h6>How many darts to checkout?</h6>
                     <div className="d-flex flex-row justify-content-stretch">
                         <button
-                            disabled={savingInput || !checkout || !isSingleDartScore(intScore, true)}
+                            disabled={savingInput || !checkout || !isSingleDartScore(intScore)}
                             className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
                             onClick={async () => await addThrow(intScore, 1)}>
                             {CHECKOUT_1_DART}
