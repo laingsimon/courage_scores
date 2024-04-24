@@ -59,12 +59,12 @@ export function SocketAdmin() {
         }
     }
 
-    function renderTime(time?: string) {
+    function renderTime(time?: string): string {
         if (!time) {
-            return time;
+            return '-';
         }
 
-        const date = new Date(time);
+        const date: Date = new Date(time);
         return date.toLocaleTimeString();
     }
 
