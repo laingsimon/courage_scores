@@ -35,24 +35,18 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const [showCheckout, setShowCheckout] = useState(false);
 
     async function keyUp(event: React.KeyboardEvent<HTMLInputElement>) {
-        if (event.key === 'Enter') {
-            /* istanbul ignore next */
-            if (savingInput) {
-                /* istanbul ignore next */
-                return;
-            }
-
-            const intScore: number = Number.parseInt(score);
-            const threeDartScore: boolean = Number.isFinite(intScore)
-                && intScore >= 0
-                && isThreeDartScore(intScore)
-                && (hasRemainingDouble || checkout);
-            if (threeDartScore) {
-                await addThrow(intScore, 3);
-            }
-
-            return false;
+        if (event.key !== 'Enter') {
+            return;
         }
+
+        /* istanbul ignore next */
+        if (savingInput) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        await handleScore(score);
+        return false;
     }
 
     function opposite(player: 'home' | 'away'): 'away' | 'home' {
@@ -133,11 +127,11 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     }
 
     async function handleScore(value: string) {
-        const score = Number.parseInt(value);
+        const score: number = Number.parseInt(value);
         if (score === remainingScore) {
             setShowCheckout(true);
         }
-        else if (Number.isFinite(score) && score >= 0) {
+        else if (Number.isFinite(score) && score >= 0 && score <= 180) {
             await addThrow(score, 3);
         }
     }

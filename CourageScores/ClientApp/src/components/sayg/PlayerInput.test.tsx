@@ -433,6 +433,7 @@ describe('PlayerInput', () => {
 
         await setScoreInput('121');
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
+        await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
 
         reportedError.verifyNoError();
         expect(changedLegs.length).toEqual(1);
@@ -459,6 +460,6 @@ describe('PlayerInput', () => {
         await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
 
         reportedError.verifyNoError();
-        expect(changedLegs.length).toEqual(0);
+        expect(changedLegs).toEqual([]);
     });
 });
