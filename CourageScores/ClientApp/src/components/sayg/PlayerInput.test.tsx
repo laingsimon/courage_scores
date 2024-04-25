@@ -212,6 +212,7 @@ describe('PlayerInput', () => {
                 throws: [{
                     noOfDarts: 3,
                     score: 50,
+                    bust: false,
                 }],
             },
             isLastLeg: false,
@@ -252,6 +253,7 @@ describe('PlayerInput', () => {
                 throws: [{
                     noOfDarts: 2,
                     score: 100,
+                    bust: false,
                 }],
             },
             isLastLeg: false,
@@ -292,6 +294,7 @@ describe('PlayerInput', () => {
                 throws: [{
                     noOfDarts: 1,
                     score: 50,
+                    bust: false,
                 }],
             },
             isLastLeg: false,
@@ -334,6 +337,7 @@ describe('PlayerInput', () => {
                 throws: [{
                     noOfDarts: 1,
                     score: 50,
+                    bust: false,
                 }],
             },
             isLastLeg: false,

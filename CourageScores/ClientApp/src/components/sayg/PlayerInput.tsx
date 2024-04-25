@@ -60,29 +60,29 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             const accumulatorName = leg.currentThrow as 'home' | 'away';
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
+            const remainingScore: number = leg.startingScore - (accumulator.score + score);
+            const bust: boolean = remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1);
+
             accumulator.throws.push({
                 score,
                 noOfDarts,
+                bust,
             });
 
             accumulator.noOfDarts += noOfDarts;
+            accumulator.bust = bust;// TODO: Remove this property?
 
-            const remainingScore: number = leg.startingScore - (accumulator.score + score);
-            if (remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
-                accumulator.bust = true;
-            } else {
-                if (!accumulator.bust) {
-                    accumulator.score += score;
-                }
+            if (!bust) {
+                accumulator.score += score;
 
-                if (score === 180 && !accumulator.bust) {
+                if (score === 180) {
                     // Assume these don't count if the score is bust, as it was by accident, not design
                     if (on180) {
                         await on180(accumulatorName);
                     }
                 }
 
-                if (accumulator.score === leg.startingScore && !accumulator.bust) {
+                if (accumulator.score === leg.startingScore) {
                     // checked out
                     newLeg.winner = accumulatorName;
 

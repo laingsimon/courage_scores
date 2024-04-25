@@ -229,7 +229,7 @@ describe('ScoreAsYouGo', () => {
                         noOfDarts: 6,
                         throws: [
                             {noOfDarts: 3, score: 400, bust: false},
-                            {noOfDarts: 3, score: 101}
+                            {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
@@ -290,7 +290,7 @@ describe('ScoreAsYouGo', () => {
                         noOfDarts: 6,
                         throws: [
                             {noOfDarts: 3, score: 400, bust: false},
-                            {noOfDarts: 3, score: 101}
+                            {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
@@ -455,7 +455,7 @@ describe('ScoreAsYouGo', () => {
                         noOfDarts: 6,
                         throws: [
                             {noOfDarts: 3, score: 400, bust: false},
-                            {noOfDarts: 3, score: 101}
+                            {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
