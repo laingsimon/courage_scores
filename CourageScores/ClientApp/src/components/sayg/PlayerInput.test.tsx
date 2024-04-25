@@ -462,4 +462,42 @@ describe('PlayerInput', () => {
         reportedError.verifyNoError();
         expect(changedLegs).toEqual([]);
     });
+
+    it('records bust throw if scored more than remaining', async () => {
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home((c: ILegCompetitorScoreBuilder) => c.score(361).noOfDarts(0))
+            .build();
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true,
+            on180,
+            onLegComplete,
+            onChange,
+            onHiCheck,
+        });
+
+        await setScoreInput('150');
+        await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
+
+        reportedError.verifyNoError();
+        expect(changedLegs).toEqual([{
+            away: null,
+            currentThrow: 'home',
+            home: {
+                noOfDarts: 3,
+                score: 361,
+                throws: [{
+                    bust: true,
+                    noOfDarts: 3,
+                    score: 150,
+                }]
+            },
+            isLastLeg: false,
+            startingScore: 501,
+        }]);
+    });
 });

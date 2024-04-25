@@ -61,7 +61,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
             const remainingScore: number = leg.startingScore - (accumulator.score + score);
-            const bust: boolean = remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1);
+            const bust: boolean = remainingScore < 0 || remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1);
 
             accumulator.throws.push({
                 score,
