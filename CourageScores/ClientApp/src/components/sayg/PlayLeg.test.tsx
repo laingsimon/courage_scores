@@ -194,13 +194,11 @@ describe('PlayLeg', () => {
                 throws: [{score: 50, noOfDarts: 3, bust: false}],
                 score: 50,
                 noOfDarts: 3,
-                bust: false,
             },
             away: {
                 throws: [],
                 score: 0,
                 noOfDarts: 0,
-                bust: false,
             },
             isLastLeg: false,
             playerSequence: [

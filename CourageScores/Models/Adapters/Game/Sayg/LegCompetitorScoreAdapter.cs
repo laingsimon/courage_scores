@@ -15,11 +15,8 @@ public class LegCompetitorScoreAdapter : ISimpleAdapter<LegCompetitorScoreAdapte
 
     public async Task<LegCompetitorScoreDto> Adapt(LegCompetitorScoreAdapterContext model, CancellationToken token)
     {
-        var score = model.Score.Throws.Sum(t => t.Score);
-
         return new LegCompetitorScoreDto
         {
-            Bust = score > model.StartingScore || score == model.StartingScore - 1,
             Score = GetScore(model.StartingScore, model.Score.Throws),
             Throws = await model.Score.Throws.SelectAsync(t => _throwAdapter.Adapt(t, token)).ToList(),
             NoOfDarts = model.Score.Throws.Sum(t => t.NoOfDarts),
@@ -32,7 +29,6 @@ public class LegCompetitorScoreAdapter : ISimpleAdapter<LegCompetitorScoreAdapte
             0,
             new LegCompetitorScore
             {
-                Bust = dto.Bust,
                 Throws = await dto.Throws.SelectAsync(t => _throwAdapter.Adapt(t, token)).ToList(),
             });
     }

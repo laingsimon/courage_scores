@@ -208,7 +208,6 @@ describe('PlayerInput', () => {
             home: {
                 score: 150,
                 noOfDarts: 3,
-                bust: false,
                 throws: [{
                     noOfDarts: 3,
                     score: 50,
@@ -249,7 +248,6 @@ describe('PlayerInput', () => {
             home: {
                 score: 501,
                 noOfDarts: 2,
-                bust: false,
                 throws: [{
                     noOfDarts: 2,
                     score: 100,
@@ -290,7 +288,6 @@ describe('PlayerInput', () => {
             home: {
                 score: 501,
                 noOfDarts: 1,
-                bust: false,
                 throws: [{
                     noOfDarts: 1,
                     score: 50,
@@ -333,7 +330,6 @@ describe('PlayerInput', () => {
             home: {
                 score: 501,
                 noOfDarts: 1,
-                bust: false,
                 throws: [{
                     noOfDarts: 1,
                     score: 50,

@@ -70,7 +70,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             });
 
             accumulator.noOfDarts += noOfDarts;
-            accumulator.bust = bust;// TODO: Remove this property?
 
             if (!bust) {
                 accumulator.score += score;
