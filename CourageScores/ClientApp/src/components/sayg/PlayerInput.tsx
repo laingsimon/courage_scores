@@ -35,24 +35,18 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const [showCheckout, setShowCheckout] = useState(false);
 
     async function keyUp(event: React.KeyboardEvent<HTMLInputElement>) {
-        if (event.key === 'Enter') {
-            /* istanbul ignore next */
-            if (savingInput) {
-                /* istanbul ignore next */
-                return;
-            }
-
-            const intScore: number = Number.parseInt(score);
-            const threeDartScore: boolean = Number.isFinite(intScore)
-                && intScore >= 0
-                && isThreeDartScore(intScore)
-                && (hasRemainingDouble || checkout);
-            if (threeDartScore) {
-                await addThrow(intScore, 3);
-            }
-
-            return false;
+        if (event.key !== 'Enter') {
+            return;
         }
+
+        /* istanbul ignore next */
+        if (savingInput) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        await handleScore(score);
+        return false;
     }
 
     function opposite(player: 'home' | 'away'): 'away' | 'home' {
@@ -66,29 +60,28 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             const accumulatorName = leg.currentThrow as 'home' | 'away';
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
+            const remainingScore: number = leg.startingScore - (accumulator.score + score);
+            const bust: boolean = remainingScore < 0 || remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1);
+
             accumulator.throws.push({
                 score,
                 noOfDarts,
+                bust,
             });
 
             accumulator.noOfDarts += noOfDarts;
 
-            const remainingScore: number = leg.startingScore - (accumulator.score + score);
-            if (remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
-                accumulator.bust = true;
-            } else {
-                if (!accumulator.bust) {
-                    accumulator.score += score;
-                }
+            if (!bust) {
+                accumulator.score += score;
 
-                if (score === 180 && !accumulator.bust) {
+                if (score === 180) {
                     // Assume these don't count if the score is bust, as it was by accident, not design
                     if (on180) {
                         await on180(accumulatorName);
                     }
                 }
 
-                if (accumulator.score === leg.startingScore && !accumulator.bust) {
+                if (accumulator.score === leg.startingScore) {
                     // checked out
                     newLeg.winner = accumulatorName;
 
@@ -133,11 +126,11 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     }
 
     async function handleScore(value: string) {
-        const score = Number.parseInt(value);
+        const score: number = Number.parseInt(value);
         if (score === remainingScore) {
             setShowCheckout(true);
         }
-        else if (Number.isFinite(score) && score >= 0) {
+        else if (Number.isFinite(score) && score >= 0 && score <= 180) {
             await addThrow(score, 3);
         }
     }

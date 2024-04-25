@@ -225,17 +225,15 @@ describe('ScoreAsYouGo', () => {
                         {text: 'AWAY', value: 'away'}
                     ],
                     home: {
-                        bust: false,
                         noOfDarts: 6,
                         throws: [
                             {noOfDarts: 3, score: 400, bust: false},
-                            {noOfDarts: 3, score: 101}
+                            {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
                     away: {
                         noOfDarts: 3,
-                        bust: false,
                         throws: [{noOfDarts: 3, score: 50, bust: false}],
                         score: 100,
                     },
@@ -286,16 +284,14 @@ describe('ScoreAsYouGo', () => {
                         {text: 'AWAY', value: 'away'},
                     ],
                     home: {
-                        bust: false,
                         noOfDarts: 6,
                         throws: [
                             {noOfDarts: 3, score: 400, bust: false},
-                            {noOfDarts: 3, score: 101}
+                            {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
                     away: {
-                        bust: false,
                         noOfDarts: 3,
                         throws: [{noOfDarts: 3, score: 50, bust: false}],
                         score: 100,
@@ -451,17 +447,15 @@ describe('ScoreAsYouGo', () => {
                         {text: 'AWAY', value: 'away'}
                     ],
                     home: {
-                        bust: false,
                         noOfDarts: 6,
                         throws: [
                             {noOfDarts: 3, score: 400, bust: false},
-                            {noOfDarts: 3, score: 101}
+                            {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
                     away: {
                         throws: [],
-                        bust: false,
                         noOfDarts: 0,
                         score: 0
                     },
