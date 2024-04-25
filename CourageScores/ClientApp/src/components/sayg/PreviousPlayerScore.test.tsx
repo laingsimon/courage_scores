@@ -170,7 +170,7 @@ describe('PreviousPlayerScore', () => {
                 .currentThrow('home')
                 .startingScore(501)
                 .home((c: ILegCompetitorScoreBuilder) => c.withThrow(123, false, 3).score(123).noOfDarts(3))
-                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6).bust())
+                .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).withThrow(150, true, 3).score(250).noOfDarts(6))
                 .build(),
             undoLastThrow,
         });
