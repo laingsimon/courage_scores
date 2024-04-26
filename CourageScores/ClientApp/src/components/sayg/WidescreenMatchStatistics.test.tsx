@@ -342,7 +342,7 @@ describe('WidescreenMatchStatistics', () => {
                 .build();
         });
 
-        it('can switch to 1 dart average', async () => {
+        it('can switch to 1 dart average - via home', async () => {
             await renderComponent({
                 id: sayg.id,
                 matchStatisticsOnly: true,
@@ -351,6 +351,24 @@ describe('WidescreenMatchStatistics', () => {
                 },
             });
             const homeColumn = context.container.querySelector('div[datatype="home-column"]');
+            const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
+            const sup = statisticsElement.querySelector('sup');
+            expect(sup.textContent).toEqual('3');
+
+            await doClick(sup);
+
+            expect(statisticsElement.querySelector('sup').textContent).toEqual('1');
+        });
+
+        it('can switch to 1 dart average - via away', async () => {
+            await renderComponent({
+                id: sayg.id,
+                matchStatisticsOnly: true,
+                liveOptions: {
+                    canSubscribe: true,
+                },
+            });
+            const homeColumn = context.container.querySelector('div[datatype="away-column"]');
             const statisticsElement = homeColumn.querySelector('div[datatype="WidescreenSaygPlayerStatistic"]');
             const sup = statisticsElement.querySelector('sup');
             expect(sup.textContent).toEqual('3');

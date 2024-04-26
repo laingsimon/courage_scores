@@ -46,7 +46,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     const {onError} = useApp();
 
     useEffect(() => {
+            /* istanbul ignore next */
             if (loading) {
+                /* istanbul ignore next */
                 return;
             }
 

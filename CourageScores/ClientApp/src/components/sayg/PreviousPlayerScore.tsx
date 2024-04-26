@@ -52,7 +52,7 @@ export function PreviousPlayerScore({home, away, leg, undoLastThrow}: IPreviousP
         </p>
         <p className="my-0" title="Click to change score">
             Last score: <strong className="text-dark">{lastThrow.score}</strong>
-            {accumulator.bust ? (<strong> 💥 </strong>) : null}
+            {lastThrow.bust ? (<strong> 💥 </strong>) : null}
         </p>
         <hr/>
     </div>);

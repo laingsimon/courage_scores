@@ -103,6 +103,16 @@ public class GameMatchOptionComparerTests
         Assert.That(hashCode, Is.EqualTo(0));
     }
 
+    [Test]
+    public void GetHashCode_GivenNoProperties_Returns0()
+    {
+        var matchOption = new GameMatchOption();
+
+        var hashCode = _comparer.GetHashCode(matchOption);
+
+        Assert.That(hashCode, Is.EqualTo(0));
+    }
+
     private static GameMatchOption CreateMatchOption()
     {
         return new GameMatchOption

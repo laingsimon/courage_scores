@@ -345,6 +345,7 @@ describe('Practice', () => {
                 throws: [{
                     noOfDarts: 3,
                     score: 180,
+                    bust: false,
                 }],
             });
         });

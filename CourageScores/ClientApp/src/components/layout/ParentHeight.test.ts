@@ -38,6 +38,15 @@ describe('ParentHeight', () => {
             expect(intervalCreated.freq).toEqual(200);
         });
 
+        it('should setup interval with default time', () => {
+            const sut = new ParentHeight(100, () => 100, () => parentMock);
+
+            sut.setupInterval();
+
+            expect(intervalCreated).not.toBeNull();
+            expect(intervalCreated.freq).toEqual(250);
+        });
+
         it('should not setup interval if no parent', () => {
             const sut = new ParentHeight(100, () => 100, () => null);
 

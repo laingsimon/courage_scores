@@ -2,7 +2,7 @@ import {
     api,
     appProps,
     brandingProps,
-    cleanUp,
+    cleanUp, doChange,
     doClick,
     doSelectOption, ErrorState,
     findButton,
@@ -38,10 +38,13 @@ describe('DivisionControls', () => {
     let reloadDivisionsCalled: boolean;
     let updatedSeason: EditSeasonDto;
     let updatedDivision: EditDivisionDto;
+    let seasonApiResult: IClientActionResultDto<SeasonDto>;
+    let divisionApiResult: IClientActionResultDto<DivisionDto>;
+
     const seasonApi = api<ISeasonApi>({
         update: async (data: EditSeasonDto): Promise<IClientActionResultDto<SeasonDto>> => {
             updatedSeason = data;
-            return {
+            return seasonApiResult || {
                 success: true,
             };
         }
@@ -49,7 +52,7 @@ describe('DivisionControls', () => {
     const divisionApi = api<IDivisionApi>({
         update: async (data: EditDivisionDto): Promise<IClientActionResultDto<DivisionDto>> => {
             updatedDivision = data;
-            return {
+            return divisionApiResult || {
                 success: true
             };
         }
@@ -66,6 +69,8 @@ describe('DivisionControls', () => {
         reloadSeasonsCalled = false;
         updatedSeason = null;
         updatedDivision = null;
+        seasonApiResult = null;
+        divisionApiResult = null;
     });
 
     async function divisionOrSeasonChanged(preventReloadIfIdsAreTheSame?: boolean) {
@@ -587,6 +592,23 @@ describe('DivisionControls', () => {
                 expect(dialog.textContent).toContain('Create a season');
             });
 
+            it('can change season details', async () => {
+                await renderComponent({
+                    originalSeasonData: season5,
+                    originalDivisionData: division5,
+                    overrideMode: null,
+                }, account, seasons, divisions);
+                reportedError.verifyNoError();
+                await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
+                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+
+                await doChange(dialog, 'input[name="name"]', 'NEW SEASON', context.user);
+                await doClick(findButton(context.container, 'Update season'));
+
+                reportedError.verifyNoError();
+                expect(updatedSeason.name).toEqual('NEW SEASON');
+            });
+
             it('can save season details', async () => {
                 await renderComponent({
                     originalSeasonData: season5,
@@ -603,6 +625,29 @@ describe('DivisionControls', () => {
                 expect(dialog).toBeFalsy();
                 expect(changedDivisionOrSeason).toEqual(false);
                 expect(reloadSeasonsCalled).toEqual(true);
+                expect(updatedSeason).not.toBeNull();
+            });
+
+            it('handles error when saving season details', async () => {
+                await renderComponent({
+                    originalSeasonData: season5,
+                    originalDivisionData: division5,
+                    overrideMode: null,
+                }, account, seasons, divisions);
+                reportedError.verifyNoError();
+                await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
+                seasonApiResult = {
+                    success: false,
+                    errors: [
+                        'SOME ERROR',
+                    ],
+                };
+
+                await doClick(findButton(context.container, 'Update season'));
+
+                reportedError.verifyNoError();
+                expect(context.container.textContent).toContain('Could not save details');
+                expect(context.container.textContent).toContain('SOME ERROR');
                 expect(updatedSeason).not.toBeNull();
             });
 
@@ -651,6 +696,23 @@ describe('DivisionControls', () => {
                 expect(dialog.textContent).toContain('Create a division');
             });
 
+            it('can change division details', async () => {
+                await renderComponent({
+                    originalSeasonData: season5,
+                    originalDivisionData: division5,
+                    overrideMode: null,
+                }, account, seasons, divisions);
+                reportedError.verifyNoError();
+                await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
+                const dialog = context.container.querySelector('.btn-group .modal-dialog');
+
+                await doChange(dialog, 'input[name="name"]', 'NEW DIVISION', context.user);
+                await doClick(findButton(context.container, 'Update division'));
+
+                reportedError.verifyNoError();
+                expect(updatedDivision.name).toEqual('NEW DIVISION');
+            });
+
             it('can save division details', async () => {
                 await renderComponent({
                     originalSeasonData: season5,
@@ -667,6 +729,29 @@ describe('DivisionControls', () => {
                 expect(dialog).toBeFalsy();
                 expect(changedDivisionOrSeason).toEqual(false);
                 expect(reloadDivisionsCalled).toEqual(true);
+                expect(updatedDivision).not.toBeNull();
+            });
+
+            it('handles error when saving division details', async () => {
+                await renderComponent({
+                    originalSeasonData: season5,
+                    originalDivisionData: division5,
+                    overrideMode: null,
+                }, account, seasons, divisions);
+                reportedError.verifyNoError();
+                await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
+                divisionApiResult = {
+                    success: false,
+                    errors: [
+                        'SOME ERROR',
+                    ],
+                };
+
+                await doClick(findButton(context.container, 'Update division'));
+
+                reportedError.verifyNoError();
+                expect(context.container.textContent).toContain('Could not save details');
+                expect(context.container.textContent).toContain('SOME ERROR');
                 expect(updatedDivision).not.toBeNull();
             });
 

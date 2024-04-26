@@ -142,14 +142,12 @@ export interface ILegCompetitorScoreBuilder extends IBuilder<LegCompetitorScoreD
     withThrow(score: number, bust?: boolean, noOfDarts?: number): ILegCompetitorScoreBuilder;
     score(score: number): ILegCompetitorScoreBuilder;
     noOfDarts(noOfDarts: number): ILegCompetitorScoreBuilder;
-    bust(): ILegCompetitorScoreBuilder;
 }
 
 export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {
     const competitor: LegCompetitorScoreDto = {
         throws: [],
         score: 0,
-        bust: false,
         noOfDarts: 0,
     };
 
@@ -169,10 +167,6 @@ export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {
         },
         noOfDarts: (noOfDarts: number) => {
             competitor.noOfDarts = noOfDarts;
-            return builder;
-        },
-        bust: () => {
-            competitor.bust = true;
             return builder;
         },
     };

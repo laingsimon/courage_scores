@@ -18,7 +18,7 @@ export class ParentHeight implements IParentHeight {
     constructor(extraHeight : number, getHeight?: () => number, getParent?: () => IWindow) {
         this.handle = null;
         this.lastHeight = null;
-        this.extraHeight = extraHeight || 0;
+        this.extraHeight = extraHeight;
         this.getHeight = getHeight || (() => document.body.scrollHeight);
         this.getParent = getParent || (() => window.parent);
     }

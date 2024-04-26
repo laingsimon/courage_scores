@@ -9,11 +9,6 @@ namespace CourageScores.Models.Dtos.Game.Sayg;
 public class LegCompetitorScoreDto
 {
     /// <summary>
-    /// Whether the previous throw caused the competitor to be bust or not
-    /// </summary>
-    public bool Bust { get; set; }
-
-    /// <summary>
     /// The total number of darts thrown in this leg
     /// </summary>
     public int NoOfDarts { get; set; }

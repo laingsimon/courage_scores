@@ -2,6 +2,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Division;
 
@@ -10,7 +11,7 @@ public class DivisionDataContext
     private readonly IReadOnlyCollection<TournamentGame> _tournamentGames;
 
     public DivisionDataContext(
-        IEnumerable<Models.Cosmos.Game.Game> games,
+        IEnumerable<CosmosGame> games,
         IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,
         IReadOnlyCollection<TournamentGame> tournamentGames,
         IEnumerable<FixtureDateNoteDto> notes,
@@ -26,9 +27,9 @@ public class DivisionDataContext
     public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
     public SeasonDto Season { get; }
     public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
-    public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
+    public Dictionary<DateTime, CosmosGame[]> GamesForDate { get; }
 
-    public IEnumerable<Models.Cosmos.Game.Game> AllGames(Guid? divisionId)
+    public IEnumerable<CosmosGame> AllGames(Guid? divisionId)
     {
         return GamesForDate.SelectMany(pair => pair.Value).Where(g => divisionId == null || g.IsKnockout || g.DivisionId == divisionId);
     }

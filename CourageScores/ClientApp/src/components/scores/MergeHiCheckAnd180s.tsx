@@ -35,8 +35,11 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
     }
 
     try {
+        const oneEightiesNotRecorded: boolean = isEmpty(fixtureData.oneEighties || []);
+        const hiChecksNotRecorded: boolean = isEmpty(fixtureData.over100Checkouts || []);
+
         return (<>
-        {isEmpty(fixtureData.oneEighties || []) && (any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('away', 'oneEighties')))
+        {oneEightiesNotRecorded && (any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('away', 'oneEighties')))
             ? (<>
                 <tr>
                     <td colSpan={5} className="text-center">
@@ -45,7 +48,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                 </tr>
                 <tr datatype="merge-180s">
                     <td colSpan={2} className="text-end">
-                        {isEmpty(fixtureData.oneEighties || []) && any(getRecordsToMerge('home', 'oneEighties')) ? (<div datatype="home-180s">
+                        {oneEightiesNotRecorded && any(getRecordsToMerge('home', 'oneEighties')) ? (<div datatype="home-180s">
                             <h6>
                                 <button className="btn btn-sm btn-success margin-left"
                                         onClick={async () => await mergeRecords('home', 'oneEighties')}>Merge
@@ -64,7 +67,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                         </div>
                     </td>
                     <td colSpan={2}>
-                        {isEmpty(fixtureData.oneEighties || []) && any(getRecordsToMerge('away', 'oneEighties')) ? (<div datatype="away-180s">
+                        {oneEightiesNotRecorded && any(getRecordsToMerge('away', 'oneEighties')) ? (<div datatype="away-180s">
                             <h6>
                                 <button className="btn btn-sm btn-success margin-left"
                                         onClick={async () => await mergeRecords('away', 'oneEighties')}>Merge
@@ -78,7 +81,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                     </td>
                 </tr>
             </>) : null}
-            {isEmpty(fixtureData.over100Checkouts || []) && (any(getRecordsToMerge('home', 'over100Checkouts')) || any(getRecordsToMerge('away', 'over100Checkouts')))
+            {hiChecksNotRecorded && (any(getRecordsToMerge('home', 'over100Checkouts')) || any(getRecordsToMerge('away', 'over100Checkouts')))
                 ? (<>
                     <tr>
                         <td colSpan={5} className="text-center">
@@ -87,7 +90,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                     </tr>
                     <tr datatype="merge-hichecks">
                         <td colSpan={2} className="text-end">
-                            {isEmpty(fixtureData.over100Checkouts || []) && any(getRecordsToMerge('home', 'over100Checkouts')) ? (<div datatype="home-hichecks">
+                            {hiChecksNotRecorded && any(getRecordsToMerge('home', 'over100Checkouts')) ? (<div datatype="home-hichecks">
                                 <h6>
                                     <button className="btn btn-sm btn-success margin-left"
                                             onClick={async () => await mergeRecords('home', 'over100Checkouts')}>Merge
@@ -106,7 +109,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                             </div>
                         </td>
                         <td colSpan={2}>
-                            {isEmpty(fixtureData.over100Checkouts || []) && any(getRecordsToMerge('away', 'over100Checkouts')) ? (<div datatype="away-hichecks">
+                            {hiChecksNotRecorded && any(getRecordsToMerge('away', 'over100Checkouts')) ? (<div datatype="away-hichecks">
                                 <h6>
                                     <button className="btn btn-sm btn-success margin-left"
                                             onClick={async () => await mergeRecords('away', 'over100Checkouts')}>Merge

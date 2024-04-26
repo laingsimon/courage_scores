@@ -35,7 +35,6 @@ import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTo
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface IPrintableSheetProps {
-    printOnly: boolean;
     editable?: boolean;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
 }
@@ -49,29 +48,23 @@ interface IWiggler {
     movements: IMovement[];
 }
 
-export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheetProps) {
+export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
     const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, setEditTournament } = useTournament();
     const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, { matchOptionDefaults, getLinkToSide })
         : getUnplayedLayoutData(tournamentData.sides.filter(s => !s.noShow)));
-    const [wiggle, setWiggle] = useState<boolean>(!printOnly);
     const [editSide, setEditSide] = useState<TournamentSideDto>(null);
     const [newSide, setNewSide] = useState<TournamentSideDto>(null);
     const [editAccolades, setEditAccolades] = useState<string>(null);
     const winner = getWinner();
 
     useEffect(() => {
-            if (!wiggle) {
-                return;
-            }
-
-            setWiggle(false);
             setupWiggle();
         },
         // eslint-disable-next-line
-        [wiggle]);
+        []);
 
     function renderEditSide() {
         return (<EditSide
@@ -309,7 +302,7 @@ export function PrintableSheet({printOnly, editable, patchData}: IPrintableSheet
     }
 
     try {
-        return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
+        return (<div datatype="printable-sheet">
             {winner ? null : (<div className="float-end">
                 <RefreshControl id={tournamentData.id} type={LiveDataType.tournament} />
             </div>)}

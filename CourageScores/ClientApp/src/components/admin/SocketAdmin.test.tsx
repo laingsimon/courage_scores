@@ -22,10 +22,11 @@ describe('SocketAdmin', () => {
     let allSockets: WebSocketDto[];
     let closedSocket: string;
     let apiResult: IClientActionResultDto<WebSocketDto>;
+    let getSocketsApiResult: IClientActionResultDto<WebSocketDto[]>;
 
     const liveApi = api<ILiveApi>({
         getAll: async () => {
-            return {
+            return getSocketsApiResult || {
                 success: true,
                 result: allSockets,
             };
@@ -45,6 +46,7 @@ describe('SocketAdmin', () => {
         allSockets = [];
         closedSocket = null;
         apiResult = null;
+        getSocketsApiResult = null;
     });
 
     async function renderComponent() {
@@ -67,6 +69,20 @@ describe('SocketAdmin', () => {
             expect(context.container.textContent).toContain('No open sockets');
         });
 
+        it('when sockets cannot be retrieved', async () => {
+            getSocketsApiResult = {
+                success: false,
+                errors: [
+                    'ERROR 1',
+                    'ERROR 2',
+                ],
+            };
+
+            await renderComponent();
+
+            reportedError.verifyErrorEquals('ERROR 1,ERROR 2')
+        });
+
         it('open socket for logged out user', async () => {
             const socket = {
                 id: createTemporaryId(),
@@ -86,6 +102,24 @@ describe('SocketAdmin', () => {
             expect(socketItem.textContent).toContain('▶ 10:06:21');
             expect(socketItem.textContent).toContain('⬆ 1');
             expect(socketItem.textContent).toContain('⬇ 2');
+        });
+
+        it('when socket has no connected value', async () => {
+            const socket = {
+                id: createTemporaryId(),
+                userName: null,
+                connected: '',
+                lastReceipt: '2023-11-08T10:07:21+00:00',
+                receivedMessages: 1,
+                sentMessages: 2,
+                lastSent: null,
+            };
+            allSockets = [ socket ];
+
+            await renderComponent();
+
+            const socketItem = context.container.querySelector('li[title="' + socket.id + '"]');
+            expect(socketItem.textContent).toContain('▶ -');
         });
 
         it('open socket for logged in user', async () => {

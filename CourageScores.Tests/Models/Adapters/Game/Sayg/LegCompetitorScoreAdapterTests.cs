@@ -22,28 +22,6 @@ public class LegCompetitorScoreAdapterTests
             new MockSimpleAdapter<LegThrow, LegThrowDto>(_legThrow, _legThrowDto));
     }
 
-    [TestCase(501, 100, false)]
-    [TestCase(501, 500, true)]
-    [TestCase(501, 501, false)]
-    [TestCase(501, 502, true)]
-    public async Task Adapt_GivenModel_ReturnsBustCorrectly(int startingScore, int sumOfThrows, bool expectedBust)
-    {
-        _legThrow.Score = sumOfThrows;
-        var context = new LegCompetitorScoreAdapterContext(
-            startingScore,
-            new LegCompetitorScore
-            {
-                Throws =
-                {
-                    _legThrow,
-                },
-            });
-
-        var result = await _adapter.Adapt(context, _token);
-
-        Assert.That(result.Bust, Is.EqualTo(expectedBust));
-    }
-
     [TestCase(501, 100, 100)]
     [TestCase(501, 500, 0)]
     [TestCase(501, 501, 501)]
@@ -111,7 +89,6 @@ public class LegCompetitorScoreAdapterTests
     {
         var dto = new LegCompetitorScoreDto
         {
-            Bust = true,
             Throws =
             {
                 _legThrowDto,
@@ -120,7 +97,6 @@ public class LegCompetitorScoreAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Score.Bust, Is.True);
         Assert.That(result.Score.Throws, Is.EqualTo(new[]
         {
             _legThrow,

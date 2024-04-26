@@ -23,8 +23,6 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
     const { account } = useApp();
     const [uploading, setUploading] = useState(false);
     const [deleting, setDeleting] = useState(null);
-    // const canViewAllPhotos: boolean = account && account.access && account.access.manageScores;
-    // const canUploadPhotos: boolean = account && account.access && account.access.uploadPhotos;
     const myPhotos: PhotoReferenceDto[] = (photos || []).filter((p: PhotoReferenceDto) => p.author === account.name);
     const photosToShow: PhotoReferenceDto[] = canViewAllPhotos ? (photos || []) : myPhotos;
     const showPhotoSize: boolean = account && account.access && (account.access.viewAnyPhoto || account.access.deleteAnyPhoto);
@@ -33,7 +31,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
         return `${settings.apiHost}/api/Photo/${photo.id}/${height ? height : ''}`;
     }
 
-    async function uploadPhoto(event: ChangeEvent) {
+    async function uploadPhoto(event: ChangeEvent<HTMLInputElement>) {
         /* istanbul ignore next */
         if (uploading) {
             /* istanbul ignore next */
@@ -43,12 +41,7 @@ export function PhotoManager({ photos, onClose, doUpload, canViewAllPhotos, canU
         setUploading(true);
 
         try {
-            const input = event.target as HTMLInputElement;
-            if (input.files.length === 0) {
-                window.alert(`Select a photo first`);
-                return;
-            }
-
+            const input = event.target;
             if (await doUpload(input.files[0])) {
                 await onClose();
             }

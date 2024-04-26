@@ -112,7 +112,7 @@ public class DivisionDataContextTests
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto());
 
-        var result = context.AllGames(divisionId).ToArray();
+        var result = context.AllGames(null).ToArray();
 
         Assert.That(result, Is.EquivalentTo(new[]
         {

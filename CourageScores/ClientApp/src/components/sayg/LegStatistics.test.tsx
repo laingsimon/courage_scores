@@ -617,7 +617,6 @@ describe('LegStatistics', () => {
             await doClick(findButton(context.container, 'Save changes'));
 
             expect(newLeg.home).toEqual({
-                bust: false,
                 noOfDarts: 2,
                 score: 105,
                 throws: [
@@ -654,7 +653,6 @@ describe('LegStatistics', () => {
             await doClick(findButton(context.container, 'Save changes'));
 
             expect(newLeg.home).toEqual({
-                bust: false,
                 noOfDarts: 0,
                 score: 0,
                 throws: [],
