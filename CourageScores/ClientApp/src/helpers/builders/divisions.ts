@@ -249,6 +249,7 @@ export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & 
     onReloadDivision(onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>): IDivisionDataBuilder;
     setDivisionData(setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => Promise<any>): IDivisionDataBuilder;
     children(children: ReactNode): IDivisionDataBuilder;
+    favouritesEnabled(enabled?: boolean): IDivisionDataBuilder;
 }
 
 export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
@@ -314,8 +315,12 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
             divisionData.setDivisionData = setDivisionData;
             return builder;
         },
-        children: (children: React.ReactNode) => {
+        children: (children: ReactNode) => {
             divisionData.children = children;
+            return builder;
+        },
+        favouritesEnabled: (enabled?: boolean) => {
+            divisionData.favouritesEnabled = enabled;
             return builder;
         },
     };

@@ -12,6 +12,7 @@ import {IParentHeight} from "../components/layout/ParentHeight";
 import {IHttp} from "../api/http";
 import {ReactNode} from "react";
 import {MessageType} from "../interfaces/models/dtos/MessageType";
+import {IPreferenceData, PreferencesContainer} from "../components/common/PreferencesContainer";
 
 /* istanbul ignore file */
 
@@ -209,7 +210,7 @@ export function appProps(props?: any, errorState?: ErrorState): IAppContainerPro
     return Object.assign({}, defaultProps, props);
 }
 
-export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBrandingContainerProps, appProps: IAppContainerProps, content: ReactNode, route?: string, currentPath?: string, containerTag?: string): Promise<TestContext> {
+export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBrandingContainerProps, appProps: IAppContainerProps, content: ReactNode, route?: string, currentPath?: string, containerTag?: string, initialPreferences?: IPreferenceData): Promise<TestContext> {
     const container = document.createElement(containerTag || 'div') as HTMLElement;
     document.body.appendChild(container);
 
@@ -229,7 +230,9 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
                 <Route path={route} element={<IocContainer {...iocProps}>
                     <BrandingContainer {...brandingProps}>
                         <AppContainer {...appProps}>
-                            {content}
+                            <PreferencesContainer initialPreferences={initialPreferences}>
+                                {content}
+                            </PreferencesContainer>
                         </AppContainer>
                     </BrandingContainer>
                 </IocContainer>}/>

@@ -32,6 +32,7 @@ import {
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
+import {IPreferenceData} from "../common/PreferencesContainer";
 
 describe('DivisionFixture', () => {
     let context: TestContext;
@@ -87,7 +88,7 @@ describe('DivisionFixture', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: UserDto, teams: DataMap<TeamDto>) {
+    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: UserDto, teams: DataMap<TeamDto>, preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({gameApi}),
             brandingProps(),
@@ -100,7 +101,8 @@ describe('DivisionFixture', () => {
             </DivisionDataContainer>),
             null,
             null,
-            'tbody');
+            'tbody',
+            preferenceData);
     }
 
     describe('when logged out', () => {
@@ -209,6 +211,178 @@ describe('DivisionFixture', () => {
             expect(linkToHome.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
             const linkToAway = cells[4].querySelector('a');
             expect(linkToAway).toBeFalsy();
+        });
+
+        it('does not shade when no favourites', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .bye('HOME')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([team]),
+                { });
+
+            reportedError.verifyNoError();
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
+        });
+
+        it('shades non-favourite teams', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .bye('HOME')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([team]),
+                {
+                    favouriteTeamIds: ['1234'],
+                });
+
+            reportedError.verifyNoError();
+            const row = context.container.querySelector('tr');
+            expect(row.className).toContain('opacity-25');
+        });
+
+        it('does not shade bye for favourite-team', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .bye('HOME')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([team]),
+                {
+                    favouriteTeamIds: [fixture.homeTeam.id],
+                });
+
+            reportedError.verifyNoError();
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
+        });
+
+        it('does not shade home-team favourite', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .playing('HOME', 'AWAY')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([team]),
+                {
+                    favouriteTeamIds: [fixture.homeTeam.id],
+                });
+
+            reportedError.verifyNoError();
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
+        });
+
+        it('does not shade away-team favourite', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .playing('HOME', 'AWAY')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([team]),
+                {
+                    favouriteTeamIds: [fixture.awayTeam.id],
+                });
+
+            reportedError.verifyNoError();
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
+        });
+
+        it('can set a favourite team', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .playing('HOME', 'AWAY')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([team]),
+                {
+                    favouriteTeamIds: [],
+                });
+            const row = context.container.querySelector('tr');
+            const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
+
+            await doClick(favouriteToggles[0]);
+
+            const favouriteTeamIds = [];
+            expect(favouriteTeamIds).toEqual([fixture.homeTeam.id]);
+        });
+
+        it('can unset a favourite team', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .playing('HOME', 'AWAY')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([team]),
+                {
+                    favouriteTeamIds: [fixture.homeTeam.id],
+                });
+            const row = context.container.querySelector('tr');
+            const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
+
+            await doClick(favouriteToggles[0]);
+
+            const favouriteTeamIds = [fixture.homeTeam.id];
+            expect(favouriteTeamIds).toEqual([]);
         });
     });
 

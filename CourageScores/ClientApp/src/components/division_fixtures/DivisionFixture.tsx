@@ -16,6 +16,7 @@ import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTea
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {usePreferences} from "../common/PreferencesContainer";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
@@ -35,6 +36,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         value: '',
     };
     const {account, teams: allTeams, onError} = useApp();
+    const {getPreference, upsertPreference} = usePreferences();
     const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision} = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState<boolean>(false);
@@ -43,6 +45,11 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     const [clipCellRegion, setClipCellRegion] = useState<boolean>(true);
     const {gameApi} = useDependencies();
     const awayTeamId: string = fixture.awayTeam ? fixture.awayTeam.id : '';
+    const favouritesEnabled = false;
+    const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
+    const homeTeamIsFavourite: boolean = any(favouriteTeamIds) && any(favouriteTeamIds, id => id === fixture.homeTeam.id);
+    const awayTeamIsFavourite: boolean = any(favouriteTeamIds) && fixture.awayTeam && any(favouriteTeamIds, id => id === fixture.awayTeam.id);
+    const notAFavourite: boolean = any(favouriteTeamIds) && !homeTeamIsFavourite && !awayTeamIsFavourite;
 
     async function doReloadDivision() {
         if (beforeReloadDivision) {
@@ -189,8 +196,12 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
                 ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
-                    ? (<EmbedAwareLink to={`/score/${fixture.id}`}
-                                       className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)
+                    ? (<>
+                        {renderFavouriteButton(fixture.awayTeam.id, awayTeamIsFavourite)}
+                        <EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">
+                            {fixture.awayTeam.name}
+                        </EmbedAwareLink>
+                    </>)
                     : null
                 : 'Bye');
         }
@@ -274,9 +285,31 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         }
     }
 
+    function renderFavouriteButton(teamId: string, isFavourite: boolean) {
+        if (!favouritesEnabled) {
+            return null;
+        }
+
+        return (<button onClick={() => toggleFavourite(teamId)}
+                        tabIndex={-1}
+                        datatype="toggle-favourite"
+                        className={(isFavourite ? '' : 'opacity-25') + ' bg-white border-0 p-0 m-0 me-1'}>
+            ⭐
+        </button>);
+    }
+
+    function toggleFavourite(teamId: string) {
+        const newFavourites: string[] = any(favouriteTeamIds, (id: string) => id === teamId)
+            ? favouriteTeamIds.filter(id => id !== teamId)
+            : favouriteTeamIds.concat(teamId);
+
+        upsertPreference('favouriteTeamIds', newFavourites);
+    }
+
     try {
-        return (<tr className={(deleting ? 'text-decoration-line-through' : '')}>
+        return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite ? ' opacity-25' : '')}>
             <td>
+                {renderFavouriteButton(fixture.homeTeam.id, homeTeamIsFavourite)}
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<EmbedAwareLink to={`/score/${fixture.id}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
