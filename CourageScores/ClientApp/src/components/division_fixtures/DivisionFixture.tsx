@@ -37,7 +37,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     };
     const {account, teams: allTeams, onError} = useApp();
     const {getPreference, upsertPreference} = usePreferences();
-    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision} = useDivisionData();
+    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision, favouritesEnabled} = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
@@ -45,7 +45,6 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     const [clipCellRegion, setClipCellRegion] = useState<boolean>(true);
     const {gameApi} = useDependencies();
     const awayTeamId: string = fixture.awayTeam ? fixture.awayTeam.id : '';
-    const favouritesEnabled = false;
     const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
     const homeTeamIsFavourite: boolean = any(favouriteTeamIds) && any(favouriteTeamIds, id => id === fixture.homeTeam.id);
     const awayTeamIsFavourite: boolean = any(favouriteTeamIds) && fixture.awayTeam && any(favouriteTeamIds, id => id === fixture.awayTeam.id);
