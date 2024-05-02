@@ -84,14 +84,14 @@ public class UpdateScoresAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "PLAYER",
-            Notes = "120",
+            Score = 120,
         };
 
         var result = await _adapter.AdaptToHiCheckPlayer(inputPlayer, _token);
 
         Assert.That(result.Id, Is.EqualTo(inputPlayer.Id));
         Assert.That(result.Name, Is.EqualTo(inputPlayer.Name));
-        Assert.That(result.Notes, Is.EqualTo(inputPlayer.Notes));
+        Assert.That(result.Notes, Is.EqualTo("120"));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class UpdateScoresAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "PLAYER",
-            Notes = "120",
+            Score = 120,
         };
 
         var result = await _adapter.AdaptToHiCheckPlayer(inputPlayer, _token);
