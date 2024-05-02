@@ -285,7 +285,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     function renderFavouriteButton(teamId: string, isFavourite: boolean) {
-        if (!favouritesEnabled) {
+        if (!favouritesEnabled || isAdmin) {
             return null;
         }
 
