@@ -37,7 +37,7 @@ public class UpdateScoresAdapter : IUpdateScoresAdapter
         {
             Id = player.Id,
             Name = player.Name,
-            Notes = player.Notes,
+            Score = player.Score,
         };
         await _auditingHelper.SetUpdated(gamePlayer, token);
         return gamePlayer;
