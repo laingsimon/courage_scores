@@ -180,7 +180,7 @@ public class UpdateScoresCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
-            Notes = "150",
+            Score = 150,
         };
         var match1 = new RecordScoresDto.RecordScoresGameMatchDto
         {
@@ -274,7 +274,7 @@ public class UpdateScoresCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
-            Notes = "150",
+            Score = 150,
         };
         var match1 = new RecordScoresDto.RecordScoresGameMatchDto
         {
@@ -338,7 +338,7 @@ public class UpdateScoresCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
-            Notes = "150",
+            Score = 150,
         };
         var match1 = new RecordScoresDto.RecordScoresGameMatchDto
         {
@@ -390,7 +390,7 @@ public class UpdateScoresCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
-            Notes = "150",
+            Score = 150,
         };
         var match1 = new GameMatch
         {
@@ -433,7 +433,7 @@ public class UpdateScoresCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
-            Notes = "150",
+            Score = 150,
         };
         var match1 = new RecordScoresDto.RecordScoresGameMatchDto
         {
@@ -553,7 +553,7 @@ public class UpdateScoresCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
-            Notes = "150",
+            Score = 150,
         };
         var match1 = new RecordScoresDto.RecordScoresGameMatchDto
         {
