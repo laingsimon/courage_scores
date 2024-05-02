@@ -307,13 +307,13 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
     try {
         return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite ? ' opacity-25' : '')}>
-            <td>
-                {renderFavouriteButton(fixture.homeTeam.id, homeTeamIsFavourite)}
+            <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<EmbedAwareLink to={`/score/${fixture.id}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
                     : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                {renderFavouriteButton(fixture.homeTeam.id, homeTeamIsFavourite)}
             </td>
             <td className="narrow-column text-primary fw-bolder">{fixture.postponed
                 ? (<span className="text-danger">P</span>)
