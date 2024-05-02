@@ -45,6 +45,6 @@ public class RecordScoresDto : IGameDto, IIntegrityCheckDto
     [ExcludeFromCodeCoverage]
     public class GameOver100CheckoutDto : RecordScoresGamePlayerDto
     {
-        public int? Scores { get; set; }
+        public int? Score { get; set; }
     }
 }
