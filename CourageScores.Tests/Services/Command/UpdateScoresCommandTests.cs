@@ -390,7 +390,7 @@ public class UpdateScoresCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
-            Score = 150,
+            Notes = "150",
         };
         var match1 = new GameMatch
         {
