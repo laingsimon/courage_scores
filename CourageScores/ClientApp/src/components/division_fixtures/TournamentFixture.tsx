@@ -35,7 +35,8 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
     const {tournamentApi} = useDependencies();
     const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
     const favouriteTeamPlaying: boolean = any(favouriteTeamIds) && any(favouriteTeamIds, teamId => any(tournament.sides, side => side.teamId === teamId));
-    const notAFavourite: boolean = any(favouriteTeamIds) && !favouriteTeamPlaying;
+    const isTeamTournament: boolean = any(tournament.sides, side => !!side.teamId);
+    const notAFavourite: boolean = any(favouriteTeamIds) && isTeamTournament && !favouriteTeamPlaying;
 
     async function createTournamentGame() {
         /* istanbul ignore next */
