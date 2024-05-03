@@ -26,6 +26,7 @@ import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionP
 import {DataErrorDto} from "../../interfaces/models/dtos/Division/DataErrorDto";
 import {IFailedRequest} from "../common/IFailedRequest";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
+import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 
 export interface IRequestedDivisionDataDto extends DivisionDataDto, IFailedRequest {
     requested?: { divisionId: string, seasonId: string };
@@ -33,7 +34,7 @@ export interface IRequestedDivisionDataDto extends DivisionDataDto, IFailedReque
 
 export function Division() {
     const INVALID = 'INVALID';
-    const {divisionApi} = useDependencies();
+    const {divisionApi, featureApi} = useDependencies();
     const {account, onError, error, divisions, seasons, controls} = useApp();
     const {divisionId: divisionIdish, mode, seasonId: seasonIdish} = useParams();
     const [divisionData, setDivisionData] = useState<IRequestedDivisionDataDto | null>(null);
@@ -44,6 +45,7 @@ export function Division() {
     const [dataErrors, setDataErrors] = useState<DataErrorDto[] | null>(null);
     const divisionId = getDivisionId(divisionIdish);
     const seasonId = getSeasonId(seasonIdish);
+    const [favouritesEnabled, setFavouritesEnabled] = useState(false);
 
     function getDivisionId(idish?: string) {
         if (isGuid(idish)) {
@@ -178,6 +180,19 @@ export function Division() {
         }
     }
 
+    async function updateFavouritesEnabled() {
+        const result: ConfiguredFeatureDto[] = await featureApi.getFeatures();
+        const favouritesEnabled: boolean = any(result, feature => feature.id === '0edb9fc6-6579-4c4c-9506-77c2485c09a0' && feature.configuredValue === 'true');
+        setFavouritesEnabled(favouritesEnabled);
+    }
+
+    useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
+        updateFavouritesEnabled();
+    },
+    // eslint-disable-next-line
+    []);
+
     useEffect(() => {
             if (loading || error) {
                 return;
@@ -287,7 +302,7 @@ export function Division() {
                     })}
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
-            </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData}
+            </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData} favouritesEnabled={favouritesEnabled}
                                               setDivisionData={async (data: DivisionDataDto) => setOverrideDivisionData(data)}>
                 {effectiveTab === 'teams' && divisionDataToUse.season
                     ? (<DivisionTeams/>)

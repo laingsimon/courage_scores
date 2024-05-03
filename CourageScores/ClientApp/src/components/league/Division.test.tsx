@@ -31,12 +31,15 @@ import {IDivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
 import {IGameApi} from "../../interfaces/apis/IGameApi";
 import {ISeasonApi} from "../../interfaces/apis/ISeasonApi";
+import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
+import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 
 describe('Division', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let divisionDataMap: { [key: string]: IRequestedDivisionDataDto };
     let dataRequested: {divisionId: string, seasonId?: string}[];
+    let features: ConfiguredFeatureDto[];
 
     const divisionApi = api<IDivisionApi>({
         data: async (divisionId: string, filter: DivisionDataFilter): Promise<DivisionDataDto> => {
@@ -64,6 +67,11 @@ describe('Division', () => {
             return ({success: true});
         }
     });
+    const featureApi = api<IFeatureApi>({
+        async getFeatures(): Promise<ConfiguredFeatureDto[]> {
+            return features;
+        }
+    });
 
     afterEach(() => {
         cleanUp(context);
@@ -73,11 +81,12 @@ describe('Division', () => {
         dataRequested = [];
         divisionDataMap = {};
         reportedError = new ErrorState();
+        features = [];
     });
 
     async function renderComponent(appContainerProps: IApp, route: string, address: string) {
         context = await renderApp(
-            iocProps({divisionApi, seasonApi, gameApi}),
+            iocProps({divisionApi, seasonApi, gameApi, featureApi}),
             brandingProps(),
             appProps(appContainerProps, reportedError),
             (<Division/>),
@@ -283,6 +292,25 @@ describe('Division', () => {
             });
 
             it('renders fixtures list via division and season id', async () => {
+                await renderComponent(appProps({
+                    divisions: [division],
+                    seasons: [season],
+                }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/fixtures/${season.id}`);
+
+                reportedError.verifyNoError();
+                const content = context.container.querySelector('.content-background') as HTMLElement;
+                expect(content.textContent).toContain('No fixtures, yet');
+            });
+
+            it('renders fixtures with favourite teams feature enabled', async () => {
+                const feature: ConfiguredFeatureDto = {
+                    id: '0edb9fc6-6579-4c4c-9506-77c2485c09a0',
+                    configuredValue: 'true',
+                    name: 'EnableFavourites',
+                    description: 'Favourite teams',
+                };
+                features = [feature];
+
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],

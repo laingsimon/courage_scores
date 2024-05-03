@@ -10,8 +10,10 @@ import {IError} from "../components/common/IError";
 import {ISubscriptions} from "../live/ISubscriptions";
 import {IParentHeight} from "../components/layout/ParentHeight";
 import {IHttp} from "../api/http";
-import {ReactNode} from "react";
+import {ReactNode, useEffect} from "react";
 import {MessageType} from "../interfaces/models/dtos/MessageType";
+import {IPreferenceData, PreferencesContainer} from "../components/common/PreferencesContainer";
+import {Cookies, useCookies} from "react-cookie";
 
 /* istanbul ignore file */
 
@@ -60,6 +62,7 @@ export interface TestContext {
     container: HTMLElement,
     cleanUp(): void
     user: UserEvent,
+    cookies: Cookies,
 }
 
 export function api<T>(methods: Partial<T>): T {
@@ -209,7 +212,7 @@ export function appProps(props?: any, errorState?: ErrorState): IAppContainerPro
     return Object.assign({}, defaultProps, props);
 }
 
-export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBrandingContainerProps, appProps: IAppContainerProps, content: ReactNode, route?: string, currentPath?: string, containerTag?: string): Promise<TestContext> {
+export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBrandingContainerProps, appProps: IAppContainerProps, content: ReactNode, route?: string, currentPath?: string, containerTag?: string, initialPreferences?: IPreferenceData): Promise<TestContext> {
     const container = document.createElement(containerTag || 'div') as HTMLElement;
     document.body.appendChild(container);
 
@@ -221,6 +224,8 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     }
 
     const user = userEvent.setup();
+    const cookies = new Cookies();
+    cookies.update();
 
     const currentPathAsInitialEntry: any = currentPath;
     await act(async () => {
@@ -229,7 +234,11 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
                 <Route path={route} element={<IocContainer {...iocProps}>
                     <BrandingContainer {...brandingProps}>
                         <AppContainer {...appProps}>
-                            {content}
+                            <ReplaceCookieOnLoad cookieName="preferences" cookieValue={initialPreferences}>
+                                <PreferencesContainer>
+                                    {content}
+                                </PreferencesContainer>
+                            </ReplaceCookieOnLoad>
                         </AppContainer>
                     </BrandingContainer>
                 </IocContainer>}/>
@@ -246,7 +255,24 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
             }
         },
         user,
+        cookies: cookies,
     };
+}
+
+function ReplaceCookieOnLoad({ cookieName, cookieValue, children }) {
+    const [ _, setCookie, removeCookie ] = useCookies([cookieName]);
+
+    useEffect(() => {
+            // clear the cookie on load
+            if (cookieValue) {
+                setCookie(cookieName, cookieValue);
+            } else {
+                removeCookie(cookieName);
+            }
+        },
+        []);
+
+    return (<>{children}</>);
 }
 
 export function cleanUp(context: TestContext) {

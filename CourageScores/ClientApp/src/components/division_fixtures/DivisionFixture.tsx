@@ -16,6 +16,8 @@ import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTea
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {usePreferences} from "../common/PreferencesContainer";
+import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
@@ -35,7 +37,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         value: '',
     };
     const {account, teams: allTeams, onError} = useApp();
-    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision} = useDivisionData();
+    const {getPreference} = usePreferences();
+    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision, favouritesEnabled} = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
@@ -43,6 +46,10 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     const [clipCellRegion, setClipCellRegion] = useState<boolean>(true);
     const {gameApi} = useDependencies();
     const awayTeamId: string = fixture.awayTeam ? fixture.awayTeam.id : '';
+    const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
+    const homeTeamIsFavourite: boolean = any(favouriteTeamIds) && any(favouriteTeamIds, id => id === fixture.homeTeam.id);
+    const awayTeamIsFavourite: boolean = any(favouriteTeamIds) && fixture.awayTeam && any(favouriteTeamIds, id => id === fixture.awayTeam.id);
+    const notAFavourite: boolean = any(favouriteTeamIds) && !homeTeamIsFavourite && !awayTeamIsFavourite;
 
     async function doReloadDivision() {
         if (beforeReloadDivision) {
@@ -189,8 +196,12 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
                 ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
-                    ? (<EmbedAwareLink to={`/score/${fixture.id}`}
-                                       className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)
+                    ? (<>
+                        {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.awayTeam.id} />}
+                        <EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">
+                            {fixture.awayTeam.name}
+                        </EmbedAwareLink>
+                    </>)
                     : null
                 : 'Bye');
         }
@@ -275,13 +286,14 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     try {
-        return (<tr className={(deleting ? 'text-decoration-line-through' : '')}>
-            <td>
+        return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite && favouritesEnabled ? ' opacity-25' : '')}>
+            <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<EmbedAwareLink to={`/score/${fixture.id}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
                     : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.homeTeam.id} />}
             </td>
             <td className="narrow-column text-primary fw-bolder">{fixture.postponed
                 ? (<span className="text-danger">P</span>)
