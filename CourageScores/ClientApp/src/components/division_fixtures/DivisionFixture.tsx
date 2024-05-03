@@ -38,7 +38,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     };
     const {account, teams: allTeams, onError} = useApp();
     const {getPreference} = usePreferences();
-    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision} = useDivisionData();
+    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision, favouritesEnabled} = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
@@ -286,7 +286,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     try {
-        return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite ? ' opacity-25' : '')}>
+        return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite && favouritesEnabled ? ' opacity-25' : '')}>
             <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<EmbedAwareLink to={`/score/${fixture.id}`}
