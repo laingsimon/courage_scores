@@ -17,6 +17,7 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {usePreferences} from "../common/PreferencesContainer";
+import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
@@ -36,8 +37,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         value: '',
     };
     const {account, teams: allTeams, onError} = useApp();
-    const {getPreference, upsertPreference} = usePreferences();
-    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision, favouritesEnabled} = useDivisionData();
+    const {getPreference} = usePreferences();
+    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision} = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
@@ -196,7 +197,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             return (fixture.awayTeam
                 ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<>
-                        {renderFavouriteButton(fixture.awayTeam.id, awayTeamIsFavourite)}
+                        {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.awayTeam.id} />}
                         <EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">
                             {fixture.awayTeam.name}
                         </EmbedAwareLink>
@@ -284,27 +285,6 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         }
     }
 
-    function renderFavouriteButton(teamId: string, isFavourite: boolean) {
-        if (!favouritesEnabled || isAdmin) {
-            return null;
-        }
-
-        return (<button onClick={() => toggleFavourite(teamId)}
-                        tabIndex={-1}
-                        datatype="toggle-favourite"
-                        className={(isFavourite ? '' : 'opacity-25') + ' bg-white border-0 p-0 m-0 me-1'}>
-            ⭐
-        </button>);
-    }
-
-    function toggleFavourite(teamId: string) {
-        const newFavourites: string[] = any(favouriteTeamIds, (id: string) => id === teamId)
-            ? favouriteTeamIds.filter(id => id !== teamId)
-            : favouriteTeamIds.concat(teamId);
-
-        upsertPreference('favouriteTeamIds', newFavourites);
-    }
-
     try {
         return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite ? ' opacity-25' : '')}>
             <td className="text-end">
@@ -313,7 +293,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
                     : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
-                {renderFavouriteButton(fixture.homeTeam.id, homeTeamIsFavourite)}
+                {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.homeTeam.id} />}
             </td>
             <td className="narrow-column text-primary fw-bolder">{fixture.postponed
                 ? (<span className="text-danger">P</span>)
