@@ -1,5 +1,6 @@
-import React, {createContext, useContext, useState} from "react";
+import React, {createContext, useContext} from "react";
 import {IPreferences} from "./IPreferences";
+import {CookiesProvider, useCookies} from "react-cookie";
 
 const PreferencesContext = createContext({});
 
@@ -13,19 +14,20 @@ export function usePreferences(): IPreferences {
 
 export interface IPreferencesContainerProps {
     children?: React.ReactNode;
-    initialPreferences?: IPreferenceData;
 }
 
 /* istanbul ignore next */
-export function PreferencesContainer({children, initialPreferences} : IPreferencesContainerProps) {
-    const [ preferences, updatePreferences ] = useState<IPreferenceData>(initialPreferences || {});
+export function PreferencesContainer({children} : IPreferencesContainerProps) {
+    const COOKIE_NAME = 'preferences';
+    const [ cookies, setCookie ] = useCookies([COOKIE_NAME]);
 
     function getPreference<T>(name: string): T | null {
+        const preferences: IPreferenceData = cookies[COOKIE_NAME] || {};
         return preferences[name];
     }
 
     function upsertPreference<T>(name: string, value: T): void {
-        const newPreferences: IPreferenceData = Object.assign({}, preferences);
+        const newPreferences: IPreferenceData = Object.assign({}, cookies[COOKIE_NAME]);
 
         if (!value) {
             delete newPreferences[name];
@@ -33,7 +35,7 @@ export function PreferencesContainer({children, initialPreferences} : IPreferenc
             newPreferences[name] = value;
         }
 
-        updatePreferences(newPreferences);
+        setCookie(COOKIE_NAME, newPreferences);
     }
 
     const preferenceAccessor: IPreferences = {
@@ -41,6 +43,8 @@ export function PreferencesContainer({children, initialPreferences} : IPreferenc
         upsertPreference,
     };
     return (<PreferencesContext.Provider value={preferenceAccessor}>
-        {children}
+        <CookiesProvider defaultSetOptions={ { path: '/' } }>
+            {children}
+        </CookiesProvider>
     </PreferencesContext.Provider>)
 }

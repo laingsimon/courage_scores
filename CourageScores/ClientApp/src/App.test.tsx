@@ -100,6 +100,7 @@ describe('App', () => {
                 }
             },
             user: null,
+            cookies: null,
         };
     }
 

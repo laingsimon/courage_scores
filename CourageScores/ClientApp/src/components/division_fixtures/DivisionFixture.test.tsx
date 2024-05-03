@@ -346,15 +346,13 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 toMap([team]),
-                {
-                    favouriteTeamIds: [],
-                });
+                { favouriteTeamIds: [] });
             const row = context.container.querySelector('tr');
             const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
 
             await doClick(favouriteToggles[0]);
 
-            const favouriteTeamIds = [];
+            const favouriteTeamIds = context.cookies.get('preferences').favouriteTeamIds;
             expect(favouriteTeamIds).toEqual([fixture.homeTeam.id]);
         });
 
@@ -373,15 +371,13 @@ describe('DivisionFixture', () => {
                     .build(),
                 account,
                 toMap([team]),
-                {
-                    favouriteTeamIds: [fixture.homeTeam.id],
-                });
+                { favouriteTeamIds: [fixture.homeTeam.id] });
             const row = context.container.querySelector('tr');
             const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
 
             await doClick(favouriteToggles[0]);
 
-            const favouriteTeamIds = [fixture.homeTeam.id];
+            const favouriteTeamIds = context.cookies.get('preferences').favouriteTeamIds;
             expect(favouriteTeamIds).toEqual([]);
         });
     });
