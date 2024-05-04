@@ -27,7 +27,8 @@ export function ToggleFavouriteTeam({ teamId }: IToggleFavouriteTeamProps) {
     return (<button onClick={() => toggleFavourite(teamId)}
                     tabIndex={-1}
                     datatype="toggle-favourite"
-                    className={(isFavourite ? '' : 'opacity-25') + ' bg-white border-0 p-0 m-0 me-1'}>
+                    className={(isFavourite ? '' : 'opacity-25') + ' bg-white border-0 p-0 m-0 me-1'}
+                    style={isFavourite ? null : { filter: 'grayscale(100%)' }}>
         ⭐
     </button>);
 }
