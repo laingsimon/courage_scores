@@ -30,6 +30,9 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
 import {ITournamentPlayerMap} from "./Tournament";
+import {
+    DivisionTournamentFixtureDetailsDto
+} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 
 describe('EditSide', () => {
     let context: TestContext;
@@ -121,9 +124,9 @@ describe('EditSide', () => {
             </TournamentContainer>));
     }
 
-    function alreadyPlaying(player: TeamPlayerDto): ITournamentPlayerMap {
+    function alreadyPlaying(player: TeamPlayerDto, tournament: DivisionTournamentFixtureDetailsDto): ITournamentPlayerMap {
         const playing: ITournamentPlayerMap = {};
-        playing[player.id] = player;
+        playing[player.id] = tournament;
         return playing;
     }
 
@@ -134,6 +137,10 @@ describe('EditSide', () => {
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
             .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .build();
+        const anotherTournament: TournamentGameDto = tournamentBuilder()
+            .type('ANOTHER TOURNAMENT')
+            .address('ANOTHER ADDRESS')
             .build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const team: TeamDto = teamBuilder('TEAM')
@@ -349,7 +356,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
@@ -370,7 +377,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData: crossDivisionalTournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
@@ -384,12 +391,12 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain('PLAYER (⚠ Playing in another tournament)');
+            expect(playerItems.map(li => li.textContent)).toContain('PLAYER (⚠ Playing in ANOTHER TOURNAMENT)');
         });
 
         it('unselectable players when selected in another side', async () => {
@@ -545,6 +552,10 @@ describe('EditSide', () => {
         const tournamentData: TournamentGameDto = tournamentBuilder()
             .forDivision(division)
             .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+            .build();
+        const anotherTournament: TournamentGameDto = tournamentBuilder()
+            .type('ANOTHER TOURNAMENT')
+            .address('ANOTHER ADDRESS')
             .build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const team: TeamDto = teamBuilder('TEAM')
@@ -922,11 +933,11 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            const playerItem = playerItems.filter(li => li.textContent === 'PLAYER (⚠ Playing in another tournament)')[0];
+            const playerItem = playerItems.filter(li => li.textContent === 'PLAYER (⚠ Playing in ANOTHER TOURNAMENT)')[0];
             expect(playerItem).toBeTruthy();
             expect(playerItem.className).not.toContain('disabled');
 
@@ -1133,7 +1144,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
@@ -1149,7 +1160,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
@@ -1166,7 +1177,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
@@ -1183,7 +1194,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
@@ -1200,7 +1211,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeFalsy();
@@ -1217,7 +1228,7 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: alreadyPlaying(player),
+                alreadyPlaying: alreadyPlaying(player, anotherTournament),
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.list-group')).toBeFalsy();
