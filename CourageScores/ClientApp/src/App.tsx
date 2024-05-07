@@ -21,6 +21,7 @@ import {TeamDto} from "./interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
 import {Tv} from "./components/Tv";
 import {IBrowserType} from "./components/common/IBrowserType";
+import {PreferencesContainer} from "./components/common/PreferencesContainer";
 
 export interface IAppProps {
     embed: boolean;
@@ -135,23 +136,25 @@ export function App({embed, controls, testRoute}: IAppProps) {
 
     try {
         return (<AppContainer {...appData}>
-            <Layout>
-                <Routes>
-                    <Route path='/' element={<Home/>}/>
-                    <Route path='/division/:divisionId' element={<Division/>}/>
-                    <Route path='/division/:divisionId/:mode' element={<Division/>}/>
-                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division/>}/>
-                    <Route path='/score/:fixtureId' element={<Score/>}/>
-                    <Route path='/admin' element={<AdminHome/>}/>
-                    <Route path='/admin/:mode' element={<AdminHome/>}/>
-                    <Route path='/tournament/:tournamentId' element={<Tournament/>}/>
-                    <Route path='/practice' element={<Practice/>}/>
-                    <Route path='/about' element={<About/>}/>
-                    <Route path='/live/match/:id' element={<LiveSayg />}/>
-                    <Route path='/tv' element={<Tv/>}/>
-                    {testRoute}
-                </Routes>
-            </Layout>
+            <PreferencesContainer>
+                <Layout>
+                    <Routes>
+                        <Route path='/' element={<Home/>}/>
+                        <Route path='/division/:divisionId' element={<Division/>}/>
+                        <Route path='/division/:divisionId/:mode' element={<Division/>}/>
+                        <Route path='/division/:divisionId/:mode/:seasonId' element={<Division/>}/>
+                        <Route path='/score/:fixtureId' element={<Score/>}/>
+                        <Route path='/admin' element={<AdminHome/>}/>
+                        <Route path='/admin/:mode' element={<AdminHome/>}/>
+                        <Route path='/tournament/:tournamentId' element={<Tournament/>}/>
+                        <Route path='/practice' element={<Practice/>}/>
+                        <Route path='/about' element={<About/>}/>
+                        <Route path='/live/match/:id' element={<LiveSayg />}/>
+                        <Route path='/tv' element={<Tv/>}/>
+                        {testRoute}
+                    </Routes>
+                </Layout>
+            </PreferencesContainer>
         </AppContainer>);
     } catch (e) {
         /* istanbul ignore next */

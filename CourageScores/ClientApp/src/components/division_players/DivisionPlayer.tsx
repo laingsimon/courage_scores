@@ -12,6 +12,9 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
+import {usePreferences} from "../common/PreferencesContainer";
+import {any} from "../../helpers/collections";
 
 export interface IDivisionPlayerProps {
     player: DivisionPlayerDto;
@@ -20,7 +23,7 @@ export interface IDivisionPlayerProps {
 
 export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
     const {account, reloadTeams} = useApp();
-    const {id: divisionId, season, onReloadDivision, name: divisionName} = useDivisionData();
+    const {id: divisionId, season, onReloadDivision, name: divisionName, favouritesEnabled} = useDivisionData();
     const [playerDetails, setPlayerDetails] = useState(Object.assign({}, player));
     const [editPlayer, setEditPlayer] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
@@ -32,6 +35,10 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
         address: '',
     };
     const {playerApi} = useDependencies();
+    const {getPreference} = usePreferences();
+    const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
+    const teamIsFavourite: boolean = any(favouriteTeamIds, id => id === player.teamId);
+    const notAFavourite: boolean = any(favouriteTeamIds) && !teamIsFavourite;
 
     useEffect(() => {
         setPlayerDetails(Object.assign({}, player));
@@ -83,7 +90,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
         }
     }
 
-    return (<tr>
+    return (<tr className={(notAFavourite && favouritesEnabled ? ' opacity-25' : '')}>
         <td>{player.rank}</td>
         <td>
             {isAdmin
@@ -111,10 +118,11 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
             : (<td>
                 {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
-                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}
-                                       className="margin-right">
-                        {deleting ? (<s>{player.team}</s>) : player.team}
-                    </EmbedAwareLink>)}
+                    : (<>
+                        {isAdmin ? null : (<ToggleFavouriteTeam teamId={player.teamId} />)}
+                        <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
+                            {deleting ? (<s>{player.team}</s>) : player.team}
+                        </EmbedAwareLink></>)}
             </td>)}
         <td>{player.singles.matchesPlayed}</td>
         <td>{player.singles.matchesWon}</td>

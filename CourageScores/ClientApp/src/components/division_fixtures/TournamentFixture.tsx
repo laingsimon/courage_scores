@@ -14,6 +14,8 @@ import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {createTemporaryId} from "../../helpers/projection";
+import {usePreferences} from "../common/PreferencesContainer";
+import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
@@ -23,13 +25,18 @@ export interface ITournamentFixtureProps {
 }
 
 export function TournamentFixture({tournament, onTournamentChanged, date, expanded}: ITournamentFixtureProps) {
-    const {id: divisionId, name: divisionName, season} = useDivisionData();
+    const {getPreference} = usePreferences();
+    const {id: divisionId, name: divisionName, season, favouritesEnabled} = useDivisionData();
     const {account, teams} = useApp();
     const [creating, setCreating] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const isAdmin: boolean = account && account.access && account.access.manageTournaments;
     const {tournamentApi} = useDependencies();
+    const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
+    const favouriteTeamPlaying: boolean = any(favouriteTeamIds) && any(favouriteTeamIds, teamId => any(tournament.sides, side => side.teamId === teamId));
+    const isTeamTournament: boolean = any(tournament.sides, side => !!side.teamId);
+    const notAFavourite: boolean = any(favouriteTeamIds) && isTeamTournament && !favouriteTeamPlaying;
 
     async function createTournamentGame() {
         /* istanbul ignore next */
@@ -121,6 +128,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
 
             if (team) {
                 return (<strong className="text-primary">
+                    {isAdmin ? null : <ToggleFavouriteTeam teamId={team.id} />}
                     <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
                         {winningSide.name}
                     </EmbedAwareLink>
@@ -155,7 +163,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         </tr>)
     }
 
-    return (<tr>
+    return (<tr className={notAFavourite && favouritesEnabled ? ' opacity-25' : ''}>
         <td colSpan={tournament.winningSide ? 3 : 5}>
             <EmbedAwareLink to={`/tournament/${tournament.id}`}>
                 {tournament.type} at <strong>{tournament.address}</strong>

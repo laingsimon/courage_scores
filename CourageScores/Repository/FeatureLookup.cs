@@ -30,6 +30,14 @@ public class FeatureLookup : IFeatureLookup
         "true",
         AllFeatures);
 
+    public static readonly Feature Favourites = new(
+        Guid.Parse("0EDB9FC6-6579-4C4C-9506-77C2485C09A0"),
+        "FavouritesEnabled",
+        "Favourite teams can be selected by any user",
+        Feature.FeatureValueType.Boolean,
+        "false",
+        AllFeatures);
+
     public IEnumerable<Feature> GetAll()
     {
         return AllFeatures.Values;
