@@ -285,7 +285,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                                 {player.name}
                                 {hasSameNameAsAnotherPlayer ? ` [${player.team.name}]` : null}
                                 {playingInAnotherTournament ? ' (⚠ Playing in another tournament)' : null}
-                                {selectedInAnotherSide ? ` (🚫 Selected in another side)` : null}
+                                {selectedInAnotherSide ? ` (🚫 Selected in "${selectedInAnotherSide.name}")` : null}
                             </li>);
                         })}
                     </ol>

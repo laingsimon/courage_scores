@@ -209,7 +209,7 @@ describe('EditSide', () => {
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toEqual(['ANOTHER PLAYER (🚫 Selected in another side)']);
+            expect(playerItems.map(li => li.textContent)).toEqual(['ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")']);
         });
 
         it('players with common name with their team name', async () => {
@@ -228,7 +228,7 @@ describe('EditSide', () => {
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
             expect(playerItems.map(li => li.textContent)).toEqual([
-                'ANOTHER PLAYER (🚫 Selected in another side)',
+                'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
                 'PLAYER [TEAM]',
                 'PLAYER [ANOTHER TEAM]']);
         });
@@ -402,7 +402,7 @@ describe('EditSide', () => {
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER (🚫 Selected in another side)');
+            expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")');
         });
 
         it('selectable players when selected in this side', async () => {
@@ -951,7 +951,7 @@ describe('EditSide', () => {
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            const playerItem = playerItems.filter(li => li.textContent === 'ANOTHER PLAYER (🚫 Selected in another side)')[0];
+            const playerItem = playerItems.filter(li => li.textContent === 'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")')[0];
             expect(playerItem).toBeTruthy();
             expect(playerItem.className).toContain('disabled');
 
