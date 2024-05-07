@@ -14,6 +14,9 @@ import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSid
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
+import {
+    DivisionTournamentFixtureDetailsDto
+} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 
 export interface IEditSideProps {
     side: TournamentSideDto;
@@ -275,7 +278,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                     <ol className="list-group mb-3">
                         {filteredPlayers.sort(sortBy('name')).map((player: ITeamPlayerMap) => {
                             const selected: boolean = any(side.players || [], (p: TournamentPlayerDto) => p.id === player.id);
-                            const playingInAnotherTournament = alreadyPlaying[player.id];
+                            const playingInAnotherTournament: DivisionTournamentFixtureDetailsDto = alreadyPlaying[player.id];
                             const selectedInAnotherSide: TournamentSideDto = getOtherSidePlayerSelectedIn(player);
                             const hasSameNameAsAnotherPlayer: boolean = allPossiblePlayers.filter((p: ITeamPlayerMap) => p.name === player.name).length > 1;
 
@@ -284,8 +287,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                                         onClick={() => togglePlayer(player)}>
                                 {player.name}
                                 {hasSameNameAsAnotherPlayer ? ` [${player.team.name}]` : null}
-                                {playingInAnotherTournament ? ' (⚠ Playing in another tournament)' : null}
-                                {selectedInAnotherSide ? ` (🚫 Selected in another side)` : null}
+                                {playingInAnotherTournament ? <span> (⚠ Playing in <a href={`/tournament/${playingInAnotherTournament.id}`}>{playingInAnotherTournament.type || 'tournament'}</a>)</span> : null}
+                                {selectedInAnotherSide ? ` (🚫 Selected in "${selectedInAnotherSide.name}")` : null}
                             </li>);
                         })}
                     </ol>

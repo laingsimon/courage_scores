@@ -491,7 +491,7 @@ describe('Tournament', () => {
                     .addTo(tournamentDataLookup)
                     .build();
                 const divisionData = divisionDataBuilder().build();
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+                expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
                     account,
@@ -569,7 +569,7 @@ describe('Tournament', () => {
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder(division).build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             const team = teamBuilder('TEAM').forSeason(tournamentData.seasonId, divisionData.id).build()
             await renderComponent(tournamentData.id, {
                 account,
@@ -915,7 +915,7 @@ describe('Tournament', () => {
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
@@ -981,7 +981,7 @@ describe('Tournament', () => {
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
@@ -1040,7 +1040,7 @@ describe('Tournament', () => {
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),
@@ -1116,7 +1116,7 @@ describe('Tournament', () => {
                 .addTo(tournamentDataLookup)
                 .build();
             const divisionData = divisionDataBuilder().build();
-            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
                 seasons: toMap([season]),

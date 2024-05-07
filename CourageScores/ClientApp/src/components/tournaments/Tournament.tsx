@@ -40,9 +40,12 @@ import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {PhotoManager} from "../common/PhotoManager";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
+import {
+    DivisionTournamentFixtureDetailsDto
+} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 
 export interface ITournamentPlayerMap {
-    [id: string]: {};
+    [id: string]: DivisionTournamentFixtureDetailsDto;
 }
 
 export function Tournament() {
@@ -112,10 +115,17 @@ export function Tournament() {
                     seasonId: tournamentData.seasonId,
                 };
 
-                const divisionData: DivisionDataDto = await divisionApi.data(EMPTY_ID, filter);
+                const divisionData: DivisionDataDto = await divisionApi.data(tournamentData.divisionId || EMPTY_ID, filter);
                 const fixtureDate: DivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
-                const tournamentPlayerIds: string[] = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
-                tournamentPlayerIds.forEach((id: string) => tournamentPlayerMap[id] = {});
+                if (fixtureDate) {
+                    const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
+                        .filter((f: DivisionTournamentFixtureDetailsDto) => !f.proposed && f.id !== tournamentData.id);
+                    tournamentFixtures.forEach((tournamentFixture: DivisionTournamentFixtureDetailsDto) => {
+                        tournamentFixture.players.forEach((playerId: string) => {
+                            tournamentPlayerMap[playerId] = tournamentFixture;
+                        });
+                    });
+                }
             }
             setAlreadyPlaying(tournamentPlayerMap);
         } catch (e) {
