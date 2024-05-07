@@ -29,6 +29,7 @@ import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../help
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
+import {ITournamentPlayerMap} from "./Tournament";
 
 describe('EditSide', () => {
     let context: TestContext;
@@ -120,8 +121,8 @@ describe('EditSide', () => {
             </TournamentContainer>));
     }
 
-    function alreadyPlaying(player: TeamPlayerDto): { [playerId: string]: TeamPlayerDto } {
-        const playing: { [playerId: string]: TeamPlayerDto } = {};
+    function alreadyPlaying(player: TeamPlayerDto): ITournamentPlayerMap {
+        const playing: ITournamentPlayerMap = {};
         playing[player.id] = player;
         return playing;
     }

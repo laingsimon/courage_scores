@@ -114,8 +114,12 @@ export function Tournament() {
 
                 const divisionData: DivisionDataDto = await divisionApi.data(EMPTY_ID, filter);
                 const fixtureDate: DivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
-                const tournamentPlayerIds: string[] = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
-                tournamentPlayerIds.forEach((id: string) => tournamentPlayerMap[id] = {});
+                if (fixtureDate) {
+                    const tournamentPlayerIds: string[] = fixtureDate.tournamentFixtures
+                        .filter(f => !f.proposed && f.id !== tournamentData.id)
+                        .flatMap(f => f.players);
+                    tournamentPlayerIds.forEach((id: string) => tournamentPlayerMap[id] = {});
+                }
             }
             setAlreadyPlaying(tournamentPlayerMap);
         } catch (e) {
