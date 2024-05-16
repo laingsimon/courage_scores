@@ -20,6 +20,7 @@ export interface IPreferencesContainerProps {
 export function PreferencesContainer({children} : IPreferencesContainerProps) {
     const COOKIE_NAME = 'preferences';
     const [ cookies, setCookie ] = useCookies([COOKIE_NAME]);
+    const EXPIRY_DAYS: number = 365;
 
     function getPreference<T>(name: string): T | null {
         const preferences: IPreferenceData = cookies[COOKIE_NAME] || {};
@@ -35,7 +36,20 @@ export function PreferencesContainer({children} : IPreferencesContainerProps) {
             newPreferences[name] = value;
         }
 
-        setCookie(COOKIE_NAME, newPreferences);
+        setCookie(
+            COOKIE_NAME,
+            newPreferences,
+            {
+                path: '/',
+                expires: getExpiry(),
+            });
+    }
+
+    function getExpiry(): Date {
+        const now = new Date();
+        const expires = new Date(now.valueOf());
+        expires.setDate(now.getDate() + EXPIRY_DAYS);
+        return expires;
     }
 
     const preferenceAccessor: IPreferences = {
