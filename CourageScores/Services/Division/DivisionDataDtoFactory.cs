@@ -172,7 +172,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             var tournamentGamesForDate = context.AllTournamentGames(divisionId).Where(g => g.Date == date).ToArray();
             context.Notes.TryGetValue(date, out var notesForDate);
 
-            var inDivisionGames = gamesForDate.Where(g => divisionId == null || g.DivisionId == divisionId).ToArray();
+            var inDivisionGames = gamesForDate.Where(g => divisionId == null || g.DivisionId == divisionId || g.IsKnockout).ToArray();
 
             yield return await _divisionFixtureDateAdapter.Adapt(
                 date,
