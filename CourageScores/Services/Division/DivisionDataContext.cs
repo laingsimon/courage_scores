@@ -15,17 +15,20 @@ public class DivisionDataContext
         IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,
         IReadOnlyCollection<TournamentGame> tournamentGames,
         IEnumerable<FixtureDateNoteDto> notes,
-        SeasonDto season)
+        SeasonDto season,
+        IReadOnlyDictionary<Guid, Guid?> teamIdToDivisionIdLookup)
     {
         GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         TeamsInSeasonAndDivision = teamsInSeasonAndDivision;
         Season = season;
+        TeamIdToDivisionIdLookup = teamIdToDivisionIdLookup;
         Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToArray());
         _tournamentGames = tournamentGames;
     }
 
     public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
     public SeasonDto Season { get; }
+    public IReadOnlyDictionary<Guid, Guid?> TeamIdToDivisionIdLookup { get; }
     public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
     public Dictionary<DateTime, CosmosGame[]> GamesForDate { get; }
 
