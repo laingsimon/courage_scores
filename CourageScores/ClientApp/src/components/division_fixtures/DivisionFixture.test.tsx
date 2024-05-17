@@ -1163,5 +1163,29 @@ describe('DivisionFixture', () => {
             reportedError.verifyNoError();
             expect(updatedFixtures).toBeNull();
         });
+
+        it('does not shade non-favourite team when an admin', async () => {
+            const date: string = '2023-05-06T00:00:00';
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+                .bye('HOME')
+                .build();
+            await renderComponent(
+                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                divisionDataBuilder(division)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam)
+                    .favouritesEnabled(true)
+                    .build(),
+                account,
+                toMap([homeTeam]),
+                {
+                    favouriteTeamIds: ['1234'],
+                });
+
+            reportedError.verifyNoError();
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
+        });
     });
 });

@@ -163,7 +163,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         </tr>)
     }
 
-    return (<tr className={notAFavourite && favouritesEnabled ? ' opacity-25' : ''}>
+    return (<tr className={notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : ''}>
         <td colSpan={tournament.winningSide ? 3 : 5}>
             <EmbedAwareLink to={`/tournament/${tournament.id}`}>
                 {tournament.type} at <strong>{tournament.address}</strong>
