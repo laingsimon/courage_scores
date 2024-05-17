@@ -22,6 +22,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {ITeamApi} from "../../interfaces/apis/ITeamApi";
+import {IPreferenceData} from "../common/PreferencesContainer";
 
 describe('DivisionTeam', () => {
     let context: TestContext;
@@ -49,7 +50,7 @@ describe('DivisionTeam', () => {
         updatedTeam = null;
     });
 
-    async function renderComponent(team: DivisionTeamDto, account: UserDto, divisionData: IDivisionDataContainerProps, teams?: TeamDto[]) {
+    async function renderComponent(team: DivisionTeamDto, account: UserDto, divisionData: IDivisionDataContainerProps, teams?: TeamDto[], preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({teamApi}),
             brandingProps(),
@@ -64,7 +65,8 @@ describe('DivisionTeam', () => {
             </DivisionDataContainer>),
             null,
             null,
-            'tbody');
+            'tbody',
+            preferenceData);
     }
 
     describe('when logged out', () => {
@@ -121,6 +123,108 @@ describe('DivisionTeam', () => {
             const firstCell = context.container.querySelector('td:first-child');
             expect(firstCell.textContent).toEqual('TEAM');
             expect(firstCell.querySelector('button')).toBeFalsy();
+        });
+
+        it('renders when team is a favourite', async () => {
+            const team: DivisionTeamDto = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                played: 1,
+                points: 2,
+                fixturesWon: 3,
+                fixturesLost: 4,
+                fixturesDrawn: 5,
+                difference: 6,
+                address: '',
+            };
+
+            await renderComponent(
+                team,
+                account,
+                {
+                    id: division.id,
+                    season,
+                    onReloadDivision,
+                    name: '',
+                    setDivisionData: null,
+                    favouritesEnabled: true
+                },
+                null,
+                {
+                    favouriteTeamIds: [ team.id ],
+                });
+            reportedError.verifyNoError();
+
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
+        });
+
+        it('renders when team is not a favourite', async () => {
+            const team: DivisionTeamDto = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                played: 1,
+                points: 2,
+                fixturesWon: 3,
+                fixturesLost: 4,
+                fixturesDrawn: 5,
+                difference: 6,
+                address: '',
+            };
+
+            await renderComponent(
+                team,
+                account,
+                {
+                    id: division.id,
+                    season,
+                    onReloadDivision,
+                    name: '',
+                    setDivisionData: null,
+                    favouritesEnabled: true
+                },
+                null,
+                {
+                    favouriteTeamIds: [ '1234' ],
+                });
+            reportedError.verifyNoError();
+
+            const row = context.container.querySelector('tr');
+            expect(row.className).toContain('opacity-25');
+        });
+
+        it('renders when no team is a favourite', async () => {
+            const team: DivisionTeamDto = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                played: 1,
+                points: 2,
+                fixturesWon: 3,
+                fixturesLost: 4,
+                fixturesDrawn: 5,
+                difference: 6,
+                address: '',
+            };
+
+            await renderComponent(
+                team,
+                account,
+                {
+                    id: division.id,
+                    season,
+                    onReloadDivision,
+                    name: '',
+                    setDivisionData: null,
+                    favouritesEnabled: true
+                },
+                null,
+                {
+                    favouriteTeamIds: [],
+                });
+            reportedError.verifyNoError();
+
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
         });
     });
 
@@ -260,6 +364,40 @@ describe('DivisionTeam', () => {
             await doClick(findButton(dialog, 'Close'));
 
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('renders when team is not a favourite and an admin', async () => {
+            const team: DivisionTeamDto = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                played: 1,
+                points: 2,
+                fixturesWon: 3,
+                fixturesLost: 4,
+                fixturesDrawn: 5,
+                difference: 6,
+                address: '',
+            };
+
+            await renderComponent(
+                team,
+                account,
+                {
+                    id: division.id,
+                    season,
+                    onReloadDivision,
+                    name: '',
+                    setDivisionData: null,
+                    favouritesEnabled: true
+                },
+                null,
+                {
+                    favouriteTeamIds: [ '1234' ],
+                });
+            reportedError.verifyNoError();
+
+            const row = context.container.querySelector('tr');
+            expect(row.className).not.toContain('opacity-25');
         });
     });
 });

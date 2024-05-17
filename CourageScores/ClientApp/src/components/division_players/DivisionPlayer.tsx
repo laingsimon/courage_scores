@@ -90,7 +90,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
         }
     }
 
-    return (<tr className={(notAFavourite && favouritesEnabled ? ' opacity-25' : '')}>
+    return (<tr className={(notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
         <td>{player.rank}</td>
         <td>
             {isAdmin

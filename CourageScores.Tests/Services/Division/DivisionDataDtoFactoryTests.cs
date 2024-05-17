@@ -72,7 +72,8 @@ public class DivisionDataDtoFactoryTests
             Array.Empty<TeamDto>(),
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
         var division = new DivisionDto
         {
             Id = Guid.NewGuid(),
@@ -95,7 +96,8 @@ public class DivisionDataDtoFactoryTests
             Array.Empty<TeamDto>(),
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -167,7 +169,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -285,7 +288,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
 
@@ -367,7 +371,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
         _user = new UserDto
         {
             Access = new AccessDto
@@ -450,7 +455,8 @@ public class DivisionDataDtoFactoryTests
                 tournamentGame,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -491,7 +497,8 @@ public class DivisionDataDtoFactoryTests
                 tournamentGame,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -604,7 +611,8 @@ public class DivisionDataDtoFactoryTests
             },
             new List<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
 
@@ -625,6 +633,166 @@ public class DivisionDataDtoFactoryTests
             {
                 outOfDivisionGame,
             })),
+            true,
+            _token));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWhereEitherTeamIsInDivision()
+    {
+        var team1 = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 1 - Playing",
+        };
+        var team2 = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 2 - Playing",
+        };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division",
+        };
+        var homeTeamInDivisionFixture = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam
+            {
+                Id = team1.Id,
+            },
+            Away = new GameTeam
+            {
+                Id = team2.Id,
+            },
+        };
+        var awayTeamInDivisionFixture = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam
+            {
+                Id = team2.Id,
+            },
+            Away = new GameTeam
+            {
+                Id = team1.Id,
+            },
+        };
+        var context = new DivisionDataContext(
+            new[]
+            {
+                homeTeamInDivisionFixture, awayTeamInDivisionFixture,
+            },
+            new List<TeamDto>
+            {
+                team1,
+                team2,
+            },
+            new List<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>
+            {
+                { team1.Id, division.Id },
+                { team2.Id, Guid.NewGuid() },
+            });
+
+        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
+        {
+            homeTeamInDivisionFixture.Date,
+        }));
+        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
+            new DateTime(2001, 02, 03),
+            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[]
+            {
+                homeTeamInDivisionFixture,
+                awayTeamInDivisionFixture,
+            })),
+            It.IsAny<TournamentGame[]>(),
+            It.IsAny<FixtureDateNoteDto[]>(),
+            It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            It.IsAny<CosmosGame[]>(),
+            true,
+            _token));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixturesAndDivisionIdCannotBeFound_DoesNotIncludeFixture()
+    {
+        var team1 = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 1 - Playing",
+        };
+        var team2 = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 2 - Playing",
+        };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division",
+        };
+        var homeTeamInDivisionFixture = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam
+            {
+                Id = team1.Id,
+            },
+            Away = new GameTeam
+            {
+                Id = team2.Id,
+            },
+        };
+        var awayTeamInDivisionFixture = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam
+            {
+                Id = team2.Id,
+            },
+            Away = new GameTeam
+            {
+                Id = team1.Id,
+            },
+        };
+        var context = new DivisionDataContext(
+            new[]
+            {
+                homeTeamInDivisionFixture, awayTeamInDivisionFixture,
+            },
+            new List<TeamDto>
+            {
+                team1,
+                team2,
+            },
+            new List<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
+
+        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
+        {
+            homeTeamInDivisionFixture.Date,
+        }));
+        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
+            new DateTime(2001, 02, 03),
+            It.Is<CosmosGame[]>(games => !games.Any()),
+            It.IsAny<TournamentGame[]>(),
+            It.IsAny<FixtureDateNoteDto[]>(),
+            It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            It.IsAny<CosmosGame[]>(),
             true,
             _token));
     }
@@ -731,7 +899,8 @@ public class DivisionDataDtoFactoryTests
             },
             new List<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -852,7 +1021,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -988,7 +1158,8 @@ public class DivisionDataDtoFactoryTests
                 tournament,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
 
@@ -1123,7 +1294,8 @@ public class DivisionDataDtoFactoryTests
                 tournament,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
 
@@ -1243,7 +1415,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
         // set user as logged in, with correct access to allow errors to be returned
         _user = new UserDto
         {
@@ -1314,7 +1487,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -1377,7 +1551,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
         _user = new UserDto
         {
             Access = new AccessDto
@@ -1498,7 +1673,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
         _user = new UserDto
         {
             Access = new AccessDto
@@ -1530,7 +1706,8 @@ public class DivisionDataDtoFactoryTests
             Array.Empty<TeamDto>(),
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season);
+            season,
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -1612,7 +1789,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -1688,7 +1866,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 
@@ -1769,7 +1948,8 @@ public class DivisionDataDtoFactoryTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto());
+            new SeasonDto(),
+            new Dictionary<Guid, Guid?>());
 
         var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
 

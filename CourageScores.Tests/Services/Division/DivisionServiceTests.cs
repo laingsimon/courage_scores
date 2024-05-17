@@ -251,6 +251,75 @@ public class DivisionServiceTests
     }
 
     [Test]
+    public async Task GetDivisionData_GivenDivisionIdFilter_ProducesTeamLookupToAnyDivision()
+    {
+        var data = new DivisionDataDto();
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var otherDivision = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = division.Id,
+        };
+        var firstSeason = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = firstSeason.Id,
+                    DivisionId = division.Id,
+                },
+            },
+        };
+        var otherDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = firstSeason.Id,
+                    DivisionId = otherDivision.Id,
+                },
+            },
+        };
+        _allTeams.AddRange(new[]
+        {
+            team, otherDivisionTeam,
+        });
+        _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
+        _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
+        _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(firstSeason));
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
+
+        await _service.GetDivisionData(filter, _token);
+
+        _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, true, _token));
+        Assert.That(_divisionDataContext, Is.Not.Null);
+        Assert.That(_divisionDataContext!.TeamIdToDivisionIdLookup.Keys, Is.EquivalentTo(new[]
+        {
+            team.Id, otherDivisionTeam.Id,
+        }));
+        Assert.That(_divisionDataContext!.TeamIdToDivisionIdLookup.Values, Is.EquivalentTo(new[]
+        {
+            division.Id, otherDivision.Id,
+        }));
+    }
+
+    [Test]
     public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTeamsOnly()
     {
         var data = new DivisionDataDto();

@@ -65,7 +65,7 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
     }
 
     try {
-        return (<tr className={(notAFavourite && favouritesEnabled ? ' opacity-25' : '')}>
+        return (<tr className={(notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
             <td>
                 {isAdmin ? (<button onClick={() => setEditTeam(true)}
                                     className="btn btn-sm btn-primary margin-right d-print-none">✏️</button>) : null}

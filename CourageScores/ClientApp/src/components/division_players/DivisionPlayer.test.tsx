@@ -23,6 +23,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {IPlayerApi} from "../../interfaces/apis/IPlayerApi";
+import {IPreferenceData} from "../common/PreferencesContainer";
 
 describe('DivisionPlayer', () => {
     let context: TestContext;
@@ -63,7 +64,7 @@ describe('DivisionPlayer', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(props: IDivisionPlayerProps, divisionData: IDivisionDataContainerProps, account?: UserDto) {
+    async function renderComponent(props: IDivisionPlayerProps, divisionData: IDivisionDataContainerProps, account?: UserDto, preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({playerApi}),
             brandingProps(),
@@ -81,7 +82,8 @@ describe('DivisionPlayer', () => {
             </DivisionDataContainer>),
             null,
             null,
-            'tbody');
+            'tbody',
+            preferenceData);
     }
 
     describe('when logged out', () => {
@@ -276,6 +278,75 @@ describe('DivisionPlayer', () => {
                 const link = teamLinkCell.querySelector('a');
                 expect(link).toBeFalsy();
                 expect(teamLinkCell.textContent).toEqual(noTeamPlayer.team);
+            });
+
+            it('when team is a favourite', async () => {
+                await renderComponent({
+                        player,
+                        hideVenue: false
+                    },
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                        favouritesEnabled: true,
+                    },
+                    account,
+                    {
+                        favouriteTeamIds: [ player.teamId ],
+                    });
+
+                reportedError.verifyNoError();
+                const row = context.container.querySelector('tr');
+                expect(row.className).not.toContain('opacity-25');
+            });
+
+            it('when team is not a favourite', async () => {
+                await renderComponent({
+                        player,
+                        hideVenue: false
+                    },
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                        favouritesEnabled: true,
+                    },
+                    account,
+                    {
+                        favouriteTeamIds: [ '1234' ],
+                    });
+
+                reportedError.verifyNoError();
+                const row = context.container.querySelector('tr');
+                expect(row.className).toContain('opacity-25');
+            });
+
+            it('when no favourites are defined', async () => {
+                await renderComponent({
+                        player,
+                        hideVenue: false
+                    },
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                        favouritesEnabled: true,
+                    },
+                    account,
+                    {
+                        favouriteTeamIds: [],
+                    });
+
+                reportedError.verifyNoError();
+                const row = context.container.querySelector('tr');
+                expect(row.className).not.toContain('opacity-25');
             });
         });
     });
@@ -519,5 +590,30 @@ describe('DivisionPlayer', () => {
                 expect(teamsReloaded).toEqual(false);
             });
         });
+
+        describe('renders', () => {
+            it('when team is not a favourite and an admin', async () => {
+                await renderComponent({
+                        player,
+                        hideVenue: false
+                    },
+                    {
+                        id: division.id,
+                        season,
+                        name: division.name,
+                        setDivisionData,
+                        onReloadDivision,
+                        favouritesEnabled: true,
+                    },
+                    account,
+                    {
+                        favouriteTeamIds: [ '1234' ],
+                    });
+
+                reportedError.verifyNoError();
+                const row = context.container.querySelector('tr');
+                expect(row.className).not.toContain('opacity-25');
+            });
+        })
     });
 });

@@ -79,17 +79,17 @@ public class DivisionService : IDivisionService
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, division, !filter.ExcludeProposals, token);
     }
 
-    private static bool IsTeamInDivision(TeamDto teamInSeason, DivisionDataFilter filter, SeasonDto season)
+    private static Guid? GetDivisionIdForTeam(TeamDto teamInSeason, SeasonDto season)
     {
         var teamSeason = teamInSeason.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id && ts.Deleted == null);
-        return teamSeason != null && teamSeason.DivisionId == filter.DivisionId;
+        return teamSeason?.DivisionId;
     }
 
     private async Task<DivisionDataContext> CreateDivisionDataContext(DivisionDataFilter filter,
         SeasonDto season, IReadOnlyCollection<TeamDto> allTeamsInSeason, CancellationToken token)
     {
         var teamsInSeasonAndDivision = allTeamsInSeason
-            .Where(t => filter.DivisionId == null || IsTeamInDivision(t, filter, season))
+            .Where(t => filter.DivisionId == null || GetDivisionIdForTeam(t, season) == filter.DivisionId)
             .ToList();
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
@@ -100,8 +100,10 @@ public class DivisionService : IDivisionService
             .GetSome($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(g => filter.IncludeDate(g.Date, season) && filter.IncludeTournament(g))
             .ToList();
+        var teamIdToDivisionIdLookup = allTeamsInSeason
+            .ToDictionary(t => t.Id, t => GetDivisionIdForTeam(t, season));
 
-        return new DivisionDataContext(games, teamsInSeasonAndDivision, tournamentGames, notes, season);
+        return new DivisionDataContext(games, teamsInSeasonAndDivision, tournamentGames, notes, season, teamIdToDivisionIdLookup);
     }
 
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
