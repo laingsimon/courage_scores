@@ -9,6 +9,7 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Services.Division;
 
@@ -167,12 +168,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             if (!context.GamesForDate.TryGetValue(date, out var gamesForDate))
             {
-                gamesForDate = Array.Empty<Models.Cosmos.Game.Game>();
+                gamesForDate = Array.Empty<CosmosGame>();
             }
             var tournamentGamesForDate = context.AllTournamentGames(divisionId).Where(g => g.Date == date).ToArray();
             context.Notes.TryGetValue(date, out var notesForDate);
 
-            var inDivisionGames = gamesForDate.Where(g => divisionId == null || g.DivisionId == divisionId).ToArray();
+            var inDivisionGames = gamesForDate.Where(g => ShouldShowLeagueFixture(g, divisionId, context.TeamIdToDivisionIdLookup)).ToArray();
 
             yield return await _divisionFixtureDateAdapter.Adapt(
                 date,
@@ -211,6 +212,26 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 
             yield return await _divisionPlayerAdapter.Adapt(score, playerTuple, fixtures, token);
         }
+    }
+
+    private static bool ShouldShowLeagueFixture(CosmosGame g, Guid? divisionId, IReadOnlyDictionary<Guid, Guid?> teamIdToDivisionIdLookup)
+    {
+        if (divisionId == null || g.DivisionId == divisionId)
+        {
+            return true;
+        }
+
+        if (teamIdToDivisionIdLookup.TryGetValue(g.Home.Id, out var homeTeamDivisionId) && homeTeamDivisionId == divisionId)
+        {
+            return true;
+        }
+
+        if (teamIdToDivisionIdLookup.TryGetValue(g.Away.Id, out var awayTeamDivisionId) && awayTeamDivisionId == divisionId)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static void ReportCrossDivisionalPlayer(Guid id, DivisionData.PlayerScore score)

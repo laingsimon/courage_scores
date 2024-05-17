@@ -28,6 +28,7 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {playerBuilder} from "../../helpers/builders/players";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
+import {IPreferenceData} from "../common/PreferencesContainer";
 
 describe('TournamentFixture', () => {
     let context: TestContext;
@@ -68,7 +69,7 @@ describe('TournamentFixture', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(props: ITournamentFixtureProps, divisionData: IDivisionDataContainerProps, account?: UserDto, teams?: TeamDto[]) {
+    async function renderComponent(props: ITournamentFixtureProps, divisionData: IDivisionDataContainerProps, account?: UserDto, teams?: TeamDto[], preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({tournamentApi}),
             brandingProps(),
@@ -81,7 +82,8 @@ describe('TournamentFixture', () => {
             </DivisionDataContainer>),
             null,
             null,
-            'tbody');
+            'tbody',
+            preferenceData);
     }
 
     describe('when logged out', () => {
@@ -260,6 +262,125 @@ describe('TournamentFixture', () => {
             assertSinglePlayerDisplay(playersCell, 2, side1.name, side1.players[0]);
             assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, []);
             assertPlayerDisplayWithPlayerLinks(playersCell, 4, side4.players);
+        });
+
+        it('shades team tournament if favourites defined and tournament does not have favourite team playing', async () => {
+            const teamId = createTemporaryId();
+            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
+            const tournament = tournamentBuilder()
+                .address('ADDRESS')
+                .withSide(side1)
+                .type('TYPE')
+                .build();
+            await renderComponent(
+                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {
+                    id: division.id,
+                    name: division.name,
+                    season,
+                    players: side1.players as DivisionPlayerDto[],
+                    onReloadDivision,
+                    setDivisionData: noop,
+                    favouritesEnabled: true,
+                },
+                account,
+                null,
+                {
+                    favouriteTeamIds: ['1234'],
+                });
+
+            reportedError.verifyNoError();
+            const tr = context.container.querySelector('tr');
+            expect(tr.className).toContain('opacity-25');
+        });
+
+        it('does not shade non-team tournament if favourites defined and tournament does not have favourite team playing', async () => {
+            const side1 = sideBuilder('SIDE 1').build();
+            const tournament = tournamentBuilder()
+                .address('ADDRESS')
+                .withSide(side1)
+                .type('TYPE')
+                .build();
+            await renderComponent(
+                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {
+                    id: division.id,
+                    name: division.name,
+                    season,
+                    players: side1.players as DivisionPlayerDto[],
+                    onReloadDivision,
+                    setDivisionData: noop,
+                    favouritesEnabled: true,
+                },
+                account,
+                null,
+                {
+                    favouriteTeamIds: ['1234'],
+                });
+
+            reportedError.verifyNoError();
+            const tr = context.container.querySelector('tr');
+            expect(tr.className).not.toContain('opacity-25');
+        });
+
+        it('does not shade team tournament if favourites defined and tournament has favourite team playing', async () => {
+            const teamId = createTemporaryId();
+            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
+            const tournament = tournamentBuilder()
+                .address('ADDRESS')
+                .withSide(side1)
+                .type('TYPE')
+                .build();
+            await renderComponent(
+                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {
+                    id: division.id,
+                    name: division.name,
+                    season,
+                    players: side1.players as DivisionPlayerDto[],
+                    onReloadDivision,
+                    setDivisionData: noop,
+                    favouritesEnabled: true,
+                },
+                account,
+                null,
+                {
+                    favouriteTeamIds: [teamId],
+                });
+
+            reportedError.verifyNoError();
+            const tr = context.container.querySelector('tr');
+            expect(tr.className).not.toContain('opacity-25');
+        });
+
+        it('does not shade team tournament if no favourites defined', async () => {
+            const teamId = createTemporaryId();
+            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
+            const tournament = tournamentBuilder()
+                .address('ADDRESS')
+                .withSide(side1)
+                .type('TYPE')
+                .build();
+            await renderComponent(
+                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {
+                    id: division.id,
+                    name: division.name,
+                    season,
+                    players: side1.players as DivisionPlayerDto[],
+                    onReloadDivision,
+                    setDivisionData: noop,
+                    favouritesEnabled: true,
+                },
+                account,
+                null,
+                {
+                    favouriteTeamIds: [],
+                });
+
+            reportedError.verifyNoError();
+            const tr = context.container.querySelector('tr');
+            expect(tr.className).not.toContain('opacity-25');
         });
     });
 
@@ -462,6 +583,36 @@ describe('TournamentFixture', () => {
             await doClick(findButton(adminCell, 'Close'));
 
             expect(context.container.textContent).not.toContain('Could not delete tournament');
+        });
+
+        it('does not shade team tournament if favourites defined and tournament does not have favourite team playing when an admin', async () => {
+            const teamId = createTemporaryId();
+            const side1 = sideBuilder('SIDE 1').teamId(teamId).build();
+            const tournament = tournamentBuilder()
+                .address('ADDRESS')
+                .withSide(side1)
+                .type('TYPE')
+                .build();
+            await renderComponent(
+                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {
+                    id: division.id,
+                    name: division.name,
+                    season,
+                    players: side1.players as DivisionPlayerDto[],
+                    onReloadDivision,
+                    setDivisionData: noop,
+                    favouritesEnabled: true,
+                },
+                account,
+                null,
+                {
+                    favouriteTeamIds: ['1234'],
+                });
+
+            reportedError.verifyNoError();
+            const tr = context.container.querySelector('tr');
+            expect(tr.className).not.toContain('opacity-25');
         });
     });
 });

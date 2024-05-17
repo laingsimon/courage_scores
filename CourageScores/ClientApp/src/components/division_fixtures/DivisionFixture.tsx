@@ -286,7 +286,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     try {
-        return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite && favouritesEnabled ? ' opacity-25' : '')}>
+        return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
             <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<EmbedAwareLink to={`/score/${fixture.id}`}
