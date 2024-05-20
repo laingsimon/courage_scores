@@ -1,10 +1,20 @@
-import {appProps, brandingProps, cleanUp, iocProps, renderApp, TestContext} from "../../helpers/tests";
+import {
+    appProps,
+    brandingProps,
+    cleanUp,
+    doClick,
+    findButton,
+    iocProps,
+    renderApp,
+    TestContext
+} from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
 import {FilterFixtures, IFilterFixturesProps} from "./FilterFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IInitialisedFilters} from "../../helpers/filters";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
+import {IPreferenceData} from "../common/PreferencesContainer";
 
 describe('FilterFixtures', () => {
     let context: TestContext;
@@ -203,6 +213,110 @@ describe('FilterFixtures', () => {
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All teams');
+        });
+    });
+
+    describe('favourites', () => {
+        it('shows button when there are favourites and feature is enabled', async () => {
+            await renderComponent(
+                { filter: {team: 'TEAM'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {
+                    favouriteTeamIds: [ '1234' ],
+                });
+
+            const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button.btn-outline-danger')) as HTMLButtonElement[];
+            expect(buttons.length).toEqual(1);
+            expect(buttons[0].textContent).toEqual('🌟');
+        });
+
+        it('does not show button when favourites are not enabled', async () => {
+            await renderComponent(
+                { filter: {team: 'TEAM'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: false,
+                }, {
+                    favouriteTeamIds: [ '1234' ],
+                });
+
+            const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button.btn-outline-danger')) as HTMLButtonElement[];
+            expect(buttons.length).toEqual(0);
+        });
+
+        it('does show button when there are no favourites', async () => {
+            await renderComponent(
+                { filter: {team: 'TEAM'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {
+                    favouriteTeamIds: [],
+                });
+
+            const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button.btn-outline-danger')) as HTMLButtonElement[];
+            expect(buttons.length).toEqual(0);
+        });
+
+        it('does not clear favourites when confirmation is cancelled', async () => {
+            await renderComponent(
+                { filter: {team: 'TEAM'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {
+                    favouriteTeamIds: [ '1234' ],
+                    someOtherPreference: 'FOO',
+                });
+            let confirm: string = null;
+            window.confirm = (msg) => {
+                confirm = msg;
+                return false;
+            };
+
+            await doClick(findButton(context.container, '🌟'));
+
+            expect(confirm).toEqual('Are you sure you want to clear your favourites?');
+            expect(context.cookies.get('preferences')).toEqual({
+                favouriteTeamIds: [ '1234' ],
+                someOtherPreference: 'FOO',
+            });
+        });
+
+        it('clears favourites when confirmation is accepted', async () => {
+            await renderComponent(
+                { filter: {team: 'TEAM'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {
+                    favouriteTeamIds: [ '1234' ],
+                    someOtherPreference: 'FOO',
+                });
+            window.confirm = () => true;
+
+            await doClick(findButton(context.container, '🌟'));
+
+            expect(context.cookies.get('preferences')).toEqual({
+                someOtherPreference: 'FOO',
+            });
         });
     });
 });
