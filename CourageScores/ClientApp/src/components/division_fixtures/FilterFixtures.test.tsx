@@ -4,6 +4,7 @@ import {FilterFixtures, IFilterFixturesProps} from "./FilterFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IInitialisedFilters} from "../../helpers/filters";
+import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 
 describe('FilterFixtures', () => {
     let context: TestContext;
@@ -12,26 +13,41 @@ describe('FilterFixtures', () => {
         cleanUp(context);
     });
 
-    function divisionData(props: any): IDivisionDataContainerProps {
-        return props as any;
+    async function onReloadDivision(_?: boolean): Promise<DivisionDataDto | null> {
+        return null;
+    }
+
+    async function setDivisionData(_: DivisionDataDto): Promise<any> {
+        return null;
     }
 
     async function setFilter(_: IInitialisedFilters) {
     }
 
-    async function renderComponent(props: IFilterFixturesProps, divisionData: IDivisionDataContainerProps) {
+    async function renderComponent(props: IFilterFixturesProps, divisionData: IDivisionDataContainerProps, initialPreferences?: IPreferenceData) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps(),
             (<DivisionDataContainer {...divisionData}>
                 <FilterFixtures {...props}/>
-            </DivisionDataContainer>));
+            </DivisionDataContainer>),
+            null,
+            null,
+            null,
+            initialPreferences);
     }
 
     describe('type', () => {
         it('when selected', async () => {
-            await renderComponent({ filter: {type: 'league'}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {type: 'league'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
             expect(dropDown).toBeTruthy();
@@ -40,7 +56,14 @@ describe('FilterFixtures', () => {
         });
 
         it('when unrecognised', async () => {
-            await renderComponent({ filter: {type: 'foo'}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {type: 'foo'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
             expect(dropDown).toBeTruthy();
@@ -48,7 +71,14 @@ describe('FilterFixtures', () => {
         });
 
         it('when unselected', async () => {
-            await renderComponent({ filter: {}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
             expect(dropDown).toBeTruthy();
@@ -59,7 +89,14 @@ describe('FilterFixtures', () => {
 
     describe('date', () => {
         it('when selected', async () => {
-            await renderComponent({ filter: {date: 'past'}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {date: 'past'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -70,7 +107,14 @@ describe('FilterFixtures', () => {
         it('when specific 3-part date', async () => {
             const date = '2023-01-01';
             const expectedDate = renderDate(date);
-            await renderComponent({ filter: {date}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {date}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -79,7 +123,14 @@ describe('FilterFixtures', () => {
         });
 
         it('when unrecognised', async () => {
-            await renderComponent({ filter: {date: 'foo'}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {date: 'foo'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -88,7 +139,14 @@ describe('FilterFixtures', () => {
         });
 
         it('when unselected', async () => {
-            await renderComponent({ filter: {}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -100,7 +158,14 @@ describe('FilterFixtures', () => {
     describe('team', () => {
         it('when selected', async () => {
             const team = teamBuilder('TEAM').build();
-            await renderComponent({ filter: {team: 'TEAM'}, setFilter }, divisionData({ teams: [team] }));
+            await renderComponent(
+                { filter: {team: 'TEAM'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [team],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();
@@ -110,7 +175,14 @@ describe('FilterFixtures', () => {
 
         it('when unrecognised', async () => {
             const team = teamBuilder('TEAM').build();
-            await renderComponent({ filter: {team: '1234'}, setFilter }, divisionData({ teams: [team] }));
+            await renderComponent(
+                { filter: {team: '1234'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [team],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();
@@ -118,7 +190,14 @@ describe('FilterFixtures', () => {
         });
 
         it('when unselected', async () => {
-            await renderComponent({ filter: {}, setFilter }, divisionData({ teams: [] }));
+            await renderComponent(
+                { filter: {}, setFilter },
+                {
+                    name: 'DIVISION',
+                    teams: [],
+                    onReloadDivision,
+                    setDivisionData,
+                });
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();
