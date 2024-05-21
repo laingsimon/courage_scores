@@ -30,13 +30,14 @@ jobs:
         uses: coverallsapp/github-action@v2.3.0
         with:
             file: ./CourageScores.Tests/Coverage/coverage.info
+            base-path: ./CourageScores.Tests
             flag-name: dotnet
             parallel: true
             format: lcov
             debug: true
 
       - name: Publish nunit test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
           name: NUnitTestResults
