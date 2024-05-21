@@ -33,6 +33,7 @@ jobs:
             flag-name: dotnet
             parallel: true
             format: lcov
+            debug: true
 
       - name: Publish nunit test results
         uses: actions/upload-artifact@v4
