@@ -548,7 +548,9 @@ public class GameAdapterTests
             Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
         };
 
-        for (var iteration = 1; iteration <= 10; iteration++)
+        const int maxIterations = 10;
+
+        for (var iteration = 1; iteration <= maxIterations; iteration++)
         {
             try
             {
@@ -559,7 +561,9 @@ public class GameAdapterTests
             }
             catch (AssertionException)
             {
-                if (iteration >= 10)
+                Thread.Sleep(10 * iteration);
+
+                if (iteration >= maxIterations)
                 {
                     throw;
                 }
