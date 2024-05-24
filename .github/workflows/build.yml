@@ -30,7 +30,6 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
             file: ./CourageScores.Tests/Coverage/coverage.info
-            base-path: ./CourageScores.Tests
             flag-name: dotnet
             parallel: true
             format: lcov
