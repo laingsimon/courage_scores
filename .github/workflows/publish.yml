@@ -43,14 +43,14 @@ jobs:
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ./CourageScores/myapp
           if-no-files-found: error
 
       - name: Publish jest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
           name: JestTestResults
