@@ -10,6 +10,7 @@ jobs:
   report:
     name: 'Test Results (1.9.1)'
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: dorny/test-reporter@v1.9.1
         with:
