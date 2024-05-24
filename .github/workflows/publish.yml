@@ -33,7 +33,7 @@ jobs:
           VITE_APP_DATE: "${{ inputs.commit-date }}"
 
       - name: Publish react coverage
-        uses: coverallsapp/github-action@v2.3.0
+        uses: coverallsapp/github-action@v2
         with:
           file: ./CourageScores/ClientApp/coverage/lcov.info
           base-path: ./CourageScores/ClientApp
