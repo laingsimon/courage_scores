@@ -6,14 +6,16 @@ import {Loading} from "../common/Loading";
 import {ViewHealthCheck} from "./ViewHealthCheck";
 import {isEmpty} from "../../helpers/collections";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
+import {useBranding} from "../common/BrandingContainer";
 
 export function DivisionHealth() {
     const [result, setResult] = useState<SeasonHealthCheckResultDto | null>(null);
     const [loading, setLoading] = useState(false);
     const {onError} = useApp();
     const {seasonApi} = useDependencies();
-    const {season} = useDivisionData();
+    const {season, name} = useDivisionData();
     const healthy: boolean = result && result.success && isEmpty(result.errors) && isEmpty(result.warnings);
+    const {setTitle} = useBranding();
 
     async function loadHealthCheck() {
         /* istanbul ignore next */
@@ -46,6 +48,8 @@ export function DivisionHealth() {
         },
         // eslint-disable-next-line
         []);
+
+    setTitle(`${name}: Health`);
 
     try {
         return (<div datatype="health">

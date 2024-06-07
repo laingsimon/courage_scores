@@ -49,6 +49,7 @@ import {RecordScoresDto} from "../../interfaces/models/dtos/Game/RecordScoresDto
 import {PhotoManager} from "../common/PhotoManager";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
+import {useBranding} from "../common/BrandingContainer";
 
 export interface ICreatePlayerFor {
     side: string;
@@ -82,6 +83,7 @@ export function Score() {
     const [showPhotoManager, setShowPhotoManager] = useState(false);
     const access = getAccess();
     const [photosEnabled, setPhotosEnabled] = useState(false);
+    const {setTitle} = useBranding();
 
     function renderCreatePlayerDialog() {
         const team: GameTeamDto = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
@@ -578,6 +580,8 @@ export function Score() {
             home: data.home,
             away: data.away,
         }
+
+        setTitle(`${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`);
 
         return (<div>
             <DivisionControls

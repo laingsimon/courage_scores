@@ -28,13 +28,14 @@ import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
+import {useBranding} from "../common/BrandingContainer";
 
 export interface IDivisionFixturesProps {
     setNewFixtures(fixtures: DivisionFixtureDateDto[]): Promise<any>;
 }
 
 export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
-    const {id: divisionId, season, fixtures, onReloadDivision} = useDivisionData();
+    const {id: divisionId, name, season, fixtures, onReloadDivision} = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
     const {account, onError, controls, teams} = useApp();
@@ -46,6 +47,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     const [editNote, setEditNote] = useState<EditFixtureDateNoteDto | null>(null);
     const [showPlayers, setShowPlayers] = useState<{ [date: string]: boolean }>(getPlayersToShow());
     const [createFixturesDialogOpen, setCreateFixturesDialogOpen] = useState<boolean>(false);
+    const {setTitle} = useBranding();
 
     function getPlayersToShow(): { [date: string]: boolean } {
         if (location.hash !== '#show-who-is-playing') {
@@ -210,6 +212,8 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
 
         return filteredFixtureDate;
     }
+
+    setTitle(`${name}: Fixtures`);
 
     try {
         const fixtureDateFilters: IFilter<DivisionFixtureDateDto> = getFixtureDateFilters(filter, {}, fixtures);

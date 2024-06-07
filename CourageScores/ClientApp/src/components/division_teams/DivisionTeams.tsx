@@ -7,9 +7,10 @@ import {useDivisionData} from "../league/DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {PrintDivisionHeading} from "../league/PrintDivisionHeading";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
+import {useBranding} from "../common/BrandingContainer";
 
 export function DivisionTeams() {
-    const {id: divisionId, season, teams, onReloadDivision} = useDivisionData();
+    const {id: divisionId, name, season, teams, onReloadDivision} = useDivisionData();
     const {account} = useApp();
     const isAdmin = account && account.access && account.access.manageTeams;
     const [newTeam, setNewTeam] = useState<boolean>(false);
@@ -18,6 +19,7 @@ export function DivisionTeams() {
         address: '',
         newDivisionId: divisionId,
     });
+    const {setTitle} = useBranding();
 
     async function onChange(name: string, value: string) {
         const newTeamDetails: EditTeamDto = Object.assign({}, teamDetails);
@@ -42,6 +44,8 @@ export function DivisionTeams() {
                 onChange={onChange}/>
         </Dialog>);
     }
+
+    setTitle(`${name}: Teams`);
 
     return (<div className="content-background p-3">
         <PrintDivisionHeading/>

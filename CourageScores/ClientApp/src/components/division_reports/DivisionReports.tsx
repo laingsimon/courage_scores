@@ -13,9 +13,10 @@ import {ReportCollectionDto} from "../../interfaces/models/dtos/Report/ReportCol
 import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
 import {ReportRequestDto} from "../../interfaces/models/dtos/Report/ReportRequestDto";
 import {useLocation, useNavigate} from "react-router-dom";
+import {useBranding} from "../common/BrandingContainer";
 
 export function DivisionReports() {
-    const {id: divisionId, name: divisionName, season} = useDivisionData();
+    const {id: divisionId, name, name: divisionName, season} = useDivisionData();
     const {onError} = useApp();
     const location = useLocation();
     const navigate = useNavigate();
@@ -24,6 +25,7 @@ export function DivisionReports() {
     const {reportApi} = useDependencies();
     const topCount: number = getParameterDefault('top', 15, Number.parseInt);
     const activeReport: string = getParameterDefault<string | null>('report',null, (x: string) => x);
+    const {setTitle} = useBranding();
 
     function getParameterDefault<T>(name: string, defaultValue: T, converter: (value: string) => T): T {
         const search: URLSearchParams = new URLSearchParams(location.search);
@@ -104,6 +106,8 @@ export function DivisionReports() {
                 className="d-print-none"/>
         </div>);
     }
+
+    setTitle(`${name}: Reports`);
 
     const report: ReportDto | null = activeReport && reportData ? reportData.reports.filter((r: ReportDto) => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
