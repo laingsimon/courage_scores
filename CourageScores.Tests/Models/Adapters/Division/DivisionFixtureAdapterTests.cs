@@ -57,9 +57,8 @@ public class DivisionFixtureAdapterTests
         var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
-            IsKnockout = true,
+            IsKnockout = false,
             Address = "address",
-            Postponed = true,
             Date = new DateTime(2001, 02, 03),
             Matches =
             {
@@ -108,9 +107,8 @@ public class DivisionFixtureAdapterTests
         var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
-            IsKnockout = true,
+            IsKnockout = false,
             Address = "address",
-            Postponed = true,
             Date = new DateTime(2001, 02, 03),
             Matches =
             {
@@ -159,7 +157,7 @@ public class DivisionFixtureAdapterTests
         var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
-            IsKnockout = true,
+            IsKnockout = false,
             Address = "address",
             Postponed = true,
             Date = new DateTime(2001, 02, 03),
@@ -340,6 +338,112 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
         Assert.That(result.HomeScore, Is.Null);
         Assert.That(result.AwayScore, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_WithNoPlayersInLeagueTriplesMatch_ReturnsNullScoresForFixture()
+    {
+        GameMatch MatchWithPlayers(int homeScore, int awayScore)
+        {
+            return new GameMatch
+            {
+                HomeScore = homeScore,
+                AwayScore = awayScore,
+                HomePlayers = new List<GamePlayer>
+                {
+                    new(),
+                },
+                AwayPlayers = new List<GamePlayer>
+                {
+                    new(),
+                },
+            };
+        }
+
+        var game = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            IsKnockout = false,
+            Matches =
+            {
+                MatchWithPlayers(3, 1),
+                MatchWithPlayers(3, 1),
+                MatchWithPlayers(3, 1),
+                MatchWithPlayers(3, 1),
+                MatchWithPlayers(3, 1),
+                MatchWithPlayers(2, 1),
+                MatchWithPlayers(1, 2),
+                new GameMatch(),
+            },
+            Home = new GameTeam
+            {
+                Id = _homeTeam.Id,
+            },
+            Away = new GameTeam
+            {
+                Id = _awayTeam.Id,
+            },
+        };
+
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+
+        _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
+        _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
+        Assert.That(result.HomeScore, Is.Null);
+        Assert.That(result.AwayScore, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_WithNoPlayersInKnockoutTriplesMatch_ReturnsScoresForFixture()
+    {
+        GameMatch MatchWithPlayers(int homeScore, int awayScore)
+        {
+            return new GameMatch
+            {
+                HomeScore = homeScore,
+                AwayScore = awayScore,
+                HomePlayers = new List<GamePlayer>
+                {
+                    new(),
+                },
+                AwayPlayers = new List<GamePlayer>
+                {
+                    new(),
+                },
+            };
+        }
+
+        var game = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            IsKnockout = true,
+            Matches =
+            {
+                MatchWithPlayers(2, 1),
+                MatchWithPlayers(2, 1),
+                MatchWithPlayers(2, 1),
+                MatchWithPlayers(2, 1),
+                MatchWithPlayers(2, 1),
+                MatchWithPlayers(2, 1),
+                MatchWithPlayers(1, 2),
+                new GameMatch(),
+            },
+            Home = new GameTeam
+            {
+                Id = _homeTeam.Id,
+            },
+            Away = new GameTeam
+            {
+                Id = _awayTeam.Id,
+            },
+        };
+
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+
+        _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
+        _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
+        Assert.That(result.HomeScore, Is.EqualTo(6));
+        Assert.That(result.AwayScore, Is.EqualTo(1));
     }
 
     [TestCase(true, true)]

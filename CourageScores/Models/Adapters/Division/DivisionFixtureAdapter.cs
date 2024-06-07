@@ -16,17 +16,21 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
     public async Task<DivisionFixtureDto> Adapt(Cosmos.Game.Game game, TeamDto? homeTeam, TeamDto? awayTeam, CancellationToken token)
     {
         var matches = game.Matches.Where(m => m.Deleted == null).ToArray();
+        var numberOfMatchesWithPlayers = matches.Count(m => m.HomePlayers.Any() && m.AwayPlayers.Any());
+        var showScores = game.IsKnockout
+            ? numberOfMatchesWithPlayers >= 7 // the triples match isn't played in knockout fixtures
+            : numberOfMatchesWithPlayers == matches.Length;
 
         return new DivisionFixtureDto
         {
             Id = game.Id,
             HomeTeam = await _divisionFixtureTeamAdapter.Adapt(game.Home, homeTeam?.Address, token),
             AwayTeam = await _divisionFixtureTeamAdapter.Adapt(game.Away, awayTeam?.Address, token),
-            HomeScore = game.Matches.Any() && game.Matches.All(m => m.AwayPlayers.Any() && m.HomePlayers.Any())
-                ? matches.Count(m => m.HomeScore > m.AwayScore)
+            HomeScore = game.Matches.Any() && showScores
+                ? matches.Count(m => m.HomeScore > m.AwayScore) // TODO use match options
                 : null,
-            AwayScore = game.Matches.Any() && game.Matches.All(m => m.AwayPlayers.Any() && m.HomePlayers.Any())
-                ? matches.Count(m => m.AwayScore > m.HomeScore)
+            AwayScore = game.Matches.Any() && showScores
+                ? matches.Count(m => m.AwayScore > m.HomeScore) // TODO use match options
                 : null,
             Postponed = game.Postponed,
             IsKnockout = game.IsKnockout,
