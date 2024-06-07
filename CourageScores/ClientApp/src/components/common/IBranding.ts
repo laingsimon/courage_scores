@@ -1,14 +1,5 @@
-﻿import {IMenuItem} from "../layout/IMenuItem";
+import {IBrandingData} from "./IBrandingData";
 
-export interface IBranding {
-    name: string;
-    email?: string;
-    facebook?: string;
-    twitter?: string;
-    website?: string;
-    custodians?: string[];
-    menu?: {
-        beforeDivisions: IMenuItem[];
-        afterDivisions: IMenuItem[];
-    };
+export interface IBranding extends IBrandingData {
+    setTitle(newTitle?: string): void;
 }
