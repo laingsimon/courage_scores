@@ -85,6 +85,13 @@ public class DivisionFixtureAdapterTests
             {
                 Id = _awayTeam.Id,
             },
+            MatchOptions =
+            {
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+            },
         };
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
@@ -134,6 +141,13 @@ public class DivisionFixtureAdapterTests
             Away = new GameTeam
             {
                 Id = _awayTeam.Id,
+            },
+            MatchOptions =
+            {
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
             },
         };
 
@@ -199,6 +213,17 @@ public class DivisionFixtureAdapterTests
             Away = new GameTeam
             {
                 Id = _awayTeam.Id,
+            },
+            MatchOptions =
+            {
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
             },
         };
 
@@ -435,6 +460,42 @@ public class DivisionFixtureAdapterTests
             Away = new GameTeam
             {
                 Id = _awayTeam.Id,
+            },
+
+            MatchOptions =
+            {
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
+                new GameMatchOption
+                {
+                    NumberOfLegs = 3,
+                },
             },
         };
 

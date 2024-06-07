@@ -1,6 +1,7 @@
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Adapters.Division;
 
@@ -13,7 +14,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         _divisionFixtureTeamAdapter = divisionFixtureTeamAdapter;
     }
 
-    public async Task<DivisionFixtureDto> Adapt(Cosmos.Game.Game game, TeamDto? homeTeam, TeamDto? awayTeam, CancellationToken token)
+    public async Task<DivisionFixtureDto> Adapt(CosmosGame game, TeamDto? homeTeam, TeamDto? awayTeam, CancellationToken token)
     {
         var matches = game.Matches.Where(m => m.Deleted == null).ToArray();
         var numberOfMatchesWithPlayers = matches.Count(m => m.HomePlayers.Any() && m.AwayPlayers.Any());
@@ -27,10 +28,10 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             HomeTeam = await _divisionFixtureTeamAdapter.Adapt(game.Home, homeTeam?.Address, token),
             AwayTeam = await _divisionFixtureTeamAdapter.Adapt(game.Away, awayTeam?.Address, token),
             HomeScore = game.Matches.Any() && showScores
-                ? matches.Count(m => m.HomeScore > m.AwayScore) // TODO use match options
+                ? matches.Where((m, index) => IsWinner(m.HomeScore, index, game)).Count()
                 : null,
             AwayScore = game.Matches.Any() && showScores
-                ? matches.Count(m => m.AwayScore > m.HomeScore) // TODO use match options
+                ? matches.Where((m, index) => IsWinner(m.AwayScore, index, game)).Count()
                 : null,
             Postponed = game.Postponed,
             IsKnockout = game.IsKnockout,
@@ -38,7 +39,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         };
     }
 
-    public async Task<DivisionFixtureDto> ForUnselectedTeam(TeamDto team, bool isKnockout, IReadOnlyCollection<Cosmos.Game.Game> fixturesUsingAddress, CancellationToken token)
+    public async Task<DivisionFixtureDto> ForUnselectedTeam(TeamDto team, bool isKnockout, IReadOnlyCollection<CosmosGame> fixturesUsingAddress, CancellationToken token)
     {
         return new DivisionFixtureDto
         {
@@ -55,7 +56,19 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         };
     }
 
-    private static OtherDivisionFixtureDto OtherDivisionFixtureDto(Cosmos.Game.Game game)
+    private static bool IsWinner(int? score, int index, CosmosGame game)
+    {
+        var matchOption = game.MatchOptions.ElementAtOrDefault(index);
+
+        if (matchOption == null)
+        {
+            return false;
+        }
+
+        return score >= (matchOption.NumberOfLegs / 2.0);
+    }
+
+    private static OtherDivisionFixtureDto OtherDivisionFixtureDto(CosmosGame game)
     {
         return new OtherDivisionFixtureDto
         {
