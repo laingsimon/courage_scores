@@ -290,9 +290,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<Link to={`/score/${fixture.id}`}
-                                       className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
+                                       className="margin-right">{fixture.homeTeam.name}</Link>)
                     : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
-                                       className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                                       className="margin-right">{fixture.homeTeam.name}</Link>)}
                 {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.homeTeam.id} />}
             </td>
             <td className="narrow-column text-primary fw-bolder">{fixture.postponed
