@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {Link} from "react-router-dom";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {renderDate} from "../../helpers/rendering";
@@ -6,7 +7,6 @@ import {any, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {useDivisionData} from "../league/DivisionDataContainer";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
@@ -198,9 +198,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<>
                         {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.awayTeam.id} />}
-                        <EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">
+                        <Link to={`/score/${fixture.id}`} className="margin-right">
                             {fixture.awayTeam.name}
-                        </EmbedAwareLink>
+                        </Link>
                     </>)
                     : null
                 : 'Bye');
@@ -209,9 +209,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         if (any(fixture.fixturesUsingAddress)) {
             return (<div>
                 {fixture.fixturesUsingAddress.map((otherFixture, index) => {
-                    return (<div key={index}>🚫 <EmbedAwareLink
+                    return (<div key={index}>🚫 <Link
                         to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using
-                        this venue</EmbedAwareLink></div>)
+                        this venue</Link></div>)
                 })}
             </div>);
         }
@@ -289,9 +289,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
             <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
-                    ? (<EmbedAwareLink to={`/score/${fixture.id}`}
+                    ? (<Link to={`/score/${fixture.id}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
-                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                    : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
                                        className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
                 {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.homeTeam.id} />}
             </td>
