@@ -203,9 +203,14 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
             && (!!match.sayg || (account && account.access && account.access.recordScoresAsYouGo));
     }
 
+    function isWinner(score: number, numberOfLegs: number): boolean {
+        return score !== null
+            && score > (numberOfLegs / 2.0);
+    }
+
     try {
         return (<tr>
-            <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner ' : ''}text-end width-50-pc position-relative`}>
+            <td className={`${isWinner(match.homeScore, matchOptions.numberOfLegs) ? 'bg-winner ' : ''}text-end width-50-pc position-relative`}>
                 {canOpenSayg() ? (<button tabIndex={-1} className="btn btn-sm position-absolute left-0"
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
@@ -219,7 +224,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         except={exceptPlayers(index, 'home')}
                         onChange={(_, player: ISelectablePlayer) => playerChanged(index, player, 'home')}/></div>))}
             </td>
-            <td className={`narrow-column align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
+            <td className={`narrow-column align-middle text-end ${isWinner(match.homeScore, matchOptions.numberOfLegs) ? 'bg-winner' : ''}`}>
                 {disabled
                     ? (<strong>{match.homeScore}</strong>)
                     : (<input
@@ -231,7 +236,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         onChange={stateChanged(async (newScore: string) => await scoreChanged(newScore, 'home'))}/>)}
             </td>
             <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
-            <td className={`narrow-column align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
+            <td className={`narrow-column align-middle text-start ${isWinner(match.awayScore, matchOptions.numberOfLegs) ? 'bg-winner' : ''}`}>
                 {disabled
                     ? (<strong>{match.awayScore}</strong>)
                     : (<input
@@ -242,7 +247,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                         value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                         onChange={stateChanged(async (newScore: string) => scoreChanged(newScore, 'away'))}/>)}
             </td>
-            <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner ' : ''}width-50-pc position-relative`}>
+            <td className={`${isWinner(match.awayScore, matchOptions.numberOfLegs) ? 'bg-winner ' : ''}width-50-pc position-relative`}>
                 {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
                 {readOnly ? null : (
                     <button tabIndex={-1} title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
