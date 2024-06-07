@@ -16,6 +16,7 @@ import {DataBrowser} from "./DataBrowser";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {FeatureAdmin} from "./FeatureAdmin";
+import {useBranding} from "../common/BrandingContainer";
 
 export function AdminHome() {
     const {mode} = useParams();
@@ -26,6 +27,7 @@ export function AdminHome() {
     const [dataTables, setDataTables] = useState<TableDto[] | null>(null);
     const [accounts, setAccounts] = useState<UserDto[] | null>(null);
     const [adminLoading, setAdminLoading] = useState<boolean>(true);
+    const {setTitle} = useBranding();
 
     async function loadTables() {
         try {
@@ -58,6 +60,8 @@ export function AdminHome() {
             ? component
             : (<NotPermitted/>);
     }
+
+    setTitle('Admin');
 
     try {
         return (<div>

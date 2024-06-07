@@ -3,7 +3,7 @@ import {renderDate} from "../helpers/rendering";
 import {About} from "./About";
 import {IBuild} from "./common/IBuild";
 import {IBrandingContainerProps} from "./common/BrandingContainer";
-import {IBranding} from "./common/IBranding";
+import {IBrandingData} from "./common/IBrandingData";
 
 describe('About', () => {
     let context: TestContext;
@@ -12,7 +12,7 @@ describe('About', () => {
         date: '',
         version: ''
     };
-    const emptyBranding: IBranding = {
+    const emptyBranding: IBrandingData = {
         name: '',
         menu: {
             beforeDivisions: [],
