@@ -38,6 +38,7 @@ import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {PhotoReferenceDto} from "../../interfaces/models/dtos/PhotoReferenceDto";
 import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
+import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 interface ICreatedPlayer {
     divisionId: string;
@@ -1028,6 +1029,58 @@ describe('Score', () => {
 
             expect(deletedPhoto).not.toBeNull();
             expect(context.container.textContent).toContain('SOME ERROR');
+        });
+
+        it('can change to qualifier', async () => {
+            const appData = getDefaultAppData(account);
+            const fixture = getPlayedFixtureData(appData);
+            fixture.isKnockout = false;
+            await renderComponent(fixture.id, appData);
+
+            await doClick(context.container, 'input[name="isKnockout"]');
+            await doClick(findButton(context.container, 'Save'));
+
+            const updatedFixture = updatedFixtures[fixture.id];
+            expect(updatedFixture).not.toBeNull();
+            expect(updatedFixture.isKnockout).toEqual(true);
+            expect(updatedFixture.matchOptions.map((mo: GameMatchOptionDto) => mo.numberOfLegs)).toEqual(
+                [ 3, 3, 3, 3, 3, 3, 3, 0 ]
+            );
+        });
+
+        it('can change to league fixture', async () => {
+            const appData = getDefaultAppData(account);
+            const fixture = getPlayedFixtureData(appData);
+            fixture.isKnockout = true;
+            await renderComponent(fixture.id, appData);
+
+            await doClick(context.container, 'input[name="isKnockout"]');
+            await doClick(findButton(context.container, 'Save'));
+
+            const updatedFixture = updatedFixtures[fixture.id];
+            expect(updatedFixture).not.toBeNull();
+            expect(updatedFixture.isKnockout).toEqual(false);
+            expect(updatedFixture.matchOptions.map((mo: GameMatchOptionDto) => mo.numberOfLegs)).toEqual(
+                [ 5, 5, 5, 5, 5, 3, 3, 3 ]
+            );
+        });
+
+        it('can change to league fixture when match options are missing', async () => {
+            const appData = getDefaultAppData(account);
+            const fixture = getPlayedFixtureData(appData);
+            fixture.isKnockout = true;
+            fixture.matchOptions = fixture.matchOptions.filter((_: GameMatchOptionDto, index: number) => index < 5);
+            await renderComponent(fixture.id, appData);
+
+            await doClick(context.container, 'input[name="isKnockout"]');
+            await doClick(findButton(context.container, 'Save'));
+
+            const updatedFixture = updatedFixtures[fixture.id];
+            expect(updatedFixture).not.toBeNull();
+            expect(updatedFixture.isKnockout).toEqual(false);
+            expect(updatedFixture.matchOptions.map((mo: GameMatchOptionDto) => mo.numberOfLegs)).toEqual(
+                [ 5, 5, 5, 5, 5, 3, 3, 3 ]
+            );
         });
     });
 
