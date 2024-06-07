@@ -210,6 +210,33 @@ describe('MatchPlayerSelection', () => {
             expect(cells[4].className).not.toContain('bg-winner');
         });
 
+        it('when home player has not won but has more legs', async () => {
+            const props: IMatchPlayerSelectionProps = {
+                match: matchBuilder()
+                    .withHome(homePlayer)
+                    .withAway(awayPlayer)
+                    .scores(2, 1)
+                    .build(),
+                on180,
+                onHiCheck,
+                onMatchChanged,
+                onMatchOptionsChanged,
+            };
+
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
+
+            reportedError.verifyNoError();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            assertSelectedPlayer(cells[0], 'HOME');
+            assertScore(cells[1], '2');
+            assertScore(cells[3], '1');
+            assertSelectedPlayer(cells[4], 'AWAY');
+            expect(cells[0].className).not.toContain('bg-winner');
+            expect(cells[1].className).not.toContain('bg-winner');
+            expect(cells[3].className).not.toContain('bg-winner');
+            expect(cells[4].className).not.toContain('bg-winner');
+        });
+
         it('when away winner', async () => {
             const props: IMatchPlayerSelectionProps = {
                 match: matchBuilder()
@@ -235,6 +262,33 @@ describe('MatchPlayerSelection', () => {
             expect(cells[1].className).not.toContain('bg-winner');
             expect(cells[3].className).toContain('bg-winner');
             expect(cells[4].className).toContain('bg-winner');
+        });
+
+        it('when away player has not won but has more legs', async () => {
+            const props: IMatchPlayerSelectionProps = {
+                match: matchBuilder()
+                    .withHome(homePlayer)
+                    .withAway(awayPlayer)
+                    .scores(1, 2)
+                    .build(),
+                on180,
+                onHiCheck,
+                onMatchChanged,
+                onMatchOptionsChanged,
+            };
+
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
+
+            reportedError.verifyNoError();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            assertSelectedPlayer(cells[0], 'HOME');
+            assertScore(cells[1], '1');
+            assertScore(cells[3], '2');
+            assertSelectedPlayer(cells[4], 'AWAY');
+            expect(cells[0].className).not.toContain('bg-winner');
+            expect(cells[1].className).not.toContain('bg-winner');
+            expect(cells[3].className).not.toContain('bg-winner');
+            expect(cells[4].className).not.toContain('bg-winner');
         });
 
         it('when a draw', async () => {

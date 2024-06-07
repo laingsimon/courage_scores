@@ -43,6 +43,8 @@ import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatu
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {useBranding} from "../common/BrandingContainer";
+import {renderDate} from "../../helpers/rendering";
 
 export interface ITournamentPlayerMap {
     [id: string]: DivisionTournamentFixtureDetailsDto;
@@ -69,6 +71,7 @@ export function Tournament() {
     const [editTournament, setEditTournament] = useState<string>(null);
     const [showPhotoManager, setShowPhotoManager] = useState(false);
     const [photosEnabled, setPhotosEnabled] = useState(false);
+    const {setTitle} = useBranding();
 
     useEffect(() => {
         featureApi.getFeatures().then(features => {
@@ -327,6 +330,12 @@ export function Tournament() {
             canSubscribe: false,
             subscribeAtStartup: [],
         };
+
+        if (tournamentData && tournamentData.singleRound) {
+            setTitle(`${tournamentData.host} vs ${tournamentData.opponent} - ${renderDate(tournamentData.date)}`);
+        } else if (tournamentData) {
+            setTitle(`${tournamentData.type} at ${tournamentData.address} - ${renderDate(tournamentData.date)}`);
+        }
 
         return (<div>
             <DivisionControls

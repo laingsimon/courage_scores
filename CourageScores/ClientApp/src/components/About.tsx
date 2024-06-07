@@ -6,6 +6,9 @@ export function About() {
     const {build} = useApp();
     const {name, website, custodians} = useBranding();
     const connection: { type?: ConnectionType } = (window.navigator.connection || {});
+    const {setTitle} = useBranding();
+
+    setTitle('About');
 
     return (<div className="content-background p-3">
         <h3>About</h3>

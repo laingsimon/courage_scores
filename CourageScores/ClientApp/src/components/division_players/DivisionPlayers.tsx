@@ -4,6 +4,7 @@ import {sortBy} from "../../helpers/collections";
 import {useApp} from "../common/AppContainer";
 import {PrintDivisionHeading} from "../league/PrintDivisionHeading";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
+import {useBranding} from "../common/BrandingContainer";
 
 export interface IDivisionPlayersProps {
     hideVenue?: boolean;
@@ -14,8 +15,11 @@ export interface IDivisionPlayersProps {
 export function DivisionPlayers({hideVenue, hideHeading, players}: IDivisionPlayersProps) {
     const {account} = useApp();
     const isAdmin: boolean = account && account.access && account.access.managePlayers;
-    const {players: divisionDataPlayers} = useDivisionData();
+    const {players: divisionDataPlayers, name} = useDivisionData();
     const playersToShow = players || divisionDataPlayers;
+    const {setTitle} = useBranding();
+
+    setTitle(`${name}: Players`);
 
     return (<div className="content-background p-3 overflow-x-auto">
         <PrintDivisionHeading/>

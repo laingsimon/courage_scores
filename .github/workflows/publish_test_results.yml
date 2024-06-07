@@ -8,10 +8,11 @@ on:
 
 jobs:
   report:
-    name: 'Test Results'
+    name: 'Test Results (1.9.1)'
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: dorny/test-reporter@v1.8.0
+      - uses: dorny/test-reporter@v1.9.1
         with:
           artifact: NUnitTestResults
           name: NUnit Tests
@@ -19,7 +20,7 @@ jobs:
           reporter: dotnet-trx
           fail-on-error: false
 
-      - uses: dorny/test-reporter@v1.8.0
+      - uses: dorny/test-reporter@v1.9.1
         with:
            artifact: JestTestResults
            name: Jest Tests

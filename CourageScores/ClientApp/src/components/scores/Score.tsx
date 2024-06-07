@@ -27,7 +27,7 @@ import {
     getMatchDefaults,
     getMatchOptionDefaults,
     getMatchOptionsLookup,
-    IMatchOptionsLookup
+    IMatchOptionsLookup, IMultiMatchOptions
 } from "../../helpers/matchOptions";
 import {PageError} from "../common/PageError";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
@@ -49,6 +49,7 @@ import {RecordScoresDto} from "../../interfaces/models/dtos/Game/RecordScoresDto
 import {PhotoManager} from "../common/PhotoManager";
 import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
+import {useBranding} from "../common/BrandingContainer";
 
 export interface ICreatePlayerFor {
     side: string;
@@ -82,6 +83,7 @@ export function Score() {
     const [showPhotoManager, setShowPhotoManager] = useState(false);
     const access = getAccess();
     const [photosEnabled, setPhotosEnabled] = useState(false);
+    const {setTitle} = useBranding();
 
     function renderCreatePlayerDialog() {
         const team: GameTeamDto = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
@@ -312,7 +314,7 @@ export function Score() {
 
     function addMatchesAndMatchOptions(gameData: GameDto): GameDto {
         if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
-            const matchOptions: IMatchOptionsLookup = getMatchOptionsLookup(gameData.matchOptions);
+            const matchOptions: IMatchOptionsLookup = getMatchOptionsLookup(gameData.matchOptions, gameData.isKnockout);
             gameData.matchOptions = [
                 getMatchOptionDefaults(0, matchOptions),
                 getMatchOptionDefaults(1, matchOptions),
@@ -393,7 +395,7 @@ export function Score() {
 
     function renderMatchPlayerSelection(index: number, _: number, playerCount: number) {
         const matchesExceptIndex: GameMatchDto[] = fixtureData.matches.filter((_: GameMatchDto, matchIndex: number) => {
-            let matchOptions: GameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
+            let matchOptions: GameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions, fixtureData.isKnockout))
 
             return matchIndex !== index && matchOptions.playerCount === playerCount;
         });
@@ -418,7 +420,7 @@ export function Score() {
         }
 
         const matchTypeProps: IMatchTypeContainerProps = {
-            matchOptions: elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions)),
+            matchOptions: elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions, fixtureData.isKnockout)),
             otherMatches: matchesExceptIndex,
             setCreatePlayerFor: onCreatePlayer,
             homePlayers: homeTeam,
@@ -534,6 +536,25 @@ export function Score() {
         return false;
     }
 
+    function fixtureDetailsChanged(details: GameDto) {
+        const wasKnockout = fixtureData.isKnockout;
+
+        if (details.isKnockout !== wasKnockout) {
+            const matchOptionsLookup: IMatchOptionsLookup = getMatchOptionsLookup([], details.isKnockout);
+
+            // set the match options - number of legs
+            const numberOfLegsPerMatch: IMultiMatchOptions = matchOptionsLookup.numberOfLegs;
+
+            for (const index in numberOfLegsPerMatch) {
+                const numberOfLegs: number = numberOfLegsPerMatch[index];
+                const matchOptions: GameMatchOptionDto = details.matchOptions[index];
+                matchOptions.numberOfLegs = numberOfLegs;
+            }
+        }
+
+        setFixtureData(details);
+    }
+
     if (loading !== 'ready') {
         return (<Loading/>);
     }
@@ -560,6 +581,8 @@ export function Score() {
             away: data.away,
         }
 
+        setTitle(`${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`);
+
         return (<div>
             <DivisionControls
                 originalSeasonData={season}
@@ -584,7 +607,7 @@ export function Score() {
             <LeagueFixtureContainer {...leagueFixtureData}>
                 <div className="content-background p-3 overflow-auto">
                     {fixtureData.address || access === 'admin'
-                        ? (<GameDetails saving={saving} setFixtureData={async (data: GameDto) => setFixtureData(data)} access={access}
+                        ? (<GameDetails saving={saving} setFixtureData={async (data: GameDto) => fixtureDetailsChanged(data)} access={access}
                                         fixtureData={fixtureData}/>)
                         : null}
                     <table className={`table${(access === 'admin' && !submission) || access === 'clerk' ? ' minimal-padding' : ''}`}>

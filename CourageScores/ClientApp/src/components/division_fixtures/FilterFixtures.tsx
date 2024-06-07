@@ -1,11 +1,12 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {isEmpty, sortBy} from "../../helpers/collections";
+import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
 import {renderDate} from "../../helpers/rendering";
 import {ShareButton} from "../common/ShareButton";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {useBranding} from "../common/BrandingContainer";
 import {IInitialisedFilters} from "../../helpers/filters";
+import {usePreferences} from "../common/PreferencesContainer";
 
 export interface IFilterFixturesProps {
     filter: IInitialisedFilters;
@@ -13,12 +14,14 @@ export interface IFilterFixturesProps {
 }
 
 export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
-    const {teams} = useDivisionData();
+    const {teams, favouritesEnabled} = useDivisionData();
+    const {getPreference, upsertPreference} = usePreferences();
     const {name} = useBranding();
     const teamFilters = teams.sort(sortBy('name')).map(t => {
         return {value: t.name.trim().toLowerCase(), text: t.name};
     });
     teamFilters.unshift({value: null, text: 'All teams'});
+    const favouriteTeamIds: string[] = getPreference<string[]>('favouriteTeamIds') || [];
 
     const typeFilters = [
         {value: null, text: 'All fixtures'},
@@ -48,6 +51,14 @@ export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
         }
     }
 
+    async function clearFavourites() {
+        if (!window.confirm('Are you sure you want to clear your favourites?')) {
+            return;
+        }
+
+        upsertPreference('favouriteTeamIds', null);
+    }
+
     return (<div className="mb-3" datatype="fixture-filters">
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'type')} options={typeFilters}
                            value={filter.type || null} className="dynamic-width-dropdown margin-right"/>
@@ -57,5 +68,7 @@ export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
                            value={filter.team ? filter.team.toLowerCase() : null}
                            className="dynamic-width-dropdown margin-right"/>
         <ShareButton text={`${name}, fixtures`}/>
+        {favouritesEnabled && any(favouriteTeamIds) ? (
+            <button className="btn btn-sm btn-outline-danger margin-left" title="Clear favourites" onClick={clearFavourites}>🌟</button>) : null}
     </div>);
 }
