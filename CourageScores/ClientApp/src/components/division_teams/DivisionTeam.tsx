@@ -5,12 +5,12 @@ import {propChanged} from "../../helpers/events";
 import {useApp} from "../common/AppContainer";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {usePreferences} from "../common/PreferencesContainer";
 import {any} from "../../helpers/collections";
+import {Link} from "react-router-dom";
 
 export interface IDivisionTeamProps {
     team: DivisionTeamDto;
@@ -72,9 +72,9 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
                                     className="btn btn-sm btn-primary margin-right d-print-none">➕</button>) : null}
                 {isAdmin ? null : (<ToggleFavouriteTeam teamId={team.id} />)}
-                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
+                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
                     {team.name}
-                </EmbedAwareLink>
+                </Link>
                 {editTeam && isAdmin ? renderEditTeam() : null}
                 {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
             </td>

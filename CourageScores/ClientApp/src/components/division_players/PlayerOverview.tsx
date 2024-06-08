@@ -4,12 +4,12 @@ import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {useBranding} from "../common/BrandingContainer";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTeamDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {DivisionTournamentFixtureDetailsDto} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {Link} from "react-router-dom";
 
 export interface IPlayerOverviewProps {
     playerId: string;
@@ -62,15 +62,15 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
-                    <EmbedAwareLink to={`/score/${fixture.id}`}>{renderDate(date)}</EmbedAwareLink>
+                    <Link to={`/score/${fixture.id}`}>{renderDate(date)}</Link>
                 </div>
             </td>
             <td className="text-end">
                 <div className="mt-4">
                     {fixture.homeTeam.id === team.id
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
-                                           className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                                           className="margin-right">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -80,8 +80,8 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
                 <div className="mt-4">
                     {fixture.awayTeam.id === team.id
                         ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
-                                           className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
+                                           className="margin-right">{fixture.awayTeam.name}</Link>)}
                 </div>
             </td>
         </tr>);
@@ -91,14 +91,14 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
         return (<tr key={tournament.id}>
             <td>
                 <div className="position-absolute">
-                    <EmbedAwareLink to={`/tournament/${tournament.id}`}>{renderDate(date)}</EmbedAwareLink>
+                    <Link to={`/tournament/${tournament.id}`}>{renderDate(date)}</Link>
                 </div>
             </td>
             <td className="text-end" colSpan={3}>
                 <div className="mt-4">
-                    <EmbedAwareLink to={`/tournament/${tournament.id}`} className="text-nowrap">
+                    <Link to={`/tournament/${tournament.id}`} className="text-nowrap">
                         {tournament.type} at <strong>{tournament.address}</strong>
-                    </EmbedAwareLink>
+                    </Link>
                 </div>
             </td>
             <td colSpan={2}>
@@ -115,7 +115,7 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
     if (!player.id) {
         return (<div className="content-background p-3">
             <h5 className="text-danger">⚠ {playerName ? playerName : 'Player'} could not be found</h5>
-            {teamName ? (<p>View <EmbedAwareLink to={`/division/${divisionName}/team:${teamName}/${season.name}`}>{teamName}</EmbedAwareLink> team</p>) : null}
+            {teamName ? (<p>View <Link to={`/division/${divisionName}/team:${teamName}/${season.name}`}>{teamName}</Link> team</p>) : null}
         </div>)
     }
 
@@ -123,8 +123,9 @@ export function PlayerOverview({playerId, playerName, teamName}: IPlayerOverview
         <h3>
             {player.name}
             <span className="h6 margin-left">
-                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}
-                                className="margin-right">{team.name}</EmbedAwareLink>
+                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
+                    {team.name}
+                </Link>
             </span>
             <span className="margin-left">
                 <ShareButton text={`${name}: ${player.name}`}/>

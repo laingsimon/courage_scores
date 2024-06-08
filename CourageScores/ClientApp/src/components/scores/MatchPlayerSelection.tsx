@@ -9,7 +9,6 @@ import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../common/AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {useMatchType} from "./MatchTypeContainer";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameTeamDto} from "../../interfaces/models/dtos/Game/GameTeamDto";
@@ -17,6 +16,7 @@ import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOpt
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {LiveContainer} from "../../live/LiveContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
+import {Link} from "react-router-dom";
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
@@ -48,10 +48,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
     function linkToPlayer(index: number, side: 'home' | 'away', team: GameTeamDto) {
         const playerData: GamePlayerDto = player(index, side);
 
-        return (<EmbedAwareLink
-            to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
+        return (<Link to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
             {playerData.name}
-        </EmbedAwareLink>);
+        </Link>);
     }
 
     async function playerChanged(index: number, player: ISelectablePlayer, side: 'home' | 'away') {

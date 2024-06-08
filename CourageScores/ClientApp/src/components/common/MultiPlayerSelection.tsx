@@ -2,7 +2,6 @@ import {useState} from 'react';
 import {ISelectablePlayer, PlayerSelection} from "./PlayerSelection";
 import {any} from "../../helpers/collections";
 import {useApp} from "./AppContainer";
-import {EmbedAwareLink} from "./EmbedAwareLink";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
@@ -10,6 +9,7 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {Link} from "react-router-dom";
 
 export interface IMultiPlayerSelectionProps {
     onAddPlayer?(player: ISelectablePlayer, score: number): Promise<any>;
@@ -73,8 +73,9 @@ export function MultiPlayerSelection({
             const teamName: string = getTeamName(p.id);
             const playerLink: string = teamName ? `${p.name}@${teamName}` : p.id;
 
-            return (<EmbedAwareLink
-                to={`/division/${division.name}/player:${playerLink}/${season.name}`}>{playerName(p)}</EmbedAwareLink>);
+            return (<Link to={`/division/${division.name}/player:${playerLink}/${season.name}`}>
+                {playerName(p)}
+            </Link>);
         }
 
         return playerName(p);
