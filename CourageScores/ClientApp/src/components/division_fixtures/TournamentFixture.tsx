@@ -4,7 +4,6 @@ import {any, count, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {useDivisionData} from "../league/DivisionDataContainer";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
@@ -16,6 +15,7 @@ import {
 import {createTemporaryId} from "../../helpers/projection";
 import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
+import {Link} from "react-router-dom";
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
@@ -93,9 +93,9 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
     }
 
     function renderLinkToPlayer(player: TournamentPlayerDto) {
-        return (<EmbedAwareLink key={player.id} to={`/division/${divisionName}/player:${player.name}/${season.name}`}>
+        return (<Link key={player.id} to={`/division/${divisionName}/player:${player.name}/${season.name}`}>
             {player.name}
-        </EmbedAwareLink>);
+        </Link>);
     }
 
     function showTournamentSidesPlayers() {
@@ -105,9 +105,9 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
             {tournament.sides.map((side: TournamentSideDto) => {
                 if (side.teamId && count(side.players) !== 1) {
                     return (<div key={side.id}>
-                        <EmbedAwareLink to={`/division/${divisionName}/team:${side.teamId}/${season.name}`}>
+                        <Link to={`/division/${divisionName}/team:${side.teamId}/${season.name}`}>
                             {side.name}
-                        </EmbedAwareLink>
+                        </Link>
                     </div>);
                 }
 
@@ -129,9 +129,9 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
             if (team) {
                 return (<strong className="text-primary">
                     {isAdmin ? null : <ToggleFavouriteTeam teamId={team.id} />}
-                    <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
+                    <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
                         {winningSide.name}
-                    </EmbedAwareLink>
+                    </Link>
                 </strong>);
             }
         }
@@ -165,9 +165,9 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
 
     return (<tr className={notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : ''}>
         <td colSpan={tournament.winningSide ? 3 : 5}>
-            <EmbedAwareLink to={`/tournament/${tournament.id}`}>
+            <Link to={`/tournament/${tournament.id}`}>
                 {tournament.type} at <strong>{tournament.address}</strong>
-            </EmbedAwareLink>
+            </Link>
             {expanded ? showTournamentSidesPlayers() : null}
         </td>
         {tournament.winningSide ? (<td colSpan={2}>

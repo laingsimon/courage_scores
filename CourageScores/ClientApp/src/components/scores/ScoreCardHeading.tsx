@@ -1,11 +1,11 @@
 import {useApp} from "../common/AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {renderDate} from "../../helpers/rendering";
 import {count} from "../../helpers/collections";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {Link} from "react-router-dom";
 
 export interface IScoreCardHeadingProps {
     data: GameDto;
@@ -76,8 +76,8 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
                 ? (<span onClick={async () => await toggleSubmission('home')}
                          className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`}
                          title="See home submission">📬 {data.home.name} ({getScore(data.homeSubmission, 'home')}-{getScore(data.homeSubmission, 'away')})</span>)
-                : <EmbedAwareLink to={`/division/${division.name}/team:${data.home.name}/${season.name}`}
-                                  className="margin-right">{data.home.name} - {homeScore}</EmbedAwareLink>}
+                : <Link to={`/division/${division.name}/team:${data.home.name}/${season.name}`}
+                                  className="margin-right">{data.home.name} - {homeScore}</Link>}
         </td>
         <td className="text-center width-1 middle-vertical-line p-0"></td>
         <td colSpan={2} className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}${submission === 'away' ? ' bg-warning' : ''}`}>
@@ -85,8 +85,8 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
                 ? (<span onClick={async () => await toggleSubmission('away')}
                          className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`}
                          title="See away submission">📬 {data.away.name} ({getScore(data.awaySubmission, 'home')}-{getScore(data.awaySubmission, 'away')})</span>)
-                : <EmbedAwareLink to={`/division/${division.name}/team:${data.away.name}/${season.name}`}
-                                  className="margin-right">{awayScore} - {data.away.name}</EmbedAwareLink>}
+                : <Link to={`/division/${division.name}/team:${data.away.name}/${season.name}`}
+                                  className="margin-right">{awayScore} - {data.away.name}</Link>}
         </td>
     </tr>
     {access === 'clerk' && !data.resultsPublished ? (<tr>

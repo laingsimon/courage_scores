@@ -15,7 +15,6 @@ import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
 import {isGuid} from "../../helpers/projection";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {DivisionHealth} from "../division_health/DivisionHealth";
 import {DataError} from "./DataError";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
@@ -286,11 +285,11 @@ export function Division() {
                     </NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
-                    <NavLink tag={EmbedAwareLink} className={effectiveTab === 'reports' ? 'active' : ''}
+                    <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
                              to={`/division/${divisionIdish}/reports${seasonIdish ? '/' + seasonIdish : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runHealthChecks ? (<li className="nav-item">
-                    <NavLink tag={EmbedAwareLink} className={effectiveTab === 'health' ? 'active' : ''}
+                    <NavLink tag={Link} className={effectiveTab === 'health' ? 'active' : ''}
                              to={`/division/${divisionIdish}/health${seasonIdish ? '/' + seasonIdish : ''}`}>Health</NavLink>
                 </li>) : null}
             </ul>) : null}

@@ -5,8 +5,8 @@ import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {useApp} from "../common/AppContainer";
 import {useBranding} from "../common/BrandingContainer";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {Link} from "react-router-dom";
 
 export interface ITeamOverviewProps {
     teamId: string;
@@ -48,15 +48,15 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
-                    <EmbedAwareLink to={`/score/${fixture.id}`}>{renderDate(fixtureDate.date)}</EmbedAwareLink>
+                    <Link to={`/score/${fixture.id}`}>{renderDate(fixtureDate.date)}</Link>
                 </div>
             </td>
             <td className="text-end">
                 <div className="mt-4">
                     {fixture.homeTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
-                                           className="margin-right text-nowrap">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                                           className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -66,8 +66,8 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
                 <div className="mt-4">
                     {fixture.awayTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
-                                           className="margin-right text-nowrap">{fixture.awayTeam.name}</EmbedAwareLink>)}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
+                                           className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
                 </div>
             </td>
         </tr>);
@@ -76,8 +76,8 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
     if (!team) {
         return <div className="content-background p-3">
             <h5 className="text-danger">⚠ Team could not be found</h5>
-            <EmbedAwareLink className="btn btn-primary"
-                            to={`/division/${divisionName}/teams/${season.name}`}>Teams</EmbedAwareLink>
+            <Link className="btn btn-primary"
+                            to={`/division/${divisionName}/teams/${season.name}`}>Teams</Link>
         </div>
     }
 
