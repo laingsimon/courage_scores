@@ -4,7 +4,6 @@ import {any, count, groupAndSortByOccurrences, IFrequency, sortBy} from "../../h
 import {renderDate} from "../../helpers/rendering";
 import {useEffect, useState} from "react";
 import {useApp} from "../common/AppContainer";
-import {EmbedAwareLink} from "../common/EmbedAwareLink";
 import {ShareButton} from "../common/ShareButton";
 import {useBranding} from "../common/BrandingContainer";
 import {RefreshControl} from "../common/RefreshControl";
@@ -33,6 +32,7 @@ import {MultiPlayerSelection} from "../common/MultiPlayerSelection";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {Link} from "react-router-dom";
 
 export interface IPrintableSheetProps {
     editable?: boolean;
@@ -159,16 +159,16 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
         if (side && side.teamId && division) {
             const team = teams[side.teamId];
 
-            return (<EmbedAwareLink
-                to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</EmbedAwareLink>);
+            return (<Link
+                to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</Link>);
         }
 
         const teamAndDivision = side && count(side.players || []) === 1
             ? findTeamAndDivisionForPlayer(side.players[0])
             : null;
         if (side && teamAndDivision && teamAndDivision.division) {
-            return (<EmbedAwareLink
-                to={`/division/${teamAndDivision.division.name}/player:${side.players[0].name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
+            return (<Link
+                to={`/division/${teamAndDivision.division.name}/player:${side.players[0].name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</Link>);
         }
 
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
@@ -211,9 +211,9 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
                 if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
-                        <EmbedAwareLink to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
+                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
                             {player.name}
-                        </EmbedAwareLink> x {player.occurrences}
+                        </Link> x {player.occurrences}
                     </div>);
                 }
 
@@ -244,9 +244,9 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
                 if (division && team) {
                     return (<div key={index} className="p-1 no-wrap">
-                        <EmbedAwareLink to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
+                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>
                             {player.name}
-                        </EmbedAwareLink> ({player.score})
+                        </Link> ({player.score})
                     </div>);
                 }
 
