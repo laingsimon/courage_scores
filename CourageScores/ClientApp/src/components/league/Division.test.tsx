@@ -767,23 +767,6 @@ describe('Division', () => {
         });
 
         describe('edge cases', () => {
-            it('when a different division id is returned to requested', async () => {
-                divisionDataMap[division.id] = divisionDataBuilder()  // different id to requested
-                    .season(season)
-                    .name(division.name)
-                    .build();
-                console.log = noop;
-
-                await renderComponent(appProps({
-                    divisions: [division],
-                    seasons: [season],
-                    account: {},
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                    { urlStyle: UrlStyle.Single });
-
-                expect(reportedError.error).toEqual(`Data for a different division returned, requested: ${division.id}`);
-            });
-
             it('when a different season id is returned to requested', async () => {
                 divisionDataMap[division.id + ':' + season.id] = ({
                     season: seasonBuilder('ANOTHER SEASON').build(),
@@ -843,7 +826,7 @@ describe('Division', () => {
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
-                expect(content.className).toContain('loading-background');
+                expect(content.innerHTML).toContain('No data found');
             });
 
             it('renders error when data returns with a status code with errors', async () => {

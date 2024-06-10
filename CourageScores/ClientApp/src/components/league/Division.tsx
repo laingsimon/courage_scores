@@ -25,15 +25,16 @@ import {IFailedRequest} from "../common/IFailedRequest";
 import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/DivisionDataFilter";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {INVALID, useDivisionUri} from "./DivisionUriContainer";
+import {IIdish} from "./IDivisionUri";
 
 export interface IRequestedDivisionDataDto extends DivisionDataDto, IFailedRequest {
-    requested?: { divisionId: string, seasonId: string };
+    requested?: { divisionId: string[], seasonId: string };
 }
 
 export function Division() {
     const {divisionApi, featureApi} = useDependencies();
     const {account, onError, error, seasons, controls} = useApp();
-    const {requestedDivision, requestedSeason, requestedMode} = useDivisionUri();
+    const {requestedDivisions, requestedSeason, requestedMode} = useDivisionUri();
     const [divisionData, setDivisionData] = useState<IRequestedDivisionDataDto | null>(null);
     const [overrideDivisionData, setOverrideDivisionData] = useState<DivisionDataDto | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -98,10 +99,10 @@ export function Division() {
     }
 
     async function reloadDivisionData(preventReloadIfIdsAreTheSame?: boolean) {
+        const requestedDivisionIds: string[] = (requestedDivisions || []).map((idish: IIdish) => idish ? idish.id : null).filter((id: string) => !!id);
+        const requestedSeasonId: string = requestedSeason ? requestedSeason.id : null;
         try {
-            const requestedDivisionId: string = requestedDivision ? requestedDivision.id : null;
-            const requestedSeasonId: string = requestedSeason ? requestedSeason.id : null;
-            if (divisionData && divisionData.requested && divisionData.requested.divisionId === requestedDivisionId && divisionData.requested.seasonId === requestedSeasonId) {
+            if (divisionData && divisionData.requested && divisionData.requested.divisionId.join(',') === requestedDivisionIds.join(',') && divisionData.requested.seasonId === requestedSeasonId) {
                 // repeated call... don't request the data
                 if (preventReloadIfIdsAreTheSame) {
                     return;
@@ -109,7 +110,7 @@ export function Division() {
             }
 
             const filter: DivisionDataFilter = {
-                divisionId: [ requestedDivisionId ],
+                divisionId: requestedDivisionIds,
             };
             if (requestedSeasonId) {
                 filter.seasonId = requestedSeasonId;
@@ -117,7 +118,7 @@ export function Division() {
 
             const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(filter);
             newDivisionData.requested = {
-                divisionId: requestedDivisionId,
+                divisionId: requestedDivisionIds,
                 seasonId: requestedSeasonId,
             };
 
@@ -126,10 +127,6 @@ export function Division() {
                 console.log(newDivisionData);
                 const suffix = newDivisionData.errors ? ' -- ' + Object.keys(newDivisionData.errors).map((key: string) => `${key}: ${newDivisionData.errors![key]}`).join(', ') : '';
                 onError(`Error accessing division: Code: ${newDivisionData.status}${suffix}`);
-            } else if (newDivisionData.id !== requestedDivisionId) {
-                /* istanbul ignore next */
-                console.log(newDivisionData);
-                onError(`Data for a different division returned, requested: ${requestedDivision}`);
             } else if (requestedSeason && (newDivisionData.season || {}).id !== requestedSeasonId) {
                 /* istanbul ignore next */
                 console.log(newDivisionData);
@@ -148,6 +145,17 @@ export function Division() {
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
+            setDivisionData({
+                name: null,
+                status: 500,
+                errors: {
+                    Exception: (e as any).message,
+                },
+                requested: {
+                    divisionId: requestedDivisionIds,
+                    seasonId: requestedSeasonId,
+                },
+            });
         } finally {
             setLoading(false);
         }
@@ -177,7 +185,7 @@ export function Division() {
             function beginReload() {
                 setDataRequested(true);
 
-                if (requestedDivision !== INVALID && requestedSeason !== INVALID) {
+                if (any(requestedDivisions, (d: IIdish) => !!d.id && d !== INVALID) && requestedSeason !== INVALID) {
                     setLoading(true);
                     // noinspection JSIgnoredPromiseFromCall
                     reloadDivisionData(true);
@@ -185,7 +193,7 @@ export function Division() {
             }
 
             try {
-                if (!requestedDivision) {
+                if (!requestedDivisions) {
                     return;
                 }
 
@@ -198,9 +206,9 @@ export function Division() {
                     return;
                 }
 
-                const requestedDivisionId: string = requestedDivision ? requestedDivision.id : null;
+                const requestedDivisionIds: string[] = any(requestedDivisions || []) ? requestedDivisions.map(d => d.id) : null;
                 const requestedSeasonId: string = requestedSeason ? requestedSeason.id : null;
-                if ((divisionData.id !== requestedDivisionId) || (requestedSeason && (divisionData.season || {}).id !== requestedSeasonId)) {
+                if (!any(requestedDivisionIds, d => d === divisionData.id) || (requestedSeason && (divisionData.season || {}).id !== requestedSeasonId)) {
                     beginReload();
                 }
             } catch (e) {
@@ -209,7 +217,7 @@ export function Division() {
             }
         },
         // eslint-disable-next-line
-        [divisionData, loading, requestedDivision, requestedSeason, error, seasons]);
+        [divisionData, loading, requestedDivisions, requestedSeason, error, seasons]);
 
     if (loading || !dataRequested) {
         return (<Loading/>);
@@ -236,38 +244,38 @@ export function Division() {
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'teams' ? 'active' : ''}
-                             to={`/division/${requestedDivision}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>Teams</NavLink>
+                             to={`/division/${requestedDivisions}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>Teams</NavLink>
                 </li>
                 {effectiveTab.startsWith('team:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${requestedDivision}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>
+                             to={`/division/${requestedDivisions}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>
                         Team Details
                     </NavLink>
                 </li>) : null}
                 <li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'fixtures' ? 'active' : ''}
-                             to={`/division/${requestedDivision}/fixtures${requestedSeason ? '/' + requestedSeason : ''}`}>Fixtures</NavLink>
+                             to={`/division/${requestedDivisions}/fixtures${requestedSeason ? '/' + requestedSeason : ''}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'players' ? 'active' : ''}
-                             to={`/division/${requestedDivision}/players${requestedSeason ? '/' + requestedSeason : ''}`}>Players</NavLink>
+                             to={`/division/${requestedDivisions}/players${requestedSeason ? '/' + requestedSeason : ''}`}>Players</NavLink>
                 </li>
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${requestedDivision}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>
+                             to={`/division/${requestedDivisions}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>
                         {getPlayerProps(effectiveTab.substring('player:'.length)).playerName || 'Player Details'}
                     </NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
-                             to={`/division/${requestedDivision}/reports${requestedSeason ? '/' + requestedSeason : ''}`}>Reports</NavLink>
+                             to={`/division/${requestedDivisions}/reports${requestedSeason ? '/' + requestedSeason : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runHealthChecks ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'health' ? 'active' : ''}
-                             to={`/division/${requestedDivision}/health${requestedSeason ? '/' + requestedSeason : ''}`}>Health</NavLink>
+                             to={`/division/${requestedDivisions}/health${requestedSeason ? '/' + requestedSeason : ''}`}>Health</NavLink>
                 </li>) : null}
             </ul>) : null}
             {dataErrors && account ? (<div className="content-background p-3">

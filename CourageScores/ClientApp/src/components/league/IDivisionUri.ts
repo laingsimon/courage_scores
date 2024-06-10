@@ -1,6 +1,6 @@
 export interface IDivisionUri {
     requestedMode?: string;
-    requestedDivision?: IIdish;
+    requestedDivisions?: IIdish[];
     requestedSeason?: IIdish;
 }
 

@@ -49,26 +49,22 @@ export function DivisionUriContainer({ urlStyle, mode: overrideMode }: IDivision
         }
 
         if (!divisions || !any(divisions) || !idish) {
-            return null;
+            return INVALID;
         }
 
         const division: DivisionDto = divisions.filter((d: DivisionDto) => d.name.toLowerCase() === idish.toLowerCase())[0];
         return division ? makeIdish(division) : INVALID;
     }
 
-    function getDivisionIdsFromUrl(): IIdish {
+    function getDivisionIdsFromUrl(): IIdish[] {
         const search = new URLSearchParams(location.search);
 
         if (!search.has('divisionId')) {
-            return INVALID;
+            return [ INVALID ];
         }
 
         const divisionIds: string[] = search.getAll('divisionId');
-        if (divisionIds.length === 1) {
-            return getDivisionId(divisionIds[0]);
-        } else {
-            throw new Error('Multiple divisions are not supported yet');
-        }
+        return divisionIds.map(getDivisionId);
     }
 
     function getSeasonId(idish?: string): IIdish {
@@ -86,8 +82,8 @@ export function DivisionUriContainer({ urlStyle, mode: overrideMode }: IDivision
 
     const data: IDivisionUri = {
         requestedMode: overrideMode || mode,
-        requestedDivision: urlStyle === 'single-division'
-            ? getDivisionId(divisionId)
+        requestedDivisions: urlStyle === 'single-division'
+            ? [ getDivisionId(divisionId) ]
             : getDivisionIdsFromUrl(),
         requestedSeason: getSeasonId(seasonId),
     };
