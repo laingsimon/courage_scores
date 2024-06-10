@@ -116,9 +116,10 @@ export function Tournament() {
             if (canManageTournaments) {
                 const filter: DivisionDataFilter = {
                     seasonId: tournamentData.seasonId,
+                    divisionId: [ tournamentData.divisionId ].filter((id: string) => !!id),
                 };
 
-                const divisionData: DivisionDataDto = await divisionApi.data(tournamentData.divisionId || EMPTY_ID, filter);
+                const divisionData: DivisionDataDto = await divisionApi.data(filter);
                 const fixtureDate: DivisionFixtureDateDto = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
                 if (fixtureDate) {
                     const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures

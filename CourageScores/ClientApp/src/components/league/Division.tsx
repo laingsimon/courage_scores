@@ -108,12 +108,14 @@ export function Division() {
                 }
             }
 
-            const filter: DivisionDataFilter = {};
+            const filter: DivisionDataFilter = {
+                divisionId: [ requestedDivisionId ],
+            };
             if (requestedSeasonId) {
                 filter.seasonId = requestedSeasonId;
             }
 
-            const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(requestedDivisionId, filter);
+            const newDivisionData: IRequestedDivisionDataDto = await divisionApi.data(filter);
             newDivisionData.requested = {
                 divisionId: requestedDivisionId,
                 seasonId: requestedSeasonId,

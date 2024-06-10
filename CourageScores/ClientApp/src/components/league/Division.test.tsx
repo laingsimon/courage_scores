@@ -46,9 +46,10 @@ describe('Division', () => {
     let features: ConfiguredFeatureDto[];
 
     const divisionApi = api<IDivisionApi>({
-        data: async (divisionId: string, filter: DivisionDataFilter): Promise<DivisionDataDto> => {
-            const seasonId = filter.seasonId;
-            const key = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
+        data: async (filter: DivisionDataFilter): Promise<DivisionDataDto> => {
+            const seasonId: string = filter.seasonId;
+            const divisionId: string = filter.divisionId.join(',');
+            const key: string = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
 
             if (!any(Object.keys(divisionDataMap), (k: string) => k === key)) {
                 throw new Error(`DivisionData request not expected for ${key}`);
