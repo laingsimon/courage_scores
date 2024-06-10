@@ -4,7 +4,6 @@ import {DataMap, toMap} from "./helpers/collections";
 import {Layout} from "./components/layout/Layout";
 import {Route, Routes} from "react-router-dom";
 import {Home} from "./components/Home";
-import {Division} from "./components/league/Division";
 import {Score} from "./components/scores/Score";
 import {AdminHome} from "./components/admin/AdminHome";
 import {Tournament} from "./components/tournaments/Tournament";
@@ -22,6 +21,7 @@ import {UserDto} from "./interfaces/models/dtos/Identity/UserDto";
 import {Tv} from "./components/Tv";
 import {IBrowserType} from "./components/common/IBrowserType";
 import {PreferencesContainer} from "./components/common/PreferencesContainer";
+import {DivisionUriContainer, UrlStyle} from "./components/league/DivisionUriContainer";
 
 export interface IAppProps {
     embed: boolean;
@@ -140,9 +140,12 @@ export function App({embed, controls, testRoute}: IAppProps) {
                 <Layout>
                     <Routes>
                         <Route path='/' element={<Home/>}/>
-                        <Route path='/division/:divisionId' element={<Division/>}/>
-                        <Route path='/division/:divisionId/:mode' element={<Division/>}/>
-                        <Route path='/division/:divisionId/:mode/:seasonId' element={<Division/>}/>
+                        <Route path='/division/:divisionId' element={<DivisionUriContainer urlStyle={UrlStyle.Single} />} />
+                        <Route path='/division/:divisionId/:mode' element={<DivisionUriContainer urlStyle={UrlStyle.Single} />} />
+                        <Route path='/division/:divisionId/:mode/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Single} />} />
+                        <Route path='/teams/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams" />} />
+                        <Route path='/players/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players" />} />
+                        <Route path='/fixtures/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures" />} />
                         <Route path='/score/:fixtureId' element={<Score/>}/>
                         <Route path='/admin' element={<AdminHome/>}/>
                         <Route path='/admin/:mode' element={<AdminHome/>}/>
