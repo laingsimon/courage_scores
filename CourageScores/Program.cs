@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using CourageScores;
+using CourageScores.Binders;
 using CourageScores.Filters;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Newtonsoft.Json.Converters;
@@ -22,7 +23,11 @@ builder.Services
 
 // Add services to the container.
 builder.Services
-    .AddControllersWithViews(options => { options.Filters.Add<CacheManagementFilter>(); })
+    .AddControllersWithViews(options =>
+    {
+        options.Filters.Add<CacheManagementFilter>();
+        options.AddCommaSeparatedArrayModelBinderProvider();
+    })
     .AddNewtonsoftJson(options =>
     {
         options.SerializerSettings.Converters.Add(new StringEnumConverter());
