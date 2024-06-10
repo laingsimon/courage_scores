@@ -156,13 +156,16 @@ public class DivisionDataFilterTests
         {
             Date = date == null ? null : DateTime.Parse(date),
             TeamId = teamId == null ? null : Guid.Parse(teamId),
-            DivisionId = divisionId == null ? null : Guid.Parse(divisionId),
             SeasonId = seasonId == null ? null : Guid.Parse(seasonId),
         };
+        if (divisionId != null)
+        {
+            filter1.DivisionId.Add(Guid.Parse(divisionId));
+        }
         var filter2 = new DivisionDataFilter
         {
             Date = DateTime.Parse(MatchingDate),
-            DivisionId = Guid.Parse(MatchingDivisionId),
+            DivisionId =  { Guid.Parse(MatchingDivisionId) },
             SeasonId = Guid.Parse(MatchingSeasonId),
             TeamId = Guid.Parse(MatchingTeamId),
         };

@@ -81,7 +81,7 @@ public class DivisionDataDtoFactoryTests
             Updated = new DateTime(2001, 02, 03),
         };
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Id, Is.EqualTo(division.Id));
         Assert.That(result.Name, Is.EqualTo("division 1"));
@@ -99,15 +99,16 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
-        Assert.That(result.Name, Is.EqualTo("<all divisions>"));
+        Assert.That(result.Name, Is.EqualTo("<0 divisions>"));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenTeams_SetsTeamsCorrectly()
     {
+        var division = new DivisionDto();
         var team1 = new TeamDto
         {
             Id = Guid.NewGuid(),
@@ -172,7 +173,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Teams.Select(t => t.Name), Is.EqualTo(new[]
         {
@@ -291,7 +292,7 @@ public class DivisionDataDtoFactoryTests
             season,
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Teams.Select(t => t.Name), Is.EqualTo(new[]
         {
@@ -381,7 +382,7 @@ public class DivisionDataDtoFactoryTests
             },
         };
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.DataErrors.Select(de => de.Message), Has.Member($"Potential cross-division team found: {otherDivisionTeam.Id}"));
     }
@@ -458,7 +459,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
         {
@@ -500,7 +501,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
         {
@@ -614,7 +615,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
         {
@@ -700,7 +701,7 @@ public class DivisionDataDtoFactoryTests
                 { team2.Id, Guid.NewGuid() },
             });
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
         {
@@ -780,7 +781,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
         {
@@ -902,7 +903,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
         {
@@ -925,6 +926,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsPlayersCorrectly()
     {
+        var division = new DivisionDto();
         var season = new SeasonDto
         {
             Id = Guid.NewGuid(),
@@ -1024,7 +1026,7 @@ public class DivisionDataDtoFactoryTests
             season,
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[]
         {
@@ -1161,7 +1163,7 @@ public class DivisionDataDtoFactoryTests
             season,
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Players.Select(p => p.Name), Is.EquivalentTo(new[] { thisDivisionPlayer.Name }));
         Assert.That(result.DataErrors, Is.Empty);
@@ -1297,7 +1299,7 @@ public class DivisionDataDtoFactoryTests
             season,
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.Players, Is.Empty);
         Assert.That(result.DataErrors, Is.Empty);
@@ -1426,7 +1428,7 @@ public class DivisionDataDtoFactoryTests
             },
         };
 
-        var result = await _factory.CreateDivisionDataDto(context, division, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         Assert.That(result.DataErrors, Is.Empty);
     }
@@ -1490,7 +1492,7 @@ public class DivisionDataDtoFactoryTests
             season,
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Players, Is.Empty);
     }
@@ -1561,7 +1563,7 @@ public class DivisionDataDtoFactoryTests
             },
         };
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Players.Select(p => p.Name), Is.EquivalentTo(new[]
         {
@@ -1683,7 +1685,7 @@ public class DivisionDataDtoFactoryTests
             },
         };
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[]
         {
@@ -1709,7 +1711,7 @@ public class DivisionDataDtoFactoryTests
             season,
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Season!.Id, Is.EqualTo(season.Id));
         Assert.That(result.Season!.Name, Is.EqualTo(season.Name));
@@ -1718,6 +1720,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrors_SetsDataErrorsCorrectly()
     {
+        var division = new DivisionDto();
         _user = new UserDto
         {
             Access = new AccessDto
@@ -1792,7 +1795,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         var dataError = result.DataErrors.Single();
         Assert.That(dataError.Message, Is.EqualTo("Mismatching number of players: Home players (1): [A] vs Away players (2): [B, C]"));
@@ -1869,7 +1872,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.DataErrors, Is.Empty);
     }
@@ -1951,7 +1954,7 @@ public class DivisionDataDtoFactoryTests
             new SeasonDto(),
             new Dictionary<Guid, Guid?>());
 
-        var result = await _factory.CreateDivisionDataDto(context, null, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.DataErrors, Is.Empty);
     }
@@ -1974,7 +1977,7 @@ public class DivisionDataDtoFactoryTests
             season1, season2,
         };
 
-        var result = await _factory.SeasonNotFound(null, seasons, _token);
+        var result = await _factory.SeasonNotFound(Array.Empty<DivisionDto?>(), seasons, _token);
 
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.Name, Is.EqualTo("<all divisions>"));
@@ -2004,7 +2007,7 @@ public class DivisionDataDtoFactoryTests
             Name = "division1",
         };
 
-        var result = await _factory.SeasonNotFound(division, seasons, _token);
+        var result = await _factory.SeasonNotFound(new[] { division }, seasons, _token);
 
         Assert.That(result.Id, Is.EqualTo(division.Id));
         Assert.That(result.Name, Is.EqualTo("division1"));

@@ -107,7 +107,7 @@ public class SeasonTemplateServiceTests
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _divisionService
             .Setup(s => s.GetDivisionData(
-                It.Is<DivisionDataFilter>(f => f.DivisionId == _division.Id && f.SeasonId == _season.Id), _token))
+                It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division.Id) && f.SeasonId == _season.Id), _token))
             .ReturnsAsync(() => _division);
         _checkFactory.Setup(f => f.CreateChecks()).Returns(_check.Object);
         _teamService.Setup(s => s.GetTeamsForSeason(_season.Id, _token))
@@ -175,7 +175,7 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(_season.Id, _token);
 
         _divisionService
-            .Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == _division!.Id && f.SeasonId == _season.Id && f.ExcludeProposals == true), _token));
+            .Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division!.Id) && f.SeasonId == _season.Id && f.ExcludeProposals == true), _token));
         Assert.That(result.Success, Is.True);
     }
 

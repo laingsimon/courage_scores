@@ -31,7 +31,7 @@ public class DivisionController : Controller
     public async Task<DivisionDataDto> Data(Guid divisionId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
         filter ??= new DivisionDataFilter();
-        filter.DivisionId = divisionId;
+        filter.DivisionId.Add(divisionId);
 
         return await _divisionService.GetDivisionData(filter, token);
     }
@@ -41,9 +41,10 @@ public class DivisionController : Controller
     public async Task<DivisionDataDto> Data(Guid? divisionId, Guid seasonId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
         filter ??= new DivisionDataFilter();
-        filter.DivisionId = divisionId == null || divisionId == Guid.Empty
-            ? null
-            : divisionId;
+        if (divisionId != null && divisionId != Guid.Empty)
+        {
+            filter.DivisionId.Add(divisionId.Value);
+        }
         filter.SeasonId = seasonId;
 
         return await _divisionService.GetDivisionData(filter, token);

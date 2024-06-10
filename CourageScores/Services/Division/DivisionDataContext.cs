@@ -37,16 +37,18 @@ public class DivisionDataContext
         return GamesForDate.SelectMany(pair => pair.Value).Where(g => divisionId == null || g.IsKnockout || g.DivisionId == divisionId);
     }
 
-    public IEnumerable<TournamentGame> AllTournamentGames(Guid? divisionId)
+    public IEnumerable<TournamentGame> AllTournamentGames(IReadOnlyCollection<Guid?> divisionIds)
     {
+        var anyDivision = divisionIds.Count == 0;
+
         return _tournamentGames
-            .Where(tournament => divisionId == null || tournament.DivisionId == null || tournament.DivisionId == divisionId);
+            .Where(tournament => anyDivision || tournament.DivisionId == null || divisionIds.Contains(tournament.DivisionId));
     }
 
-    public IEnumerable<DateTime> GetDates(Guid? divisionId)
+    public IEnumerable<DateTime> GetDates(IReadOnlyCollection<Guid?> divisionIds)
     {
         return GamesForDate.Keys
-            .Union(AllTournamentGames(divisionId).Select(g => g.Date))
+            .Union(AllTournamentGames(divisionIds).Select(g => g.Date))
             .Union(Notes.Keys)
             .OrderBy(d => d);
     }
