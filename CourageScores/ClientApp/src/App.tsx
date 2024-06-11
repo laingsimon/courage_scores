@@ -146,6 +146,9 @@ export function App({embed, controls, testRoute}: IAppProps) {
                         <Route path='/teams/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams" />} />
                         <Route path='/players/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players" />} />
                         <Route path='/fixtures/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures" />} />
+                        <Route path='/teams' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams" />} />
+                        <Route path='/players' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players" />} />
+                        <Route path='/fixtures' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures" />} />
                         <Route path='/score/:fixtureId' element={<Score/>}/>
                         <Route path='/admin' element={<AdminHome/>}/>
                         <Route path='/admin/:mode' element={<AdminHome/>}/>
