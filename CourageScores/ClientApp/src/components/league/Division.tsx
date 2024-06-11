@@ -219,6 +219,10 @@ export function Division() {
         // eslint-disable-next-line
         [divisionData, loading, requestedDivisions, requestedSeason, error, seasons]);
 
+    function toQueryString(ids: IIdish[]) {
+        return '?' + ids.map(id => `divisionId=${id}`).join('&');
+    }
+
     if (loading || !dataRequested) {
         return (<Loading/>);
     }
@@ -244,7 +248,7 @@ export function Division() {
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'teams' ? 'active' : ''}
-                             to={`/division/${requestedDivisions}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>Teams</NavLink>
+                             to={`/teams${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Teams</NavLink>
                 </li>
                 {effectiveTab.startsWith('team:') ? (<li className="nav-item">
                     <NavLink tag={Link}
@@ -255,12 +259,12 @@ export function Division() {
                 </li>) : null}
                 <li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'fixtures' ? 'active' : ''}
-                             to={`/division/${requestedDivisions}/fixtures${requestedSeason ? '/' + requestedSeason : ''}`}>Fixtures</NavLink>
+                             to={`/fixtures${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'players' ? 'active' : ''}
-                             to={`/division/${requestedDivisions}/players${requestedSeason ? '/' + requestedSeason : ''}`}>Players</NavLink>
+                             to={`/players${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Players</NavLink>
                 </li>
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
                     <NavLink tag={Link}
@@ -269,11 +273,11 @@ export function Division() {
                         {getPlayerProps(effectiveTab.substring('player:'.length)).playerName || 'Player Details'}
                     </NavLink>
                 </li>) : null}
-                {account && account.access && account.access.runReports ? (<li className="nav-item">
+                {account && account.access && account.access.runReports && requestedDivisions.length === 1 ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
                              to={`/division/${requestedDivisions}/reports${requestedSeason ? '/' + requestedSeason : ''}`}>Reports</NavLink>
                 </li>) : null}
-                {account && account.access && account.access.runHealthChecks ? (<li className="nav-item">
+                {account && account.access && account.access.runHealthChecks && requestedDivisions.length === 1 ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'health' ? 'active' : ''}
                              to={`/division/${requestedDivisions}/health${requestedSeason ? '/' + requestedSeason : ''}`}>Health</NavLink>
                 </li>) : null}
