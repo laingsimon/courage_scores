@@ -78,6 +78,10 @@ public class CommaDelimitedModelBinder : IModelBinder
             {
                 bindingContext.Result = ModelBindingResult.Success(ParseValues(values).ToList());
             }
+            else if (bindingContext.ModelType == typeof(HashSet<T>))
+            {
+                bindingContext.Result = ModelBindingResult.Success(ParseValues(values).ToHashSet());
+            }
             else if (bindingContext.ModelType == typeof(T[]) || bindingContext.ModelType == typeof(IEnumerable<T>) || bindingContext.ModelType == typeof(IReadOnlyCollection<T>))
             {
                 bindingContext.Result = ModelBindingResult.Success(ParseValues(values).ToArray());

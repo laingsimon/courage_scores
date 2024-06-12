@@ -8,7 +8,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     // ReSharper disable MemberCanBePrivate.Global
     // ReSharper disable UnusedAutoPropertyAccessor.Global
     public DateTime? Date { get; set; }
-    public List<Guid> DivisionId { get; set; } = new();
+    public HashSet<Guid> DivisionId { get; set; } = new();
     public Guid? SeasonId { get; set; }
     public Guid? TeamId { get; set; }
     public bool ExcludeProposals { get; set; }
