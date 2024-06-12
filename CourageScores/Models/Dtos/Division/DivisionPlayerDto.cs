@@ -22,4 +22,5 @@ public class DivisionPlayerDto : IRankedDto
 
     public DateTime? Updated { get; set; }
     public int Rank { get; set; }
+    public DivisionDto? Division { get; set; }
 }

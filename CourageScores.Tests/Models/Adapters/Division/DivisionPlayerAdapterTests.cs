@@ -1,4 +1,5 @@
 ﻿using CourageScores.Models.Adapters.Division;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
@@ -80,8 +81,13 @@ public class DivisionPlayerAdapterTests
         };
         var playerTuple = new DivisionData.TeamPlayerTuple(player, team);
         var fixtures = new Dictionary<DateTime, Guid>();
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION",
+        };
 
-        var result = await _adapter.Adapt(score, playerTuple, fixtures, _token);
+        var result = await _adapter.Adapt(score, playerTuple, fixtures, division, _token);
 
         Assert.That(result.Id, Is.EqualTo(player.Id));
         Assert.That(result.Captain, Is.EqualTo(player.Captain));
@@ -97,6 +103,7 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.EqualTo(fixtures));
         Assert.That(result.Updated, Is.EqualTo(player.Updated));
+        Assert.That(result.Division, Is.EqualTo(division));
     }
 
     [Test]
@@ -134,11 +141,54 @@ public class DivisionPlayerAdapterTests
         };
         var playerTuple = new DivisionData.TeamPlayerTuple(player, team);
         var fixtures = new Dictionary<DateTime, Guid>();
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION",
+        };
 
-        var result = await _adapter.Adapt(score, playerTuple, fixtures, _token);
+        var result = await _adapter.Adapt(score, playerTuple, fixtures, division, _token);
 
         Assert.That(result.Team, Is.EqualTo("team"));
         Assert.That(result.Name, Is.EqualTo("player"));
+    }
+
+    [Test]
+    public async Task Adapt_GivenNoFixturesAndNoDivision_SetsDivisionToNull()
+    {
+        var score = new DivisionData.PlayerScore
+        {
+            OneEighties = 3,
+            HiCheckout = 4,
+            PlayerPlayCount =
+            {
+                {
+                    1, _singles
+                },
+                {
+                    2, _pairs
+                },
+                {
+                    3, _triples
+                },
+            },
+        };
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "",
+        };
+        var player = new TeamPlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "",
+        };
+        var playerTuple = new DivisionData.TeamPlayerTuple(player, team);
+        var fixtures = new Dictionary<DateTime, Guid>();
+
+        var result = await _adapter.Adapt(score, playerTuple, fixtures, null, _token);
+
+        Assert.That(result.Division, Is.Null);
     }
 
     [Test]
@@ -156,8 +206,13 @@ public class DivisionPlayerAdapterTests
             Captain = true,
             Updated = new DateTime(2001, 02, 03),
         };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION",
+        };
 
-        var result = await _adapter.Adapt(team, player, _token);
+        var result = await _adapter.Adapt(team, player, division, _token);
 
         Assert.That(result.Id, Is.EqualTo(player.Id));
         Assert.That(result.Captain, Is.EqualTo(player.Captain));
@@ -173,6 +228,7 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.Empty);
         Assert.That(result.Updated, Is.EqualTo(player.Updated));
+        Assert.That(result.Division, Is.EqualTo(division));
     }
 
     [Test]
@@ -190,10 +246,34 @@ public class DivisionPlayerAdapterTests
             Captain = true,
             Updated = new DateTime(2001, 02, 03),
         };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION",
+        };
 
-        var result = await _adapter.Adapt(team, player, _token);
+        var result = await _adapter.Adapt(team, player, division, _token);
 
         Assert.That(result.Name, Is.EqualTo("Player"));
         Assert.That(result.Team, Is.EqualTo("Team"));
+    }
+
+    [Test]
+    public async Task Adapt_GivenTeamPlayerDtoAndNoDivision_SetsDivisionToNull()
+    {
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "",
+        };
+        var player = new TeamPlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "",
+        };
+
+        var result = await _adapter.Adapt(team, player, null, _token);
+
+        Assert.That(result.Division, Is.Null);
     }
 }

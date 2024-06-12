@@ -15,6 +15,7 @@ import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {usePreferences} from "../common/PreferencesContainer";
 import {any} from "../../helpers/collections";
 import {Link} from "react-router-dom";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 export interface IDivisionPlayerProps {
     player: DivisionPlayerDto;
@@ -90,6 +91,8 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
         }
     }
 
+    const division: DivisionDto = player.division || { id: divisionId, name: divisionName };
+
     return (<tr className={(notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
         <td>{player.rank}</td>
         <td>
@@ -105,7 +108,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
                 : null}
             {deleting
                 ? (<s>{player.name}</s>)
-                : (<Link to={`/division/${divisionName}/player:${player.name}@${player.team}/${season.name}`}>
+                : (<Link to={`/division/${division.name || division.id}/player:${player.name}@${player.team}/${season.name}`}>
                     {player.captain ? (<span>🤴 </span>) : null}
                     {player.name}
                 </Link>)}
@@ -120,7 +123,7 @@ export function DivisionPlayer({player, hideVenue}: IDivisionPlayerProps) {
                     ? (<span className="text-warning">{player.team}</span>)
                     : (<>
                         {isAdmin ? null : (<ToggleFavouriteTeam teamId={player.teamId} />)}
-                        <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
+                        <Link to={`/division/${division.name || division.id}/team:${team.name}/${season.name}`} className="margin-right">
                             {deleting ? (<s>{player.team}</s>) : player.team}
                         </Link></>)}
             </td>)}
