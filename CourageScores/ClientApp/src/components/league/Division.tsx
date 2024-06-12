@@ -226,8 +226,8 @@ export function Division() {
         // eslint-disable-next-line
         [divisionData, loading, requestedDivisions, requestedSeason, error, seasons]);
 
-    function toQueryString(ids: IIdish[]) {
-        return '?' + ids.map(id => `divisionId=${id}`).join('&');
+    function toQueryString(ids: IIdish[]): string {
+        return '?' + ids.map((id: IIdish) => `division=${id}`).join('&');
     }
 
     if (loading || !dataRequested) {

@@ -43,7 +43,7 @@ export function DivisionUriContainer({ urlStyle, mode: overrideMode }: IDivision
     const location = useLocation();
     const {onError} = useApp();
 
-    function getDivisionId(idish?: string): IIdish {
+    function getDivisionIdIsh(idish?: string): IIdish {
         if (isGuid(idish)) {
             return makeIdish({ id: idish });
         }
@@ -59,12 +59,12 @@ export function DivisionUriContainer({ urlStyle, mode: overrideMode }: IDivision
     function getDivisionIdsFromUrl(): IIdish[] {
         const search = new URLSearchParams(location.search);
 
-        if (!search.has('divisionId')) {
+        if (!search.has('division')) {
             return [ INVALID ];
         }
 
-        const divisionIds: string[] = search.getAll('divisionId');
-        return divisionIds.map(getDivisionId);
+        const divisions: string[] = search.getAll('division');
+        return divisions.map(getDivisionIdIsh);
     }
 
     function getSeasonId(idish?: string): IIdish {
@@ -83,7 +83,7 @@ export function DivisionUriContainer({ urlStyle, mode: overrideMode }: IDivision
     const data: IDivisionUri = {
         requestedMode: overrideMode || mode,
         requestedDivisions: urlStyle === 'single-division'
-            ? [ getDivisionId(divisionId) ]
+            ? [ getDivisionIdIsh(divisionId) ]
             : getDivisionIdsFromUrl(),
         requestedSeason: getSeasonId(seasonId),
     };

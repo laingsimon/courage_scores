@@ -221,7 +221,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/teams/:seasonId', `/teams/${season.name}?divisionId=${division.name}`,
+                }, reportedError), '/teams/:seasonId', `/teams/${season.name}?division=${division.name}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'teams' });
 
                 reportedError.verifyNoError();
@@ -234,7 +234,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/teams/:seasonId', `/teams/${season.id}?divisionId=${division.id}`,
+                }, reportedError), '/teams/:seasonId', `/teams/${season.id}?division=${division.id}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'teams' });
 
                 reportedError.verifyNoError();
@@ -351,7 +351,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.name}?divisionId=${division.name}`,
+                }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.name}?division=${division.name}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
 
                 reportedError.verifyNoError();
@@ -363,7 +363,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.id}?divisionId=${division.id}`,
+                }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.id}?division=${division.id}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
 
                 reportedError.verifyNoError();
@@ -449,7 +449,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/players/:seasonId', `/players/${season.name}?divisionId=${division.name}`,
+                }, reportedError), '/players/:seasonId', `/players/${season.name}?division=${division.name}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'players' });
 
                 reportedError.verifyNoError();
@@ -462,7 +462,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/players/:seasonId', `/players/${season.id}?divisionId=${division.id}`,
+                }, reportedError), '/players/:seasonId', `/players/${season.id}?division=${division.id}`,
                     { urlStyle: UrlStyle.Multiple, mode: 'players' });
 
                 reportedError.verifyNoError();
