@@ -9,7 +9,7 @@ import {DivisionReports} from "../division_reports/DivisionReports";
 import {TeamOverview} from "../division_teams/TeamOverview";
 import {IPlayerOverviewProps, PlayerOverview} from "../division_players/PlayerOverview";
 import {Loading} from "../common/Loading";
-import {any} from "../../helpers/collections";
+import {all, any} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
@@ -202,13 +202,20 @@ export function Division() {
                     return;
                 }
                 if (divisionData.status) {
-                    // dont reload if there was a previous 'status' - representing an issue loading the data
+                    // don't reload if there was a previous 'status' - representing an issue loading the data
                     return;
                 }
 
-                const requestedDivisionIds: string[] = any(requestedDivisions || []) ? requestedDivisions.map(d => d.id) : null;
+                const requestedDivisionIds: string[] = any(requestedDivisions || []) ? requestedDivisions.map((d: IIdish) => d.id) : null;
                 const requestedSeasonId: string = requestedSeason ? requestedSeason.id : null;
-                if (!any(requestedDivisionIds, d => d === divisionData.id) || (requestedSeason && (divisionData.season || {}).id !== requestedSeasonId)) {
+                const dataLoadedForSameSeason: boolean = divisionData.requested && divisionData.requested.seasonId === requestedSeasonId;
+                const dataLoadedForSameDivisions: boolean = divisionData.requested && all(
+                    requestedDivisionIds || [],
+                    (requestedDivisionId: string) => any(
+                        divisionData.requested.divisionId,
+                        (loadedDivisionId: string) => loadedDivisionId === requestedDivisionId));
+
+                if (!dataLoadedForSameSeason || !dataLoadedForSameDivisions) {
                     beginReload();
                 }
             } catch (e) {
