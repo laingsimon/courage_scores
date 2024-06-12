@@ -15,4 +15,6 @@ public class DivisionFixtureDto
     public bool IsKnockout { get; set; }
     public bool AccoladesCount { get; set; }
     public List<OtherDivisionFixtureDto> FixturesUsingAddress { get; set; } = new();
+    public DivisionDto? HomeDivision { get; set; }
+    public DivisionDto? AwayDivision { get; set; }
 }

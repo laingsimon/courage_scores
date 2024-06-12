@@ -14,5 +14,6 @@ public interface IDivisionFixtureDateAdapter
         IReadOnlyCollection<TeamDto> teams,
         IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
         bool includeProposals,
+        IReadOnlyDictionary<Guid, DivisionDto?> teamIdToDivisionLookup,
         CancellationToken token);
 }

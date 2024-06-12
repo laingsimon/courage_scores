@@ -51,10 +51,11 @@ public class DivisionDataDtoFactoryTests
                 It.IsAny<IReadOnlyCollection<TeamDto>>(),
                 It.IsAny<IReadOnlyCollection<CosmosGame>>(),
                 It.IsAny<bool>(),
+                It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
                 _token))
             .ReturnsAsync(
                 (DateTime date, IReadOnlyCollection<CosmosGame> _, IReadOnlyCollection<TournamentGame> _,
-                    IReadOnlyCollection<FixtureDateNoteDto> _, IReadOnlyCollection<TeamDto> _, IReadOnlyCollection<CosmosGame> _, bool _, CancellationToken _) => new DivisionFixtureDateDto
+                    IReadOnlyCollection<FixtureDateNoteDto> _, IReadOnlyCollection<TeamDto> _, IReadOnlyCollection<CosmosGame> _, bool _, IReadOnlyDictionary<Guid, DivisionDto?> _, CancellationToken _) => new DivisionFixtureDateDto
                 {
                     Date = date,
                 });
@@ -657,6 +658,7 @@ public class DivisionDataDtoFactoryTests
                 outOfDivisionGame,
             })),
             true,
+            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             _token));
     }
 
@@ -742,6 +744,7 @@ public class DivisionDataDtoFactoryTests
             It.IsAny<IReadOnlyCollection<TeamDto>>(),
             It.IsAny<CosmosGame[]>(),
             true,
+            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             _token));
     }
 
@@ -819,6 +822,7 @@ public class DivisionDataDtoFactoryTests
             It.IsAny<IReadOnlyCollection<TeamDto>>(),
             It.IsAny<CosmosGame[]>(),
             true,
+            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             _token));
     }
 
@@ -945,6 +949,7 @@ public class DivisionDataDtoFactoryTests
             It.IsAny<IReadOnlyCollection<TeamDto>>(),
             It.Is<CosmosGame[]>(games => games.Length == 0),
             true,
+            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             _token));
     }
 

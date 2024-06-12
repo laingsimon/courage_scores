@@ -152,7 +152,7 @@ public class DivisionDataContextTests
             new Dictionary<Guid, Guid?>(),
             new Dictionary<Guid, DivisionDto>());
 
-        var result = context.AllTournamentGames(Array.Empty<Guid?>());
+        var result = context.AllTournamentGames(Array.Empty<Guid>());
 
         Assert.That(result, Is.EquivalentTo(new[]
         {
@@ -189,7 +189,7 @@ public class DivisionDataContextTests
             new Dictionary<Guid, Guid?>(),
             new Dictionary<Guid, DivisionDto>());
 
-        var result = context.AllTournamentGames(new[] { tournamentInDivision.DivisionId });
+        var result = context.AllTournamentGames(new[] { tournamentInDivision.DivisionId.Value });
 
         Assert.That(result, Is.EquivalentTo(new[]
         {

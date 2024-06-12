@@ -47,7 +47,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 game.Accept(visitorScope, gameVisitor);
             }
         }
-        foreach (var tournamentGame in context.AllTournamentGames(divisions.Select(d => d?.Id).ToArray()))
+        foreach (var tournamentGame in context.AllTournamentGames(divisions.Where(d => d != null).Select(d => d!.Id).ToArray()))
         {
             tournamentGame.Accept(visitorScope, gameVisitor);
         }
@@ -194,14 +194,20 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, IReadOnlyCollection<DivisionDto?> divisions, bool includeProposals, [EnumeratorCancellation] CancellationToken token)
     {
         var divisionIds = divisions.Select(d => d?.Id).Where(id => id != null).ToArray(); // should NOT contain null, an empty list means return all divisional data
+        var divisionLookup = divisions.Where(d => d != null).ToDictionary(d => d!.Id);
+        var teamIdToDivisionLookup = context.TeamIdToDivisionIdLookup.ToDictionary(
+            pair => pair.Key,
+            pair => pair.Value == null
+                ? null
+                : divisionLookup.GetValueOrDefault(pair.Value.Value));
 
-        foreach (var date in context.GetDates(divisionIds))
+        foreach (var date in context.GetDates(divisionLookup.Keys))
         {
             if (!context.GamesForDate.TryGetValue(date, out var gamesForDate))
             {
                 gamesForDate = Array.Empty<CosmosGame>();
             }
-            var tournamentGamesForDate = context.AllTournamentGames(divisionIds).Where(g => g.Date == date).ToArray();
+            var tournamentGamesForDate = context.AllTournamentGames(divisionLookup.Keys).Where(g => g.Date == date).ToArray();
             context.Notes.TryGetValue(date, out var notesForDate);
 
             var inDivisionGames = gamesForDate.Where(g => ShouldShowLeagueFixture(g, divisionIds, context.TeamIdToDivisionIdLookup)).ToArray();
@@ -214,6 +220,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 context.TeamsInSeasonAndDivision,
                 gamesForDate.Except(inDivisionGames).ToArray(),
                 includeProposals,
+                teamIdToDivisionLookup,
                 token);
         }
     }
