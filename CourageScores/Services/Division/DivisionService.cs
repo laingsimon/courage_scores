@@ -89,7 +89,7 @@ public class DivisionService : IDivisionService
 
         var allTeamsInSeason = await _genericTeamService.GetAll(token)
             .WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id && ts.Deleted == null) || !t.Seasons.Any()).ToList();
-        var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, token);
+        var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, divisions, token);
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, divisions, !filter.ExcludeProposals, token);
     }
 
@@ -99,8 +99,12 @@ public class DivisionService : IDivisionService
         return teamSeason?.DivisionId;
     }
 
-    private async Task<DivisionDataContext> CreateDivisionDataContext(DivisionDataFilter filter,
-        SeasonDto season, IReadOnlyCollection<TeamDto> allTeamsInSeason, CancellationToken token)
+    private async Task<DivisionDataContext> CreateDivisionDataContext(
+        DivisionDataFilter filter,
+        SeasonDto season,
+        IReadOnlyCollection<TeamDto> allTeamsInSeason,
+        List<DivisionDto?> divisions,
+        CancellationToken token)
     {
         var teamsInSeasonAndDivision = allTeamsInSeason
             .Where(t => !filter.DivisionId.Any() || filter.DivisionId.Contains(GetDivisionIdForTeam(t, season).GetValueOrDefault()))
@@ -117,7 +121,14 @@ public class DivisionService : IDivisionService
         var teamIdToDivisionIdLookup = allTeamsInSeason
             .ToDictionary(t => t.Id, t => GetDivisionIdForTeam(t, season));
 
-        return new DivisionDataContext(games, teamsInSeasonAndDivision, tournamentGames, notes, season, teamIdToDivisionIdLookup);
+        return new DivisionDataContext(
+            games,
+            teamsInSeasonAndDivision,
+            tournamentGames,
+            notes,
+            season,
+            teamIdToDivisionIdLookup,
+            divisions.Where(d => d != null).ToDictionary(d => d!.Id, d => d!));
     }
 
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)

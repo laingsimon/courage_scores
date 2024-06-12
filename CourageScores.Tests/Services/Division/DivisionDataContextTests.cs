@@ -34,7 +34,8 @@ public class DivisionDataContextTests
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllGames(divisionId).ToArray();
 
@@ -67,7 +68,8 @@ public class DivisionDataContextTests
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllGames(divisionId).ToArray();
 
@@ -113,7 +115,8 @@ public class DivisionDataContextTests
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllGames(null).ToArray();
 
@@ -146,7 +149,8 @@ public class DivisionDataContextTests
             },
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllTournamentGames(Array.Empty<Guid?>());
 
@@ -182,7 +186,8 @@ public class DivisionDataContextTests
             },
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllTournamentGames(new[] { tournamentInDivision.DivisionId });
 

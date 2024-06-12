@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CourageScores.Models.Cosmos.Season.Creation;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 
@@ -14,7 +15,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         {
             Name = model.Name,
             StartDate = startDate,
-            Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index + 1}", startDate, GetTeams(model))).ToList(),
+            Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index + 1}", startDate, GetTeams(model, index))).ToList(),
         };
         var dates = dto.Divisions.SelectMany(d => d.Dates).ToArray();
         if (dates.Any())
@@ -48,7 +49,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         }
     }
 
-    private static IReadOnlyDictionary<string, DivisionTeamDto> GetTeams(Template model)
+    private static IReadOnlyDictionary<string, DivisionTeamDto> GetTeams(Template model, int index)
     {
         var allPlaceholders = model.Divisions
             .SelectMany(GetPlaceholdersForDivision)
@@ -56,6 +57,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
             .Select(p => new DivisionTeamDto
             {
                 Name = p,
+                Division = new DivisionDto{ Name = $"Division ${index + 1}" },
                 Id = Guid.NewGuid(),
             })
             .ToDictionary(t => t.Name);

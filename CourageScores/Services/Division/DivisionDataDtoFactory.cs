@@ -54,7 +54,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 
         var playerToTeamLookup = CreatePlayerIdToTeamLookup(context);
         var playerResults = await GetPlayers(divisionData, playerToTeamLookup, token).ToList();
-        var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
+        var teamResults = await GetTeams(divisionData, context, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
 
@@ -150,12 +150,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             .ToList();
     }
 
-    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,
+    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, DivisionDataContext context,
         IReadOnlyCollection<DivisionPlayerDto> playerResults, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Teams)
         {
-            var teamInSeasonAndDivision = teamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id);
+            var teamInSeasonAndDivision = context.TeamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id);
             if (teamInSeasonAndDivision == null)
             {
                 divisionData.DataErrors.Add(new DataErrorDto
@@ -167,12 +167,24 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             }
 
             var playersInTeam = playerResults.Where(p => p.Team == teamInSeasonAndDivision.Name).ToList();
-            yield return await _divisionTeamAdapter.Adapt(teamInSeasonAndDivision, score, playersInTeam, token);
+            DivisionDto? division = null;
+            if (context.TeamIdToDivisionIdLookup.TryGetValue(teamInSeasonAndDivision.Id, out var divisionId) && divisionId != null)
+            {
+                context.Divisions.TryGetValue(divisionId.Value, out division);
+            }
+
+            yield return await _divisionTeamAdapter.Adapt(teamInSeasonAndDivision, score, playersInTeam, division, token);
         }
 
-        foreach (var teamInSeasonAndDivision in teamsInSeasonAndDivision.Where(t => !divisionData.Teams.ContainsKey(t.Id)))
+        foreach (var teamInSeasonAndDivision in context.TeamsInSeasonAndDivision.Where(t => !divisionData.Teams.ContainsKey(t.Id)))
         {
-            yield return await _divisionTeamAdapter.WithoutFixtures(teamInSeasonAndDivision, token);
+            DivisionDto? division = null;
+            if (context.TeamIdToDivisionIdLookup.TryGetValue(teamInSeasonAndDivision.Id, out var divisionId) && divisionId != null)
+            {
+                context.Divisions.TryGetValue(divisionId.Value, out division);
+            }
+
+            yield return await _divisionTeamAdapter.WithoutFixtures(teamInSeasonAndDivision, division, token);
         }
     }
 
