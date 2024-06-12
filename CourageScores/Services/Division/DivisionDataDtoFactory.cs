@@ -61,7 +61,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         return new DivisionDataDto
         {
             Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
-            Name = (divisions.Count == 1 ? divisions.ElementAt(0)?.Name ?? "<unnamed division>" : null) ?? $"<{divisions.Count} divisions>",
+            Name = GetDivisionName(divisions),
             Teams = teamResults
                 .OrderByDescending(t => t.FixturesWon)
                 .ThenByDescending(t => t.Difference)
@@ -123,6 +123,19 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     public DivisionDataDto DivisionIdAndSeasonIdNotSupplied(Guid? divisionId)
     {
         return DataError(divisionId ?? Guid.Empty, "SeasonId and/or DivisionId must be supplied");
+    }
+
+    private static string GetDivisionName(IReadOnlyCollection<DivisionDto?> divisions)
+    {
+        switch (divisions.Count)
+        {
+            case 0:
+                return "<0 divisions>";
+            case 1:
+                return divisions.ElementAt(0)?.Name ?? "<unnamed division>";
+            default:
+                return string.Join(" & ", divisions.OrderBy(d => d?.Name).Select(d => d?.Name ?? "<unnamed division>"));
+        }
     }
 
     private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,
