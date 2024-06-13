@@ -260,7 +260,7 @@ export function Division() {
                 {effectiveTab.startsWith('team:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${requestedDivisions}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>
+                             to={`/teams${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>
                         Team Details
                     </NavLink>
                 </li>) : null}
@@ -276,7 +276,7 @@ export function Division() {
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${requestedDivisions}/teams${requestedSeason ? '/' + requestedSeason : ''}`}>
+                             to={`/teams${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>
                         {getPlayerProps(effectiveTab.substring('player:'.length)).playerName || 'Player Details'}
                     </NavLink>
                 </li>) : null}

@@ -77,7 +77,7 @@ export function TeamOverview({teamId}: ITeamOverviewProps) {
         return <div className="content-background p-3">
             <h5 className="text-danger">⚠ Team could not be found</h5>
             <Link className="btn btn-primary"
-                            to={`/division/${divisionName}/teams/${season.name}`}>Teams</Link>
+                            to={`/teams/${season.name}/?division=${divisionName}`}>Teams</Link>
         </div>
     }
 

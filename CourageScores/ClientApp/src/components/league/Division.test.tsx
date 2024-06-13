@@ -169,8 +169,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams', `/teams/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -182,8 +182,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/teams`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams', `/teams/?division=${division.name}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -195,8 +195,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/teams/${season.name}`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams/:seasonId', `/teams/${season.name}/?division=${division.name}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -208,8 +208,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams/:seasonId', `/teams/${season.name}/?division=${division.name}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -303,8 +303,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/fixtures`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -315,8 +315,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/fixtures`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/fixtures', `/fixtures/?division=${division.name}`,
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -383,8 +383,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/fixtures/${season.id}`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.id}/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -397,8 +397,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/players`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/players', `/players/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple, mode: 'players' });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -410,8 +410,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/players`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/players', `/players/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple, mode: 'players' });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -551,7 +551,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -568,7 +568,7 @@ describe('Division', () => {
                             runReports: false,
                         }
                     }
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -586,7 +586,7 @@ describe('Division', () => {
                         }
                     },
                     controls: true,
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/reports`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -634,7 +634,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -651,7 +651,7 @@ describe('Division', () => {
                             runHealthChecks: false,
                         }
                     }
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -669,7 +669,7 @@ describe('Division', () => {
                         }
                     },
                     controls: true,
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/health`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -730,7 +730,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     account: {},
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -743,7 +743,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     account: {},
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single });
                 const heading = context.container.querySelector('h3') as HTMLHeadingElement;
                 expect(heading.textContent).toEqual('⚠ Errors in division data');
@@ -757,7 +757,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
+                }, reportedError), '/division/:divisionId', `/division/${division.id}`,
                     { urlStyle: UrlStyle.Single });
 
                 reportedError.verifyNoError();
@@ -780,8 +780,8 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                     account: {},
-                }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams/:seasonId', `/teams/${season.id}/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 expect(reportedError.error).toEqual(`Data for a different season returned, requested: ${season.id}`);
             });
@@ -797,8 +797,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/unknown/teams`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams', `/teams/?division=unknown`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -809,8 +809,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/UNKNOWN`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams/:seasonId', `/teams/UNKNOWN/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -821,8 +821,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/teams`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams', `/teams/?division=${division.name}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -843,8 +843,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams', `/teams/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 expect(reportedError.error).toEqual('Error accessing division: Code: 500 -- key1: some error1, key2: some error2');
             });
@@ -858,8 +858,8 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/teams', `/teams/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple });
 
                 expect(reportedError.error).toEqual('Error accessing division: Code: 500');
             });
@@ -884,8 +884,8 @@ describe('Division', () => {
                         }
                     },
                     teams: [homeTeam, awayTeam],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/fixtures`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
                 expect(dataRequested).toEqual([
                     {divisionId: division.id},
                 ]); // data loaded once
@@ -922,8 +922,8 @@ describe('Division', () => {
                         }
                     },
                     teams: [homeTeam, awayTeam],
-                }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/fixtures`,
-                    { urlStyle: UrlStyle.Single });
+                }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
                 expect(dataRequested).toEqual([
                     {divisionId: division.id},
                 ]); // data loaded once
@@ -964,8 +964,8 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: true,
-            }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                { urlStyle: UrlStyle.Single });
+            }, reportedError), '/teams', `/teams/?division=${division.id}`,
+                { urlStyle: UrlStyle.Multiple });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-group')).toBeTruthy();
@@ -978,8 +978,8 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: true,
-            }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                { urlStyle: UrlStyle.Single });
+            }, reportedError), '/teams', `/teams/?division=${division.id}`,
+                { urlStyle: UrlStyle.Multiple });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.nav-tabs')).toBeTruthy();
@@ -993,8 +993,8 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: false,
-            }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                { urlStyle: UrlStyle.Single });
+            }, reportedError), '/teams', `/teams/?division=${division.id}`,
+                { urlStyle: UrlStyle.Multiple });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-group')).toBeFalsy();
@@ -1005,8 +1005,8 @@ describe('Division', () => {
                 divisions: [division],
                 seasons: [season],
                 controls: false,
-            }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/teams`,
-                { urlStyle: UrlStyle.Single });
+            }, reportedError), '/teams', `/teams/?division=${division.id}`,
+                { urlStyle: UrlStyle.Multiple });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.nav-tabs')).toBeFalsy();

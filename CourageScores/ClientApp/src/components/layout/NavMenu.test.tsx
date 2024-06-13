@@ -111,7 +111,7 @@ describe('NavMenu', () => {
             expect(listItems.map(li => li.querySelector('a').href)).toEqual([
                 'https://localhost/BEFORE1',
                 'https://localhost/BEFORE2',
-                'http://localhost/division/' + division.name + '/teams/' + currentSeason.name,
+                'http://localhost/teams/' + currentSeason.name + '/?division=' + division.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
                 'https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice?q=value']);
@@ -331,8 +331,8 @@ describe('NavMenu', () => {
                     clearError,
                 }),
                 null,
-                '/division/:divisionId/:mode/:seasonId',
-                `/division/${division1.id}/teams/${onlyDivision1SeasonCurrent.id}`);
+                '/teams/:seasonId',
+                `/teams/${onlyDivision1SeasonCurrent.id}?division=${division1.id}`);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const items = getDivisionItems();
@@ -358,8 +358,8 @@ describe('NavMenu', () => {
                     clearError,
                 }),
                 null,
-                '/divisions/:divisionId/teams/:seasonId',
-                `/divisions/${division1.id}/teams/${bothDivisionsSeasonsNotCurrent.id}`);
+                '/teams/:seasonId',
+                `/teams/${bothDivisionsSeasonsNotCurrent.id}/?division=${division1.id}`);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const items = getDivisionItems();

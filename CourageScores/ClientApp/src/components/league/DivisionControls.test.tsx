@@ -510,7 +510,7 @@ describe('DivisionControls', () => {
 
                 await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
-                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.name}/teams/${season5.name}`);
+                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/teams/${season5.name}/?division=${division5.name}`);
             });
 
             it('navigates correctly when on player overview page', async () => {
@@ -530,7 +530,7 @@ describe('DivisionControls', () => {
 
                 await doClick(findButton(group, 'Season 5 ' + seasonDates(season5)));
 
-                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.name}/players/${season5.name}`);
+                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/players/${season5.name}/?division=${division5.name}`);
             });
 
             it('navigates to first division in other season when current division not in other season', async () => {

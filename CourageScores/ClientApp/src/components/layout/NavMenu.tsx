@@ -92,7 +92,7 @@ export function NavMenu() {
     }
 
     function getDivisionAddress(division: DivisionDto) {
-        const currentSeasons = seasons
+        const currentSeasons: SeasonDto[] = seasons
             .filter((s: SeasonDto) => s.isCurrent)
             .filter((s: SeasonDto) => any(s.divisions, (d: DivisionDto) => d.id === division.id));
 
@@ -100,8 +100,8 @@ export function NavMenu() {
             return `/division/${division.name}`;
         }
 
-        const season = currentSeasons[0];
-        return `/division/${division.name}/teams/${season.name}`;
+        const season: SeasonDto = currentSeasons[0];
+        return `/teams/${season.name}/?division=${division.name}`;
     }
 
     if (navMenuError) {

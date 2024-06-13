@@ -121,14 +121,17 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     }
 
     function navigateToSeason() {
-        navigate(`/division/${originalDivisionData.name}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.name}`);
+        const url: string = getDivisionUrl(originalDivisionData.name, originalSeasonData.name, stripIdFromMode(mode));
+        navigate(url);
     }
 
     function renderSeasonOption(season: SeasonDto) {
+        const url: string = getDivisionUrl(firstValidDivisionNameForSeason(season), season.name, mode);
+
         return (<Link
             key={season.id}
             className={`dropdown-item ${originalSeasonData && originalSeasonData.id === season.id ? ' active' : ''}`}
-            to={`/division/${firstValidDivisionNameForSeason(season)}/${overrideMode || mode || 'teams'}/${season.name}${location.search}`}>
+            to={url + location.search}>
             {season.name} ({renderDate(season.startDate)} - {renderDate(season.endDate)})
         </Link>);
     }
@@ -140,6 +143,19 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
             to={`/division/${division.name}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.name}${location.search}`}>
             {division.name}
         </Link>);
+    }
+
+    function getDivisionUrl(divisionName: string, seasonName: string, mode: string): string {
+        const navigateToMode: string = overrideMode || mode || 'teams';
+
+        switch (navigateToMode) {
+            case 'teams':
+            case 'players':
+            case 'fixtures':
+                return `/${navigateToMode}/${seasonName}/?division=${divisionName}`;
+            default:
+                return `/division/${divisionName}/${navigateToMode}/${seasonName}`;
+        }
     }
 
     try {
