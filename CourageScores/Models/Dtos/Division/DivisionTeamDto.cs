@@ -7,6 +7,7 @@ public class DivisionTeamDto : IRankedDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
+    public DivisionDto? Division { get; set; }
     public int Played { get; set; }
     public int Points { get; set; }
     public int FixturesWon { get; set; }

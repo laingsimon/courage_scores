@@ -1,3 +1,4 @@
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
@@ -14,7 +15,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         _divisionFixtureTeamAdapter = divisionFixtureTeamAdapter;
     }
 
-    public async Task<DivisionFixtureDto> Adapt(CosmosGame game, TeamDto? homeTeam, TeamDto? awayTeam, CancellationToken token)
+    public async Task<DivisionFixtureDto> Adapt(CosmosGame game, TeamDto? homeTeam, TeamDto? awayTeam, DivisionDto? homeDivision, DivisionDto? awayDivision, CancellationToken token)
     {
         var matches = game.Matches.Where(m => m.Deleted == null).ToArray();
         var numberOfMatchesWithPlayers = matches.Count(m => m.HomePlayers.Any() && m.AwayPlayers.Any());
@@ -36,10 +37,12 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             Postponed = game.Postponed,
             IsKnockout = game.IsKnockout,
             AccoladesCount = game.AccoladesCount,
+            HomeDivision = homeDivision,
+            AwayDivision = awayDivision,
         };
     }
 
-    public async Task<DivisionFixtureDto> ForUnselectedTeam(TeamDto team, bool isKnockout, IReadOnlyCollection<CosmosGame> fixturesUsingAddress, CancellationToken token)
+    public async Task<DivisionFixtureDto> ForUnselectedTeam(TeamDto team, bool isKnockout, IReadOnlyCollection<CosmosGame> fixturesUsingAddress, DivisionDto? division, CancellationToken token)
     {
         return new DivisionFixtureDto
         {
@@ -53,6 +56,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             Proposal = false,
             AccoladesCount = true,
             FixturesUsingAddress = fixturesUsingAddress.Select(OtherDivisionFixtureDto).ToList(),
+            HomeDivision = division,
         };
     }
 

@@ -143,7 +143,7 @@ public class SeasonTemplateService : ISeasonTemplateService
     {
         var divisions = await season.Divisions.SelectAsync(d => _divisionService.GetDivisionData(new DivisionDataFilter
         {
-            DivisionId = d.Id,
+            DivisionId = { d.Id },
             SeasonId = season.Id,
             ExcludeProposals = true,
         }, token)).ToList();

@@ -16,7 +16,8 @@ public class DivisionDataContext
         IReadOnlyCollection<TournamentGame> tournamentGames,
         IEnumerable<FixtureDateNoteDto> notes,
         SeasonDto season,
-        IReadOnlyDictionary<Guid, Guid?> teamIdToDivisionIdLookup)
+        IReadOnlyDictionary<Guid, Guid?> teamIdToDivisionIdLookup,
+        IReadOnlyDictionary<Guid, DivisionDto> divisions)
     {
         GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         TeamsInSeasonAndDivision = teamsInSeasonAndDivision;
@@ -24,6 +25,7 @@ public class DivisionDataContext
         TeamIdToDivisionIdLookup = teamIdToDivisionIdLookup;
         Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToArray());
         _tournamentGames = tournamentGames;
+        Divisions = divisions;
     }
 
     public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
@@ -31,22 +33,25 @@ public class DivisionDataContext
     public IReadOnlyDictionary<Guid, Guid?> TeamIdToDivisionIdLookup { get; }
     public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
     public Dictionary<DateTime, CosmosGame[]> GamesForDate { get; }
+    public IReadOnlyDictionary<Guid, DivisionDto> Divisions { get; }
 
     public IEnumerable<CosmosGame> AllGames(Guid? divisionId)
     {
         return GamesForDate.SelectMany(pair => pair.Value).Where(g => divisionId == null || g.IsKnockout || g.DivisionId == divisionId);
     }
 
-    public IEnumerable<TournamentGame> AllTournamentGames(Guid? divisionId)
+    public IEnumerable<TournamentGame> AllTournamentGames(IReadOnlyCollection<Guid> divisionIds)
     {
+        var anyDivision = divisionIds.Count == 0;
+
         return _tournamentGames
-            .Where(tournament => divisionId == null || tournament.DivisionId == null || tournament.DivisionId == divisionId);
+            .Where(tournament => anyDivision || tournament.DivisionId == null || divisionIds.Contains(tournament.DivisionId.Value));
     }
 
-    public IEnumerable<DateTime> GetDates(Guid? divisionId)
+    public IEnumerable<DateTime> GetDates(IReadOnlyCollection<Guid> divisionIds)
     {
         return GamesForDate.Keys
-            .Union(AllTournamentGames(divisionId).Select(g => g.Date))
+            .Union(AllTournamentGames(divisionIds).Select(g => g.Date))
             .Union(Notes.Keys)
             .OrderBy(d => d);
     }

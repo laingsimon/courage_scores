@@ -35,37 +35,40 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         _userService = userService;
     }
 
-    public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, DivisionDto? division, bool includeProposals, CancellationToken token)
+    public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, IReadOnlyCollection<DivisionDto?> divisions, bool includeProposals, CancellationToken token)
     {
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData);
         var visitorScope = new VisitorScope();
-        foreach (var game in context.AllGames(division?.Id))
+        foreach (var division in divisions)
         {
-            game.Accept(visitorScope, gameVisitor);
+            foreach (var game in context.AllGames(division?.Id))
+            {
+                game.Accept(visitorScope, gameVisitor);
+            }
         }
-        foreach (var tournamentGame in context.AllTournamentGames(division?.Id))
+        foreach (var tournamentGame in context.AllTournamentGames(divisions.Where(d => d != null).Select(d => d!.Id).ToArray()))
         {
             tournamentGame.Accept(visitorScope, gameVisitor);
         }
 
         var playerToTeamLookup = CreatePlayerIdToTeamLookup(context);
-        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, token).ToList();
-        var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
+        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, context, token).ToList();
+        var teamResults = await GetTeams(divisionData, context, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
 
         return new DivisionDataDto
         {
-            Id = division?.Id ?? Guid.Empty,
-            Name = division?.Name ?? "<all divisions>",
+            Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
+            Name = GetDivisionName(divisions),
             Teams = teamResults
                 .OrderByDescending(t => t.Points)
                 .ThenByDescending(t => t.Difference)
                 .ThenBy(t => t.Name)
                 .ApplyRanks()
                 .ToList(),
-            Fixtures = await GetFixtures(context, division?.Id, includeProposals, token)
+            Fixtures = await GetFixtures(context, divisions, includeProposals, token)
                 .OrderByAsync(d => d.Date)
                 .ToList(),
             Players = (await AddAllPlayersIfAdmin(playerResults, user, context, token))
@@ -80,35 +83,56 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
             DataErrors = canShowDataErrors ? divisionData.DataErrors.ToList() : new List<DataErrorDto>(),
-            Updated = division?.Updated,
+            Updated = divisions.Count == 1 ? divisions.ElementAt(0)?.Updated : null,
         };
     }
 
-    public Task<DivisionDataDto> SeasonNotFound(DivisionDto? division, IEnumerable<SeasonDto> allSeasons,
+    public Task<DivisionDataDto> SeasonNotFound(IReadOnlyCollection<DivisionDto?> divisions, IEnumerable<SeasonDto> allSeasons,
         CancellationToken token)
     {
         return Task.FromResult(new DivisionDataDto
         {
-            Id = division?.Id ?? Guid.Empty,
-            Name = division?.Name ?? "<all divisions>",
+            Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
+            Name = (divisions.Count == 1 ? divisions.ElementAt(0)?.Name ?? "<unnamed division>" : null) ?? "<all divisions>",
         });
     }
 
-    [ExcludeFromCodeCoverage]
-    public DivisionDataDto DivisionNotFound(Guid divisionId, DivisionDto? deleted)
+    public DivisionDataDto DivisionNotFound(IReadOnlyCollection<Guid> divisionIds, IReadOnlyCollection<DivisionDto> deletedDivisions)
     {
-        if (deleted != null)
+        return new DivisionDataDto
         {
-            return DataError(divisionId, $"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss})");
-        }
-
-        return DataError(divisionId, $"Requested division ({divisionId}) was not found");
+            Id = divisionIds.Count == 1 ? divisionIds.ElementAt(0) : Guid.Empty,
+            DataErrors =
+            {
+                new DataErrorDto
+                {
+                    Message = string.Join(", ", divisionIds.Select(divisionId =>
+                    {
+                        var deleted = deletedDivisions.SingleOrDefault(d => d.Id == divisionId);
+                        return deleted != null
+                            ? $"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss}"
+                            : $"Requested division ({divisionId}) was not found";
+                    })),
+                }
+            },
+        };
     }
 
     [ExcludeFromCodeCoverage]
     public DivisionDataDto DivisionIdAndSeasonIdNotSupplied(Guid? divisionId)
     {
         return DataError(divisionId ?? Guid.Empty, "SeasonId and/or DivisionId must be supplied");
+    }
+
+    private static string GetDivisionName(IReadOnlyCollection<DivisionDto?> divisions)
+    {
+        switch (divisions.Count)
+        {
+            case 0:
+                return "<0 divisions>";
+            default:
+                return string.Join(" & ", divisions.OrderBy(d => d?.Name).Select(d => d?.Name ?? d?.Id.ToString()));
+        }
     }
 
     private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,
@@ -125,8 +149,11 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             .SelectManyAsync<TeamDto, DivisionPlayerDto>(async t =>
             {
                 var teamSeason = t.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id && ts.Deleted == null);
+                var division = teamSeason != null
+                    ? context.Divisions.GetValueOrDefault(teamSeason.DivisionId)
+                    : null;
                 return await (teamSeason?.Players ?? new List<TeamPlayerDto>())
-                    .SelectAsync(async tp => await _divisionPlayerAdapter.Adapt(t, tp, token))
+                    .SelectAsync(async tp => await _divisionPlayerAdapter.Adapt(t, tp, division, token))
                     .ToList();
             })
             .ToList();
@@ -136,12 +163,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             .ToList();
     }
 
-    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,
-        List<DivisionPlayerDto> playerResults, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, DivisionDataContext context,
+        IReadOnlyCollection<DivisionPlayerDto> playerResults, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Teams)
         {
-            var teamInSeasonAndDivision = teamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id);
+            var teamInSeasonAndDivision = context.TeamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id);
             if (teamInSeasonAndDivision == null)
             {
                 divisionData.DataErrors.Add(new DataErrorDto
@@ -153,27 +180,47 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             }
 
             var playersInTeam = playerResults.Where(p => p.Team == teamInSeasonAndDivision.Name).ToList();
-            yield return await _divisionTeamAdapter.Adapt(teamInSeasonAndDivision, score, playersInTeam, token);
+            var division = GetDivisionDtoForTeamId(context, teamInSeasonAndDivision.Id);
+            yield return await _divisionTeamAdapter.Adapt(teamInSeasonAndDivision, score, playersInTeam, division, token);
         }
 
-        foreach (var teamInSeasonAndDivision in teamsInSeasonAndDivision.Where(t => !divisionData.Teams.ContainsKey(t.Id)))
+        foreach (var teamInSeasonAndDivision in context.TeamsInSeasonAndDivision.Where(t => !divisionData.Teams.ContainsKey(t.Id)))
         {
-            yield return await _divisionTeamAdapter.WithoutFixtures(teamInSeasonAndDivision, token);
+            var division = GetDivisionDtoForTeamId(context, teamInSeasonAndDivision.Id);
+            yield return await _divisionTeamAdapter.WithoutFixtures(teamInSeasonAndDivision, division, token);
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, Guid? divisionId, bool includeProposals, [EnumeratorCancellation] CancellationToken token)
+    private static DivisionDto? GetDivisionDtoForTeamId(DivisionDataContext context, Guid teamId)
     {
-        foreach (var date in context.GetDates(divisionId))
+        if (!context.TeamIdToDivisionIdLookup.TryGetValue(teamId, out var divisionId) || divisionId == null)
+        {
+            return null;
+        }
+
+        return context.Divisions.GetValueOrDefault(divisionId.Value);
+    }
+
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, IReadOnlyCollection<DivisionDto?> divisions, bool includeProposals, [EnumeratorCancellation] CancellationToken token)
+    {
+        var divisionIds = divisions.Select(d => d?.Id).Where(id => id != null).ToArray(); // should NOT contain null, an empty list means return all divisional data
+        var divisionLookup = divisions.Where(d => d != null).ToDictionary(d => d!.Id);
+        var teamIdToDivisionLookup = context.TeamIdToDivisionIdLookup.ToDictionary(
+            pair => pair.Key,
+            pair => pair.Value == null
+                ? null
+                : divisionLookup.GetValueOrDefault(pair.Value.Value));
+
+        foreach (var date in context.GetDates(divisionLookup.Keys))
         {
             if (!context.GamesForDate.TryGetValue(date, out var gamesForDate))
             {
                 gamesForDate = Array.Empty<CosmosGame>();
             }
-            var tournamentGamesForDate = context.AllTournamentGames(divisionId).Where(g => g.Date == date).ToArray();
+            var tournamentGamesForDate = context.AllTournamentGames(divisionLookup.Keys).Where(g => g.Date == date).ToArray();
             context.Notes.TryGetValue(date, out var notesForDate);
 
-            var inDivisionGames = gamesForDate.Where(g => ShouldShowLeagueFixture(g, divisionId, context.TeamIdToDivisionIdLookup)).ToArray();
+            var inDivisionGames = gamesForDate.Where(g => ShouldShowLeagueFixture(g, divisionIds, context.TeamIdToDivisionIdLookup)).ToArray();
 
             yield return await _divisionFixtureDateAdapter.Adapt(
                 date,
@@ -183,6 +230,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 context.TeamsInSeasonAndDivision,
                 gamesForDate.Except(inDivisionGames).ToArray(),
                 includeProposals,
+                teamIdToDivisionLookup,
                 token);
         }
     }
@@ -190,6 +238,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(
         DivisionData divisionData,
         IReadOnlyDictionary<Guid, DivisionData.TeamPlayerTuple> playerToTeamLookup,
+        DivisionDataContext context,
         [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
@@ -210,23 +259,24 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 ? fixture
                 : new Dictionary<DateTime, Guid>();
 
-            yield return await _divisionPlayerAdapter.Adapt(score, playerTuple, fixtures, token);
+            var division = GetDivisionDtoForTeamId(context, playerTuple.Team.Id);
+            yield return await _divisionPlayerAdapter.Adapt(score, playerTuple, fixtures, division, token);
         }
     }
 
-    private static bool ShouldShowLeagueFixture(CosmosGame g, Guid? divisionId, IReadOnlyDictionary<Guid, Guid?> teamIdToDivisionIdLookup)
+    private static bool ShouldShowLeagueFixture(CosmosGame g, IReadOnlyCollection<Guid?> divisionIds, IReadOnlyDictionary<Guid, Guid?> teamIdToDivisionIdLookup)
     {
-        if (divisionId == null || g.DivisionId == divisionId)
+        if (!divisionIds.Any() || divisionIds.Contains(g.DivisionId))
         {
             return true;
         }
 
-        if (teamIdToDivisionIdLookup.TryGetValue(g.Home.Id, out var homeTeamDivisionId) && homeTeamDivisionId == divisionId)
+        if (teamIdToDivisionIdLookup.TryGetValue(g.Home.Id, out var homeTeamDivisionId) && divisionIds.Contains(homeTeamDivisionId))
         {
             return true;
         }
 
-        if (teamIdToDivisionIdLookup.TryGetValue(g.Away.Id, out var awayTeamDivisionId) && awayTeamDivisionId == divisionId)
+        if (teamIdToDivisionIdLookup.TryGetValue(g.Away.Id, out var awayTeamDivisionId) && divisionIds.Contains(awayTeamDivisionId))
         {
             return true;
         }

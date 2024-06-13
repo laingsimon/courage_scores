@@ -49,17 +49,31 @@ public class DivisionService : IDivisionService
 
     public async Task<DivisionDataDto> GetDivisionData(DivisionDataFilter filter, CancellationToken token)
     {
-        if (filter.DivisionId == null && filter.SeasonId == null)
+        if (!filter.DivisionId.Any() && filter.SeasonId == null)
         {
-            return _divisionDataDtoFactory.DivisionIdAndSeasonIdNotSupplied(filter.DivisionId);
+            return _divisionDataDtoFactory.DivisionIdAndSeasonIdNotSupplied(null);
         }
 
-        var division = filter.DivisionId == null
-            ? null
-            : await _genericDivisionService.Get(filter.DivisionId.Value, token);
-        if (filter.DivisionId != null && (division == null || division.Deleted != null))
+        var divisions = await filter.DivisionId.SelectAsync(async divisionId =>
         {
-            return _divisionDataDtoFactory.DivisionNotFound(filter.DivisionId.Value, division);
+            var division = await _genericDivisionService.Get(divisionId, token);
+            if (filter.DivisionId.Any() && (division == null || division.Deleted != null))
+            {
+                return new DivisionNotFound
+                {
+                    Id = divisionId,
+                    Deleted = division?.Deleted,
+                };
+            }
+
+            return division;
+        }).ToList();
+
+        var notFoundDivisions = divisions.OfType<DivisionNotFound>().ToList();
+        if (notFoundDivisions.Any())
+        {
+            var deletedDivisions = notFoundDivisions.Where(d => d.Deleted != null).OfType<DivisionDto>().ToList();
+            return _divisionDataDtoFactory.DivisionNotFound(notFoundDivisions.Select(d => d.Id).ToList(), deletedDivisions);
         }
 
         var allSeasons = await _genericSeasonService.GetAll(token).ToList();
@@ -70,13 +84,13 @@ public class DivisionService : IDivisionService
 
         if (season == null)
         {
-            return await _divisionDataDtoFactory.SeasonNotFound(division, allSeasons, token);
+            return await _divisionDataDtoFactory.SeasonNotFound(divisions, allSeasons, token);
         }
 
         var allTeamsInSeason = await _genericTeamService.GetAll(token)
             .WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id && ts.Deleted == null) || !t.Seasons.Any()).ToList();
-        var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, token);
-        return await _divisionDataDtoFactory.CreateDivisionDataDto(context, division, !filter.ExcludeProposals, token);
+        var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, divisions, token);
+        return await _divisionDataDtoFactory.CreateDivisionDataDto(context, divisions, !filter.ExcludeProposals, token);
     }
 
     private static Guid? GetDivisionIdForTeam(TeamDto teamInSeason, SeasonDto season)
@@ -85,15 +99,19 @@ public class DivisionService : IDivisionService
         return teamSeason?.DivisionId;
     }
 
-    private async Task<DivisionDataContext> CreateDivisionDataContext(DivisionDataFilter filter,
-        SeasonDto season, IReadOnlyCollection<TeamDto> allTeamsInSeason, CancellationToken token)
+    private async Task<DivisionDataContext> CreateDivisionDataContext(
+        DivisionDataFilter filter,
+        SeasonDto season,
+        IReadOnlyCollection<TeamDto> allTeamsInSeason,
+        List<DivisionDto?> divisions,
+        CancellationToken token)
     {
         var teamsInSeasonAndDivision = allTeamsInSeason
-            .Where(t => filter.DivisionId == null || GetDivisionIdForTeam(t, season) == filter.DivisionId)
+            .Where(t => !filter.DivisionId.Any() || filter.DivisionId.Contains(GetDivisionIdForTeam(t, season).GetValueOrDefault()))
             .ToList();
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
-            .WhereAsync(n => filter.DivisionId == null || n.DivisionId == null || n.DivisionId == filter.DivisionId)
+            .WhereAsync(n => !filter.DivisionId.Any() || n.DivisionId == null || filter.DivisionId.Contains(n.DivisionId.Value))
             .ToList();
         var games = await GetGames(filter, season, token);
         var tournamentGames = await _tournamentGameRepository
@@ -103,7 +121,14 @@ public class DivisionService : IDivisionService
         var teamIdToDivisionIdLookup = allTeamsInSeason
             .ToDictionary(t => t.Id, t => GetDivisionIdForTeam(t, season));
 
-        return new DivisionDataContext(games, teamsInSeasonAndDivision, tournamentGames, notes, season, teamIdToDivisionIdLookup);
+        return new DivisionDataContext(
+            games,
+            teamsInSeasonAndDivision,
+            tournamentGames,
+            notes,
+            season,
+            teamIdToDivisionIdLookup,
+            divisions.Where(d => d != null).ToDictionary(d => d!.Id, d => d!));
     }
 
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
@@ -121,8 +146,8 @@ public class DivisionService : IDivisionService
 
         return await _gameRepository
             .GetSome(
-                filter.DivisionId != null
-                    ? $"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true"
+                filter.DivisionId.Any()
+                    ? $"t.DivisionId in ({string.Join(", ", filter.DivisionId.Select(id => $"'{id}'"))}) or t.IsKnockout = true"
                     : $"t.SeasonId = '{season.Id}'",
                 token)
             .WhereAsync(g => filter.IncludeDate(g.Date, season) && filter.IncludeGame(g))
@@ -163,4 +188,7 @@ public class DivisionService : IDivisionService
     }
 
     #endregion
+
+    private class DivisionNotFound : DivisionDto
+    { }
 }

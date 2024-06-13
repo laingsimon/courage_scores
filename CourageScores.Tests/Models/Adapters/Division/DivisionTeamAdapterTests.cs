@@ -1,4 +1,5 @@
 using CourageScores.Models.Adapters.Division;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
@@ -59,11 +60,16 @@ public class DivisionTeamAdapterTests
                 },
             },
         };
+        var division = new DivisionDto
+        {
+            Name = "division",
+        };
 
-        var result = await _adapter.Adapt(team, score, teamPlayers, _token);
+        var result = await _adapter.Adapt(team, score, teamPlayers, division, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Name, Is.EqualTo(team.Name));
+        Assert.That(result.Division, Is.EqualTo(division));
         Assert.That(result.Played, Is.EqualTo(1));
         Assert.That(result.Points, Is.EqualTo(8d).Within(0.001));
         Assert.That(result.FixturesWon, Is.EqualTo(2));
@@ -79,6 +85,18 @@ public class DivisionTeamAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenNoDivision_SetsDivisionToNull()
+    {
+        var team = new TeamDto();
+        var score = new DivisionData.TeamScore();
+        var teamPlayers = Array.Empty<DivisionPlayerDto>();
+
+        var result = await _adapter.Adapt(team, score, teamPlayers, null, _token);
+
+        Assert.That(result.Division, Is.Null);
+    }
+
+    [Test]
     public async Task WithoutFixtures_GivenTeam_SetsPropertiesCorrectly()
     {
         var team = new TeamDto
@@ -88,8 +106,13 @@ public class DivisionTeamAdapterTests
             Address = "address",
             Updated = new DateTime(2023, 01, 02),
         };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "division",
+        };
 
-        var result = await _adapter.WithoutFixtures(team, _token);
+        var result = await _adapter.WithoutFixtures(team, division, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Name, Is.EqualTo(team.Name));
@@ -97,5 +120,19 @@ public class DivisionTeamAdapterTests
         Assert.That(result.Played, Is.EqualTo(0));
         Assert.That(result.Points, Is.EqualTo(0));
         Assert.That(result.Updated, Is.EqualTo(team.Updated));
+        Assert.That(result.Division, Is.EqualTo(division));
+    }
+
+    [Test]
+    public async Task WithoutFixtures_GivenNoDivision_SetsDivisionToNull()
+    {
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+        };
+
+        var result = await _adapter.WithoutFixtures(team, null, _token);
+
+        Assert.That(result.Division, Is.Null);
     }
 }

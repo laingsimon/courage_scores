@@ -11,6 +11,7 @@ import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {usePreferences} from "../common/PreferencesContainer";
 import {any} from "../../helpers/collections";
 import {Link} from "react-router-dom";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 export interface IDivisionTeamProps {
     team: DivisionTeamDto;
@@ -64,6 +65,8 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
         }
     }
 
+    const division: DivisionDto = team.division || { id: divisionId, name: divisionName };
+
     try {
         return (<tr className={(notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
             <td>
@@ -72,7 +75,7 @@ export function DivisionTeam({team}: IDivisionTeamProps) {
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
                                     className="btn btn-sm btn-primary margin-right d-print-none">➕</button>) : null}
                 {isAdmin ? null : (<ToggleFavouriteTeam teamId={team.id} />)}
-                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
+                <Link to={`/division/${division.name || division.id}/team:${team.name}/${season.name}`}>
                     {team.name}
                 </Link>
                 {editTeam && isAdmin ? renderEditTeam() : null}

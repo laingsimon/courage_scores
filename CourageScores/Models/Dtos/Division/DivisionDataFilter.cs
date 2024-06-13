@@ -8,7 +8,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     // ReSharper disable MemberCanBePrivate.Global
     // ReSharper disable UnusedAutoPropertyAccessor.Global
     public DateTime? Date { get; set; }
-    public Guid? DivisionId { get; set; }
+    public HashSet<Guid> DivisionId { get; set; } = new();
     public Guid? SeasonId { get; set; }
     public Guid? TeamId { get; set; }
     public bool ExcludeProposals { get; set; }
@@ -37,7 +37,7 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     {
         return other != null
                && Nullable.Equals(Date, other.Date)
-               && Nullable.Equals(DivisionId, other.DivisionId)
+               && DivisionId.ToHashSet().SetEquals(other.DivisionId.ToHashSet())
                && Nullable.Equals(SeasonId, other.SeasonId)
                && Nullable.Equals(TeamId, other.TeamId);
     }
@@ -51,7 +51,23 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
     public override int GetHashCode()
     {
         // ReSharper disable NonReadonlyMemberInGetHashCode
-        return HashCode.Combine(Date, DivisionId, SeasonId, TeamId);
+        return HashCode.Combine(
+            Date,
+            HashCodeOfArrayContents(DivisionId),
+            SeasonId,
+            TeamId);
         // ReSharper restore NonReadonlyMemberInGetHashCode
+    }
+
+    private static int HashCodeOfArrayContents<T>(IEnumerable<T> array)
+    {
+        var hashCode = 0;
+
+        foreach (var item in array)
+        {
+            hashCode ^= item?.GetHashCode() ?? 0;
+        }
+
+        return hashCode;
     }
 }

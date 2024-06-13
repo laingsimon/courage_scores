@@ -5,6 +5,7 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Models.Adapters.Division;
 
@@ -25,21 +26,23 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
     }
 
     public async Task<DivisionFixtureDateDto> Adapt(DateTime date,
-        IReadOnlyCollection<Cosmos.Game.Game> gamesForDate,
+        IReadOnlyCollection<CosmosGame> gamesForDate,
         IReadOnlyCollection<TournamentGame> tournamentGamesForDate,
         IReadOnlyCollection<FixtureDateNoteDto> notesForDate,
         IReadOnlyCollection<TeamDto> teams,
-        IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
+        IReadOnlyCollection<CosmosGame> otherFixturesForDate,
         bool includeProposals,
+        IReadOnlyDictionary<Guid, DivisionDto?> teamIdToDivisionLookup,
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         var canCreateTournaments = user?.Access?.ManageTournaments ?? false;
+        var includeFixtureProposals = !tournamentGamesForDate.Any() && includeProposals;
 
         return new DivisionFixtureDateDto
         {
             Date = date,
-            Fixtures = (await FixturesPerDate(gamesForDate, teams, !tournamentGamesForDate.Any() && includeProposals, otherFixturesForDate, token).ToList())
+            Fixtures = (await FixturesPerDate(gamesForDate, teams, includeFixtureProposals, otherFixturesForDate, teamIdToDivisionLookup, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
             TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments && gamesForDate.Count == 0 && includeProposals, token)
                 .OrderByAsync(f => f.Address).ToList(),
@@ -48,10 +51,11 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
     }
 
     private async IAsyncEnumerable<DivisionFixtureDto> FixturesPerDate(
-        IEnumerable<Cosmos.Game.Game> games,
+        IEnumerable<CosmosGame> games,
         IReadOnlyCollection<TeamDto> teams,
         bool includeFixtureProposals,
-        IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
+        IReadOnlyCollection<CosmosGame> otherFixturesForDate,
+        IReadOnlyDictionary<Guid, DivisionDto?> teamIdToDivisionLookup,
         [EnumeratorCancellation] CancellationToken token)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
@@ -62,11 +66,15 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
             remainingTeams.Remove(game.Home.Id);
             remainingTeams.Remove(game.Away.Id);
             hasKnockout = hasKnockout || game.IsKnockout;
+            var homeDivision = teamIdToDivisionLookup.GetValueOrDefault(game.Home.Id);
+            var awayDivision = teamIdToDivisionLookup.GetValueOrDefault(game.Away.Id);
 
             yield return await _divisionFixtureAdapter.Adapt(
                 game,
                 teams.SingleOrDefault(t => t.Id == game.Home.Id),
                 teams.SingleOrDefault(t => t.Id == game.Away.Id),
+                homeDivision,
+                awayDivision,
                 token);
         }
 
@@ -78,7 +86,8 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         foreach (var remainingTeam in remainingTeams.Values)
         {
             var addressInUse = otherFixturesForDate.Where(f => f.Address == remainingTeam.Address).ToArray();
-            yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, addressInUse, token);
+            var division = teamIdToDivisionLookup.GetValueOrDefault(remainingTeam.Id);
+            yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, addressInUse, division, token);
         }
     }
 
