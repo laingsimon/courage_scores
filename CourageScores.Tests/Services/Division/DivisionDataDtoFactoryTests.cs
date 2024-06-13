@@ -2001,6 +2001,95 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
+    public async Task CreateDivisionDataDto_GivenSingleDivision_ShouldSetNameToDivision()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "season",
+        };
+        var context = new DivisionDataContext(
+            Array.Empty<CosmosGame>(),
+            Array.Empty<TeamDto>(),
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            season,
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION",
+        };
+
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
+
+        Assert.That(result.Name, Is.EqualTo("DIVISION"));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenMultipleDivisions_ShouldSetNameToOrderedDivisionNames()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "season",
+        };
+        var context = new DivisionDataContext(
+            Array.Empty<CosmosGame>(),
+            Array.Empty<TeamDto>(),
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            season,
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
+        var division1 = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION ONE",
+        };
+        var division2 = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION TWO",
+        };
+
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division2, division1 }, true, _token);
+
+        Assert.That(result.Name, Is.EqualTo("DIVISION ONE & DIVISION TWO"));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenMultipleUnnamedDivisions_ShouldSetNameToOrderedDivisionIds()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "season",
+        };
+        var context = new DivisionDataContext(
+            Array.Empty<CosmosGame>(),
+            Array.Empty<TeamDto>(),
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            season,
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
+        var division1 = new DivisionDto
+        {
+            Id = Guid.Parse("a314b4f2-378d-4586-8b1d-eb608c9eb8bd"),
+        };
+        var division2 = new DivisionDto
+        {
+            Id = Guid.Parse("6732ee72-b72a-4497-9ef4-d779b101bbfd"),
+        };
+
+        var result = await _factory.CreateDivisionDataDto(context, new[] { division2, division1 }, true, _token);
+
+        Assert.That(result.Name, Is.EqualTo("6732ee72-b72a-4497-9ef4-d779b101bbfd & a314b4f2-378d-4586-8b1d-eb608c9eb8bd"));
+    }
+
+    [Test]
     public async Task SeasonNotFound_GivenNoDivision_ShouldReturnCorrectly()
     {
         var season1 = new SeasonDto
@@ -2052,5 +2141,53 @@ public class DivisionDataDtoFactoryTests
 
         Assert.That(result.Id, Is.EqualTo(division.Id));
         Assert.That(result.Name, Is.EqualTo("division1"));
+    }
+
+    [Test]
+    public void DivisionNotFound_GivenSingleDivisionId_ReturnsDivisionIdAndName()
+    {
+        var divisionId = Guid.NewGuid();
+
+        var result = _factory.DivisionNotFound(new[] { divisionId }, Array.Empty<DivisionDto>());
+
+        Assert.That(result.Id, Is.EqualTo(divisionId));
+        Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
+        {
+            $"Requested division ({divisionId}) was not found",
+        }));
+    }
+
+    [Test]
+    public void DivisionNotFound_GivenDeletedDivisionId_ReturnsDeletedDivisionMessage()
+    {
+        var deletedDivision = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DELETED",
+            Deleted = new DateTime(2001, 02, 03, 04, 05, 06),
+        };
+
+        var result = _factory.DivisionNotFound(new[] { deletedDivision.Id }, new[] { deletedDivision });
+
+        Assert.That(result.Id, Is.EqualTo(deletedDivision.Id));
+        Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
+        {
+            $"Requested division (DELETED / {deletedDivision.Id}) has been deleted 3 Feb 2001 04:05:06",
+        }));
+    }
+
+    [Test]
+    public void DivisionNotFound_GivenMultipleDivisionIds_ReturnsEmptyDivisionIdAndCombinedDetail()
+    {
+        var divisionId1 = Guid.NewGuid();
+        var divisionId2 = Guid.NewGuid();
+
+        var result = _factory.DivisionNotFound(new[] { divisionId1, divisionId2 }, Array.Empty<DivisionDto>());
+
+        Assert.That(result.Id, Is.EqualTo(Guid.Empty));
+        Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
+        {
+            $"Requested division ({divisionId1}) was not found, Requested division ({divisionId2}) was not found",
+        }));
     }
 }

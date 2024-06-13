@@ -97,7 +97,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         });
     }
 
-    [ExcludeFromCodeCoverage]
     public DivisionDataDto DivisionNotFound(IReadOnlyCollection<Guid> divisionIds, IReadOnlyCollection<DivisionDto> deletedDivisions)
     {
         return new DivisionDataDto
@@ -111,7 +110,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     {
                         var deleted = deletedDivisions.SingleOrDefault(d => d.Id == divisionId);
                         return deleted != null
-                            ? $"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss})"
+                            ? $"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss}"
                             : $"Requested division ({divisionId}) was not found";
                     })),
                 }
@@ -131,10 +130,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             case 0:
                 return "<0 divisions>";
-            case 1:
-                return divisions.ElementAt(0)?.Name ?? "<unnamed division>";
             default:
-                return string.Join(" & ", divisions.OrderBy(d => d?.Name).Select(d => d?.Name ?? "<unnamed division>"));
+                return string.Join(" & ", divisions.OrderBy(d => d?.Name).Select(d => d?.Name ?? d?.Id.ToString()));
         }
     }
 
