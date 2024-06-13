@@ -100,6 +100,18 @@ public class CommaDelimitedModelBinderTest
     }
 
     [Test]
+    public async Task BindModelAsync_GivenHashSetProperty_BindsProperty()
+    {
+        var bindingContext = BindingContext<HashSet<string>>("abc");
+
+        await _binder.BindModelAsync(bindingContext);
+
+        Assert.That(bindingContext.Result.IsModelSet, Is.True);
+        Assert.That(bindingContext.Result.Model, Is.TypeOf<HashSet<string>>());
+        Assert.That(bindingContext.Result.Model, Is.EqualTo(new[] { "abc" }));
+    }
+
+    [Test]
     public async Task BindModelAsync_GivenTrailingComma_BindsOnlyFirstValue()
     {
         var bindingContext = BindingContext<List<string>>("abc,");
@@ -191,6 +203,31 @@ public class CommaDelimitedModelBinderTest
                 Guid.Parse("cdc7f4f5-79b3-4ff4-be09-07b6a2ecf444"),
                 Guid.Parse("1915e870-6337-427d-9fcb-17eeff44038c"),
             });
+    }
+
+    [TestCase(typeof(List<string>), false)]
+    [TestCase(typeof(List<Guid>), true)]
+    [TestCase(typeof(List<int>), true)]
+    [TestCase(typeof(IReadOnlyCollection<string>), false)]
+    [TestCase(typeof(IReadOnlyCollection<object>), false)]
+    [TestCase(typeof(IReadOnlyCollection<Guid>), true)]
+    [TestCase(typeof(IReadOnlyCollection<int>), true)]
+    [TestCase(typeof(IEnumerable<string>), false)]
+    [TestCase(typeof(IEnumerable<object>), false)]
+    [TestCase(typeof(IEnumerable<Guid>), true)]
+    [TestCase(typeof(IEnumerable<int>), true)]
+    [TestCase(typeof(string[]), false)]
+    [TestCase(typeof(object[]), false)]
+    [TestCase(typeof(Guid[]), true)]
+    [TestCase(typeof(int[]), true)]
+    [TestCase(typeof(string), false)]
+    [TestCase(typeof(int), false)]
+    [TestCase(typeof(Guid), false)]
+    public void IsSupportedModelType_GivenModelTypes_ReturnsCorrectly(Type modelType, bool expected)
+    {
+        var isSupported = CommaDelimitedModelBinder.IsSupportedModelType(modelType);
+
+        Assert.That(isSupported, Is.EqualTo(expected));
     }
 
     private interface ITypedTester
