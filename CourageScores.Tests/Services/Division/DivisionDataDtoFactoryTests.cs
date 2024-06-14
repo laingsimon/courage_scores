@@ -39,6 +39,16 @@ public class DivisionDataDtoFactoryTests
         Id = Guid.NewGuid(),
         Name = "division2",
     };
+    private static readonly TeamDto Team1 = new TeamDto
+    {
+        Id = Guid.NewGuid(),
+        Name = "Team 1 - Playing",
+    };
+    private static readonly TeamDto Team2 = new TeamDto
+    {
+        Id = Guid.NewGuid(),
+        Name = "Team 2 - Playing",
+    };
 
     private readonly CancellationToken _token = new();
     private DivisionDataDtoFactory _factory = null!;
@@ -115,16 +125,6 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenTeams_SetsTeamsCorrectly()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var team3 = new TeamDto
         {
             Id = Guid.NewGuid(),
@@ -132,13 +132,13 @@ public class DivisionDataDtoFactoryTests
         };
         var game = new GameBuilder()
             .ForDivision(Division1)
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .WithMatch(b => b.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(team1, team2, team3)
-            .WithAllTeamsInSameDivision(Division1, team1, team2, team3)
+            .WithTeam(Team1, Team2, team3)
+            .WithAllTeamsInSameDivision(Division1, Team1, Team2, team3)
             .WithDivision(Division1)
             .Build();
 
@@ -232,19 +232,9 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsFixturesCorrectly()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var game = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var tournamentGame = new TournamentGame
@@ -255,7 +245,7 @@ public class DivisionDataDtoFactoryTests
         };
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .WithTournamentGame(tournamentGame)
             .Build();
 
@@ -270,16 +260,6 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenTournamentFixturesForDateOnly_SetsFixturesCorrectly()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var tournamentGame = new TournamentGame
         {
             Date = new DateTime(2001, 02, 03),
@@ -287,7 +267,7 @@ public class DivisionDataDtoFactoryTests
             AccoladesCount = true,
         };
         var context = new DivisionDataContextBuilder()
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .WithTournamentGame(tournamentGame)
             .Build();
 
@@ -303,31 +283,21 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWithInDivisionGamesOnly()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var inDivisionGame = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .ForDivision(Division1)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var outOfDivisionGame = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .ForDivision(Guid.NewGuid())
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(inDivisionGame, outOfDivisionGame)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
@@ -357,29 +327,19 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWhereEitherTeamIsInDivision()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var homeTeamInDivisionFixture = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .Build();
         var awayTeamInDivisionFixture = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team2, team1)
+            .WithTeams(Team2, Team1)
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(homeTeamInDivisionFixture, awayTeamInDivisionFixture)
-            .WithTeam(team1, team2)
-            .WithTeamIdToDivisionId(team1.Id, Division1.Id)
-            .WithTeamIdToDivisionId(team2.Id, Guid.NewGuid())
+            .WithTeam(Team1, Team2)
+            .WithTeamIdToDivisionId(Team1.Id, Division1.Id)
+            .WithTeamIdToDivisionId(Team2.Id, Guid.NewGuid())
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
@@ -407,27 +367,17 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixturesAndDivisionIdCannotBeFound_DoesNotIncludeFixture()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var homeTeamInDivisionFixture = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .Build();
         var awayTeamInDivisionFixture = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team2, team1)
+            .WithTeams(Team2, Team1)
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(homeTeamInDivisionFixture, awayTeamInDivisionFixture)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
@@ -451,31 +401,21 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenNoDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWithAllGames()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var inDivisionGame = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .ForDivision(Division1)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var outOfDivisionGame = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .ForDivision(Guid.NewGuid())
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(inDivisionGame, outOfDivisionGame)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
@@ -824,25 +764,15 @@ public class DivisionDataDtoFactoryTests
                 ImportData = true,
             },
         };
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var game = new GameBuilder()
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .WithMatch(m => m.WithScores(2, 3)
                 .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "A" })
                 .WithAwayPlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
@@ -855,25 +785,15 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotLoggedIn_SetsDataErrorsToEmpty()
     {
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var game = new GameBuilder()
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .WithMatch(m => m.WithScores(2, 3)
                 .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "A" })
                 .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
@@ -891,25 +811,15 @@ public class DivisionDataDtoFactoryTests
                 ImportData = false,
             },
         };
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-        };
         var game = new GameBuilder()
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .WithMatch(m => m.WithScores(2, 3)
                 .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "A" })
                 .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
