@@ -7,6 +7,8 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
+using CourageScores.Tests.Models.Cosmos.Game;
+using CourageScores.Tests.Models.Dtos;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -131,40 +133,11 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Team 3 - Not Playing",
         };
-        var game = new CosmosGame
-        {
-            DivisionId = division.Id,
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .ForDivision(division)
+            .WithTeams(team1, team2)
+            .WithMatch(b => b.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -223,79 +196,20 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Other division player",
         };
-        var thisDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = division.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = thisDivisionPlayer.Id,
-                            Name = thisDivisionPlayer.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = Guid.NewGuid(),
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = otherDivisionPlayer.Id,
-                            Name = otherDivisionPlayer.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            SeasonId = season.Id,
-            IsKnockout = true,
-            Home = new GameTeam
-            {
-                Id = thisDivisionTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = otherDivisionTeam.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        thisDivisionPlayer,
-                    },
-                    AwayPlayers =
-                    {
-                        otherDivisionPlayer,
-                    },
-                },
-            },
-        };
+        var thisDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(b => b.ForSeason(season, division).WithPlayers(thisDivisionPlayer))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(b => b.ForSeason(season).WithPlayers(otherDivisionPlayer))
+            .Build();
+        var game = new GameBuilder()
+            .ForSeason(season)
+            .Knockout()
+            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(thisDivisionPlayer).WithAwayPlayers(otherDivisionPlayer))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -331,55 +245,20 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Division 1",
         };
-        var thisDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = division.Id,
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = Guid.NewGuid(),
-                },
-            },
-        };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            DivisionId = division.Id,
-            SeasonId = season.Id,
-            Home = new GameTeam
-            {
-                Id = thisDivisionTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = otherDivisionTeam.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                },
-            },
-        };
+        var thisDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season, division))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season))
+            .Build();
+        var game = new GameBuilder()
+            .ForDivision(division)
+            .ForSeason(season)
+            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithMatch(m => m.WithScores(2, 3))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -420,41 +299,11 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Team 2 - Playing",
         };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team1, team2)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
         var tournamentGame = new TournamentGame
         {
             Date = new DateTime(2001, 02, 03),
@@ -550,78 +399,18 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Division",
         };
-        var inDivisionGame = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            DivisionId = division.Id,
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                },
-            },
-        };
-        var outOfDivisionGame = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            DivisionId = Guid.NewGuid(),
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                },
-            },
-        };
+        var inDivisionGame = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team1, team2)
+            .ForDivision(division)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
+        var outOfDivisionGame = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team1, team2)
+            .ForDivision(Guid.NewGuid())
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -680,32 +469,14 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Division",
         };
-        var homeTeamInDivisionFixture = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-        };
-        var awayTeamInDivisionFixture = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team1.Id,
-            },
-        };
+        var homeTeamInDivisionFixture = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team1, team2)
+            .Build();
+        var awayTeamInDivisionFixture = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team2, team1)
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -766,32 +537,14 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Division",
         };
-        var homeTeamInDivisionFixture = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-        };
-        var awayTeamInDivisionFixture = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team1.Id,
-            },
-        };
+        var homeTeamInDivisionFixture = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team1, team2)
+            .Build();
+        var awayTeamInDivisionFixture = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team2, team1)
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -844,78 +597,18 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Division",
         };
-        var inDivisionGame = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            DivisionId = division.Id,
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                },
-            },
-        };
-        var outOfDivisionGame = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            DivisionId = Guid.NewGuid(),
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
-                    },
-                },
-            },
-        };
+        var inDivisionGame = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team1, team2)
+            .ForDivision(division)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
+        var outOfDivisionGame = new GameBuilder()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(team1, team2)
+            .ForDivision(Guid.NewGuid())
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -971,76 +664,19 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Away player",
         };
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = player1.Id,
-                            Name = player1.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = player2.Id,
-                            Name = player2.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            SeasonId = season.Id,
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        player1,
-                    },
-                    AwayPlayers =
-                    {
-                        player2,
-                    },
-                },
-            },
-        };
+        var team1 = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(player1))
+            .Build();
+        var team2 = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(player2))
+            .Build();
+        var game = new GameBuilder()
+            .ForSeason(season)
+            .WithTeams(team1, team2)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(player1).WithAwayPlayers(player2))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -1087,80 +723,20 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Other division player",
         };
-        var thisDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = division.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = thisDivisionPlayer.Id,
-                            Name = thisDivisionPlayer.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = Guid.NewGuid(),
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = otherDivisionPlayer.Id,
-                            Name = otherDivisionPlayer.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            SeasonId = season.Id,
-            DivisionId = division.Id,
-            IsKnockout = false,
-            Home = new GameTeam
-            {
-                Id = thisDivisionTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = otherDivisionTeam.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        thisDivisionPlayer,
-                    },
-                    AwayPlayers =
-                    {
-                        otherDivisionPlayer,
-                    },
-                },
-            },
-        };
+        var thisDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season, division).WithPlayers(thisDivisionPlayer))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(otherDivisionPlayer))
+            .Build();
+        var game = new GameBuilder()
+            .ForSeason(season)
+            .ForDivision(division)
+            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(thisDivisionPlayer).WithAwayPlayers(otherDivisionPlayer))
+            .Build();
         var tournament = new TournamentGame
         {
             Date = new DateTime(2001, 02, 03),
@@ -1223,81 +799,20 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Other division player",
         };
-        var thisDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = division.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = thisDivisionPlayer.Id,
-                            Name = thisDivisionPlayer.Name,
-                        },
-                    },
-                    Deleted = DateTime.UtcNow,
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = Guid.NewGuid(),
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = otherDivisionPlayer.Id,
-                            Name = otherDivisionPlayer.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            SeasonId = season.Id,
-            DivisionId = division.Id,
-            IsKnockout = false,
-            Home = new GameTeam
-            {
-                Id = thisDivisionTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = otherDivisionTeam.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        thisDivisionPlayer,
-                    },
-                    AwayPlayers =
-                    {
-                        otherDivisionPlayer,
-                    },
-                },
-            },
-        };
+        var thisDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season, division).WithPlayers(thisDivisionPlayer).Deleted())
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(otherDivisionPlayer))
+            .Build();
+        var game = new GameBuilder()
+            .ForSeason(season)
+            .ForDivision(division)
+            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(thisDivisionPlayer).WithAwayPlayers(otherDivisionPlayer))
+            .Build();
         var tournament = new TournamentGame
         {
             Date = new DateTime(2001, 02, 03),
@@ -1360,85 +875,21 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Other division player",
         };
-        var thisDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = division.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = thisDivisionPlayer.Id,
-                            Name = thisDivisionPlayer.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    DivisionId = Guid.NewGuid(),
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = otherDivisionPlayer.Id,
-                            Name = otherDivisionPlayer.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            SeasonId = season.Id,
-            IsKnockout = true,
-            AccoladesCount = true,
-            Home = new GameTeam
-            {
-                Id = thisDivisionTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = otherDivisionTeam.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        thisDivisionPlayer,
-                    },
-                    AwayPlayers =
-                    {
-                        otherDivisionPlayer,
-                    },
-                },
-            },
-            OneEighties =
-            {
-                thisDivisionPlayer,
-                otherDivisionPlayer,
-            },
-        };
+        var thisDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season, division).WithPlayers(thisDivisionPlayer))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(otherDivisionPlayer))
+            .Build();
+        var game = new GameBuilder(new CosmosGame { AccoladesCount = true })
+            .ForSeason(season)
+            .Knockout()
+            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(thisDivisionPlayer).WithAwayPlayers(otherDivisionPlayer))
+            .WithOneEighties(thisDivisionPlayer, otherDivisionPlayer)
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -1474,46 +925,14 @@ public class DivisionDataDtoFactoryTests
         {
             Id = Guid.NewGuid(),
         };
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Team 1 player",
-                        },
-                    },
-                },
-            },
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Team 2 player",
-                        },
-                    },
-                },
-            },
-        };
+        var team1 = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "Team 1 player" }))
+            .Build();
+        var team2 = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "Team 2 player" }))
+            .Build();
         var context = new DivisionDataContext(
             new List<CosmosGame>(),
             new List<TeamDto>
@@ -1539,46 +958,14 @@ public class DivisionDataDtoFactoryTests
         {
             Id = Guid.NewGuid(),
         };
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Team 1 player",
-                        },
-                    },
-                },
-            },
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Team 2 player",
-                        },
-                    },
-                },
-            },
-        };
+        var team1 = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "Team 1 player" }))
+            .Build();
+        var team2 = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "Team 2 player" }))
+            .Build();
         var context = new DivisionDataContext(
             new List<CosmosGame>(),
             new List<TeamDto>
@@ -1624,81 +1011,19 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Away player",
         };
-        var team1 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 1 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = player1.Id,
-                            Name = player1.Name,
-                        },
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Team 1 not playing player",
-                        },
-                    },
-                },
-            },
-        };
-        var team2 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 2 - Playing",
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = season.Id,
-                    Players =
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = player2.Id,
-                            Name = player2.Name,
-                        },
-                    },
-                },
-            },
-        };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            SeasonId = season.Id,
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        player1,
-                    },
-                    AwayPlayers =
-                    {
-                        player2,
-                    },
-                },
-            },
-        };
+        var team1 = new TeamDtoBuilder()
+            .WithName("Team 1 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(player1, new GamePlayer { Id = Guid.NewGuid(), Name = "Team 1 not playing player" }))
+            .Build();
+        var team2 = new TeamDtoBuilder()
+            .WithName("Team 2 - Playing")
+            .WithSeason(s => s.ForSeason(season).WithPlayers(player2))
+            .Build();
+        var game = new GameBuilder()
+            .ForSeason(season)
+            .WithTeams(team1, team2)
+            .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(player1).WithAwayPlayers(player2))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -1776,48 +1101,12 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Team 2 - Playing",
         };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "A",
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "B",
-                        },
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "C",
-                        },
-                    },
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .WithTeams(team1, team2)
+            .WithMatch(m => m.WithScores(2, 3)
+                .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "A" })
+                .WithAwayPlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -1854,48 +1143,12 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Team 2 - Playing",
         };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "A",
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "B",
-                        },
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "C",
-                        },
-                    },
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .WithTeams(team1, team2)
+            .WithMatch(m => m.WithScores(2, 3)
+                .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "A" })
+                .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
@@ -1937,48 +1190,12 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.NewGuid(),
             Name = "Team 2 - Playing",
         };
-        var game = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Id = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = team1.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = team2.Id,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomeScore = 2,
-                    AwayScore = 3,
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "A",
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "B",
-                        },
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "C",
-                        },
-                    },
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .WithTeams(team1, team2)
+            .WithMatch(m => m.WithScores(2, 3)
+                .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "A" })
+                .WithHomePlayers(new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
+            .Build();
         var context = new DivisionDataContext(
             new[]
             {
