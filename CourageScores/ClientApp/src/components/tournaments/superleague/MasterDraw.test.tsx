@@ -76,7 +76,9 @@ describe('MasterDraw', () => {
     }
 
     async function setTournamentData(_: TournamentGameDto): Promise<any> {
+    }
 
+    function setPreventScroll(_: boolean) {
     }
 
     async function renderComponent(props: IMasterDrawProps, containerProps: ITournamentContainerProps, account?: UserDto) {
@@ -94,6 +96,8 @@ describe('MasterDraw', () => {
             tournamentData: tournamentBuilder().build(),
             setEditTournament: null,
             setTournamentData: null,
+            preventScroll: false,
+            setPreventScroll(_: boolean) {},
         };
 
         it('matches', async () => {
@@ -164,6 +168,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -184,6 +190,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -208,6 +216,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -232,6 +242,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -256,6 +268,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -280,6 +294,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -300,6 +316,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -320,6 +338,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -340,6 +360,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -360,6 +382,8 @@ describe('MasterDraw', () => {
             }, {
                 setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
+                preventScroll: false,
+                setPreventScroll,
             });
             reportedError.verifyNoError();
 
@@ -394,6 +418,8 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder().singleRound().build(),
                 saveTournament,
                 setTournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, account);
             reportedError.verifyNoError();
 
@@ -433,6 +459,8 @@ describe('MasterDraw', () => {
                 tournamentData: tournamentBuilder(tournamentId).round((r: ITournamentRoundBuilder) => r.withMatch(match)).singleRound().build(),
                 saveTournament,
                 setTournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, account);
             reportedError.verifyNoError();
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '📊'));

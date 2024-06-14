@@ -52,6 +52,9 @@ describe('SuperLeaguePrintout', () => {
         socketFactory = new MockSocketFactory();
     });
 
+    function setPreventScroll(_: boolean) {
+    }
+
     async function renderComponent(tournamentData: ITournamentContainerProps, props: ISuperLeaguePrintoutProps) {
         context = await renderApp(
             iocProps({
@@ -123,6 +126,8 @@ describe('SuperLeaguePrintout', () => {
 
             await renderComponent({
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, { division });
 
             reportedError.verifyNoError();
@@ -159,6 +164,8 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap[saygData2.id] = saygData2;
                 await renderComponent({
                     tournamentData,
+                    preventScroll: false,
+                    setPreventScroll,
                 }, { division });
 
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
@@ -190,6 +197,8 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap[saygData2.id] = saygData2;
                 await renderComponent({
                     tournamentData,
+                    preventScroll: false,
+                    setPreventScroll,
                 }, { division });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
                 expect(context.container.querySelector('div[datatype="match-report"] > div > div:nth-child(1)').textContent).toEqual('Legs won: 2');
@@ -240,6 +249,8 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap[saygData2.id] = saygData2;
                 await renderComponent({
                     tournamentData,
+                    preventScroll: false,
+                    setPreventScroll,
                 }, { division });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
 
@@ -272,6 +283,8 @@ describe('SuperLeaguePrintout', () => {
                 saygApiResponseMap[saygData2.id] = saygData2;
                 await renderComponent({
                     tournamentData,
+                    preventScroll: false,
+                    setPreventScroll,
                 }, { division });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '▶️ Live');
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), '⏸️ Paused');

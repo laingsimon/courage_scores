@@ -91,6 +91,9 @@ describe('TournamentRound', () => {
         return null;
     }
 
+    function setPreventScroll(_: boolean) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundProps, account?: UserDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
@@ -136,6 +139,8 @@ describe('TournamentRound', () => {
             setTournamentData,
             setWarnBeforeEditDialogClose,
             saveTournament,
+            preventScroll: false,
+            setPreventScroll,
         };
 
         describe('renders', () => {
@@ -219,6 +224,8 @@ describe('TournamentRound', () => {
             setTournamentData: setTournamentData,
             setWarnBeforeEditDialogClose,
             saveTournament,
+            preventScroll: false,
+            setPreventScroll,
         }
 
         describe('renders', () => {
@@ -256,6 +263,8 @@ describe('TournamentRound', () => {
                         tournamentData: emptyTournamentGame,
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
+                        preventScroll: false,
+                        setPreventScroll,
                     },
                     {
                         round: roundBuilder()
@@ -303,6 +312,8 @@ describe('TournamentRound', () => {
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
                         setWarnBeforeEditDialogClose,
+                        preventScroll: false,
+                        setPreventScroll,
                     },
                     {
                         round: roundBuilder()
@@ -334,6 +345,8 @@ describe('TournamentRound', () => {
                         matchOptionDefaults: {numberOfLegs: 5, startingScore: 501},
                         setTournamentData,
                         setWarnBeforeEditDialogClose,
+                        preventScroll: false,
+                        setPreventScroll,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -374,6 +387,8 @@ describe('TournamentRound', () => {
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
                         setWarnBeforeEditDialogClose,
+                        preventScroll: false,
+                        setPreventScroll,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -396,6 +411,8 @@ describe('TournamentRound', () => {
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
                         setWarnBeforeEditDialogClose,
+                        preventScroll: false,
+                        setPreventScroll,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -431,6 +448,8 @@ describe('TournamentRound', () => {
                         matchOptionDefaults: {numberOfLegs: 3},
                         setTournamentData,
                         setWarnBeforeEditDialogClose,
+                        preventScroll: false,
+                        setPreventScroll,
                     },
                     {
                         round: roundBuilder().withMatch(match).build(),
@@ -503,6 +522,8 @@ describe('TournamentRound', () => {
                         matchOptionDefaults: {numberOfLegs: 3, startingScore: 501},
                         setTournamentData,
                         setWarnBeforeEditDialogClose,
+                        preventScroll: false,
+                        setPreventScroll,
                     },
                     {
                         round: roundBuilder().build(),

@@ -32,7 +32,7 @@ interface ISaygDataMap {
 
 export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeaguePrintoutProps) {
     const {onError} = useApp();
-    const {tournamentData} = useTournament();
+    const {tournamentData, preventScroll} = useTournament();
     const {saygApi, webSocket} = useDependencies();
     const location = useLocation();
     const {subscriptions} = useLive();
@@ -137,19 +137,19 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 notes={tournamentData.notes}
                 patchData={patchData}
                 readOnly={readOnly} />
-            <MatchLog
+            {preventScroll ? null : (<MatchLog
                 host={tournamentData.host}
                 opponent={tournamentData.opponent}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                saygMatches={saygMatches}/>
-            <Summary
+                saygMatches={saygMatches}/>)}
+            {preventScroll ? null : (<Summary
                 showWinner={showWinner}
                 noOfLegs={noOfLegs}
                 saygMatches={saygMatches}
                 host={tournamentData.host}
-                opponent={tournamentData.opponent}/>
-            <MatchReport
+                opponent={tournamentData.opponent}/>)}
+            {preventScroll ? null : (<MatchReport
                 gender={tournamentData.gender}
                 host={tournamentData.host}
                 opponent={tournamentData.opponent}
@@ -157,7 +157,8 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 division={division}
                 showWinner={showWinner}
                 noOfThrows={noOfThrows}
-                noOfLegs={noOfLegs}/>
+                noOfLegs={noOfLegs}/>)}
+            {preventScroll ? (<div>Content hidden to prevent vertical scrolling whilst entering scores</div>) : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */

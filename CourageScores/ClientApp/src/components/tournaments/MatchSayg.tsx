@@ -35,7 +35,7 @@ export interface IMatchSaygProps {
 }
 
 export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg } : IMatchSaygProps) {
-    const {tournamentData, setTournamentData, saveTournament} = useTournament();
+    const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
     const [saygOpen, setSaygOpen] = useState<boolean>(false);
@@ -47,9 +47,14 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
     const onHiCheck: (player: TournamentPlayerDto, score: number) => Promise<any> = addHiCheck(tournamentData, setTournamentData);
     const on180: (player: TournamentPlayerDto) => Promise<any> = add180(tournamentData, setTournamentData);
 
+    function changeDialogState(state: boolean) {
+        setPreventScroll(state);
+        setSaygOpen(state);
+    }
+
     async function openSaygDialog() {
         if (saygId) {
-            setSaygOpen(true);
+            changeDialogState(true);
             return;
         }
 
@@ -77,7 +82,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
                 await setTournamentData(response.result);
-                setSaygOpen(true);
+                changeDialogState(true);
             } else {
                 setSaveError(response);
             }
@@ -158,7 +163,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             </SaygLoadingContainer>
             <div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
-                    <button className="btn btn-secondary" onClick={() => setSaygOpen(null)}>Close</button>
+                    <button className="btn btn-secondary" onClick={() => changeDialogState(false)}>Close</button>
                 </div>
                 {finished
                     ? null
@@ -229,7 +234,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             newRound.matches[matchIndex] = newMatch;
             newMatch.saygId = null;
             await onChange(newRound);
-            setSaygOpen(null);
+            changeDialogState(false);
             await setTournamentData(response.result);
         } catch (e) {
             /* istanbul ignore next */

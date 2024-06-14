@@ -60,6 +60,7 @@ export function Tournament() {
     const [loading, setLoading] = useState<string>('init');
     const [saving, setSaving] = useState<boolean>(false);
     const [patching, setPatching] = useState<boolean>(false);
+    const [preventScroll, setPreventScroll] = useState<boolean>(false);
     const [tournamentData, setTournamentData] = useState<TournamentGameDto | null>(null);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const [allPlayers, setAllPlayers] = useState<ISelectablePlayer[]>([]);
@@ -365,7 +366,9 @@ export function Tournament() {
                     saving={saving}
                     editTournament={editTournament}
                     setEditTournament={canManageTournaments ? async (value: string) => setEditTournament(value) : null}
-                    liveOptions={liveOptions}>
+                    liveOptions={liveOptions}
+                    preventScroll={preventScroll}
+                    setPreventScroll={setPreventScroll}>
                     {canManageTournaments && tournamentData && editTournament === 'matches'
                         ? (<Dialog title="Edit sides and matches" onClose={closeEditTournamentDialog} className="d-print-none">
                             <EditTournament canSave={true} saving={saving} />
