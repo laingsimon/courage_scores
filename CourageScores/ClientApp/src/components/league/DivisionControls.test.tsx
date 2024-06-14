@@ -510,7 +510,7 @@ describe('DivisionControls', () => {
 
                 await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
-                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/teams/${season5.name}/?division=${division5.name}`);
+                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/teams/${season5.name}/?division=Division+5`);
             });
 
             it('navigates correctly when on player overview page', async () => {
@@ -530,7 +530,7 @@ describe('DivisionControls', () => {
 
                 await doClick(findButton(group, 'Season 5 ' + seasonDates(season5)));
 
-                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/players/${season5.name}/?division=${division5.name}`);
+                expect(mockedUsedNavigate).toHaveBeenCalledWith(`/players/${season5.name}/?division=Division+5`);
             });
 
             it('navigates to first division in other season when current division not in other season', async () => {
@@ -546,9 +546,40 @@ describe('DivisionControls', () => {
                 const group = getSeasonButtonGroup();
                 reportedError.verifyNoError();
                 const option = getOption(group, 'Season 6');
-                expect(option.href).toContain(`/division/${encodeURI(division5.name)}`); // highlighting that division5 will be selected
-                expect(option.href).toContain(`/${encodeURI(season6.name)}`);
-            })
+                expect(option.href).toEqual(`http://localhost/division/${encodeURI(division5.name)}/player:PLAYER_ID/${encodeURI(season6.name)}`);
+            });
+
+            it('navigates to other season from multi-division page', async () => {
+                const route = '/fixtures/:seasonId';
+                const currentPath = '/fixtures/SEASON_ID/?division=DIVISION_ID';
+
+                await renderComponent({
+                    originalSeasonData: season5,
+                    originalDivisionData: division6,
+                    overrideMode: 'fixtures',
+                }, account, seasons, divisions, route, currentPath);
+
+                const group = getSeasonButtonGroup();
+                reportedError.verifyNoError();
+                const option = getOption(group, 'Season 6');
+                expect(option.href).toEqual(`http://localhost/fixtures/${encodeURI(season6.name)}/?division=Division+5`);
+            });
+
+            it('navigates to other season from multi-division page maintaining search parameters', async () => {
+                const route = '/fixtures/:seasonId';
+                const currentPath = '/fixtures/SEASON_ID/?division=DIVISION_ID&notes=Knockout';
+
+                await renderComponent({
+                    originalSeasonData: season5,
+                    originalDivisionData: division6,
+                    overrideMode: 'fixtures',
+                }, account, seasons, divisions, route, currentPath);
+
+                const group = getSeasonButtonGroup();
+                reportedError.verifyNoError();
+                const option = getOption(group, 'Season 6');
+                expect(option.href).toEqual(`http://localhost/fixtures/${encodeURI(season6.name)}/?division=Division+5&notes=Knockout`);
+            });
         });
 
         describe('when logged in', () => {
