@@ -250,7 +250,9 @@ export function Division() {
                     id: divisionDataToUse.id,
                     updated: divisionDataToUse.updated
                 }}
-                onDivisionOrSeasonChanged={reloadDivisionData}/>) : null}
+                onDivisionOrSeasonChanged={reloadDivisionData}
+                overrideMode={requestedMode}
+            />) : null}
             {controls ? (<ul className="nav nav-tabs d-print-none">
                 <li className="nav-item">
                     <NavLink tag={Link}

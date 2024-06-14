@@ -68,6 +68,9 @@ describe('TournamentRoundMatch', () => {
         updatedRound = updated;
     }
 
+    function setPreventScroll(_: boolean) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: ITournamentRoundMatchProps, account?: UserDto) {
         context = await renderApp(
             iocProps({tournamentApi, saygApi}),
@@ -121,6 +124,8 @@ describe('TournamentRoundMatch', () => {
                 tournamentData: tournamentBuilder().build(),
                 saveTournament,
                 setTournamentData,
+                preventScroll: false,
+                setPreventScroll,
             };
 
             it('when has next round', async () => {
@@ -327,6 +332,8 @@ describe('TournamentRoundMatch', () => {
                 tournamentData: tournamentBuilder().build(),
                 saveTournament,
                 setTournamentData,
+                preventScroll: false,
+                setPreventScroll,
             };
 
             it('when no next round', async () => {
@@ -458,6 +465,8 @@ describe('TournamentRoundMatch', () => {
             tournamentData: tournamentBuilder().build(),
             saveTournament,
             setTournamentData,
+            preventScroll: false,
+            setPreventScroll,
         };
 
         beforeEach(() => {
