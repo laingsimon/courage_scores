@@ -14,7 +14,7 @@ import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {FeatureAdmin} from "./FeatureAdmin";
 import {createTemporaryId} from "../../helpers/projection";
 
-describe('EditFeature', () => {
+describe('FeatureAdmin', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let features: ConfiguredFeatureDto[];

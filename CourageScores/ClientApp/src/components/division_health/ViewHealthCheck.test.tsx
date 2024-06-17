@@ -2,7 +2,7 @@ import {appProps, brandingProps, cleanUp, ErrorState, iocProps, renderApp, TestC
 import {ViewHealthCheck} from "./ViewHealthCheck";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
 
-describe('DivisionHealth', () => {
+describe('ViewHealthCheck', () => {
     let context: TestContext;
     let reportedError: ErrorState;
 
