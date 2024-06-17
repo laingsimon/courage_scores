@@ -33,15 +33,20 @@ public class DivisionServiceTests
         Id = Guid.NewGuid(),
         Name = "DIVISION 2",
     };
-    private static readonly DivisionDataFilter Division1Filter = new DivisionDataFilter
-    {
-        DivisionId = { Division1.Id },
-    };
     private static readonly SeasonDto Season = new SeasonDto
     {
         Id = Guid.NewGuid(),
         StartDate = new DateTime(2001, 01, 01),
         EndDate = new DateTime(2001, 05, 01),
+    };
+    private static readonly DivisionDataFilter Division1Filter = new DivisionDataFilter
+    {
+        DivisionId = { Division1.Id },
+    };
+    private static readonly DivisionDataFilter Division1AndSeason1Filter = new DivisionDataFilter
+    {
+        SeasonId = Season.Id,
+        DivisionId = { Division1.Id },
     };
 
     private readonly CancellationToken _token = new();
@@ -549,10 +554,6 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTournamentsWithinSeason()
     {
-        var filter = new DivisionDataFilter
-        {
-            DivisionId = { Division1.Id },
-        };
         var inSeasonTournament = new TournamentGame
         {
             Id = Guid.NewGuid(),
@@ -568,7 +569,7 @@ public class DivisionServiceTests
             inSeasonTournament, outOfSeasonTournament,
         });
 
-        await _service.GetDivisionData(filter, _token);
+        await _service.GetDivisionData(Division1Filter, _token);
 
         _tournamentGameRepository.Verify(s => s.GetSome($"t.SeasonId = '{Season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, true, _token));
@@ -626,11 +627,6 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_WhenLoggedInAndCannotManageGames_GetsFixturesForFilterDivisionOnly()
     {
-        var filter = new DivisionDataFilter
-        {
-            SeasonId = Season.Id,
-            DivisionId = { Division1.Id },
-        };
         var givenDivisionGameInSeason = new GameBuilder()
             .ForDivision(Division1)
             .WithDate(new DateTime(2001, 02, 01))
@@ -645,7 +641,7 @@ public class DivisionServiceTests
         });
         WithAccess(manageGames: false);
 
-        await _service.GetDivisionData(filter, _token);
+        await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 
         _gameRepository.Verify(s => s.GetSome($"t.DivisionId in ('{Division1.Id}') or t.IsKnockout = true", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, true, _token));
@@ -659,11 +655,6 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_WhenLoggedInAndCanManageGames_GetsFixturesForAllDivisions()
     {
-        var filter = new DivisionDataFilter
-        {
-            SeasonId = Season.Id,
-            DivisionId = { Division1.Id },
-        };
         var givenDivisionGameInSeason = new GameBuilder()
             .ForDivision(Division1)
             .WithDate(new DateTime(2001, 02, 01))
@@ -689,7 +680,7 @@ public class DivisionServiceTests
         });
         WithAccess(manageGames: true);
 
-        await _service.GetDivisionData(filter, _token);
+        await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 
         _gameRepository.Verify(s => s.GetSome($"t.SeasonId = '{Season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, true, _token));
