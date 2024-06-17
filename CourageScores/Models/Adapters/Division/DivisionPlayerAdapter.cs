@@ -1,3 +1,4 @@
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
@@ -14,7 +15,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
     }
 
     public async Task<DivisionPlayerDto> Adapt(DivisionData.PlayerScore score, DivisionData.TeamPlayerTuple playerTuple,
-        Dictionary<DateTime, Guid> fixtures, CancellationToken token)
+        Dictionary<DateTime, Guid> fixtures, DivisionDto? division, CancellationToken token)
     {
         return new DivisionPlayerDto
         {
@@ -32,10 +33,11 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             WinPercentage = score.PlayerWinPercentage,
             Fixtures = fixtures,
             Updated = playerTuple.Player.Updated,
+            Division = division,
         };
     }
 
-    public Task<DivisionPlayerDto> Adapt(TeamDto team, TeamPlayerDto player, CancellationToken token)
+    public Task<DivisionPlayerDto> Adapt(TeamDto team, TeamPlayerDto player, DivisionDto? division, CancellationToken token)
     {
         return Task.FromResult(new DivisionPlayerDto
         {
@@ -54,6 +56,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             Triples = new PlayerPerformanceDto(),
             Rank = -1,
             Updated = player.Updated,
+            Division = division,
         });
     }
 }

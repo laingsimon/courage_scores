@@ -92,7 +92,7 @@ export function NavMenu() {
     }
 
     function getDivisionAddress(division: DivisionDto) {
-        const currentSeasons = seasons
+        const currentSeasons: SeasonDto[] = seasons
             .filter((s: SeasonDto) => s.isCurrent)
             .filter((s: SeasonDto) => any(s.divisions, (d: DivisionDto) => d.id === division.id));
 
@@ -100,8 +100,8 @@ export function NavMenu() {
             return `/division/${division.name}`;
         }
 
-        const season = currentSeasons[0];
-        return `/division/${division.name}/teams/${season.name}`;
+        const season: SeasonDto = currentSeasons[0];
+        return `/teams/${season.name}/?division=${division.name}`;
     }
 
     if (navMenuError) {
@@ -122,9 +122,7 @@ export function NavMenu() {
                         {renderItems('beforeDivisions')}
                         {!appLoading && divisions.filter(shouldShowDivision).map((division: DivisionDto) => (
                             <li className="nav-item" key={division.id}>
-                                <NavLink tag={Link} onClick={navigate}
-                                         className={getClassName(`/division/${ division.name}`)}
-                                         to={getDivisionAddress(division)}>
+                                <NavLink tag={Link} onClick={navigate} to={getDivisionAddress(division)}>
                                     {division.name}
                                 </NavLink>
                             </li>))}

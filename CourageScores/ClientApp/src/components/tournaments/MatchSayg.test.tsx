@@ -46,6 +46,7 @@ describe('MatchSayg', () => {
     let apiResponse = null;
     let saygDataLookup: { [id: string]: RecordedScoreAsYouGoDto };
     let deletedSayg: { id: string, matchId: string };
+    let scrollPrevented: boolean;
 
     const tournamentApi = api<ITournamentGameApi>({
         async addSayg(id: string, saygRequest: CreateTournamentSaygDto): Promise<IClientActionResultDto<TournamentGameDto>> {
@@ -100,6 +101,10 @@ describe('MatchSayg', () => {
         patchedData.push({ patch, nestInRound });
     }
 
+    function setPreventScroll(prevent: boolean) {
+        scrollPrevented = prevent;
+    }
+
     afterEach(() => {
         cleanUp(context);
     });
@@ -114,6 +119,7 @@ describe('MatchSayg', () => {
         apiResponse = null;
         saygDataLookup = {};
         deletedSayg = null;
+        scrollPrevented = null;
     });
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IMatchSaygProps, account?: UserDto) {
@@ -164,6 +170,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -186,6 +194,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -208,6 +218,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -230,6 +242,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -252,6 +266,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -274,6 +290,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -297,6 +315,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -320,6 +340,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -343,6 +365,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -365,6 +389,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -387,6 +413,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -409,6 +437,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -431,6 +461,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -508,6 +540,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -540,6 +574,8 @@ describe('MatchSayg', () => {
             await renderComponent({
                 setTournamentData,
                 tournamentData,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -564,6 +600,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -593,6 +631,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -624,6 +664,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -656,6 +698,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -690,6 +734,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -710,6 +756,7 @@ describe('MatchSayg', () => {
                 type: 'SAYG ADDED',
             });
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
+            expect(scrollPrevented).toEqual(true);
         });
 
         it('does not show live link in dialog if sideA won', async () => {
@@ -726,6 +773,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -743,6 +792,7 @@ describe('MatchSayg', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.querySelector('.btn-success')).toBeFalsy();
+            expect(scrollPrevented).toEqual(true);
         });
 
         it('does not show live link in dialog if sideB won', async () => {
@@ -759,6 +809,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -776,6 +828,7 @@ describe('MatchSayg', () => {
             const dialog = context.container.querySelector('.modal-dialog') as HTMLAnchorElement;
             expect(dialog).toBeTruthy();
             expect(dialog.querySelector('.btn-success')).toBeFalsy();
+            expect(scrollPrevented).toEqual(true);
         });
 
         it('shows live link in dialog if no winner', async () => {
@@ -792,6 +845,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -811,6 +866,7 @@ describe('MatchSayg', () => {
             const liveLink = dialog.querySelector('.btn-success') as HTMLAnchorElement;
             expect(liveLink).toBeTruthy();
             expect(liveLink.href).toEqual(`http://localhost/live/match/${saygId}`);
+            expect(scrollPrevented).toEqual(true);
         });
 
         it('can close dialog', async () => {
@@ -823,6 +879,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -840,6 +898,7 @@ describe('MatchSayg', () => {
             await doClick(findButton(dialog, 'Close'));
 
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+            expect(scrollPrevented).toEqual(false);
         });
 
         it('can patch data with updated score', async () => {
@@ -1032,6 +1091,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -1077,6 +1138,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,
@@ -1127,6 +1190,8 @@ describe('MatchSayg', () => {
                 setTournamentData,
                 tournamentData,
                 saveTournament,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 match,
                 matchIndex: 0,

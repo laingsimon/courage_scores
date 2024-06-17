@@ -70,6 +70,9 @@ describe('PrintableSheetMatch', () => {
         updatedTournament = update;
     }
 
+    function setPreventScroll(_: boolean) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetMatchProps, appProps: IAppContainerProps) {
         context = await renderApp(
             iocProps({saygApi}),
@@ -96,6 +99,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -122,6 +127,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -147,6 +154,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -174,6 +183,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -201,6 +212,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -233,6 +246,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -280,6 +295,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -331,6 +348,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData: nestedMatchData,
                 matchIndex: 0,
@@ -364,6 +383,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData: nestedMatchData,
                 matchIndex: 0,
@@ -411,6 +432,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -457,6 +480,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -490,6 +515,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -519,6 +546,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -548,6 +577,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -577,6 +608,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -611,6 +644,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -661,6 +696,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -710,6 +747,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -745,6 +784,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -775,6 +816,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -828,6 +871,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,
@@ -895,6 +940,8 @@ describe('PrintableSheetMatch', () => {
                 tournamentData,
                 setTournamentData,
                 matchOptionDefaults,
+                preventScroll: false,
+                setPreventScroll,
             }, {
                 matchData,
                 matchIndex: 0,

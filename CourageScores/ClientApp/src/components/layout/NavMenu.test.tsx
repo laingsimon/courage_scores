@@ -111,7 +111,7 @@ describe('NavMenu', () => {
             expect(listItems.map(li => li.querySelector('a').href)).toEqual([
                 'https://localhost/BEFORE1',
                 'https://localhost/BEFORE2',
-                'http://localhost/division/' + division.name + '/teams/' + currentSeason.name,
+                'http://localhost/teams/' + currentSeason.name + '/?division=' + division.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
                 'https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice?q=value']);
@@ -258,29 +258,6 @@ describe('NavMenu', () => {
             expect(isExpanded()).toEqual(false);
         });
 
-        it('highlight division', async () => {
-            await renderComponent(
-                settings,
-                appProps({
-                    account,
-                    divisions,
-                    seasons,
-                    appLoading: false,
-                    clearError,
-                }),
-                null,
-                '/division/:id',
-                '/division/' + division.name);
-            expect(context.container.textContent).not.toContain('ERROR:');
-
-            const menu = context.container.querySelector('nav');
-            const divisionItem = Array.from(menu.querySelectorAll('li'))
-                .filter(li => li.textContent === 'DIVISION')[0];
-            expect(divisionItem).toBeTruthy();
-            const link = divisionItem.querySelector('a');
-            expect(link.className).toContain('nav-item-active');
-        });
-
         it('should highlight route', async () => {
             await renderComponent(settings, appProps({
                 account,
@@ -331,8 +308,8 @@ describe('NavMenu', () => {
                     clearError,
                 }),
                 null,
-                '/division/:divisionId/:mode/:seasonId',
-                `/division/${division1.id}/teams/${onlyDivision1SeasonCurrent.id}`);
+                '/teams/:seasonId',
+                `/teams/${onlyDivision1SeasonCurrent.id}?division=${division1.id}`);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const items = getDivisionItems();
@@ -358,8 +335,8 @@ describe('NavMenu', () => {
                     clearError,
                 }),
                 null,
-                '/divisions/:divisionId/teams/:seasonId',
-                `/divisions/${division1.id}/teams/${bothDivisionsSeasonsNotCurrent.id}`);
+                '/teams/:seasonId',
+                `/teams/${bothDivisionsSeasonsNotCurrent.id}/?division=${division1.id}`);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const items = getDivisionItems();

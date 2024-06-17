@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using Moq;
@@ -93,8 +94,18 @@ public class DivisionFixtureAdapterTests
                 },
             },
         };
+        var homeDivision = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME DIVISION",
+        };
+        var awayDivision = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY DIVISION",
+        };
 
-        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, homeDivision, awayDivision, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
@@ -106,6 +117,8 @@ public class DivisionFixtureAdapterTests
         Assert.That(result.HomeTeam, Is.EqualTo(_homeTeamDto));
         Assert.That(result.AwayTeam, Is.EqualTo(_awayTeamDto));
         Assert.That(result.IsKnockout, Is.EqualTo(game.IsKnockout));
+        Assert.That(result.HomeDivision, Is.EqualTo(homeDivision));
+        Assert.That(result.AwayDivision, Is.EqualTo(awayDivision));
     }
 
     [Test]
@@ -151,7 +164,7 @@ public class DivisionFixtureAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
@@ -227,7 +240,7 @@ public class DivisionFixtureAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
         Assert.That(result.HomeScore, Is.EqualTo(1));
         Assert.That(result.AwayScore, Is.EqualTo(0));
@@ -253,7 +266,7 @@ public class DivisionFixtureAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(game, _homeTeam, null, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, null, null, null, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, null, _token));
@@ -282,7 +295,7 @@ public class DivisionFixtureAdapterTests
             AccoladesCount = true,
         };
 
-        var result = await _adapter.Adapt(game, null, null, _token);
+        var result = await _adapter.Adapt(game, null, null, null, null, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, null, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, null, _token));
@@ -320,7 +333,7 @@ public class DivisionFixtureAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
@@ -357,7 +370,7 @@ public class DivisionFixtureAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
@@ -410,7 +423,7 @@ public class DivisionFixtureAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
@@ -499,7 +512,7 @@ public class DivisionFixtureAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
@@ -517,11 +530,16 @@ public class DivisionFixtureAdapterTests
             Address = "address",
             Name = "team",
         };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "DIVISION",
+        };
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);
 
-        var result = await _adapter.ForUnselectedTeam(team, isKnockout, Array.Empty<CosmosGame>(), _token);
+        var result = await _adapter.ForUnselectedTeam(team, isKnockout, Array.Empty<CosmosGame>(), division, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Postponed, Is.False);
@@ -532,6 +550,7 @@ public class DivisionFixtureAdapterTests
         Assert.That(result.HomeTeam, Is.EqualTo(_homeTeamDto));
         Assert.That(result.IsKnockout, Is.EqualTo(expectedIsKnockout));
         Assert.That(result.AccoladesCount, Is.True);
+        Assert.That(result.HomeDivision, Is.EqualTo(division));
     }
 
     [Test]
@@ -565,7 +584,7 @@ public class DivisionFixtureAdapterTests
         var result = await _adapter.ForUnselectedTeam(team, false, new[]
         {
             game,
-        }, _token);
+        }, null, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.FixturesUsingAddress.Count, Is.EqualTo(1));

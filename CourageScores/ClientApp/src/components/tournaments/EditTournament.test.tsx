@@ -30,6 +30,7 @@ describe('EditTournament', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedData: TournamentGameDto;
+    let preventScroll: boolean;
 
     afterEach(() => {
         cleanUp(context);
@@ -39,9 +40,13 @@ describe('EditTournament', () => {
         updatedData = newData;
     }
 
+    function setPreventScroll(_: boolean) {
+    }
+
     beforeEach(() => {
         reportedError = new ErrorState();
         updatedData = null;
+        preventScroll = false;
     });
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IEditTournamentProps, account?: UserDto, teams?: TeamDto[]) {
@@ -74,6 +79,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: true,
                 saving: false,
@@ -100,6 +107,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: true,
                 saving: false,
@@ -124,6 +133,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: true,
                 saving: false,
@@ -150,6 +161,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: true,
                 saving: false,
@@ -174,6 +187,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: true,
                 saving: false,
@@ -204,6 +219,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: true,
                 saving: false,
@@ -242,6 +259,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: true,
                 saving: false,
@@ -282,6 +301,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -317,6 +338,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -352,6 +375,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -382,6 +407,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -416,6 +443,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -453,6 +482,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -494,6 +525,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -535,6 +568,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,
@@ -575,6 +610,8 @@ describe('EditTournament', () => {
                 alreadyPlaying: {},
                 allPlayers: [],
                 setTournamentData,
+                preventScroll,
+                setPreventScroll,
             }, {
                 disabled: false,
                 saving: false,

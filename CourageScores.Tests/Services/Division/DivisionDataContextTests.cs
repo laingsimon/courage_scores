@@ -34,7 +34,8 @@ public class DivisionDataContextTests
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllGames(divisionId).ToArray();
 
@@ -67,7 +68,8 @@ public class DivisionDataContextTests
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllGames(divisionId).ToArray();
 
@@ -113,7 +115,8 @@ public class DivisionDataContextTests
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
         var result = context.AllGames(null).ToArray();
 
@@ -146,9 +149,10 @@ public class DivisionDataContextTests
             },
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
-        var result = context.AllTournamentGames(null);
+        var result = context.AllTournamentGames(Array.Empty<Guid>());
 
         Assert.That(result, Is.EquivalentTo(new[]
         {
@@ -182,9 +186,10 @@ public class DivisionDataContextTests
             },
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
-            new Dictionary<Guid, Guid?>());
+            new Dictionary<Guid, Guid?>(),
+            new Dictionary<Guid, DivisionDto>());
 
-        var result = context.AllTournamentGames(tournamentInDivision.DivisionId);
+        var result = context.AllTournamentGames(new[] { tournamentInDivision.DivisionId.Value });
 
         Assert.That(result, Is.EquivalentTo(new[]
         {

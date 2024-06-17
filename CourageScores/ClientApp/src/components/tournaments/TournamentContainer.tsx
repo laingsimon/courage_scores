@@ -15,18 +15,15 @@ export interface ITournamentContainerProps extends ITournament {
 }
 
 /* istanbul ignore next */
-export function TournamentContainer({children, tournamentData, setTournamentData, season, division, alreadyPlaying,
-                                        allPlayers, saveTournament, setWarnBeforeEditDialogClose, matchOptionDefaults, liveOptions, saving, editTournament, setEditTournament }: ITournamentContainerProps) {
-    const data: ITournament = {
-        tournamentData, setTournamentData,
-        season, division, alreadyPlaying,
-        allPlayers, saveTournament, setWarnBeforeEditDialogClose, matchOptionDefaults,
-        saving, editTournament, setEditTournament
-    };
+export function TournamentContainer(props: ITournamentContainerProps) {
+    const data: ITournamentContainerProps = Object.assign({}, props);
+    // remove any props that are for this container alone (and shouldn't be passed down)
+    delete data.children;
+    delete data.liveOptions;
 
-    return (<LiveContainer liveOptions={liveOptions} onDataUpdate={setTournamentData}>
+    return (<LiveContainer liveOptions={props.liveOptions} onDataUpdate={props.setTournamentData}>
         <TournamentContext.Provider value={data}>
-            {children}
+            {props.children}
         </TournamentContext.Provider>
     </LiveContainer>)
 }

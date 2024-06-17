@@ -18,4 +18,6 @@ export interface ITournament {
     saving?: boolean;
     editTournament?: string;
     setEditTournament?(edit: string): Promise<any>;
+    preventScroll: boolean;
+    setPreventScroll(prevent: boolean): void;
 }

@@ -18,6 +18,7 @@ import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
+import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
@@ -286,12 +287,14 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     try {
+        const homeDivision: DivisionDto = fixture.homeDivision || { id: divisionId, name: divisionName };
+
         return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : '')}>
             <td className="text-end">
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                     ? (<Link to={`/score/${fixture.id}`}
                                        className="margin-right">{fixture.homeTeam.name}</Link>)
-                    : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                    : (<Link to={`/division/${homeDivision.name || homeDivision.id}/team:${fixture.homeTeam.name}/${season.name}`}
                                        className="margin-right">{fixture.homeTeam.name}</Link>)}
                 {isAdmin ? null : <ToggleFavouriteTeam teamId={fixture.homeTeam.id} />}
             </td>

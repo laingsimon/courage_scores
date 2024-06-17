@@ -49,6 +49,7 @@ describe('EditSide', () => {
         teamId: string,
         playerDetails: EditTeamPlayerDto,
     };
+    let preventScroll: boolean;
     const playerApi = api<IPlayerApi>({
         create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             createdPlayer = {
@@ -87,6 +88,7 @@ describe('EditSide', () => {
         applyOptions = null;
         teamsReloaded = false;
         createdPlayer = null;
+        preventScroll = false;
     });
 
     async function onChange(newData: TournamentSideDto) {
@@ -108,6 +110,9 @@ describe('EditSide', () => {
 
     async function reloadTeams() {
         teamsReloaded = true;
+    }
+
+    function setPreventScroll(_: boolean) {
     }
 
     async function renderComponent(containerProps: ITournamentContainerProps, props: IEditSideProps, teams?: TeamDto[], account?: UserDto) {
@@ -153,7 +158,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, null);
 
             reportedError.verifyNoError();
@@ -169,7 +176,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -192,7 +201,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [deletedTeam, team]);
 
             reportedError.verifyNoError();
@@ -210,7 +221,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER', context.user);
@@ -230,7 +243,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
@@ -252,7 +267,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData: emptyTournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -271,7 +288,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -287,7 +306,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -309,7 +330,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [teamNotInSeason]);
 
             reportedError.verifyNoError();
@@ -334,7 +357,9 @@ describe('EditSide', () => {
             await renderComponent({
                 tournamentData,
                 season,
-                alreadyPlaying: {}
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [deletedTeam]);
 
             reportedError.verifyNoError();
@@ -357,6 +382,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll
             }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
@@ -378,6 +405,8 @@ describe('EditSide', () => {
                 tournamentData: crossDivisionalTournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
@@ -392,6 +421,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -406,6 +437,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -418,6 +451,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side: tournamentData.sides[0], onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -434,6 +469,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -448,6 +485,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             reportedError.verifyNoError();
@@ -469,6 +508,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
             reportedError.verifyNoError();
@@ -490,6 +531,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
             reportedError.verifyNoError();
@@ -513,6 +556,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
             reportedError.verifyNoError();
@@ -536,6 +581,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
             reportedError.verifyNoError();
@@ -569,6 +616,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             await doChange(context.container, 'input[name="name"]', 'NEW NAME', context.user);
@@ -588,6 +637,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             await doClick(context.container, 'input[name="noShow"]');
@@ -614,6 +665,8 @@ describe('EditSide', () => {
                 tournamentData: teamTournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEAM');
@@ -642,6 +695,8 @@ describe('EditSide', () => {
                 tournamentData: teamTournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Select team');
@@ -662,6 +717,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
@@ -685,6 +742,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
@@ -708,6 +767,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
@@ -735,6 +796,8 @@ describe('EditSide', () => {
                 tournamentData: noSidesTournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
@@ -766,6 +829,8 @@ describe('EditSide', () => {
                 tournamentData: noSidesTournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
@@ -798,6 +863,8 @@ describe('EditSide', () => {
                 tournamentData: noSidesTournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
@@ -817,6 +884,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             let confirm: string;
             window.confirm = (msg) => {
@@ -837,6 +906,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             let confirm: string;
             window.confirm = (msg) => {
@@ -859,6 +930,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             let alert: string;
             window.alert = (msg) => {
@@ -878,6 +951,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             let alert: string;
             window.alert = (msg) => {
@@ -899,6 +974,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             await doClick(findButton(context.container, 'Save'));
@@ -918,6 +995,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             await doClick(findButton(context.container, 'Close'));
@@ -934,6 +1013,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -960,6 +1041,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -987,6 +1070,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
 
             await doClick(findButton(context.container, 'Add player/s'));
@@ -1011,6 +1096,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
@@ -1035,6 +1122,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
@@ -1061,6 +1150,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
@@ -1096,6 +1187,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
@@ -1122,6 +1215,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team], account);
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
@@ -1145,6 +1240,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
@@ -1161,6 +1258,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
@@ -1178,6 +1277,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
@@ -1195,6 +1296,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
@@ -1212,6 +1315,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeFalsy();
@@ -1229,6 +1334,8 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
+                preventScroll,
+                setPreventScroll,
             }, { side, onChange, onClose, onApply, onDelete }, [team]);
 
             expect(context.container.querySelector('.list-group')).toBeFalsy();

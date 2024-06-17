@@ -14,10 +14,11 @@ export function usePreferences(): IPreferences {
 
 export interface IPreferencesContainerProps {
     children?: React.ReactNode;
+    insecure?: boolean;
 }
 
 /* istanbul ignore next */
-export function PreferencesContainer({children} : IPreferencesContainerProps) {
+export function PreferencesContainer({children, insecure} : IPreferencesContainerProps) {
     const COOKIE_NAME = 'preferences';
     const [ cookies, setCookie ] = useCookies([COOKIE_NAME]);
     const EXPIRY_DAYS: number = 365;
@@ -42,6 +43,9 @@ export function PreferencesContainer({children} : IPreferencesContainerProps) {
             {
                 path: '/',
                 expires: getExpiry(),
+                secure: !insecure,
+                sameSite: 'none',
+                partitioned: true,
             });
     }
 

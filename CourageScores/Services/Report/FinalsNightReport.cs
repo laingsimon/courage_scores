@@ -240,7 +240,7 @@ public class FinalsNightReport : CompositeReport
     {
         var divisions = await _divisionService.GetAll(token).ToList();
         var divisionData = await divisions
-            .SelectAsync(d => _divisionService.GetDivisionData(new DivisionDataFilter { SeasonId = _season.Id, DivisionId = d.Id }, token))
+            .SelectAsync(d => _divisionService.GetDivisionData(new DivisionDataFilter { SeasonId = _season.Id, DivisionId = { d.Id } }, token))
             .ToList();
 
         if (divisionData.Count == 0)

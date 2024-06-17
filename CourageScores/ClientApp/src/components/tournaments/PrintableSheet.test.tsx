@@ -73,6 +73,9 @@ describe('PrintableSheet', () => {
         editTournament = value;
     }
 
+    function setPreventScroll(_: boolean) {
+    }
+
     async function renderComponent(containerProps: ITournamentContainerProps, props: IPrintableSheetProps, appProps: IAppContainerProps) {
         context = await renderApp(
             iocProps(),
@@ -225,7 +228,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -260,7 +263,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -298,7 +301,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -383,7 +386,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -450,7 +453,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -559,7 +562,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -722,7 +725,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -768,7 +771,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({teams, divisions}, reportedError));
 
@@ -801,7 +804,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -829,7 +832,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division: null, matchOptionDefaults},
+                {tournamentData, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -853,7 +856,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -876,7 +879,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -902,7 +905,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -926,7 +929,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division: null, matchOptionDefaults},
+                {tournamentData, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -952,7 +955,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division: null, matchOptionDefaults},
+                {tournamentData, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -971,7 +974,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -989,7 +992,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division},
+                {tournamentData, season, division, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -1017,7 +1020,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -1046,7 +1049,7 @@ describe('PrintableSheet', () => {
             const divisions = [division];
 
             await renderComponent(
-                {tournamentData, season, division: null, matchOptionDefaults},
+                {tournamentData, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -1074,7 +1077,7 @@ describe('PrintableSheet', () => {
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -1101,7 +1104,7 @@ describe('PrintableSheet', () => {
             const divisions = [division];
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -1128,7 +1131,7 @@ describe('PrintableSheet', () => {
             const divisions = [division];
 
             await renderComponent(
-                {tournamentData, season, division: null, matchOptionDefaults},
+                {tournamentData, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({ teams, divisions }, reportedError));
 
@@ -1150,7 +1153,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: false},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1175,7 +1178,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1208,7 +1211,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1237,7 +1240,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD).withSide(sideE)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1270,7 +1273,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA).withSide(sideB).withSide(sideC).withSide(sideD)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1301,7 +1304,7 @@ describe('PrintableSheet', () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1333,7 +1336,7 @@ describe('PrintableSheet', () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1373,7 +1376,7 @@ describe('PrintableSheet', () => {
                 access: {}
             }
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account}, reportedError));
             reportedError.verifyNoError();
@@ -1412,7 +1415,7 @@ describe('PrintableSheet', () => {
                 access: {}
             }
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account}, reportedError));
             reportedError.verifyNoError();
@@ -1446,7 +1449,7 @@ describe('PrintableSheet', () => {
                     .forSeason(season, division, [player1])
                     .build()]);
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account, teams}, reportedError));
             reportedError.verifyNoError();
@@ -1478,7 +1481,7 @@ describe('PrintableSheet', () => {
             }
             window.confirm = () => true;
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account}, reportedError));
             reportedError.verifyNoError();
@@ -1517,7 +1520,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -1549,7 +1552,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -1578,7 +1581,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -1593,7 +1596,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division: null, matchOptionDefaults},
+                {tournamentData, season, division: null, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -1610,7 +1613,7 @@ describe('PrintableSheet', () => {
                 .build();
 
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults},
+                {tournamentData, season, division, matchOptionDefaults, preventScroll: false, setPreventScroll},
                 {},
                 appProps({}, reportedError));
 
@@ -1625,7 +1628,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             const firstSideA = context.container.querySelector('div[datatype="sideA"]');
@@ -1648,7 +1651,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             const firstSideA = context.container.querySelector('div[datatype="sideB"]');
@@ -1674,7 +1677,7 @@ describe('PrintableSheet', () => {
                 .withSide(noShowSide)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             const firstSideA = context.container.querySelector('div[datatype="sideB"]');
@@ -1695,7 +1698,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({teams, account}, reportedError));
             await doClick(context.container.querySelector('li[datatype="add-side"]'));
@@ -1720,7 +1723,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({teams, account}, reportedError));
 
@@ -1742,7 +1745,7 @@ describe('PrintableSheet', () => {
                 .withSide((s: ITournamentSideBuilder) => s.name('SIDE A'))
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({teams, account}, reportedError));
 
@@ -1760,7 +1763,7 @@ describe('PrintableSheet', () => {
                     .build()]);
             const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({teams, account}, reportedError));
             await doClick(context.container.querySelector('li[datatype="add-side"]'));
@@ -1781,7 +1784,7 @@ describe('PrintableSheet', () => {
                 .build();
             window.confirm = () => true;
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({account}, reportedError));
             const playing = context.container.querySelector('div[datatype="playing"]');
@@ -1809,7 +1812,7 @@ describe('PrintableSheet', () => {
                 .round((r: ITournamentRoundBuilder) => r)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, setEditTournament},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, setEditTournament, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
@@ -1825,7 +1828,7 @@ describe('PrintableSheet', () => {
                 .round((r: ITournamentRoundBuilder) => r)
                 .build();
             await renderComponent(
-                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}},
+                {tournamentData, season, division, matchOptionDefaults, setTournamentData, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
                 appProps({}, reportedError));
             reportedError.verifyNoError();
