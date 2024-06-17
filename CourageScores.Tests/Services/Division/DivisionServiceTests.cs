@@ -10,6 +10,7 @@ using CourageScores.Services;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
+using CourageScores.Tests.Models.Cosmos.Game;
 using CourageScores.Tests.Models.Dtos;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
@@ -400,18 +401,14 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingGamesWithinSeason()
     {
-        var givenDivisionGameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
-        var givenDivisionGameOutOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 06, 01),
-        };
+        var givenDivisionGameInSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var givenDivisionGameOutOfSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
         _someGames.AddRange(new[]
         {
             givenDivisionGameInSeason, givenDivisionGameOutOfSeason,
@@ -435,24 +432,18 @@ public class DivisionServiceTests
         {
             DivisionId = { Division1.Id, Division2.Id },
         };
-        var division1GameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
-        var division1GameOutOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 06, 01),
-        };
-        var division2GameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division2.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
+        var division1GameInSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var division1GameOutOfSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
+        var division2GameInSeason = new GameBuilder()
+            .ForDivision(Division2)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
         _someGames.AddRange(new[]
         {
             division1GameInSeason, division1GameOutOfSeason, division2GameInSeason
@@ -476,30 +467,22 @@ public class DivisionServiceTests
         {
             SeasonId = Season.Id,
         };
-        var givenDivisionGameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
-        var givenDivisionGameOutOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 06, 01),
-        };
-        var otherDivisionGameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            Date = new DateTime(2001, 02, 01),
-        };
-        var otherDivisionGameOutOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            Date = new DateTime(2001, 06, 01),
-        };
+        var givenDivisionGameInSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var givenDivisionGameOutOfSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
+        var otherDivisionGameInSeason = new GameBuilder()
+            .ForDivision(Division2)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var otherDivisionGameOutOfSeason = new GameBuilder()
+            .ForDivision(Division2)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
         _someGames.AddRange(new[]
         {
             givenDivisionGameInSeason,
@@ -527,30 +510,22 @@ public class DivisionServiceTests
             SeasonId = Season.Id,
             IgnoreDates = true,
         };
-        var givenDivisionGameBeforeStartOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2000, 12, 31),
-        };
-        var givenDivisionGameAfterEndOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 06, 01),
-        };
-        var otherDivisionGameBeforeStartOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            Date = new DateTime(2000, 12, 31),
-        };
-        var otherDivisionGameAfterEndOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            Date = new DateTime(2001, 06, 01),
-        };
+        var givenDivisionGameBeforeStartOfSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(200, 12, 31))
+            .Build();
+        var givenDivisionGameAfterEndOfSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
+        var otherDivisionGameBeforeStartOfSeason = new GameBuilder()
+            .ForDivision(Division2)
+            .WithDate(new DateTime(2000, 12, 31))
+            .Build();
+        var otherDivisionGameAfterEndOfSeason = new GameBuilder()
+            .ForDivision(Division2)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
         _someGames.AddRange(new[]
         {
             givenDivisionGameBeforeStartOfSeason,
@@ -656,18 +631,14 @@ public class DivisionServiceTests
             SeasonId = Season.Id,
             DivisionId = { Division1.Id },
         };
-        var givenDivisionGameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
-        var givenDivisionGameOutOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 06, 01),
-        };
+        var givenDivisionGameInSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var givenDivisionGameOutOfSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
         _someGames.AddRange(new[]
         {
             givenDivisionGameInSeason, givenDivisionGameOutOfSeason,
@@ -693,30 +664,22 @@ public class DivisionServiceTests
             SeasonId = Season.Id,
             DivisionId = { Division1.Id },
         };
-        var givenDivisionGameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
-        var givenDivisionGameOutOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 06, 01),
-        };
-        var otherDivisionGameInSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            Date = new DateTime(2001, 02, 01),
-        };
-        var otherDivisionGameOutOfSeason = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            Date = new DateTime(2001, 06, 01),
-        };
+        var givenDivisionGameInSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var givenDivisionGameOutOfSeason = new GameBuilder()
+            .ForDivision(Division1)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
+        var otherDivisionGameInSeason = new GameBuilder()
+            .ForDivision(Division2)
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var otherDivisionGameOutOfSeason = new GameBuilder()
+            .ForDivision(Division2)
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
         _someGames.AddRange(new[]
         {
             givenDivisionGameInSeason,
