@@ -235,7 +235,7 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
                     <BrandingContainer {...brandingProps}>
                         <AppContainer {...appProps}>
                             <ReplaceCookieOnLoad cookieName="preferences" cookieValue={initialPreferences}>
-                                <PreferencesContainer>
+                                <PreferencesContainer insecure={true}>
                                     {content}
                                 </PreferencesContainer>
                             </ReplaceCookieOnLoad>
