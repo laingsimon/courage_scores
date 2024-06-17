@@ -10,6 +10,7 @@ using CourageScores.Services;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
+using CourageScores.Tests.Models.Dtos;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
@@ -224,30 +225,12 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenDivisionIdFilter_ProducesTeamLookupToAnyDivision()
     {
-        var team = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Division1.Id,
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Division2.Id,
-                },
-            },
-        };
+        var team = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division1))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division2))
+            .Build();
         _allTeams.AddRange(new[]
         {
             team, otherDivisionTeam,
@@ -270,30 +253,12 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTeamsOnly()
     {
-        var team = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Division1.Id,
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Guid.NewGuid(),
-                },
-            },
-        };
+        var team = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division1))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division2))
+            .Build();
         _allTeams.AddRange(new[]
         {
             team, otherDivisionTeam,
@@ -316,30 +281,12 @@ public class DivisionServiceTests
         {
             SeasonId = Season.Id,
         };
-        var team = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Division1.Id,
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Division1.Id,
-                },
-            },
-        };
+        var team = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division1))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division2))
+            .Build();
         _allTeams.AddRange(new[]
         {
             team, otherDivisionTeam,
@@ -359,31 +306,12 @@ public class DivisionServiceTests
         {
             SeasonId = Season.Id,
         };
-        var team = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Division1.Id,
-                },
-            },
-        };
-        var otherDivisionTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Seasons =
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Season.Id,
-                    DivisionId = Division1.Id,
-                    Deleted = DateTime.UtcNow,
-                },
-            },
-        };
+        var team = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division1))
+            .Build();
+        var otherDivisionTeam = new TeamDtoBuilder()
+            .WithSeason(s => s.ForSeason(Season, Division1).Deleted())
+            .Build();
         _allTeams.AddRange(new[]
         {
             team, otherDivisionTeam,
