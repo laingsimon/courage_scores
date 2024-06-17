@@ -1,4 +1,5 @@
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 
 namespace CourageScores.Tests.Models.Cosmos.Game;
@@ -44,6 +45,12 @@ public class TournamentGameBuilder
     public TournamentGameBuilder WithOneEighties(params TournamentPlayer[] players)
     {
         _tournament.OneEighties.AddRange(players);
+        return this;
+    }
+
+    public TournamentGameBuilder WithDivision(DivisionDto division)
+    {
+        _tournament.DivisionId = division.Id;
         return this;
     }
 }

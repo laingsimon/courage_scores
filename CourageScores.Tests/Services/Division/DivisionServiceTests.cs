@@ -461,7 +461,7 @@ public class DivisionServiceTests
         Assert.That(_divisionDataContext, Is.Not.Null);
         Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[]
         {
-            division1GameInSeason, division2GameInSeason
+            division1GameInSeason, division2GameInSeason,
         }));
     }
 
@@ -554,16 +554,12 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTournamentsWithinSeason()
     {
-        var inSeasonTournament = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Date = new DateTime(2001, 02, 01),
-        };
-        var outOfSeasonTournament = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Date = new DateTime(2001, 06, 01),
-        };
+        var inSeasonTournament = new TournamentGameBuilder()
+            .WithDate(new DateTime(2001, 02, 01))
+            .Build();
+        var outOfSeasonTournament = new TournamentGameBuilder()
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
         _someTournaments.AddRange(new[]
         {
             inSeasonTournament, outOfSeasonTournament,
@@ -587,23 +583,17 @@ public class DivisionServiceTests
         {
             DivisionId = { Division1.Id, Division2.Id },
         };
-        var division1InSeasonTournament = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
-        var division2InSeasonTournament = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division2.Id,
-            Date = new DateTime(2001, 02, 01),
-        };
-        var outOfSeasonTournament = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Date = new DateTime(2001, 06, 01),
-        };
+        var division1InSeasonTournament = new TournamentGameBuilder()
+            .WithDate(new DateTime(2001, 02, 01))
+            .WithDivision(Division1)
+            .Build();
+        var division2InSeasonTournament = new TournamentGameBuilder()
+            .WithDate(new DateTime(2001, 02, 01))
+            .WithDivision(Division2)
+            .Build();
+        var outOfSeasonTournament = new TournamentGameBuilder()
+            .WithDate(new DateTime(2001, 06, 01))
+            .Build();
         _someTournaments.AddRange(new[]
         {
             division1InSeasonTournament, outOfSeasonTournament, division2InSeasonTournament,
