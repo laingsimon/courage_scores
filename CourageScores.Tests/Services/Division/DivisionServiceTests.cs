@@ -672,13 +672,7 @@ public class DivisionServiceTests
         {
             givenDivisionGameInSeason, givenDivisionGameOutOfSeason,
         });
-        _userDto = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageGames = false,
-            },
-        };
+        WithAccess(manageGames: false);
 
         await _service.GetDivisionData(filter, _token);
 
@@ -730,13 +724,7 @@ public class DivisionServiceTests
             otherDivisionGameInSeason,
             otherDivisionGameOutOfSeason,
         });
-        _userDto = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageGames = true,
-            },
-        };
+        WithAccess(manageGames: true);
 
         await _service.GetDivisionData(filter, _token);
 
@@ -758,16 +746,21 @@ public class DivisionServiceTests
             DivisionId = { Division1.Id },
             ExcludeProposals = true,
         };
-        _userDto = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageGames = true,
-            },
-        };
+        WithAccess(manageGames: true);
 
         await _service.GetDivisionData(filter, _token);
 
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, false, _token));
+    }
+
+    private void WithAccess(bool manageGames)
+    {
+        _userDto = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageGames = manageGames,
+            },
+        };
     }
 }
