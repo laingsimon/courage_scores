@@ -29,7 +29,7 @@ describe('PreferencesContainer', () => {
             iocProps(),
             brandingProps(),
             appProps(),
-            (<PreferencesContainer>
+            (<PreferencesContainer insecure={true}>
                 <PreferencesContainerAccessor exposeVia={preferenceStore} />
             </PreferencesContainer>));
 
