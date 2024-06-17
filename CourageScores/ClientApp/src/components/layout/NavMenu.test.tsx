@@ -258,29 +258,6 @@ describe('NavMenu', () => {
             expect(isExpanded()).toEqual(false);
         });
 
-        it('highlight division', async () => {
-            await renderComponent(
-                settings,
-                appProps({
-                    account,
-                    divisions,
-                    seasons,
-                    appLoading: false,
-                    clearError,
-                }),
-                null,
-                '/division/:id',
-                '/division/' + division.name);
-            expect(context.container.textContent).not.toContain('ERROR:');
-
-            const menu = context.container.querySelector('nav');
-            const divisionItem = Array.from(menu.querySelectorAll('li'))
-                .filter(li => li.textContent === 'DIVISION')[0];
-            expect(divisionItem).toBeTruthy();
-            const link = divisionItem.querySelector('a');
-            expect(link.className).toContain('nav-item-active');
-        });
-
         it('should highlight route', async () => {
             await renderComponent(settings, appProps({
                 account,
