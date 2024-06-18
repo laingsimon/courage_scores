@@ -126,7 +126,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 return teamSeason.players.filter((p: TeamPlayerDto) => p.name === request.name)[0];
             });
 
-            return newPlayers.filter((p: TeamPlayerDto) => p); // filter out any players that could not be found
+            return newPlayers.filter((p: TeamPlayerDto) => !!p); // filter out any players that could not be found
         } catch (e) {
             onError(e);
             return [];
@@ -148,7 +148,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         const results: ICreatedPlayerResponse[] = [];
         let success: boolean = true;
         for(let index = 0; index < multiPlayerDetails.length; index++) {
-            const playerDetails = multiPlayerDetails[index];
+            const playerDetails: IEditPlayerDetailsPlayer = multiPlayerDetails[index];
             const response: ICreatedPlayerResponse = await playerApi.create(player.newDivisionId || divisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);
             response.playerDetails = playerDetails;
