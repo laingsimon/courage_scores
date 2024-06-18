@@ -20,9 +20,10 @@ export interface IBootstrapDropdownProps {
     onChange?(value: any): Promise<any>;
     onOpen?(willBeOpen: boolean): Promise<any>;
     slim?: boolean;
+    datatype?: string;
 }
 
-export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly, onOpen, slim}: IBootstrapDropdownProps) {
+export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly, onOpen, slim, datatype}: IBootstrapDropdownProps) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     if (!options || isEmpty(options)) {
@@ -55,7 +56,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             : o.className || '';
     }
 
-    return (<ButtonDropdown isOpen={dropdownOpen} toggle={toggleOpen} className={className}>
+    return (<ButtonDropdown isOpen={dropdownOpen} toggle={toggleOpen} className={className} datatype={datatype}>
         <DropdownToggle caret color={color || 'outline-light'} className="btn-sm text-dark border-dark" tabIndex={-1}>
             <span
                 className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? (selectedOption.collapsedText || selectedOption.text) || value : value}</span>
