@@ -336,7 +336,7 @@ export function Tournament() {
         if (tournamentData && tournamentData.singleRound) {
             setTitle(`${tournamentData.host} vs ${tournamentData.opponent} - ${renderDate(tournamentData.date)}`);
         } else if (tournamentData) {
-            setTitle(`${tournamentData.type} at ${tournamentData.address} - ${renderDate(tournamentData.date)}`);
+            setTitle(`${tournamentData.type || 'tournament'} at ${tournamentData.address} - ${renderDate(tournamentData.date)}`);
         }
 
         return (<div>
