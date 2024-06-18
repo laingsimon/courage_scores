@@ -199,16 +199,18 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <div className="input-group-prepend">
                     <span className="input-group-text">Team</span>
                 </div>
+                <span datatype="team-selection-team">
                 <BootstrapDropdown
                     onChange={(value: string) => onChange('teamId', value)}
                     value={player.teamId || (team ? team.id : '')}
                     options={[selectTeamOption].concat(getTeamOptions())}/>
-                {divisionId ? null : (<BootstrapDropdown
+                </span>
+                {divisionId ? null : (<span datatype="team-selection-division"><BootstrapDropdown
                     onChange={(value: string) => onChange('newDivisionId', value)}
                     value={player.newDivisionId || divisionId}
                     options={divisions.map(division => {
                         return {value: division.id, text: division.name};
-                    })}/>)}
+                    })}/></span>)}
             </div>
         );
     }

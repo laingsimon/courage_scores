@@ -10,7 +10,7 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../helpers/tests";
-import {toMap} from "../../helpers/collections";
+import {DataMap, toMap} from "../../helpers/collections";
 import {EditSide, IEditSideProps, ISaveSideOptions} from "./EditSide";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {createTemporaryId} from "../../helpers/projection";
@@ -50,6 +50,7 @@ describe('EditSide', () => {
         playerDetails: EditTeamPlayerDto,
     };
     let preventScroll: boolean;
+    let divisions: DataMap<DivisionDto>;
     const playerApi = api<IPlayerApi>({
         create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             createdPlayer = {
@@ -89,6 +90,7 @@ describe('EditSide', () => {
         teamsReloaded = false;
         createdPlayer = null;
         preventScroll = false;
+        divisions = [];
     });
 
     async function onChange(newData: TournamentSideDto) {
@@ -123,6 +125,7 @@ describe('EditSide', () => {
                 teams: toMap(teams || []),
                 account: (account || { access: {} }),
                 reloadTeams,
+                divisions
             }, reportedError),
             (<TournamentContainer {...containerProps}>
                 <EditSide {...props} />
@@ -1130,10 +1133,53 @@ describe('EditSide', () => {
             const dialog = headingForDialog.closest('.modal-dialog');
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doSelectOption(dialog.querySelector('span[datatype="team-selection-team"] .dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
+            expect(updatedData.players).toEqual([player, {
+                name: 'NAME',
+                id: expect.any(String),
+                divisionId: division.id,
+            }]);
+        });
+
+        it('can add player to multi-division tournament', async () => {
+            const side: TournamentSideDto = sideBuilder('SIDE NAME')
+                .withPlayer(player)
+                .build();
+            const multiDivisionTournament: TournamentGameDto = tournamentBuilder()
+                .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
+                .build();
+            const account: UserDto = {
+                name: '',
+                givenName: '',
+                emailAddress: '',
+                access: { managePlayers: true },
+            };
+            divisions = [ division ];
+            await renderComponent({
+                tournamentData: multiDivisionTournament,
+                season,
+                alreadyPlaying: {},
+                preventScroll,
+                setPreventScroll,
+            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await doClick(findButton(context.container, 'Add player/s'));
+            const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
+            const dialog = headingForDialog.closest('.modal-dialog');
+
+            await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
+            await doSelectOption(dialog.querySelector('span[datatype="team-selection-team"] .dropdown-menu'), team.name);
+            await doSelectOption(dialog.querySelector('span[datatype="team-selection-division"] .dropdown-menu'), division.name);
+            await doClick(findButton(dialog, 'Add player'));
+
+            expect(createdPlayer).not.toBeNull();
+            expect(updatedData.players).toEqual([player, {
+                name: 'NAME',
+                id: expect.any(String),
+                divisionId: division.id,
+            }]);
         });
 
         it('selects newly created player', async () => {
