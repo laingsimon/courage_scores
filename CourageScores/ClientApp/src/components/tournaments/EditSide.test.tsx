@@ -69,6 +69,7 @@ describe('EditSide', () => {
                     address: '',
                     seasons: [{
                         seasonId: seasonId,
+                        divisionId: divisionId,
                         players: [playerDetailsAsTeamPlayer],
                     }]
                 }
