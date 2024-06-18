@@ -546,6 +546,26 @@ describe('filters', () => {
             })).toEqual(true);
         });
 
+        it('keeps dates with any note containing filter', () => {
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('cdef');
+
+            expect(filter.apply({
+                notes: [noteBuilder().note('abcdef').build()],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('keeps dates with any note containing filter ignoring case', () => {
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('CDEF');
+
+            expect(filter.apply({
+                notes: [noteBuilder().note('abcdef').build()],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
         it('ignores dates without any note matching filter', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('abc;efg');
 
