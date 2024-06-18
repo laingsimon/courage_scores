@@ -135,7 +135,7 @@ export function getNotesFilter(notesFilter: string): IFilter<IEditableDivisionFi
             return new OrFilter<IEditableDivisionFixtureDateDto>(
                 notes.map((note: string) => new Filter<IEditableDivisionFixtureDateDto>((fd: DivisionFixtureDateDto) => any(
                     fd.notes,
-                    (n: FixtureDateNoteDto) => n.note.toLowerCase().indexOf(note.toLowerCase()) === 0)))
+                    (n: FixtureDateNoteDto) => n.note.toLowerCase().indexOf(note.toLowerCase()) !== -1)))
             );
     }
 }
