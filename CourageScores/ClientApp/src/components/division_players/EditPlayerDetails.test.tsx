@@ -106,14 +106,7 @@ describe('EditPlayerDetails', () => {
     }
 
     function findNewTeamDropdown() {
-        const dropdowns = Array.from(context.container.querySelectorAll(`.btn-group`));
-        expect(dropdowns.length).toBeGreaterThanOrEqual(1);
-        return dropdowns[0];
-    }
-
-    function findNewDivisionDropdown() {
-        const dropdowns = Array.from(context.container.querySelectorAll(`.btn-group`));
-        return dropdowns[1];
+        return context.container.querySelector('div[datatype="team-selection-team"] .dropdown-menu');
     }
 
     describe('renders', () => {
@@ -144,8 +137,6 @@ describe('EditPlayerDetails', () => {
             expect(findInput('captain').checked).toEqual(true);
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
-            expect(findNewDivisionDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            expect(findNewDivisionDropdown().querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
         });
 
         it('new player details', async () => {
@@ -167,7 +158,6 @@ describe('EditPlayerDetails', () => {
             expect(findInput('captain').checked).toEqual(true);
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
-            expect(findNewDivisionDropdown()).toBeFalsy();
         });
 
         it('new player details with no division id', async () => {
@@ -189,7 +179,6 @@ describe('EditPlayerDetails', () => {
             expect(findInput('captain').checked).toEqual(true);
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
-            expect(findNewDivisionDropdown()).toBeTruthy();
         });
 
         it('excludes teams where not selected for current season', async () => {
@@ -311,7 +300,7 @@ describe('EditPlayerDetails', () => {
             reportedError.verifyNoError();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
-            await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
+            await doSelectOption(findNewTeamDropdown(), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('teamId');
@@ -333,7 +322,7 @@ describe('EditPlayerDetails', () => {
             reportedError.verifyNoError();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
-            await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
+            await doSelectOption(findNewTeamDropdown(), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('newTeamId');
@@ -405,48 +394,6 @@ describe('EditPlayerDetails', () => {
             expect(change).not.toBeNull();
             expect(change.name).toEqual('captain');
             expect(change.value).toEqual(false);
-        });
-
-        it('can change division for existing player', async () => {
-            await renderComponent({
-                player: playerBuilder('NAME').captain().email('EMAIL').build(),
-                seasonId: season.id,
-                team: team,
-                gameId: null,
-                newTeamId: null,
-                divisionId: division.id,
-                onCancel,
-                onSaved,
-                onChange,
-            }, [team, otherTeam], [division, otherDivision]);
-            reportedError.verifyNoError();
-
-            await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
-
-            expect(change).not.toBeNull();
-            expect(change.name).toEqual('newDivisionId');
-            expect(change.value).toEqual(otherDivision.id);
-        });
-
-        it('can change division for new player with no division id', async () => {
-            await renderComponent({
-                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
-                seasonId: season.id,
-                team: team,
-                gameId: null,
-                newTeamId: null,
-                divisionId: null,
-                onCancel,
-                onSaved,
-                onChange,
-            }, [team, otherTeam], [division, otherDivision]);
-            reportedError.verifyNoError();
-
-            await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
-
-            expect(change).not.toBeNull();
-            expect(change.name).toEqual('newDivisionId');
-            expect(change.value).toEqual(otherDivision.id);
         });
 
         it('requires team to be selected', async () => {

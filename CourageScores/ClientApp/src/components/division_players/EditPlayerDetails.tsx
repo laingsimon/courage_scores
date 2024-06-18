@@ -66,10 +66,6 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
             window.alert('Please enter a name');
             return;
         }
-        if (!(player.newDivisionId || divisionId)) {
-            window.alert('Please select a division');
-            return;
-        }
 
         setSaving(true);
 
@@ -126,11 +122,22 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 return teamSeason.players.filter((p: TeamPlayerDto) => p.name === request.name)[0];
             });
 
-            return newPlayers.filter((p: TeamPlayerDto) => p); // filter out any players that could not be found
+            return newPlayers.filter((p: TeamPlayerDto) => !!p); // filter out any players that could not be found
         } catch (e) {
             onError(e);
             return [];
         }
+    }
+
+    function getDivisionIdForTeam(): string {
+        const teamId = newTeamId || (team ? team.id : null) || player.teamId;
+        const theTeam: TeamDto = teams.filter((t: TeamDto) => t.id === teamId)[0];
+        const teamSeason: TeamSeasonDto = theTeam.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === seasonId)[0];
+        if (teamSeason && teamSeason.divisionId) {
+            return teamSeason.divisionId;
+        }
+
+        throw new Error('Unable to determine division for newly created player');
     }
 
     async function createMultiple(): Promise<IMultiPlayerCreationResult> {
@@ -148,8 +155,9 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         const results: ICreatedPlayerResponse[] = [];
         let success: boolean = true;
         for(let index = 0; index < multiPlayerDetails.length; index++) {
-            const playerDetails = multiPlayerDetails[index];
-            const response: ICreatedPlayerResponse = await playerApi.create(player.newDivisionId || divisionId, seasonId, player.teamId || team.id, playerDetails);
+            const playerDetails: IEditPlayerDetailsPlayer = multiPlayerDetails[index];
+            const createForDivisionId: string = getDivisionIdForTeam();
+            const response: ICreatedPlayerResponse = await playerApi.create(createForDivisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);
             response.playerDetails = playerDetails;
             success = success && (response.success || false);
@@ -200,10 +208,12 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                     <span className="input-group-text">Team</span>
                 </div>
                 <BootstrapDropdown
+                    datatype="team-selection-team"
                     onChange={(value: string) => onChange('teamId', value)}
                     value={player.teamId || (team ? team.id : '')}
                     options={[selectTeamOption].concat(getTeamOptions())}/>
-                {divisionId ? null : (<BootstrapDropdown
+                {divisionId || !player.id ? null : (<BootstrapDropdown
+                    datatype="team-selection-division"
                     onChange={(value: string) => onChange('newDivisionId', value)}
                     value={player.newDivisionId || divisionId}
                     options={divisions.map(division => {
@@ -215,25 +225,27 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
 
     function renderSelectTeamForExistingPlayer() {
         return (<div className="input-group mb-3">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">New Team</span>
-                </div>
-                <BootstrapDropdown
-                    onChange={(value: string) => onChange('newTeamId', value)}
-                    value={newTeamId || team.id}
-                    options={getTeamOptions()}/>
-
-                <BootstrapDropdown
-                    onChange={(value: string) => onChange('newDivisionId', value)}
-                    value={player.newDivisionId || divisionId}
-                    options={divisions.map(division => {
-                        return {value: division.id, text: division.name};
-                    })}/>
+            <div className="input-group-prepend">
+                <span className="input-group-text">New Team</span>
             </div>
-        );
+            <BootstrapDropdown
+                datatype="team-selection-team"
+                onChange={(value: string) => onChange('newTeamId', value)}
+                value={newTeamId || team.id}
+                options={getTeamOptions()}/>
+            <BootstrapDropdown
+                datatype="team-selection-division"
+                onChange={(value: string) => onChange('newDivisionId', value)}
+                value={player.newDivisionId || divisionId}
+                options={divisions.map(division => {
+                    return {value: division.id, text: division.name};
+                })}/>
+        </div>
+    );
     }
 
-    return (<div>
+    return (
+        <div>
         {player.id ? renderSelectTeamForExistingPlayer() : renderSelectTeamForNewPlayer()}
         <div className="input-group mb-3">
             <div className="input-group-prepend">

@@ -217,7 +217,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         </Dialog>);
     }
 
-    async function reloadPlayers(_: TeamDto, newPlayers: TeamPlayerDto[]) {
+    async function reloadPlayers(team: TeamDto, newPlayers: TeamPlayerDto[]) {
         await reloadTeams();
         setAddPlayerDialogOpen(false);
         setNewPlayerDetails({name: '', captain: false});
@@ -225,15 +225,24 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         let newSide: TournamentSideDto = side;
         // select the new players
         for (let playerIndex in newPlayers) {
-            const player = newPlayers[playerIndex];
+            const player: TeamPlayerDto = newPlayers[playerIndex];
             newSide = await onSelectPlayer({
                 id: player.id,
                 name: player.name,
-                divisionId: tournamentData.divisionId,
+                divisionId: tournamentData.divisionId || getDivisionForTeamSeason(team),
             }, true, newSide);
         }
 
         await onChange(newSide);
+    }
+
+    function getDivisionForTeamSeason(team: TeamDto): string {
+        const teamSeason: TeamSeasonDto = team.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id)[0];
+        if (teamSeason && teamSeason.divisionId) {
+            return teamSeason.divisionId;
+        }
+
+        throw new Error('Unable to determine division for newly created player');
     }
 
     try {
