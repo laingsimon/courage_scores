@@ -1134,7 +1134,7 @@ describe('EditSide', () => {
             const dialog = headingForDialog.closest('.modal-dialog');
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(dialog.querySelector('span[datatype="team-selection-team"] .dropdown-menu'), team.name);
+            await doSelectOption(dialog.querySelector('div[datatype="team-selection-team"] .dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
@@ -1171,8 +1171,7 @@ describe('EditSide', () => {
             const dialog = headingForDialog.closest('.modal-dialog');
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doSelectOption(dialog.querySelector('span[datatype="team-selection-team"] .dropdown-menu'), team.name);
-            await doSelectOption(dialog.querySelector('span[datatype="team-selection-division"] .dropdown-menu'), division.name);
+            await doSelectOption(dialog.querySelector('div[datatype="team-selection-team"] .dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             expect(createdPlayer).not.toBeNull();
