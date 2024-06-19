@@ -590,18 +590,18 @@ export function Score() {
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">
                 <li className="nav-item">
-                    <NavLink tag={Link} to={`/teams/${season.id}/?division=${data.divisionId}`}>Teams</NavLink>
+                    <NavLink tag={Link} to={`/teams/${season.name}/?division=${division.name}`}>Teams</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
-                             to={`/fixtures/${season.id}/?division=${data.divisionId}`}>Fixtures</NavLink>
+                             to={`/fixtures/${season.name}/?division=${division.name}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="active" to={`/score/${fixtureId}`}>{renderDate(data.date)}</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
-                             to={`/players/${season.id}/?division=${data.divisionId}`}>Players</NavLink>
+                             to={`/players/${season.name}/?division=${division.name}`}>Players</NavLink>
                 </li>
             </ul>
             <LeagueFixtureContainer {...leagueFixtureData}>
