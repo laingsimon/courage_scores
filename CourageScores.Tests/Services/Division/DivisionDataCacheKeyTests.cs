@@ -11,7 +11,7 @@ public class DivisionDataCacheKeyTests
     public void Equals_WhenOtherIsNull_ReturnsFalse()
     {
         var filter = new DivisionDataFilter();
-        var key = new DivisionDataCacheKey(filter, "type");
+        var key = new DivisionDataCacheKey(filter, "type", null, null);
 
         var result = key.Equals(null);
 
@@ -22,7 +22,7 @@ public class DivisionDataCacheKeyTests
     public void Equals_WhenOtherIsNotADivisionDataCacheKey_ReturnsFalse()
     {
         var filter = new DivisionDataFilter();
-        var key = new DivisionDataCacheKey(filter, "type");
+        var key = new DivisionDataCacheKey(filter, "type", null, null);
 
         var result = key.Equals(new object());
 
@@ -33,7 +33,7 @@ public class DivisionDataCacheKeyTests
     public void Equals_WhenOtherIsReferenceEqual_ReturnsTrue()
     {
         var filter = new DivisionDataFilter();
-        var key = new DivisionDataCacheKey(filter, "type");
+        var key = new DivisionDataCacheKey(filter, "type", null, null);
 
         var result = key.Equals(key);
 
@@ -45,8 +45,8 @@ public class DivisionDataCacheKeyTests
     {
         var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
         var filter2 = new DivisionDataFilter { Date = new DateTime(2002, 03, 04) };
-        var key1 = new DivisionDataCacheKey(filter1, "type");
-        var key2 = new DivisionDataCacheKey(filter2, "type");
+        var key1 = new DivisionDataCacheKey(filter1, "type", null, null);
+        var key2 = new DivisionDataCacheKey(filter2, "type", null, null);
 
         var result = key1.Equals(key2);
 
@@ -58,8 +58,8 @@ public class DivisionDataCacheKeyTests
     {
         var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
         var filter2 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
-        var key1 = new DivisionDataCacheKey(filter1, "type1");
-        var key2 = new DivisionDataCacheKey(filter2, "type2");
+        var key1 = new DivisionDataCacheKey(filter1, "type1", null, null);
+        var key2 = new DivisionDataCacheKey(filter2, "type2", null, null);
 
         var result = key1.Equals(key2);
 
@@ -71,8 +71,21 @@ public class DivisionDataCacheKeyTests
     {
         var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
         var filter2 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
-        var key1 = new DivisionDataCacheKey(filter1, "type");
-        var key2 = new DivisionDataCacheKey(filter2, "type");
+        var key1 = new DivisionDataCacheKey(filter1, "type", null, null);
+        var key2 = new DivisionDataCacheKey(filter2, "type", null, null);
+
+        var result = key1.Equals(key2);
+
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public void Equals_WhenOnlyUrlsAreDifferent_ReturnsTrue()
+    {
+        var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
+        var filter2 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
+        var key1 = new DivisionDataCacheKey(filter1, "type", "a", "c");
+        var key2 = new DivisionDataCacheKey(filter2, "type", "b", "d");
 
         var result = key1.Equals(key2);
 
@@ -84,8 +97,8 @@ public class DivisionDataCacheKeyTests
     {
         var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
         var filter2 = new DivisionDataFilter { Date = new DateTime(2002, 03, 04) };
-        var key1 = new DivisionDataCacheKey(filter1, "type");
-        var key2 = new DivisionDataCacheKey(filter2, "type");
+        var key1 = new DivisionDataCacheKey(filter1, "type", null, null);
+        var key2 = new DivisionDataCacheKey(filter2, "type", null, null);
 
         var result = key1.GetHashCode();
 
@@ -97,8 +110,8 @@ public class DivisionDataCacheKeyTests
     {
         var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
         var filter2 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
-        var key1 = new DivisionDataCacheKey(filter1, "type1");
-        var key2 = new DivisionDataCacheKey(filter2, "type2");
+        var key1 = new DivisionDataCacheKey(filter1, "type1", null, null);
+        var key2 = new DivisionDataCacheKey(filter2, "type2", null, null);
 
         var result = key1.GetHashCode();
 
@@ -110,8 +123,21 @@ public class DivisionDataCacheKeyTests
     {
         var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
         var filter2 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
-        var key1 = new DivisionDataCacheKey(filter1, "type");
-        var key2 = new DivisionDataCacheKey(filter2, "type");
+        var key1 = new DivisionDataCacheKey(filter1, "type", null, null);
+        var key2 = new DivisionDataCacheKey(filter2, "type", null, null);
+
+        var result = key1.GetHashCode();
+
+        Assert.That(result, Is.EqualTo(key2.GetHashCode()));
+    }
+
+    [Test]
+    public void GetHashCode_WhenOnlyUrlsAreDifferent_ReturnsSameHashCode()
+    {
+        var filter1 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
+        var filter2 = new DivisionDataFilter { Date = new DateTime(2001, 02, 03) };
+        var key1 = new DivisionDataCacheKey(filter1, "type", "a", "c");
+        var key2 = new DivisionDataCacheKey(filter2, "type", "b", "d");
 
         var result = key1.GetHashCode();
 
