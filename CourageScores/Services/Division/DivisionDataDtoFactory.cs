@@ -94,6 +94,13 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
             Name = (divisions.Count == 1 ? divisions.ElementAt(0)?.Name ?? "<unnamed division>" : null) ?? "<all divisions>",
+            DataErrors =
+            {
+                new DataErrorDto
+                {
+                    Message = "Season not found",
+                },
+            },
         });
     }
 
