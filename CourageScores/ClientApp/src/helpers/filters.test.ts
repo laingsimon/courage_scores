@@ -566,6 +566,36 @@ describe('filters', () => {
             })).toEqual(true);
         });
 
+        it('keeps dates with any note matching regex filter', () => {
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('^singles');
+
+            expect(filter.apply({
+                notes: [noteBuilder().note('singles').build()],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('keeps dates with any note matching regex filter ignoring case', () => {
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('^singles');
+
+            expect(filter.apply({
+                notes: [noteBuilder().note('singles').build()],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('excludes dates where note does not match regex filter', () => {
+            const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('^singles');
+
+            expect(filter.apply({
+                notes: [noteBuilder().note('divisional singles').build()],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
+
         it('ignores dates without any note matching filter', () => {
             const filter: IFilter<IEditableDivisionFixtureDateDto> = getNotesFilter('abc;efg');
 
