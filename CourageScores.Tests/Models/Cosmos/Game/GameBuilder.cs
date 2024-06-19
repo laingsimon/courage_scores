@@ -75,4 +75,10 @@ public class GameBuilder
         _game.Date = date;
         return this;
     }
+
+    public GameBuilder WithAddress(string address)
+    {
+        _game.Address = address;
+        return this;
+    }
 }
