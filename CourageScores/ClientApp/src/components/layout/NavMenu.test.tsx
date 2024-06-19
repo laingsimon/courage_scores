@@ -114,7 +114,7 @@ describe('NavMenu', () => {
                 'http://localhost/teams/' + currentSeason.name + '/?division=' + division.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
-                'https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice?q=value']);
+                `https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`]);
         });
 
         it('divisions', async () => {
@@ -164,7 +164,7 @@ describe('NavMenu', () => {
 
             const link = loginItem.querySelector('a');
             expect(link).toBeTruthy();
-            expect(link.href).toEqual('https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice?q=value');
+            expect(link.href).toEqual(`https://localhost/api/Account/Login/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`);
         });
 
         it('clears error on navigate', async () => {
@@ -437,7 +437,7 @@ describe('NavMenu', () => {
             const logoutItem = items[items.length - 1];
             const link = logoutItem.querySelector('a');
             expect(link).toBeTruthy();
-            expect(link.href).toEqual('https://localhost/api/Account/Logout/?redirectUrl=https://localhost/practice?q=value');
+            expect(link.href).toEqual(`https://localhost/api/Account/Logout/?redirectUrl=${encodeURIComponent('https://localhost/practice?q=value')}`);
         });
     })
 });
