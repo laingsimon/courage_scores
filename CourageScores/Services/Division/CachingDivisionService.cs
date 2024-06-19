@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Division;
@@ -60,7 +61,7 @@ public class CachingDivisionService : ICachingDivisionService
             return await _divisionService.GetDivisionData(filter, token);
         }
 
-        var key = new DivisionDataCacheKey(filter, "GetDivisionData");
+        var key = GetKey(filter, "GetDivisionData");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
         return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token));
@@ -68,7 +69,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {
-        var key = new DivisionDataCacheKey(new DivisionDataFilter
+        var key = GetKey(new DivisionDataFilter
         {
             DivisionId = { id },
         }, "Get");
@@ -79,7 +80,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     public async IAsyncEnumerable<DivisionDto> GetAll([EnumeratorCancellation] CancellationToken token)
     {
-        var key = new DivisionDataCacheKey(new DivisionDataFilter(), "Get");
+        var key = GetKey(new DivisionDataFilter(), "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
 
@@ -117,6 +118,15 @@ public class CachingDivisionService : ICachingDivisionService
         {
             InvalidateCaches(id, null);
         }
+    }
+
+    private DivisionDataCacheKey GetKey(DivisionDataFilter filter, string name)
+    {
+        var request = _accessor.HttpContext?.Request;
+        var apiUrl = request?.GetEncodedUrl();
+        var referringUrl = request?.Headers["X-UI-Url"].ToString();
+
+        return new DivisionDataCacheKey(filter, name, apiUrl, referringUrl);
     }
 
     private void InvalidateCacheIfCacheControlHeaderPresent(DivisionDataCacheKey key)

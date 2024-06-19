@@ -42,7 +42,8 @@ class Http implements IHttp {
 
     getPostHeaders(headers: IHeaders): IHeaders {
         const defaultHeaders: IHeaders = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-UI-Url': document.location.href,
         };
         const requestHeaders: IHeaders = Object.assign(defaultHeaders, headers);
 
@@ -54,7 +55,9 @@ class Http implements IHttp {
     }
 
     getGetHeaders(headers: IHeaders): IHeaders {
-        const defaultHeaders: IHeaders = Object.assign({}, headers);
+        const defaultHeaders: IHeaders = Object.assign({
+            'X-UI-Url': document.location.href,
+        }, headers);
 
         if (this.settings.invalidateCacheOnNextRequest) {
             defaultHeaders['Cache-Control'] = 'no-cache';
