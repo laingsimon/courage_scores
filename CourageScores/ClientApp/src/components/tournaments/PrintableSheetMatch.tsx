@@ -259,7 +259,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                 : null}
             {matchData.numberOfSidesOnTheNight
                 ? (<span datatype="match-mnemonic" className="position-absolute left-0 opacity-75">
-                        <span className="small rounded-circle bg-light border-1 border-info p-1 position-absolute text-center" style={{left: -10, top: -10, minWidth: '28px'}}>
+                        <span className="small rounded-circle bg-light border-solid border-1 border-info p-1 position-absolute text-center" style={{left: -10, top: -10, minWidth: '28px'}}>
                             {matchData.numberOfSidesOnTheNight}
                         </span>
                     </span>)
