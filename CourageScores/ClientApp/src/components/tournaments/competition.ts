@@ -1,12 +1,9 @@
-import {createTemporaryId, repeat} from "./projection";
-import {any, sortBy} from "./collections";
-import {TournamentSideDto} from "../interfaces/models/dtos/Game/TournamentSideDto";
-import {TournamentGameDto} from "../interfaces/models/dtos/Game/TournamentGameDto";
-import {TournamentRoundDto} from "../interfaces/models/dtos/Game/TournamentRoundDto";
-import {TournamentMatchDto} from "../interfaces/models/dtos/Game/TournamentMatchDto";
-import {GameMatchOptionDto} from "../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {ISaveSideOptions} from "../components/tournaments/EditSide";
-import {TournamentPlayerDto} from "../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {any} from "../../helpers/collections";
+import {repeat} from "../../helpers/projection";
 
 export interface ILayoutDataForSide {
     id: string;
@@ -43,6 +40,12 @@ export interface ITournamentLayoutGenerationContext {
     matchMnemonic?: IMnemonicAccumulator;
 }
 
+interface IMatchLayoutGenerationContext {
+    round: TournamentRoundDto;
+    roundContext: IRoundLayoutGenerationContext;
+    playedInThisRound: TournamentSideDto[];
+}
+
 interface IMnemonicAccumulator {
     next(): string;
 }
@@ -56,10 +59,34 @@ interface IRoundLayoutGenerationContext {
     sides: TournamentSideDto[];
 }
 
-interface IMatchLayoutGenerationContext {
-    round: TournamentRoundDto;
-    roundContext: IRoundLayoutGenerationContext;
-    playedInThisRound: TournamentSideDto[];
+export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
+    const layoutDataCopy: ILayoutDataForRound[] = layoutData.filter(_ => true);
+    const newLayoutData: ILayoutDataForRound[] = [];
+    let unnamedRoundNumber: number = layoutDataCopy.length - 3;
+
+    while (any(layoutDataCopy)) {
+        const lastRound: ILayoutDataForRound = layoutDataCopy.pop();
+        let roundName = null;
+        switch (newLayoutData.length) {
+            case 0:
+                roundName = 'Final';
+                break;
+            case 1:
+                roundName = 'Semi-Final';
+                break;
+            case 2:
+                roundName = 'Quarter-Final';
+                break;
+            default:
+                roundName = `Round ${unnamedRoundNumber--}`;
+                break;
+        }
+
+        lastRound.name = lastRound.name || roundName;
+        newLayoutData.unshift(lastRound);
+    }
+
+    return newLayoutData;
 }
 
 export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataForRound[] {
@@ -129,70 +156,97 @@ export function getPlayedLayoutData(sides: TournamentSideDto[], round: Tournamen
     return [layoutDataForRound].concat(getPlayedLayoutData(winnersAndByes, round.nextRound, context));
 }
 
-export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
-    const layoutDataCopy: ILayoutDataForRound[] = layoutData.filter(_ => true);
-    const newLayoutData: ILayoutDataForRound[] = [];
-    let unnamedRoundNumber: number = layoutDataCopy.length - 3;
+function getLayoutSide(id?: string, name?: string, link?: JSX.Element, mnemonic?: string): ILayoutDataForSide {
+    return {
+        id: id || null,
+        name: name || null,
+        link: link || null,
+        mnemonic: mnemonic || null,
+    };
+}
 
-    while (any(layoutDataCopy)) {
-        const lastRound: ILayoutDataForRound = layoutDataCopy.pop();
-        let roundName = null;
-        switch (newLayoutData.length) {
-            case 0:
-                roundName = 'Final';
-                break;
-            case 1:
-                roundName = 'Semi-Final';
-                break;
-            case 2:
-                roundName = 'Quarter-Final';
-                break;
-            default:
-                roundName = `Round ${unnamedRoundNumber--}`;
-                break;
+function getMnemonicForIndex(ordinal: number): string {
+    const mnemonics: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    return mnemonics[ordinal];
+}
+
+function getAlphaMnemonicCalculator(): IMnemonicAccumulator {
+    let ordinal: number = 0;
+    const mnemonics = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    return {
+        next(): string {
+            return mnemonics[ordinal++];
         }
+    };
+}
 
-        lastRound.name = lastRound.name || roundName;
-        newLayoutData.unshift(lastRound);
+function getPrefixIncrementingMnemonicCalculator(prefix: string): IMnemonicAccumulator {
+    let index: number = 0;
+    return {
+        next(): string {
+            return prefix + (++index);
+        }
+    };
+}
+
+function getRoundLayoutData(round: TournamentRoundDto, roundContext: IRoundLayoutGenerationContext): ILayoutDataForRound {
+    const matchContext: IMatchLayoutGenerationContext = {
+        roundContext,
+        round,
+        playedInThisRound: [],
+    };
+
+    return {
+        name: round.name,
+        matches: round.matches.map((match: TournamentMatchDto, index: number): ILayoutDataForMatch => {
+            return getMatchLayoutData(match, index, matchContext);
+        }),
+        possibleSides: roundContext.sides,
+        alreadySelectedSides: matchContext.playedInThisRound,
+        round,
+    };
+}
+
+function getMatchLayoutData(match: TournamentMatchDto, index: number, context: IMatchLayoutGenerationContext): ILayoutDataForMatch {
+    let winner = null;
+    context.playedInThisRound.push(match.sideA);
+    context.playedInThisRound.push(match.sideB);
+    const matchOptions: GameMatchOptionDto = context.round.matchOptions[index] || context.roundContext.matchOptionDefaults;
+    const numberOfLegs: number = matchOptions.numberOfLegs;
+
+    if (match.scoreA > (numberOfLegs / 2.0)) {
+        context.roundContext.winnersFromThisRound.push(match.sideA);
+        winner = 'sideA';
+    } else if (match.scoreB > (numberOfLegs / 2.0)) {
+        context.roundContext.winnersFromThisRound.push(match.sideB);
+        winner = 'sideB';
     }
 
-    return newLayoutData;
-}
-
-export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number, options: ISaveSideOptions): TournamentGameDto {
-    const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-    newSide.name = (newSide.name || '').trim();
-    newTournamentData.sides[sideIndex] = newSide;
-    updateSideDataInRound(newTournamentData.round, newSide);
-    return newTournamentData;
-}
-
-export function removeSide(tournamentData: TournamentGameDto, side: TournamentSideDto): TournamentGameDto {
-    const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-    newTournamentData.sides = tournamentData.sides.filter((s: TournamentSideDto) => s.id !== side.id);
-    return newTournamentData;
-}
-
-export function addSide(tournamentData: TournamentGameDto, newSide: TournamentSideDto, options: ISaveSideOptions): TournamentGameDto {
-    const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-    let sidesToAdd: TournamentSideDto[];
-
-    if (options.addAsIndividuals) {
-        sidesToAdd = newSide.players.map((player: TournamentPlayerDto): TournamentSideDto => {
-            return {
-                id: createTemporaryId(),
-                name: player.name.trim(),
-                players: [ player ],
-            };
-        });
-    } else {
-        newSide.name = (newSide.name || '').trim();
-        newSide.id = createTemporaryId();
-        sidesToAdd = [newSide];
+    function getSide(side?: TournamentSideDto): ILayoutDataForSide {
+        return {
+            id: side ? side.id : null,
+            name: side ? side.name: null,
+            link: side ? context.roundContext.getLinkToSide(side) : null,
+            mnemonic: side && side.id
+                ? null
+                : context.roundContext.sideMnemonicCalculator.next()
+        };
     }
 
-    newTournamentData.sides = newTournamentData.sides.concat(sidesToAdd).sort(sortBy('name'));
-    return newTournamentData;
+    return {
+        sideA: getSide(match.sideA),
+        sideB: getSide(match.sideB),
+        scoreA: (match.scoreA ? match.scoreA.toString() : null) || '0',
+        scoreB: (match.scoreB ? match.scoreB.toString() : null) || '0',
+        bye: false,
+        winner: winner,
+        saygId: match.saygId,
+        mnemonic: context.roundContext.matchMnemonic.next(),
+        hideMnemonic: allSidesSelectedInSubsequentRound(context.round, match) || context.roundContext.sides.length === 2,
+        matchOptions: matchOptions,
+        match,
+    };
 }
 
 function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes: string[], sides: TournamentSideDto[], matchMnemonic?: IMnemonicAccumulator, singleRound?: boolean): ILayoutDataForRound[] {
@@ -240,47 +294,6 @@ function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes: string
     return [round].concat(getUnplayedLayoutDataForSides(followOnMnemonics.concat(byes), byes, sides, matchMnemonic));
 }
 
-function getMatchLayoutData(match: TournamentMatchDto, index: number, context: IMatchLayoutGenerationContext): ILayoutDataForMatch {
-    let winner = null;
-    context.playedInThisRound.push(match.sideA);
-    context.playedInThisRound.push(match.sideB);
-    const matchOptions: GameMatchOptionDto = context.round.matchOptions[index] || context.roundContext.matchOptionDefaults;
-    const numberOfLegs: number = matchOptions.numberOfLegs;
-
-    if (match.scoreA > (numberOfLegs / 2.0)) {
-        context.roundContext.winnersFromThisRound.push(match.sideA);
-        winner = 'sideA';
-    } else if (match.scoreB > (numberOfLegs / 2.0)) {
-        context.roundContext.winnersFromThisRound.push(match.sideB);
-        winner = 'sideB';
-    }
-
-    function getSide(side?: TournamentSideDto): ILayoutDataForSide {
-        return {
-            id: side ? side.id : null,
-            name: side ? side.name: null,
-            link: side ? context.roundContext.getLinkToSide(side) : null,
-            mnemonic: side && side.id
-                ? null
-                : context.roundContext.sideMnemonicCalculator.next()
-        };
-    }
-
-    return {
-        sideA: getSide(match.sideA),
-        sideB: getSide(match.sideB),
-        scoreA: (match.scoreA ? match.scoreA.toString() : null) || '0',
-        scoreB: (match.scoreB ? match.scoreB.toString() : null) || '0',
-        bye: false,
-        winner: winner,
-        saygId: match.saygId,
-        mnemonic: context.roundContext.matchMnemonic.next(),
-        hideMnemonic: allSidesSelectedInSubsequentRound(context.round, match) || context.roundContext.sides.length === 2,
-        matchOptions: matchOptions,
-        match,
-    };
-}
-
 function allSidesSelectedInSubsequentRound(round: TournamentRoundDto, match: TournamentMatchDto): boolean {
     const sideIdsToFind: string[] = [ match.sideA, match.sideB ].map((s: TournamentSideDto) => s ? s.id : null).filter((id: string) => !!id);
     return sidesExistInThisOrSubsequentRound(round.nextRound, sideIdsToFind);
@@ -297,76 +310,5 @@ function sidesExistInThisOrSubsequentRound(round: TournamentRoundDto, sideIdsToF
     }
 
     return sidesExistInThisOrSubsequentRound(round.nextRound, sideIdsToFind);
-}
-
-function getRoundLayoutData(round: TournamentRoundDto, roundContext: IRoundLayoutGenerationContext): ILayoutDataForRound {
-    const matchContext: IMatchLayoutGenerationContext = {
-        roundContext,
-        round,
-        playedInThisRound: [],
-    };
-
-    return {
-        name: round.name,
-        matches: round.matches.map((match: TournamentMatchDto, index: number): ILayoutDataForMatch => {
-            return getMatchLayoutData(match, index, matchContext);
-        }),
-        possibleSides: roundContext.sides,
-        alreadySelectedSides: matchContext.playedInThisRound,
-        round,
-    };
-}
-
-function getPrefixIncrementingMnemonicCalculator(prefix: string): IMnemonicAccumulator {
-    let index: number = 0;
-    return {
-        next(): string {
-            return prefix + (++index);
-        }
-    };
-}
-
-function getAlphaMnemonicCalculator(): IMnemonicAccumulator {
-    let ordinal: number = 0;
-    const mnemonics = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-    return {
-        next(): string {
-            return mnemonics[ordinal++];
-        }
-    };
-}
-
-function getMnemonicForIndex(ordinal: number): string {
-    const mnemonics: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    return mnemonics[ordinal];
-}
-
-function getLayoutSide(id?: string, name?: string, link?: JSX.Element, mnemonic?: string): ILayoutDataForSide {
-    return {
-        id: id || null,
-        name: name || null,
-        link: link || null,
-        mnemonic: mnemonic || null,
-    };
-}
-
-function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDto) {
-    if (!round) {
-        return;
-    }
-
-    if (round.matches) {
-        for (let index = 0; index < round.matches.length; index++) {
-            const match: TournamentMatchDto = round.matches[index];
-            if (match.sideA && match.sideA.id === side.id) {
-                match.sideA = side;
-            } else if (match.sideB && match.sideB.id === side.id) {
-                match.sideB = side;
-            }
-        }
-    }
-
-    updateSideDataInRound(round.nextRound, side);
 }
 

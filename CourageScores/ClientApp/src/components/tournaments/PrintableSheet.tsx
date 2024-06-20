@@ -12,14 +12,16 @@ import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentP
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {
     addSide,
+    removeSide,
+    sideChanged
+} from "./tournaments";
+import {
     getPlayedLayoutData,
     getUnplayedLayoutData,
     ILayoutDataForMatch,
     ILayoutDataForRound,
-    removeSide,
     setRoundNames,
-    sideChanged
-} from "../../helpers/tournaments";
+} from "./competition";
 import {NotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {PrintableSheetMatch} from "./PrintableSheetMatch";
 import {EditSide, ISaveSideOptions} from "./EditSide";

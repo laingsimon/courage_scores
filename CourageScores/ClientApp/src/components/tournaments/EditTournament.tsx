@@ -10,7 +10,7 @@ import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRo
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
-import {addSide, removeSide, sideChanged} from "../../helpers/tournaments";
+import {addSide, removeSide, sideChanged} from "./tournaments";
 
 export interface IEditTournamentProps {
     canSave?: boolean;
