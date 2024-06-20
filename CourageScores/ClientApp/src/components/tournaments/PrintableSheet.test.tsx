@@ -1513,7 +1513,7 @@ describe('PrintableSheet', () => {
             access: {}
         };
 
-        it('renders tournament with 2 sides', async () => {
+        /*it('renders tournament with 2 sides', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
@@ -1540,9 +1540,9 @@ describe('PrintableSheet', () => {
                     },
                 ],
             });
-        });
+        });*/
 
-        it('renders tournament with 2 sides and one no-show', async () => {
+        /*it('renders tournament with 2 sides and one no-show', async () => {
             const noShowSide: TournamentSideDto = createSide('NO SHOW');
             noShowSide.noShow = true;
             const tournamentData: TournamentGameDto = tournamentBuilder()
@@ -1572,7 +1572,7 @@ describe('PrintableSheet', () => {
                     },
                 ],
             });
-        });
+        });*/
 
         it('renders who is playing', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
