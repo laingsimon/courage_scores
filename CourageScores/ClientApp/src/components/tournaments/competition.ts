@@ -5,7 +5,7 @@ import {any} from "../../helpers/collections";
 import {ILayoutDataForRound} from "./layout";
 import {IMnemonicAccumulator} from "./layout/shared";
 import {getPlayedLayoutData} from "./layout/played";
-import {getUnplayedLayoutData} from "./layout/unplayed";
+import {getUnplayedLayoutData} from "./layout/new-unplayed";
 
 export interface ITournamentLayoutGenerationContext {
     matchOptionDefaults: GameMatchOptionDto;

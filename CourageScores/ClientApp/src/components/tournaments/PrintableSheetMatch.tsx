@@ -257,6 +257,13 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                         </span>
                     </span>)
                 : null}
+            {matchData.numberOfSidesOnTheNight
+                ? (<span datatype="match-mnemonic" className="position-absolute left-0 opacity-75">
+                        <span className="small rounded-circle bg-info opacity-75 text-light p-1 position-absolute text-center" style={{left: -10, top: -10, minWidth: '28px'}}>
+                            {matchData.numberOfSidesOnTheNight}
+                        </span>
+                    </span>)
+                : null}
             {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
             <div datatype="sideA"
                  onClick={editable ? () => beginEditSide('A') : null}
