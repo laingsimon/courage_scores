@@ -59,7 +59,13 @@ interface IRoundLayoutGenerationContext {
     sides: TournamentSideDto[];
 }
 
-export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
+export function getLayoutData(round: TournamentRoundDto, sides: TournamentSideDto[], context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
+    return setRoundNames(round && any(round.matches)
+        ? getPlayedLayoutData(sides, round, context)
+        : getUnplayedLayoutData(sides.filter((s: TournamentSideDto) => !s.noShow)));
+}
+
+function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
     const layoutDataCopy: ILayoutDataForRound[] = layoutData.filter(_ => true);
     const newLayoutData: ILayoutDataForRound[] = [];
     let unnamedRoundNumber: number = layoutDataCopy.length - 3;
@@ -89,7 +95,7 @@ export function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataFor
     return newLayoutData;
 }
 
-export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataForRound[] {
+function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataForRound[] {
     if (sides.length <= 1) {
         return [];
     }
@@ -98,7 +104,7 @@ export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataFo
     return getUnplayedLayoutDataForSides(sideMnemonics, [], sides);
 }
 
-export function getPlayedLayoutData(sides: TournamentSideDto[], round: TournamentRoundDto, context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
+function getPlayedLayoutData(sides: TournamentSideDto[], round: TournamentRoundDto, context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
     if (!round) {
         return [];
     }

@@ -16,11 +16,9 @@ import {
     sideChanged
 } from "./tournaments";
 import {
-    getPlayedLayoutData,
-    getUnplayedLayoutData,
+    getLayoutData,
     ILayoutDataForMatch,
     ILayoutDataForRound,
-    setRoundNames,
 } from "./competition";
 import {NotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {PrintableSheetMatch} from "./PrintableSheetMatch";
@@ -54,9 +52,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
     const {name} = useBranding();
     const {onError, teams, divisions} = useApp();
     const {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, setEditTournament } = useTournament();
-    const layoutData: ILayoutDataForRound[] = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
-        ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, { matchOptionDefaults, getLinkToSide })
-        : getUnplayedLayoutData(tournamentData.sides.filter(s => !s.noShow)));
+    const layoutData: ILayoutDataForRound[] = getLayoutData(tournamentData.round, tournamentData.sides, { matchOptionDefaults, getLinkToSide });
     const [editSide, setEditSide] = useState<TournamentSideDto>(null);
     const [newSide, setNewSide] = useState<TournamentSideDto>(null);
     const [editAccolades, setEditAccolades] = useState<string>(null);
