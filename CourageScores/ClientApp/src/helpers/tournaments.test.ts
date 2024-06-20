@@ -2,7 +2,7 @@
     addSide,
     getPlayedLayoutData,
     getUnplayedLayoutData,
-    hasScore, ILayoutDataForMatch,
+    ILayoutDataForMatch,
     ILayoutDataForRound, ITournamentLayoutGenerationContext, setRoundNames
 } from "./tournaments";
 import {repeat} from "./projection";
@@ -19,21 +19,6 @@ import {TournamentGameDto} from "../interfaces/models/dtos/Game/TournamentGameDt
 import {playerBuilder} from "./builders/players";
 
 describe('tournaments', () => {
-    describe('hasScore', () => {
-        it('returns true if there is a score', () => {
-            expect(hasScore(0)).toEqual(true);
-            expect(hasScore(1)).toEqual(true);
-        });
-
-        it('returns false if there is a null score', () => {
-            expect(hasScore(null)).toEqual(false);
-        });
-
-        it('returns false if there is an undefined score', () => {
-            expect(hasScore(undefined)).toEqual(false);
-        });
-    });
-
     describe('getUnplayedLayoutData', () => {
         interface ILayoutMatchBuilderProps {
             a: string;
