@@ -13,7 +13,7 @@ export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataFo
     return getUnplayedLayoutDataForSides(sideMnemonics, [], sides);
 }
 
-export function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes: string[], sides: TournamentSideDto[], matchMnemonic?: IMnemonicAccumulator, singleRound?: boolean): ILayoutDataForRound[] {
+function getUnplayedLayoutDataForSides(mnemonics: string[], previousByes: string[], sides: TournamentSideDto[], matchMnemonic?: IMnemonicAccumulator, singleRound?: boolean): ILayoutDataForRound[] {
     const mnemonicsToCreateMatchesFor: string[] = previousByes.concat(mnemonics.sort().filter((m: string) => !any(previousByes, (b: string) => b === m)));
     // any mnemonics with byes first then the remaining mnemonics in alphabetical order
     matchMnemonic = matchMnemonic || getPrefixIncrementingMnemonicCalculator('M');
