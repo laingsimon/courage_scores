@@ -15,11 +15,7 @@ import {
     removeSide,
     sideChanged
 } from "./tournaments";
-import {
-    getLayoutData,
-    ILayoutDataForMatch,
-    ILayoutDataForRound,
-} from "./competition";
+import {getLayoutData,} from "./competition";
 import {NotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
 import {PrintableSheetMatch} from "./PrintableSheetMatch";
 import {EditSide, ISaveSideOptions} from "./EditSide";
@@ -33,6 +29,7 @@ import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournam
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {Link} from "react-router-dom";
+import {ILayoutDataForMatch, ILayoutDataForRound} from "./layout";
 
 export interface IPrintableSheetProps {
     editable?: boolean;

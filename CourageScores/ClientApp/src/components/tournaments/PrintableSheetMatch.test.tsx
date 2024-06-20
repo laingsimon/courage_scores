@@ -19,7 +19,7 @@ import {
     sideBuilder,
     tournamentBuilder
 } from "../../helpers/builders/tournaments";
-import {ILayoutDataForMatch} from "./competition";
+import {ILayoutDataForMatch} from "./layout";
 import {createTemporaryId} from "../../helpers/projection";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";

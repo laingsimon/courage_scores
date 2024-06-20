@@ -1,7 +1,5 @@
 import {
-    getLayoutData,
-    ILayoutDataForMatch,
-    ILayoutDataForRound, ITournamentLayoutGenerationContext
+    getLayoutData, ITournamentLayoutGenerationContext
 } from "./competition";
 import {
     ITournamentMatchBuilder,
@@ -14,6 +12,7 @@ import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOpt
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {repeat} from "../../helpers/projection";
+import {ILayoutDataForMatch, ILayoutDataForRound} from "./layout";
 
 describe('competition', () => {
     const unplayedRound: TournamentRoundDto = {

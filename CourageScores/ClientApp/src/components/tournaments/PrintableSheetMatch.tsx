@@ -1,4 +1,4 @@
-import {ILayoutDataForMatch, ILayoutDataForSide} from "./competition";
+import {ILayoutDataForMatch, ILayoutDataForSide} from "./layout";
 import {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
