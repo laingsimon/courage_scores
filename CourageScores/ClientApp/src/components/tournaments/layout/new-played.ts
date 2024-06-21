@@ -16,14 +16,14 @@ export function getPlayedLayoutData(sides: TournamentSideDto[], round: Tournamen
         const playedRound: TournamentRoundDto = rounds[index];
         if (!playedRound) {
             const adaptedRound: ILayoutDataForRound = Object.assign({}, unplayedRound);
-            adaptedRound.possibleSides = remainingSides;
+            adaptedRound.possibleSides = remainingSides.filter(s => !!s); // copy the array so it cannot be modified
             return adaptedRound;
         }
 
         const winners: TournamentSideDto[] = [];
         const round: ILayoutDataForRound = createRound(context, playedRound, unplayedRound, winners, remainingSides);
         const unselectedSides: TournamentSideDto[] = remainingSides.filter((remainingSide: TournamentSideDto) => {
-            return !any(round.alreadySelectedSides, (s: TournamentSideDto) => s === remainingSide); // exclude any already selected side
+            return !any(round.alreadySelectedSides, (s: TournamentSideDto) => s.id === remainingSide.id); // exclude any already selected side
         });
         remainingSides = winners.concat(unselectedSides);
         return round;
