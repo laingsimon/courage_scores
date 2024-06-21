@@ -118,14 +118,14 @@ describe('new-unplayed', () => {
                 match('A', 'B', 'M1', 9),
             ),
             round(
-                match('C', 'D', 'M3' /* TODO: this should be M2 */),
-                match('E', 'F', 'M4' /* TODO: this should be M3 */),
-                match('G', 'H', 'M5' /* TODO: this should be M4 */),
-                match('I', 'winner(M1)', 'M2' /* TODO: this should be M5 */, 8),
+                match('C', 'D', 'M2'),
+                match('E', 'F', 'M3'),
+                match('G', 'H', 'M4'),
+                match('I', 'winner(M1)', 'M5', 8),
             ),
             round(
-                match('winner(M3)', 'winner(M4)', 'M6'),
-                match('winner(M5)', 'winner(M2)', 'M7'),
+                match('winner(M2)', 'winner(M3)', 'M6'),
+                match('winner(M4)', 'winner(M5)', 'M7'),
             ),
             round(
                 match('winner(M6)', 'winner(M7)', 'M8'),
@@ -144,14 +144,14 @@ describe('new-unplayed', () => {
                 match('C', 'D', 'M2', 9),
             ),
             round(
-                match('E', 'F', 'M5' /* TODO: this should be M3 */),
-                match('G', 'H', 'M6' /* TODO: this should be M4 */),
-                match('J', 'winner(M1)', 'M3' /* TODO: this should be M5 */, 8 /* TODO: this should be 7 or null */),
-                match('I', 'winner(M2)', 'M4' /* TODO: this should be M6 */, 6 /* TODO: this should be 8 */),
+                match('E', 'F', 'M3'),
+                match('G', 'H', 'M4'),
+                match('I', 'winner(M1)', 'M5', 8 /* TODO: this should be 7 or null */),
+                match('J', 'winner(M2)', 'M6', 6 /* TODO: this should be 8 */),
             ),
             round(
-                match('winner(M5)', 'winner(M6)', 'M7'),
-                match('winner(M3)', 'winner(M4)', 'M8'),
+                match('winner(M3)', 'winner(M4)', 'M7'),
+                match('winner(M5)', 'winner(M6)', 'M8'),
             ),
             round(
                 match('winner(M7)', 'winner(M8)', 'M9'),

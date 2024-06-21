@@ -37,7 +37,9 @@ function produceMatchesFromRemainingSides(remainingSides: string[], matchMnemoni
     return matches;
 }
 
-function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDataForMatch[], remainingSides: string[], matchMnemonics: IMnemonicAccumulator, showNumberOfSidesHint?: boolean, prioritisePossibleSides?: boolean): ILayoutDataForMatch[] {
+function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDataForMatch[], remainingSides: string[],
+                                                matchMnemonics: IMnemonicAccumulator, thisRoundMatches: number,
+                                                showNumberOfSidesHint?: boolean, prioritisePossibleSides?: boolean): ILayoutDataForMatch[] {
     const matches: ILayoutDataForMatch[] = [];
 
     while (any(previousRoundMatches)) {
@@ -46,10 +48,10 @@ function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDat
         const matchB: ILayoutDataForMatch = prioritisePossibleSides ? null : previousRoundMatches.shift(); // could be null;
         const sideB: string = matchB
             ? `winner(${matchB.mnemonic})`
-            : throwIfNull(remainingSides.pop(), `No remaining sides for match ${matchA.mnemonic} to be played against`);
+            : throwIfNull(remainingSides.shift(), `No remaining sides for match ${matchA.mnemonic} to be played against`);
 
         const numberOfSidesOnTheNight: number = showNumberOfSidesHint
-            ? remainingSideLength
+            ? (thisRoundMatches * 2) + remainingSideLength
             : undefined;
         matches.push(prioritisePossibleSides
             ? match(sideB, `winner(${matchA.mnemonic})`, matchMnemonics, numberOfSidesOnTheNight)
@@ -65,13 +67,18 @@ function produceRound(rounds: ILayoutDataForRound[], remainingSides: string[], m
         ? previousRound.matches.filter(m => !!m) // copy the array as it will be mutated
         : [];
 
+    const remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound: number = previousRound ? remainingSides.length - previousRound.matches.length : remainingSides.length;
+    const remainingSidesExceptThoseRequiredForPreRound: string[] = remainingSides.filter((_, index) => index < remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound);
+    const thisRoundMatches: ILayoutDataForMatch[] = !previousRound || previousRound.preRound
+        ? produceMatchesFromRemainingSides(remainingSidesExceptThoseRequiredForPreRound, matchMnemonics)
+        : [];
     const previousRoundWinnerMatches: ILayoutDataForMatch[] = produceMatchesFromPreviousRoundWinners(
         previousRoundMatches,
-        remainingSides,
+        remainingSides.filter((_, index) => index >= remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound),
         matchMnemonics,
+        thisRoundMatches.length,
         showNumberOfSidesHint,
         previousRound && previousRound.preRound);
-    const thisRoundMatches: ILayoutDataForMatch[] = produceMatchesFromRemainingSides(remainingSides, matchMnemonics);
 
     return {
         matches: thisRoundMatches.concat(previousRoundWinnerMatches),
