@@ -1,10 +1,12 @@
-import {getUnplayedLayoutData} from "./new-unplayed";
 import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {repeat} from "../../../helpers/projection";
+import {UnplayedEngine} from "./UnplayedEngine";
+import {ILayoutEngine} from "./ILayoutEngine";
 
-describe('new-unplayed', () => {
+describe('UnplayedEngine', () => {
     let possibleSides: TournamentSideDto[];
+    let engine: ILayoutEngine;
 
     function getSides(count: number): TournamentSideDto[] {
         return repeat(count, (index: number): TournamentSideDto => {
@@ -69,12 +71,13 @@ describe('new-unplayed', () => {
 
     beforeEach(() => {
         possibleSides = null;
+        engine = new UnplayedEngine();
     });
 
     it('returns no rounds or matches for no sides', () => {
         possibleSides = getSides(0);
 
-        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+        const result: ILayoutDataForRound[] = engine.calculate(possibleSides);
 
         expect(result).toEqual([]);
     });
@@ -82,7 +85,7 @@ describe('new-unplayed', () => {
     it('returns no rounds or matches for one side', () => {
         possibleSides = getSides(1);
 
-        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+        const result: ILayoutDataForRound[] = engine.calculate(possibleSides);
 
         expect(result).toEqual([]);
     });
@@ -90,7 +93,7 @@ describe('new-unplayed', () => {
     it('returns 1 round with 1 match for 2 sides', () => {
         possibleSides = getSides(2);
 
-        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+        const result: ILayoutDataForRound[] = engine.calculate(possibleSides);
 
         expect(result).toEqual([
             round('Final', match('A', 'B', 'M1', undefined, '!vs')),
@@ -100,7 +103,7 @@ describe('new-unplayed', () => {
     it('returns 2 (full) rounds for 7 sides', () => {
         possibleSides = getSides(7);
 
-        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+        const result: ILayoutDataForRound[] = engine.calculate(possibleSides);
 
         expect(result).toEqual([
             preRound(
@@ -123,7 +126,7 @@ describe('new-unplayed', () => {
     it('returns 3 (full) rounds for 8 sides', () => {
         possibleSides = getSides(8);
 
-        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+        const result: ILayoutDataForRound[] = engine.calculate(possibleSides);
 
         expect(result).toEqual([
             round(
@@ -148,7 +151,7 @@ describe('new-unplayed', () => {
     it('returns 1 preliminary match, then 3 (full) rounds for 9 sides', () => {
         possibleSides = getSides(9);
 
-        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+        const result: ILayoutDataForRound[] = engine.calculate(possibleSides);
 
         expect(result).toEqual([
             preRound(
@@ -176,7 +179,7 @@ describe('new-unplayed', () => {
     it('returns 2 preliminary matches, then 3 (full) rounds for 10 sides', () => {
         possibleSides = getSides(10);
 
-        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+        const result: ILayoutDataForRound[] = engine.calculate(possibleSides);
 
         expect(result).toEqual([
             preRound(

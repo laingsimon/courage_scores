@@ -4,8 +4,9 @@ import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSid
 import {any} from "../../helpers/collections";
 import {ILayoutDataForRound} from "./layout";
 import {IMnemonicAccumulator} from "./layout/shared";
-import {getPlayedLayoutData} from "./layout/new-played";
-import {getUnplayedLayoutData} from "./layout/new-unplayed";
+import {PlayedEngine} from "./layout/PlayedEngine";
+import {UnplayedEngine} from "./layout/UnplayedEngine";
+import {ILayoutEngine} from "./layout/ILayoutEngine";
 
 export interface ITournamentLayoutGenerationContext {
     matchOptionDefaults: GameMatchOptionDto;
@@ -14,38 +15,10 @@ export interface ITournamentLayoutGenerationContext {
 }
 
 export function getLayoutData(round: TournamentRoundDto, sides: TournamentSideDto[], context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
-    return setRoundNames(round && any(round.matches)
-        ? getPlayedLayoutData(sides.filter((s: TournamentSideDto) => !s.noShow), round, context)
-        : getUnplayedLayoutData(sides.filter((s: TournamentSideDto) => !s.noShow)));
+    const unplayedEngine: ILayoutEngine = new UnplayedEngine();
+    const engine: ILayoutEngine = round && any(round.matches)
+        ? new PlayedEngine(context, round, unplayedEngine)
+        : unplayedEngine;
+
+    return engine.calculate(sides.filter((s: TournamentSideDto) => !s.noShow));
 }
-
-function setRoundNames(layoutData: ILayoutDataForRound[]): ILayoutDataForRound[] {
-    const layoutDataCopy: ILayoutDataForRound[] = layoutData.filter(_ => true);
-    const newLayoutData: ILayoutDataForRound[] = [];
-    let unnamedRoundNumber: number = layoutDataCopy.length - 3;
-
-    while (any(layoutDataCopy)) {
-        const lastRound: ILayoutDataForRound = layoutDataCopy.pop();
-        let roundName = null;
-        switch (newLayoutData.length) {
-            case 0:
-                roundName = 'Final';
-                break;
-            case 1:
-                roundName = 'Semi-Final';
-                break;
-            case 2:
-                roundName = 'Quarter-Final';
-                break;
-            default:
-                roundName = `Round ${unnamedRoundNumber--}`;
-                break;
-        }
-
-        lastRound.name = lastRound.name || roundName;
-        newLayoutData.unshift(lastRound);
-    }
-
-    return newLayoutData;
-}
-
