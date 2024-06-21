@@ -13,10 +13,6 @@ export class UnplayedEngine implements ILayoutEngine {
     }
 
     calculate(sides: TournamentSideDto[]): ILayoutDataForRound[] {
-        if (sides.length <= 1) {
-            return [];
-        }
-
         const sideMnemonics: string[] = repeat(sides.length, this.getMnemonicForIndex);
         const log2NumberOfSides: number = Math.log2(sideMnemonics.length);
         const fullRoundCount: number = Math.floor(log2NumberOfSides);
