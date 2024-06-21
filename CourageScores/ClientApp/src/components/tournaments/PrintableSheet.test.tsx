@@ -345,13 +345,10 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        sideAmnemonic: 'winner(M1)',
-                        sideBmnemonic: 'winner(M2)',
                         bye: false,
                         saygLink: null,
                     },
                     {
-                        sideAmnemonic: 'winner(M3)',
                         bye: true,
                         saygLink: null,
                     },
@@ -363,8 +360,6 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAmnemonic: 'winner(M3)',
-                        sideBmnemonic: 'winner(M4)',
                         bye: false,
                         saygLink: null,
                     },
@@ -484,7 +479,6 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAmnemonic: 'e',
                         bye: true,
                         saygLink: null,
                     },
@@ -505,7 +499,6 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAmnemonic: 'c',
                         bye: true,
                         saygLink: null,
                     },
@@ -654,8 +647,6 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        sideAmnemonic: 'j',
-                        sideBmnemonic: 'l',
                         bye: false,
                         saygLink: null,
                     },
@@ -1513,7 +1504,7 @@ describe('PrintableSheet', () => {
             access: {}
         };
 
-        /*it('renders tournament with 2 sides', async () => {
+        it('renders tournament with 2 sides', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide(sideA)
                 .withSide(sideB)
@@ -1533,16 +1524,14 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAmnemonic: 'A',
-                        sideBmnemonic: 'B',
                         bye: false,
                         saygLink: null,
                     },
                 ],
             });
-        });*/
+        });
 
-        /*it('renders tournament with 2 sides and one no-show', async () => {
+        it('renders tournament with 2 sides and one no-show', async () => {
             const noShowSide: TournamentSideDto = createSide('NO SHOW');
             noShowSide.noShow = true;
             const tournamentData: TournamentGameDto = tournamentBuilder()
@@ -1565,14 +1554,12 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        sideAmnemonic: 'A',
-                        sideBmnemonic: 'B',
                         bye: false,
                         saygLink: null,
                     },
                 ],
             });
-        });*/
+        });
 
         it('renders who is playing', async () => {
             const tournamentData: TournamentGameDto = tournamentBuilder()

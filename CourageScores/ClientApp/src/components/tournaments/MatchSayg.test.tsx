@@ -901,7 +901,7 @@ describe('MatchSayg', () => {
             expect(scrollPrevented).toEqual(false);
         });
 
-        /*it('can patch data with updated score', async () => {
+        it('can patch data with updated score', async () => {
             const saygData = saygBuilder()
                 .numberOfLegs(matchOptions.numberOfLegs)
                 .scores(0, 0)
@@ -925,9 +925,9 @@ describe('MatchSayg', () => {
                     },
                 },
             }]);
-        });*/
+        });
 
-        /*it('reports and patches hi-checks when single-player', async () => {
+        it('reports and patches hi-checks when single-player', async () => {
             const saygData = saygBuilder()
                 .numberOfLegs(matchOptions.numberOfLegs)
                 .scores(0, 0)
@@ -950,7 +950,7 @@ describe('MatchSayg', () => {
                     },
                 }
             }]);
-        });*/
+        });
 
         it('reports and patches 180s when single-player', async () => {
             const saygData = saygBuilder()
