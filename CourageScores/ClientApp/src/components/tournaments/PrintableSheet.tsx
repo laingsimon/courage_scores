@@ -312,7 +312,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
             <div datatype="rounds-and-players"
                  className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
                 {layoutData.map((roundData: ILayoutDataForRound, roundIndex: number) => (
-                    <div key={roundIndex} datatype={`round-${roundIndex}`} className="d-flex flex-column p-3">
+                    <div key={roundIndex} datatype={`round-${roundIndex}`} className={`d-flex flex-column p-3 ${roundData.preRound ? 'align-self-end' : null}`}>
                         {roundIndex === layoutData.length - 1 ? render180s() : null}
                         <h5 datatype="round-name">{roundData.name}</h5>
                         {roundData.matches.map((matchData: ILayoutDataForMatch, matchIndex: number) => <PrintableSheetMatch

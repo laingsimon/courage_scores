@@ -88,6 +88,7 @@ function producePreRoundMatches(preRoundTeams: number, remainingSides: string[],
         name: '',
         possibleSides: sides,
         alreadySelectedSides: [],
+        preRound: true,
     };
 
     for (let preRoundTeamIndex = 0; preRoundTeamIndex < preRoundTeams; preRoundTeamIndex++) {

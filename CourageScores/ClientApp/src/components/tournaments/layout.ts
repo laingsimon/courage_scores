@@ -32,6 +32,7 @@ export interface ILayoutDataForRound {
     possibleSides: TournamentSideDto[];
     alreadySelectedSides: TournamentSideDto[];
     round?: TournamentRoundDto;
+    preRound?: boolean;
 }
 
 
