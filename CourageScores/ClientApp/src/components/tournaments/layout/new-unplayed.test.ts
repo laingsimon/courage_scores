@@ -146,8 +146,8 @@ describe('new-unplayed', () => {
             round(
                 match('E', 'F', 'M3'),
                 match('G', 'H', 'M4'),
-                match('I', 'winner(M1)', 'M5', 8 /* TODO: this should be 7 or null */),
-                match('J', 'winner(M2)', 'M6', 6 /* TODO: this should be 8 */),
+                match('I', 'winner(M1)', 'M5', 7),
+                match('J', 'winner(M2)', 'M6', 8),
             ),
             round(
                 match('winner(M3)', 'winner(M4)', 'M7'),

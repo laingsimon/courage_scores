@@ -38,12 +38,11 @@ function produceMatchesFromRemainingSides(remainingSides: string[], matchMnemoni
 }
 
 function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDataForMatch[], remainingSides: string[],
-                                                matchMnemonics: IMnemonicAccumulator, thisRoundMatches: number,
+                                                matchMnemonics: IMnemonicAccumulator, totalExpectedSides: number,
                                                 showNumberOfSidesHint?: boolean, prioritisePossibleSides?: boolean): ILayoutDataForMatch[] {
     const matches: ILayoutDataForMatch[] = [];
 
     while (any(previousRoundMatches)) {
-        const remainingSideLength: number = remainingSides.length + previousRoundMatches.length;
         const matchA: ILayoutDataForMatch = previousRoundMatches.shift();
         const matchB: ILayoutDataForMatch = prioritisePossibleSides ? null : previousRoundMatches.shift(); // could be null;
         const sideB: string = matchB
@@ -51,7 +50,7 @@ function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDat
             : throwIfNull(remainingSides.shift(), `No remaining sides for match ${matchA.mnemonic} to be played against`);
 
         const numberOfSidesOnTheNight: number = showNumberOfSidesHint
-            ? (thisRoundMatches * 2) + remainingSideLength
+            ? totalExpectedSides - previousRoundMatches.length
             : undefined;
         matches.push(prioritisePossibleSides
             ? match(sideB, `winner(${matchA.mnemonic})`, matchMnemonics, numberOfSidesOnTheNight)
@@ -76,7 +75,7 @@ function produceRound(rounds: ILayoutDataForRound[], remainingSides: string[], m
         previousRoundMatches,
         remainingSides.filter((_, index) => index >= remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound),
         matchMnemonics,
-        thisRoundMatches.length,
+        Math.pow(2, Math.floor(remainingSides.length / 2)), // 6 remaining sides -> 8 side round (2^3 = 8)
         showNumberOfSidesHint,
         previousRound && previousRound.preRound);
 
