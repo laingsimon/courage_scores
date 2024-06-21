@@ -1,7 +1,7 @@
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {repeat} from "../../../helpers/projection";
-import {getPrefixIncrementingMnemonicCalculator, IMnemonicAccumulator} from "./shared";
+import {getRoundName, getPrefixIncrementingMnemonicCalculator, IMnemonicAccumulator} from "./shared";
 import {any, skip, take} from "../../../helpers/collections";
 
 export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataForRound[] {
@@ -88,7 +88,7 @@ function produceRound(previousRound: ILayoutDataForRound, remainingSides: string
 
     return {
         matches: thisRoundMatches.concat(previousRoundWinnerMatches),
-        name: null,
+        name: getRoundName(thisRoundMatches.length + previousRoundWinnerMatches.length, firstFullRoundNumberOfSides),
         possibleSides: sides,
         alreadySelectedSides: [],
         preRound: false,
@@ -108,7 +108,7 @@ function producePreRound(preRoundTeams: number, remainingSides: string[], matchM
 
             return match(sideA, sideB, matchMnemonics, numberOfSidesOnTheNight);
         }),
-        name: null,
+        name: 'Preliminary',
         possibleSides: sides,
         alreadySelectedSides: [],
         preRound: true,

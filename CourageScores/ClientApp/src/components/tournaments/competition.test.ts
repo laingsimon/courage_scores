@@ -36,21 +36,21 @@ describe('competition', () => {
             const layoutData: ILayoutDataForRound[] = getLayoutData(unplayedRound, getSides(5), context);
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
-            expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+            expect(roundNames).toEqual([ 'Preliminary', 'Semi-Final', 'Final' ]);
         });
 
         it('6 sides', () => {
             const layoutData: ILayoutDataForRound[] = getLayoutData(unplayedRound, getSides(6), context);
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
-            expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+            expect(roundNames).toEqual([ 'Preliminary', 'Semi-Final', 'Final' ]);
         });
 
         it('7 sides', () => {
             const layoutData: ILayoutDataForRound[] = getLayoutData(unplayedRound, getSides(7), context);
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
-            expect(roundNames).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+            expect(roundNames).toEqual([ 'Preliminary', 'Semi-Final', 'Final' ]);
         });
 
         it('8 sides', () => {
@@ -64,7 +64,7 @@ describe('competition', () => {
             const layoutData: ILayoutDataForRound[] = getLayoutData(unplayedRound, getSides(9), context);
 
             const roundNames = layoutData.map((r: ILayoutDataForRound) => r.name);
-            expect(roundNames).toEqual([ 'Round 1',  'Quarter-Final', 'Semi-Final', 'Final' ]);
+            expect(roundNames).toEqual([ 'Preliminary',  'Quarter-Final', 'Semi-Final', 'Final' ]);
         });
     });
 });

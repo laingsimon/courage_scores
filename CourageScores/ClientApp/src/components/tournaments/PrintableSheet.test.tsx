@@ -309,7 +309,7 @@ describe('PrintableSheet', () => {
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
             expect(rounds[0]).toEqual({
-                heading: 'Quarter-Final',
+                heading: 'Preliminary',
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
@@ -339,10 +339,12 @@ describe('PrintableSheet', () => {
                     {
                         bye: false,
                         saygLink: null,
+                        sideBmnemonic: 'winner(M1)',
                     },
                     {
                         bye: false,
                         saygLink: null,
+                        sideBmnemonic: 'winner(M2)',
                     },
                 ],
             });
@@ -448,7 +450,7 @@ describe('PrintableSheet', () => {
             const rounds = getRounds();
             expect(rounds.length).toEqual(3);
             expect(rounds[0]).toEqual({
-                heading: 'Quarter-Final',
+                heading: 'Preliminary',
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
@@ -480,6 +482,7 @@ describe('PrintableSheet', () => {
                     {
                         bye: false,
                         saygLink: null,
+                        sideBmnemonic: 'b',
                     },
                 ],
             });
@@ -542,7 +545,7 @@ describe('PrintableSheet', () => {
             const rounds = getRounds();
             expect(rounds.length).toEqual(4);
             expect(rounds[0]).toEqual({
-                heading: 'Round 1',
+                heading: 'Preliminary',
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
@@ -610,10 +613,12 @@ describe('PrintableSheet', () => {
                     {
                         bye: false,
                         saygLink: null,
+                        sideBmnemonic: 'e',
                     },
                     {
                         bye: false,
                         saygLink: null,
+                        sideBmnemonic: 'h',
                     },
                 ],
             });

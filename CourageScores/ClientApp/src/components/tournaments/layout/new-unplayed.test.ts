@@ -15,33 +15,44 @@ describe('new-unplayed', () => {
         })
     }
 
-    function match(a: string, vs: string, m: string, otn?: number): ILayoutDataForMatch {
+    function match(a: string, vs: string, m: string, otn?: number, showMnemonic?: string): ILayoutDataForMatch {
         return {
             scoreA: null,
             scoreB: null,
-            sideA: side(a),
-            sideB: side(vs),
+            sideA: side(a, getShowMnemonic('A', showMnemonic)),
+            sideB: side(vs, getShowMnemonic('vs', showMnemonic)),
             mnemonic: m,
             numberOfSidesOnTheNight: otn,
         };
     }
 
-    function side(mnemonic: string): ILayoutDataForSide {
+    function getShowMnemonic(side: string, instruction?: string): boolean {
+        if (instruction === '!' + side) {
+            return false;
+        }
+        if (instruction && instruction.indexOf(side) !== -1) {
+            return true;
+        }
+
+        return undefined;
+    }
+
+    function side(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
         return {
             mnemonic,
             name: null,
-            showMnemonic: undefined,
+            showMnemonic,
             link: null,
             id: null,
         }
     }
 
-    function round(...matches: ILayoutDataForMatch[]): ILayoutDataForRound {
+    function round(name: string, ...matches: ILayoutDataForMatch[]): ILayoutDataForRound {
         return {
             matches,
             preRound: false,
             possibleSides,
-            name: null,
+            name: name,
             alreadySelectedSides: [],
         };
     }
@@ -51,7 +62,7 @@ describe('new-unplayed', () => {
             matches,
             preRound: true,
             possibleSides,
-            name: null,
+            name: 'Preliminary',
             alreadySelectedSides: [],
         };
     }
@@ -82,7 +93,7 @@ describe('new-unplayed', () => {
         const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
 
         expect(result).toEqual([
-            round(match('A', 'B', 'M1')),
+            round('Final', match('A', 'B', 'M1', undefined, '!vs')),
         ]);
     });
 
@@ -93,16 +104,18 @@ describe('new-unplayed', () => {
 
         expect(result).toEqual([
             preRound(
-                match('A', 'B', 'M1', 7),
-                match('C', 'D', 'M2', 6),
-                match('E', 'F', 'M3', 5),
+                match('A', 'B', 'M1', 7, 'vs'),
+                match('C', 'D', 'M2', 6, 'vs'),
+                match('E', 'F', 'M3', 5, 'vs'),
             ),
             round(
-                match('G', 'winner(M1)', 'M4', 3),
-                match('winner(M2)', 'winner(M3)', 'M5', 4),
+                'Semi-Final',
+                match('G', 'winner(M1)', 'M4', 3, 'vs'),
+                match('winner(M2)', 'winner(M3)', 'M5', 4, 'vs'),
             ),
             round(
-                match('winner(M4)', 'winner(M5)', 'M6'),
+                'Final',
+                match('winner(M4)', 'winner(M5)', 'M6', undefined, '!vs'),
             ),
         ]);
     });
@@ -114,17 +127,20 @@ describe('new-unplayed', () => {
 
         expect(result).toEqual([
             round(
-                match('A', 'B', 'M1'),
-                match('C', 'D', 'M2'),
-                match('E', 'F', 'M3'),
-                match('G', 'H', 'M4'),
+                'Quarter-Final',
+                match('A', 'B', 'M1', undefined, '!vs'),
+                match('C', 'D', 'M2', undefined, '!vs'),
+                match('E', 'F', 'M3', undefined, '!vs'),
+                match('G', 'H', 'M4', undefined, '!vs'),
             ),
             round(
-                match('winner(M1)', 'winner(M2)', 'M5'),
-                match('winner(M3)', 'winner(M4)', 'M6'),
+                'Semi-Final',
+                match('winner(M1)', 'winner(M2)', 'M5', undefined, '!vs'),
+                match('winner(M3)', 'winner(M4)', 'M6', undefined, '!vs'),
             ),
             round(
-                match('winner(M5)', 'winner(M6)', 'M7'),
+                'Final',
+                match('winner(M5)', 'winner(M6)', 'M7', undefined, '!vs'),
             ),
         ]);
     });
@@ -136,20 +152,23 @@ describe('new-unplayed', () => {
 
         expect(result).toEqual([
             preRound(
-                match('A', 'B', 'M1', 9),
+                match('A', 'B', 'M1', 9, 'vs'),
             ),
             round(
-                match('C', 'D', 'M2'),
-                match('E', 'F', 'M3'),
-                match('G', 'H', 'M4'),
-                match('I', 'winner(M1)', 'M5', 8),
+                'Quarter-Final',
+                match('C', 'D', 'M2', undefined, '!vs'),
+                match('E', 'F', 'M3', undefined, '!vs'),
+                match('G', 'H', 'M4', undefined, '!vs'),
+                match('I', 'winner(M1)', 'M5', 8, 'vs'),
             ),
             round(
-                match('winner(M2)', 'winner(M3)', 'M6'),
-                match('winner(M4)', 'winner(M5)', 'M7'),
+                'Semi-Final',
+                match('winner(M2)', 'winner(M3)', 'M6', undefined, '!vs'),
+                match('winner(M4)', 'winner(M5)', 'M7', undefined, '!vs'),
             ),
             round(
-                match('winner(M6)', 'winner(M7)', 'M8'),
+                'Final',
+                match('winner(M6)', 'winner(M7)', 'M8', undefined, '!vs'),
             ),
         ]);
     });
@@ -161,21 +180,24 @@ describe('new-unplayed', () => {
 
         expect(result).toEqual([
             preRound(
-                match('A', 'B', 'M1', 10),
-                match('C', 'D', 'M2', 9),
+                match('A', 'B', 'M1', 10, 'vs'),
+                match('C', 'D', 'M2', 9, 'vs'),
             ),
             round(
-                match('E', 'F', 'M3'),
-                match('G', 'H', 'M4'),
-                match('I', 'winner(M1)', 'M5', 7),
-                match('J', 'winner(M2)', 'M6', 8),
+                'Quarter-Final',
+                match('E', 'F', 'M3', undefined, '!vs'),
+                match('G', 'H', 'M4', undefined, '!vs'),
+                match('I', 'winner(M1)', 'M5', 7, 'vs'),
+                match('J', 'winner(M2)', 'M6', 8, 'vs'),
             ),
             round(
-                match('winner(M3)', 'winner(M4)', 'M7'),
-                match('winner(M5)', 'winner(M6)', 'M8'),
+                'Semi-Final',
+                match('winner(M3)', 'winner(M4)', 'M7', undefined, '!vs'),
+                match('winner(M5)', 'winner(M6)', 'M8', undefined, '!vs'),
             ),
             round(
-                match('winner(M7)', 'winner(M8)', 'M9'),
+                'Final',
+                match('winner(M7)', 'winner(M8)', 'M9', undefined, '!vs'),
             ),
         ]);
     });
