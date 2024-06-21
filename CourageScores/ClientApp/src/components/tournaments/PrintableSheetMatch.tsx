@@ -86,7 +86,8 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
     function renderSide(side: ILayoutDataForSide, type: 'A' | 'B') {
         return <div className="no-wrap pe-3">
             {side.link && !editable ? (<span datatype={`side${type}name`}>{side.link}</span>) : (<span datatype={`side${type}name`}>{side.name}</span>)}
-            {side.mnemonic ? <span className="text-secondary-50 opacity-75 small" datatype={`side${type}mnemonic`}>{side.mnemonic}</span> : null}
+            {side.mnemonic ? <span className="text-secondary-50 opacity-75 small" datatype={`side${type}mnemonic`}>{side.mnemonic && side.showMnemonic ? side.mnemonic : null}</span> : null}
+            {!side.name && (!side.mnemonic || !side.showMnemonic) ? <>&nbsp;</>: null}
         </div>
     }
 

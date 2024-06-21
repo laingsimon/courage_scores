@@ -115,12 +115,13 @@ function throwIfNull<T>(value: T, message: string): T {
     return value;
 }
 
-function side(mnemonic: string): ILayoutDataForSide {
+function side(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
     return {
         id: null,
         name: null,
         link: null,
-        mnemonic: '-',
+        mnemonic,
+        showMnemonic,
     };
 }
 

@@ -8,6 +8,7 @@ export interface ILayoutDataForSide {
     name: string;
     link: JSX.Element;
     mnemonic?: string;
+    showMnemonic?: boolean;
 }
 
 export interface ILayoutDataForMatch {
