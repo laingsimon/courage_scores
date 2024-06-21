@@ -21,7 +21,7 @@ export function getPlayedLayoutData(sides: TournamentSideDto[], round: Tournamen
         }
 
         const winners: TournamentSideDto[] = [];
-        const round: ILayoutDataForRound = createRound(context, playedRound, unplayedRound, winners, remainingSides);
+        const round: ILayoutDataForRound = createRound(context, playedRound, unplayedRound, winners, remainingSides, unplayedRounds[index + 1]);
         const unselectedSides: TournamentSideDto[] = remainingSides.filter((remainingSide: TournamentSideDto) => {
             return !any(round.alreadySelectedSides, (s: TournamentSideDto) => s.id === remainingSide.id); // exclude any already selected side
         });
@@ -43,8 +43,8 @@ function flattenAllRounds(round: TournamentRoundDto): TournamentRoundDto[] {
 }
 
 function createRound(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, unplayedRound: ILayoutDataForRound,
-                     winners: TournamentSideDto[], remainingSides: TournamentSideDto[]): ILayoutDataForRound {
-    const alreadySelectedSides: TournamentSideDto[] = []; // sides will be added in as matches are created
+                     winners: TournamentSideDto[], remainingSides: TournamentSideDto[], nextRound?: ILayoutDataForRound): ILayoutDataForRound {
+    const alreadySelectedSides: TournamentSideDto[] = unplayedRound.alreadySelectedSides || []; // sides will be added in as matches are created
 
     return {
         name: unplayedRound.name,
@@ -59,22 +59,42 @@ function createRound(context: ITournamentLayoutGenerationContext, playedRound: T
                 return unplayedMatch;
             }
 
-            return createMatch(context, playedRound, unplayedMatch, playedMatch, index, alreadySelectedSides, winners);
+            return createMatch(context, playedRound, unplayedMatch, playedMatch, index, alreadySelectedSides, winners, nextRound);
         }),
     };
 }
 
+function setSidePlayingInNextRound(side: TournamentSideDto, nextRound: ILayoutDataForRound, unplayedMatch: ILayoutDataForMatch) {
+    if (!nextRound) {
+        return;
+    }
+
+    for (const match of nextRound.matches) {
+        if (match.sideA.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
+            match.sideA.mnemonic = side.name;
+            return;
+        }
+        if (match.sideB.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
+            match.sideB.mnemonic = side.name;
+            return;
+        }
+    }
+}
+
 function createMatch(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, unplayedMatch: ILayoutDataForMatch,
-                     playedMatch: TournamentMatchDto, index: number, alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[]): ILayoutDataForMatch {
+                     playedMatch: TournamentMatchDto, index: number, alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[],
+                     nextRound?: ILayoutDataForRound): ILayoutDataForMatch {
     let winner: string = null;
     const matchOptions: GameMatchOptionDto = playedRound.matchOptions[index] || context.matchOptionDefaults;
     const numberOfLegs: number = matchOptions.numberOfLegs;
     if (playedMatch.scoreA > (numberOfLegs / 2.0)) {
         winners.push(playedMatch.sideA);
         winner = 'sideA';
+        setSidePlayingInNextRound(playedMatch.sideA, nextRound, unplayedMatch);
     } else if (playedMatch.scoreB > (numberOfLegs / 2.0)) {
         winners.push(playedMatch.sideB);
         winner = 'sideB';
+        setSidePlayingInNextRound(playedMatch.sideB, nextRound, unplayedMatch);
     }
     alreadySelectedSides.push(playedMatch.sideA);
     alreadySelectedSides.push(playedMatch.sideB);

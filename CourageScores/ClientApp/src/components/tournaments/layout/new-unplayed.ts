@@ -136,7 +136,7 @@ function side(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
 function match(sideA: string, sideB: string, matchMnemonics: IMnemonicAccumulator, numberOfSidesOnTheNight?: number): ILayoutDataForMatch {
     return {
         sideA: side(sideA),
-        sideB: side(sideB),
+        sideB: side(sideB, !!numberOfSidesOnTheNight),
         scoreA: null,
         scoreB: null,
         mnemonic: matchMnemonics.next(),
