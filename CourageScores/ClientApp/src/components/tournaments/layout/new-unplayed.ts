@@ -2,7 +2,7 @@ import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/Tournament
 import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {repeat} from "../../../helpers/projection";
 import {getPrefixIncrementingMnemonicCalculator, IMnemonicAccumulator} from "./shared";
-import {any} from "../../../helpers/collections";
+import {any, skip, take} from "../../../helpers/collections";
 
 export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataForRound[] {
     if (sides.length <= 1) {
@@ -72,13 +72,13 @@ function produceRound(rounds: ILayoutDataForRound[], remainingSides: string[], m
         : [];
 
     const remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound: number = previousRound ? Math.max(remainingSides.length - previousRound.matches.length, 0) : remainingSides.length;
-    const remainingSidesExceptThoseRequiredForPreRound: string[] = remainingSides.filter((_, index) => index < remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound);
+    const remainingSidesExceptThoseRequiredForPreRound: string[] = take(remainingSides, remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound);
     const thisRoundMatches: ILayoutDataForMatch[] = !previousRound || previousRound.preRound
         ? produceMatchesFromRemainingSides(remainingSidesExceptThoseRequiredForPreRound, matchMnemonics)
         : [];
     const previousRoundWinnerMatches: ILayoutDataForMatch[] = produceMatchesFromPreviousRoundWinners(
         previousRoundMatches,
-        remainingSides.filter((_, index) => index >= remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound),
+        skip(remainingSides, remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound),
         matchMnemonics,
         firstFullRoundNumberOfSides,
         !!firstFullRoundNumberOfSides,
