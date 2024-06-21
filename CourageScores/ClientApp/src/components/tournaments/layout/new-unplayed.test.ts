@@ -86,6 +86,27 @@ describe('new-unplayed', () => {
         ]);
     });
 
+    it('returns 2 (full) rounds for 7 sides', () => {
+        possibleSides = getSides(7);
+
+        const result: ILayoutDataForRound[] = getUnplayedLayoutData(possibleSides);
+
+        expect(result).toEqual([
+            preRound(
+                match('A', 'B', 'M1', 7),
+                match('C', 'D', 'M2', 6),
+                match('E', 'F', 'M3', 5),
+            ),
+            round(
+                match('G', 'winner(M1)', 'M4', 3),
+                match('winner(M2)', 'winner(M3)', 'M5', 4),
+            ),
+            round(
+                match('winner(M4)', 'winner(M5)', 'M6'),
+            ),
+        ]);
+    });
+
     it('returns 3 (full) rounds for 8 sides', () => {
         possibleSides = getSides(8);
 
