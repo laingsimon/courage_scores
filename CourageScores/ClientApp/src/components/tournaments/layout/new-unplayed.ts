@@ -12,14 +12,7 @@ export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataFo
     const sideMnemonics: string[] = repeat(sides.length, getMnemonicForIndex);
     const log2NumberOfSides: number = Math.log2(sideMnemonics.length);
     const fullRoundCount: number = Math.floor(log2NumberOfSides);
-    const numberOfRounds: number = Math.ceil(log2NumberOfSides);
     const preRoundTeams: number = sides.length - Math.pow(2, fullRoundCount);
-    console.debug({
-        sides: sides.length,
-        fullRoundCount,
-        numberOfRounds,
-        preRoundTeams,
-    });
 
     const remainingSides: string[] = sideMnemonics.filter(s => !!s); // copy the sides
     const matchMnemonics: IMnemonicAccumulator = getPrefixIncrementingMnemonicCalculator('M');
@@ -44,18 +37,23 @@ function produceMatchesFromRemainingSides(remainingSides: string[], matchMnemoni
     return matches;
 }
 
-function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDataForMatch[], remainingSides: string[], matchMnemonics: IMnemonicAccumulator, showNumberOfSidesHint?: boolean): ILayoutDataForMatch[] {
+function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDataForMatch[], remainingSides: string[], matchMnemonics: IMnemonicAccumulator, showNumberOfSidesHint?: boolean, prioritisePossibleSides?: boolean): ILayoutDataForMatch[] {
     const matches: ILayoutDataForMatch[] = [];
 
     while (any(previousRoundMatches)) {
-        const remainingSideLength = remainingSides.length + previousRoundMatches.length;
+        const remainingSideLength: number = remainingSides.length + previousRoundMatches.length;
         const matchA: ILayoutDataForMatch = previousRoundMatches.shift();
-        const matchB: ILayoutDataForMatch = previousRoundMatches.shift(); // could be null;
+        const matchB: ILayoutDataForMatch = prioritisePossibleSides ? null : previousRoundMatches.shift(); // could be null;
         const sideB: string = matchB
             ? `winner(${matchB.mnemonic})`
             : throwIfNull(remainingSides.pop(), `No remaining sides for match ${matchA.mnemonic} to be played against`);
 
-        matches.push(match(`winner(${matchA.mnemonic})`, sideB, matchMnemonics, showNumberOfSidesHint ? remainingSideLength : null));
+        const numberOfSidesOnTheNight: number = showNumberOfSidesHint
+            ? remainingSideLength
+            : undefined;
+        matches.push(prioritisePossibleSides
+            ? match(sideB, `winner(${matchA.mnemonic})`, matchMnemonics, numberOfSidesOnTheNight)
+            : match(`winner(${matchA.mnemonic})`, sideB, matchMnemonics, numberOfSidesOnTheNight));
     }
 
     return matches;
@@ -67,7 +65,12 @@ function produceRound(rounds: ILayoutDataForRound[], remainingSides: string[], m
         ? previousRound.matches.filter(m => !!m) // copy the array as it will be mutated
         : [];
 
-    const previousRoundWinnerMatches: ILayoutDataForMatch[] = produceMatchesFromPreviousRoundWinners(previousRoundMatches, remainingSides, matchMnemonics, showNumberOfSidesHint);
+    const previousRoundWinnerMatches: ILayoutDataForMatch[] = produceMatchesFromPreviousRoundWinners(
+        previousRoundMatches,
+        remainingSides,
+        matchMnemonics,
+        showNumberOfSidesHint,
+        previousRound && previousRound.preRound);
     const thisRoundMatches: ILayoutDataForMatch[] = produceMatchesFromRemainingSides(remainingSides, matchMnemonics);
 
     return {
@@ -75,6 +78,7 @@ function produceRound(rounds: ILayoutDataForRound[], remainingSides: string[], m
         name: null,
         possibleSides: sides,
         alreadySelectedSides: [],
+        preRound: false,
     };
 }
 
@@ -85,7 +89,7 @@ function producePreRoundMatches(preRoundTeams: number, remainingSides: string[],
 
     const round: ILayoutDataForRound = {
         matches: [],
-        name: '',
+        name: null,
         possibleSides: sides,
         alreadySelectedSides: [],
         preRound: true,
@@ -95,12 +99,6 @@ function producePreRoundMatches(preRoundTeams: number, remainingSides: string[],
         const sideA: string = remainingSides.shift();
         const sideB: string = remainingSides.shift();
         const numberOfSidesOnTheNight = sides.length - preRoundTeamIndex;
-
-        console.debug({
-            sideA,
-            sideB,
-            numberOfSidesOnTheNight,
-        });
 
         round.matches.push(match(sideA, sideB, matchMnemonics, numberOfSidesOnTheNight));
     }
