@@ -4,7 +4,7 @@ import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSid
 import {any} from "../../helpers/collections";
 import {ILayoutDataForRound} from "./layout";
 import {IMnemonicAccumulator} from "./layout/shared";
-import {getPlayedLayoutData} from "./layout/played";
+import {getPlayedLayoutData} from "./layout/new-played";
 import {getUnplayedLayoutData} from "./layout/new-unplayed";
 
 export interface ITournamentLayoutGenerationContext {
@@ -15,7 +15,7 @@ export interface ITournamentLayoutGenerationContext {
 
 export function getLayoutData(round: TournamentRoundDto, sides: TournamentSideDto[], context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
     return setRoundNames(round && any(round.matches)
-        ? getPlayedLayoutData(sides, round, context)
+        ? getPlayedLayoutData(sides.filter((s: TournamentSideDto) => !s.noShow), round, context)
         : getUnplayedLayoutData(sides.filter((s: TournamentSideDto) => !s.noShow)));
 }
 

@@ -129,7 +129,7 @@ function side(mnemonic: string, showMnemonic?: boolean): ILayoutDataForSide {
         name: null,
         link: null,
         mnemonic,
-        showMnemonic,
+        showMnemonic: showMnemonic,
     };
 }
 

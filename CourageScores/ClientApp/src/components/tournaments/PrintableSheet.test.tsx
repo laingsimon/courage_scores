@@ -329,14 +329,6 @@ describe('PrintableSheet', () => {
                         bye: false,
                         saygLink: null,
                     },
-                    {
-                        sideAname: 'e',
-                        sideBname: 'f',
-                        scoreA: '0',
-                        scoreB: '0',
-                        bye: false,
-                        saygLink: null,
-                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -349,7 +341,7 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        bye: true,
+                        bye: false,
                         saygLink: null,
                     },
                 ],
@@ -469,19 +461,6 @@ describe('PrintableSheet', () => {
                         bye: false,
                         saygLink: null,
                     },
-                    {
-                        sideAname: 'c',
-                        sideBname: 'd',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                        bye: false,
-                        saygLink: null,
-                    },
-                    {
-                        bye: true,
-                        saygLink: null,
-                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -499,7 +478,7 @@ describe('PrintableSheet', () => {
                         saygLink: null,
                     },
                     {
-                        bye: true,
+                        bye: false,
                         saygLink: null,
                     },
                 ],
@@ -603,24 +582,6 @@ describe('PrintableSheet', () => {
                         bye: false,
                         saygLink: null,
                     },
-                    {
-                        sideAname: 'i',
-                        sideBname: 'j',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                        bye: false,
-                        saygLink: null,
-                    },
-                    {
-                        sideAname: 'k',
-                        sideBname: 'l',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                        bye: false,
-                        saygLink: null,
-                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -643,6 +604,10 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
+                        bye: false,
+                        saygLink: null,
+                    },
+                    {
                         bye: false,
                         saygLink: null,
                     },
