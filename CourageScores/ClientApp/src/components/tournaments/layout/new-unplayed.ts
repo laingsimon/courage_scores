@@ -17,25 +17,28 @@ export function getUnplayedLayoutData(sides: TournamentSideDto[]): ILayoutDataFo
 
     const remainingSides: string[] = sideMnemonics.filter(s => !!s); // copy the sides
     const matchMnemonics: IMnemonicAccumulator = getPrefixIncrementingMnemonicCalculator('M');
-    const rounds: ILayoutDataForRound[] = producePreRoundMatches(preRoundTeams, remainingSides, matchMnemonics, sides);
+    const preRound: ILayoutDataForRound = producePreRound(preRoundTeams, remainingSides, matchMnemonics, sides);
+    let previousRound: ILayoutDataForRound = preRound;
 
-    for (let roundIndex = 0; roundIndex < fullRoundCount; roundIndex++) {
-        rounds.push(produceRound(rounds, remainingSides, matchMnemonics, sides, roundIndex === 0 ? firstFullRoundNumberOfSides : null));
-    }
+    const subsequentRounds: ILayoutDataForRound[] = repeat(fullRoundCount).map(roundIndex => {
+        const round: ILayoutDataForRound = produceRound(previousRound, remainingSides, matchMnemonics, sides, roundIndex === 0 ? firstFullRoundNumberOfSides : null);
+        previousRound = round;
+        return round;
+    });
 
-    return rounds;
+    return preRound
+        ? [preRound].concat(subsequentRounds)
+        : subsequentRounds;
+
 }
 
 function produceMatchesFromRemainingSides(remainingSides: string[], matchMnemonics: IMnemonicAccumulator): ILayoutDataForMatch[] {
-    const matches: ILayoutDataForMatch[] = [];
-    while (remainingSides.length >= 2) {
+    return repeat(remainingSides.length / 2).map(_ => {
         const sideA: string = remainingSides.shift();
         const sideB: string = remainingSides.shift();
 
-        matches.push(match(sideA, sideB, matchMnemonics));
-    }
-
-    return matches;
+        return match(sideA, sideB, matchMnemonics);
+    });
 }
 
 function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDataForMatch[], remainingSides: string[],
@@ -64,9 +67,8 @@ function produceMatchesFromPreviousRoundWinners(previousRoundMatches: ILayoutDat
     return matches;
 }
 
-function produceRound(rounds: ILayoutDataForRound[], remainingSides: string[], matchMnemonics: IMnemonicAccumulator,
+function produceRound(previousRound: ILayoutDataForRound, remainingSides: string[], matchMnemonics: IMnemonicAccumulator,
                       sides: TournamentSideDto[], firstFullRoundNumberOfSides: number): ILayoutDataForRound {
-    const previousRound: ILayoutDataForRound = any(rounds) ? rounds[rounds.length - 1] : null;
     const previousRoundMatches: ILayoutDataForMatch[] = previousRound
         ? previousRound.matches.filter(m => !!m) // copy the array as it will be mutated
         : [];
@@ -93,28 +95,24 @@ function produceRound(rounds: ILayoutDataForRound[], remainingSides: string[], m
     };
 }
 
-function producePreRoundMatches(preRoundTeams: number, remainingSides: string[], matchMnemonics: IMnemonicAccumulator, sides: TournamentSideDto[]): ILayoutDataForRound[] {
+function producePreRound(preRoundTeams: number, remainingSides: string[], matchMnemonics: IMnemonicAccumulator, sides: TournamentSideDto[]): ILayoutDataForRound {
     if (preRoundTeams <= 0) {
-        return [];
+        return null;
     }
 
-    const round: ILayoutDataForRound = {
-        matches: [],
+    return {
+        matches: repeat(preRoundTeams).map(preRoundTeamIndex => {
+            const sideA: string = remainingSides.shift();
+            const sideB: string = remainingSides.shift();
+            const numberOfSidesOnTheNight = sides.length - preRoundTeamIndex;
+
+            return match(sideA, sideB, matchMnemonics, numberOfSidesOnTheNight);
+        }),
         name: null,
         possibleSides: sides,
         alreadySelectedSides: [],
         preRound: true,
     };
-
-    for (let preRoundTeamIndex = 0; preRoundTeamIndex < preRoundTeams; preRoundTeamIndex++) {
-        const sideA: string = remainingSides.shift();
-        const sideB: string = remainingSides.shift();
-        const numberOfSidesOnTheNight = sides.length - preRoundTeamIndex;
-
-        round.matches.push(match(sideA, sideB, matchMnemonics, numberOfSidesOnTheNight));
-    }
-
-    return [ round ];
 }
 
 function throwIfNull<T>(value: T, message: string): T {
