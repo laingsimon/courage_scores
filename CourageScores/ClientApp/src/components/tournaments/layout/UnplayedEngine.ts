@@ -2,13 +2,13 @@
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {repeat} from "../../../helpers/projection";
-import {getPrefixIncrementingMnemonicCalculator, getRoundName, IMnemonicAccumulator} from "./shared";
+import {getPrefixIncrementingMnemonicCalculator, IMnemonicGenerator} from "./MnemonicGenerators";
 import {any, skip, take} from "../../../helpers/collections";
 import {ILayoutRequest} from "./ILayoutRequest";
 
 export class UnplayedEngine implements ILayoutEngine {
     calculate(request: ILayoutRequest): ILayoutDataForRound[] {
-        const matchMnemonics: IMnemonicAccumulator = getPrefixIncrementingMnemonicCalculator('M');
+        const matchMnemonics: IMnemonicGenerator = getPrefixIncrementingMnemonicCalculator('M');
         const sideMnemonics: string[] = repeat(request.sides.length, this.getMnemonicForIndex);
         const log2NumberOfSides: number = Math.log2(sideMnemonics.length);
         const fullRoundCount: number = Math.floor(log2NumberOfSides);
@@ -30,7 +30,7 @@ export class UnplayedEngine implements ILayoutEngine {
             : subsequentRounds;
     }
 
-    private produceMatchesFromRemainingSides(matchMnemonics: IMnemonicAccumulator, remainingSides: string[]): ILayoutDataForMatch[] {
+    private produceMatchesFromRemainingSides(matchMnemonics: IMnemonicGenerator, remainingSides: string[]): ILayoutDataForMatch[] {
         return repeat(remainingSides.length / 2).map(_ => {
             const sideA: string = remainingSides.shift();
             const sideB: string = remainingSides.shift();
@@ -39,7 +39,7 @@ export class UnplayedEngine implements ILayoutEngine {
         });
     }
 
-    private produceMatchesFromPreviousRoundWinners(matchMnemonics: IMnemonicAccumulator, previousRoundMatches: ILayoutDataForMatch[],
+    private produceMatchesFromPreviousRoundWinners(matchMnemonics: IMnemonicGenerator, previousRoundMatches: ILayoutDataForMatch[],
                                                    remainingSides: string[], firstFullRoundNumberOfSides: number,
                                                    showNumberOfSidesHint?: boolean, prioritisePossibleSides?: boolean): ILayoutDataForMatch[] {
         const matches: ILayoutDataForMatch[] = [];
@@ -65,7 +65,7 @@ export class UnplayedEngine implements ILayoutEngine {
         return matches;
     }
 
-    private produceRound(matchMnemonics: IMnemonicAccumulator, previousRound: ILayoutDataForRound, remainingSides: string[],
+    private produceRound(matchMnemonics: IMnemonicGenerator, previousRound: ILayoutDataForRound, remainingSides: string[],
                          sides: TournamentSideDto[], firstFullRoundNumberOfSides: number): ILayoutDataForRound {
         const previousRoundMatches: ILayoutDataForMatch[] = previousRound
             ? previousRound.matches.filter(m => !!m) // copy the array as it will be mutated
@@ -86,14 +86,14 @@ export class UnplayedEngine implements ILayoutEngine {
 
         return {
             matches: thisRoundMatches.concat(previousRoundWinnerMatches),
-            name: getRoundName(thisRoundMatches.length + previousRoundWinnerMatches.length, firstFullRoundNumberOfSides),
+            name: this.getRoundName(thisRoundMatches.length + previousRoundWinnerMatches.length, firstFullRoundNumberOfSides),
             possibleSides: sides,
             alreadySelectedSides: [],
             preRound: false,
         };
     }
 
-    private producePreRound(matchMnemonics: IMnemonicAccumulator, preRoundTeams: number, remainingSides: string[], sides: TournamentSideDto[]): ILayoutDataForRound {
+    private producePreRound(matchMnemonics: IMnemonicGenerator, preRoundTeams: number, remainingSides: string[], sides: TournamentSideDto[]): ILayoutDataForRound {
         if (preRoundTeams <= 0) {
             return null;
         }
@@ -131,7 +131,7 @@ export class UnplayedEngine implements ILayoutEngine {
         };
     }
 
-    private match(matchMnemonics: IMnemonicAccumulator, sideA: string, sideB: string, numberOfSidesOnTheNight?: number): ILayoutDataForMatch {
+    private match(matchMnemonics: IMnemonicGenerator, sideA: string, sideB: string, numberOfSidesOnTheNight?: number): ILayoutDataForMatch {
         return {
             sideA: this.side(sideA),
             sideB: this.side(sideB, !!numberOfSidesOnTheNight),
@@ -145,5 +145,26 @@ export class UnplayedEngine implements ILayoutEngine {
     private getMnemonicForIndex(ordinal: number): string {
         const mnemonics: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         return mnemonics[ordinal];
+    }
+
+    private getRoundName(matches: number, firstFullRoundNumberOfSides: number): string {
+        switch (matches) {
+            case 4:
+                return 'Quarter-Final';
+            case 2:
+                return 'Semi-Final';
+            case 1:
+                return 'Final';
+            default:
+                // const matchesInFirstFullRound: number = firstFullRoundNumberOfSides / 2;
+                const totalNumberOfFullRounds: number = Math.log2(firstFullRoundNumberOfSides);
+                const numberOfNonFinalRounds: number = totalNumberOfFullRounds - 3;
+                const matchesPerNonFinalRound: number[] = repeat(numberOfNonFinalRounds, index => {
+                    return Math.pow(2, (numberOfNonFinalRounds - index - 1) + 3);
+                });
+
+                const roundIndexForNumberOfMatches = matchesPerNonFinalRound.indexOf(matches);
+                return `Round ${roundIndexForNumberOfMatches + 1}`;
+        }
     }
 }
