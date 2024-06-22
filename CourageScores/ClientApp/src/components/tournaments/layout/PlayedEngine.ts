@@ -2,26 +2,23 @@
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
-import {ITournamentLayoutGenerationContext} from "../competition";
 import {any} from "../../../helpers/collections";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {ILayoutRequest} from "./ILayoutRequest";
+import {ITournamentLayoutGenerationContext} from "../competition";
 
 export class PlayedEngine implements ILayoutEngine {
-    private readonly _context: ITournamentLayoutGenerationContext;
-    private readonly _round: TournamentRoundDto;
     private readonly _unplayedEngine: ILayoutEngine;
 
-    constructor(context: ITournamentLayoutGenerationContext, round: TournamentRoundDto, unplayedEngine: ILayoutEngine) {
-        this._round = round;
-        this._context = context;
+    constructor(unplayedEngine: ILayoutEngine) {
         this._unplayedEngine = unplayedEngine;
     }
 
-    calculate(sides: TournamentSideDto[]): ILayoutDataForRound[] {
-        const unplayedRounds: ILayoutDataForRound[] = this._unplayedEngine.calculate(sides);
-        const rounds: TournamentRoundDto[] = this.flattenAllRounds();
-        let remainingSides: TournamentSideDto[] = sides.filter(s => !!s);
+    calculate(request: ILayoutRequest): ILayoutDataForRound[] {
+        const unplayedRounds: ILayoutDataForRound[] = this._unplayedEngine.calculate(request);
+        const rounds: TournamentRoundDto[] = this.flattenAllRounds(request);
+        let remainingSides: TournamentSideDto[] = request.sides.filter(s => !!s);
 
         return unplayedRounds.map((unplayedRound: ILayoutDataForRound, index: number): ILayoutDataForRound => {
             const playedRound: TournamentRoundDto = rounds[index];
@@ -32,7 +29,7 @@ export class PlayedEngine implements ILayoutEngine {
             }
 
             const winners: TournamentSideDto[] = [];
-            const round: ILayoutDataForRound = this.createRound(playedRound, unplayedRound, winners, remainingSides, unplayedRounds[index + 1]);
+            const round: ILayoutDataForRound = this.createRound(request.context, playedRound, unplayedRound, winners, remainingSides, unplayedRounds[index + 1]);
             const unselectedSides: TournamentSideDto[] = remainingSides.filter((remainingSide: TournamentSideDto) => {
                 return !any(round.alreadySelectedSides, (s: TournamentSideDto) => s.id === remainingSide.id); // exclude any already selected side
             });
@@ -41,8 +38,8 @@ export class PlayedEngine implements ILayoutEngine {
         });
     }
 
-    private flattenAllRounds(): TournamentRoundDto[] {
-        let currentRound: TournamentRoundDto = this._round;
+    private flattenAllRounds(request: ILayoutRequest): TournamentRoundDto[] {
+        let currentRound: TournamentRoundDto = request.round;
         const rounds: TournamentRoundDto[] = [];
 
         while (currentRound) {
@@ -53,7 +50,7 @@ export class PlayedEngine implements ILayoutEngine {
         return rounds;
     }
 
-    private createRound(playedRound: TournamentRoundDto, unplayedRound: ILayoutDataForRound,
+    private createRound(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, unplayedRound: ILayoutDataForRound,
                          winners: TournamentSideDto[], remainingSides: TournamentSideDto[], nextRound?: ILayoutDataForRound): ILayoutDataForRound {
         const alreadySelectedSides: TournamentSideDto[] = unplayedRound.alreadySelectedSides || []; // sides will be added in as matches are created
 
@@ -70,7 +67,7 @@ export class PlayedEngine implements ILayoutEngine {
                     return unplayedMatch;
                 }
 
-                return this.createMatch(playedRound, unplayedMatch, playedMatch, index, alreadySelectedSides, winners, nextRound);
+                return this.createMatch(context, playedRound, unplayedMatch, playedMatch, index, alreadySelectedSides, winners, nextRound);
             }),
         };
     }
@@ -92,11 +89,11 @@ export class PlayedEngine implements ILayoutEngine {
         }
     }
 
-    private createMatch(playedRound: TournamentRoundDto, unplayedMatch: ILayoutDataForMatch,
+    private createMatch(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, unplayedMatch: ILayoutDataForMatch,
                          playedMatch: TournamentMatchDto, index: number, alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[],
                          nextRound?: ILayoutDataForRound): ILayoutDataForMatch {
         let winner: string = null;
-        const matchOptions: GameMatchOptionDto = playedRound.matchOptions[index] || this._context.matchOptionDefaults;
+        const matchOptions: GameMatchOptionDto = playedRound.matchOptions[index] || context.matchOptionDefaults;
         const numberOfLegs: number = matchOptions.numberOfLegs;
         if (playedMatch.scoreA > (numberOfLegs / 2.0)) {
             winners.push(playedMatch.sideA);
@@ -111,8 +108,8 @@ export class PlayedEngine implements ILayoutEngine {
         alreadySelectedSides.push(playedMatch.sideB);
 
         return {
-            sideA: this.getSide(playedMatch.sideA, unplayedMatch.sideA.mnemonic),
-            sideB: this.getSide(playedMatch.sideB, unplayedMatch.sideB.mnemonic),
+            sideA: this.getSide(context, playedMatch.sideA, unplayedMatch.sideA.mnemonic),
+            sideB: this.getSide(context, playedMatch.sideB, unplayedMatch.sideB.mnemonic),
             scoreA: (playedMatch.scoreA ? playedMatch.scoreA.toString() : null) || '0',
             scoreB: (playedMatch.scoreB ? playedMatch.scoreB.toString() : null) || '0',
             match: playedMatch,
@@ -126,11 +123,11 @@ export class PlayedEngine implements ILayoutEngine {
         };
     }
 
-    private getSide(side?: TournamentSideDto, mnemonic?: string): ILayoutDataForSide {
+    private getSide(context: ITournamentLayoutGenerationContext, side?: TournamentSideDto, mnemonic?: string): ILayoutDataForSide {
         return {
             id: side ? side.id : null,
             name: side ? side.name: null,
-            link: side ? this._context.getLinkToSide(side) : null,
+            link: side ? context.getLinkToSide(side) : null,
             mnemonic: side && side.id
                 ? null
                 : mnemonic

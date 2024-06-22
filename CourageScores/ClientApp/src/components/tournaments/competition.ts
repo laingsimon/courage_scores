@@ -17,8 +17,12 @@ export interface ITournamentLayoutGenerationContext {
 export function getLayoutData(round: TournamentRoundDto, sides: TournamentSideDto[], context: ITournamentLayoutGenerationContext): ILayoutDataForRound[] {
     const unplayedEngine: ILayoutEngine = new UnplayedEngine();
     const engine: ILayoutEngine = round && any(round.matches)
-        ? new PlayedEngine(context, round, unplayedEngine)
+        ? new PlayedEngine(unplayedEngine)
         : unplayedEngine;
 
-    return engine.calculate(sides.filter((s: TournamentSideDto) => !s.noShow));
+    return engine.calculate({
+        sides: sides.filter((s: TournamentSideDto) => !s.noShow),
+        context,
+        round,
+    });
 }

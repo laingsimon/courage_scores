@@ -1,6 +1,6 @@
-import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {ILayoutDataForRound} from "../layout";
+import {ILayoutRequest} from "./ILayoutRequest";
 
 export interface ILayoutEngine {
-    calculate(sides: TournamentSideDto[]): ILayoutDataForRound[]
+    calculate(request: ILayoutRequest): ILayoutDataForRound[]
 }
