@@ -10,3 +10,12 @@ export function getPrefixIncrementingMnemonicCalculator(prefix: string): IMnemon
         }
     };
 }
+
+export function getPrefixDecrementingMnemonicCalculator(initial: number, prefix: string): IMnemonicGenerator {
+    let index: number = initial;
+    return {
+        next(): string {
+            return prefix + (index--);
+        }
+    };
+}
