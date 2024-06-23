@@ -17,11 +17,11 @@ describe('UnplayedEngine', () => {
         })
     }
 
-    function match(a: string, vs: string, m: string, otn?: number, showMnemonic?: string): ILayoutDataForMatch {
+    function match(a: string, vs: string, m: string, otn?: string, showMnemonic?: string): ILayoutDataForMatch {
         return {
             scoreA: null,
             scoreB: null,
-            sideA: side(a, getShowMnemonic('A', showMnemonic)),
+            sideA: side(a, getShowMnemonic('a', showMnemonic)),
             sideB: side(vs, getShowMnemonic('vs', showMnemonic)),
             mnemonic: m,
             numberOfSidesOnTheNight: otn,
@@ -29,7 +29,7 @@ describe('UnplayedEngine', () => {
     }
 
     function getShowMnemonic(side: string, instruction?: string): boolean {
-        if (instruction === '!' + side) {
+        if (instruction.indexOf('!' + side) !== -1) {
             return false;
         }
         if (instruction && instruction.indexOf(side) !== -1) {
@@ -101,7 +101,7 @@ describe('UnplayedEngine', () => {
         });
 
         expect(result).toEqual([
-            round('Final', match('A', 'B', 'M1', undefined, '!vs')),
+            round('Final', match('A', 'B', 'M1', '2', '')),
         ]);
     });
 
@@ -114,18 +114,18 @@ describe('UnplayedEngine', () => {
 
         expect(result).toEqual([
             preRound(
-                match('A', 'B', 'M1', 7, 'vs'),
-                match('C', 'D', 'M2', 6, 'vs'),
-                match('E', 'F', 'M3', 5, 'vs'),
+                match('A', 'B', 'M1', '7', ''),
+                match('C', 'D', 'M2', '6', ''),
+                match('E', 'F', 'M3', '5', ''),
             ),
             round(
                 'Semi-Final',
-                match('G', 'winner(M1)', 'M4', 3, 'vs'),
-                match('winner(M2)', 'winner(M3)', 'M5', 4, 'vs'),
+                match('G', 'winner(M1)', 'M4', '4', 'vs'),
+                match('winner(M2)', 'winner(M3)', 'M5', '3', ''),
             ),
             round(
                 'Final',
-                match('winner(M4)', 'winner(M5)', 'M6', undefined, '!vs'),
+                match('winner(M4)', 'winner(M5)', 'M6', '2', ''),
             ),
         ]);
     });
@@ -140,19 +140,19 @@ describe('UnplayedEngine', () => {
         expect(result).toEqual([
             round(
                 'Quarter-Final',
-                match('A', 'B', 'M1', undefined, '!vs'),
-                match('C', 'D', 'M2', undefined, '!vs'),
-                match('E', 'F', 'M3', undefined, '!vs'),
-                match('G', 'H', 'M4', undefined, '!vs'),
+                match('A', 'B', 'M1', '8', ''),
+                match('C', 'D', 'M2', '7', ''),
+                match('E', 'F', 'M3', '6', ''),
+                match('G', 'H', 'M4', '5', ''),
             ),
             round(
                 'Semi-Final',
-                match('winner(M1)', 'winner(M2)', 'M5', undefined, '!vs'),
-                match('winner(M3)', 'winner(M4)', 'M6', undefined, '!vs'),
+                match('winner(M1)', 'winner(M2)', 'M5', '4', ''),
+                match('winner(M3)', 'winner(M4)', 'M6', '3', ''),
             ),
             round(
                 'Final',
-                match('winner(M5)', 'winner(M6)', 'M7', undefined, '!vs'),
+                match('winner(M5)', 'winner(M6)', 'M7', '2', ''),
             ),
         ]);
     });
@@ -166,23 +166,23 @@ describe('UnplayedEngine', () => {
 
         expect(result).toEqual([
             preRound(
-                match('A', 'B', 'M1', 9, 'vs'),
+                match('A', 'B', 'M1', '9', ''),
             ),
             round(
                 'Quarter-Final',
-                match('C', 'D', 'M2', undefined, '!vs'),
-                match('E', 'F', 'M3', undefined, '!vs'),
-                match('G', 'H', 'M4', undefined, '!vs'),
-                match('I', 'winner(M1)', 'M5', 8, 'vs'),
+                match('C', 'D', 'M2', '8', ''),
+                match('E', 'F', 'M3', '7', ''),
+                match('G', 'H', 'M4', '6', ''),
+                match('I', 'winner(M1)', 'M5', '5', 'vs'),
             ),
             round(
                 'Semi-Final',
-                match('winner(M2)', 'winner(M3)', 'M6', undefined, '!vs'),
-                match('winner(M4)', 'winner(M5)', 'M7', undefined, '!vs'),
+                match('winner(M2)', 'winner(M3)', 'M6', '4', ''),
+                match('winner(M4)', 'winner(M5)', 'M7', '3', ''),
             ),
             round(
                 'Final',
-                match('winner(M6)', 'winner(M7)', 'M8', undefined, '!vs'),
+                match('winner(M6)', 'winner(M7)', 'M8', '2', ''),
             ),
         ]);
     });
@@ -196,24 +196,24 @@ describe('UnplayedEngine', () => {
 
         expect(result).toEqual([
             preRound(
-                match('A', 'B', 'M1', 10, 'vs'),
-                match('C', 'D', 'M2', 9, 'vs'),
+                match('A', 'B', 'M1', '10', ''),
+                match('C', 'D', 'M2', '9', ''),
             ),
             round(
                 'Quarter-Final',
-                match('E', 'F', 'M3', undefined, '!vs'),
-                match('G', 'H', 'M4', undefined, '!vs'),
-                match('I', 'winner(M1)', 'M5', 7, 'vs'),
-                match('J', 'winner(M2)', 'M6', 8, 'vs'),
+                match('E', 'F', 'M3', '8', ''),
+                match('G', 'H', 'M4', '7', ''),
+                match('I', 'winner(M1)', 'M5', '6', 'vs'),
+                match('J', 'winner(M2)', 'M6', '5', 'vs'),
             ),
             round(
                 'Semi-Final',
-                match('winner(M3)', 'winner(M4)', 'M7', undefined, '!vs'),
-                match('winner(M5)', 'winner(M6)', 'M8', undefined, '!vs'),
+                match('winner(M3)', 'winner(M4)', 'M7', '4', ''),
+                match('winner(M5)', 'winner(M6)', 'M8', '3', ''),
             ),
             round(
                 'Final',
-                match('winner(M7)', 'winner(M8)', 'M9', undefined, '!vs'),
+                match('winner(M7)', 'winner(M8)', 'M9', '2', ''),
             ),
         ]);
     });

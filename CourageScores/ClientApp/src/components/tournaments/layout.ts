@@ -23,7 +23,7 @@ export interface ILayoutDataForMatch {
     hideMnemonic?: boolean;
     matchOptions?: GameMatchOptionDto;
     match?: TournamentMatchDto;
-    numberOfSidesOnTheNight?: number;
+    numberOfSidesOnTheNight?: string;
 }
 
 export interface ILayoutDataForRound {
