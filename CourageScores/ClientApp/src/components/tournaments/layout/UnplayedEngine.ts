@@ -57,21 +57,21 @@ export class UnplayedEngine implements ILayoutEngine {
     }
 
     private produceMatchesFromPreviousRoundWinners(context: IRequestContext, previousRoundMatches: ILayoutDataForMatch[],
-                                                   remainingSides: string[], prioritisePossibleSides?: boolean): ILayoutDataForMatch[] {
+                                                   remainingSides: string[], preRound?: boolean): ILayoutDataForMatch[] {
         const matches: ILayoutDataForMatch[] = [];
 
         while (any(previousRoundMatches)) {
             const matchA: ILayoutDataForMatch = previousRoundMatches.shift();
 
-            const matchB: ILayoutDataForMatch = prioritisePossibleSides && any(remainingSides) ? null : previousRoundMatches.shift(); // could be null;
+            const matchB: ILayoutDataForMatch = preRound && any(remainingSides) ? null : previousRoundMatches.shift(); // could be null;
             const sideB: string = matchB
                 ? `winner(${matchB.mnemonic})`
                 : this.throwIfNull(remainingSides.shift(), `No remaining sides for match ${matchA.mnemonic} to be played against`);
 
             const numberOfSidesOnTheNight: string = context.onTheNightMnemonics.next();
             const bothSidesAreWinners: boolean = sideB.startsWith('winner') || undefined;
-            const matchAWinnerSide: ILayoutDataForSide = this.side(`winner(${matchA.mnemonic})`, bothSidesAreWinners ? undefined : true);
-            const sideBSide: ILayoutDataForSide = this.side(sideB);
+            const matchAWinnerSide: ILayoutDataForSide = this.side(`winner(${matchA.mnemonic})`, bothSidesAreWinners && !preRound ? undefined : true);
+            const sideBSide: ILayoutDataForSide = this.side(sideB, bothSidesAreWinners && preRound ? true : undefined);
 
             matches.push(!matchB
                 ? this.match(context, sideBSide, matchAWinnerSide, numberOfSidesOnTheNight)
