@@ -46,12 +46,13 @@ export class UnplayedEngine implements ILayoutEngine {
             : subsequentRounds;
     }
 
-    private produceMatchesFromRemainingSides(context: IRequestContext, remainingSides: string[]): ILayoutDataForMatch[] {
-        return repeat(remainingSides.length / 2).map(_ => {
+    private produceMatchesFromRemainingSides(context: IRequestContext, remainingSides: string[], count: number): ILayoutDataForMatch[] {
+        return repeat(count).map(_ => {
             const sideA: string = remainingSides.shift();
             const sideB: string = remainingSides.shift();
+            const numberOfSidesOnTheNight: string = context.onTheNightMnemonics.next();
 
-            return this.match(context, this.side(sideA), this.side(sideB), context.onTheNightMnemonics.next());
+            return this.match(context, this.side(sideA), this.side(sideB), numberOfSidesOnTheNight);
         });
     }
 
@@ -88,7 +89,7 @@ export class UnplayedEngine implements ILayoutEngine {
         const remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound: number = previousRound ? Math.max(remainingSides.length - previousRound.matches.length, 0) : remainingSides.length;
         const remainingSidesExceptThoseRequiredForPreRound: string[] = take(remainingSides, remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound);
         const thisRoundMatches: ILayoutDataForMatch[] = !previousRound || previousRound.preRound
-            ? this.produceMatchesFromRemainingSides(context, remainingSidesExceptThoseRequiredForPreRound)
+            ? this.produceMatchesFromRemainingSides(context, remainingSidesExceptThoseRequiredForPreRound, remainingSidesExceptThoseRequiredForPreRound.length / 2)
             : [];
         const previousRoundWinnerMatches: ILayoutDataForMatch[] = this.produceMatchesFromPreviousRoundWinners(
             context,
@@ -111,13 +112,7 @@ export class UnplayedEngine implements ILayoutEngine {
         }
 
         return {
-            matches: repeat(preRoundTeams).map(_ => {
-                const sideA: string = remainingSides.shift();
-                const sideB: string = remainingSides.shift();
-                const numberOfSidesOnTheNight: string = context.onTheNightMnemonics.next();
-
-                return this.match(context, this.side(sideA), this.side(sideB), numberOfSidesOnTheNight);
-            }),
+            matches: this.produceMatchesFromRemainingSides(context, remainingSides, preRoundTeams),
             name: 'Preliminary',
             possibleSides: sides,
             alreadySelectedSides: [],
