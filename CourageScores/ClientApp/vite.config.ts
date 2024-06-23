@@ -13,7 +13,9 @@ export default defineConfig({
         react(),
         viteTsconfigPaths(),
         mkcert(),
-        eslint(),
+        eslint({
+            failOnWarning: true
+        }),
         legacy({}),
     ],
     server: {
