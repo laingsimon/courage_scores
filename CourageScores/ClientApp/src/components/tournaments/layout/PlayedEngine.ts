@@ -80,10 +80,12 @@ export class PlayedEngine implements ILayoutEngine {
         for (const match of nextRound.matches) {
             if (match.sideA.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
                 match.sideA.mnemonic = side.name;
+                unplayedMatch.mnemonic = undefined;
                 return;
             }
             if (match.sideB.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
                 match.sideB.mnemonic = side.name;
+                unplayedMatch.mnemonic = undefined;
                 return;
             }
         }
