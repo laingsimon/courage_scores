@@ -109,7 +109,6 @@ describe('PlayedEngine', () => {
 
     function expectedMatch(a?: ISideLayoutInfo, vs?: ISideLayoutInfo, m?: string, otn?: string): ILayoutDataForMatch {
         return {
-            bye: undefined,
             hideMnemonic: undefined,
             matchOptions: undefined,
             saygId: undefined,
@@ -126,7 +125,6 @@ describe('PlayedEngine', () => {
 
     function expectedMatchFromMatch(match: TournamentMatchDto, winner?: string, m?: string, otn?: string): ILayoutDataForMatch {
         return {
-            bye: undefined,
             hideMnemonic: undefined,
             matchOptions: undefined,
             saygId: undefined,

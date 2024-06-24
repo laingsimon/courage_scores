@@ -197,33 +197,6 @@ describe('PrintableSheetMatch', () => {
             expect(sideB.querySelector('span[datatype="sideBname"]').textContent).toEqual('SIDE B');
             expect(sideB.querySelector('div[datatype="scoreB"]').textContent).toEqual('7');
         });
-
-        it('bye', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder().build();
-            const matchData: ILayoutDataForMatch = {
-                scoreB: '',
-                scoreA: '5',
-                sideA: { id: createTemporaryId(), link: (<span>SIDE A</span>), name: '', mnemonic: 'A' },
-                sideB: null,
-                mnemonic: 'M1',
-                bye: true,
-            };
-            await renderComponent({
-                tournamentData,
-                setTournamentData,
-                matchOptionDefaults,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-            }, appProps({}, reportedError));
-
-            const sideB = context.container.querySelector('div[datatype="sideB"]');
-            expect(sideB).toBeFalsy();
-        });
     });
 
     describe('interactivity', () => {

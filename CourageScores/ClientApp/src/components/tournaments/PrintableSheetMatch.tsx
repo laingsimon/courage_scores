@@ -250,31 +250,31 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
     return (<>
         {editSide ? renderEditSideDialog() : null}
         <div datatype="match"
-                     className={`p-0 border-solid border-1 m-1 position-relative ${matchData.bye ? 'opacity-50' : ''}`}>
+             className={`p-0 border-solid border-1 m-1 position-relative`}>
             {matchData.mnemonic && !matchData.hideMnemonic
                 ? (<span datatype="match-mnemonic" className="position-absolute right-0 opacity-75">
-                        <span className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute" style={{left: -10, top: -10}}>
+                        <span className="small rounded-circle bg-secondary opacity-75 text-light p-1 position-absolute"
+                              style={{left: -10, top: -10}}>
                             {matchData.mnemonic}
                         </span>
                     </span>)
                 : null}
             {matchData.numberOfSidesOnTheNight
                 ? (<span datatype="match-mnemonic" className="position-absolute left-0 opacity-75">
-                        <span className="small rounded-circle bg-light border-solid border-1 border-info p-1 position-absolute text-center" style={{left: -10, top: -10, minWidth: '28px'}}>
+                        <span
+                            className="small rounded-circle bg-light border-solid border-1 border-info p-1 position-absolute text-center"
+                            style={{left: -10, top: -10, minWidth: '28px'}}>
                             {matchData.numberOfSidesOnTheNight}
                         </span>
                     </span>)
                 : null}
-            {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
             <div datatype="sideA"
                  onClick={editable ? () => beginEditSide('A') : null}
                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
                 {renderSide(matchData.sideA, 'A')}
                 <div datatype="scoreA">{matchData.scoreA || ''}</div>
             </div>
-            {matchData.bye
-                ? null
-                : (<div className="text-center dotted-line-through">
+            <div className="text-center dotted-line-through">
                         <span className="px-3 bg-white position-relative">
                             vs
                             {matchData.match ? (<MatchSayg
@@ -285,17 +285,15 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                                 matchIndex={matchIndex}
                                 patchData={patchRoundData}
                                 readOnly={readOnly}
-                                showViewSayg={true} />) : null}
+                                showViewSayg={true}/>) : null}
                         </span>
-                    </div>)}
-            {matchData.bye
-                ? null
-                : (<div datatype="sideB"
-                        onClick={editable ? () => beginEditSide('B') : null}
-                        className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
-                    {renderSide(matchData.sideB, 'B')}
-                    <div datatype="scoreB">{matchData.scoreB || ''}</div>
-                </div>)}
+            </div>
+            <div datatype="sideB"
+                 onClick={editable ? () => beginEditSide('B') : null}
+                 className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
+                {renderSide(matchData.sideB, 'B')}
+                <div datatype="scoreB">{matchData.scoreB || ''}</div>
+            </div>
         </div>
     </>);
 }

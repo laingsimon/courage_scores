@@ -123,7 +123,6 @@ export class PlayedEngine implements ILayoutEngine {
             scoreA: (playedMatch.scoreA ? playedMatch.scoreA.toString() : null) || '0',
             scoreB: (playedMatch.scoreB ? playedMatch.scoreB.toString() : null) || '0',
             match: playedMatch,
-            bye: unplayedMatch.bye,
             winner: winner,
             mnemonic: unplayedMatch.mnemonic,
             hideMnemonic: unplayedMatch.hideMnemonic,

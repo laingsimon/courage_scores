@@ -16,7 +16,6 @@ export interface ILayoutDataForMatch {
     sideB: ILayoutDataForSide;
     scoreA: string;
     scoreB: string;
-    bye?: boolean;
     winner?: string;
     saygId?: string;
     mnemonic?: string;
