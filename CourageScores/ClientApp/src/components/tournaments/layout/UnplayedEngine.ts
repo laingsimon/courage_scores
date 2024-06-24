@@ -3,7 +3,7 @@ import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/Tournament
 import {repeat} from "../../../helpers/projection";
 import {
     getPrefixDecrementingMnemonicCalculator,
-    getPrefixIncrementingMnemonicCalculator,
+    getPrefixIncrementingMnemonicCalculator, getSideMnemonicGenerator,
     IMnemonicGenerator
 } from "./MnemonicGenerators";
 import {any, skip, take} from "../../../helpers/collections";
@@ -21,7 +21,8 @@ interface IRequestContext {
 
 export class UnplayedEngine implements ILayoutEngine {
     calculate(request: ILayoutRequest): ILayoutDataForRound[] {
-        const sideMnemonics: string[] = repeat(request.sides.length, this.getMnemonicForIndex);
+        const sideMnemonicGenerator: IMnemonicGenerator = getSideMnemonicGenerator();
+        const sideMnemonics: string[] = repeat(request.sides.length, _ => sideMnemonicGenerator.next());
         const log2NumberOfSides: number = Math.log2(sideMnemonics.length);
         const fullRoundCount: number = Math.floor(log2NumberOfSides);
         const firstFullRoundNumberOfSides: number = Math.pow(2, fullRoundCount);
@@ -149,11 +150,6 @@ export class UnplayedEngine implements ILayoutEngine {
             mnemonic: context.matchMnemonics.next(),
             numberOfSidesOnTheNight,
         }
-    }
-
-    private getMnemonicForIndex(ordinal: number): string {
-        const mnemonics: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        return mnemonics[ordinal];
     }
 
     private getRoundName(context: IRequestContext, matches: number): string {

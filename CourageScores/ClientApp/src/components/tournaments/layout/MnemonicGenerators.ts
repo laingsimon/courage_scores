@@ -19,3 +19,20 @@ export function getPrefixDecrementingMnemonicCalculator(initial: number, prefix:
         }
     };
 }
+
+export function getSideMnemonicGenerator(): IMnemonicGenerator {
+    let index: number = 0;
+    let range: number = -1;
+    const mnemonics: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    return {
+        next(): string {
+            if (index >= mnemonics.length) {
+                range++;
+                index = 0;
+            }
+
+            const prefix: string = range >= 0 ? mnemonics[range] : '';
+            return prefix + mnemonics[index++];
+        },
+    };
+}

@@ -219,4 +219,35 @@ describe('UnplayedEngine', () => {
             ),
         ]);
     });
+
+    it('names round of 16 correctly', () => {
+        possibleSides = getSides(16);
+
+        const result: ILayoutDataForRound[] = engine.calculate({
+            sides: possibleSides,
+        });
+
+        expect(result.map(r => r.name)).toEqual([
+            'Round 1',
+            'Quarter-Final',
+            'Semi-Final',
+            'Final'
+        ]);
+    });
+
+    it('names round of 32 correctly', () => {
+        possibleSides = getSides(32);
+
+        const result: ILayoutDataForRound[] = engine.calculate({
+            sides: possibleSides,
+        });
+
+        expect(result.map(r => r.name)).toEqual([
+            'Round 1',
+            'Round 2',
+            'Quarter-Final',
+            'Semi-Final',
+            'Final'
+        ]);
+    });
 });
