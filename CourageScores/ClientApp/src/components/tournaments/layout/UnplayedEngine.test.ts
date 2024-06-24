@@ -29,7 +29,7 @@ describe('UnplayedEngine', () => {
     }
 
     function getShowMnemonic(side: string, instruction?: string): boolean {
-        if (instruction.indexOf('!' + side) !== -1) {
+        if (instruction && instruction.indexOf('!' + side) !== -1) {
             return false;
         }
         if (instruction && instruction.indexOf(side) !== -1) {

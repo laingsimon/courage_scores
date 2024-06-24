@@ -2,7 +2,7 @@ import {ILayoutEngine} from "./ILayoutEngine";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
-import {any} from "../../../helpers/collections";
+import {any, skip} from "../../../helpers/collections";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {ILayoutRequest} from "./ILayoutRequest";
@@ -72,7 +72,7 @@ export class PlayedEngine implements ILayoutEngine {
                 }
 
                 return this.createMatch(context, playedRound, unplayedMatch, playedMatch, index, alreadySelectedSides, winners, nextRound);
-            }),
+            }).concat(this.getExtraMatches(context, playedRound, unplayedRound.matches.length, alreadySelectedSides, winners)),
         };
     }
 
@@ -110,8 +110,12 @@ export class PlayedEngine implements ILayoutEngine {
             winner = 'sideB';
             this.setSidePlayingInNextRound(playedMatch.sideB, nextRound, unplayedMatch);
         }
-        alreadySelectedSides.push(playedMatch.sideA);
-        alreadySelectedSides.push(playedMatch.sideB);
+        if (playedMatch.sideA) {
+            alreadySelectedSides.push(playedMatch.sideA);
+        }
+        if (playedMatch.sideB) {
+            alreadySelectedSides.push(playedMatch.sideB);
+        }
 
         return {
             sideA: this.getSide(context, playedMatch.sideA, unplayedMatch.sideA.mnemonic),
@@ -138,5 +142,41 @@ export class PlayedEngine implements ILayoutEngine {
                 ? null
                 : mnemonic
         };
+    }
+
+    private getExtraMatches(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, offset: number,
+                            alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[]): ILayoutDataForMatch[] {
+        const extraMatches: TournamentMatchDto[] = skip(playedRound.matches, offset);
+
+        return extraMatches.map((playedMatch: TournamentMatchDto, extraMatchIndex: number) => {
+            let winner: string = null;
+            const overallIndex: number = extraMatchIndex + offset;
+            const matchOptions: GameMatchOptionDto = playedRound.matchOptions[overallIndex] || context.matchOptionDefaults;
+            const numberOfLegs: number = matchOptions.numberOfLegs;
+            if (playedMatch.scoreA > (numberOfLegs / 2.0)) {
+                winners.push(playedMatch.sideA);
+                winner = 'sideA';
+            } else if (playedMatch.scoreB > (numberOfLegs / 2.0)) {
+                winners.push(playedMatch.sideB);
+                winner = 'sideB';
+            }
+            if (playedMatch.sideA) {
+                alreadySelectedSides.push(playedMatch.sideA);
+            }
+            if (playedMatch.sideB) {
+                alreadySelectedSides.push(playedMatch.sideB);
+            }
+
+            return {
+                sideA: this.getSide(context, playedMatch.sideA, null),
+                sideB: this.getSide(context, playedMatch.sideB, null),
+                scoreA: (playedMatch.scoreA ? playedMatch.scoreA.toString() : null) || '0',
+                scoreB: (playedMatch.scoreB ? playedMatch.scoreB.toString() : null) || '0',
+                match: playedMatch,
+                winner: winner,
+                numberOfSidesOnTheNight: undefined,
+                saygId: playedMatch.saygId,
+            };
+        });
     }
 }
