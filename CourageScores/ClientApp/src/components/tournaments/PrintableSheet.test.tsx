@@ -124,7 +124,7 @@ describe('PrintableSheet', () => {
                             const info: ISideInfo = {
                                 saygLink: match.querySelector('a')
                                     ? match.querySelector('a').href
-                                    : null,
+                                    : undefined,
                             };
 
                             setInfo(
@@ -244,7 +244,6 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        saygLink: null,
                     },
                 ],
             });
@@ -314,21 +313,18 @@ describe('PrintableSheet', () => {
                         sideBname: 'b',
                         scoreA: '0',
                         scoreB: '0',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'c',
                         sideBname: 'd',
                         scoreA: '0',
                         scoreB: '0',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'e',
                         sideBname: 'f',
                         scoreA: '0',
                         scoreB: '0',
-                        saygLink: null,
                     },
                 ],
             });
@@ -338,11 +334,9 @@ describe('PrintableSheet', () => {
                 oneEighties: null,
                 matches: [
                     {
-                        saygLink: null,
                         sideBmnemonic: 'winner(M1)',
                     },
                     {
-                        saygLink: null,
                         sideBmnemonic: 'winner(M2)',
                     },
                 ],
@@ -353,7 +347,6 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        saygLink: null,
                     },
                 ],
             });
@@ -391,7 +384,6 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'c',
@@ -399,7 +391,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                 ],
             });
@@ -414,7 +405,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                 ],
             });
@@ -455,7 +445,6 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'c',
@@ -463,7 +452,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                 ],
             });
@@ -478,10 +466,8 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                     {
-                        saygLink: null,
                         sideBmnemonic: 'b',
                     },
                 ],
@@ -497,7 +483,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                 ],
             });
@@ -554,7 +539,6 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'c',
@@ -562,7 +546,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'e',
@@ -570,7 +553,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'g',
@@ -578,7 +560,6 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'i',
@@ -586,7 +567,6 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'k',
@@ -594,7 +574,6 @@ describe('PrintableSheet', () => {
                         sideBwinner: true,
                         scoreA: '1',
                         scoreB: '2',
-                        saygLink: null,
                     },
                 ],
             });
@@ -609,7 +588,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'e',
@@ -617,14 +595,11 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                     {
-                        saygLink: null,
                         sideBmnemonic: 'e',
                     },
                     {
-                        saygLink: null,
                         sideBmnemonic: 'h',
                     },
                 ],
@@ -640,7 +615,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                     {
                         sideAname: 'j',
@@ -648,7 +622,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                 ],
             });
@@ -663,7 +636,6 @@ describe('PrintableSheet', () => {
                         sideAwinner: true,
                         scoreA: '2',
                         scoreB: '1',
-                        saygLink: null,
                     },
                 ],
             });
@@ -1498,7 +1470,6 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        saygLink: null,
                     },
                 ],
             });
@@ -1527,7 +1498,6 @@ describe('PrintableSheet', () => {
                 oneEighties: {players: []},
                 matches: [
                     {
-                        saygLink: null,
                     },
                 ],
             });
