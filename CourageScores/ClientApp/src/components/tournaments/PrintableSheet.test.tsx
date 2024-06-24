@@ -198,6 +198,18 @@ describe('PrintableSheet', () => {
         };
     }
 
+    function match(sideA: string, scoreA: string, sideB: string, scoreB: string, winner?: string, saygLink?: string): ISideInfo {
+        return {
+            sideAname: sideA,
+            sideBname: sideB,
+            sideAwinner: winner === 'a' || undefined,
+            sideBwinner: winner === 'b' || undefined,
+            scoreA: scoreA,
+            scoreB: scoreB,
+            saygLink,
+        };
+    }
+
     describe('played tournament', () => {
         const sideA: TournamentSideDto = createSide('a');
         const sideB: TournamentSideDto = createSide('b');
@@ -238,13 +250,7 @@ describe('PrintableSheet', () => {
                 hiChecks: {players: []},
                 oneEighties: {players: []},
                 matches: [
-                    {
-                        sideAname: 'a',
-                        sideBname: 'b',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                    },
+                    match('a', '1', 'b', '2', 'b'),
                 ],
             });
         });
@@ -271,14 +277,7 @@ describe('PrintableSheet', () => {
                 hiChecks: {players: []},
                 oneEighties: {players: []},
                 matches: [
-                    {
-                        sideAname: 'a',
-                        sideBname: 'b',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                        saygLink: 'http://localhost/live/match/' + saygId,
-                    },
+                    match('a', '1', 'b', '2', 'b', 'http://localhost/live/match/' + saygId),
                 ],
             });
         });
@@ -308,24 +307,9 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    {
-                        sideAname: 'a',
-                        sideBname: 'b',
-                        scoreA: '0',
-                        scoreB: '0',
-                    },
-                    {
-                        sideAname: 'c',
-                        sideBname: 'd',
-                        scoreA: '0',
-                        scoreB: '0',
-                    },
-                    {
-                        sideAname: 'e',
-                        sideBname: 'f',
-                        scoreA: '0',
-                        scoreB: '0',
-                    },
+                    match('a', '0', 'b', '0'),
+                    match('c', '0', 'd', '0'),
+                    match('e', '0', 'f', '0'),
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -345,10 +329,7 @@ describe('PrintableSheet', () => {
                 heading: 'Final',
                 hiChecks: {players: []},
                 oneEighties: {players: []},
-                matches: [
-                    {
-                    },
-                ],
+                matches: [{}],
             });
         });
 
@@ -378,20 +359,8 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    {
-                        sideAname: 'a',
-                        sideBname: 'b',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                    },
-                    {
-                        sideAname: 'c',
-                        sideBname: 'd',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('a', '1', 'b', '2', 'b'),
+                    match('c', '2', 'd', '1', 'a'),
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -399,13 +368,7 @@ describe('PrintableSheet', () => {
                 hiChecks: {players: []},
                 oneEighties: {players: []},
                 matches: [
-                    {
-                        sideAname: 'b',
-                        sideBname: 'c',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('b', '2', 'c', '1', 'a'),
                 ],
             });
         });
@@ -439,20 +402,8 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    {
-                        sideAname: 'a',
-                        sideBname: 'b',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                    },
-                    {
-                        sideAname: 'c',
-                        sideBname: 'd',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('a', '1', 'b', '2', 'b'),
+                    match('c', '2', 'd', '1', 'a'),
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -460,13 +411,7 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    {
-                        sideAname: 'e',
-                        sideBname: 'b',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('e', '2', 'b', '1', 'a'),
                     {
                         sideBmnemonic: 'b',
                     },
@@ -477,13 +422,7 @@ describe('PrintableSheet', () => {
                 hiChecks: {players: []},
                 oneEighties: {players: []},
                 matches: [
-                    {
-                        sideAname: 'c',
-                        sideBname: 'e',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('c', '2', 'e', '1', 'a'),
                 ],
             });
         });
@@ -533,48 +472,12 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    {
-                        sideAname: 'a',
-                        sideBname: 'b',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                    },
-                    {
-                        sideAname: 'c',
-                        sideBname: 'd',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
-                    {
-                        sideAname: 'e',
-                        sideBname: 'f',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
-                    {
-                        sideAname: 'g',
-                        sideBname: 'h',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                    },
-                    {
-                        sideAname: 'i',
-                        sideBname: 'j',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                    },
-                    {
-                        sideAname: 'k',
-                        sideBname: 'l',
-                        sideBwinner: true,
-                        scoreA: '1',
-                        scoreB: '2',
-                    },
+                    match('a', '1', 'b', '2', 'b'),
+                    match('c', '2', 'd', '1', 'a'),
+                    match('e', '2', 'f', '1', 'a'),
+                    match('g', '1', 'h', '2', 'b'),
+                    match('i', '1', 'j', '2', 'b'),
+                    match('k', '1', 'l', '2', 'b'),
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -582,20 +485,8 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    {
-                        sideAname: 'b',
-                        sideBname: 'c',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
-                    {
-                        sideAname: 'e',
-                        sideBname: 'h',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('b', '2', 'c', '1', 'a'),
+                    match('e', '2', 'h', '1', 'a'),
                     {
                         sideBmnemonic: 'e',
                     },
@@ -609,20 +500,8 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    {
-                        sideAname: 'b',
-                        sideBname: 'e',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
-                    {
-                        sideAname: 'j',
-                        sideBname: 'l',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('b', '2', 'e', '1', 'a'),
+                    match('j', '2', 'l', '1', 'a'),
                 ],
             });
             expect(rounds[3]).toEqual({
@@ -630,13 +509,7 @@ describe('PrintableSheet', () => {
                 hiChecks: {players: []},
                 oneEighties: {players: []},
                 matches: [
-                    {
-                        sideAname: 'b',
-                        sideBname: 'j',
-                        sideAwinner: true,
-                        scoreA: '2',
-                        scoreB: '1',
-                    },
+                    match('b', '2', 'j', '1', 'a'),
                 ],
             });
         });
@@ -1468,10 +1341,7 @@ describe('PrintableSheet', () => {
                 heading: 'Final',
                 hiChecks: {players: []},
                 oneEighties: {players: []},
-                matches: [
-                    {
-                    },
-                ],
+                matches: [{}],
             });
         });
 
@@ -1496,10 +1366,7 @@ describe('PrintableSheet', () => {
                 heading: 'Final',
                 hiChecks: {players: []},
                 oneEighties: {players: []},
-                matches: [
-                    {
-                    },
-                ],
+                matches: [{}],
             });
         });
 
