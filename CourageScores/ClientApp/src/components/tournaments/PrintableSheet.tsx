@@ -29,7 +29,8 @@ import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournam
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {Link} from "react-router-dom";
-import {ILayoutDataForMatch, ILayoutDataForRound} from "./layout";
+import {ILayoutDataForRound} from "./layout/ILayoutDataForRound";
+import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 
 export interface IPrintableSheetProps {
     editable?: boolean;

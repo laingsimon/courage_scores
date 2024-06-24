@@ -2,10 +2,10 @@ import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRo
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {any} from "../../helpers/collections";
-import {ILayoutDataForRound} from "./layout";
 import {PlayedEngine} from "./layout/PlayedEngine";
 import {UnplayedEngine} from "./layout/UnplayedEngine";
 import {ILayoutEngine} from "./layout/ILayoutEngine";
+import {ILayoutDataForRound} from "./layout/ILayoutDataForRound";
 
 export interface ITournamentLayoutGenerationContext {
     matchOptionDefaults: GameMatchOptionDto;

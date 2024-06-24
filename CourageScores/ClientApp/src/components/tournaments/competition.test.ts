@@ -2,7 +2,7 @@ import {getLayoutData, ITournamentLayoutGenerationContext} from "./competition";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {repeat} from "../../helpers/projection";
-import {ILayoutDataForRound} from "./layout";
+import {ILayoutDataForRound} from "./layout/ILayoutDataForRound";
 
 describe('competition', () => {
     const unplayedRound: TournamentRoundDto = {

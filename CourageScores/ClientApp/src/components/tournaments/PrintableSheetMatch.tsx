@@ -1,4 +1,3 @@
-import {ILayoutDataForMatch, ILayoutDataForSide} from "./layout";
 import {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
@@ -13,6 +12,8 @@ import {createTemporaryId, repeat} from "../../helpers/projection";
 import {MatchSayg} from "./MatchSayg";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
+import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
+import {ILayoutDataForSide} from "./layout/ILayoutDataForSide";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;

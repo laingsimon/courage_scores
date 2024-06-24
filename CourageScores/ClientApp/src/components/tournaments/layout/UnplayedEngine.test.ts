@@ -1,8 +1,10 @@
-import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {repeat} from "../../../helpers/projection";
 import {UnplayedEngine} from "./UnplayedEngine";
 import {ILayoutEngine} from "./ILayoutEngine";
+import {ILayoutDataForSide} from "./ILayoutDataForSide";
+import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
+import {ILayoutDataForRound} from "./ILayoutDataForRound";
 
 describe('UnplayedEngine', () => {
     let possibleSides: TournamentSideDto[];

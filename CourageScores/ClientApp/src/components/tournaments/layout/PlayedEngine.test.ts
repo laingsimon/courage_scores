@@ -1,12 +1,14 @@
 import {PlayedEngine} from "./PlayedEngine";
 import {ILayoutEngine} from "./ILayoutEngine";
 import {ILayoutRequest} from "./ILayoutRequest";
-import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {createTemporaryId} from "../../../helpers/projection";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {ILayoutDataForSide} from "./ILayoutDataForSide";
+import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
+import {ILayoutDataForRound} from "./ILayoutDataForRound";
 
 interface ISideLayoutInfo {
     side?: ILayoutDataForSide;

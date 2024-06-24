@@ -1,12 +1,14 @@
 import {ILayoutEngine} from "./ILayoutEngine";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
-import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {any, skip} from "../../../helpers/collections";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {ILayoutRequest} from "./ILayoutRequest";
 import {ITournamentLayoutGenerationContext} from "../competition";
+import {ILayoutDataForRound} from "./ILayoutDataForRound";
+import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
+import {ILayoutDataForSide} from "./ILayoutDataForSide";
 
 export class PlayedEngine implements ILayoutEngine {
     private readonly _unplayedEngine: ILayoutEngine;

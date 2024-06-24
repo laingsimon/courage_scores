@@ -19,7 +19,6 @@ import {
     sideBuilder,
     tournamentBuilder
 } from "../../helpers/builders/tournaments";
-import {ILayoutDataForMatch} from "./layout";
 import {createTemporaryId} from "../../helpers/projection";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
@@ -31,6 +30,7 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {saygBuilder} from "../../helpers/builders/sayg";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;

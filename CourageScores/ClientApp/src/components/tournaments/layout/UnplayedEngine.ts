@@ -1,6 +1,5 @@
 import {ILayoutEngine} from "./ILayoutEngine";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
-import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
 import {repeat} from "../../../helpers/projection";
 import {
     getPrefixDecrementingMnemonicCalculator,
@@ -9,6 +8,9 @@ import {
 } from "./MnemonicGenerators";
 import {any, skip, take} from "../../../helpers/collections";
 import {ILayoutRequest} from "./ILayoutRequest";
+import {ILayoutDataForRound} from "./ILayoutDataForRound";
+import {ILayoutDataForMatch} from "./ILayoutDataForMatch";
+import {ILayoutDataForSide} from "./ILayoutDataForSide";
 
 interface IRequestContext {
     matchMnemonics: IMnemonicGenerator;
