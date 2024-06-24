@@ -64,7 +64,11 @@ export class PlayedEngine implements ILayoutEngine {
                 const playedMatch: TournamentMatchDto = playedRound ? playedRound.matches[index] : null;
                 if (!playedMatch) {
                     // add to unplayed sides
-                    return unplayedMatch;
+                    const unplayedMatchWithoutOnTheNightMnemonic: ILayoutDataForMatch = Object.assign({}, unplayedMatch);
+                    if (any(playedRound.matches, (m: TournamentMatchDto) => !!m.sideA || !!m.sideB)) {
+                        unplayedMatchWithoutOnTheNightMnemonic.numberOfSidesOnTheNight = undefined;
+                    }
+                    return unplayedMatchWithoutOnTheNightMnemonic;
                 }
 
                 return this.createMatch(context, playedRound, unplayedMatch, playedMatch, index, alreadySelectedSides, winners, nextRound);
@@ -119,7 +123,7 @@ export class PlayedEngine implements ILayoutEngine {
             winner: winner,
             mnemonic: unplayedMatch.mnemonic,
             hideMnemonic: unplayedMatch.hideMnemonic,
-            numberOfSidesOnTheNight: unplayedMatch.numberOfSidesOnTheNight,
+            numberOfSidesOnTheNight: undefined,
             matchOptions: unplayedMatch.matchOptions,
             saygId: playedMatch.saygId,
         };
