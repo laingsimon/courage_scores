@@ -1,4 +1,4 @@
-﻿import {ILayoutEngine} from "./ILayoutEngine";
+import {ILayoutEngine} from "./ILayoutEngine";
 import {TournamentSideDto} from "../../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {ILayoutDataForMatch, ILayoutDataForRound, ILayoutDataForSide} from "../layout";
