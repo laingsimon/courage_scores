@@ -228,3 +228,17 @@ export function reverse<T>(items: T[]): T[] {
 
     return backwards;
 }
+
+/*
+* Return the first <count> items from the given list
+* */
+export function take<T>(items: T[], count: number): T[] {
+    return items.filter((_, index) => index < count);
+}
+
+/*
+* Return all but the first <count> items from the given list
+* */
+export function skip<T>(items: T[], count: number): T[] {
+    return items.filter((_, index) => index >= count);
+}

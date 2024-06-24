@@ -1,8 +1,7 @@
 import {useState} from 'react';
-import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {any, DataMap, elementAt, isEmpty, toMap} from "../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
-import {sideSelection} from "../../helpers/tournaments";
 import {useTournament} from "./TournamentContainer";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
@@ -91,6 +90,13 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
         if (onChange) {
             await onChange(newRound);
         }
+    }
+
+    function sideSelection(side: { id: string, name: string}): IBootstrapDropdownItem {
+        return {
+            value: side.id,
+            text: side.name
+        };
     }
 
     const allSidesSelected: boolean = round.matches && round.matches.length * 2 === sides.length;

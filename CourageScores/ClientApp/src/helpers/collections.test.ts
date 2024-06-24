@@ -8,9 +8,9 @@ import {
     elementAt, groupAndSortByOccurrences,
     isEmpty,
     max,
-    reverse,
+    reverse, skip,
     sortBy,
-    sum,
+    sum, take,
     toDictionary,
     toMap
 } from "./collections";
@@ -481,6 +481,70 @@ describe('collections', () => {
             const result = reverse(input);
 
             expect(result).toEqual([]);
+        });
+    });
+
+    describe('take', () => {
+        it('given empty collection', () => {
+            const result = take([], 2);
+
+            expect(result).toEqual([]);
+        });
+
+        it('given request for 0 items', () => {
+            const result: string[] = take([ "a", "b" ], 0);
+
+            expect(result).toEqual([]);
+        });
+
+        it('given count is greater than length', () => {
+            const result: string[] = take([ "a", "b" ], 5);
+
+            expect(result).toEqual([ "a", "b" ]);
+        });
+
+        it('given count is negative', () => {
+            const result: string[] = take([ "a", "b" ], -2);
+
+            expect(result).toEqual([]);
+        });
+
+        it('given count is less than number of items', () => {
+            const result: string[] = take([ "a", "b" ], 1);
+
+            expect(result).toEqual([ "a" ]);
+        });
+    });
+
+    describe('skip', () => {
+        it('given empty collection', () => {
+            const result = skip([], 2);
+
+            expect(result).toEqual([]);
+        });
+
+        it('given request to skip 0 items', () => {
+            const result: string[] = skip([ "a", "b" ], 0);
+
+            expect(result).toEqual([ "a", "b" ]);
+        });
+
+        it('given count is greater than length', () => {
+            const result: string[] = skip([ "a", "b" ], 5);
+
+            expect(result).toEqual([]);
+        });
+
+        it('given count is negative', () => {
+            const result: string[] = skip([ "a", "b" ], -2);
+
+            expect(result).toEqual([ "a", "b" ]);
+        });
+
+        it('given count is less than number of items', () => {
+            const result: string[] = skip([ "a", "b" ], 1);
+
+            expect(result).toEqual([ "b" ]);
         });
     });
 });

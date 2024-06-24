@@ -1,6 +1,8 @@
 import {any, isEmpty} from "../../helpers/collections";
 import {useApp} from "../common/AppContainer";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
+import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
+import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
 
 export interface IMergeHiCheckAnd180sProps {
     fixtureData: GameDto;
@@ -55,7 +57,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                 </button>
                             </h6>
                             <ol className="d-inline-block">
-                                {getRecordsToMerge('home', 'oneEighties').map(rec => (
+                                {getRecordsToMerge('home', 'oneEighties').map((rec: GamePlayerDto) => (
                                     <li key={rec.id}>{rec.name}</li>))}
                             </ol>
                         </div>) : null}
@@ -74,7 +76,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                 </button>
                             </h6>
                             <ol className="d-inline-block">
-                                {getRecordsToMerge('away', 'oneEighties').map(rec => (
+                                {getRecordsToMerge('away', 'oneEighties').map((rec: GamePlayerDto) => (
                                     <li key={rec.id}>{rec.name}</li>))}
                             </ol>
                         </div>) : null}
@@ -97,7 +99,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                     </button>
                                 </h6>
                                 <ol className="d-inline-block">
-                                    {getRecordsToMerge('home', 'over100Checkouts').map(rec => (
+                                    {getRecordsToMerge('home', 'over100Checkouts').map((rec: NotablePlayerDto) => (
                                         <li key={rec.id}>{rec.name} ({rec.score})</li>))}
                                 </ol>
                             </div>) : null}
@@ -116,7 +118,7 @@ export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeH
                                     </button>
                                 </h6>
                                 <ol className="d-inline-block">
-                                    {getRecordsToMerge('away', 'over100Checkouts').map(rec => (
+                                    {getRecordsToMerge('away', 'over100Checkouts').map((rec: NotablePlayerDto) => (
                                         <li key={rec.id}>{rec.name} ({rec.score})</li>))}
                                 </ol>
                             </div>) : null}

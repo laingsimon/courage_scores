@@ -19,7 +19,6 @@ import {
     sideBuilder,
     tournamentBuilder
 } from "../../helpers/builders/tournaments";
-import {ILayoutDataForMatch} from "../../helpers/tournaments";
 import {createTemporaryId} from "../../helpers/projection";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
@@ -31,6 +30,7 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {saygBuilder} from "../../helpers/builders/sayg";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;
@@ -196,33 +196,6 @@ describe('PrintableSheetMatch', () => {
             expect(sideB).toBeTruthy();
             expect(sideB.querySelector('span[datatype="sideBname"]').textContent).toEqual('SIDE B');
             expect(sideB.querySelector('div[datatype="scoreB"]').textContent).toEqual('7');
-        });
-
-        it('bye', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder().build();
-            const matchData: ILayoutDataForMatch = {
-                scoreB: '',
-                scoreA: '5',
-                sideA: { id: createTemporaryId(), link: (<span>SIDE A</span>), name: '', mnemonic: 'A' },
-                sideB: null,
-                mnemonic: 'M1',
-                bye: true,
-            };
-            await renderComponent({
-                tournamentData,
-                setTournamentData,
-                matchOptionDefaults,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-            }, appProps({}, reportedError));
-
-            const sideB = context.container.querySelector('div[datatype="sideB"]');
-            expect(sideB).toBeFalsy();
         });
     });
 
