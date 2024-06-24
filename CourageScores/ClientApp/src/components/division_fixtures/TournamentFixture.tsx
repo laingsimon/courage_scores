@@ -16,6 +16,7 @@ import {createTemporaryId} from "../../helpers/projection";
 import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {Link} from "react-router-dom";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
@@ -124,7 +125,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
 
     function renderWinner(winningSide: TournamentSideDto) {
         if (winningSide.teamId) {
-            const team = teams[winningSide.teamId];
+            const team: TeamDto = teams[winningSide.teamId];
 
             if (team) {
                 return (<strong className="text-primary">

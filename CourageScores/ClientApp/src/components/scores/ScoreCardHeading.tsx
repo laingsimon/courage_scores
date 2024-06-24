@@ -6,6 +6,7 @@ import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {Link} from "react-router-dom";
+import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 
 export interface IScoreCardHeadingProps {
     data: GameDto;
@@ -18,7 +19,7 @@ export interface IScoreCardHeadingProps {
 export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {
     const {account, onError, teams} = useApp();
     const {division, season} = useLeagueFixture();
-    const submissionTeam = account && access === 'clerk' && account.teamId ? teams[account.teamId] : null;
+    const submissionTeam: TeamDto = account && access === 'clerk' && account.teamId ? teams[account.teamId] : null;
     const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
     const homeScore = getScore(data, 'home');
     const awayScore = getScore(data, 'away');
