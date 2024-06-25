@@ -78,40 +78,15 @@ export class PlayedEngine implements ILayoutEngine {
         };
     }
 
-    private setSidePlayingInNextRound(side: TournamentSideDto, nextRound: ILayoutDataForRound, unplayedMatch: ILayoutDataForMatch) {
-        if (!nextRound) {
-            return;
-        }
-
-        for (const match of nextRound.matches) {
-            if (match.sideA.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
-                match.sideA.mnemonic = side.name;
-                unplayedMatch.mnemonic = undefined;
-                return;
-            }
-            if (match.sideB.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
-                match.sideB.mnemonic = side.name;
-                unplayedMatch.mnemonic = undefined;
-                return;
-            }
-        }
-    }
-
     private createMatch(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, unplayedMatch: ILayoutDataForMatch,
                          playedMatch: TournamentMatchDto, index: number, alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[],
                          nextRound?: ILayoutDataForRound): ILayoutDataForMatch {
-        let winner: string = null;
-        const matchOptions: GameMatchOptionDto = playedRound.matchOptions[index] || context.matchOptionDefaults;
-        const numberOfLegs: number = matchOptions.numberOfLegs;
-        if (playedMatch.scoreA > (numberOfLegs / 2.0)) {
-            winners.push(playedMatch.sideA);
-            winner = 'sideA';
-            this.setSidePlayingInNextRound(playedMatch.sideA, nextRound, unplayedMatch);
-        } else if (playedMatch.scoreB > (numberOfLegs / 2.0)) {
-            winners.push(playedMatch.sideB);
-            winner = 'sideB';
-            this.setSidePlayingInNextRound(playedMatch.sideB, nextRound, unplayedMatch);
-        }
+        const winner: string = this.getMatchWinner(
+            playedRound.matchOptions[index] || context.matchOptionDefaults,
+            winners,
+            playedMatch,
+            unplayedMatch,
+            nextRound);
         if (playedMatch.sideA) {
             alreadySelectedSides.push(playedMatch.sideA);
         }
@@ -134,33 +109,16 @@ export class PlayedEngine implements ILayoutEngine {
         };
     }
 
-    private getSide(context: ITournamentLayoutGenerationContext, side?: TournamentSideDto, mnemonic?: string): ILayoutDataForSide {
-        return {
-            id: side ? side.id : null,
-            name: side ? side.name: null,
-            link: side ? context.getLinkToSide(side) : null,
-            mnemonic: side && side.id
-                ? null
-                : mnemonic
-        };
-    }
-
     private getExtraMatches(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, offset: number,
                             alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[]): ILayoutDataForMatch[] {
         const extraMatches: TournamentMatchDto[] = skip(playedRound.matches, offset);
 
-        return extraMatches.map((playedMatch: TournamentMatchDto, extraMatchIndex: number) => {
-            let winner: string = null;
+        return extraMatches.map((playedMatch: TournamentMatchDto, extraMatchIndex: number): ILayoutDataForMatch => {
             const overallIndex: number = extraMatchIndex + offset;
-            const matchOptions: GameMatchOptionDto = playedRound.matchOptions[overallIndex] || context.matchOptionDefaults;
-            const numberOfLegs: number = matchOptions.numberOfLegs;
-            if (playedMatch.scoreA > (numberOfLegs / 2.0)) {
-                winners.push(playedMatch.sideA);
-                winner = 'sideA';
-            } else if (playedMatch.scoreB > (numberOfLegs / 2.0)) {
-                winners.push(playedMatch.sideB);
-                winner = 'sideB';
-            }
+            const winner: string = this.getMatchWinner(
+                playedRound.matchOptions[overallIndex] || context.matchOptionDefaults,
+                winners,
+                playedMatch);
             if (playedMatch.sideA) {
                 alreadySelectedSides.push(playedMatch.sideA);
             }
@@ -179,5 +137,51 @@ export class PlayedEngine implements ILayoutEngine {
                 saygId: playedMatch.saygId,
             };
         });
+    }
+
+    private getMatchWinner(matchOptions: GameMatchOptionDto, winners: TournamentSideDto[],
+                           playedMatch: TournamentMatchDto, unplayedMatch?: ILayoutDataForMatch, nextRound?: ILayoutDataForRound): string {
+        const numberOfLegs: number = matchOptions.numberOfLegs;
+        if (playedMatch.scoreA > (numberOfLegs / 2.0)) {
+            winners.push(playedMatch.sideA);
+            this.setSidePlayingInNextRound(playedMatch.sideA, nextRound, unplayedMatch);
+            return 'sideA';
+        } else if (playedMatch.scoreB > (numberOfLegs / 2.0)) {
+            winners.push(playedMatch.sideB);
+            this.setSidePlayingInNextRound(playedMatch.sideB, nextRound, unplayedMatch);
+            return 'sideB';
+        }
+
+        return null;
+    }
+
+    private getSide(context: ITournamentLayoutGenerationContext, side?: TournamentSideDto, mnemonic?: string): ILayoutDataForSide {
+        return {
+            id: side ? side.id : null,
+            name: side ? side.name: null,
+            link: side ? context.getLinkToSide(side) : null,
+            mnemonic: side && side.id
+                ? null
+                : mnemonic
+        };
+    }
+
+    private setSidePlayingInNextRound(side: TournamentSideDto, nextRound: ILayoutDataForRound, unplayedMatch: ILayoutDataForMatch) {
+        if (!nextRound) {
+            return;
+        }
+
+        for (const match of nextRound.matches) {
+            if (match.sideA.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
+                match.sideA.mnemonic = side.name;
+                unplayedMatch.mnemonic = undefined;
+                return;
+            }
+            if (match.sideB.mnemonic === `winner(${unplayedMatch.mnemonic})`) {
+                match.sideB.mnemonic = side.name;
+                unplayedMatch.mnemonic = undefined;
+                return;
+            }
+        }
     }
 }
