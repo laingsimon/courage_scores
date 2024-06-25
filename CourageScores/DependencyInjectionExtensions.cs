@@ -78,6 +78,7 @@ public static class DependencyInjectionExtensions
         });
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
         services.AddScoped<IWebSocketContractFactory, WebSocketContractFactory>();
+        services.AddSingleton(Random.Shared);
 
         AddServices(services);
         AddRepositories(services);

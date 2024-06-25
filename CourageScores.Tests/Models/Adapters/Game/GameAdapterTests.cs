@@ -50,6 +50,8 @@ public class GameAdapterTests
     private MockAdapter<GameMatch,GameMatchDto> _matchAdapter = null!;
     private DateTimeOffset _now;
     private Mock<ISystemClock> _clock = null!;
+    private Mock<Random> _random = null!;
+    private Queue<int> _randomValues = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -64,6 +66,8 @@ public class GameAdapterTests
         _featureService = new Mock<IFeatureService>();
         _userService = new Mock<IUserService>();
         _clock = new Mock<ISystemClock>();
+        _random = new Mock<Random>();
+        _randomValues = new Queue<int>();
         _matchAdapter = new MockAdapter<GameMatch, GameMatchDto>(new[]
         {
             GameMatch, PublishedGameMatch,
@@ -89,10 +93,12 @@ public class GameAdapterTests
             new MockSimpleAdapter<PhotoReference, PhotoReferenceDto>(PhotoReference, PhotoReferenceDto),
             _featureService.Object,
             _userService.Object,
-            _clock.Object);
+            _clock.Object,
+            _random.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _clock.Setup(c => c.UtcNow).Returns(() => _now);
+        _random.Setup(r => r.Next()).Returns(() => _randomValues.Dequeue());
     }
 
     [Test]
@@ -183,8 +189,21 @@ public class GameAdapterTests
         };
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
         _user = null;
+        var model = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Away = AwayTeam,
+            Home = HomeTeam,
+            Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
+        };
+        _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
+        var randomValues = new[] { 3, 1, 2, 5, 4 };
+        _randomValues = new Queue<int>(randomValues);
 
-        await RunRandomiseSinglesTest(true);
+        var result = await _adapter.Adapt(model, _token);
+
+        AssertPairsAndTriplesInSameOrder(model, result);
+        AssertSinglesInRandomOrder(model, result, randomValues);
     }
 
     [TestCase(false, false, false, true)]
@@ -209,8 +228,29 @@ public class GameAdapterTests
             _user.Access.InputResults = true;
             _user.TeamId = AwayTeam.Id;
         }
+        var model = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Away = AwayTeam,
+            Home = HomeTeam,
+            Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
+        };
+        var randomValues = new[] { 3, 1, 2, 5, 4 };
+        _randomValues = new Queue<int>(randomValues);
 
-        await RunRandomiseSinglesTest(randomises);
+        _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
+
+        var result = await _adapter.Adapt(model, _token);
+
+        AssertPairsAndTriplesInSameOrder(model, result);
+        if (randomises)
+        {
+            AssertSinglesInRandomOrder(model, result, randomValues);
+        }
+        else
+        {
+            AssertSinglesInSameOrder(model, result);
+        }
     }
 
     [TestCase(false, false, false)]
@@ -235,8 +275,19 @@ public class GameAdapterTests
             _user.Access.InputResults = true;
             _user.TeamId = AwayTeam.Id;
         }
+        var model = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Away = AwayTeam,
+            Home = HomeTeam,
+            Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
+        };
+        _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
 
-        await RunRandomiseSinglesTest(false);
+        var result = await _adapter.Adapt(model, _token);
+
+        AssertPairsAndTriplesInSameOrder(model, result);
+        AssertSinglesInSameOrder(model, result);
     }
 
     [TestCase(false, false, false)]
@@ -261,8 +312,19 @@ public class GameAdapterTests
             _user.Access.InputResults = true;
             _user.TeamId = AwayTeam.Id;
         }
+        var model = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Away = AwayTeam,
+            Home = HomeTeam,
+            Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
+        };
+        _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
 
-        await RunRandomiseSinglesTest(false);
+        var result = await _adapter.Adapt(model, _token);
+
+        AssertPairsAndTriplesInSameOrder(model, result);
+        AssertSinglesInSameOrder(model, result);
     }
 
     [TestCase(false, false, false)]
@@ -283,8 +345,19 @@ public class GameAdapterTests
             _user.Access.InputResults = true;
             _user.TeamId = AwayTeam.Id;
         }
+        var model = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Away = AwayTeam,
+            Home = HomeTeam,
+            Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
+        };
+        _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
 
-        await RunRandomiseSinglesTest(false);
+        var result = await _adapter.Adapt(model, _token);
+
+        AssertPairsAndTriplesInSameOrder(model, result);
+        AssertSinglesInSameOrder(model, result);
     }
 
     [Test]
@@ -538,62 +611,26 @@ public class GameAdapterTests
         Assert.That(result.AwaySubmission!.Address, Is.EqualTo("address"));
     }
 
-    private async Task RunRandomiseSinglesTest(bool randomiseOrderOfSingles)
+    private static void AssertPairsAndTriplesInSameOrder(CosmosGame model, GameDto result)
     {
-        var model = new CosmosGame
-        {
-            Date = new DateTime(2001, 02, 03),
-            Away = AwayTeam,
-            Home = HomeTeam,
-            Matches = Enumerable.Range(1, 8).Select(CreateMatch).ToList(),
-        };
-
-        const int maxIterations = 10;
-
-        for (var iteration = 1; iteration <= maxIterations; iteration++)
-        {
-            try
-            {
-                // repeat the test a number of times, so that a randomisation of singles resulting
-                // in the same order of matches is ignored
-                await RandomiseSinglesTestIteration(model, randomiseOrderOfSingles);
-                return; // test passed
-            }
-            catch (AssertionException)
-            {
-                Thread.Sleep(10 * iteration);
-
-                if (iteration >= maxIterations)
-                {
-                    throw;
-                }
-            }
-        }
-
-        // should never reach here...
-        Assert.Fail("Issue with test execution; test should have passed or thrown the (assertion) exception");
-    }
-
-    private async Task RandomiseSinglesTestIteration(CosmosGame model, bool randomiseOrderOfSingles)
-    {
-        _now = new DateTimeOffset(model.Date.AddDays(1), TimeSpan.Zero);
-
-        var result = await _adapter.Adapt(model, _token);
-
-        var resultSingles = result.Matches.Take(5).Select(m => m.Id).ToList();
-        var modelSingles = model.Matches.Take(5).Select(m => m.Id).ToList();
         var resultPairsAndTriples = result.Matches.Skip(5).Select(m => m.Id).ToList();
         var modelPairsAndTriples = model.Matches.Skip(5).Select(m => m.Id).ToList();
         Assert.That(resultPairsAndTriples, Is.EqualTo(modelPairsAndTriples)); // pairs and triples should always be in the same order
-        if (randomiseOrderOfSingles)
-        {
-            Assert.That(resultSingles, Is.EquivalentTo(modelSingles)); // all singles should be present in the first 5 matches, regardless of order
-            Assert.That(resultSingles, Is.Not.EqualTo(modelSingles), () => "Singles should be in a random order, different to the original order"); // assert that singles aren't in the original order
-        }
-        else
-        {
-            Assert.That(resultSingles, Is.EqualTo(modelSingles)); // assert that all the singles are in the same order
-        }
+    }
+
+    private static void AssertSinglesInSameOrder(CosmosGame model, GameDto result)
+    {
+        var resultSingles = result.Matches.Take(5).Select(m => m.Id).ToList();
+        var modelSingles = model.Matches.Take(5).Select(m => m.Id).ToList();
+        Assert.That(resultSingles, Is.EqualTo(modelSingles)); // assert that all the singles are in the same order
+    }
+
+    private static void AssertSinglesInRandomOrder(CosmosGame model, GameDto result, int[] randomValues)
+    {
+        var resultSingles = result.Matches.Take(5).Select(m => m.Id).ToList();
+        var modelSingles = model.Matches.Take(5).Select(m => m.Id).ToList();
+        var expectedOrder = modelSingles.Select((match, index) => new { match, order = randomValues[index] }).ToList();
+        Assert.That(resultSingles, Is.EqualTo(expectedOrder.OrderBy(a => a.order).Select(a => a.match)));
     }
 
     private GameMatch CreateMatch(int matchNo)
