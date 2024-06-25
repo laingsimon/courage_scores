@@ -22,6 +22,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
     private readonly IUserService _userService;
     private readonly ISystemClock _clock;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
+    private readonly Random _random;
 
     public GameAdapter(
         IAdapter<GameMatch, GameMatchDto> gameMatchAdapter,
@@ -32,7 +33,8 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         ISimpleAdapter<PhotoReference, PhotoReferenceDto> photoReferenceAdapter,
         IFeatureService featureService,
         IUserService userService,
-        ISystemClock clock)
+        ISystemClock clock,
+        Random random)
     {
         _gameMatchAdapter = gameMatchAdapter;
         _gameTeamAdapter = gameTeamAdapter;
@@ -43,6 +45,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
         _featureService = featureService;
         _userService = userService;
         _clock = clock;
+        _random = random;
     }
 
     public async Task<GameDto> Adapt(CosmosGame model, CancellationToken token)
@@ -120,7 +123,7 @@ public class GameAdapter : IAdapter<CosmosGame, GameDto>
             {
                 matchDto = await _gameMatchAdapter.Adapt(match, token),
                 singlesFirst = index < 5 ? 0 : 1,
-                matchOrder = randomiseSingles && index < 5 ? Random.Shared.Next() : index,
+                matchOrder = randomiseSingles && index < 5 ? _random.Next() : index,
             })
             .ToList();
 
