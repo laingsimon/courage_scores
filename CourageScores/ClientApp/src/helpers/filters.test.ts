@@ -732,7 +732,7 @@ describe('filters', () => {
         const navigate = (params: any) => {
             navigated = params
         };
-        const location = {pathname: 'path', hash: '#hash'};
+        const location = {pathname: 'path', hash: '#hash', search: ''};
 
         it('sets new filter', () => {
             updatedFilter = null;
@@ -768,6 +768,22 @@ describe('filters', () => {
             expect(navigated).toBeTruthy();
             expect(navigated!.search).toContain('date=past');
             expect(navigated!.search).toContain('type=league');
+            expect(navigated!.pathname).toEqual(location.pathname);
+            expect(navigated!.hash).toEqual(location.hash);
+        });
+
+        it('retains unrelated filters', () => {
+            updatedFilter = null;
+            navigated = null;
+            const filter = {type: 'league', date: 'past'};
+            const locationWithOtherSearchParams = {pathname: 'path', hash: '#hash', search: '?division=abcd&division=efgh'};
+
+            changeFilter(filter, setFilter, navigate, locationWithOtherSearchParams);
+
+            expect(navigated).toBeTruthy();
+            expect(navigated!.search).toContain('date=past');
+            expect(navigated!.search).toContain('type=league');
+            expect(navigated!.search).toContain('division=abcd&division=efgh');
             expect(navigated!.pathname).toEqual(location.pathname);
             expect(navigated!.hash).toEqual(location.hash);
         });

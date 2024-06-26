@@ -181,19 +181,31 @@ export function initFilter(location: { search: string }): IInitialisedFilters {
     return filter;
 }
 
-export function changeFilter(newFilter: IInitialisedFilters, setFilter: (filter: IInitialisedFilters) => any, navigate: Function, location: { pathname: string, hash: string }) {
+export function changeFilter(newFilter: IInitialisedFilters, setFilter: (filter: IInitialisedFilters) => any, navigate: Function, location: { pathname: string, hash: string, search: string }) {
     setFilter(newFilter);
 
-    const search: IInitialisedFilters = Object.assign({}, newFilter);
+    const overallSearch: URLSearchParams = new URLSearchParams(newFilter as any);
+    const searchParams: URLSearchParams = new URLSearchParams(location.search);
+    for (let key of searchParams.keys()) {
+        if (overallSearch.has(key)) {
+            continue; // repeated keys (e.g. ?division=1&division=2 are returned twice, not once
+        }
+        const values: string[] = searchParams.getAll(key);
+        for (let value of values) {
+            overallSearch.append(key, value);
+        }
+    }
+
     Object.keys(newFilter).forEach((key: string) => {
         if (!newFilter[key]) {
-            delete search[key];
+            // any filter with a falsy value (e.g. null or empty string) should be removed from the search params
+            overallSearch.delete(key);
         }
     })
 
     navigate({
         pathname: location.pathname,
-        search: new URLSearchParams(search as any).toString(),
+        search: overallSearch.toString(),
         hash: location.hash,
     });
 }
