@@ -23,7 +23,33 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class UpdateScoresCommandTests
 {
+    private static readonly RecordScoresDto.RecordScoresGamePlayerDto HomePlayer = new RecordScoresDto.RecordScoresGamePlayerDto
+    {
+        Id = Guid.NewGuid(),
+        Name = "HOME PLAYER",
+    };
+    private static readonly RecordScoresDto.GameOver100CheckoutDto AwayPlayer = new RecordScoresDto.GameOver100CheckoutDto
+    {
+        Id = Guid.NewGuid(),
+        Name = "AWAY PLAYER",
+        Score = 150,
+    };
     private static readonly ScoreAsYouGoDto ScoreAsYouGoDto = new();
+    private static readonly RecordScoresDto.RecordScoresGameMatchDto AwayWinnerMatch = new RecordScoresDto.RecordScoresGameMatchDto
+    {
+        HomePlayers =
+        {
+            HomePlayer,
+        },
+        AwayPlayers =
+        {
+            AwayPlayer,
+        },
+        HomeScore = 1,
+        AwayScore = 2,
+        Sayg = ScoreAsYouGoDto,
+    };
+
     private const string UserTeamId = "621BADAE-8FB0-4854-8C7A-6BC185117238";
     private Mock<IUserService> _userService = null!;
     private Mock<IAdapter<CosmosGame, GameDto>> _gameAdapter = null!;
@@ -171,40 +197,15 @@ public class UpdateScoresCommandTests
     {
         _user!.Access!.ManageScores = true;
         _user!.Access!.RecordScoresAsYouGo = permittedToRecordScoresAsYouGo;
-        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "HOME PLAYER",
-        };
-        var awayPlayer1 = new RecordScoresDto.GameOver100CheckoutDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "AWAY PLAYER",
-            Score = 150,
-        };
-        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
-        {
-            HomePlayers =
-            {
-                homePlayer1,
-            },
-            AwayPlayers =
-            {
-                awayPlayer1,
-            },
-            HomeScore = 1,
-            AwayScore = 2,
-            Sayg = ScoreAsYouGoDto,
-        };
-        _scores.Matches.Add(match1);
-        _scores.OneEighties.Add(homePlayer1);
-        _scores.Over100Checkouts.Add(awayPlayer1);
+        _scores.Matches.Add(AwayWinnerMatch);
+        _scores.OneEighties.Add(HomePlayer);
+        _scores.Over100Checkouts.Add(AwayPlayer);
         var notablePlayer = new NotablePlayer {Name = "AWAY PLAYER", Notes = "150"};
         var homePlayer1Adapted = new GamePlayer {Name = "HOME PLAYER"};
         var match1Adapted = new GameMatch();
-        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(awayPlayer1, _token)).ReturnsAsync(notablePlayer);
-        _scoresAdapter.Setup(a => a.AdaptToPlayer(homePlayer1, _token)).ReturnsAsync(homePlayer1Adapted);
-        _scoresAdapter.Setup(a => a.AdaptToMatch(match1, _token)).ReturnsAsync(match1Adapted);
+        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(AwayPlayer, _token)).ReturnsAsync(notablePlayer);
+        _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(homePlayer1Adapted);
+        _scoresAdapter.Setup(a => a.AdaptToMatch(AwayWinnerMatch, _token)).ReturnsAsync(match1Adapted);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -265,39 +266,15 @@ public class UpdateScoresCommandTests
             Id = Guid.NewGuid(),
         });
         _user!.Access!.ManageScores = true;
-        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "HOME PLAYER",
-        };
-        var awayPlayer1 = new RecordScoresDto.GameOver100CheckoutDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "AWAY PLAYER",
-            Score = 150,
-        };
-        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
-        {
-            HomePlayers =
-            {
-                homePlayer1,
-            },
-            AwayPlayers =
-            {
-                awayPlayer1,
-            },
-            HomeScore = 1,
-            AwayScore = 2,
-        };
-        _scores.Matches.Add(match1);
-        _scores.OneEighties.Add(homePlayer1);
-        _scores.Over100Checkouts.Add(awayPlayer1);
+        _scores.Matches.Add(AwayWinnerMatch);
+        _scores.OneEighties.Add(HomePlayer);
+        _scores.Over100Checkouts.Add(AwayPlayer);
         var notablePlayer = new NotablePlayer {Name = "AWAY PLAYER", Notes = "150"};
         var homePlayer1Adapted = new GamePlayer {Name = "HOME PLAYER"};
         var matchAdapted = new GameMatch();
-        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(awayPlayer1, _token)).ReturnsAsync(notablePlayer);
-        _scoresAdapter.Setup(a => a.AdaptToPlayer(homePlayer1, _token)).ReturnsAsync(homePlayer1Adapted);
-        _scoresAdapter.Setup(a => a.UpdateMatch(_game.Matches.Last(), match1, _token)).ReturnsAsync(matchAdapted);
+        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(AwayPlayer, _token)).ReturnsAsync(notablePlayer);
+        _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(homePlayer1Adapted);
+        _scoresAdapter.Setup(a => a.UpdateMatch(_game.Matches.Last(), AwayWinnerMatch, _token)).ReturnsAsync(matchAdapted);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -329,39 +306,15 @@ public class UpdateScoresCommandTests
         _game.Matches.Add(matchToKeep);
         _game.Matches.Add(matchToRemove);
         _user!.Access!.ManageScores = true;
-        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "HOME PLAYER",
-        };
-        var awayPlayer1 = new RecordScoresDto.GameOver100CheckoutDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "AWAY PLAYER",
-            Score = 150,
-        };
-        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
-        {
-            HomePlayers =
-            {
-                homePlayer1,
-            },
-            AwayPlayers =
-            {
-                awayPlayer1,
-            },
-            HomeScore = 1,
-            AwayScore = 2,
-        };
-        _scores.Matches.Add(match1);
-        _scores.OneEighties.Add(homePlayer1);
-        _scores.Over100Checkouts.Add(awayPlayer1);
+        _scores.Matches.Add(AwayWinnerMatch);
+        _scores.OneEighties.Add(HomePlayer);
+        _scores.Over100Checkouts.Add(AwayPlayer);
         var notablePlayer = new NotablePlayer {Name = "AWAY PLAYER", Notes = "150"};
         var homePlayer1Adapted = new GamePlayer {Name = "HOME PLAYER"};
         var matchAdapted = new GameMatch();
-        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(awayPlayer1, _token)).ReturnsAsync(notablePlayer);
-        _scoresAdapter.Setup(a => a.AdaptToPlayer(homePlayer1, _token)).ReturnsAsync(homePlayer1Adapted);
-        _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, match1, _token)).ReturnsAsync(matchAdapted);
+        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(AwayPlayer, _token)).ReturnsAsync(notablePlayer);
+        _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(homePlayer1Adapted);
+        _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, AwayWinnerMatch, _token)).ReturnsAsync(matchAdapted);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -424,40 +377,16 @@ public class UpdateScoresCommandTests
         _user!.Access!.ManageScores = false;
         _user!.Access!.InputResults = true;
         _game.Home.Id = Guid.Parse(UserTeamId);
-        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "HOME PLAYER",
-        };
-        var awayPlayer1 = new RecordScoresDto.GameOver100CheckoutDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "AWAY PLAYER",
-            Score = 150,
-        };
-        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
-        {
-            HomePlayers =
-            {
-                homePlayer1,
-            },
-            AwayPlayers =
-            {
-                awayPlayer1,
-            },
-            HomeScore = 1,
-            AwayScore = 2,
-        };
-        _scores.Home!.ManOfTheMatch = homePlayer1.Id;
-        _scores.Matches.Add(match1);
-        _scores.OneEighties.Add(homePlayer1);
-        _scores.Over100Checkouts.Add(awayPlayer1);
+        _scores.Home!.ManOfTheMatch = HomePlayer.Id;
+        _scores.Matches.Add(AwayWinnerMatch);
+        _scores.OneEighties.Add(HomePlayer);
+        _scores.Over100Checkouts.Add(AwayPlayer);
         var notablePlayer = new NotablePlayer {Name = "AWAY PLAYER", Notes = "150"};
         var homePlayer1Adapted = new GamePlayer {Name = "HOME PLAYER"};
         var match1Adapted = new GameMatch();
-        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(awayPlayer1, _token)).ReturnsAsync(notablePlayer);
-        _scoresAdapter.Setup(a => a.AdaptToPlayer(homePlayer1, _token)).ReturnsAsync(homePlayer1Adapted);
-        _scoresAdapter.Setup(a => a.AdaptToMatch(match1, _token)).ReturnsAsync(match1Adapted);
+        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(AwayPlayer, _token)).ReturnsAsync(notablePlayer);
+        _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(homePlayer1Adapted);
+        _scoresAdapter.Setup(a => a.AdaptToMatch(AwayWinnerMatch, _token)).ReturnsAsync(match1Adapted);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -471,7 +400,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.HomeSubmission!.Matches[0], Is.SameAs(match1Adapted));
         Assert.That(_game.HomeSubmission!.OneEighties[0], Is.SameAs(homePlayer1Adapted));
         Assert.That(_game.HomeSubmission!.Over100Checkouts[0], Is.SameAs(notablePlayer));
-        Assert.That(_game.HomeSubmission!.Home.ManOfTheMatch, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.HomeSubmission!.Home.ManOfTheMatch, Is.EqualTo(HomePlayer.Id));
         Assert.That(_game.Home.ManOfTheMatch, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
@@ -544,40 +473,16 @@ public class UpdateScoresCommandTests
         _user!.Access!.ManageScores = false;
         _user!.Access!.InputResults = true;
         _game.Away.Id = Guid.Parse(UserTeamId);
-        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "HOME PLAYER",
-        };
-        var awayPlayer1 = new RecordScoresDto.GameOver100CheckoutDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "AWAY PLAYER",
-            Score = 150,
-        };
-        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
-        {
-            HomePlayers =
-            {
-                homePlayer1,
-            },
-            AwayPlayers =
-            {
-                awayPlayer1,
-            },
-            HomeScore = 1,
-            AwayScore = 2,
-        };
-        _scores.Away!.ManOfTheMatch = awayPlayer1.Id;
-        _scores.Matches.Add(match1);
-        _scores.OneEighties.Add(homePlayer1);
-        _scores.Over100Checkouts.Add(awayPlayer1);
+        _scores.Away!.ManOfTheMatch = AwayPlayer.Id;
+        _scores.Matches.Add(AwayWinnerMatch);
+        _scores.OneEighties.Add(HomePlayer);
+        _scores.Over100Checkouts.Add(AwayPlayer);
         var notablePlayer = new NotablePlayer {Name = "AWAY PLAYER", Notes = "150"};
         var homePlayer1Adapted = new GamePlayer {Name = "HOME PLAYER"};
         var match1Adapted = new GameMatch();
-        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(awayPlayer1, _token)).ReturnsAsync(notablePlayer);
-        _scoresAdapter.Setup(a => a.AdaptToPlayer(homePlayer1, _token)).ReturnsAsync(homePlayer1Adapted);
-        _scoresAdapter.Setup(a => a.AdaptToMatch(match1, _token)).ReturnsAsync(match1Adapted);
+        _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(AwayPlayer, _token)).ReturnsAsync(notablePlayer);
+        _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(homePlayer1Adapted);
+        _scoresAdapter.Setup(a => a.AdaptToMatch(AwayWinnerMatch, _token)).ReturnsAsync(match1Adapted);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -591,7 +496,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission!.Matches[0], Is.SameAs(match1Adapted));
         Assert.That(_game.AwaySubmission!.OneEighties[0], Is.SameAs(homePlayer1Adapted));
         Assert.That(_game.AwaySubmission!.Over100Checkouts[0], Is.SameAs(notablePlayer));
-        Assert.That(_game.AwaySubmission!.Away.ManOfTheMatch, Is.EqualTo(awayPlayer1.Id));
+        Assert.That(_game.AwaySubmission!.Away.ManOfTheMatch, Is.EqualTo(AwayPlayer.Id));
         Assert.That(_game.Away.ManOfTheMatch, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
