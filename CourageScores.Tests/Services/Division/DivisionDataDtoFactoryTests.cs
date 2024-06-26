@@ -219,13 +219,7 @@ public class DivisionDataDtoFactoryTests
             .WithSeason(Season1)
             .WithTeam(Team1)
             .Build();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ImportData = true,
-            },
-        };
+        WithUserAccess(importData: true);
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
@@ -536,13 +530,7 @@ public class DivisionDataDtoFactoryTests
             .WithSeason(Season1)
             .Build();
         // set user as logged in, with correct access to allow errors to be returned
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ImportData = true,
-            },
-        };
+        WithUserAccess(importData: true);
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
@@ -560,13 +548,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenNoFixturesWhenAPlayerManager_ReturnsAllPlayers()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManagePlayers = true,
-            },
-        };
+        WithUserAccess(managePlayers: true);
 
         var result = await _factory.CreateDivisionDataDto(Season1Context, Array.Empty<DivisionDto?>(), true, _token);
 
@@ -593,13 +575,7 @@ public class DivisionDataDtoFactoryTests
             .WithTeam(team1, Team2)
             .WithSeason(Season1)
             .Build();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManagePlayers = true,
-            },
-        };
+        WithUserAccess(managePlayers: true);
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
@@ -623,14 +599,8 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrors_SetsDataErrorsCorrectly()
     {
+        WithUserAccess(importData: true);
         var division = new DivisionDto();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ImportData = true,
-            },
-        };
         var context = new DivisionDataContextBuilder()
             .WithGame(GameWith2AwayPlayers)
             .WithTeam(Team1, Team2)
@@ -659,13 +629,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotPermitted_SetsDataErrorsToEmpty()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ImportData = false,
-            },
-        };
+        WithUserAccess(importData: false);
         var context = new DivisionDataContextBuilder()
             .WithGame(GameWith2AwayPlayers)
             .WithTeam(Team1, Team2)
@@ -774,5 +738,17 @@ public class DivisionDataDtoFactoryTests
         {
             $"Requested division ({divisionId1}) was not found, Requested division ({divisionId2}) was not found",
         }));
+    }
+
+    private void WithUserAccess(bool importData = false, bool managePlayers = false)
+    {
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ImportData = importData,
+                ManagePlayers = managePlayers,
+            },
+        };
     }
 }
