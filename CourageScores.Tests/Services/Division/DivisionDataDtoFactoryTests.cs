@@ -39,16 +39,6 @@ public class DivisionDataDtoFactoryTests
         Id = Guid.NewGuid(),
         Name = "division2",
     };
-    private static readonly TeamDto Team1 = new TeamDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "Team 1 - Playing",
-    };
-    private static readonly TeamDto Team2 = new TeamDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "Team 2 - Playing",
-    };
     private static readonly GamePlayer Player1 = new GamePlayer
     {
         Id = Guid.NewGuid(),
@@ -59,6 +49,35 @@ public class DivisionDataDtoFactoryTests
         Id = Guid.NewGuid(),
         Name = "Away player",
     };
+    private static readonly TeamDto Team1 = new TeamDtoBuilder()
+        .WithName("Team 1 - Playing")
+        .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player1))
+        .Build();
+    private static readonly TeamDto Team2 = new TeamDtoBuilder()
+        .WithName("Team 2 - Playing")
+        .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
+        .Build();
+    private static readonly TournamentGame TournamentGame = new TournamentGameBuilder()
+        .WithDate(new DateTime(2001, 02, 03))
+        .WithSeason(Season1)
+        .WithOneEighties(new TournamentPlayer
+        {
+            Id = Guid.NewGuid(),
+            Name = "Tournament player",
+        })
+        .WithType("Singles")
+        .AccoladesCount()
+        .Build();
+    private static readonly DivisionDataContext Season1Context = new DivisionDataContextBuilder()
+        .WithTeam(Team1, Team2)
+        .WithSeason(Season1)
+        .Build();
+    private static readonly CosmosGame GameWith2AwayPlayers = new GameBuilder()
+        .WithTeams(Team1, Team2)
+        .WithMatch(m => m.WithScores(2, 3)
+            .WithHomePlayers(Player1)
+            .WithAwayPlayers(Player2, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
+        .Build();
 
     private readonly CancellationToken _token = new();
     private DivisionDataDtoFactory _factory = null!;
@@ -112,9 +131,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDivision_SetsDivisionPropertiesCorrectly()
     {
-        var context = new DivisionDataContextBuilder().Build();
-
-        var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, new[] { Division1 }, true, _token);
 
         Assert.That(result.Id, Is.EqualTo(Division1.Id));
         Assert.That(result.Name, Is.EqualTo(Division1.Name));
@@ -124,9 +141,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenNoDivision_SetsDivisionPropertiesCorrectly()
     {
-        var context = new DivisionDataContextBuilder().Build();
-
-        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.Name, Is.EqualTo("<0 divisions>"));
@@ -170,14 +185,10 @@ public class DivisionDataDtoFactoryTests
             .WithName("Team 1 - Playing")
             .WithSeason(b => b.ForSeason(Season1, Division1).WithPlayers(Player1))
             .Build();
-        var otherDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(b => b.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
         var game = new GameBuilder()
             .ForSeason(Season1)
             .Knockout()
-            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithTeams(thisDivisionTeam, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
         var context = new DivisionDataContextBuilder()
@@ -197,24 +208,16 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalTeam_AddsDataError()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1, Division1))
-            .Build();
-        var otherDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1))
-            .Build();
         var game = new GameBuilder()
             .ForDivision(Division1)
             .ForSeason(Season1)
-            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithTeams(Team1, Team2)
             .WithMatch(m => m.WithScores(2, 3))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
             .WithSeason(Season1)
-            .WithTeam(thisDivisionTeam)
+            .WithTeam(Team1)
             .Build();
         _user = new UserDto
         {
@@ -226,7 +229,7 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(result.DataErrors.Select(de => de.Message), Has.Member($"Potential cross-division team found: {otherDivisionTeam.Id}"));
+        Assert.That(result.DataErrors.Select(de => de.Message), Has.Member($"Potential cross-division team found: {Team2.Id}"));
     }
 
     [Test]
@@ -237,14 +240,10 @@ public class DivisionDataDtoFactoryTests
             .WithTeams(Team1, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
-        var tournamentGame = new TournamentGameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .AccoladesCount()
-            .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
             .WithTeam(Team1, Team2)
-            .WithTournamentGame(tournamentGame)
+            .WithTournamentGame(TournamentGame)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
@@ -258,20 +257,16 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenTournamentFixturesForDateOnly_SetsFixturesCorrectly()
     {
-        var tournamentGame = new TournamentGameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .AccoladesCount()
-            .Build();
         var context = new DivisionDataContextBuilder()
             .WithTeam(Team1, Team2)
-            .WithTournamentGame(tournamentGame)
+            .WithTournamentGame(TournamentGame)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
         {
-            tournamentGame.Date,
+            TournamentGame.Date,
         }));
         Assert.That(result.Fixtures.SelectMany(fd => fd.Fixtures), Is.Empty);
     }
@@ -439,22 +434,14 @@ public class DivisionDataDtoFactoryTests
     public async Task CreateDivisionDataDto_GivenFixtures_SetsPlayersCorrectly()
     {
         var division = new DivisionDto();
-        var team1 = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player1))
-            .Build();
-        var team2 = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
         var game = new GameBuilder()
             .ForSeason(Season1)
-            .WithTeams(team1, team2)
+            .WithTeams(Team1, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(team1, team2)
+            .WithTeam(Team1, Team2)
             .WithSeason(Season1)
             .Build();
 
@@ -473,31 +460,16 @@ public class DivisionDataDtoFactoryTests
             .WithName("Team 1 - Playing")
             .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1))
             .Build();
-        var otherDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
         var game = new GameBuilder()
             .ForSeason(Season1)
             .ForDivision(Division1)
-            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithTeams(thisDivisionTeam, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
-            .Build();
-        var tournament = new TournamentGameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithSeason(Season1)
-            .WithOneEighties(new TournamentPlayer
-            {
-                Id = Guid.NewGuid(),
-                Name = "Tournament player",
-            })
-            .WithType("Singles")
-            .AccoladesCount()
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
             .WithTeam(thisDivisionTeam)
-            .WithTournamentGame(tournament)
+            .WithTournamentGame(TournamentGame)
             .WithSeason(Season1)
             .Build();
 
@@ -514,14 +486,10 @@ public class DivisionDataDtoFactoryTests
             .WithName("Team 1 - Playing")
             .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1).Deleted())
             .Build();
-        var otherDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
         var game = new GameBuilder()
             .ForSeason(Season1)
             .ForDivision(Division1)
-            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithTeams(thisDivisionTeam, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
         var tournament = new TournamentGameBuilder()
@@ -555,14 +523,10 @@ public class DivisionDataDtoFactoryTests
             .WithName("Team 1 - Playing")
             .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1))
             .Build();
-        var otherDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
         var game = new GameBuilder(new CosmosGame { AccoladesCount = true })
             .ForSeason(Season1)
             .Knockout()
-            .WithTeams(thisDivisionTeam, otherDivisionTeam)
+            .WithTeams(thisDivisionTeam, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .WithOneEighties(Player1, Player2)
             .Build();
@@ -588,20 +552,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenNoFixtures_ReturnsNoPlayers()
     {
-        var team1 = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player1))
-            .Build();
-        var team2 = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithTeam(team1, team2)
-            .WithSeason(Season1)
-            .Build();
-
-        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Players, Is.Empty);
     }
@@ -609,18 +560,6 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenNoFixturesWhenAPlayerManager_ReturnsAllPlayers()
     {
-        var team1 = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player1))
-            .Build();
-        var team2 = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithTeam(team1, team2)
-            .WithSeason(Season1)
-            .Build();
         _user = new UserDto
         {
             Access = new AccessDto
@@ -629,7 +568,7 @@ public class DivisionDataDtoFactoryTests
             },
         };
 
-        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Players.Select(p => p.Name), Is.EquivalentTo(new[]
         {
@@ -644,18 +583,14 @@ public class DivisionDataDtoFactoryTests
             .WithName("Team 1 - Playing")
             .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player1, new GamePlayer { Id = Guid.NewGuid(), Name = "Team 1 not playing player" }))
             .Build();
-        var team2 = new TeamDtoBuilder()
-            .WithName("Team 2 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
-            .Build();
         var game = new GameBuilder()
             .ForSeason(Season1)
-            .WithTeams(team1, team2)
+            .WithTeams(team1, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(team1, team2)
+            .WithTeam(team1, Team2)
             .WithSeason(Season1)
             .Build();
         _user = new UserDto
@@ -679,11 +614,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenSeason_SetsSeasonCorrectly()
     {
-        var context = new DivisionDataContextBuilder()
-            .WithSeason(Season1)
-            .Build();
-
-        var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, Array.Empty<DivisionDto?>(), true, _token);
 
         Assert.That(result.Season!.Id, Is.EqualTo(Season1.Id));
         Assert.That(result.Season!.Name, Is.EqualTo(Season1.Name));
@@ -700,14 +631,8 @@ public class DivisionDataDtoFactoryTests
                 ImportData = true,
             },
         };
-        var game = new GameBuilder()
-            .WithTeams(Team1, Team2)
-            .WithMatch(m => m.WithScores(2, 3)
-                .WithHomePlayers(Player1)
-                .WithAwayPlayers(Player2, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
-            .Build();
         var context = new DivisionDataContextBuilder()
-            .WithGame(game)
+            .WithGame(GameWith2AwayPlayers)
             .WithTeam(Team1, Team2)
             .Build();
 
@@ -715,20 +640,14 @@ public class DivisionDataDtoFactoryTests
 
         var dataError = result.DataErrors.Single();
         Assert.That(dataError.Message, Is.EqualTo($"Mismatching number of players: Home players (1): [{Player1.Name}] vs Away players (2): [{Player2.Name}, C]"));
-        Assert.That(dataError.GameId, Is.EqualTo(game.Id));
+        Assert.That(dataError.GameId, Is.EqualTo(GameWith2AwayPlayers.Id));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotLoggedIn_SetsDataErrorsToEmpty()
     {
-        var game = new GameBuilder()
-            .WithTeams(Team1, Team2)
-            .WithMatch(m => m.WithScores(2, 3)
-                .WithHomePlayers(Player1)
-                .WithHomePlayers(Player2, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
-            .Build();
         var context = new DivisionDataContextBuilder()
-            .WithGame(game)
+            .WithGame(GameWith2AwayPlayers)
             .WithTeam(Team1, Team2)
             .Build();
 
@@ -747,14 +666,8 @@ public class DivisionDataDtoFactoryTests
                 ImportData = false,
             },
         };
-        var game = new GameBuilder()
-            .WithTeams(Team1, Team2)
-            .WithMatch(m => m.WithScores(2, 3)
-                .WithHomePlayers(Player1)
-                .WithHomePlayers(Player2, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
-            .Build();
         var context = new DivisionDataContextBuilder()
-            .WithGame(game)
+            .WithGame(GameWith2AwayPlayers)
             .WithTeam(Team1, Team2)
             .Build();
 
@@ -766,11 +679,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenSingleDivision_ShouldSetNameToDivision()
     {
-        var context = new DivisionDataContextBuilder()
-            .WithSeason(Season1)
-            .Build();
-
-        var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, new[] { Division1 }, true, _token);
 
         Assert.That(result.Name, Is.EqualTo("division1"));
     }
@@ -778,11 +687,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenMultipleDivisions_ShouldSetNameToOrderedDivisionNames()
     {
-        var context = new DivisionDataContextBuilder()
-            .WithSeason(Season1)
-            .Build();
-
-        var result = await _factory.CreateDivisionDataDto(context, new[] { Division2, Division1 }, true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, new[] { Division2, Division1 }, true, _token);
 
         Assert.That(result.Name, Is.EqualTo("division1 & division2"));
     }
@@ -790,9 +695,6 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenMultipleUnnamedDivisions_ShouldSetNameToOrderedDivisionIds()
     {
-        var context = new DivisionDataContextBuilder()
-            .WithSeason(Season1)
-            .Build();
         var division1 = new DivisionDto
         {
             Id = Guid.Parse("a314b4f2-378d-4586-8b1d-eb608c9eb8bd"),
@@ -802,7 +704,7 @@ public class DivisionDataDtoFactoryTests
             Id = Guid.Parse("6732ee72-b72a-4497-9ef4-d779b101bbfd"),
         };
 
-        var result = await _factory.CreateDivisionDataDto(context, new[] { division2, division1 }, true, _token);
+        var result = await _factory.CreateDivisionDataDto(Season1Context, new[] { division2, division1 }, true, _token);
 
         Assert.That(result.Name, Is.EqualTo("6732ee72-b72a-4497-9ef4-d779b101bbfd & a314b4f2-378d-4586-8b1d-eb608c9eb8bd"));
     }
