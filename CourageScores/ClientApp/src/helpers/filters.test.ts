@@ -724,33 +724,20 @@ describe('filters', () => {
     });
 
     describe('changeFilter', () => {
-        let updatedFilter: any;
         let navigated: any;
-        const setFilter = (filter: any) => {
-            updatedFilter = filter
-        };
         const navigate = (params: any) => {
             navigated = params
         };
         const location = {pathname: 'path', hash: '#hash', search: ''};
 
-        it('sets new filter', () => {
-            updatedFilter = null;
+        beforeEach(() => {
             navigated = null;
-            const filter: IInitialisedFilters = {new: true} as IInitialisedFilters;
-
-            changeFilter(filter, setFilter, navigate, location);
-
-            expect(updatedFilter).not.toBeNull();
-            expect(updatedFilter).toEqual(filter);
         });
 
         it('removes unset filters from search', () => {
-            updatedFilter = null;
-            navigated = null;
-            const filter = {type: '', date: 'past'};
+            const filter: IInitialisedFilters = {type: '', date: 'past'};
 
-            changeFilter(filter, setFilter, navigate, location);
+            changeFilter(filter, navigate, location);
 
             expect(navigated).toBeTruthy();
             expect(navigated!.search).toEqual('date=past');
@@ -759,11 +746,9 @@ describe('filters', () => {
         });
 
         it('navigates with new search params', () => {
-            updatedFilter = null;
-            navigated = null;
-            const filter = {type: 'league', date: 'past'};
+            const filter: IInitialisedFilters = {type: 'league', date: 'past'};
 
-            changeFilter(filter, setFilter, navigate, location);
+            changeFilter(filter, navigate, location);
 
             expect(navigated).toBeTruthy();
             expect(navigated!.search).toContain('date=past');
@@ -773,12 +758,10 @@ describe('filters', () => {
         });
 
         it('retains unrelated filters', () => {
-            updatedFilter = null;
-            navigated = null;
-            const filter = {type: 'league', date: 'past'};
+            const filter: IInitialisedFilters = {type: 'league', date: 'past'};
             const locationWithOtherSearchParams = {pathname: 'path', hash: '#hash', search: '?division=abcd&division=efgh'};
 
-            changeFilter(filter, setFilter, navigate, locationWithOtherSearchParams);
+            changeFilter(filter, navigate, locationWithOtherSearchParams);
 
             expect(navigated).toBeTruthy();
             expect(navigated!.search).toContain('date=past');
@@ -789,12 +772,10 @@ describe('filters', () => {
         });
 
         it('does not retain removed filters', () => {
-            updatedFilter = null;
-            navigated = null;
-            const filter = {};
+            const filter: IInitialisedFilters = {};
             const locationWithOtherSearchParams = {pathname: 'path', hash: '#hash', search: '?division=abcd&notes=Pairs&date=past&team=a&type=league'};
 
-            changeFilter(filter, setFilter, navigate, locationWithOtherSearchParams);
+            changeFilter(filter, navigate, locationWithOtherSearchParams);
 
             expect(navigated).toBeTruthy();
             expect(navigated!.search).not.toContain('notes=Pairs');

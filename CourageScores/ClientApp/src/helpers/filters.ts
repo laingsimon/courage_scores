@@ -181,9 +181,7 @@ export function initFilter(location: { search: string }): IInitialisedFilters {
     return filter;
 }
 
-export function changeFilter(newFilter: IInitialisedFilters, setFilter: (filter: IInitialisedFilters) => any, navigate: Function, location: { pathname: string, hash: string, search: string }) {
-    setFilter(newFilter);
-
+export function changeFilter(newFilter: IInitialisedFilters, navigate: Function, location: { pathname: string, hash: string, search: string }) {
     const overallSearch: URLSearchParams = new URLSearchParams(newFilter as any);
     const searchParams: URLSearchParams = new URLSearchParams(location.search);
     const filterKeys: string[] = [ 'date', 'notes', 'team', 'type' ];
