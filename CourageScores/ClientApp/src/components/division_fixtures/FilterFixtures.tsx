@@ -59,6 +59,10 @@ export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
         upsertPreference('favouriteTeamIds', null);
     }
 
+    async function clearFilters() {
+        await setFilter({});
+    }
+
     return (<div className="mb-3" datatype="fixture-filters">
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'type')} options={typeFilters}
                            value={filter.type || null} className="dynamic-width-dropdown margin-right"/>
@@ -70,5 +74,6 @@ export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
         <ShareButton text={`${name}, fixtures`}/>
         {favouritesEnabled && any(favouriteTeamIds) ? (
             <button className="btn btn-sm btn-outline-danger margin-left" title="Clear favourites" onClick={clearFavourites}>🌟</button>) : null}
+        {any(Object.keys(filter)) ? (<button className="btn btn-sm btn-outline-primary margin-left" title="Clear all filters" onClick={clearFilters}>➖</button>) : null}
     </div>);
 }
