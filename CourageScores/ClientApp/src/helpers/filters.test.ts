@@ -787,5 +787,23 @@ describe('filters', () => {
             expect(navigated!.pathname).toEqual(location.pathname);
             expect(navigated!.hash).toEqual(location.hash);
         });
+
+        it('does not retain removed filters', () => {
+            updatedFilter = null;
+            navigated = null;
+            const filter = {};
+            const locationWithOtherSearchParams = {pathname: 'path', hash: '#hash', search: '?division=abcd&notes=Pairs&date=past&team=a&type=league'};
+
+            changeFilter(filter, setFilter, navigate, locationWithOtherSearchParams);
+
+            expect(navigated).toBeTruthy();
+            expect(navigated!.search).not.toContain('notes=Pairs');
+            expect(navigated!.search).not.toContain('date=past');
+            expect(navigated!.search).not.toContain('team=a');
+            expect(navigated!.search).not.toContain('type=league');
+            expect(navigated!.search).toContain('division=abcd');
+            expect(navigated!.pathname).toEqual(location.pathname);
+            expect(navigated!.hash).toEqual(location.hash);
+        });
     });
 });

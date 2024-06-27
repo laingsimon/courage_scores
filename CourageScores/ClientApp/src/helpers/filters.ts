@@ -186,9 +186,14 @@ export function changeFilter(newFilter: IInitialisedFilters, setFilter: (filter:
 
     const overallSearch: URLSearchParams = new URLSearchParams(newFilter as any);
     const searchParams: URLSearchParams = new URLSearchParams(location.search);
+    const filterKeys: string[] = [ 'date', 'notes', 'team', 'type' ];
+
     for (let key of searchParams.keys()) {
         if (overallSearch.has(key)) {
             continue; // repeated keys (e.g. ?division=1&division=2 are returned twice, not once
+        }
+        if (any(filterKeys, k => k === key)) {
+            continue; // don't add filters via this loop, they should have been added via the construction of overallSearch
         }
         const values: string[] = searchParams.getAll(key);
         for (let value of values) {
