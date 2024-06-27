@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {FilterFixtures} from "./FilterFixtures";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
@@ -48,6 +48,10 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     const [showPlayers, setShowPlayers] = useState<{ [date: string]: boolean }>(getPlayersToShow());
     const [createFixturesDialogOpen, setCreateFixturesDialogOpen] = useState<boolean>(false);
     const {setTitle} = useBranding();
+
+    useEffect(() => {
+        setFilter(initFilter(location));
+    }, [location]);
 
     function getPlayersToShow(): { [date: string]: boolean } {
         if (location.hash !== '#show-who-is-playing') {
@@ -226,7 +230,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
         return (<div className="content-background p-3">
             {controls
                 ? (<FilterFixtures
-                    setFilter={async (newFilter: IInitialisedFilters) => changeFilter(newFilter, setFilter, navigate, location)}
+                    setFilter={async (newFilter: IInitialisedFilters) => changeFilter(newFilter, navigate, location)}
                     filter={filter}/>)
                 : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}

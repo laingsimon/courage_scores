@@ -18,6 +18,11 @@ import {IPreferenceData} from "../common/PreferencesContainer";
 
 describe('FilterFixtures', () => {
     let context: TestContext;
+    let newFilter: IInitialisedFilters;
+
+    beforeEach(() => {
+        newFilter = null;
+    })
 
     afterEach(() => {
         cleanUp(context);
@@ -31,7 +36,8 @@ describe('FilterFixtures', () => {
         return null;
     }
 
-    async function setFilter(_: IInitialisedFilters) {
+    async function setFilter(filters: IInitialisedFilters) {
+        newFilter = filters;
     }
 
     async function renderComponent(props: IFilterFixturesProps, divisionData: IDivisionDataContainerProps, initialPreferences?: IPreferenceData) {
@@ -317,6 +323,22 @@ describe('FilterFixtures', () => {
             expect(context.cookies.get('preferences')).toEqual({
                 someOtherPreference: 'FOO',
             });
+        });
+
+        it('clears filters', async () => {
+            await renderComponent(
+                { filter: {team: 'TEAM'}, setFilter },
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+
+            await doClick(findButton(context.container, '➖'));
+
+            expect(newFilter).toEqual({});
         });
     });
 });
