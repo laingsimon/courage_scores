@@ -32,6 +32,7 @@ export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
     ];
 
     const dateFilters = [
+        {value: null, text: 'All dates'},
         {value: 'past', text: 'Past dates'},
         {value: 'last-week', text: 'Last week'},
         {value: 'yesterday', text: 'Yesterday'},
@@ -40,7 +41,6 @@ export function FilterFixtures({filter, setFilter}: IFilterFixturesProps) {
         {value: 'tomorrow', text: 'Tomorrow'},
         {value: 'next-week', text: 'Next week'},
         {value: 'future', text: 'Future dates'},
-        {value: null, text: 'All dates'},
     ];
 
     if (filter.date && isEmpty(dateFilters, f => f.value === filter.date)) {
