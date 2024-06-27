@@ -17,6 +17,63 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class FinalsNightReportTests
 {
+    private static readonly DivisionTeamDto Team1 = new DivisionTeamDto
+    {
+        Name = "TEAM 1",
+        Id = Guid.NewGuid(),
+    };
+    private static readonly DivisionTeamDto  Team2 = new DivisionTeamDto
+    {
+        Name = "TEAM 2",
+        Id = Guid.NewGuid(),
+    };
+    private static readonly DivisionTeamDto  Team3 = new DivisionTeamDto
+    {
+        Name = "TEAM 3",
+        Id = Guid.NewGuid(),
+    };
+    private static readonly DivisionTeamDto  Team4 = new DivisionTeamDto
+    {
+        Name = "TEAM 4",
+        Id = Guid.NewGuid(),
+    };
+    private static readonly DivisionPlayerDto Player1 = new DivisionPlayerDto
+    {
+        Name = "PLAYER_1",
+        Over100Checkouts = 101,
+        OneEighties = 2,
+        Id = Guid.NewGuid(),
+        TeamId = Guid.NewGuid(),
+        Team = "TEAM 1",
+    };
+    private static readonly DivisionPlayerDto Player2 = new DivisionPlayerDto
+    {
+        Name = "PLAYER_2",
+        Over100Checkouts = 101,
+        OneEighties = 2,
+        Id = Guid.NewGuid(),
+        TeamId = Player1.TeamId,
+        Team = Player1.Team,
+    };
+    private static readonly DivisionPlayerDto Player3 = new DivisionPlayerDto
+    {
+        Name = "PLAYER_3",
+        Over100Checkouts = 102,
+        OneEighties = 3,
+        Id = Guid.NewGuid(),
+        TeamId = Guid.NewGuid(),
+        Team = "TEAM 3",
+    };
+    private static readonly DivisionPlayerDto Player4 = new DivisionPlayerDto
+    {
+        Name = "PLAYER_4",
+        Over100Checkouts = 102,
+        OneEighties = 3,
+        Id = Guid.NewGuid(),
+        TeamId = Player3.TeamId,
+        Team = Player3.Team,
+    };
+
     private readonly CancellationToken _token = new CancellationToken();
     private Mock<IUserService> _userService = null!;
     private Mock<IReport> _manOfTheMatchReport = null!;
@@ -33,6 +90,7 @@ public class FinalsNightReportTests
     private PlayerLookup _playerLookup = null!;
     private ReportDto _momReport = null!;
     private TournamentGameDto _tournament = null!;
+    private DivisionFixtureDateDto _tournamentFixtureDateDto;
 
     [SetUp]
     public void SetupEachTest()
@@ -101,12 +159,36 @@ public class FinalsNightReportTests
                 },
             },
         };
+        _tournamentFixtureDateDto = new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Proposed = false,
+                },
+            },
+        };
         _report = new FinalsNightReport(
             _userService.Object,
             _manOfTheMatchReport.Object,
             _season,
             _divisionService.Object,
             _tournamentService.Object);
+        _tournamentFixtureDateDto = new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Proposed = false,
+                },
+            },
+        };
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
@@ -162,18 +244,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentHasNoType_ReturnsAddressAndDate()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Date = new DateTime(2001, 02, 03);
         _tournament.Type = null;
         _tournament.Address = "ADDRESS";
@@ -189,18 +260,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentHasEmptyType_ReturnsAddressAndDate()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Date = new DateTime(2001, 02, 03);
         _tournament.Type = "";
         _tournament.Address = "ADDRESS";
@@ -216,20 +276,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentIsCrossDivisional_ReturnsAddressAndDate()
     {
-        var tournamentData = new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        };
-        _divisionData1.Fixtures.Add(tournamentData);
-        _divisionData2.Fixtures.Add(tournamentData);
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
+        _divisionData2.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Type = "Finals Night";
         _tournament.DivisionId = null;
         _tournament.Round!.Matches.Clear();
@@ -245,18 +293,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentIsSuperLeague_ExcludesTournament()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Type = "SuperLeague";
         _tournament.SingleRound = true;
 
@@ -269,18 +306,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentIsExcludedFromReports_ExcludesTournament()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Type = "Singles";
         _tournament.ExcludeFromReports = true;
 
@@ -293,18 +319,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentHasNotBeenPlayed_ReturnsWarning()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Type = "Knockout";
         _tournament.DivisionId = null;
         _tournament.Round!.Matches.Clear();
@@ -319,18 +334,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentHasNoWinner_ReturnsWarning()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Type = "Knockout";
         _tournament.DivisionId = null;
         _tournament.Round!.Matches[0].ScoreA = 1;
@@ -346,18 +350,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsWithNestedWinner_ReturnsKnockout()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Round!.NextRound = new TournamentRoundDto
         {
             Matches =
@@ -392,18 +385,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsWithNoRound_ReturnsKnockout()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Round = null;
         _tournament.DivisionId = null;
         _tournament.Type = "Knockout";
@@ -418,18 +400,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsNoSideNames_ReturnsNoSideName()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Round!.Matches[0].SideA.Name = null;
         _tournament.Round!.Matches[0].SideB.Name = null;
         _tournament.DivisionId = null;
@@ -447,18 +418,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsEmptySideNames_ReturnsNoSideName()
     {
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                    Proposed = false,
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Round!.Matches[0].SideA.Name = "";
         _tournament.Round!.Matches[0].SideB.Name = "";
         _tournament.DivisionId = null;
@@ -564,42 +524,10 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithMost180s_Returns180sForEachDivisions()
     {
-        var player1 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_1",
-            OneEighties = 2,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 1",
-        };
-        var player2 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_2",
-            OneEighties = 2,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 2",
-        };
-        var player3 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_3",
-            OneEighties = 3,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 3",
-        };
-        var player4 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_4",
-            OneEighties = 3,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 4",
-        };
-        _divisionData1.Players.Add(player1);
-        _divisionData1.Players.Add(player2);
-        _divisionData2.Players.Add(player3);
-        _divisionData2.Players.Add(player4);
+        _divisionData1.Players.Add(Player1);
+        _divisionData1.Players.Add(Player2);
+        _divisionData2.Players.Add(Player3);
+        _divisionData2.Players.Add(Player4);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -611,50 +539,18 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithMost180sFromTheSameTeam_Returns180sForEachDivisions()
     {
-        var player1 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_1",
-            OneEighties = 2,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 1",
-        };
-        var player2 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_2",
-            OneEighties = 2,
-            Id = Guid.NewGuid(),
-            TeamId = player1.TeamId,
-            Team = player1.Team,
-        };
-        var player3 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_3",
-            OneEighties = 3,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 3",
-        };
-        var player4 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_4",
-            OneEighties = 3,
-            Id = Guid.NewGuid(),
-            TeamId = player3.TeamId,
-            Team = player3.Team,
-        };
-        _divisionData1.Players.Add(player1);
-        _divisionData1.Players.Add(player2);
-        _divisionData2.Players.Add(player3);
-        _divisionData2.Players.Add(player4);
+        _divisionData1.Players.Add(Player1);
+        _divisionData1.Players.Add(Player2);
+        _divisionData2.Players.Add(Player3);
+        _divisionData2.Players.Add(Player4);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1, PLAYER_2", "2");
         AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3, PLAYER_4", "3");
-        AssertTeamLink(report, "Division 1: Most 180s", 1, player1.Team, player1.TeamId, _division1);
-        AssertTeamLink(report, "Division 2: Most 180s", 1, player3.Team, player3.TeamId, _division2);
+        AssertTeamLink(report, "Division 1: Most 180s", 1, Player1.Team, Player1.TeamId, _division1);
+        AssertTeamLink(report, "Division 2: Most 180s", 1, Player3.Team, Player3.TeamId, _division2);
     }
 
     [Test]
@@ -716,42 +612,10 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithHighestCheck_ReturnsHiChecksForEachDivisions()
     {
-        var player1 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_1",
-            Over100Checkouts = 101,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 1",
-        };
-        var player2 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_2",
-            Over100Checkouts = 101,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 2",
-        };
-        var player3 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_3",
-            Over100Checkouts = 102,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 3",
-        };
-        var player4 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_4",
-            Over100Checkouts = 102,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 4",
-        };
-        _divisionData1.Players.Add(player1);
-        _divisionData1.Players.Add(player2);
-        _divisionData2.Players.Add(player3);
-        _divisionData2.Players.Add(player4);
+        _divisionData1.Players.Add(Player1);
+        _divisionData1.Players.Add(Player2);
+        _divisionData2.Players.Add(Player3);
+        _divisionData2.Players.Add(Player4);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -763,50 +627,18 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithHighestCheckFromTheSameTeam_ReturnsHiChecksForEachDivisions()
     {
-        var player1 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_1",
-            Over100Checkouts = 101,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 1",
-        };
-        var player2 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_2",
-            Over100Checkouts = 101,
-            Id = Guid.NewGuid(),
-            TeamId = player1.TeamId,
-            Team = player1.Team,
-        };
-        var player3 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_3",
-            Over100Checkouts = 102,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-            Team = "TEAM 3",
-        };
-        var player4 = new DivisionPlayerDto
-        {
-            Name = "PLAYER_4",
-            Over100Checkouts = 102,
-            Id = Guid.NewGuid(),
-            TeamId = player3.TeamId,
-            Team = player3.Team,
-        };
-        _divisionData1.Players.Add(player1);
-        _divisionData1.Players.Add(player2);
-        _divisionData2.Players.Add(player3);
-        _divisionData2.Players.Add(player4);
+        _divisionData1.Players.Add(Player1);
+        _divisionData1.Players.Add(Player2);
+        _divisionData2.Players.Add(Player3);
+        _divisionData2.Players.Add(Player4);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1, PLAYER_2", "101");
         AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3, PLAYER_4", "102");
-        AssertTeamLink(report, "Division 1: Highest checkout", 1, player1.Team, player1.TeamId, _division1);
-        AssertTeamLink(report, "Division 2: Highest checkout", 1, player3.Team, player3.TeamId, _division2);
+        AssertTeamLink(report, "Division 1: Highest checkout", 1, Player1.Team, Player1.TeamId, _division1);
+        AssertTeamLink(report, "Division 2: Highest checkout", 1, Player3.Team, Player3.TeamId, _division2);
     }
 
     [Test]
@@ -843,30 +675,10 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultipleTeamsRanked_ReturnsWinningAndRunnerUpTeams()
     {
-        var team1 = new DivisionTeamDto
-        {
-            Name = "TEAM 1",
-            Id = Guid.NewGuid(),
-        };
-        var team2 = new DivisionTeamDto
-        {
-            Name = "TEAM 2",
-            Id = Guid.NewGuid(),
-        };
-        var team3 = new DivisionTeamDto
-        {
-            Name = "TEAM 3",
-            Id = Guid.NewGuid(),
-        };
-        var team4 = new DivisionTeamDto
-        {
-            Name = "TEAM 4",
-            Id = Guid.NewGuid(),
-        };
-        _divisionData1.Teams.Add(team1);
-        _divisionData1.Teams.Add(team2);
-        _divisionData2.Teams.Add(team3);
-        _divisionData2.Teams.Add(team4);
+        _divisionData1.Teams.Add(Team1);
+        _divisionData1.Teams.Add(Team2);
+        _divisionData2.Teams.Add(Team3);
+        _divisionData2.Teams.Add(Team4);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -875,10 +687,10 @@ public class FinalsNightReportTests
         AssertReportRow(report, "Division 1: winner", "TEAM 1");
         AssertReportRow(report, "Division 2: runner up", "TEAM 4");
         AssertReportRow(report, "Division 2: winner", "TEAM 3");
-        AssertTeamLink(report, "Division 1: runner up", 1, team2.Name, team2.Id, _division1);
-        AssertTeamLink(report, "Division 1: winner", 1, team1.Name, team1.Id, _division1);
-        AssertTeamLink(report, "Division 2: runner up", 1, team4.Name, team4.Id, _division2);
-        AssertTeamLink(report, "Division 2: winner", 1, team3.Name, team3.Id, _division2);
+        AssertTeamLink(report, "Division 1: runner up", 1, Team2.Name, Team2.Id, _division1);
+        AssertTeamLink(report, "Division 1: winner", 1, Team1.Name, Team1.Id, _division1);
+        AssertTeamLink(report, "Division 2: runner up", 1, Team4.Name, Team4.Id, _division2);
+        AssertTeamLink(report, "Division 2: winner", 1, Team3.Name, Team3.Id, _division2);
     }
 
     [Test]

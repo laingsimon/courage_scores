@@ -35,8 +35,8 @@ export class UnplayedEngine implements ILayoutEngine {
         };
 
         const remainingSides: string[] = sideMnemonics.filter((s: string) => !!s); // copy the sides
-        const preRound: ILayoutDataForRound = this.producePreRound(context, preRoundTeams, remainingSides, request.sides);
-        let previousRound: ILayoutDataForRound = preRound;
+        const preRound: ILayoutDataForRound[] = this.producePreRound(context, preRoundTeams, remainingSides, request.sides);
+        let previousRound: ILayoutDataForRound = preRound[0];
 
         const subsequentRounds: ILayoutDataForRound[] = repeat(fullRoundCount).map(_ => {
             const round: ILayoutDataForRound = this.produceRound(context, previousRound, remainingSides);
@@ -44,9 +44,46 @@ export class UnplayedEngine implements ILayoutEngine {
             return round;
         });
 
-        return preRound
-            ? [preRound].concat(subsequentRounds)
-            : subsequentRounds;
+        return preRound.concat(subsequentRounds);
+    }
+
+    private producePreRound(context: IRequestContext, preRoundTeams: number, remainingSides: string[], sides: TournamentSideDto[]): ILayoutDataForRound[] {
+        if (preRoundTeams <= 0) {
+            return [];
+        }
+
+        return [ {
+            matches: this.produceMatchesFromRemainingSides(context, remainingSides, preRoundTeams),
+            name: 'Preliminary',
+            possibleSides: sides,
+            alreadySelectedSides: [],
+            preRound: true,
+        } ];
+    }
+
+    private produceRound(context: IRequestContext, previousRound: ILayoutDataForRound, remainingSides: string[]): ILayoutDataForRound {
+        const previousRoundMatches: ILayoutDataForMatch[] = previousRound
+            ? previousRound.matches.filter((m: ILayoutDataForMatch) => !!m) // copy the array as it will be mutated
+            : [];
+
+        const remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound: number = previousRound ? Math.max(remainingSides.length - previousRound.matches.length, 0) : remainingSides.length;
+        const remainingSidesExceptThoseRequiredForPreRound: string[] = take(remainingSides, remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound);
+        const thisRoundMatches: ILayoutDataForMatch[] = !previousRound || previousRound.preRound
+            ? this.produceMatchesFromRemainingSides(context, remainingSidesExceptThoseRequiredForPreRound, remainingSidesExceptThoseRequiredForPreRound.length / 2)
+            : [];
+        const previousRoundWinnerMatches: ILayoutDataForMatch[] = this.produceMatchesFromPreviousRoundWinners(
+            context,
+            previousRoundMatches,
+            skip(remainingSides, remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound),
+            previousRound && previousRound.preRound);
+
+        return {
+            matches: thisRoundMatches.concat(previousRoundWinnerMatches),
+            name: this.getRoundName(context, thisRoundMatches.length + previousRoundWinnerMatches.length),
+            possibleSides: context.sides,
+            alreadySelectedSides: [],
+            preRound: false,
+        };
     }
 
     private produceMatchesFromRemainingSides(context: IRequestContext, remainingSides: string[], count: number): ILayoutDataForMatch[] {
@@ -82,45 +119,6 @@ export class UnplayedEngine implements ILayoutEngine {
         }
 
         return matches;
-    }
-
-    private produceRound(context: IRequestContext, previousRound: ILayoutDataForRound, remainingSides: string[]): ILayoutDataForRound {
-        const previousRoundMatches: ILayoutDataForMatch[] = previousRound
-            ? previousRound.matches.filter((m: ILayoutDataForMatch) => !!m) // copy the array as it will be mutated
-            : [];
-
-        const remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound: number = previousRound ? Math.max(remainingSides.length - previousRound.matches.length, 0) : remainingSides.length;
-        const remainingSidesExceptThoseRequiredForPreRound: string[] = take(remainingSides, remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound);
-        const thisRoundMatches: ILayoutDataForMatch[] = !previousRound || previousRound.preRound
-            ? this.produceMatchesFromRemainingSides(context, remainingSidesExceptThoseRequiredForPreRound, remainingSidesExceptThoseRequiredForPreRound.length / 2)
-            : [];
-        const previousRoundWinnerMatches: ILayoutDataForMatch[] = this.produceMatchesFromPreviousRoundWinners(
-            context,
-            previousRoundMatches,
-            skip(remainingSides, remainingSidesForThisRoundExceptRequiredToPlayOffAgainstPreviousRound),
-            previousRound && previousRound.preRound);
-
-        return {
-            matches: thisRoundMatches.concat(previousRoundWinnerMatches),
-            name: this.getRoundName(context, thisRoundMatches.length + previousRoundWinnerMatches.length),
-            possibleSides: context.sides,
-            alreadySelectedSides: [],
-            preRound: false,
-        };
-    }
-
-    private producePreRound(context: IRequestContext, preRoundTeams: number, remainingSides: string[], sides: TournamentSideDto[]): ILayoutDataForRound {
-        if (preRoundTeams <= 0) {
-            return null;
-        }
-
-        return {
-            matches: this.produceMatchesFromRemainingSides(context, remainingSides, preRoundTeams),
-            name: 'Preliminary',
-            possibleSides: sides,
-            alreadySelectedSides: [],
-            preRound: true,
-        };
     }
 
     private throwIfNull<T>(value: T, message: string): T {
