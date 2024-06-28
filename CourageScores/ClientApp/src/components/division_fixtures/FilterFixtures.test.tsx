@@ -2,7 +2,7 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doClick, doSelectOption,
+    doClick,
     findButton,
     iocProps,
     renderApp,
@@ -15,13 +15,6 @@ import {teamBuilder} from "../../helpers/builders/teams";
 import {IInitialisedFilters} from "../../helpers/filters";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {IPreferenceData} from "../common/PreferencesContainer";
-
-const mockedUsedNavigate = jest.fn();
-
-jest.mock('react-router-dom', () => ({
-    ...jest.requireActual('react-router-dom'),
-    useNavigate: () => mockedUsedNavigate,
-}));
 
 describe('FilterFixtures', () => {
     let context: TestContext;
@@ -50,6 +43,15 @@ describe('FilterFixtures', () => {
             `/fixtures?${new URLSearchParams(filter).toString()}`,
             null,
             initialPreferences);
+    }
+
+    function getFilterOptionLink(filterType: string, text: string): HTMLAnchorElement {
+        const filterDropDown = context.container.querySelector(`[datatype="${filterType}"] .dropdown-menu`);
+        const items: HTMLElement[] = Array.from(filterDropDown.querySelectorAll('.dropdown-item')) as HTMLElement[];
+        const item: HTMLElement = items.filter((i: HTMLElement) => i.textContent === text)[0];
+        const link: HTMLAnchorElement = item.childNodes[0] as HTMLAnchorElement;
+        expect(link).toBeTruthy();
+        return link;
     }
 
     describe('type', () => {
@@ -94,7 +96,7 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
+            const dropDown = context.container.querySelector(`[datatype="type-filter"]`);
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All fixtures');
@@ -111,13 +113,8 @@ describe('FilterFixtures', () => {
                     favouritesEnabled: true,
                 }, {});
 
-            await doSelectOption(context.container.querySelector('[datatype="type-filter"] .dropdown-menu'), 'League fixtures');
-
-            expect(mockedUsedNavigate).toHaveBeenCalledWith({
-                hash: '',
-                pathname: '/fixtures',
-                search: 'type=league&division=DIVISION',
-            });
+            expect(getFilterOptionLink('type-filter', 'League fixtures').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION&type=league');
         });
 
         it('changes url to exclude filter', async () => {
@@ -131,13 +128,8 @@ describe('FilterFixtures', () => {
                     favouritesEnabled: true,
                 }, {});
 
-            await doSelectOption(context.container.querySelector('[datatype="type-filter"] .dropdown-menu'), 'All fixtures');
-
-            expect(mockedUsedNavigate).toHaveBeenCalledWith({
-                hash: '',
-                pathname: '/fixtures',
-                search: 'division=DIVISION',
-            });
+            expect(getFilterOptionLink('type-filter', 'All fixtures').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION');
         });
     });
 
@@ -202,7 +194,7 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
+            const dropDown = context.container.querySelector(`[datatype="date-filter"]`);
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All dates');
@@ -219,13 +211,8 @@ describe('FilterFixtures', () => {
                     favouritesEnabled: true,
                 }, {});
 
-            await doSelectOption(context.container.querySelector('[datatype="date-filter"] .dropdown-menu'), 'Future dates');
-
-            expect(mockedUsedNavigate).toHaveBeenCalledWith({
-                hash: '',
-                pathname: '/fixtures',
-                search: 'date=future&division=DIVISION',
-            });
+            expect(getFilterOptionLink('date-filter', 'Future dates').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION&date=future');
         });
 
         it('changes url to exclude filter', async () => {
@@ -239,13 +226,8 @@ describe('FilterFixtures', () => {
                     favouritesEnabled: true,
                 }, {});
 
-            await doSelectOption(context.container.querySelector('[datatype="date-filter"] .dropdown-menu'), 'All dates');
-
-            expect(mockedUsedNavigate).toHaveBeenCalledWith({
-                hash: '',
-                pathname: '/fixtures',
-                search: 'division=DIVISION',
-            });
+            expect(getFilterOptionLink('date-filter', 'All dates').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION');
         });
     });
 
@@ -293,7 +275,7 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
+            const dropDown = context.container.querySelector(`[datatype="team-filter"]`);
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All teams');
@@ -311,13 +293,8 @@ describe('FilterFixtures', () => {
                     favouritesEnabled: true,
                 }, {});
 
-            await doSelectOption(context.container.querySelector('[datatype="team-filter"] .dropdown-menu'), 'TEAM');
-
-            expect(mockedUsedNavigate).toHaveBeenCalledWith({
-                hash: '',
-                pathname: '/fixtures',
-                search: 'team=team&division=DIVISION',
-            });
+            expect(getFilterOptionLink('team-filter', 'TEAM').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION&team=team');
         });
 
         it('changes url to exclude filter', async () => {
@@ -331,13 +308,8 @@ describe('FilterFixtures', () => {
                     favouritesEnabled: true,
                 }, {});
 
-            await doSelectOption(context.container.querySelector('[datatype="team-filter"] .dropdown-menu'), 'All teams');
-
-            expect(mockedUsedNavigate).toHaveBeenCalledWith({
-                hash: '',
-                pathname: '/fixtures',
-                search: 'division=DIVISION',
-                });
+            expect(getFilterOptionLink('team-filter', 'All teams').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION');
         });
     });
 
@@ -352,14 +324,9 @@ describe('FilterFixtures', () => {
                     teams: [],
                     favouritesEnabled: true,
                 }, {});
+            const button: HTMLAnchorElement = context.container.querySelector('a[title="Clear all filters"]') as HTMLAnchorElement;
 
-            await doClick(findButton(context.container, '➖'));
-
-            expect(mockedUsedNavigate).toHaveBeenCalledWith({
-                hash: '',
-                pathname: '/fixtures',
-                search: 'division=DIVISION',
-            });
+            expect(button.href).toEqual('http://localhost/fixtures?division=DIVISION');
         });
 
         it('does not show button if no filters', async () => {
