@@ -9,7 +9,7 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
-import {FilterFixtures, IFilterFixturesProps} from "./FilterFixtures";
+import {FilterFixtures} from "./FilterFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {IInitialisedFilters} from "../../helpers/filters";
@@ -18,11 +18,6 @@ import {IPreferenceData} from "../common/PreferencesContainer";
 
 describe('FilterFixtures', () => {
     let context: TestContext;
-    let newFilter: IInitialisedFilters;
-
-    beforeEach(() => {
-        newFilter = null;
-    })
 
     afterEach(() => {
         cleanUp(context);
@@ -36,28 +31,33 @@ describe('FilterFixtures', () => {
         return null;
     }
 
-    async function setFilter(filters: IInitialisedFilters) {
-        newFilter = filters;
-    }
-
-    async function renderComponent(props: IFilterFixturesProps, divisionData: IDivisionDataContainerProps, initialPreferences?: IPreferenceData) {
+    async function renderComponent(filter: IInitialisedFilters, divisionData: IDivisionDataContainerProps, initialPreferences?: IPreferenceData) {
         context = await renderApp(
             iocProps(),
             brandingProps(),
             appProps(),
             (<DivisionDataContainer {...divisionData}>
-                <FilterFixtures {...props}/>
+                <FilterFixtures />
             </DivisionDataContainer>),
-            null,
-            null,
+            '/fixtures',
+            `/fixtures?${new URLSearchParams(filter).toString()}`,
             null,
             initialPreferences);
+    }
+
+    function getFilterOptionLink(filterType: string, text: string): HTMLAnchorElement {
+        const filterDropDown = context.container.querySelector(`[datatype="${filterType}"] .dropdown-menu`);
+        const items: HTMLElement[] = Array.from(filterDropDown.querySelectorAll('.dropdown-item')) as HTMLElement[];
+        const item: HTMLElement = items.filter((i: HTMLElement) => i.textContent === text)[0];
+        const link: HTMLAnchorElement = item.childNodes[0] as HTMLAnchorElement;
+        expect(link).toBeTruthy();
+        return link;
     }
 
     describe('type', () => {
         it('when selected', async () => {
             await renderComponent(
-                { filter: {type: 'league'}, setFilter },
+                {type: 'league'},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -73,7 +73,7 @@ describe('FilterFixtures', () => {
 
         it('when unrecognised', async () => {
             await renderComponent(
-                { filter: {type: 'foo'}, setFilter },
+                {type: 'foo'},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -88,7 +88,7 @@ describe('FilterFixtures', () => {
 
         it('when unselected', async () => {
             await renderComponent(
-                { filter: {}, setFilter },
+                {},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -96,17 +96,47 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
+            const dropDown = context.container.querySelector(`[datatype="type-filter"]`);
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All fixtures');
+        });
+
+        it('changes url to include filter', async () => {
+            await renderComponent(
+                {division: 'DIVISION'},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+
+            expect(getFilterOptionLink('type-filter', 'League fixtures').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION&type=league');
+        });
+
+        it('changes url to exclude filter', async () => {
+            await renderComponent(
+                {type: 'league', division: 'DIVISION'},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+
+            expect(getFilterOptionLink('type-filter', 'All fixtures').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION');
         });
     });
 
     describe('date', () => {
         it('when selected', async () => {
             await renderComponent(
-                { filter: {date: 'past'}, setFilter },
+                {date: 'past'},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -124,7 +154,7 @@ describe('FilterFixtures', () => {
             const date = '2023-01-01';
             const expectedDate = renderDate(date);
             await renderComponent(
-                { filter: {date}, setFilter },
+                {date},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -140,7 +170,7 @@ describe('FilterFixtures', () => {
 
         it('when unrecognised', async () => {
             await renderComponent(
-                { filter: {date: 'foo'}, setFilter },
+                {date: 'foo'},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -156,7 +186,7 @@ describe('FilterFixtures', () => {
 
         it('when unselected', async () => {
             await renderComponent(
-                { filter: {}, setFilter },
+                {},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -164,10 +194,40 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
+            const dropDown = context.container.querySelector(`[datatype="date-filter"]`);
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All dates');
+        });
+
+        it('changes url to include filter', async () => {
+            await renderComponent(
+                {division: 'DIVISION'},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+
+            expect(getFilterOptionLink('date-filter', 'Future dates').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION&date=future');
+        });
+
+        it('changes url to exclude filter', async () => {
+            await renderComponent(
+                {date: '2023-01-01', division: 'DIVISION'},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+
+            expect(getFilterOptionLink('date-filter', 'All dates').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION');
         });
     });
 
@@ -175,7 +235,7 @@ describe('FilterFixtures', () => {
         it('when selected', async () => {
             const team = teamBuilder('TEAM').build();
             await renderComponent(
-                { filter: {team: 'TEAM'}, setFilter },
+                {team: 'TEAM'},
                 {
                     name: 'DIVISION',
                     teams: [team],
@@ -192,7 +252,7 @@ describe('FilterFixtures', () => {
         it('when unrecognised', async () => {
             const team = teamBuilder('TEAM').build();
             await renderComponent(
-                { filter: {team: '1234'}, setFilter },
+                {team: '1234'},
                 {
                     name: 'DIVISION',
                     teams: [team],
@@ -207,7 +267,7 @@ describe('FilterFixtures', () => {
 
         it('when unselected', async () => {
             await renderComponent(
-                { filter: {}, setFilter },
+                {},
                 {
                     name: 'DIVISION',
                     teams: [],
@@ -215,17 +275,79 @@ describe('FilterFixtures', () => {
                     setDivisionData,
                 });
 
-            const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
+            const dropDown = context.container.querySelector(`[datatype="team-filter"]`);
             expect(dropDown).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active')).toBeTruthy();
             expect(dropDown.querySelector('.dropdown-item.active').textContent).toEqual('All teams');
+        });
+
+        it('changes url to include filter', async () => {
+            const team = teamBuilder('TEAM').build();
+            await renderComponent(
+                {division: 'DIVISION'},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [team],
+                    favouritesEnabled: true,
+                }, {});
+
+            expect(getFilterOptionLink('team-filter', 'TEAM').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION&team=team');
+        });
+
+        it('changes url to exclude filter', async () => {
+            await renderComponent(
+                {team: 'TEAM', division: 'DIVISION'},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+
+            expect(getFilterOptionLink('team-filter', 'All teams').href)
+                .toEqual('http://localhost/fixtures?division=DIVISION');
+        });
+    });
+
+    describe('clear filters', () => {
+        it('clears filters', async () => {
+            await renderComponent(
+                {team: 'TEAM', division: 'DIVISION'},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+            const button: HTMLAnchorElement = context.container.querySelector('a[title="Clear all filters"]') as HTMLAnchorElement;
+
+            expect(button.href).toEqual('http://localhost/fixtures?division=DIVISION');
+        });
+
+        it('does not show button if no filters', async () => {
+            await renderComponent(
+                {},
+                {
+                    name: 'DIVISION',
+                    onReloadDivision,
+                    setDivisionData,
+                    teams: [],
+                    favouritesEnabled: true,
+                }, {});
+
+            expect(context.container.innerHTML).not.toContain('➖');
         });
     });
 
     describe('favourites', () => {
         it('shows button when there are favourites and feature is enabled', async () => {
             await renderComponent(
-                { filter: {team: 'TEAM'}, setFilter },
+                {team: 'TEAM'},
                 {
                     name: 'DIVISION',
                     onReloadDivision,
@@ -243,7 +365,7 @@ describe('FilterFixtures', () => {
 
         it('does not show button when favourites are not enabled', async () => {
             await renderComponent(
-                { filter: {team: 'TEAM'}, setFilter },
+                {team: 'TEAM'},
                 {
                     name: 'DIVISION',
                     onReloadDivision,
@@ -260,7 +382,7 @@ describe('FilterFixtures', () => {
 
         it('does show button when there are no favourites', async () => {
             await renderComponent(
-                { filter: {team: 'TEAM'}, setFilter },
+                {team: 'TEAM'},
                 {
                     name: 'DIVISION',
                     onReloadDivision,
@@ -277,7 +399,7 @@ describe('FilterFixtures', () => {
 
         it('does not clear favourites when confirmation is cancelled', async () => {
             await renderComponent(
-                { filter: {team: 'TEAM'}, setFilter },
+                {team: 'TEAM'},
                 {
                     name: 'DIVISION',
                     onReloadDivision,
@@ -305,7 +427,7 @@ describe('FilterFixtures', () => {
 
         it('clears favourites when confirmation is accepted', async () => {
             await renderComponent(
-                { filter: {team: 'TEAM'}, setFilter },
+                {team: 'TEAM'},
                 {
                     name: 'DIVISION',
                     onReloadDivision,
@@ -323,22 +445,6 @@ describe('FilterFixtures', () => {
             expect(context.cookies.get('preferences')).toEqual({
                 someOtherPreference: 'FOO',
             });
-        });
-
-        it('clears filters', async () => {
-            await renderComponent(
-                { filter: {team: 'TEAM'}, setFilter },
-                {
-                    name: 'DIVISION',
-                    onReloadDivision,
-                    setDivisionData,
-                    teams: [],
-                    favouritesEnabled: true,
-                }, {});
-
-            await doClick(findButton(context.container, '➖'));
-
-            expect(newFilter).toEqual({});
         });
     });
 });

@@ -155,14 +155,14 @@ export function getFixtureDateFilters(filter: { date?: string, notes?: string },
     ]);
 }
 
-export interface IInitialisedFilters {
+export interface IInitialisedFilters extends Record<string, string>{
     date?: string;
     type?: string;
     team?: string;
     notes?: string
 }
 
-export function initFilter(location: { search: string }): IInitialisedFilters {
+export function getFilter(location: { search: string }): IInitialisedFilters {
     const search = new URLSearchParams(location.search);
     const filter: IInitialisedFilters = {};
     if (search.has('date')) {
@@ -179,36 +179,4 @@ export function initFilter(location: { search: string }): IInitialisedFilters {
     }
 
     return filter;
-}
-
-export function changeFilter(newFilter: IInitialisedFilters, navigate: Function, location: { pathname: string, hash: string, search: string }) {
-    const overallSearch: URLSearchParams = new URLSearchParams(newFilter as any);
-    const searchParams: URLSearchParams = new URLSearchParams(location.search);
-    const filterKeys: string[] = [ 'date', 'notes', 'team', 'type' ];
-
-    for (let key of searchParams.keys()) {
-        if (overallSearch.has(key)) {
-            continue; // repeated keys (e.g. ?division=1&division=2 are returned twice, not once
-        }
-        if (any(filterKeys, k => k === key)) {
-            continue; // don't add filters via this loop, they should have been added via the construction of overallSearch
-        }
-        const values: string[] = searchParams.getAll(key);
-        for (let value of values) {
-            overallSearch.append(key, value);
-        }
-    }
-
-    Object.keys(newFilter).forEach((key: string) => {
-        if (!newFilter[key]) {
-            // any filter with a falsy value (e.g. null or empty string) should be removed from the search params
-            overallSearch.delete(key);
-        }
-    })
-
-    navigate({
-        pathname: location.pathname,
-        search: overallSearch.toString(),
-        hash: location.hash,
-    });
 }
