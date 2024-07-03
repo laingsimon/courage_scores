@@ -154,6 +154,10 @@ public class AddOrUpdateTournamentGameCommandTests
                 Id = player.Id,
                 Name = player.Name,
             });
+
+        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(() => _season);
+        _tournamentPlayerAdapter.Setup(a => a.Adapt(OneEightyPlayerDto, _token)).ReturnsAsync(OneEightyPlayer);
+        _notableTournamentPlayerAdapter.Setup(a => a.Adapt(Over100CheckoutPlayerDto, _token)).ReturnsAsync(Over100CheckoutPlayer);
     }
 
     [Test]
@@ -188,9 +192,6 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.OneEighties.Add(OneEightyPlayerDto);
         _update.Over100Checkouts.Add(Over100CheckoutPlayerDto);
         _update.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
-        _tournamentPlayerAdapter.Setup(a => a.Adapt(OneEightyPlayerDto, _token)).ReturnsAsync(OneEightyPlayer);
-        _notableTournamentPlayerAdapter.Setup(a => a.Adapt(Over100CheckoutPlayerDto, _token)).ReturnsAsync(Over100CheckoutPlayer);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -230,9 +231,6 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.OneEighties.Add(OneEightyPlayerDto);
         _update.Over100Checkouts.Add(Over100CheckoutPlayerDto);
         _update.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
-        _tournamentPlayerAdapter.Setup(a => a.Adapt(OneEightyPlayerDto, _token)).ReturnsAsync(OneEightyPlayer);
-        _notableTournamentPlayerAdapter.Setup(a => a.Adapt(Over100CheckoutPlayerDto, _token)).ReturnsAsync(Over100CheckoutPlayer);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -250,7 +248,6 @@ public class AddOrUpdateTournamentGameCommandTests
     public async Task ApplyUpdates_WhenLatestSeasonAndNullRound_UpdatesSides()
     {
         _update.Round = null;
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -264,7 +261,6 @@ public class AddOrUpdateTournamentGameCommandTests
     {
         _update.Round = null;
         _update.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         _game.DivisionId = _update.DivisionId;
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
@@ -281,7 +277,6 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Round = null;
         _update.DivisionId = Guid.NewGuid();
         _game.DivisionId = Guid.NewGuid();
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -295,7 +290,6 @@ public class AddOrUpdateTournamentGameCommandTests
     public async Task ApplyUpdates_WhenLatestSeason_UpdatesSides()
     {
         _update.Sides.Add(Side1);
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -337,8 +331,8 @@ public class AddOrUpdateTournamentGameCommandTests
             },
             Matches =
             {
-                Versus(side1, side2),
-                Versus(side1, side2),
+                MatchDto(side1, side2),
+                MatchDto(side1, side2),
             },
         };
         var rootRound = new TournamentRoundDto
@@ -351,7 +345,7 @@ public class AddOrUpdateTournamentGameCommandTests
             },
             Matches =
             {
-                Versus(side1, side2),
+                MatchDto(side1, side2),
             },
         };
         _update.Round = rootRound;
@@ -359,7 +353,6 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             side1, side2,
         });
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
         secondRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
 
@@ -396,7 +389,7 @@ public class AddOrUpdateTournamentGameCommandTests
             },
             Matches =
             {
-                Versus(Side1, Side2, saygId),
+                MatchDto(Side1, Side2, saygId),
             },
         };
         _update.Round = rootRound;
@@ -404,19 +397,7 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             Side1, Side2,
         });
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
-        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch
-        {
-            SideA = new TournamentSide
-            {
-                Name = Side1.Name,
-            },
-            SideB = new TournamentSide
-            {
-                Name = Side2.Name,
-            },
-            SaygId = matchDto.SaygId,
-        }, matchDto));
+        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(Match(Side1, Side2, matchDto.SaygId), matchDto));
         _saygService.Setup(s => s.Get(saygId, _token)).ReturnsAsync(() => null);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
@@ -447,27 +428,15 @@ public class AddOrUpdateTournamentGameCommandTests
             },
             Matches =
             {
-                Versus(Side1, Side2, sayg.Id),
+                MatchDto(Side1, Side2, sayg.Id),
             },
         };
-        var newMatch = new TournamentMatch
-        {
-            SideA = new TournamentSide
-            {
-                Name = Side1.Name,
-            },
-            SideB = new TournamentSide
-            {
-                Name = Side2.Name,
-            },
-            SaygId = sayg.Id,
-        };
+        var newMatch = Match(Side1, Side2, sayg.Id);
         _update.Round = rootRound;
         _update.Sides = new List<TournamentSideDto>(new[]
         {
             Side1, Side2,
         });
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
         _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
@@ -503,31 +472,19 @@ public class AddOrUpdateTournamentGameCommandTests
             },
             Matches =
             {
-                Versus(Side1, Side2, sayg.Id),
+                MatchDto(Side1, Side2, sayg.Id),
             },
             MatchOptions =
             {
                 _matchOptionsDto,
             },
         };
-        var newMatch = new TournamentMatch
-        {
-            SideA = new TournamentSide
-            {
-                Name = Side1.Name,
-            },
-            SideB = new TournamentSide
-            {
-                Name = Side2.Name,
-            },
-            SaygId = sayg.Id,
-        };
+        var newMatch = Match(Side1, Side2, sayg.Id);
         _update.Round = rootRound;
         _update.Sides = new List<TournamentSideDto>(new[]
         {
             Side1, Side2,
         });
-        _seasonService.Setup(s => s.Get(_update.SeasonId, _token)).ReturnsAsync(_season);
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
         _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
@@ -552,12 +509,28 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(_game.Round!.Matches[0].SaygId, Is.EqualTo(sayg.Id));
     }
 
-    private static TournamentMatchDto Versus(TournamentSideDto sideA, TournamentSideDto sideB, Guid? saygId = null)
+    private static TournamentMatchDto MatchDto(TournamentSideDto sideA, TournamentSideDto sideB, Guid? saygId = null)
     {
         return new TournamentMatchDto
         {
             SideA = sideA,
             SideB = sideB,
+            SaygId = saygId,
+        };
+    }
+
+    private static TournamentMatch Match(TournamentSideDto sideA, TournamentSideDto sideB, Guid? saygId = null)
+    {
+        return new TournamentMatch
+        {
+            SideA = new TournamentSide
+            {
+                Name = sideA.Name!,
+            },
+            SideB = new TournamentSide
+            {
+                Name = sideB.Name!,
+            },
             SaygId = saygId,
         };
     }
