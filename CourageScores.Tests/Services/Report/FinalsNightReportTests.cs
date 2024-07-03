@@ -495,30 +495,16 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenSinglePlayerWithMost180s_Returns180sForEachDivisions()
     {
-        var division1Player = new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            OneEighties = 2,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-        };
-        var division2Player = new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            OneEighties = 3,
-            Id = Guid.NewGuid(),
-            TeamId = Guid.NewGuid(),
-        };
-        _divisionData1.Players.Add(division1Player);
-        _divisionData2.Players.Add(division2Player);
+        _divisionData1.Players.Add(Player1);
+        _divisionData2.Players.Add(Player3);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Most 180s", "PLAYER", "2");
-        AssertReportRow(report, "Division 2: Most 180s", "PLAYER", "3");
-        AssertPlayerLink(report, "Division 1: Most 180s", 1, division1Player, _division1);
-        AssertPlayerLink(report, "Division 2: Most 180s", 1, division2Player, _division2);
+        AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1", "2");
+        AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3", "3");
+        AssertPlayerLink(report, "Division 1: Most 180s", 1, Player1, _division1);
+        AssertPlayerLink(report, "Division 2: Most 180s", 1, Player3, _division2);
     }
 
     [Test]
@@ -566,16 +552,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenPlayersOnlyHaveNo180s_Returns180sForEachDivisions()
     {
-        _divisionData1.Players.Add(new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            OneEighties = 0,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            OneEighties = 0,
-        });
+        _divisionData1.Players.Add(new DivisionPlayerDto());
+        _divisionData2.Players.Add(new DivisionPlayerDto());
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -587,26 +565,16 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenSinglePlayerWithHiCheck_ReturnsHiChecksForEachDivisions()
     {
-        var division1Player = new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            Over100Checkouts = 101,
-        };
-        var division2Player = new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            Over100Checkouts = 102,
-        };
-        _divisionData1.Players.Add(division1Player);
-        _divisionData2.Players.Add(division2Player);
+        _divisionData1.Players.Add(Player1);
+        _divisionData2.Players.Add(Player3);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER", "101");
-        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER", "102");
-        AssertPlayerLink(report, "Division 1: Highest checkout", 1, division1Player, _division1);
-        AssertPlayerLink(report, "Division 2: Highest checkout", 1, division2Player, _division2);
+        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1", "101");
+        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3", "102");
+        AssertPlayerLink(report, "Division 1: Highest checkout", 1, Player1, _division1);
+        AssertPlayerLink(report, "Division 2: Highest checkout", 1, Player3, _division2);
     }
 
     [Test]
@@ -654,16 +622,8 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenPlayersOnlyHaveNoHiCheck_ReturnsHiChecksForEachDivisions()
     {
-        _divisionData1.Players.Add(new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            Over100Checkouts = 0,
-        });
-        _divisionData2.Players.Add(new DivisionPlayerDto
-        {
-            Name = "PLAYER",
-            Over100Checkouts = 0,
-        });
+        _divisionData1.Players.Add(new DivisionPlayerDto());
+        _divisionData2.Players.Add(new DivisionPlayerDto());
 
         var report = await _report.GetReport(_playerLookup, _token);
 
