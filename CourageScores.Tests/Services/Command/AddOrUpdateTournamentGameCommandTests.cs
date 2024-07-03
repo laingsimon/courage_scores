@@ -60,9 +60,8 @@ public class AddOrUpdateTournamentGameCommandTests
         Id = Guid.NewGuid(),
         Name = "Side2, Player 2",
     };
-    private static readonly TournamentSideDto Side1 = new TournamentSideDto
+    private static readonly TournamentSideDto Side1NoId = new TournamentSideDto
     {
-        Id = Guid.NewGuid(),
         Name = "Side 1",
         Players =
         {
@@ -289,14 +288,14 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenLatestSeason_UpdatesSides()
     {
-        _update.Sides.Add(Side1);
+        _update.Sides.Add(Side1NoId);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Sides.Count, Is.EqualTo(1));
-        Assert.That(result.Result!.Sides[0].Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(result.Result!.Sides[0].Id, Is.Not.EqualTo(Guid.Empty).And.Not.EqualTo(Side1NoId.Id));
         Assert.That(result.Result!.Sides[0].Players.Count, Is.EqualTo(1));
     }
 
@@ -384,20 +383,20 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             Sides =
             {
-                Side1,
+                Side1NoId,
                 Side2,
             },
             Matches =
             {
-                MatchDto(Side1, Side2, saygId),
+                MatchDto(Side1NoId, Side2, saygId),
             },
         };
         _update.Round = rootRound;
         _update.Sides = new List<TournamentSideDto>(new[]
         {
-            Side1, Side2,
+            Side1NoId, Side2,
         });
-        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(Match(Side1, Side2, matchDto.SaygId), matchDto));
+        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(Match(Side1NoId, Side2, matchDto.SaygId), matchDto));
         _saygService.Setup(s => s.Get(saygId, _token)).ReturnsAsync(() => null);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
@@ -423,19 +422,19 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             Sides =
             {
-                Side1,
+                Side1NoId,
                 Side2,
             },
             Matches =
             {
-                MatchDto(Side1, Side2, sayg.Id),
+                MatchDto(Side1NoId, Side2, sayg.Id),
             },
         };
-        var newMatch = Match(Side1, Side2, sayg.Id);
+        var newMatch = Match(Side1NoId, Side2, sayg.Id);
         _update.Round = rootRound;
         _update.Sides = new List<TournamentSideDto>(new[]
         {
-            Side1, Side2,
+            Side1NoId, Side2,
         });
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
@@ -467,23 +466,23 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             Sides =
             {
-                Side1,
+                Side1NoId,
                 Side2,
             },
             Matches =
             {
-                MatchDto(Side1, Side2, sayg.Id),
+                MatchDto(Side1NoId, Side2, sayg.Id),
             },
             MatchOptions =
             {
                 _matchOptionsDto,
             },
         };
-        var newMatch = Match(Side1, Side2, sayg.Id);
+        var newMatch = Match(Side1NoId, Side2, sayg.Id);
         _update.Round = rootRound;
         _update.Sides = new List<TournamentSideDto>(new[]
         {
-            Side1, Side2,
+            Side1NoId, Side2,
         });
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);

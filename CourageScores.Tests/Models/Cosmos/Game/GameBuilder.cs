@@ -37,6 +37,12 @@ public class GameBuilder
         return this;
     }
 
+    public GameBuilder ForSeason(Guid seasonId)
+    {
+        _game.SeasonId = seasonId;
+        return this;
+    }
+
     public GameBuilder Knockout(bool isKnockout = true)
     {
         _game.IsKnockout = isKnockout;
@@ -79,6 +85,12 @@ public class GameBuilder
     public GameBuilder WithAddress(string address)
     {
         _game.Address = address;
+        return this;
+    }
+
+    public GameBuilder Postponed()
+    {
+        _game.Postponed = true;
         return this;
     }
 }
