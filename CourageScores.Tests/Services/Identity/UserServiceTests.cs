@@ -116,10 +116,7 @@ public class UserServiceTests
     public async Task GetUser_WhenCalledFirstTimeAndUserExistsInDbWithNoTeamIdAndTeamUserFoundForEmailAddress_UpdatesUser()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var existingUser = new User
-        {
-            TeamId = null,
-        };
+        var existingUser = GetUser();
         var teamPlayer = new TeamPlayer
         {
             Id = Guid.NewGuid(),
@@ -161,10 +158,7 @@ public class UserServiceTests
     public async Task GetUser_WhenCalledFirstTimeAndUserExistsInDbWithNoTeamIdAndTeamUserNotFoundForEmailAddress_UpdatesUser()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var existingUser = new User
-        {
-            TeamId = null,
-        };
+        var existingUser = GetUser();
         var team = new CosmosTeam
         {
             Id = Guid.NewGuid(),
@@ -191,10 +185,7 @@ public class UserServiceTests
     public async Task GetUser_WhenCalledFirstTimeAndUserExistsInDbWithTeamId_UpdatesUser()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var existingUser = new User
-        {
-            TeamId = Guid.NewGuid(),
-        };
+        var existingUser = GetUser(teamId: Guid.NewGuid());
         _userRepository
             .Setup(r => r.GetUser("simon@email.com"))
             .ReturnsAsync(existingUser);
@@ -278,13 +269,7 @@ public class UserServiceTests
     public async Task GetUser_GivenEmailAddressWhenNotPermitted_ReturnsNull()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = false,
-            },
-        };
+        var loggedInUser = GetUser();
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
         var user = await _service.GetUser("other@email.com", _token);
@@ -296,18 +281,8 @@ public class UserServiceTests
     public async Task GetUser_GivenEmailAddressWhenPermitted_ReturnsOtherUserDetails()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            },
-        };
-        var otherUser = new User
-        {
-            EmailAddress = "other@email.com",
-            Name = "Other User",
-        };
+        var loggedInUser = GetUser(manageAccess: true);
+        var otherUser = GetUser(name: "Other User", emailAddress: "other@email.com");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
 
@@ -322,13 +297,7 @@ public class UserServiceTests
     public async Task GetUser_GivenEmailAddressWhenPermittedAndUserNotFound_ReturnsNull()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            },
-        };
+        var loggedInUser = GetUser(manageAccess: true);
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(() => null);
 
@@ -351,13 +320,7 @@ public class UserServiceTests
     public async Task GetAll_WhenNotPermitted_ReturnsEmpty()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = false,
-            },
-        };
+        var loggedInUser = GetUser();
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
         var users = await _service.GetAll(_token).ToList();
@@ -369,18 +332,8 @@ public class UserServiceTests
     public async Task GetAll_WhenPermitted_ReturnsAllUsers()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            },
-            Name = "Logged in user",
-        };
-        var otherUser = new User
-        {
-            Name = "Other user",
-        };
+        var loggedInUser = GetUser(name: "Logged in user", manageAccess: true);
+        var otherUser = GetUser(name: "Other user");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetAll()).Returns(TestUtilities.AsyncEnumerable(new[]
         {
@@ -414,13 +367,7 @@ public class UserServiceTests
     public async Task UpdateAccess_WhenNotPermitted_ReturnsUnsuccessful()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = false,
-            },
-        };
+        var loggedInUser = GetUser();
         var update = new UpdateAccessDto();
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
@@ -437,17 +384,8 @@ public class UserServiceTests
     public async Task UpdateAccess_WhenUserNotFound_ReturnsNotFound()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            },
-        };
-        var update = new UpdateAccessDto
-        {
-            EmailAddress = "other@email.com",
-        };
+        var loggedInUser = GetUser(manageAccess: true);
+        var update = GetUpdateAccessDto(emailAddress: "other@email.com");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(() => null);
 
@@ -464,21 +402,8 @@ public class UserServiceTests
     public async Task UpdateAccess_WhenRemovingManageAccessFromSelf_ReturnsNotAllowedToRemoveOwnManageAccess()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            },
-        };
-        var update = new UpdateAccessDto
-        {
-            EmailAddress = "simon@email.com",
-            Access = new AccessDto
-            {
-                ManageAccess = false,
-            },
-        };
+        var loggedInUser = GetUser(manageAccess: true);
+        var update = GetUpdateAccessDto(emailAddress: "simon@email.com");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
         var result = await _service.UpdateAccess(update, _token);
@@ -494,25 +419,9 @@ public class UserServiceTests
     public async Task UpdateAccess_WhenUserFoundWithNoExistingAccess_UpdatesAccess()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            },
-        };
-        var otherUser = new User
-        {
-            Name = "Other User",
-        };
-        var update = new UpdateAccessDto
-        {
-            EmailAddress = "other@email.com",
-            Access = new AccessDto
-            {
-                ManageGames = true,
-            },
-        };
+        var loggedInUser = GetUser(manageAccess: true);
+        var otherUser = GetUser("Other User");
+        var update = GetUpdateAccessDto(emailAddress: "other@email.com", manageGames: true);
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
 
@@ -530,29 +439,9 @@ public class UserServiceTests
     public async Task UpdateAccess_WhenUserFoundWithExistingAccess_UpdatesAccess()
     {
         CreateTicket("Simon Laing", "simon@email.com", "Simon");
-        var loggedInUser = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            },
-        };
-        var otherUser = new User
-        {
-            Name = "Other User",
-            Access = new Access
-            {
-                ManageGames = true,
-            },
-        };
-        var update = new UpdateAccessDto
-        {
-            EmailAddress = "other@email.com",
-            Access = new AccessDto
-            {
-                ManageGames = false,
-            },
-        };
+        var loggedInUser = GetUser(manageAccess: true);
+        var otherUser = GetUser(name: "Other User", manageGames: true);
+        var update = GetUpdateAccessDto(emailAddress: "other@email.com");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
 
@@ -581,5 +470,32 @@ public class UserServiceTests
         _authenticationService
             .Setup(s => s.AuthenticateAsync(_httpContext!, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
+    }
+
+    private static User GetUser(string name = "", string emailAddress = "", Guid? teamId = null, bool manageAccess = false, bool manageGames = false)
+    {
+        return new User
+        {
+            Name = name,
+            EmailAddress = emailAddress,
+            TeamId = teamId,
+            Access = new Access
+            {
+                ManageAccess = manageAccess,
+                ManageGames = manageGames,
+            },
+        };
+    }
+
+    private static UpdateAccessDto GetUpdateAccessDto(string emailAddress = "", bool manageGames = false)
+    {
+        return new UpdateAccessDto
+        {
+            EmailAddress = emailAddress,
+            Access = new AccessDto
+            {
+                ManageGames = manageGames,
+            },
+        };
     }
 }
