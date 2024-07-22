@@ -14,6 +14,21 @@ namespace CourageScores.Tests.Models.Adapters.Live;
 [TestFixture]
 public class WatchableDataDtoAdapterTests
 {
+    private static readonly DateTimeOffset LastUpdate01Jan2005 = new DateTimeOffset(2005, 01, 01, 01, 01, 01, TimeSpan.Zero);
+    private static readonly DateTimeOffset LastUpdate02Feb2006 = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero);
+    private static readonly TournamentGameDto Tournament = new TournamentGameDto
+    {
+        Id = Guid.NewGuid(),
+        Type = "TYPE",
+        Address = "ADDRESS",
+    };
+    private static readonly RecordedScoreAsYouGoDto RecordedSayg = new RecordedScoreAsYouGoDto
+    {
+        Id = Guid.NewGuid(),
+        YourName = "CHALLENGER",
+        OpponentName = "OPPONENT",
+    };
+
     private readonly CancellationToken _token = new CancellationToken();
     private WatchableDataDtoAdapter _adapter = null!;
     private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
@@ -30,28 +45,8 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygPublication_SetsPropertiesCorrectly()
     {
-        var sayg = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2005, 01, 01, 01, 01, 01, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                sayg,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "url",
-            ReceivedMessages = 1,
-            SentMessages = 2,
-            UserName = "username",
-        };
+        var sayg = GetWebSocketPublication(dataType: LiveDataType.Sayg, lastUpdate: LastUpdate01Jan2005);
+        var details = GetWebSocketDetail(sayg);
 
         var result = await _adapter.Adapt(new WatchableData(details, sayg, PublicationMode.WebSocket), _token);
 
@@ -66,28 +61,8 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenTournamentPublication_SetsPropertiesCorrectly()
     {
-        var tournament = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Tournament,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                tournament,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "url",
-            ReceivedMessages = 1,
-            SentMessages = 2,
-            UserName = "username",
-        };
+        var tournament = GetWebSocketPublication(dataType: LiveDataType.Tournament, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(tournament);
 
         var result = await _adapter.Adapt(new WatchableData(details, tournament, PublicationMode.Polling), _token);
 
@@ -102,28 +77,8 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenUnknownDataTypePublication_SetsPropertiesCorrectly()
     {
-        var tournament = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = (LiveDataType)4,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                tournament,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "url",
-            ReceivedMessages = 1,
-            SentMessages = 2,
-            UserName = "username",
-        };
+        var tournament = GetWebSocketPublication(dataType: (LiveDataType)4, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(tournament);
 
         var result = await _adapter.Adapt(new WatchableData(details, tournament, PublicationMode.Polling), _token);
 
@@ -138,12 +93,7 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenAbsoluteOriginatingUrl_SetsUrlCorrectly()
     {
-        var sayg = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2005, 01, 01, 01, 01, 01, TimeSpan.Zero),
-        };
+        var sayg = GetWebSocketPublication(dataType: LiveDataType.Sayg, lastUpdate: LastUpdate01Jan2005);
         var details = new WebSocketDetail
         {
             OriginatingUrl = "http://localhost:44426/a/b/c",
@@ -157,12 +107,7 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenAbsoluteOriginatingUrlWithCustomPort_SetsUrlCorrectly()
     {
-        var sayg = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2005, 01, 01, 01, 01, 01, TimeSpan.Zero),
-        };
+        var sayg = GetWebSocketPublication(dataType: LiveDataType.Sayg, lastUpdate: LastUpdate01Jan2005);
         var details = new WebSocketDetail
         {
             OriginatingUrl = "http://localhost/a/b/c",
@@ -176,12 +121,7 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenNullOriginatingUrl_SetsAbsoluteUrlToNull()
     {
-        var sayg = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2005, 01, 01, 01, 01, 01, TimeSpan.Zero),
-        };
+        var sayg = GetWebSocketPublication(dataType: LiveDataType.Sayg, lastUpdate: LastUpdate01Jan2005);
         var details = new WebSocketDetail
         {
             OriginatingUrl = null,
@@ -195,12 +135,7 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenEmptyOriginatingUrl_SetsAbsoluteUrlToNull()
     {
-        var sayg = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2005, 01, 01, 01, 01, 01, TimeSpan.Zero),
-        };
+        var sayg = GetWebSocketPublication(dataType: LiveDataType.Sayg, lastUpdate: LastUpdate01Jan2005);
         var details = new WebSocketDetail
         {
             OriginatingUrl = "",
@@ -214,28 +149,8 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygTypeAndMissingSaygData_ReturnsNullEventDetails()
     {
-        var publication = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "url",
-            ReceivedMessages = 1,
-            SentMessages = 2,
-            UserName = "username",
-        };
+        var publication = GetWebSocketPublication(dataType: LiveDataType.Sayg, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(publication);
         _saygService.Setup(s => s.Get(publication.Id, _token)).ReturnsAsync(() => null);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
@@ -246,32 +161,9 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygTypeAndNullOriginatingUrl_ReturnsOpponentsOnly()
     {
-        var sayg = new RecordedScoreAsYouGoDto
-        {
-            Id = Guid.NewGuid(),
-            YourName = "CHALLENGER",
-            OpponentName = "OPPONENT",
-        };
-        var publication = new WebSocketPublication
-        {
-            Id = sayg.Id,
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = null,
-        };
-        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(sayg);
+        var publication = GetWebSocketPublication(id: RecordedSayg.Id, dataType: LiveDataType.Sayg, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(publication, originatingUrl: null);
+        _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
 
@@ -284,32 +176,9 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygTypeAndEmptyOriginatingUrl_ReturnsOpponentsOnly()
     {
-        var sayg = new RecordedScoreAsYouGoDto
-        {
-            Id = Guid.NewGuid(),
-            YourName = "CHALLENGER",
-            OpponentName = "OPPONENT",
-        };
-        var publication = new WebSocketPublication
-        {
-            Id = sayg.Id,
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "",
-        };
-        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(sayg);
+        var publication = GetWebSocketPublication(id: RecordedSayg.Id, dataType: LiveDataType.Sayg, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(publication, originatingUrl: "");
+        _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
 
@@ -322,32 +191,11 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygTypeAndShortOriginatingUrl_ReturnsOpponentsOnly()
     {
-        var sayg = new RecordedScoreAsYouGoDto
-        {
-            Id = Guid.NewGuid(),
-            YourName = "CHALLENGER",
-            OpponentName = "OPPONENT",
-        };
-        var publication = new WebSocketPublication
-        {
-            Id = sayg.Id,
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "http://short", // shorter than a guid (36 chars)
-        };
-        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(sayg);
+        var publication = GetWebSocketPublication(id: RecordedSayg.Id, dataType: LiveDataType.Sayg, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(
+            publication,
+            originatingUrl: "http://short");  // shorter than a guid (36 chars)
+        _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
 
@@ -360,32 +208,11 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygTypeAndOriginatingUrlNotContainingAGuid_ReturnsOpponentsOnly()
     {
-        var sayg = new RecordedScoreAsYouGoDto
-        {
-            Id = Guid.NewGuid(),
-            YourName = "CHALLENGER",
-            OpponentName = "OPPONENT",
-        };
-        var publication = new WebSocketPublication
-        {
-            Id = sayg.Id,
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "http://some-url/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", // invalid guid data
-        };
-        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(sayg);
+        var publication = GetWebSocketPublication(id: RecordedSayg.Id, dataType: LiveDataType.Sayg, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(
+            publication,
+            originatingUrl: "http://some-url/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"); // invalid guid data
+        _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
 
@@ -398,39 +225,10 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygTypeAndOriginatingUrlWithoutQueryString_ReturnsOpponentsAndTournamentDetails()
     {
-        var tournament = new TournamentGameDto
-        {
-            Id = Guid.NewGuid(),
-            Type = "TYPE",
-            Address = "ADDRESS",
-        };
-        var sayg = new RecordedScoreAsYouGoDto
-        {
-            Id = Guid.NewGuid(),
-            YourName = "CHALLENGER",
-            OpponentName = "OPPONENT",
-        };
-        var publication = new WebSocketPublication
-        {
-            Id = sayg.Id,
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = $"http://some-url/path/{tournament.Id}",
-        };
-        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(sayg);
-        _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
+        var publication = GetWebSocketPublication(id: RecordedSayg.Id, dataType: LiveDataType.Sayg, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(publication, originatingUrl: $"http://some-url/path/{Tournament.Id}");
+        _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
+        _tournamentService.Setup(s => s.Get(Tournament.Id, _token)).ReturnsAsync(Tournament);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
 
@@ -443,39 +241,10 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenSaygTypeAndOriginatingUrlWithQueryString_ReturnsOpponentsAndTournamentDetails()
     {
-        var tournament = new TournamentGameDto
-        {
-            Id = Guid.NewGuid(),
-            Type = "TYPE",
-            Address = "ADDRESS",
-        };
-        var sayg = new RecordedScoreAsYouGoDto
-        {
-            Id = Guid.NewGuid(),
-            YourName = "CHALLENGER",
-            OpponentName = "OPPONENT",
-        };
-        var publication = new WebSocketPublication
-        {
-            Id = sayg.Id,
-            DataType = LiveDataType.Sayg,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = $"http://some-url/path/{tournament.Id}/?some-query-string",
-        };
-        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(sayg);
-        _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
+        var publication = GetWebSocketPublication(id: RecordedSayg.Id, dataType: LiveDataType.Sayg, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(publication, originatingUrl: $"http://some-url/path/{Tournament.Id}/?some-query-string");
+        _saygService.Setup(s => s.Get(RecordedSayg.Id, _token)).ReturnsAsync(RecordedSayg);
+        _tournamentService.Setup(s => s.Get(Tournament.Id, _token)).ReturnsAsync(Tournament);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
 
@@ -488,28 +257,8 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenTournamentTypeAndMissingTournamentData_ReturnsNullEventDetails()
     {
-        var publication = new WebSocketPublication
-        {
-            Id = Guid.NewGuid(),
-            DataType = LiveDataType.Tournament,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
-        {
-            Publishing =
-            {
-                publication,
-            },
-            Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
-            Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
-            LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
-            LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "url",
-            ReceivedMessages = 1,
-            SentMessages = 2,
-            UserName = "username",
-        };
+        var publication = GetWebSocketPublication(dataType: LiveDataType.Tournament, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(publication);
         _tournamentService.Setup(s => s.Get(publication.Id, _token)).ReturnsAsync(() => null);
 
         var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
@@ -520,19 +269,20 @@ public class WatchableDataDtoAdapterTests
     [Test]
     public async Task Adapt_GivenTournamentTypeAndTournamentData_ReturnsAddressAndType()
     {
-        var tournament = new TournamentGameDto
-        {
-            Id = Guid.NewGuid(),
-            Type = "TYPE",
-            Address = "ADDRESS",
-        };
-        var publication = new WebSocketPublication
-        {
-            Id = tournament.Id,
-            DataType = LiveDataType.Tournament,
-            LastUpdate = new DateTimeOffset(2006, 02, 02, 02, 02, 02, TimeSpan.Zero),
-        };
-        var details = new WebSocketDetail
+        var publication = GetWebSocketPublication(id: Tournament.Id, dataType: LiveDataType.Tournament, lastUpdate: LastUpdate02Feb2006);
+        var details = GetWebSocketDetail(publication);
+        _tournamentService.Setup(s => s.Get(Tournament.Id, _token)).ReturnsAsync(Tournament);
+
+        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
+
+        Assert.That(result.EventDetails, Is.Not.Null);
+        Assert.That(result.EventDetails!.Type, Is.EqualTo("TYPE"));
+        Assert.That(result.EventDetails!.Venue, Is.EqualTo("ADDRESS"));
+    }
+
+    private static WebSocketDetail GetWebSocketDetail(WebSocketPublication publication, string? originatingUrl = "url")
+    {
+        return new WebSocketDetail
         {
             Publishing =
             {
@@ -540,20 +290,26 @@ public class WatchableDataDtoAdapterTests
             },
             Connected = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero),
             Id = Guid.NewGuid(),
-            Subscriptions = { Guid.NewGuid() },
+            Subscriptions =
+            {
+                Guid.NewGuid(),
+            },
             LastReceipt = new DateTimeOffset(2010, 03, 03, 03, 03, 03, TimeSpan.Zero),
             LastSent = new DateTimeOffset(2020, 04, 04, 04, 04, 04, TimeSpan.Zero),
-            OriginatingUrl = "url",
+            OriginatingUrl = originatingUrl,
             ReceivedMessages = 1,
             SentMessages = 2,
             UserName = "username",
         };
-        _tournamentService.Setup(s => s.Get(tournament.Id, _token)).ReturnsAsync(tournament);
+    }
 
-        var result = await _adapter.Adapt(new WatchableData(details, publication, PublicationMode.Polling), _token);
-
-        Assert.That(result.EventDetails, Is.Not.Null);
-        Assert.That(result.EventDetails!.Type, Is.EqualTo("TYPE"));
-        Assert.That(result.EventDetails!.Venue, Is.EqualTo("ADDRESS"));
+    private static WebSocketPublication GetWebSocketPublication(Guid? id = null, LiveDataType dataType = LiveDataType.Sayg, DateTimeOffset? lastUpdate = null)
+    {
+        return new WebSocketPublication
+        {
+            Id = id ?? Guid.NewGuid(),
+            DataType = dataType,
+            LastUpdate = lastUpdate ?? new DateTimeOffset(2005, 01, 01, 01, 01, 01, TimeSpan.Zero),
+        };
     }
 }
