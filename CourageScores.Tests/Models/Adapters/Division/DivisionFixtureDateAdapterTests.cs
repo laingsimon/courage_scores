@@ -59,6 +59,26 @@ public class DivisionFixtureDateAdapterTests
     {
         Address = "addressA",
     };
+    private static readonly Dictionary<Guid, DivisionDto?> EmptyTeamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>();
+    // ReSharper disable once InconsistentNaming
+    private static readonly TeamDto[] TeamsAB = new[]
+    {
+        TeamA, TeamB,
+    };
+    // ReSharper disable once InconsistentNaming
+    private static readonly TeamDto[] TeamsABC = new[]
+    {
+        TeamA,
+        TeamB,
+        TeamC,
+    };
+    // ReSharper disable once InconsistentNaming
+    private static readonly Dictionary<Guid, DivisionDto?> TeamIdToDivisionLookupABC = new Dictionary<Guid, DivisionDto?>
+    {
+        { TeamA.Id, HomeDivision },
+        { TeamB.Id, AwayDivision },
+        { TeamC.Id, HomeDivision },
+    };
 
     private readonly CancellationToken _token = new();
     private readonly DateTime _date = new(2001, 02, 03);
@@ -88,11 +108,6 @@ public class DivisionFixtureDateAdapterTests
     [Test]
     public async Task Adapt_WhenNotLoggedIn_DoesNotIncludeTournamentProposals()
     {
-        var teams = new[]
-        {
-            TeamA, TeamB,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>();
         _user = null;
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(TournamentGameA, _token))
@@ -106,10 +121,10 @@ public class DivisionFixtureDateAdapterTests
                 TournamentGameA,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsAB,
             Array.Empty<CosmosGame>(),
             true,
-            teamIdToDivisionLookup,
+            EmptyTeamIdToDivisionLookup,
             _token);
 
         _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
@@ -125,11 +140,6 @@ public class DivisionFixtureDateAdapterTests
     [Test]
     public async Task Adapt_WhenNotPermittedToCreateGames_DoesNotIncludeTournamentProposals()
     {
-        var teams = new[]
-        {
-            TeamA, TeamB,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>();
         _user!.Access!.ManageGames = false;
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(TournamentGameA, _token))
@@ -143,10 +153,10 @@ public class DivisionFixtureDateAdapterTests
                 TournamentGameA,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsAB,
             Array.Empty<CosmosGame>(),
             true,
-            teamIdToDivisionLookup,
+            EmptyTeamIdToDivisionLookup,
             _token);
 
         _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
@@ -166,11 +176,6 @@ public class DivisionFixtureDateAdapterTests
         {
             Address = "addressB",
         };
-        var teams = new[]
-        {
-            TeamA, TeamB,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>();
         _user!.Access!.ManageTournaments = true;
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(TournamentGameA, _token))
@@ -190,10 +195,10 @@ public class DivisionFixtureDateAdapterTests
                 TournamentGameA,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsAB,
             Array.Empty<CosmosGame>(),
             true,
-            teamIdToDivisionLookup,
+            EmptyTeamIdToDivisionLookup,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -208,11 +213,6 @@ public class DivisionFixtureDateAdapterTests
     [Test]
     public async Task Adapt_WhenCanManageGamesButExcludesProposals_DoesNotIncludeTournamentProposals()
     {
-        var teams = new[]
-        {
-            TeamA, TeamB,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>();
         _user!.Access!.ManageTournaments = true;
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(TournamentGameA, _token))
@@ -226,10 +226,10 @@ public class DivisionFixtureDateAdapterTests
                 TournamentGameA,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsAB,
             Array.Empty<CosmosGame>(),
             false,
-            teamIdToDivisionLookup,
+            EmptyTeamIdToDivisionLookup,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -244,18 +244,6 @@ public class DivisionFixtureDateAdapterTests
     [Test]
     public async Task Adapt_WhenTournamentAndLeagueFixturesExist_ReturnsBothAndNoProposals()
     {
-        var teams = new[]
-        {
-            TeamA,
-            TeamB,
-            TeamC,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>
-        {
-            { TeamA.Id, HomeDivision },
-            { TeamB.Id, AwayDivision },
-            { TeamC.Id, HomeDivision },
-        };
         _user!.Access!.ManageTournaments = true;
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(TournamentGameA, _token))
@@ -272,10 +260,10 @@ public class DivisionFixtureDateAdapterTests
                 TournamentGameA,
             },
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsABC,
             Array.Empty<CosmosGame>(),
             true,
-            teamIdToDivisionLookup,
+            TeamIdToDivisionLookupABC,
             _token);
 
         _divisionFixtureAdapter.Verify(a => a.ForUnselectedTeam(It.IsAny<TeamDto>(), It.IsAny<bool>(), It.IsAny<IReadOnlyCollection<CosmosGame>>(), It.IsAny<DivisionDto?>(), _token), Times.Never);
@@ -300,18 +288,6 @@ public class DivisionFixtureDateAdapterTests
             Id = Guid.NewGuid(),
             HomeTeam = new DivisionFixtureTeamDto(),
         };
-        var teams = new[]
-        {
-            TeamA,
-            TeamB,
-            TeamC,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>
-        {
-            { TeamA.Id, HomeDivision },
-            { TeamB.Id, AwayDivision },
-            { TeamC.Id, HomeDivision },
-        };
         _user!.Access!.ManageGames = manageGames;
         _divisionFixtureAdapter.Setup(a => a.ForUnselectedTeam(TeamC, false, Array.Empty<CosmosGame>(), HomeDivision, _token)).ReturnsAsync(byeDto);
 
@@ -323,10 +299,10 @@ public class DivisionFixtureDateAdapterTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsABC,
             Array.Empty<CosmosGame>(),
             true,
-            teamIdToDivisionLookup,
+            TeamIdToDivisionLookupABC,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -342,18 +318,6 @@ public class DivisionFixtureDateAdapterTests
     [TestCase(false)]
     public async Task Adapt_WhenLoggedInAndNoTournamentGamesExistButExcludesProposals_OnlyReturnsExistingFixtures(bool manageGames)
     {
-        var teams = new[]
-        {
-            TeamA,
-            TeamB,
-            TeamC,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>
-        {
-            { TeamA.Id, HomeDivision },
-            { TeamB.Id, AwayDivision },
-            { TeamC.Id, HomeDivision },
-        };
         _user!.Access!.ManageGames = manageGames;
 
         var result = await _adapter.Adapt(
@@ -364,10 +328,10 @@ public class DivisionFixtureDateAdapterTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsABC,
             Array.Empty<CosmosGame>(),
             false,
-            teamIdToDivisionLookup,
+            TeamIdToDivisionLookupABC,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -456,18 +420,6 @@ public class DivisionFixtureDateAdapterTests
             Id = Guid.NewGuid(),
             HomeTeam = new DivisionFixtureTeamDto(),
         };
-        var teams = new[]
-        {
-            TeamA,
-            TeamB,
-            TeamC,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>
-        {
-            { TeamA.Id, HomeDivision },
-            { TeamB.Id, AwayDivision },
-            { TeamC.Id, HomeDivision },
-        };
         _user = null;
         _divisionFixtureAdapter.Setup(a => a.ForUnselectedTeam(TeamC, false, Array.Empty<CosmosGame>(), HomeDivision, _token)).ReturnsAsync(byeDto);
 
@@ -479,10 +431,10 @@ public class DivisionFixtureDateAdapterTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsABC,
             Array.Empty<CosmosGame>(),
             true,
-            teamIdToDivisionLookup,
+            TeamIdToDivisionLookupABC,
             _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -511,18 +463,6 @@ public class DivisionFixtureDateAdapterTests
             Id = Guid.NewGuid(),
             HomeTeam = new DivisionFixtureTeamDto(),
         };
-        var teams = new[]
-        {
-            TeamA,
-            TeamB,
-            TeamC,
-        };
-        var teamIdToDivisionLookup = new Dictionary<Guid, DivisionDto?>
-        {
-            { TeamA.Id, HomeDivision },
-            { TeamB.Id, AwayDivision },
-            { TeamC.Id, HomeDivision },
-        };
         _user = null;
         _divisionFixtureAdapter.Setup(a => a.Adapt(game, TeamA, TeamB, HomeDivision, AwayDivision, _token)).ReturnsAsync(knockoutGameDto);
         _divisionFixtureAdapter.Setup(a => a.ForUnselectedTeam(TeamC, true, Array.Empty<CosmosGame>(), HomeDivision, _token)).ReturnsAsync(proposedGameDto);
@@ -535,10 +475,10 @@ public class DivisionFixtureDateAdapterTests
             },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            teams,
+            TeamsABC,
             Array.Empty<CosmosGame>(),
             true,
-            teamIdToDivisionLookup,
+            TeamIdToDivisionLookupABC,
             _token);
 
         _divisionFixtureAdapter.Verify(a => a.ForUnselectedTeam(TeamC, true, Array.Empty<CosmosGame>(), HomeDivision, _token));
