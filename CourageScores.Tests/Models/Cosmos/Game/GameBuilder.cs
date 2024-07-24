@@ -70,6 +70,12 @@ public class GameBuilder
         return this;
     }
 
+    public GameBuilder WithMatch(GameMatch match)
+    {
+        _game.Matches.Add(match);
+        return this;
+    }
+
     public GameBuilder WithOneEighties(params GamePlayer[] players)
     {
         _game.OneEighties.AddRange(players);

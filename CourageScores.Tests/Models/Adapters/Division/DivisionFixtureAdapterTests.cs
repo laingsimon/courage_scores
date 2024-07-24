@@ -234,30 +234,17 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInLeagueTriplesMatch_ReturnsNullScoresForFixture()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = false,
-            Matches =
-            {
-                MatchWithPlayers(3, 1),
-                MatchWithPlayers(3, 1),
-                MatchWithPlayers(3, 1),
-                MatchWithPlayers(3, 1),
-                MatchWithPlayers(3, 1),
-                MatchWithPlayers(2, 1),
-                MatchWithPlayers(1, 2),
-                new GameMatch(),
-            },
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-        };
+        var game = new GameBuilder()
+            .WithTeams(_homeTeam, _awayTeam)
+            .WithMatch(MatchWithPlayers(3, 1))
+            .WithMatch(MatchWithPlayers(3, 1))
+            .WithMatch(MatchWithPlayers(3, 1))
+            .WithMatch(MatchWithPlayers(3, 1))
+            .WithMatch(MatchWithPlayers(3, 1))
+            .WithMatch(MatchWithPlayers(2, 1))
+            .WithMatch(MatchWithPlayers(1, 2))
+            .WithMatch(new GameMatch())
+            .Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
@@ -270,66 +257,26 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInKnockoutTriplesMatch_ReturnsScoresForFixture()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = true,
-            Matches =
-            {
-                MatchWithPlayers(2, 1),
-                MatchWithPlayers(2, 1),
-                MatchWithPlayers(2, 1),
-                MatchWithPlayers(2, 1),
-                MatchWithPlayers(2, 1),
-                MatchWithPlayers(2, 1),
-                MatchWithPlayers(1, 2),
-                new GameMatch(),
-            },
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-
-            MatchOptions =
-            {
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .Knockout()
+            .WithTeams(_homeTeam, _awayTeam)
+            .WithMatch(MatchWithPlayers(2, 1))
+            .WithMatch(MatchWithPlayers(2, 1))
+            .WithMatch(MatchWithPlayers(2, 1))
+            .WithMatch(MatchWithPlayers(2, 1))
+            .WithMatch(MatchWithPlayers(2, 1))
+            .WithMatch(MatchWithPlayers(2, 1))
+            .WithMatch(MatchWithPlayers(1, 2))
+            .WithMatch(new GameMatch())
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
