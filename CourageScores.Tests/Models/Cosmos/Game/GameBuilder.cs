@@ -93,4 +93,16 @@ public class GameBuilder
         _game.Postponed = true;
         return this;
     }
+
+    public GameBuilder WithMatchOption(Func<GameMatchOptionBuilder, GameMatchOptionBuilder> matchOptionBuilder)
+    {
+        _game.MatchOptions.Add(matchOptionBuilder(new GameMatchOptionBuilder()).Build());
+        return this;
+    }
+
+    public GameBuilder AccoladesCount(bool accoladesCount = true)
+    {
+        _game.AccoladesCount = accoladesCount;
+        return this;
+    }
 }

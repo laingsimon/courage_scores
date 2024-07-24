@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Tests.Models.Cosmos.Game;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -55,45 +56,16 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithHomeAndAwayTeamsAndHomeWin_SetsPropertiesCorrectly()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = false,
-            Address = "address",
-            Date = new DateTime(2001, 02, 03),
-            Matches =
-            {
-                new GameMatch
-                {
-                    Deleted = null,
-                    HomeScore = 2,
-                    AwayScore = 1,
-                    HomePlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                    AwayPlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                },
-            },
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-            MatchOptions =
-            {
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(2, 1)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithTeams(_homeTeam, _awayTeam)
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .Build();
         var homeDivision = new DivisionDto
         {
             Id = Guid.NewGuid(),
@@ -124,45 +96,16 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithHomeAndAwayTeamsAndAwayWin_SetsPropertiesCorrectly()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = false,
-            Address = "address",
-            Date = new DateTime(2001, 02, 03),
-            Matches =
-            {
-                new GameMatch
-                {
-                    Deleted = null,
-                    HomeScore = 1,
-                    AwayScore = 2,
-                    HomePlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                    AwayPlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                },
-            },
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-            MatchOptions =
-            {
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(1, 2)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithTeams(_homeTeam, _awayTeam)
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
@@ -181,64 +124,23 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithDeletedMatches_IgnoresDeletedMatches()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = false,
-            Address = "address",
-            Postponed = true,
-            Date = new DateTime(2001, 02, 03),
-            Matches =
-            {
-                new GameMatch
-                {
-                    Deleted = null,
-                    HomeScore = 2,
-                    AwayScore = 1,
-                    HomePlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                    AwayPlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                },
-                new GameMatch
-                {
-                    Deleted = new DateTime(2001, 02, 03),
-                    HomeScore = 2,
-                    AwayScore = 1,
-                    HomePlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                    AwayPlayers = new List<GamePlayer>
-                    {
-                        new(),
-                    },
-                },
-            },
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-            MatchOptions =
-            {
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-                new GameMatchOption
-                {
-                    NumberOfLegs = 3,
-                },
-            },
-        };
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .Postponed()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(2, 1)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithMatch(m => m
+                .Deleted(new DateTime(2001, 02, 03))
+                .WithScores(2, 1)
+                .WithHomePlayers(new GamePlayer())
+                .WithAwayPlayers(new GamePlayer()))
+            .WithTeams(_homeTeam, _awayTeam)
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .WithMatchOption(b => b.NumberOfLegs(3))
+            .Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
@@ -249,22 +151,13 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithoutAwayTeam_SetsPropertiesCorrectly()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = true,
-            Address = "address",
-            Postponed = true,
-            Date = new DateTime(2001, 02, 03),
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-        };
+        var game = new GameBuilder()
+            .Knockout()
+            .WithAddress("address")
+            .Postponed()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(_homeTeam, _awayTeam)
+            .Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, null, null, null, _token);
 
@@ -277,23 +170,14 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithoutEitherTeam_SetsPropertiesCorrectly()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = true,
-            Address = "address",
-            Postponed = true,
-            Date = new DateTime(2001, 02, 03),
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-            AccoladesCount = true,
-        };
+        var game = new GameBuilder()
+            .Knockout()
+            .WithAddress("address")
+            .Postponed()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(_homeTeam, _awayTeam)
+            .AccoladesCount()
+            .Build();
 
         var result = await _adapter.Adapt(game, null, null, null, null, _token);
 
@@ -307,31 +191,15 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInAnyMatch_ReturnsNoScoresForFixture()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = false,
-            Address = "address",
-            Postponed = true,
-            Date = new DateTime(2001, 02, 03),
-            Matches =
-            {
-                new GameMatch
-                {
-                    Deleted = null,
-                    HomeScore = 2,
-                    AwayScore = 1,
-                },
-            },
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-        };
+        var game = new GameBuilder()
+            .WithAddress("address")
+            .Postponed()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(2, 1))
+            .WithTeams(_homeTeam, _awayTeam)
+            .AccoladesCount()
+            .Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
@@ -344,31 +212,16 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInAnyKnockoutMatch_ReturnsNullScoresForFixture()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            IsKnockout = true,
-            Address = "address",
-            Postponed = true,
-            Date = new DateTime(2001, 02, 03),
-            Matches =
-            {
-                new GameMatch
-                {
-                    Deleted = null,
-                    HomeScore = 2,
-                    AwayScore = 1,
-                },
-            },
-            Home = new GameTeam
-            {
-                Id = _homeTeam.Id,
-            },
-            Away = new GameTeam
-            {
-                Id = _awayTeam.Id,
-            },
-        };
+        var game = new GameBuilder()
+            .Knockout()
+            .WithAddress("address")
+            .Postponed()
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithMatch(m => m
+                .WithScores(2, 1))
+            .WithTeams(_homeTeam, _awayTeam)
+            .AccoladesCount()
+            .Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, null, null, _token);
 
@@ -562,21 +415,13 @@ public class DivisionFixtureAdapterTests
             Address = "address",
             Name = "team",
         };
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            Home = new GameTeam
-            {
-                Id = Guid.NewGuid(),
-                Name = "HOME",
-            },
-            Away = new GameTeam
-            {
-                Id = Guid.NewGuid(),
-                Name = "AWAY",
-            },
-        };
+        var game = new GameBuilder()
+            .ForDivision(Guid.NewGuid())
+            .WithTeams(
+                new TeamDto { Id = Guid.NewGuid(), Name = "HOME" },
+                new TeamDto { Id = Guid.NewGuid(), Name = "AWAY" })
+            .AccoladesCount()
+            .Build();
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);
