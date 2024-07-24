@@ -234,23 +234,6 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInLeagueTriplesMatch_ReturnsNullScoresForFixture()
     {
-        GameMatch MatchWithPlayers(int homeScore, int awayScore)
-        {
-            return new GameMatch
-            {
-                HomeScore = homeScore,
-                AwayScore = awayScore,
-                HomePlayers = new List<GamePlayer>
-                {
-                    new(),
-                },
-                AwayPlayers = new List<GamePlayer>
-                {
-                    new(),
-                },
-            };
-        }
-
         var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
@@ -287,23 +270,6 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInKnockoutTriplesMatch_ReturnsScoresForFixture()
     {
-        GameMatch MatchWithPlayers(int homeScore, int awayScore)
-        {
-            return new GameMatch
-            {
-                HomeScore = homeScore,
-                AwayScore = awayScore,
-                HomePlayers = new List<GamePlayer>
-                {
-                    new(),
-                },
-                AwayPlayers = new List<GamePlayer>
-                {
-                    new(),
-                },
-            };
-        }
-
         var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
@@ -440,5 +406,22 @@ public class DivisionFixtureAdapterTests
         Assert.That(otherDivisionFixtureDto.Home.Name, Is.EqualTo(game.Home.Name));
         Assert.That(otherDivisionFixtureDto.Away.Id, Is.EqualTo(game.Away.Id));
         Assert.That(otherDivisionFixtureDto.Away.Name, Is.EqualTo(game.Away.Name));
+    }
+
+    private static GameMatch MatchWithPlayers(int homeScore, int awayScore)
+    {
+        return new GameMatch
+        {
+            HomeScore = homeScore,
+            AwayScore = awayScore,
+            HomePlayers = new List<GamePlayer>
+            {
+                new(),
+            },
+            AwayPlayers = new List<GamePlayer>
+            {
+                new(),
+            },
+        };
     }
 }
