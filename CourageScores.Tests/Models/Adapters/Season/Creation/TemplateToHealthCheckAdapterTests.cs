@@ -43,13 +43,7 @@ public class TemplateToHealthCheckAdapterTests
     [Test]
     public async Task Adapt_GivenSingleDivision_ShouldReturnCorrectly()
     {
-        var template = new Template
-        {
-            Divisions =
-            {
-                DivisionTemplateABCD,
-            },
-        };
+        var template = Template(DivisionTemplateABCD);
 
         var result = await _adapter.Adapt(template, _token);
 
@@ -99,17 +93,9 @@ public class TemplateToHealthCheckAdapterTests
     [Test]
     public async Task Adapt_GivenSeasonSharedAddressesNotInDivision_ShouldNotSetSharedAddress()
     {
-        var template = new Template
-        {
-            SharedAddresses =
-            {
-                SharedAddresses("E", "F"),
-            },
-            Divisions =
-            {
-                DivisionTemplateABCD,
-            },
-        };
+        var template = Template(
+            SharedAddresses("E", "F"),
+            DivisionTemplateABCD);
 
         var result = await _adapter.Adapt(template, _token);
 
@@ -134,17 +120,9 @@ public class TemplateToHealthCheckAdapterTests
     [Test]
     public async Task Adapt_GivenSeasonSharedAddresses_ShouldSetSharedAddress()
     {
-        var template = new Template
-        {
-            SharedAddresses =
-            {
-                SharedAddresses("A", "D"),
-            },
-            Divisions =
-            {
-                DivisionTemplateABCD,
-            },
-        };
+        var template = Template(
+            SharedAddresses("A", "D"),
+            DivisionTemplateABCD);
 
         var result = await _adapter.Adapt(template, _token);
 
@@ -180,23 +158,9 @@ public class TemplateToHealthCheckAdapterTests
     [Test]
     public async Task Adapt_GivenDivisionSharedAddressesNotInDivision_ShouldNotSetSharedAddress()
     {
-        var template = new Template
-        {
-            Divisions =
-            {
-                new DivisionTemplate
-                {
-                    SharedAddresses =
-                    {
-                        SharedAddresses("E", "F"),
-                    },
-                    Dates =
-                    {
-                        DateTemplate("A vs B", "C vs D"),
-                    },
-                },
-            },
-        };
+        var template = Template(DivisionTemplate(
+            SharedAddresses("E", "F"),
+            DateTemplate("A vs B", "C vs D")));
 
         var result = await _adapter.Adapt(template, _token);
 
@@ -223,23 +187,10 @@ public class TemplateToHealthCheckAdapterTests
     [Test]
     public async Task Adapt_GivenDivisionSharedAddresses_ShouldSetSharedAddress()
     {
-        var template = new Template
-        {
-            Divisions =
-            {
-                new DivisionTemplate
-                {
-                    SharedAddresses =
-                    {
-                        SharedAddresses("A", "D"),
-                    },
-                    Dates =
-                    {
-                        DateTemplate("A vs B", "C vs D"),
-                    },
-                },
-            },
-        };
+        var template = Template(
+            DivisionTemplate(
+                SharedAddresses("A", "D"),
+                DateTemplate("A vs B", "C vs D")));
 
         var result = await _adapter.Adapt(template, _token);
 
@@ -275,27 +226,11 @@ public class TemplateToHealthCheckAdapterTests
     [Test]
     public async Task Adapt_GivenSeasonAndDivisionSharedAddresses_ShouldSetSharedAddress()
     {
-        var template = new Template
-        {
-            SharedAddresses =
-            {
-                SharedAddresses("A", "D"),
-            },
-            Divisions =
-            {
-                new DivisionTemplate
-                {
-                    SharedAddresses =
-                    {
-                        SharedAddresses("A", "B"),
-                    },
-                    Dates =
-                    {
-                        DateTemplate("A vs B", "C vs D"),
-                    },
-                },
-            },
-        };
+        var template = Template(
+            SharedAddresses("A", "D"),
+            DivisionTemplate(
+                SharedAddresses("A", "B"),
+                DateTemplate("A vs B", "C vs D")));
 
         var result = await _adapter.Adapt(template, _token);
 
@@ -335,11 +270,7 @@ public class TemplateToHealthCheckAdapterTests
         {
             SharedAddresses =
             {
-                new List<string>
-                {
-                    "A",
-                    "D",
-                },
+                SharedAddresses("A", "D"),
             },
             Divisions =
             {
@@ -347,16 +278,8 @@ public class TemplateToHealthCheckAdapterTests
                 {
                     SharedAddresses =
                     {
-                        new List<string>
-                        {
-                            "A",
-                            "D",
-                        },
-                        new List<string>
-                        {
-                            "A",
-                            "C",
-                        }, // something different to A & D
+                        SharedAddresses("A", "D"),
+                        SharedAddresses("A", "C"), // something different to A & D
                     },
                     Dates =
                     {
@@ -400,20 +323,11 @@ public class TemplateToHealthCheckAdapterTests
     [Test]
     public async Task Adapt_GivenMultipleDates_ShouldSetDateCorrectly()
     {
-        var template = new Template
-        {
-            Divisions =
-            {
-                new DivisionTemplate
-                {
-                    Dates =
-                    {
-                        DateTemplate("A vs B", "C vs D"),
-                        DateTemplate("B vs C", "A vs D"),
-                    },
-                },
-            },
-        };
+        var template = Template(
+            DivisionTemplate(
+                new List<string>(),
+                DateTemplate("A vs B", "C vs D"),
+                DateTemplate("B vs C", "A vs D")));
 
         var result = await _adapter.Adapt(template, _token);
 
@@ -451,6 +365,38 @@ public class TemplateToHealthCheckAdapterTests
 #pragma warning disable CS8601 // Possible null reference assignment.
             Address = address,
 #pragma warning restore CS8601 // Possible null reference assignment.
+        };
+    }
+
+    private static DivisionTemplate DivisionTemplate(List<string> sharedAddresses, params DateTemplate[] dates)
+    {
+        return new DivisionTemplate
+        {
+            SharedAddresses =
+            {
+                sharedAddresses,
+            },
+            Dates = dates.ToList(),
+        };
+    }
+
+    private static Template Template(List<string> sharedAddresses, params DivisionTemplate[] divisions)
+    {
+        return new Template
+        {
+            SharedAddresses =
+            {
+                sharedAddresses,
+            },
+            Divisions = divisions.ToList(),
+        };
+    }
+
+    private static Template Template(params DivisionTemplate[] divisions)
+    {
+        return new Template
+        {
+            Divisions = divisions.ToList(),
         };
     }
 

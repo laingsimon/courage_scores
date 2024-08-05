@@ -1,6 +1,6 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {FilterFixtures} from "./FilterFixtures";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useLocation} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
@@ -8,11 +8,9 @@ import {useApp} from "../common/AppContainer";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {
-    changeFilter,
     getFixtureDateFilters,
     getFixtureFilters,
-    IInitialisedFilters,
-    initFilter, IFixtureMapping
+    IFixtureMapping, getFilter
 } from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "../season_creation/CreateSeasonDialog";
@@ -36,22 +34,16 @@ export interface IDivisionFixturesProps {
 
 export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     const {id: divisionId, name, season, fixtures, onReloadDivision} = useDivisionData();
-    const navigate = useNavigate();
     const location = useLocation();
     const {account, onError, controls, teams} = useApp();
     const isAdmin: boolean = account && account.access && account.access.manageGames;
     const [newDate, setNewDate] = useState<string>('');
     const [newDateDialogOpen, setNewDateDialogOpen] = useState<boolean>(false);
     const [isKnockout, setIsKnockout] = useState<boolean>(false);
-    const [filter, setFilter] = useState<IInitialisedFilters>(initFilter(location));
     const [editNote, setEditNote] = useState<EditFixtureDateNoteDto | null>(null);
     const [showPlayers, setShowPlayers] = useState<{ [date: string]: boolean }>(getPlayersToShow());
     const [createFixturesDialogOpen, setCreateFixturesDialogOpen] = useState<boolean>(false);
     const {setTitle} = useBranding();
-
-    useEffect(() => {
-        setFilter(initFilter(location));
-    }, [location]);
 
     function getPlayersToShow(): { [date: string]: boolean } {
         if (location.hash !== '#show-who-is-playing') {
@@ -220,6 +212,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
     setTitle(`${name}: Fixtures`);
 
     try {
+        const filter = getFilter(location);
         const fixtureDateFilters: IFilter<DivisionFixtureDateDto> = getFixtureDateFilters(filter, {}, fixtures);
         const fixtureFilters: IFilter<IFixtureMapping> = getFixtureFilters(filter);
         const resultsToRender = fixtures
@@ -229,9 +222,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             .map(renderFixtureDate);
         return (<div className="content-background p-3">
             {controls
-                ? (<FilterFixtures
-                    setFilter={async (newFilter: IInitialisedFilters) => changeFilter(newFilter, navigate, location)}
-                    filter={filter}/>)
+                ? (<FilterFixtures />)
                 : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
             <div>

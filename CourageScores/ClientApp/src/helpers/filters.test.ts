@@ -1,12 +1,11 @@
 ﻿import {
-    changeFilter,
     getDateFilter,
     getFixtureDateFilters,
     getFixtureFilters,
     getNotesFilter,
     getTeamFilter,
     getTypeFilter, IFixtureMapping, IInitialisedFilters,
-    initFilter, IRenderContext,
+    getFilter, IRenderContext,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
     optionallyInvertFilter
@@ -688,103 +687,38 @@ describe('filters', () => {
 
     describe('initFilter', () => {
         it('inits date filter', () => {
-            const filter: IInitialisedFilters = initFilter({search: '?date=past'});
+            const filter: IInitialisedFilters = getFilter({search: '?date=past'});
 
             expect(filter).toEqual({date: 'past'});
         });
 
         it('inits type filter', () => {
-            const filter: IInitialisedFilters = initFilter({search: '?type=league'});
+            const filter: IInitialisedFilters = getFilter({search: '?type=league'});
 
             expect(filter).toEqual({type: 'league'});
         });
 
         it('inits team filter', () => {
-            const filter: IInitialisedFilters = initFilter({search: '?team=abcd'});
+            const filter: IInitialisedFilters = getFilter({search: '?team=abcd'});
 
             expect(filter).toEqual({team: 'abcd'});
         });
 
         it('inits notes filter', () => {
-            const filter: IInitialisedFilters = initFilter({search: '?notes=abcd'});
+            const filter: IInitialisedFilters = getFilter({search: '?notes=abcd'});
 
             expect(filter).toEqual({notes: 'abcd'});
         });
 
         it('accepts no filter expressions', () => {
-            expect(initFilter({search: '?'})).toEqual({});
-            expect(initFilter({search: ''})).toEqual({});
+            expect(getFilter({search: '?'})).toEqual({});
+            expect(getFilter({search: ''})).toEqual({});
         });
 
         it('inits multiple filters', () => {
-            const filter: IInitialisedFilters = initFilter({search: '?team=abcd&date=past&type=league'});
+            const filter: IInitialisedFilters = getFilter({search: '?team=abcd&date=past&type=league'});
 
             expect(filter).toEqual({team: 'abcd', date: 'past', type: 'league'});
-        });
-    });
-
-    describe('changeFilter', () => {
-        let navigated: any;
-        const navigate = (params: any) => {
-            navigated = params
-        };
-        const location = {pathname: 'path', hash: '#hash', search: ''};
-
-        beforeEach(() => {
-            navigated = null;
-        });
-
-        it('removes unset filters from search', () => {
-            const filter: IInitialisedFilters = {type: '', date: 'past'};
-
-            changeFilter(filter, navigate, location);
-
-            expect(navigated).toBeTruthy();
-            expect(navigated!.search).toEqual('date=past');
-            expect(navigated!.pathname).toEqual(location.pathname);
-            expect(navigated!.hash).toEqual(location.hash);
-        });
-
-        it('navigates with new search params', () => {
-            const filter: IInitialisedFilters = {type: 'league', date: 'past'};
-
-            changeFilter(filter, navigate, location);
-
-            expect(navigated).toBeTruthy();
-            expect(navigated!.search).toContain('date=past');
-            expect(navigated!.search).toContain('type=league');
-            expect(navigated!.pathname).toEqual(location.pathname);
-            expect(navigated!.hash).toEqual(location.hash);
-        });
-
-        it('retains unrelated filters', () => {
-            const filter: IInitialisedFilters = {type: 'league', date: 'past'};
-            const locationWithOtherSearchParams = {pathname: 'path', hash: '#hash', search: '?division=abcd&division=efgh'};
-
-            changeFilter(filter, navigate, locationWithOtherSearchParams);
-
-            expect(navigated).toBeTruthy();
-            expect(navigated!.search).toContain('date=past');
-            expect(navigated!.search).toContain('type=league');
-            expect(navigated!.search).toContain('division=abcd&division=efgh');
-            expect(navigated!.pathname).toEqual(location.pathname);
-            expect(navigated!.hash).toEqual(location.hash);
-        });
-
-        it('does not retain removed filters', () => {
-            const filter: IInitialisedFilters = {};
-            const locationWithOtherSearchParams = {pathname: 'path', hash: '#hash', search: '?division=abcd&notes=Pairs&date=past&team=a&type=league'};
-
-            changeFilter(filter, navigate, locationWithOtherSearchParams);
-
-            expect(navigated).toBeTruthy();
-            expect(navigated!.search).not.toContain('notes=Pairs');
-            expect(navigated!.search).not.toContain('date=past');
-            expect(navigated!.search).not.toContain('team=a');
-            expect(navigated!.search).not.toContain('type=league');
-            expect(navigated!.search).toContain('division=abcd');
-            expect(navigated!.pathname).toEqual(location.pathname);
-            expect(navigated!.hash).toEqual(location.hash);
         });
     });
 });
