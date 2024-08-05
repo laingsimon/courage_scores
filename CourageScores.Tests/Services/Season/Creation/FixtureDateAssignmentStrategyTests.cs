@@ -31,6 +31,11 @@ public class FixtureDateAssignmentStrategyTests
         Id = Guid.NewGuid(),
         Name = "Team 4",
     };
+    private static readonly SeasonDto Season = new SeasonDto
+    {
+        StartDate = new DateTime(2001, 01, 01),
+    };
+
     private readonly IEqualityComparer<DivisionDataDto> _comparer = new DateAndTeamNameComparer();
     private readonly CancellationToken _token = new();
     private readonly Dictionary<string, TeamDto> _placeholderMappings = new()
@@ -49,16 +54,6 @@ public class FixtureDateAssignmentStrategyTests
         },
     };
     private readonly FixtureDateAssignmentStrategy _strategy = new();
-    private SeasonDto _season = null!;
-
-    [SetUp]
-    public void SetupEachTest()
-    {
-        _season = new SeasonDto
-        {
-            StartDate = new DateTime(2001, 01, 01),
-        };
-    }
 
     [Test]
     public async Task AssignDates_GivenNoTemplateDates_ReturnSuccessful()
@@ -408,7 +403,7 @@ public class FixtureDateAssignmentStrategyTests
     private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams)
     {
         return new ProposalContext(
-            new TemplateMatchContext(_season, divisions, teams, new Dictionary<string, Guid>()),
+            new TemplateMatchContext(Season, divisions, teams, new Dictionary<string, Guid>()),
             template,
             new ActionResultDto<ProposalResultDto>
             {

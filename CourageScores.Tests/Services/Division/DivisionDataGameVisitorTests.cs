@@ -1,6 +1,7 @@
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
+using CourageScores.Tests.Models.Cosmos.Game;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
@@ -10,12 +11,12 @@ namespace CourageScores.Tests.Services.Division;
 public class DivisionDataGameVisitorTests
 {
     private static readonly Guid SeasonId = Guid.NewGuid();
-    private static readonly TeamPlayerDto HomePlayer = new()
+    private static readonly TeamPlayerDto HomeTeamPlayer = new()
     {
         Id = Guid.NewGuid(),
         Name = "home_player",
     };
-    private static readonly TeamPlayerDto AwayPlayer = new()
+    private static readonly TeamPlayerDto AwayTeamPlayer = new()
     {
         Id = Guid.NewGuid(),
         Name = "away_player",
@@ -32,7 +33,7 @@ public class DivisionDataGameVisitorTests
                 SeasonId = SeasonId,
                 Players =
                 {
-                    HomePlayer,
+                    HomeTeamPlayer,
                 },
             },
         },
@@ -49,7 +50,7 @@ public class DivisionDataGameVisitorTests
                 SeasonId = SeasonId,
                 Players =
                 {
-                    AwayPlayer,
+                    AwayTeamPlayer,
                 },
             },
         },
@@ -72,177 +73,119 @@ public class DivisionDataGameVisitorTests
     {
         Tournament = new TournamentGame(),
     };
+    private static readonly GamePlayer HomePlayer1 = new GamePlayer
+    {
+        Id = HomeTeamPlayer.Id,
+    };
+    private static readonly GamePlayer HomePlayer2 = new GamePlayer
+    {
+        Id = Guid.NewGuid(),
+    };
+    private static readonly GamePlayer AwayPlayer1 = new GamePlayer
+    {
+        Id = AwayTeamPlayer.Id,
+    };
+    // hi-check
+    private static readonly NotablePlayer HiCheckPlayer = new NotablePlayer
+    {
+        Id = HomeTeamPlayer.Id,
+        Notes = "120",
+    };
+    private static readonly GameTeam HomeTeam = new GameTeam
+    {
+        Id = Home.Id,
+        Name = Home.Name,
+    };
+    private static readonly GameTeam AwayTeam = new GameTeam
+    {
+        Id = Away.Id,
+        Name = Away.Name,
+    };
+    private DivisionData _divisionData = null!;
+    private DivisionDataGameVisitor _visitor = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        _divisionData = new DivisionData();
+        _visitor = new DivisionDataGameVisitor(_divisionData);
+    }
 
     [Test]
     public void VisitDataError_AddsError()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        _visitor.VisitDataError(LeagueVisitorScope, "some error");
 
-        visitor.VisitDataError(LeagueVisitorScope, "some error");
-
-        Assert.That(divisionData.DataErrors.Select(de => de.Message), Has.Member("some error"));
+        Assert.That(_divisionData.DataErrors.Select(de => de.Message), Has.Member("some error"));
     }
 
     [Test]
     public void VisitGame_GivenPostponedGame_IgnoresData()
     {
-        var divisionData = new DivisionData();
-        var game = new CosmosGame
-        {
-            Postponed = true,
-            Id = Guid.NewGuid(),
-            SeasonId = SeasonId,
-            Date = new DateTime(2001, 02, 03),
-            Home = new GameTeam
-            {
-                Id = Home.Id,
-                Name = Home.Name,
-            },
-            Away = new GameTeam
-            {
-                Id = Away.Id,
-                Name = Away.Name,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = HomePlayer.Id,
-                        },
-                    },
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = AwayPlayer.Id,
-                        },
-                    },
-                },
-            },
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        var game = new GameBuilder()
+            .Postponed()
+            .ForSeason(SeasonId)
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(Home, Away)
+            .WithMatch(m => m.WithHomePlayers(HomeTeamPlayer.Id).WithAwayPlayers(AwayTeamPlayer.Id))
+            .Build();
 
-        visitor.VisitGame(game);
+        _visitor.VisitGame(game);
 
-        Assert.That(divisionData.PlayersToFixtures, Is.Empty);
+        Assert.That(_divisionData.PlayersToFixtures, Is.Empty);
     }
 
     [Test]
     public void VisitGame_GivenGame_AddsPlayersIntoGameToPlayerLookup()
     {
-        var divisionData = new DivisionData();
-        var homePlayer = new GamePlayer
-        {
-            Id = HomePlayer.Id,
-        };
-        var awayPlayer = new GamePlayer
-        {
-            Id = AwayPlayer.Id,
-        };
-        var game = new CosmosGame
-        {
-            Postponed = false,
-            Id = Guid.NewGuid(),
-            SeasonId = SeasonId,
-            Date = new DateTime(2001, 02, 03),
-            Home = new GameTeam
-            {
-                Id = Home.Id,
-                Name = Home.Name,
-            },
-            Away = new GameTeam
-            {
-                Id = Away.Id,
-                Name = Away.Name,
-            },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomePlayers =
-                    {
-                        homePlayer,
-                    },
-                    AwayPlayers =
-                    {
-                        awayPlayer,
-                    },
-                },
-            },
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        var game = new GameBuilder()
+            .ForSeason(SeasonId)
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithTeams(Home, Away)
+            .WithMatch(m => m.WithHomePlayers(HomePlayer1).WithAwayPlayers(AwayPlayer1))
+            .Build();
 
-        visitor.VisitGame(game);
+        _visitor.VisitGame(game);
 
-        var mapping = divisionData.PlayersToFixtures;
+        var mapping = _divisionData.PlayersToFixtures;
         Assert.That(mapping.Keys, Is.EquivalentTo(new[]
         {
-            homePlayer.Id, awayPlayer.Id,
+            HomeTeamPlayer.Id, AwayTeamPlayer.Id,
         }));
-        Assert.That(mapping[homePlayer.Id].Keys, Is.EquivalentTo(new[]
+        Assert.That(mapping[HomeTeamPlayer.Id].Keys, Is.EquivalentTo(new[]
         {
             game.Date,
         }));
-        Assert.That(mapping[awayPlayer.Id].Keys, Is.EquivalentTo(new[]
+        Assert.That(mapping[AwayTeamPlayer.Id].Keys, Is.EquivalentTo(new[]
         {
             game.Date,
         }));
-        Assert.That(mapping[homePlayer.Id][game.Date], Is.EqualTo(game.Id));
-        Assert.That(mapping[awayPlayer.Id][game.Date], Is.EqualTo(game.Id));
+        Assert.That(mapping[HomeTeamPlayer.Id][game.Date], Is.EqualTo(game.Id));
+        Assert.That(mapping[AwayTeamPlayer.Id][game.Date], Is.EqualTo(game.Id));
     }
 
     [Test]
     public void VisitMatchWin_GivenKnockoutFixture_DoesNothing()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchWin(KnockoutVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchWin(KnockoutVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 3, 2);
 
-        Assert.That(divisionData.Players, Is.Empty);
+        Assert.That(_divisionData.Players, Is.Empty);
     }
 
     [Test]
     public void VisitMatchWin_GivenSomePlayers_RecordsPlayerWinRateForAllPlayers()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchWin(LeagueVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchWin(LeagueVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 3, 2);
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id, homePlayer2.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
-        var player2Scores = divisionData.Players[homePlayer2.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
+        var player2Scores = _divisionData.Players[HomePlayer2.Id];
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesWon, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(3));
@@ -256,28 +199,14 @@ public class DivisionDataGameVisitorTests
     [Test]
     public void VisitMatchWin_GivenSomePlayers_RecordsPlayerTeamRateForFirstPlayerOnly()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchWin(LeagueVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchWin(LeagueVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 3, 2);
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id, homePlayer2.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
-        var player2Scores = divisionData.Players[homePlayer2.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
+        var player2Scores = _divisionData.Players[HomePlayer2.Id];
         Assert.That(player1Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(3));
         Assert.That(player1Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(2));
         Assert.That(player2Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(0));
@@ -287,31 +216,17 @@ public class DivisionDataGameVisitorTests
     [Test]
     public void VisitMatchWin_GivenDifferingNumberOfPlayers_RecordsScoresAgainstCorrectNumberOfPlayers()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchWin(LeagueVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchWin(LeagueVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 3, 2);
-        visitor.VisitMatchWin(LeagueVisitorScope, new[]
+        _visitor.VisitMatchWin(LeagueVisitorScope, new[]
         {
-            homePlayer1,
+            HomePlayer1,
         }, TeamDesignation.Home, 3, 1);
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id, homePlayer2.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesWon, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(3));
@@ -329,28 +244,14 @@ public class DivisionDataGameVisitorTests
     [Test]
     public void VisitMatchLost_GivenSomePlayers_RecordsPlayerWinRateForAllPlayers()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchLost(LeagueVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchLost(LeagueVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 2, 3);
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id, homePlayer2.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
-        var player2Scores = divisionData.Players[homePlayer2.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
+        var player2Scores = _divisionData.Players[HomePlayer2.Id];
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesLost, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(2));
@@ -364,50 +265,25 @@ public class DivisionDataGameVisitorTests
     [Test]
     public void VisitMatchLost_GivenKnockoutFixture_DoesNothing()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchLost(KnockoutVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchLost(KnockoutVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 2, 3);
 
-        Assert.That(divisionData.Players, Is.Empty);
+        Assert.That(_divisionData.Players, Is.Empty);
     }
 
     [Test]
     public void VisitMatchLost_GivenSomePlayers_RecordsPlayerTeamRateForFirstPlayerOnly()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchLost(LeagueVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchLost(LeagueVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 2, 3);
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id, homePlayer2.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
-        var player2Scores = divisionData.Players[homePlayer2.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
+        var player2Scores = _divisionData.Players[HomePlayer2.Id];
         Assert.That(player1Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(2));
         Assert.That(player1Scores.PlayerPlayCount[2].TeamLossRate, Is.EqualTo(3));
         Assert.That(player2Scores.PlayerPlayCount[2].TeamWinRate, Is.EqualTo(0));
@@ -417,31 +293,17 @@ public class DivisionDataGameVisitorTests
     [Test]
     public void VisitMatchLost_GivenDifferingNumberOfPlayers_RecordsScoresAgainstCorrectNumberOfPlayers()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
+        _visitor.VisitMatchLost(LeagueVisitorScope, new[]
         {
-            Id = HomePlayer.Id,
-        };
-        var homePlayer2 = new GamePlayer
-        {
-            Id = Guid.NewGuid(),
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitMatchLost(LeagueVisitorScope, new[]
-        {
-            homePlayer1, homePlayer2,
+            HomePlayer1, HomePlayer2,
         }, TeamDesignation.Home, 2, 3);
-        visitor.VisitMatchLost(LeagueVisitorScope, new[]
+        _visitor.VisitMatchLost(LeagueVisitorScope, new[]
         {
-            homePlayer1,
+            HomePlayer1,
         }, TeamDesignation.Home, 1, 3);
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id, homePlayer2.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1, HomePlayer2);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesLost, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].MatchesPlayed, Is.EqualTo(1));
         Assert.That(player1Scores.PlayerPlayCount[2].PlayerWinRate, Is.EqualTo(2));
@@ -459,376 +321,207 @@ public class DivisionDataGameVisitorTests
     [Test]
     public void VisitOneEighty_GivenPlayer_AddsOneEighty()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
-        {
-            Id = HomePlayer.Id,
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        _visitor.VisitOneEighty(LeagueVisitorScope, HomePlayer1);
 
-        visitor.VisitOneEighty(LeagueVisitorScope, homePlayer1);
-
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
         Assert.That(player1Scores.OneEighties, Is.EqualTo(1));
     }
 
     [Test]
     public void VisitOneEighty_GivenKnockoutFixture_AddsOneEighty()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new GamePlayer
-        {
-            Id = HomePlayer.Id,
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        _visitor.VisitOneEighty(KnockoutVisitorScope, HomePlayer1);
 
-        visitor.VisitOneEighty(KnockoutVisitorScope, homePlayer1);
-
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
         Assert.That(player1Scores.OneEighties, Is.EqualTo(1));
     }
 
     [Test]
     public void VisitOneEighty_GivenTournamentFixture_AddsOneEighty()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new TournamentPlayer
-        {
-            Id = HomePlayer.Id,
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        _visitor.VisitOneEighty(TournamentVisitorScope, HomePlayer1);
 
-        visitor.VisitOneEighty(TournamentVisitorScope, homePlayer1);
-
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HomePlayer1);
+        var player1Scores = _divisionData.Players[HomePlayer1.Id];
         Assert.That(player1Scores.OneEighties, Is.EqualTo(1));
     }
 
     [Test]
     public void VisitHiCheckout_GivenPlayerWithNewHiCheck_AddsOneScore()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new NotablePlayer
-        {
-            Id = HomePlayer.Id,
-            Notes = "120",
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        _visitor.VisitHiCheckout(LeagueVisitorScope, HiCheckPlayer);
 
-        visitor.VisitHiCheckout(LeagueVisitorScope, homePlayer1);
-
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HiCheckPlayer);
+        var player1Scores = _divisionData.Players[HiCheckPlayer.Id];
         Assert.That(player1Scores.HiCheckout, Is.EqualTo(120));
     }
 
     [Test]
     public void VisitHiCheckout_GivenKnockoutFixture_AddsOneScore()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new NotablePlayer
-        {
-            Id = HomePlayer.Id,
-            Notes = "120",
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        _visitor.VisitHiCheckout(KnockoutVisitorScope, HiCheckPlayer);
 
-        visitor.VisitHiCheckout(KnockoutVisitorScope, homePlayer1);
-
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HiCheckPlayer);
+        var player1Scores = _divisionData.Players[HiCheckPlayer.Id];
         Assert.That(player1Scores.HiCheckout, Is.EqualTo(120));
     }
 
     [Test]
     public void VisitHiCheck_GivenTournamentFixture_AddsOneScore()
     {
-        var divisionData = new DivisionData();
-        var homePlayer1 = new NotableTournamentPlayer
-        {
-            Id = HomePlayer.Id,
-            Notes = "120",
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData);
+        _visitor.VisitHiCheckout(TournamentVisitorScope, HiCheckPlayer);
 
-        visitor.VisitHiCheckout(TournamentVisitorScope, homePlayer1);
-
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, HiCheckPlayer);
+        var player1Scores = _divisionData.Players[HiCheckPlayer.Id];
         Assert.That(player1Scores.HiCheckout, Is.EqualTo(120));
     }
 
     [Test]
     public void VisitHiCheckout_GivenPlayerWithNewHiCheckWithTrailingWhitespace_AddsOneScore()
     {
-        var divisionData = new DivisionData();
         var homePlayer1 = new NotablePlayer
         {
-            Id = HomePlayer.Id,
+            Id = HomeTeamPlayer.Id,
             Notes = "120  ",
         };
-        var visitor = new DivisionDataGameVisitor(divisionData);
 
-        visitor.VisitHiCheckout(LeagueVisitorScope, homePlayer1);
+        _visitor.VisitHiCheckout(LeagueVisitorScope, homePlayer1);
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
-        {
-            homePlayer1.Id,
-        }));
-        var player1Scores = divisionData.Players[homePlayer1.Id];
+        AssertPlayerIds(_divisionData.Players, homePlayer1);
+        var player1Scores = _divisionData.Players[homePlayer1.Id];
         Assert.That(player1Scores.HiCheckout, Is.EqualTo(120));
     }
 
     [Test]
     public void VisitHiCheckout_GivenPlayerWithLowerHiCheckThanPrevious_IgnoresScore()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitHiCheckout(LeagueVisitorScope, new NotablePlayer
+        _visitor.VisitHiCheckout(LeagueVisitorScope, new NotablePlayer
         {
-            Id = HomePlayer.Id,
+            Id = HomeTeamPlayer.Id,
             Notes = "120",
         });
-        visitor.VisitHiCheckout(LeagueVisitorScope, new NotablePlayer
+        _visitor.VisitHiCheckout(LeagueVisitorScope, new NotablePlayer
         {
-            Id = HomePlayer.Id,
+            Id = HomeTeamPlayer.Id,
             Notes = "110",
         });
 
-        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[]
+        Assert.That(_divisionData.Players.Keys, Is.EquivalentTo(new[]
         {
-            HomePlayer.Id,
+            HomeTeamPlayer.Id,
         }));
-        var player1Scores = divisionData.Players[HomePlayer.Id];
+        var player1Scores = _divisionData.Players[HomeTeamPlayer.Id];
         Assert.That(player1Scores.HiCheckout, Is.EqualTo(120));
     }
 
     [Test]
     public void VisitHiCheckout_GivenPlayerWithNonNumericScore_IgnoresScore()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-
-        visitor.VisitHiCheckout(LeagueVisitorScope, new NotablePlayer
+        _visitor.VisitHiCheckout(LeagueVisitorScope, new NotablePlayer
         {
-            Id = HomePlayer.Id,
+            Id = HomeTeamPlayer.Id,
             Notes = "wibble",
         });
 
-        Assert.That(divisionData.Players.Keys, Is.Empty);
+        Assert.That(_divisionData.Players.Keys, Is.Empty);
     }
 
     [Test]
     public void VisitTeam_GivenPlayedKnockoutGame_IgnoresTeam()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitTeam(KnockoutVisitorScope, HomeTeam, GameState.Played);
 
-        visitor.VisitTeam(KnockoutVisitorScope, team, GameState.Played);
-
-        Assert.That(divisionData.Teams.Keys, Is.Empty);
+        Assert.That(_divisionData.Teams.Keys, Is.Empty);
     }
 
     [Test]
     public void VisitTeam_GivenUnPlayedGame_IgnoresTeam()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitTeam(LeagueVisitorScope, HomeTeam, GameState.Pending);
 
-        visitor.VisitTeam(LeagueVisitorScope, team, GameState.Pending);
-
-        Assert.That(divisionData.Teams.Keys, Is.Empty);
+        Assert.That(_divisionData.Teams.Keys, Is.Empty);
     }
 
     [Test]
     public void VisitTeam_GivenPlayedGame_RecordsTeamWithGamePlayed()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitTeam(LeagueVisitorScope, HomeTeam, GameState.Played);
 
-        visitor.VisitTeam(LeagueVisitorScope, team, GameState.Played);
-
-        Assert.That(divisionData.Teams.Keys, Is.EquivalentTo(new[]
-        {
-            team.Id,
-        }));
-        Assert.That(divisionData.Teams[team.Id].FixturesPlayed, Is.EqualTo(1));
+        AssertTeamIds(_divisionData.Teams, HomeTeam);
+        Assert.That(_divisionData.Teams[HomeTeam.Id].FixturesPlayed, Is.EqualTo(1));
     }
 
     [Test]
     public void VisitTeam_GivenSubsequentPlayedGame_RecordsTeamWithAnotherGamePlayed()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitTeam(LeagueVisitorScope, HomeTeam, GameState.Played);
+        _visitor.VisitTeam(LeagueVisitorScope, HomeTeam, GameState.Played);
 
-        visitor.VisitTeam(LeagueVisitorScope, team, GameState.Played);
-        visitor.VisitTeam(LeagueVisitorScope, team, GameState.Played);
-
-        Assert.That(divisionData.Teams.Keys, Is.EquivalentTo(new[]
-        {
-            team.Id,
-        }));
-        Assert.That(divisionData.Teams[team.Id].FixturesPlayed, Is.EqualTo(2));
+        AssertTeamIds(_divisionData.Teams, HomeTeam);
+        Assert.That(_divisionData.Teams[HomeTeam.Id].FixturesPlayed, Is.EqualTo(2));
     }
 
     [Test]
     public void VisitGameDraw_GivenTeams_RecordsDrawForBothTeams()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var homeTeam = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
-        var awayTeam = new GameTeam
-        {
-            Id = Away.Id,
-            Name = Away.Name,
-        };
+        _visitor.VisitGameDraw(LeagueVisitorScope, HomeTeam, AwayTeam);
 
-        visitor.VisitGameDraw(LeagueVisitorScope, homeTeam, awayTeam);
-
-        Assert.That(divisionData.Teams.Keys, Is.EquivalentTo(new[]
-        {
-            homeTeam.Id, awayTeam.Id,
-        }));
-        Assert.That(divisionData.Teams[homeTeam.Id].FixturesDrawn, Is.EqualTo(1));
-        Assert.That(divisionData.Teams[awayTeam.Id].FixturesDrawn, Is.EqualTo(1));
+        AssertTeamIds(_divisionData.Teams, HomeTeam, AwayTeam);
+        Assert.That(_divisionData.Teams[HomeTeam.Id].FixturesDrawn, Is.EqualTo(1));
+        Assert.That(_divisionData.Teams[AwayTeam.Id].FixturesDrawn, Is.EqualTo(1));
     }
 
     [Test]
     public void VisitGameDraw_GivenKnockoutFixture_RecordsDrawForBothTeams()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var homeTeam = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
-        var awayTeam = new GameTeam
-        {
-            Id = Away.Id,
-            Name = Away.Name,
-        };
+        _visitor.VisitGameDraw(KnockoutVisitorScope, HomeTeam, AwayTeam);
 
-        visitor.VisitGameDraw(KnockoutVisitorScope, homeTeam, awayTeam);
-
-        Assert.That(divisionData.Teams, Is.Empty);
+        Assert.That(_divisionData.Teams, Is.Empty);
     }
 
     [Test]
     public void VisitGameWinner_GivenTeam_RecordsFixtureWon()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitGameWinner(LeagueVisitorScope, HomeTeam);
 
-        visitor.VisitGameWinner(LeagueVisitorScope, team);
-
-        Assert.That(divisionData.Teams.Keys, Is.EquivalentTo(new[]
-        {
-            team.Id,
-        }));
-        Assert.That(divisionData.Teams[team.Id].FixturesWon, Is.EqualTo(1));
+        AssertTeamIds(_divisionData.Teams, HomeTeam);
+        Assert.That(_divisionData.Teams[HomeTeam.Id].FixturesWon, Is.EqualTo(1));
     }
 
     [Test]
     public void VisitGameWinner_GivenKnockoutFixture_RecordsFixtureWon()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitGameWinner(KnockoutVisitorScope, HomeTeam);
 
-        visitor.VisitGameWinner(KnockoutVisitorScope, team);
-
-        Assert.That(divisionData.Teams, Is.Empty);
+        Assert.That(_divisionData.Teams, Is.Empty);
     }
 
     [Test]
     public void VisitGameLoser_GivenTeam_RecordsFixtureWon()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitGameLoser(LeagueVisitorScope, HomeTeam);
 
-        visitor.VisitGameLoser(LeagueVisitorScope, team);
-
-        Assert.That(divisionData.Teams.Keys, Is.EquivalentTo(new[]
-        {
-            team.Id,
-        }));
-        Assert.That(divisionData.Teams[team.Id].FixturesLost, Is.EqualTo(1));
+        AssertTeamIds(_divisionData.Teams, HomeTeam);
+        Assert.That(_divisionData.Teams[HomeTeam.Id].FixturesLost, Is.EqualTo(1));
     }
 
     [Test]
     public void VisitGameLoser_GivenKnockoutFixture_RecordsFixtureWon()
     {
-        var divisionData = new DivisionData();
-        var visitor = new DivisionDataGameVisitor(divisionData);
-        var team = new GameTeam
-        {
-            Id = Home.Id,
-            Name = Home.Name,
-        };
+        _visitor.VisitGameLoser(KnockoutVisitorScope, HomeTeam);
 
-        visitor.VisitGameLoser(KnockoutVisitorScope, team);
+        Assert.That(_divisionData.Teams, Is.Empty);
+    }
 
-        Assert.That(divisionData.Teams, Is.Empty);
+    private static void AssertPlayerIds(IDictionary<Guid, DivisionData.PlayerScore> actual, params GamePlayer[] expected)
+    {
+        Assert.That(actual.Keys, Is.EquivalentTo(expected.Select(p => p.Id)));
+    }
+
+    private static void AssertTeamIds(IDictionary<Guid, DivisionData.TeamScore> actual, params GameTeam[] expected)
+    {
+        Assert.That(actual.Keys, Is.EquivalentTo(expected.Select(p => p.Id)));
     }
 }

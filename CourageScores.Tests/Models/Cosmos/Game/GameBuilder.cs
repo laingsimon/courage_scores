@@ -37,6 +37,12 @@ public class GameBuilder
         return this;
     }
 
+    public GameBuilder ForSeason(Guid seasonId)
+    {
+        _game.SeasonId = seasonId;
+        return this;
+    }
+
     public GameBuilder Knockout(bool isKnockout = true)
     {
         _game.IsKnockout = isKnockout;
@@ -64,6 +70,12 @@ public class GameBuilder
         return this;
     }
 
+    public GameBuilder WithMatch(GameMatch match)
+    {
+        _game.Matches.Add(match);
+        return this;
+    }
+
     public GameBuilder WithOneEighties(params GamePlayer[] players)
     {
         _game.OneEighties.AddRange(players);
@@ -79,6 +91,24 @@ public class GameBuilder
     public GameBuilder WithAddress(string address)
     {
         _game.Address = address;
+        return this;
+    }
+
+    public GameBuilder Postponed()
+    {
+        _game.Postponed = true;
+        return this;
+    }
+
+    public GameBuilder WithMatchOption(Func<GameMatchOptionBuilder, GameMatchOptionBuilder> matchOptionBuilder)
+    {
+        _game.MatchOptions.Add(matchOptionBuilder(new GameMatchOptionBuilder()).Build());
+        return this;
+    }
+
+    public GameBuilder AccoladesCount(bool accoladesCount = true)
+    {
+        _game.AccoladesCount = accoladesCount;
         return this;
     }
 }

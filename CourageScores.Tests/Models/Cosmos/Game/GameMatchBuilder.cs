@@ -46,4 +46,10 @@ public class GameMatchBuilder
         _match.AwayPlayers.AddRange(players);
         return this;
     }
+
+    public GameMatchBuilder Deleted(DateTime? deleted)
+    {
+        _match.Deleted = deleted ?? DateTime.MaxValue;
+        return this;
+    }
 }
