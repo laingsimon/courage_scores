@@ -57,6 +57,10 @@ public class DivisionDataDtoFactoryTests
         .WithName("Team 2 - Playing")
         .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
         .Build();
+    private static readonly TeamDto Division1Team = new TeamDtoBuilder()
+        .WithName("Team 1 - Playing")
+        .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1))
+        .Build();
     private static readonly TournamentGame TournamentGame = new TournamentGameBuilder()
         .WithDate(new DateTime(2001, 02, 03))
         .WithSeason(Season1)
@@ -181,20 +185,16 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalFixtures_SetsTeamsCorrectly()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(b => b.ForSeason(Season1, Division1).WithPlayers(Player1))
-            .Build();
         var game = new GameBuilder()
             .ForSeason(Season1)
             .Knockout()
-            .WithTeams(thisDivisionTeam, Team2)
+            .WithTeams(Division1Team, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
             .WithSeason(Season1)
-            .WithTeam(thisDivisionTeam)
+            .WithTeam(Division1Team)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
@@ -450,19 +450,15 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalFixtures_SetsCurrentDivisionPlayersCorrectly()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1))
-            .Build();
         var game = new GameBuilder()
             .ForSeason(Season1)
             .ForDivision(Division1)
-            .WithTeams(thisDivisionTeam, Team2)
+            .WithTeams(Division1Team, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(thisDivisionTeam)
+            .WithTeam(Division1Team)
             .WithTournamentGame(TournamentGame)
             .WithSeason(Season1)
             .Build();
@@ -513,20 +509,16 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalAccolades_DoesNotReturnDataErrors()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1))
-            .Build();
         var game = new GameBuilder(new CosmosGame { AccoladesCount = true })
             .ForSeason(Season1)
             .Knockout()
-            .WithTeams(thisDivisionTeam, Team2)
+            .WithTeams(Division1Team, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .WithOneEighties(Player1, Player2)
             .Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(game)
-            .WithTeam(thisDivisionTeam)
+            .WithTeam(Division1Team)
             .WithSeason(Season1)
             .Build();
         // set user as logged in, with correct access to allow errors to be returned
@@ -695,14 +687,12 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public void DivisionNotFound_GivenSingleDivisionId_ReturnsDivisionIdAndName()
     {
-        var divisionId = Guid.NewGuid();
+        var result = _factory.DivisionNotFound(new[] { Division1.Id }, Array.Empty<DivisionDto>());
 
-        var result = _factory.DivisionNotFound(new[] { divisionId }, Array.Empty<DivisionDto>());
-
-        Assert.That(result.Id, Is.EqualTo(divisionId));
+        Assert.That(result.Id, Is.EqualTo(Division1.Id));
         Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
         {
-            $"Requested division ({divisionId}) was not found",
+            $"Requested division ({Division1.Id}) was not found",
         }));
     }
 
@@ -728,15 +718,12 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public void DivisionNotFound_GivenMultipleDivisionIds_ReturnsEmptyDivisionIdAndCombinedDetail()
     {
-        var divisionId1 = Guid.NewGuid();
-        var divisionId2 = Guid.NewGuid();
-
-        var result = _factory.DivisionNotFound(new[] { divisionId1, divisionId2 }, Array.Empty<DivisionDto>());
+        var result = _factory.DivisionNotFound(new[] { Division1.Id, Division2.Id }, Array.Empty<DivisionDto>());
 
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
         {
-            $"Requested division ({divisionId1}) was not found, Requested division ({divisionId2}) was not found",
+            $"Requested division ({Division1.Id}) was not found, Requested division ({Division2.Id}) was not found",
         }));
     }
 
