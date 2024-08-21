@@ -74,15 +74,7 @@ public class FinalsNightReportTests
         {
             Rows =
             {
-                new ReportRowDto
-                {
-                    Cells =
-                    {
-                        Cell("TEAM"),
-                        Cell("MOM"),
-                        Cell("5"),
-                    },
-                },
+                Row(Cell("TEAM"), Cell("MOM"), Cell("5")),
             },
         };
         _tournament = new TournamentGameDto
@@ -350,24 +342,14 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenMultiplePlayersWithSameQuantity_ReturnsListOfPlayerNames()
     {
-        _momReport.Rows.Add(new ReportRowDto
-        {
-            Cells =
-            {
-                Cell("TEAM", teamId: Guid.NewGuid()),
-                Cell("MOM_1", playerId: Guid.NewGuid()),
-                Cell("10"),
-            },
-        });
-        _momReport.Rows.Add(new ReportRowDto
-        {
-            Cells =
-            {
-                Cell("TEAM", teamId: Guid.NewGuid()),
-                Cell("MOM_2", playerId: Guid.NewGuid()),
-                Cell("10"),
-            },
-        });
+        _momReport.Rows.Add(Row(
+            Cell("TEAM", teamId: Guid.NewGuid()),
+            Cell("MOM_1", playerId: Guid.NewGuid()),
+            Cell("10")));
+        _momReport.Rows.Add(Row(
+            Cell("TEAM", teamId: Guid.NewGuid()),
+            Cell("MOM_2", playerId: Guid.NewGuid()),
+            Cell("10")));
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -596,6 +578,14 @@ public class FinalsNightReportTests
         Assert.That(reportRow.Cells.Count, Is.GreaterThan(columnIndex));
         var reportCell = reportRow.Cells[columnIndex];
         Assert.That(reportCell.TournamentId, Is.EqualTo(tournamentId));
+    }
+
+    private static ReportRowDto Row(params ReportCellDto[] cells)
+    {
+        return new ReportRowDto
+        {
+            Cells = cells.ToList(),
+        };
     }
 
     private static ReportCellDto Cell(string text, Guid? teamId = null, Guid? playerId = null)
