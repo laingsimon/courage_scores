@@ -54,11 +54,7 @@ public class FinalsNightReportTests
         _divisions = new[] { _division1, _division2, };
         _divisionData1 = new DivisionDataDto { Id = _division1.Id, Name = _division1.Name, };
         _divisionData2 = new DivisionDataDto { Id = _division2.Id, Name = _division2.Name, };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Divisions = { _division1, _division2, },
-        };
+        _season = new SeasonDto { Id = Guid.NewGuid(), Divisions = { _division1, _division2 } };
         _user = new UserDto
         {
             Access = new AccessDto
@@ -70,13 +66,7 @@ public class FinalsNightReportTests
         _playerLookup = new PlayerLookup();
         _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
-        _momReport = new ReportDto
-        {
-            Rows =
-            {
-                Row(Cell("TEAM"), Cell("MOM"), Cell("5")),
-            },
-        };
+        _momReport = new ReportDto { Rows = { Row(Cell("TEAM"), Cell("MOM"), Cell("5")) } };
         _tournament = new TournamentGameDto
         {
             Id = Guid.NewGuid(),
@@ -86,23 +76,8 @@ public class FinalsNightReportTests
             Type = "Knockout",
             Round = Round(Match("SIDE A", "SIDE B", 1, 2)),
         };
-        _tournamentFixtureDateDto = new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = _tournament.Id,
-                },
-            },
-        };
-        _report = new FinalsNightReport(
-            _userService.Object,
-            _manOfTheMatchReport.Object,
-            _season,
-            _divisionService.Object,
-            _tournamentService.Object);
+        _tournamentFixtureDateDto = DivisionFixtureDateDto(new DateTime(2001, 02, 03), DivisionTournamentFixtureDetailsDto(_tournament.Id, type: _tournament.Type));
+        _report = new FinalsNightReport(_userService.Object, _manOfTheMatchReport.Object, _season, _divisionService.Object, _tournamentService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
@@ -112,9 +87,7 @@ public class FinalsNightReportTests
             .Setup(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(_division2.Id)), _token))
             .ReturnsAsync(_divisionData2);
         _divisionService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_divisions));
-        _manOfTheMatchReport
-            .Setup(r => r.GetReport(_playerLookup, _token))
-            .ReturnsAsync(() => _momReport);
+        _manOfTheMatchReport.Setup(r => r.GetReport(_playerLookup, _token)).ReturnsAsync(() => _momReport);
         _tournamentService.Setup(s => s.Get(_tournament.Id, _token)).ReturnsAsync(_tournament);
     }
 
@@ -125,31 +98,19 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
-        Assert.That(report.Rows.Select(r => r.Cells[0].Text), Is.EqualTo(new[] { "Could not produce report" }));
-        Assert.That(report.Rows.Select(r => r.Cells[1].Text), Is.EqualTo(new[] { "⚠️ No divisions found" }));
+        AssertReportRow(report, "Could not produce report", "⚠️ No divisions found");
     }
 
     [Test]
     public async Task GetReport_WhenTournamentCannotBeAccessed_ReturnsWarning()
     {
         var inaccessibleTournamentId = Guid.NewGuid();
-        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
-        {
-            Date = new DateTime(2001, 02, 03),
-            TournamentFixtures =
-            {
-                new DivisionTournamentFixtureDetailsDto
-                {
-                    Id = inaccessibleTournamentId,
-                    Type = "Knockout",
-                },
-            },
-        });
+        _divisionData1.Fixtures.Add(DivisionFixtureDateDto(
+            new DateTime(2001, 02, 03),
+            DivisionTournamentFixtureDetailsDto(inaccessibleTournamentId)));
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout", "⚠️ Unable to access tournament");
         AssertTournamentLink(report, "Knockout", 1, inaccessibleTournamentId);
     }
@@ -157,13 +118,10 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentHasNoType_ReturnsAddressAndDate()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
-        _tournament.Type = null;
-        _tournament.Round!.Matches.Clear();
+        SetTournamentDetails(clearMatches: true, divisionId: _tournament.DivisionId);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Tournament at ADDRESS on 03 Feb", "⚠️ Has not been played or has no winner");
         AssertTournamentLink(report, "Division 1: Tournament at ADDRESS on 03 Feb", 1, _tournament.Id);
     }
@@ -171,13 +129,10 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentHasEmptyType_ReturnsAddressAndDate()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
-        _tournament.Type = "";
-        _tournament.Round!.Matches.Clear();
+        SetTournamentDetails(type: "", clearMatches: true, divisionId: _tournament.DivisionId);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Tournament at ADDRESS on 03 Feb", "⚠️ Has not been played or has no winner");
         AssertTournamentLink(report, "Division 1: Tournament at ADDRESS on 03 Feb", 1, _tournament.Id);
     }
@@ -185,15 +140,11 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentIsCrossDivisional_ReturnsAddressAndDate()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _divisionData2.Fixtures.Add(_tournamentFixtureDateDto);
-        _tournament.Type = "Finals Night";
-        _tournament.DivisionId = null;
-        _tournament.Round!.Matches.Clear();
+        SetTournamentDetails(type: "Finals Night", clearMatches: true);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         Assert.That(report.Rows.Select(r => r.Cells[0].Text).Count(t => t == "Finals Night"), Is.EqualTo(1));
         AssertReportRow(report, "Finals Night", "⚠️ Has not been played or has no winner");
         AssertTournamentLink(report, "Finals Night", 1, _tournament.Id);
@@ -202,39 +153,30 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentIsSuperLeague_ExcludesTournament()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
-        _tournament.Type = "SuperLeague";
-        _tournament.SingleRound = true;
+        SetTournamentDetails(type: "SuperLeague", divisionId: _tournament.DivisionId, singleRound: true);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         Assert.That(report.Rows.Select(r => r.Cells[0].Text), Has.No.Member("SuperLeague"));
     }
 
     [Test]
     public async Task GetReport_WhenTournamentIsExcludedFromReports_ExcludesTournament()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
-        _tournament.Type = "Singles";
-        _tournament.ExcludeFromReports = true;
+        SetTournamentDetails(type: "Singles", divisionId: _tournament.DivisionId, excludeFromReports: true);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         Assert.That(report.Rows.Select(r => r.Cells[0].Text), Has.No.Member("Singles"));
     }
 
     [Test]
     public async Task GetReport_WhenTournamentHasNotBeenPlayed_ReturnsWarning()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
-        _tournament.DivisionId = null;
-        _tournament.Round!.Matches.Clear();
+        SetTournamentDetails(type: "Knockout", clearMatches: true);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout", "⚠️ Has not been played or has no winner");
         AssertTournamentLink(report, "Knockout", 1, _tournament.Id);
     }
@@ -242,14 +184,12 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentHasNoWinner_ReturnsWarning()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
-        _tournament.DivisionId = null;
+        SetTournamentDetails(type: "Knockout");
         _tournament.Round!.Matches[0].ScoreA = 1;
         _tournament.Round!.Matches[0].ScoreB = 1;
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout", "⚠️ Has not been played or has no winner");
         AssertTournamentLink(report, "Knockout", 1, _tournament.Id);
     }
@@ -257,13 +197,11 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsWithNestedWinner_ReturnsKnockout()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
+        SetTournamentDetails(type: "Knockout");
         _tournament.Round!.NextRound = Round(Match("SIDE C", "SIDE D", 1, 2));
-        _tournament.DivisionId = null;
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout winner", "SIDE D");
         AssertReportRow(report, "Knockout runner up", "SIDE C");
         AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
@@ -273,13 +211,11 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsWithNoRound_ReturnsKnockout()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
+        SetTournamentDetails(type: "Knockout");
         _tournament.Round = null;
-        _tournament.DivisionId = null;
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout", "⚠️ Has not been played or has no winner");
         AssertTournamentLink(report, "Knockout", 1, _tournament.Id);
     }
@@ -287,15 +223,12 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenTournamentExistsNoSideNames_ReturnsNoSideName()
     {
-        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Round!.Matches[0].SideA.Name = null;
         _tournament.Round!.Matches[0].SideB.Name = null;
-        _tournament.DivisionId = null;
-        _tournament.Type = "KNOCKOUT";
+        SetTournamentDetails(type: "KNOCKOUT");
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "KNOCKOUT winner", "⚠️ <no side name>");
         AssertReportRow(report, "KNOCKOUT runner up", "⚠️ <no side name>");
         AssertTournamentLink(report, "KNOCKOUT winner", 1, _tournament.Id);
@@ -308,11 +241,10 @@ public class FinalsNightReportTests
         _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
         _tournament.Round!.Matches[0].SideA.Name = "";
         _tournament.Round!.Matches[0].SideB.Name = "";
-        _tournament.DivisionId = null;
+        SetTournamentDetails(type: "Knockout");
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Knockout winner", "⚠️ <no side name>");
         AssertReportRow(report, "Knockout runner up", "⚠️ <no side name>");
         AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
@@ -326,7 +258,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Man of the match");
     }
 
@@ -335,7 +266,6 @@ public class FinalsNightReportTests
     {
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Man of the match", "MOM", "5");
     }
 
@@ -353,7 +283,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Man of the match", "MOM_1, MOM_2", "10");
     }
 
@@ -364,7 +293,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Man of the match", "");
     }
 
@@ -376,7 +304,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1", "2");
         AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3", "3");
         AssertPlayerLink(report, "Division 1: Most 180s", 1, Player1, _division1);
@@ -391,7 +318,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1, PLAYER_2", "2");
         AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3, PLAYER_4", "3");
     }
@@ -404,7 +330,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1, PLAYER_2", "2");
         AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3, PLAYER_4", "3");
         AssertTeamLink(report, "Division 1: Most 180s", 1, Player1.Team, Player1.TeamId, _division1);
@@ -416,7 +341,6 @@ public class FinalsNightReportTests
     {
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "");
         AssertReportRow(report, "Division 2: Most 180s", "");
     }
@@ -429,7 +353,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Most 180s", "");
         AssertReportRow(report, "Division 2: Most 180s", "");
     }
@@ -442,7 +365,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1", "101");
         AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3", "102");
         AssertPlayerLink(report, "Division 1: Highest checkout", 1, Player1, _division1);
@@ -457,7 +379,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1, PLAYER_2", "101");
         AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3, PLAYER_4", "102");
     }
@@ -470,7 +391,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1, PLAYER_2", "101");
         AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3, PLAYER_4", "102");
         AssertTeamLink(report, "Division 1: Highest checkout", 1, Player1.Team, Player1.TeamId, _division1);
@@ -482,7 +402,6 @@ public class FinalsNightReportTests
     {
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "");
         AssertReportRow(report, "Division 2: Highest checkout", "");
     }
@@ -495,7 +414,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: Highest checkout", "");
         AssertReportRow(report, "Division 2: Highest checkout", "");
     }
@@ -508,7 +426,6 @@ public class FinalsNightReportTests
 
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: runner up", "TEAM 2");
         AssertReportRow(report, "Division 1: winner", "TEAM 1");
         AssertReportRow(report, "Division 2: runner up", "TEAM 4");
@@ -524,7 +441,6 @@ public class FinalsNightReportTests
     {
         var report = await _report.GetReport(_playerLookup, _token);
 
-        Assert.That(report, Is.Not.Null);
         AssertReportRow(report, "Division 1: runner up", "⚠️ Not found");
         AssertReportRow(report, "Division 1: winner", "⚠️ Not found");
         AssertReportRow(report, "Division 2: runner up", "⚠️ Not found");
@@ -645,5 +561,38 @@ public class FinalsNightReportTests
         {
             Matches = matches.ToList(),
         };
+    }
+
+    private static DivisionTournamentFixtureDetailsDto DivisionTournamentFixtureDetailsDto(Guid id, string type = "Knockout")
+    {
+        return new DivisionTournamentFixtureDetailsDto
+        {
+            Id = id,
+            Type = type,
+        };
+    }
+
+    private static DivisionFixtureDateDto DivisionFixtureDateDto(DateTime date, params DivisionTournamentFixtureDetailsDto[] fixtures)
+    {
+        return new DivisionFixtureDateDto
+        {
+            Date = date,
+            TournamentFixtures = fixtures.ToList(),
+        };
+    }
+
+    private void SetTournamentDetails(string? type = null, Guid? divisionId = null, bool clearMatches = false, bool singleRound = false, bool excludeFromReports = false)
+    {
+        _divisionData1.Fixtures.Add(_tournamentFixtureDateDto);
+
+        _tournament.Type = type;
+        _tournament.DivisionId = divisionId;
+        _tournament.SingleRound = singleRound;
+        _tournament.ExcludeFromReports = excludeFromReports;
+
+        if (clearMatches)
+        {
+            _tournament.Round!.Matches.Clear();
+        }
     }
 }
