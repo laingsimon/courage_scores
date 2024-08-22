@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
@@ -64,21 +65,34 @@ public class GameBuilder
         return this;
     }
 
+    public GameBuilder WithTeams(GameTeam homeTeam, GameTeam awayTeam)
+    {
+        _game.Home = homeTeam;
+        _game.Away = awayTeam;
+        return this;
+    }
+
     public GameBuilder WithMatch(Func<GameMatchBuilder, GameMatchBuilder> matchBuilder)
     {
         _game.Matches.Add(matchBuilder(new GameMatchBuilder()).Build());
         return this;
     }
 
-    public GameBuilder WithMatch(GameMatch match)
+    public GameBuilder WithMatch(params GameMatch[] matches)
     {
-        _game.Matches.Add(match);
+        _game.Matches.AddRange(matches);
         return this;
     }
 
     public GameBuilder WithOneEighties(params GamePlayer[] players)
     {
         _game.OneEighties.AddRange(players);
+        return this;
+    }
+
+    public GameBuilder WithOver100Checkouts(params NotablePlayer[] players)
+    {
+        _game.Over100Checkouts.AddRange(players);
         return this;
     }
 
@@ -106,9 +120,21 @@ public class GameBuilder
         return this;
     }
 
+    public GameBuilder WithMatchOption(GameMatchOption matchOption)
+    {
+        _game.MatchOptions.Add(matchOption);
+        return this;
+    }
+
     public GameBuilder AccoladesCount(bool accoladesCount = true)
     {
         _game.AccoladesCount = accoladesCount;
+        return this;
+    }
+
+    public GameBuilder WithPhotos(params PhotoReference[] photos)
+    {
+        _game.Photos.AddRange(photos);
         return this;
     }
 }
