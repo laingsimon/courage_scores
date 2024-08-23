@@ -140,9 +140,7 @@ public class UpdateScoresCommandTests
         _addSeasonToTeamCommand.Setup(c => c.CopyPlayersFromSeasonId(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForDivision(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
-        _teamService
-            .Setup(s => s.Upsert(It.IsAny<Guid>(), It.IsAny<AddSeasonToTeamCommand>(), _token))
-            .ReturnsAsync(() => _teamUpdate);
+        _teamService.Setup(s => s.Upsert(It.IsAny<Guid>(), It.IsAny<AddSeasonToTeamCommand>(), _token)).ReturnsAsync(() => _teamUpdate);
         _scoresAdapter.Setup(a => a.AdaptToHiCheckPlayer(AwayPlayer, _token)).ReturnsAsync(Over100CheckoutPlayer);
         _scoresAdapter.Setup(a => a.AdaptToPlayer(HomePlayer, _token)).ReturnsAsync(HomeGamePlayer);
         _scoresAdapter.Setup(a => a.AdaptToMatch(AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
@@ -164,10 +162,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Cannot edit a game that has been deleted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a game that has been deleted" }));
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
@@ -179,10 +174,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Game cannot be updated, not logged in",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Game cannot be updated, not logged in" }));
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
@@ -201,10 +193,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Game cannot be updated, not permitted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Game cannot be updated, not permitted" }));
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
@@ -219,11 +208,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Game updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Game updated", "Scores updated" }));
         Assert.That(result.Success, Is.True);
         Assert.That(_game.Matches[0], Is.SameAs(AdaptedGameMatch));
         Assert.That(_game.OneEighties[0], Is.SameAs(HomeGamePlayer));
@@ -239,10 +224,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00" }));
         Assert.That(result.Success, Is.False);
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
@@ -255,10 +237,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update Game, data integrity token is missing",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Game, data integrity token is missing" }));
         Assert.That(result.Success, Is.False);
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
@@ -278,11 +257,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Game updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Game updated", "Scores updated" }));
         Assert.That(result.Success, Is.True);
         Assert.That(_game.Matches[0], Is.SameAs(AdaptedGameMatch));
         Assert.That(_game.OneEighties[0], Is.SameAs(HomeGamePlayer));
@@ -312,11 +287,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Game updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Game updated", "Scores updated" }));
         Assert.That(result.Success, Is.True);
         Assert.That(_game.Matches.Count, Is.EqualTo(1));
         Assert.That(_game.Matches, Is.EqualTo(new[] { AdaptedGameMatch })); // only 1 match
@@ -332,10 +303,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Submissions cannot be accepted, scores have been published",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Submissions cannot be accepted, scores have been published" }));
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
@@ -351,11 +319,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Submission updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Submission updated", "Scores updated" }));
         Assert.That(result.Success, Is.True);
         Assert.That(_game.HomeSubmission, Is.Not.Null);
         Assert.That(_game.HomeSubmission!.Matches[0], Is.SameAs(AdaptedGameMatch));
@@ -399,11 +363,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Home.ManOfTheMatch, Is.EqualTo(_game.HomeSubmission.Home.ManOfTheMatch));
         Assert.That(_game.Away.ManOfTheMatch, Is.EqualTo(_game.AwaySubmission.Away.ManOfTheMatch));
         AssertCacheEviction(divisionId: null, seasonId: null);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Submission published",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Submission published", "Scores updated" }));
     }
 
     [Test]
@@ -415,10 +375,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00" }));
         Assert.That(result.Success, Is.False);
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
@@ -435,11 +392,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Submission updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Submission updated", "Scores updated" }));
         Assert.That(result.Success, Is.True);
         Assert.That(_game.AwaySubmission, Is.Not.Null);
         Assert.That(_game.AwaySubmission!.Matches[0], Is.SameAs(AdaptedGameMatch));
@@ -483,11 +436,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Home.ManOfTheMatch, Is.EqualTo(_game.HomeSubmission.Home.ManOfTheMatch));
         Assert.That(_game.Away.ManOfTheMatch, Is.EqualTo(_game.AwaySubmission.Away.ManOfTheMatch));
         AssertCacheEviction(divisionId: null, seasonId: null);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Submission published",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Submission published", "Scores updated" }));
     }
 
     [Test]
@@ -517,11 +466,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission, Is.Not.Null);
         Assert.That(_game.HomeSubmission, Is.Not.Null);
         AssertCacheEviction(divisionId: null, seasonId: null);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Submission updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Submission updated", "Scores updated" }));
     }
 
     [Test]
@@ -545,11 +490,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.HomeSubmission, Is.Null);
         Assert.That(_game.Matches, Is.Empty);
         AssertCacheEviction(divisionId: null, seasonId: null);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Submission updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Submission updated", "Scores updated" }));
     }
 
     [Test]
@@ -561,10 +502,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00" }));
         Assert.That(result.Success, Is.False);
         AssertCacheEviction(divisionId: null, seasonId: null);
     }
@@ -581,12 +519,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Game updated",
-            "Game details updated",
-            "Scores updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Game updated", "Game details updated", "Scores updated" }));
         Assert.That(_game.Address, Is.EqualTo("new address"));
         Assert.That(_game.Postponed, Is.True);
         Assert.That(_game.IsKnockout, Is.True);
@@ -654,18 +587,9 @@ public class UpdateScoresCommandTests
         _teamUpdate = new ActionResultDto<TeamDto>
         {
             Success = false,
-            Errors =
-            {
-                "error",
-            },
-            Warnings =
-            {
-                "warning",
-            },
-            Messages =
-            {
-                "message",
-            },
+            Errors = { "error" },
+            Warnings = { "warning" },
+            Messages = { "message" },
         };
         _game.Date = new DateTime(2001, 02, 03);
         SetAccess(manageGames: true);
@@ -675,14 +599,8 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "warning", "warning",
-        }));
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "error", "error",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "warning", "warning" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "error", "error" }));
         Assert.That(result.Messages, Is.EqualTo(new[]
         {
             "Game updated",
