@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: true
+      ignore_sizes:
+        description: 'Ignore file sizes?'
+        required: false
+        type: boolean
+        default: false
   pull_request:
     types: [opened,reopened,synchronize]
     branches:
@@ -32,6 +37,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+      ignore-sizes: ${{ github.event.inputs.ignore_sizes }}
 
   publish:
     needs: 
