@@ -3,9 +3,6 @@ name: Build
 on:
   workflow_call:
     inputs:
-      dotnet-root:
-        required: true
-        type: string
       ignore-sizes:
         required: false
         type: boolean

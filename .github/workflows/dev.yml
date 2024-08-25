@@ -36,7 +36,6 @@ jobs:
      - branch-name
     uses: ./.github/workflows/build.yml
     with: 
-      dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
       ignore-sizes: ${{ github.event.inputs.ignore_sizes }}
 
   publish:
