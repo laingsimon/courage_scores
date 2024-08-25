@@ -36,7 +36,7 @@ jobs:
      - branch-name
     uses: ./.github/workflows/build.yml
     with: 
-      ignore-sizes: ${{ github.event.inputs.ignore_sizes }}
+      ignore_sizes: ${{ github.event.inputs.ignore_sizes }}
 
   publish:
     needs: 

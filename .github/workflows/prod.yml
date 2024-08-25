@@ -17,7 +17,7 @@ jobs:
      - setup
     uses: ./.github/workflows/build.yml
     with: 
-      ignore-sizes: true # ignoring sizes on a PROD build; they should have been picked up in UAT - also to reduce friction for any hotfixes
+      ignore_sizes: true # ignoring sizes on a PROD build; they should have been picked up in UAT - also to reduce friction for any hotfixes
 
   publish:
     needs:
