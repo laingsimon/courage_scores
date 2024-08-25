@@ -28,7 +28,7 @@ jobs:
 
       - name: Check file sizes
         shell: pwsh
-        run: ./BuildChecks.ps1 -MaxLines 500
+        run: ./BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450
 
       - name: Publish dotnet coverage
         uses: coverallsapp/github-action@v2

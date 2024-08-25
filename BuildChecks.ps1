@@ -1,34 +1,44 @@
-param([int] $MaxLines)
+param([int] $ErrorThreshold, [int] $WarningThreshold)
 
-Function Get-Files($MaxLines)
+Function Get-Files($MinLines, $MaxLines)
 {
+    # Write-Host "Finding files with > $($MinLines) lines and <= $($MaxLines)..."
     return Get-ChildItem -Recurse `
         | Where-Object { $_.Name.EndsWith(".cs") } `
         | Select-Object @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
-        | Where-Object { $_.lines -gt $MaxLines } `
+        | Where-Object { $_.lines -gt $MinLines -and $_lines -le $MaxLines } `
         | Sort-Object -descending -property 'lines' `
-        | Select-Object @{ label='row'; expression = {"| $($_.name) | $($_.lines) |"} }
+        | Select-Object @{ label='row'; expression = {"| $($_.name) | $($_.lines) |" } }
 }
 
-$Files = Get-Files -MaxLines $MaxLines -MinLines 0
-If ($Files.Length -gt 0)
+Function Print-Files($Files) 
 {
     [Console]::Error.WriteLine("| File | Lines |")
     [Console]::Error.WriteLine("| --- | --- |")
     $Files | ForEach-Object { [Console]::Error.WriteLine($_.row) }
-    [Console]::Error.WriteLine("There are $($Files.Length) file/s that exceed the $($MaxLines) line count")
+}
+
+$FilesOverThreshold = Get-Files -MinLines $ErrorThreshold -MaxLines [int]::MaxValue
+If ($ErrorThreshold -gt 0 -and $FilesOverThreshold.Length -gt 0)
+{
+    [Console]::Error.WriteLine("Files exceeding limit")
+    Print-Files -Files $FilesOverThreshold
+    [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) file/s that have more than $($ErrorThreshold) lines")
+}
+
+If ($ErrorThreshold -le 0 -or $ErrorThreshold -eq $null) 
+{
+    $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines [int]::MaxValue
 }
 else
 {
-    $FilesNearingLimit = Get-Files -MaxLines ($MaxLines - 100)
-    If ($FilesNearingLimit.Length -gt 0)
-    {
-        [Console]::Error.WriteLine("| File Nearing Limit | Lines |")
-        [Console]::Error.WriteLine("| --- | --- |")
-        $FilesNearingLimit | ForEach-Object { [Console]::Error.WriteLine($_.row) }
-    }
-    
-    Write-Output "All files have fewer than $($MaxLines) lines"
+    $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $ErrorThreshold
 }
 
-Exit $Files.Length
+If ($WarningThreshold -gt 0 -and $FilesNearingLimit.Length -gt 0)
+{
+    [Console]::Error.WriteLine("Files approaching limit")
+    Print-Files -Files $FilesNearingLimit
+}
+
+Exit $FilesOverThreshold.Length
