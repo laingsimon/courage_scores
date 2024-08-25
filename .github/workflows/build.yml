@@ -14,6 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check file sizes
+        shell: pwsh
+        run: ./BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Build with dotnet
         run: dotnet build --configuration Release
         env:
@@ -25,10 +31,6 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
-
-      - name: Check file sizes
-        shell: pwsh
-        run: ./BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450
 
       - name: Publish dotnet coverage
         uses: coverallsapp/github-action@v2
