@@ -77,7 +77,7 @@ else
 
 If ($WarningThreshold -gt 0 -and $FilesNearingLimit.Length -gt 0)
 {
-    Print-Files -Heading "Files approaching limit" -Files $FilesNearingLimit
+    Print-Files -Heading "$($FilesNearingLimit.Length) file/s approaching limit" -Files $FilesNearingLimit
 }
 
 Exit $FilesOverThreshold.Length
