@@ -3,7 +3,7 @@ name: Build
 on:
   workflow_call:
     inputs:
-      ignore-sizes:
+      ignore_sizes:
         required: false
         type: string
 
@@ -27,7 +27,7 @@ jobs:
           DOTNET_NOLOGO: true
 
       - name: Check file sizes
-        if: ${{ github.event.inputs.ignore-sizes != 'true' }}
+        if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
         run: ./BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450
         env:
