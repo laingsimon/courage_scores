@@ -20,12 +20,12 @@ If ($Files.Length -gt 0)
 }
 else
 {
-    $Files = Get-Files -MaxLines ($MaxLines - 100)
-    If ($Files.Length -gt 0)
+    $FilesNearingLimit = Get-Files -MaxLines ($MaxLines - 100)
+    If ($FilesNearingLimit.Length -gt 0)
     {
-        [Console]::Error.WriteLine("| File Approaching Limit | Lines |")
+        [Console]::Error.WriteLine("| File Nearing Limit | Lines |")
         [Console]::Error.WriteLine("| --- | --- |")
-        $Files | ForEach-Object { [Console]::Error.WriteLine($_.row) }
+        $FilesNearingLimit | ForEach-Object { [Console]::Error.WriteLine($_.row) }
     }
     
     Write-Output "All files have fewer than $($MaxLines) lines"
