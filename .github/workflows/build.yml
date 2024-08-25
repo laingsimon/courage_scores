@@ -26,6 +26,10 @@ jobs:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
 
+      - name: Check file sizes
+        shell: pwsh
+        run: ./BuildChecks.ps1 -MaxLines 400
+
       - name: Publish dotnet coverage
         uses: coverallsapp/github-action@v2
         with:
