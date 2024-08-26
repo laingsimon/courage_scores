@@ -230,9 +230,9 @@ export function Score() {
 
         const players: (ISelectablePlayer & IRenamedPlayer)[] = teamSeasons[seasonId].players.map((p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer); // copy the players list
 
-        matches.forEach((match: GameMatchDto) => {
+        for (let match of matches) {
             const matchPlayers: ICaptainMatchPlayer[] = match[teamType + 'Players'];
-            matchPlayers.forEach((matchPlayer: ICaptainMatchPlayer) => {
+            for (let matchPlayer of matchPlayers) {
                 const correspondingPlayer: TeamPlayerDto & ISelectablePlayer & IRenamedPlayer = players.filter((p: TeamPlayerDto & ISelectablePlayer & IRenamedPlayer) => p.id === matchPlayer.id)[0];
                 if (correspondingPlayer && correspondingPlayer.name !== matchPlayer.name && !correspondingPlayer.renamed) {
                     correspondingPlayer.name = `${correspondingPlayer.name} (nee ${matchPlayer.name})`;
@@ -241,8 +241,8 @@ export function Score() {
                 if (correspondingPlayer && correspondingPlayer.captain) {
                     matchPlayer.captain = correspondingPlayer.captain;
                 }
-            });
-        });
+            }
+        }
 
         players.sort(sortBy('name'));
         players.push({

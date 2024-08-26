@@ -16,8 +16,7 @@ export function toMap<T>(items: T[]): DataMap<T> {
         sort: items.sort.bind(items),
         filter: items.filter.bind(items),
     };
-    for (let index = 0; index < items.length; index++) {
-        const item = items[index];
+    for (let item of items) {
         theMap[(item as any).id] = item;
     }
     return theMap;
@@ -65,7 +64,7 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
     const oneEightyMap: { [id: string]: number } = {};
     const itemLookup: { [id: string]: T } = {};
 
-    items.forEach((item: T) => {
+    for (let item of items) {
         const id = item[property];
 
         if (oneEightyMap[id]) {
@@ -74,7 +73,7 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
             oneEightyMap[id] = 1;
             itemLookup[id] = item;
         }
-    });
+    }
 
     return Object.keys(oneEightyMap).sort((aId: string, bId: string) => {
         if (oneEightyMap[aId] > oneEightyMap[bId]) {
@@ -188,12 +187,12 @@ export function distinct(items: any[], property?: string): any[] {
 
     const map: StringMapObject = {};
 
-    items.forEach(item => {
+    for (let item of items) {
         const key = getValue(item, property);
         if (!map[key]) {
             map[key] = item;
         }
-    });
+    }
 
     return Object.values(map);
 }
@@ -204,8 +203,7 @@ export function distinct(items: any[], property?: string): any[] {
 export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), valueSelector?: (a: T) => any): StringMapObject {
     const dict: StringMapObject = {};
 
-    for (let index = 0; index < items.length; index++) {
-        const item = items[index];
+    for (let item of items) {
         const key = keySelector(item);
         if (dict[key]) {
             throw new Error('Duplicate key found: ' + key);
@@ -222,8 +220,8 @@ export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), val
 * */
 export function reverse<T>(items: T[]): T[] {
     const backwards: T[] = [];
-    for (let index = items.length -1; index >= 0; index--) {
-        backwards.push(items[index]);
+    for (let item of items) {
+        backwards.unshift(item);
     }
 
     return backwards;

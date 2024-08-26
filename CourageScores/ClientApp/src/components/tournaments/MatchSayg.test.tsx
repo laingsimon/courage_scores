@@ -524,8 +524,7 @@ describe('MatchSayg', () => {
         async function enterFirstPlayerScores(threeDartScores: number[]) {
             let cumulativeScore = 0;
 
-            for (let i = 0; i < threeDartScores.length; i++) {
-                const score = threeDartScores[i];
+            for (let score of threeDartScores) {
                 cumulativeScore+= score;
                 await enterScore(score, cumulativeScore === 501 ? 3 : null);
                 await enterScore(1); // opponent score

@@ -23,13 +23,13 @@ export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IH
         const players: GamePlayerDto[] = fixtureData.matches.flatMap((match: GameMatchDto) => {
             const matchPlayers: GamePlayerDto[] = [];
 
-            (match.homePlayers || []).forEach((player: GamePlayerDto) => {
+            for (let player of match.homePlayers || []) {
                 matchPlayers.push(player);
-            });
+            }
 
-            (match.awayPlayers || []).forEach((player: GamePlayerDto) => {
+            for (let player of match.awayPlayers || []) {
                 matchPlayers.push(player);
-            });
+            }
 
             return matchPlayers;
         });
