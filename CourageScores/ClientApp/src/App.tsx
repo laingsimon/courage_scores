@@ -1,6 +1,5 @@
 import {useDependencies} from "./components/common/IocContainer";
 import React, {useEffect, useState} from "react";
-import {DataMap, toMap} from "./helpers/collections";
 import {Layout} from "./components/layout/Layout";
 import {Route, Routes} from "react-router-dom";
 import {Home} from "./components/Home";
@@ -32,9 +31,9 @@ export interface IAppProps {
 export function App({embed, controls, testRoute}: IAppProps) {
     const {divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight} = useDependencies();
     const [account, setAccount] = useState<UserDto | null>(null);
-    const [divisions, setDivisions] = useState<DataMap<DivisionDto>>(toMap([]));
-    const [seasons, setSeasons] = useState<DataMap<SeasonDto>>(toMap([]));
-    const [teams, setTeams] = useState<DataMap<TeamDto>>(toMap([]));
+    const [divisions, setDivisions] = useState<DivisionDto[]>([]);
+    const [seasons, setSeasons] = useState<SeasonDto[]>([]);
+    const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
     const [error, setError] = useState<any | null>(null);
 
@@ -83,17 +82,17 @@ export function App({embed, controls, testRoute}: IAppProps) {
     }
 
     async function reloadDivisions() {
-        const divisions = toMap(await divisionApi.getAll());
+        const divisions = await divisionApi.getAll();
         setDivisions(divisions);
     }
 
     async function reloadSeasons() {
-        const seasons = toMap(await seasonApi.getAll());
+        const seasons = await seasonApi.getAll();
         setSeasons(seasons);
     }
 
     async function reloadTeams() {
-        const teams = toMap(await teamApi.getAll());
+        const teams = await teamApi.getAll();
         setTeams(teams);
     }
 

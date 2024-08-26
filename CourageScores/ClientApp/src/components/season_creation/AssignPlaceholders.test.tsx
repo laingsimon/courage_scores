@@ -7,7 +7,6 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {toMap} from "../../helpers/collections";
 import {AssignPlaceholders, IAssignPlaceholdersProps, IPlaceholderMappings} from "./AssignPlaceholders";
 import {IAppContainerProps} from "../common/AppContainer";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
@@ -91,8 +90,8 @@ describe('AssignPlaceholders', () => {
         it('divisions in order', async () => {
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamA, teamB]),
+                    seasons: [season],
+                    teams: [teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -108,8 +107,8 @@ describe('AssignPlaceholders', () => {
         it('placeholders appropriate to each division in order', async () => {
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamA, teamB]),
+                    seasons: [season],
+                    teams: [teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -150,8 +149,8 @@ describe('AssignPlaceholders', () => {
             };
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamA, teamB]),
+                    seasons: [season],
+                    teams: [teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -191,8 +190,8 @@ describe('AssignPlaceholders', () => {
             };
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamA, teamB]),
+                    seasons: [season],
+                    teams: [teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -211,8 +210,8 @@ describe('AssignPlaceholders', () => {
         it('teams appropriate to each division in order', async () => {
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamC, teamA, teamB]),
+                    seasons: [season],
+                    teams: [teamC, teamA, teamB],
                 }),
                 {
                     seasonId: season.id,
@@ -231,8 +230,8 @@ describe('AssignPlaceholders', () => {
         it('teams with shared addresses in dropdown', async () => {
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamA, teamAA]),
+                    seasons: [season],
+                    teams: [teamA, teamAA],
                 }),
                 {
                     seasonId: season.id,
@@ -255,8 +254,8 @@ describe('AssignPlaceholders', () => {
                 .build();
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([deletedTeamD]),
+                    seasons: [season],
+                    teams: [deletedTeamD],
                 }),
                 {
                     seasonId: season.id,
@@ -313,8 +312,8 @@ describe('AssignPlaceholders', () => {
         it('can assign team for placeholder', async () => {
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamA, teamC]),
+                    seasons: [season],
+                    teams: [teamA, teamC],
                 }),
                 {
                     seasonId: season.id,
@@ -337,8 +336,8 @@ describe('AssignPlaceholders', () => {
         it('can unassign team for placeholder', async () => {
             await renderComponent(appProps({
                     divisions: [division2, division1],
-                    seasons: toMap([season]),
-                    teams: toMap([teamA, teamC]),
+                    seasons: [season],
+                    teams: [teamA, teamC],
                 }),
                 {
                     seasonId: season.id,

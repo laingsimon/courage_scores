@@ -10,7 +10,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../helpers/tests";
-import {toMap} from "../../helpers/collections";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
@@ -93,7 +92,7 @@ describe('DivisionFixtures', () => {
                 seasons: [],
                 divisions: [],
                 controls: !excludeControls,
-                teams: toMap(teams || []),
+                teams: teams || [],
             }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <DivisionFixtures setNewFixtures={setNewFixtures}/>

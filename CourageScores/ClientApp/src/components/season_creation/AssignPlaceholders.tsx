@@ -24,7 +24,7 @@ export interface IAssignPlaceholdersProps {
 
 export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMappings, setPlaceholderMappings }: IAssignPlaceholdersProps) {
     const {divisions, seasons, teams} = useApp();
-    const season: SeasonDto = seasons[seasonId];
+    const season: SeasonDto = seasons.filter(s => s.id === seasonId)[0];
     const applicableDivisions: DivisionDto[] = divisions.filter((division: DivisionDto) => any(season.divisions, (d: DivisionDto) => d.id === division.id));
     const template: TemplateDto = selectedTemplate.result;
     const templateSharedAddresses: string[] = template.sharedAddresses.flatMap((a: string[]) => a);

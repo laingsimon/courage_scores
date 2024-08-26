@@ -10,7 +10,6 @@
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
-import {toMap} from "../../helpers/collections";
 import {DivisionFixtureDate, IDivisionFixtureDateProps} from "./DivisionFixtureDate";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
@@ -70,7 +69,7 @@ describe('DivisionFixtureDate', () => {
             appProps({
                 account,
                 controls: !excludeControls,
-                teams: toMap(teams || []),
+                teams: teams || [],
             }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <DivisionFixtureDate {...props} />

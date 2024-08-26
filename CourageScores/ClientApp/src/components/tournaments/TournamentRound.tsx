@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
-import {any, DataMap, elementAt, isEmpty, toMap} from "../../helpers/collections";
+import {any, elementAt, isEmpty} from "../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {useTournament} from "./TournamentContainer";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
@@ -18,12 +18,11 @@ export interface ITournamentRoundProps {
 
 export function TournamentRound({ round, onChange, sides, readOnly }: ITournamentRoundProps) {
     const [newMatch, setNewMatch] = useState<TournamentMatchDto>(createNewMatch());
-    const sideMap: DataMap<TournamentSideDto> = toMap(sides);
     const {setWarnBeforeEditDialogClose, matchOptionDefaults} = useTournament();
 
     async function setNewSide(sideId: string, property: string) {
         const newNewMatch: TournamentMatchDto = Object.assign({}, newMatch);
-        newNewMatch[property] = sideMap[sideId];
+        newNewMatch[property] = sides.filter(s => s.id === sideId)[0];
         setNewMatch(newNewMatch);
         await setWarnBeforeEditDialogClose(`Add the (new) match before saving, otherwise it would be lost.
 
@@ -116,7 +115,7 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
                     match={match}
                     round={round}
                     readOnly={readOnly}
-                    sideMap={sideMap}
+                    sides={sides}
                     exceptSelected={exceptSelected}
                     matchIndex={matchIndex}
                     onChange={onChange}

@@ -10,7 +10,6 @@ import {
 } from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
-import {DataMap, toMap} from "../../helpers/collections";
 import {DivisionFixture, IDivisionFixtureProps} from "./DivisionFixture";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
@@ -88,7 +87,7 @@ describe('DivisionFixture', () => {
         apiResponse = null;
     });
 
-    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: UserDto, teams: DataMap<TeamDto>, preferenceData?: IPreferenceData) {
+    async function renderComponent(props: IDivisionFixtureProps, divisionData: IDivisionDataContainerProps, account: UserDto, teams: TeamDto[], preferenceData?: IPreferenceData) {
         context = await renderApp(
             iocProps({gameApi}),
             brandingProps(),
@@ -124,7 +123,7 @@ describe('DivisionFixture', () => {
                     .withTeam(team)
                     .build(),
                 account,
-                toMap([team]));
+                [team]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -150,7 +149,7 @@ describe('DivisionFixture', () => {
                     .withTeam(team)
                     .build(),
                 account,
-                toMap([team]));
+                [team]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -176,7 +175,7 @@ describe('DivisionFixture', () => {
                     .withTeam(team)
                     .build(),
                 account,
-                toMap([team]));
+                [team]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -201,7 +200,7 @@ describe('DivisionFixture', () => {
                     .withTeam(team)
                     .build(),
                 account,
-                toMap([team]));
+                [team]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -227,7 +226,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([team]),
+                [team],
                 { });
 
             reportedError.verifyNoError();
@@ -249,7 +248,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([team]),
+                [team],
                 {
                     favouriteTeamIds: ['1234'],
                 });
@@ -273,7 +272,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([team]),
+                [team],
                 {
                     favouriteTeamIds: [fixture.homeTeam.id],
                 });
@@ -297,7 +296,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([team]),
+                [team],
                 {
                     favouriteTeamIds: [fixture.homeTeam.id],
                 });
@@ -321,7 +320,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([team]),
+                [team],
                 {
                     favouriteTeamIds: [fixture.awayTeam.id],
                 });
@@ -345,7 +344,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([team]),
+                [team],
                 { favouriteTeamIds: [] });
             const row = context.container.querySelector('tr');
             const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
@@ -370,7 +369,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([team]),
+                [team],
                 { favouriteTeamIds: [fixture.homeTeam.id] });
             const row = context.container.querySelector('tr');
             const favouriteToggles = Array.from(row.querySelectorAll('button[datatype="toggle-favourite"]'));
@@ -415,7 +414,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -439,7 +438,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -463,7 +462,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -486,7 +485,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -512,7 +511,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
+                [homeTeam, awayTeam, anotherTeamAtHomeAddress]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -536,7 +535,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -559,7 +558,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -583,7 +582,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -608,7 +607,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
+                [homeTeam, awayTeam, anotherTeamAtHomeAddress]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -632,7 +631,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(deletedAwayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, deletedAwayTeam]));
+                [homeTeam, deletedAwayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -657,7 +656,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -677,7 +676,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -699,7 +698,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -727,7 +726,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam]));
+                [homeTeam, awayTeam]);
 
             reportedError.verifyNoError();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -750,7 +749,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
@@ -789,7 +788,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
@@ -830,7 +829,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
 
@@ -860,7 +859,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
 
@@ -890,7 +889,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
             apiResponse = {success: false, errors: ['SOME ERROR']};
@@ -921,7 +920,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let confirm: string;
@@ -955,7 +954,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => {
@@ -983,7 +982,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => false;
@@ -1012,7 +1011,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
@@ -1044,7 +1043,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
@@ -1074,7 +1073,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let confirm: string;
@@ -1109,7 +1108,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
 
             const saveCell = context.container.querySelector('td:nth-child(6)');
             const deleteButton = findButton(saveCell, '💾');
@@ -1132,7 +1131,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
 
             const saveCell = context.container.querySelector('td:nth-child(6)');
             const deleteButton = findButton(saveCell, '🗑');
@@ -1155,7 +1154,7 @@ describe('DivisionFixture', () => {
                     .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
                     .build(),
                 account,
-                toMap([homeTeam, awayTeam, anotherTeam]));
+                [homeTeam, awayTeam, anotherTeam]);
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
@@ -1178,7 +1177,7 @@ describe('DivisionFixture', () => {
                     .favouritesEnabled(true)
                     .build(),
                 account,
-                toMap([homeTeam]),
+                [homeTeam],
                 {
                     favouriteTeamIds: ['1234'],
                 });

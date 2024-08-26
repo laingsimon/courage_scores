@@ -321,7 +321,9 @@ export function Tournament() {
     }
 
     try {
-        const season: SeasonDto = tournamentData ? seasons[tournamentData.seasonId] : {id: EMPTY_ID, name: 'Not found'};
+        const season: SeasonDto = tournamentData
+            ? seasons.filter(s => s.id === tournamentData.seasonId)[0]
+            : {id: EMPTY_ID, name: 'Not found'};
         if (!season) {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');

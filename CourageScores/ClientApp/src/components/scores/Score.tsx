@@ -209,7 +209,7 @@ export function Score() {
         [appLoading, seasons, teams, divisions]);
 
     function loadTeamPlayers(teamId: string, seasonId: string, teamType: string, matches: GameMatchDto[]): (TeamPlayerDto & ISelectablePlayer)[] {
-        const teamData: TeamDto = teams[teamId];
+        const teamData: TeamDto = teams.filter((t: TeamDto) => t.id === teamId)[0];
 
         if (!teamData) {
             onError(`${teamType} team could not be found - ${teamId}`);
@@ -566,8 +566,8 @@ export function Score() {
     const hasBeenPlayed: boolean = any(fixtureData.matches, (m: GameMatchDto) => m.homeScore + m.awayScore > 0);
 
     try {
-        const season: SeasonDto = seasons[fixtureData.seasonId] || {id: EMPTY_ID, name: 'Not found'};
-        const division: DivisionDto = divisions[fixtureData.divisionId] || {id: EMPTY_ID, name: 'Not found'};
+        const season: SeasonDto = seasons.filter(s => s.id === fixtureData.seasonId)[0] || {id: EMPTY_ID, name: 'Not found'};
+        const division: DivisionDto = divisions.filter(d => d.id === fixtureData.divisionId)[0] || {id: EMPTY_ID, name: 'Not found'};
 
         const editable: boolean = !saving && ((access === 'admin' && !submission) || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData: ILeagueFixtureContainerProps = {
@@ -582,6 +582,9 @@ export function Score() {
         }
 
         setTitle(`${fixtureData.home.name} vs ${fixtureData.away.name} - ${renderDate(fixtureData.date)}`);
+        const accountTeam = account
+            ? teams.filter(t => t.id === account.teamId)[0]
+            : null;
 
         return (<div>
             <DivisionControls
@@ -666,7 +669,7 @@ export function Score() {
                         : null}
                     <DebugOptions>
                         <span className="dropdown-item">Access: {access}</span>
-                        {account ? (<span className="dropdown-item">Team: {teams[account.teamId] ? teams[account.teamId].name : account.teamId}</span>) : null}
+                        {account ? (<span className="dropdown-item">Team: {accountTeam ? accountTeam.name : account.teamId}</span>) : null}
                         <span className="dropdown-item">Data: {fixtureData && fixtureData.resultsPublished ? 'published' : 'draft'}</span>
                         <span className="dropdown-item">
                             Editable: {editable ? 'Yes' : 'No'}

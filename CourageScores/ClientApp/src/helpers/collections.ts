@@ -1,26 +1,4 @@
 export type StringMapObject = {[key: string] : any};
-export interface DataMap<T> extends StringMapObject {
-    map<V>(mapper: (value: T, index: number, array: T[]) => V, thisArg?: any): V[];
-    length: number;
-    sort(sorter: (x: T, y: T) => number): T[];
-    filter(predicate: (item: T) => boolean): T[];
-}
-
-/*
-* Convert an array of items to a dictionary, keyed on the id property of each item
-* */
-export function toMap<T>(items: T[]): DataMap<T> {
-    const theMap: DataMap<T> = {
-        map: items.map.bind(items),
-        length: items.length,
-        sort: items.sort.bind(items),
-        filter: items.filter.bind(items),
-    };
-    for (let item of items) {
-        theMap[(item as any).id] = item;
-    }
-    return theMap;
-}
 
 /*
 * Sort any array by the given property
@@ -103,28 +81,28 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
 /*
 * Return true if there are any items (that match the optional predicate)
 * */
-export function any<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boolean): boolean {
+export function any<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) > 0;
 }
 
 /*
 * Return true if all of the items are true (or match the optional predicate)
 * */
-export function all<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boolean): boolean {
+export function all<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) === iterable.length;
 }
 
 /*
 * Return true if there are no items (that match the optional predicate)
 * */
-export function isEmpty<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boolean): boolean {
+export function isEmpty<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) === 0;
 }
 
 /*
 * Return the number of items (that match the optional predicate)
 * */
-export function count<T>(iterable: T[] | DataMap<T>, predicate?: (a: T, index?: number) => boolean): number {
+export function count<T>(iterable: T[], predicate?: (a: T, index?: number) => boolean): number {
     return iterable.filter(predicate || (_ => true)).length;
 }
 

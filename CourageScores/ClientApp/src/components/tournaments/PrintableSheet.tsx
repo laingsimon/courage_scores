@@ -153,7 +153,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
     function getLinkToSide(side: TournamentSideDto) {
         if (side && side.teamId && division) {
-            const team: TeamDto = teams[side.teamId];
+            const team: TeamDto = teams.filter(t => t.id === side.teamId)[0];
 
             return (<Link
                 to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</Link>);

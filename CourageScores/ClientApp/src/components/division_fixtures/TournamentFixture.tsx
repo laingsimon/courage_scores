@@ -125,7 +125,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
 
     function renderWinner(winningSide: TournamentSideDto) {
         if (winningSide.teamId) {
-            const team: TeamDto = teams[winningSide.teamId];
+            const team: TeamDto = teams.filter(t => t.id === winningSide.teamId)[0];
 
             if (team) {
                 return (<strong className="text-primary">
