@@ -189,11 +189,11 @@ public class FinalsNightReport : CompositeReport
                 continue;
             }
 
-            var winnerThreshold = tournament.BestOf / 2.0;
-            var winner = final.ScoreA > winnerThreshold
+            var winnerThreshold = Math.Ceiling((tournament.BestOf ?? 5) / 2.0);
+            var winner = final.ScoreA >= winnerThreshold
                 ? final.SideA
                 : final.SideB;
-            var runnerUp = final.ScoreA > winnerThreshold
+            var runnerUp = final.ScoreA >= winnerThreshold
                 ? final.SideB
                 : final.SideA;
 
