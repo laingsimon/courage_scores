@@ -9,10 +9,12 @@ namespace CourageScores.Models.Adapters.Division;
 public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtureDetailsAdapter
 {
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly ITournamentTypeResolver _tournamentTypeResolver;
 
-    public DivisionTournamentFixtureDetailsAdapter(IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter)
+    public DivisionTournamentFixtureDetailsAdapter(IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter, ITournamentTypeResolver tournamentTypeResolver)
     {
         _tournamentSideAdapter = tournamentSideAdapter;
+        _tournamentTypeResolver = tournamentTypeResolver;
     }
 
     public async Task<DivisionTournamentFixtureDetailsDto> Adapt(TournamentGame tournamentGame, CancellationToken token)
@@ -28,7 +30,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             WinningSide = winningSide != null
                 ? await _tournamentSideAdapter.Adapt(winningSide, token)
                 : null,
-            Type = GetTournamentType(tournamentGame),
+            Type = _tournamentTypeResolver.GetTournamentType(tournamentGame),
             Proposed = false,
             Players = tournamentGame.Sides.SelectMany(side => side.Players).Select(p => p.Id).ToList(),
             Sides = await tournamentGame.Sides.SelectAsync(side => _tournamentSideAdapter.Adapt(side, token)).ToList(),
@@ -48,28 +50,6 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             Type = null,
             Proposed = true,
         });
-    }
-
-    private static string GetTournamentType(TournamentGame tournamentGame)
-    {
-        if (!string.IsNullOrEmpty(tournamentGame.Type))
-        {
-            return tournamentGame.Type;
-        }
-
-        if (tournamentGame.Sides.Count >= 1)
-        {
-            var firstSide = tournamentGame.Sides.First();
-            switch (firstSide.Players.Count)
-            {
-                case 1:
-                    return "Singles";
-                case 2:
-                    return "Pairs";
-            }
-        }
-
-        return "Tournament";
     }
 
     private static TournamentSide? GetWinner(TournamentGame tournamentGame)

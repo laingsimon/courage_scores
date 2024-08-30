@@ -134,11 +134,12 @@ public static class FinalsNightReportTestsHelpers
         Assert.That(reportCell.TournamentId, Is.EqualTo(tournamentId));
     }
 
-    private static TournamentSideDto Side(string name)
+    public static TournamentSideDto Side(string name, int players = 0)
     {
         return new TournamentSideDto
         {
             Name = name,
+            Players = Enumerable.Range(1, players).Select(playerNo => new TournamentPlayerDto { Name = $"Player {playerNo}" }).ToList(),
         };
     }
 }

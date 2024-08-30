@@ -139,6 +139,30 @@ public class FinalsNightReportTests
     }
 
     [Test]
+    public async Task GetReport_WhenUnplayedTournamentHasSinglePlayerSides_ReturnsSinglesType()
+    {
+        SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
+        _tournament.Sides.Add(Helper.Side("SIDE C", players: 1));
+        _tournament.Sides.Add(Helper.Side("SIDE D", players: 1));
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Helper.AssertReportRow(report, "Singles", "⚠️ Has not been played or has no winner");
+    }
+
+    [Test]
+    public async Task GetReport_WhenUnplayedTournamentHasTwoPlayerSides_ReturnsPairsType()
+    {
+        SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
+        _tournament.Sides.Add(Helper.Side("SIDE C", players: 2));
+        _tournament.Sides.Add(Helper.Side("SIDE D", players: 2));
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Helper.AssertReportRow(report, "Pairs", "⚠️ Has not been played or has no winner");
+    }
+
+    [Test]
     public async Task GetReport_WhenTournamentIsCrossDivisional_ReturnsAddressAndDate()
     {
         _divisionData2.Fixtures.Add(_tournamentFixtureDateDto);
@@ -207,6 +231,38 @@ public class FinalsNightReportTests
         Helper.AssertReportRow(report, "Knockout runner up", "SIDE C");
         Helper.AssertTournamentLink(report, "Knockout winner", 1, _tournament.Id);
         Helper.AssertTournamentLink(report, "Knockout runner up", 1, _tournament.Id);
+    }
+
+    [Test]
+    public async Task GetReport_WhenPlayedTournamentHasSinglePlayerSides_ReturnsSinglesType()
+    {
+        SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
+        _tournament.Sides.Add(Helper.Side("SIDE C", players: 1));
+        _tournament.Sides.Add(Helper.Side("SIDE D", players: 1));
+        _tournament.Round!.NextRound = Helper.Round(Helper.Match("SIDE C", "SIDE D", 1, 2));
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Helper.AssertReportRow(report, "Singles winner", "SIDE D");
+        Helper.AssertReportRow(report, "Singles runner up", "SIDE C");
+        Helper.AssertTournamentLink(report, "Singles winner", 1, _tournament.Id);
+        Helper.AssertTournamentLink(report, "Singles runner up", 1, _tournament.Id);
+    }
+
+    [Test]
+    public async Task GetReport_WhenPlayedTournamentHasTwoPlayerSides_ReturnsPairsType()
+    {
+        SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
+        _tournament.Sides.Add(Helper.Side("SIDE C", players: 2));
+        _tournament.Sides.Add(Helper.Side("SIDE D", players: 2));
+        _tournament.Round!.NextRound = Helper.Round(Helper.Match("SIDE C", "SIDE D", 1, 2));
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Helper.AssertReportRow(report, "Pairs winner", "SIDE D");
+        Helper.AssertReportRow(report, "Pairs runner up", "SIDE C");
+        Helper.AssertTournamentLink(report, "Pairs winner", 1, _tournament.Id);
+        Helper.AssertTournamentLink(report, "Pairs runner up", 1, _tournament.Id);
     }
 
     [Test]
