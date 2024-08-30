@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Report;
@@ -14,17 +15,20 @@ public class ReportFactory : IReportFactory
     private readonly ICachingDivisionService _divisionService;
     private readonly ICachingSeasonService _seasonService;
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
+    private readonly ITournamentTypeResolver _tournamentTypeResolver;
 
     public ReportFactory(
         IUserService userService,
         ICachingDivisionService divisionService,
         ICachingSeasonService seasonService,
-        IGenericDataService<TournamentGame, TournamentGameDto> tournamentService)
+        IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
+        ITournamentTypeResolver tournamentTypeResolver)
     {
         _userService = userService;
         _divisionService = divisionService;
         _seasonService = seasonService;
         _tournamentService = tournamentService;
+        _tournamentTypeResolver = tournamentTypeResolver;
     }
 
     public async IAsyncEnumerable<IReport> GetReports(ReportRequestDto request, [EnumeratorCancellation] CancellationToken token)
@@ -45,6 +49,7 @@ public class ReportFactory : IReportFactory
             new ManOfTheMatchReport(1),
             (await _seasonService.Get(request.SeasonId, token))!,
             _divisionService,
-            _tournamentService);
+            _tournamentService,
+            _tournamentTypeResolver);
     }
 }

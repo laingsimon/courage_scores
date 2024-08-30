@@ -1,28 +1,37 @@
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos.Division;
 
 namespace CourageScores.Models.Adapters.Division;
 
 public class TournamentTypeResolver : ITournamentTypeResolver
 {
-    public string GetTournamentType(TournamentGame tournamentGame)
+    public string GetTournamentType(DivisionTournamentFixtureDetailsDto tournament)
     {
-        if (!string.IsNullOrEmpty(tournamentGame.Type))
+        var firstSide = tournament.Sides.FirstOrDefault();
+        return GetTournamentType(tournament.Type, firstSide?.Players.Count);
+    }
+
+    public string GetTournamentType(TournamentGame tournament)
+    {
+        var firstSide = tournament.Sides.FirstOrDefault();
+        return GetTournamentType(tournament.Type, firstSide?.Players.Count);
+    }
+
+    private static string GetTournamentType(string? type, int? firstSidePlayerCount)
+    {
+        if (!string.IsNullOrEmpty(type))
         {
-            return tournamentGame.Type;
+            return type;
         }
 
-        if (tournamentGame.Sides.Count >= 1)
+        switch (firstSidePlayerCount)
         {
-            var firstSide = tournamentGame.Sides.First();
-            switch (firstSide.Players.Count)
-            {
-                case 1:
-                    return "Singles";
-                case 2:
-                    return "Pairs";
-            }
+            case 1:
+                return "Singles";
+            case 2:
+                return "Pairs";
+            default:
+                return "Tournament";
         }
-
-        return "Tournament";
     }
 }

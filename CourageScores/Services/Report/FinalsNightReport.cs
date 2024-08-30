@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
@@ -18,13 +19,15 @@ public class FinalsNightReport : CompositeReport
     private readonly SeasonDto _season;
     private readonly ICachingDivisionService _divisionService;
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
+    private readonly ITournamentTypeResolver _tournamentTypeResolver;
 
     public FinalsNightReport(
         IUserService userService,
         IReport manOfTheMatchReport,
         SeasonDto season,
         ICachingDivisionService divisionService,
-        IGenericDataService<TournamentGame, TournamentGameDto> tournamentService)
+        IGenericDataService<TournamentGame, TournamentGameDto> tournamentService,
+        ITournamentTypeResolver tournamentTypeResolver)
         :base(new[] { manOfTheMatchReport })
     {
         _userService = userService;
@@ -32,6 +35,7 @@ public class FinalsNightReport : CompositeReport
         _season = season;
         _divisionService = divisionService;
         _tournamentService = tournamentService;
+        _tournamentTypeResolver = tournamentTypeResolver;
     }
 
     public override async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
@@ -160,7 +164,7 @@ public class FinalsNightReport : CompositeReport
             if (tournament == null)
             {
                 yield return Row(
-                    Cell(text: $"{tournamentData.Type}"),
+                    Cell(text: _tournamentTypeResolver.GetTournamentType(tournamentData)),
                     Cell(text: "⚠️ Unable to access tournament", tournamentId: tournamentData.Id));
                 continue;
             }
@@ -177,9 +181,7 @@ public class FinalsNightReport : CompositeReport
                 ? ""
                 : $"{division.Name}: ";
             var final = GetFinal(tournament.Round);
-            var tournamentType = string.IsNullOrEmpty(tournament.Type)
-                ? $"Tournament at {tournament.Address} on {tournament.Date:dd MMM}"
-                : tournament.Type;
+            var tournamentType = _tournamentTypeResolver.GetTournamentType(tournamentData);
 
             if (final == null || final.ScoreA == final.ScoreB)
             {

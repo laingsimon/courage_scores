@@ -1,3 +1,4 @@
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -44,6 +45,7 @@ public class FinalsNightReportTests
     private ReportDto _momReport = null!;
     private TournamentGameDto _tournament = null!;
     private DivisionFixtureDateDto _tournamentFixtureDateDto;
+    private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -67,6 +69,7 @@ public class FinalsNightReportTests
         _playerLookup = new PlayerLookup();
         _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
+        _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
         _momReport = new ReportDto { Rows = { Helper.Row(Helper.Cell("TEAM"), Helper.Cell("MOM"), Helper.Cell("5")) } };
         _tournament = new TournamentGameDto
         {
@@ -78,7 +81,7 @@ public class FinalsNightReportTests
             Round = Helper.Round(Helper.Match("SIDE A", "SIDE B", 1, 2)),
         };
         _tournamentFixtureDateDto = Helper.DivisionFixtureDateDto(new DateTime(2001, 02, 03), Helper.DivisionTournamentFixtureDetailsDto(_tournament.Id, type: _tournament.Type));
-        _report = new FinalsNightReport(_userService.Object, _manOfTheMatchReport.Object, _season, _divisionService.Object, _tournamentService.Object);
+        _report = new FinalsNightReport(_userService.Object, _manOfTheMatchReport.Object, _season, _divisionService.Object, _tournamentService.Object, _tournamentTypeResolver.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _divisionService
@@ -90,6 +93,9 @@ public class FinalsNightReportTests
         _divisionService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_divisions));
         _manOfTheMatchReport.Setup(r => r.GetReport(_playerLookup, _token)).ReturnsAsync(() => _momReport);
         _tournamentService.Setup(s => s.Get(_tournament.Id, _token)).ReturnsAsync(_tournament);
+        _tournamentTypeResolver
+            .Setup(r => r.GetTournamentType(It.IsAny<DivisionTournamentFixtureDetailsDto>()))
+            .Returns((DivisionTournamentFixtureDetailsDto _) => _tournament.Type ?? "Tournament");
     }
 
     [Test]
@@ -117,49 +123,14 @@ public class FinalsNightReportTests
     }
 
     [Test]
-    public async Task GetReport_WhenTournamentHasNoType_ReturnsAddressAndDate()
-    {
-        SetTournamentDetails(clearMatches: true, divisionId: _tournament.DivisionId);
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Helper.AssertReportRow(report, "Division 1: Tournament at ADDRESS on 03 Feb", "⚠️ Has not been played or has no winner");
-        Helper.AssertTournamentLink(report, "Division 1: Tournament at ADDRESS on 03 Feb", 1, _tournament.Id);
-    }
-
-    [Test]
-    public async Task GetReport_WhenTournamentHasEmptyType_ReturnsAddressAndDate()
-    {
-        SetTournamentDetails(type: "", clearMatches: true, divisionId: _tournament.DivisionId);
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Helper.AssertReportRow(report, "Division 1: Tournament at ADDRESS on 03 Feb", "⚠️ Has not been played or has no winner");
-        Helper.AssertTournamentLink(report, "Division 1: Tournament at ADDRESS on 03 Feb", 1, _tournament.Id);
-    }
-
-    [Test]
     public async Task GetReport_WhenUnplayedTournamentHasSinglePlayerSides_ReturnsSinglesType()
     {
         SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
-        _tournament.Sides.Add(Helper.Side("SIDE C", players: 1));
-        _tournament.Sides.Add(Helper.Side("SIDE D", players: 1));
+        _tournamentTypeResolver.Setup(r => r.GetTournamentType(It.IsAny<DivisionTournamentFixtureDetailsDto>())).Returns("Singles");
 
         var report = await _report.GetReport(_playerLookup, _token);
 
         Helper.AssertReportRow(report, "Singles", "⚠️ Has not been played or has no winner");
-    }
-
-    [Test]
-    public async Task GetReport_WhenUnplayedTournamentHasTwoPlayerSides_ReturnsPairsType()
-    {
-        SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
-        _tournament.Sides.Add(Helper.Side("SIDE C", players: 2));
-        _tournament.Sides.Add(Helper.Side("SIDE D", players: 2));
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Helper.AssertReportRow(report, "Pairs", "⚠️ Has not been played or has no winner");
     }
 
     [Test]
@@ -237,9 +208,8 @@ public class FinalsNightReportTests
     public async Task GetReport_WhenPlayedTournamentHasSinglePlayerSides_ReturnsSinglesType()
     {
         SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
-        _tournament.Sides.Add(Helper.Side("SIDE C", players: 1));
-        _tournament.Sides.Add(Helper.Side("SIDE D", players: 1));
         _tournament.Round!.NextRound = Helper.Round(Helper.Match("SIDE C", "SIDE D", 1, 2));
+        _tournamentTypeResolver.Setup(r => r.GetTournamentType(It.IsAny<DivisionTournamentFixtureDetailsDto>())).Returns("Singles");
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -247,22 +217,6 @@ public class FinalsNightReportTests
         Helper.AssertReportRow(report, "Singles runner up", "SIDE C");
         Helper.AssertTournamentLink(report, "Singles winner", 1, _tournament.Id);
         Helper.AssertTournamentLink(report, "Singles runner up", 1, _tournament.Id);
-    }
-
-    [Test]
-    public async Task GetReport_WhenPlayedTournamentHasTwoPlayerSides_ReturnsPairsType()
-    {
-        SetTournamentDetails(type: "", clearMatches: true, divisionId: null);
-        _tournament.Sides.Add(Helper.Side("SIDE C", players: 2));
-        _tournament.Sides.Add(Helper.Side("SIDE D", players: 2));
-        _tournament.Round!.NextRound = Helper.Round(Helper.Match("SIDE C", "SIDE D", 1, 2));
-
-        var report = await _report.GetReport(_playerLookup, _token);
-
-        Helper.AssertReportRow(report, "Pairs winner", "SIDE D");
-        Helper.AssertReportRow(report, "Pairs runner up", "SIDE C");
-        Helper.AssertTournamentLink(report, "Pairs winner", 1, _tournament.Id);
-        Helper.AssertTournamentLink(report, "Pairs runner up", 1, _tournament.Id);
     }
 
     [Test]

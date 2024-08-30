@@ -1,3 +1,4 @@
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
@@ -20,6 +21,7 @@ public class ReportFactoryTests
     private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
+    private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
     private ReportFactory _factory = null!;
     private UserDto? _user;
 
@@ -30,11 +32,13 @@ public class ReportFactoryTests
         _seasonService = new Mock<ICachingSeasonService>();
         _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
+        _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
         _factory = new ReportFactory(
             _userService.Object,
             _divisionService.Object,
             _seasonService.Object,
-            _tournamentService.Object);
+            _tournamentService.Object,
+            _tournamentTypeResolver.Object);
 
         _user = new UserDto
         {
