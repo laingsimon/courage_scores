@@ -9,7 +9,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../helpers/tests";
-import {toMap} from "../../helpers/collections";
 import {EditTournament, IEditTournamentProps} from "./EditTournament";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
@@ -55,7 +54,7 @@ describe('EditTournament', () => {
             brandingProps(),
             appProps({
                 account,
-                teams: toMap(teams || []),
+                teams: teams || [],
             }, reportedError),
             (<TournamentContainer {...containerProps}>
                 <EditTournament {...props} />

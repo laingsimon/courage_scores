@@ -9,7 +9,6 @@ import {
     iocProps, noop,
     renderApp, TestContext
 } from "../../helpers/tests";
-import {toMap} from "../../helpers/collections";
 import {repeat, createTemporaryId} from "../../helpers/projection";
 import {CreateSeasonDialog, ICreateSeasonDialogProps} from "./CreateSeasonDialog";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
@@ -209,10 +208,10 @@ describe('CreateSeasonDialog', () => {
                         divisionBuilder('DIVISION 1', divisionId).build(),
                         divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                     ],
-                    seasons: toMap([
+                    seasons: [
                         getSeason(seasonId, divisionId, anotherDivisionId)
-                    ]),
-                    teams: toMap([team1, team2]),
+                    ],
+                    teams: [team1, team2],
                     reloadAll,
                 }, reportedError), {
                     id: divisionId,
@@ -275,8 +274,8 @@ describe('CreateSeasonDialog', () => {
                 addIncompatibleResponse(seasonId, createTemporaryId());
                 await renderComponent(appProps({
                     divisions: [],
-                    seasons: toMap([getSeason(seasonId)]),
-                    teams: toMap([team1, team2]),
+                    seasons: [getSeason(seasonId)],
+                    teams: [team1, team2],
                     reloadAll,
                 }, reportedError), null, {
                     seasonId: seasonId,
@@ -300,7 +299,7 @@ describe('CreateSeasonDialog', () => {
 
                 await renderComponent(appProps({
                     divisions: [],
-                    seasons: toMap([]),
+                    seasons: [],
                     reloadAll,
                 }, reportedError), null, {
                     seasonId: createTemporaryId(),
@@ -316,8 +315,8 @@ describe('CreateSeasonDialog', () => {
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(appProps({
                     divisions: [division],
-                    seasons: toMap([getSeason(seasonId, division.id)]),
-                    teams: toMap([team1, team2]),
+                    seasons: [getSeason(seasonId, division.id)],
+                    teams: [team1, team2],
                     reloadAll,
                 }, reportedError), null, {
                     seasonId: seasonId,
@@ -383,8 +382,8 @@ describe('CreateSeasonDialog', () => {
                         division,
                         anotherDivision
                     ],
-                    seasons: toMap([getSeason(seasonId, division.id, anotherDivision.id)]),
-                    teams: toMap([team1, team2, team3, team4]),
+                    seasons: [getSeason(seasonId, division.id, anotherDivision.id)],
+                    teams: [team1, team2, team3, team4],
                     reloadAll,
                 }), null, {
                     seasonId: seasonId,
@@ -435,8 +434,8 @@ describe('CreateSeasonDialog', () => {
 
                 await renderComponent(appProps({
                     divisions: [divisionBuilder('DIVISION', divisionId).build()],
-                    seasons: toMap([getSeason(seasonId, divisionId)]),
-                    teams: toMap([team1, team2]),
+                    seasons: [getSeason(seasonId, divisionId)],
+                    teams: [team1, team2],
                     reloadAll,
                 }), {
                     id: divisionId,
@@ -504,10 +503,8 @@ describe('CreateSeasonDialog', () => {
                         divisionBuilder('DIVISION 1', divisionId).build(),
                         divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                     ],
-                    seasons: toMap([
-                        getSeason(seasonId, divisionId, anotherDivisionId)
-                    ]),
-                    teams: toMap([team1, team2]),
+                    seasons: [getSeason(seasonId, divisionId, anotherDivisionId)],
+                    teams: [team1, team2],
                     reloadAll,
                 }), {
                     id: divisionId,
@@ -591,10 +588,8 @@ describe('CreateSeasonDialog', () => {
                         divisionBuilder('DIVISION 1', divisionId).build(),
                         divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
                     ],
-                    seasons: toMap([
-                        getSeason(seasonId, divisionId, anotherDivisionId)
-                    ]),
-                    teams: toMap([team1, team2]),
+                    seasons: [getSeason(seasonId, divisionId, anotherDivisionId)],
+                    teams: [team1, team2],
                     reloadAll,
                 }), {
                     id: divisionId,
@@ -752,8 +747,8 @@ describe('CreateSeasonDialog', () => {
                 addCompatibleResponse(seasonId, templateId);
                 await renderComponent(appProps({
                     divisions: [],
-                    seasons: toMap([]),
-                    teams: toMap([]),
+                    seasons: [],
+                    teams: [],
                     reloadAll,
                 }), {
                     id: null,

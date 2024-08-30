@@ -51,11 +51,11 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
         }
 
         const newShowPlayers = {};
-        fixtures.forEach(fixtureDate => {
+        for (let fixtureDate of fixtures) {
             if (any(fixtureDate.tournamentFixtures)) {
                 newShowPlayers[fixtureDate.date] = true;
             }
-        });
+        }
         return newShowPlayers;
     }
 

@@ -10,7 +10,6 @@ import {
     iocProps,
     renderApp, TestContext
 } from "../../helpers/tests";
-import {DataMap, toMap} from "../../helpers/collections";
 import {EditSide, IEditSideProps, ISaveSideOptions} from "./EditSide";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {createTemporaryId} from "../../helpers/projection";
@@ -50,7 +49,7 @@ describe('EditSide', () => {
         playerDetails: EditTeamPlayerDto,
     };
     let preventScroll: boolean;
-    let divisions: DataMap<DivisionDto>;
+    let divisions: DivisionDto[];
     const playerApi = api<IPlayerApi>({
         create: async (divisionId: string, seasonId: string, teamId: string, playerDetails: EditTeamPlayerDto): Promise<IClientActionResultDto<TeamDto>> => {
             createdPlayer = {
@@ -123,7 +122,7 @@ describe('EditSide', () => {
             iocProps({playerApi}),
             brandingProps(),
             appProps({
-                teams: toMap(teams || []),
+                teams: teams || [],
                 account: (account || { access: {} }),
                 reloadTeams,
                 divisions

@@ -1,27 +1,4 @@
 export type StringMapObject = {[key: string] : any};
-export interface DataMap<T> extends StringMapObject {
-    map<V>(mapper: (value: T, index: number, array: T[]) => V, thisArg?: any): V[];
-    length: number;
-    sort(sorter: (x: T, y: T) => number): T[];
-    filter(predicate: (item: T) => boolean): T[];
-}
-
-/*
-* Convert an array of items to a dictionary, keyed on the id property of each item
-* */
-export function toMap<T>(items: T[]): DataMap<T> {
-    const theMap: DataMap<T> = {
-        map: items.map.bind(items),
-        length: items.length,
-        sort: items.sort.bind(items),
-        filter: items.filter.bind(items),
-    };
-    for (let index = 0; index < items.length; index++) {
-        const item = items[index];
-        theMap[(item as any).id] = item;
-    }
-    return theMap;
-}
 
 /*
 * Sort any array by the given property
@@ -65,7 +42,7 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
     const oneEightyMap: { [id: string]: number } = {};
     const itemLookup: { [id: string]: T } = {};
 
-    items.forEach((item: T) => {
+    for (let item of items) {
         const id = item[property];
 
         if (oneEightyMap[id]) {
@@ -74,7 +51,7 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
             oneEightyMap[id] = 1;
             itemLookup[id] = item;
         }
-    });
+    }
 
     return Object.keys(oneEightyMap).sort((aId: string, bId: string) => {
         if (oneEightyMap[aId] > oneEightyMap[bId]) {
@@ -104,28 +81,28 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
 /*
 * Return true if there are any items (that match the optional predicate)
 * */
-export function any<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boolean): boolean {
+export function any<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) > 0;
 }
 
 /*
 * Return true if all of the items are true (or match the optional predicate)
 * */
-export function all<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boolean): boolean {
+export function all<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) === iterable.length;
 }
 
 /*
 * Return true if there are no items (that match the optional predicate)
 * */
-export function isEmpty<T>(iterable: T[] | DataMap<T>, predicate?: (a: T) => boolean): boolean {
+export function isEmpty<T>(iterable: T[], predicate?: (a: T) => boolean): boolean {
     return count(iterable, predicate) === 0;
 }
 
 /*
 * Return the number of items (that match the optional predicate)
 * */
-export function count<T>(iterable: T[] | DataMap<T>, predicate?: (a: T, index?: number) => boolean): number {
+export function count<T>(iterable: T[], predicate?: (a: T, index?: number) => boolean): number {
     return iterable.filter(predicate || (_ => true)).length;
 }
 
@@ -188,12 +165,12 @@ export function distinct(items: any[], property?: string): any[] {
 
     const map: StringMapObject = {};
 
-    items.forEach(item => {
+    for (let item of items) {
         const key = getValue(item, property);
         if (!map[key]) {
             map[key] = item;
         }
-    });
+    }
 
     return Object.values(map);
 }
@@ -204,8 +181,7 @@ export function distinct(items: any[], property?: string): any[] {
 export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), valueSelector?: (a: T) => any): StringMapObject {
     const dict: StringMapObject = {};
 
-    for (let index = 0; index < items.length; index++) {
-        const item = items[index];
+    for (let item of items) {
         const key = keySelector(item);
         if (dict[key]) {
             throw new Error('Duplicate key found: ' + key);
@@ -222,8 +198,8 @@ export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), val
 * */
 export function reverse<T>(items: T[]): T[] {
     const backwards: T[] = [];
-    for (let index = items.length -1; index >= 0; index--) {
-        backwards.push(items[index]);
+    for (let item of items) {
+        backwards.unshift(item);
     }
 
     return backwards;

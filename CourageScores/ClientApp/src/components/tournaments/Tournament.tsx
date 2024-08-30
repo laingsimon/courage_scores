@@ -125,11 +125,11 @@ export function Tournament() {
                 if (fixtureDate) {
                     const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
                         .filter((f: DivisionTournamentFixtureDetailsDto) => !f.proposed && f.id !== tournamentData.id);
-                    tournamentFixtures.forEach((tournamentFixture: DivisionTournamentFixtureDetailsDto) => {
+                    for (let tournamentFixture of tournamentFixtures) {
                         tournamentFixture.players.forEach((playerId: string) => {
                             tournamentPlayerMap[playerId] = tournamentFixture;
                         });
-                    });
+                    }
                 }
             }
             setAlreadyPlaying(tournamentPlayerMap);
@@ -270,9 +270,9 @@ export function Tournament() {
     }
 
     function updateMatchOptions(round: TournamentRoundDto, numberOfLegs: number) {
-        round.matchOptions.forEach((matchOptions: GameMatchOptionDto) => {
+        for (let matchOptions of round.matchOptions) {
             matchOptions.numberOfLegs = numberOfLegs;
-        });
+        }
 
         if (round.nextRound) {
             updateMatchOptions(round.nextRound, numberOfLegs);
@@ -321,7 +321,9 @@ export function Tournament() {
     }
 
     try {
-        const season: SeasonDto = tournamentData ? seasons[tournamentData.seasonId] : {id: EMPTY_ID, name: 'Not found'};
+        const season: SeasonDto = tournamentData
+            ? seasons.filter(s => s.id === tournamentData.seasonId)[0]
+            : {id: EMPTY_ID, name: 'Not found'};
         if (!season) {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');

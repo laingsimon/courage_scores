@@ -50,28 +50,28 @@ describe('NumberKeyboard', () => {
         const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
         const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent);
 
-        buttonText.forEach((text: string) => {
+        for (let text of buttonText) {
             const button = buttonLookup[text];
             if (!button) {
                 throw new Error(`Button not found: ${text}`);
             }
 
             expect(button.disabled).toEqual(false);
-        });
+        }
     }
 
     function assertDisabledButtons(buttonText: string[]) {
         const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
         const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent);
 
-        buttonText.forEach((text: string) => {
+        for (let text of buttonText) {
             const button = buttonLookup[text];
             if (!button) {
                 throw new Error(`Button not found: ${text}`);
             }
 
             expect(button.disabled).toEqual(true);
-        });
+        }
     }
 
     describe('renders', () => {

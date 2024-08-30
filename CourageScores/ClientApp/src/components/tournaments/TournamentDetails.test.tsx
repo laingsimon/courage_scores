@@ -18,7 +18,6 @@ import {
 } from "../../helpers/builders/tournaments";
 import {divisionBuilder} from "../../helpers/builders/divisions";
 import {createTemporaryId} from "../../helpers/projection";
-import {toMap} from "../../helpers/collections";
 import {IMatchOptionsBuilder} from "../../helpers/builders/games";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {playerBuilder} from "../../helpers/builders/players";
@@ -102,7 +101,7 @@ describe('TournamentDetails', () => {
 
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -150,7 +149,7 @@ describe('TournamentDetails', () => {
 
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -182,7 +181,7 @@ describe('TournamentDetails', () => {
 
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -228,7 +227,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -252,7 +251,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -276,7 +275,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -300,7 +299,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -325,7 +324,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -350,7 +349,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -375,7 +374,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -400,7 +399,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -425,7 +424,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -448,7 +447,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -487,7 +486,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -533,7 +532,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -564,7 +563,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -595,7 +594,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [],
                 divisions: [division],
             }));
@@ -630,7 +629,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [team],
                 divisions: [division],
             }));
@@ -665,7 +664,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [team],
                 divisions: [division],
             }));
@@ -699,7 +698,7 @@ describe('TournamentDetails', () => {
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({
                 account: canExportAccount,
-                seasons: toMap([season]),
+                seasons: [season],
                 teams: [team],
                 divisions: [division],
             }));

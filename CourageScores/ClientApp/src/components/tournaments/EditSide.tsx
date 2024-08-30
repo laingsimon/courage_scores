@@ -42,7 +42,7 @@ interface ITournamentSideType {
 }
 
 export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSideProps) {
-    const {teams: teamMap, onError, account, reloadTeams} = useApp();
+    const {teams, onError, account, reloadTeams} = useApp();
     const {tournamentData, season, alreadyPlaying} = useTournament();
     const [playerFilter, setPlayerFilter] = useState('');
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
@@ -50,11 +50,10 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
     const divisionId: string = tournamentData.divisionId;
     const selectATeam: IBootstrapDropdownItem = {value: '', text: 'Select team', className: 'text-warning'};
-    const teamOptions: IBootstrapDropdownItem[] = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map((t: TeamDto) => {
+    const teamOptions: IBootstrapDropdownItem[] = [selectATeam].concat(teams.filter(teamSeasonForSameDivision).map((t: TeamDto) => {
         return {value: t.id, text: t.name};
     }).sort(sortBy('text')));
-    const allPossiblePlayers: ITeamPlayerMap[] = teamMap
-        .filter((_: TeamDto) => true) // turn the map back into an array
+    const allPossiblePlayers: ITeamPlayerMap[] = teams
         .flatMap((t: TeamDto) => {
             const teamSeason: TeamSeasonDto = t.seasons.filter((ts: TeamSeasonDto) => ts.seasonId === season.id && !ts.deleted)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
@@ -146,7 +145,8 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
         try {
             const newSide: TournamentSideDto = Object.assign({}, side);
             if (teamId) {
-                newSide.name = newSide.name || teamMap[teamId].name;
+                const team = teams.filter((t: TeamDto) => t.id === teamId)[0];
+                newSide.name = newSide.name || team.name;
             } else {
                 teamId = undefined;
             }

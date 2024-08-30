@@ -11,7 +11,6 @@ import {useApp} from "../common/AppContainer";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
-import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;
@@ -46,9 +45,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
             exportRequest.division = [tournamentData.divisionId];
         }
 
-        for (let i = 0; i < tournamentData.sides.length; i++) {
-            const side: TournamentSideDto = tournamentData.sides[i];
-
+        for (let side of tournamentData.sides) {
             if (side.teamId) {
                 teamIds = teamIds.concat([side.teamId]);
             } else if (any(side.players || [])) {

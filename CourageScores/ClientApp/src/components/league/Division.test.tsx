@@ -13,7 +13,7 @@ import {
     TestContext
 } from "../../helpers/tests";
 import {IRequestedDivisionDataDto} from "./Division";
-import {any, toMap} from "../../helpers/collections";
+import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {SeasonHealthCheckResultDto} from "../../interfaces/models/dtos/Health/SeasonHealthCheckResultDto";
@@ -249,7 +249,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    teams: toMap([team]),
+                    teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/team:${team.id}/${season.id}`,
                     { urlStyle: UrlStyle.Single });
 
@@ -262,7 +262,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    teams: toMap([team]),
+                    teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:${team.name}/${season.name}`,
                     { urlStyle: UrlStyle.Single });
 
@@ -275,7 +275,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    teams: toMap([team]),
+                    teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:/${season.name}`,
                     { urlStyle: UrlStyle.Single });
 
@@ -288,7 +288,7 @@ describe('Division', () => {
                 await renderComponent(appProps({
                     divisions: [division],
                     seasons: [season],
-                    teams: toMap([team]),
+                    teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:UNKNOWN_TEAM/${season.name}`,
                     { urlStyle: UrlStyle.Single });
 

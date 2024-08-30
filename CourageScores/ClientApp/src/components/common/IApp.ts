@@ -3,7 +3,6 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
-import {DataMap} from "../../helpers/collections";
 import {IError} from "./IError";
 import {IBrowserType} from "./IBrowserType";
 
@@ -12,9 +11,9 @@ export interface IApp {
     onError(error: any): void;
     embed?: boolean;
 
-    divisions: DataMap<DivisionDto>;
-    seasons: DataMap<SeasonDto>;
-    teams: DataMap<TeamDto>;
+    divisions: DivisionDto[];
+    seasons: SeasonDto[];
+    teams: TeamDto[];
     account?: UserDto | null;
     appLoading?: boolean;
     controls?: boolean;

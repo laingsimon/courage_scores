@@ -10,7 +10,6 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
-import {toMap} from "../../helpers/collections";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {ITournamentFixtureProps, TournamentFixture} from "./TournamentFixture";
 import {EditTournamentGameDto} from "../../interfaces/models/dtos/Game/EditTournamentGameDto";
@@ -75,7 +74,7 @@ describe('TournamentFixture', () => {
             brandingProps(),
             appProps({
                 account,
-                teams: toMap(teams || []),
+                teams: teams || [],
             }, reportedError),
             (<DivisionDataContainer {...divisionData}>
                 <TournamentFixture {...props} />

@@ -11,7 +11,7 @@ import {
     renderApp, setFile, TestContext
 } from "../../helpers/tests";
 import {Tournament} from "./Tournament";
-import {any, DataMap, toMap} from "../../helpers/collections";
+import {any} from "../../helpers/collections";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
@@ -52,8 +52,8 @@ import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatu
 
 interface IScenario {
     account?: UserDto;
-    seasons: DataMap<SeasonDto>;
-    teams: DataMap<TeamDto>;
+    seasons: SeasonDto[];
+    teams: TeamDto[];
     divisions: DivisionDto[];
 }
 
@@ -235,8 +235,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([]),
-                    teams: toMap([]),
+                    seasons: [],
+                    teams: [],
                     divisions: [division],
                 }, false);
 
@@ -259,8 +259,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([]),
+                    seasons: [season],
+                    teams: [],
                     divisions: [division],
                 }, true);
 
@@ -276,8 +276,8 @@ describe('Tournament', () => {
 
                 await renderComponent(id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([]),
+                    seasons: [season],
+                    teams: [],
                     divisions: [division],
                 }, false);
 
@@ -302,8 +302,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([]),
+                    seasons: [season],
+                    teams: [],
                     divisions: [division],
                 }, false);
 
@@ -333,8 +333,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([team]),
+                    seasons: [season],
+                    teams: [team],
                     divisions: [division],
                 }, false);
 
@@ -365,8 +365,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([team]),
+                    seasons: [season],
+                    teams: [team],
                     divisions: [division],
                 }, false);
 
@@ -400,8 +400,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([team]),
+                    seasons: [season],
+                    teams: [team],
                     divisions: [division],
                 }, false);
 
@@ -443,8 +443,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([]),
-                    teams: toMap([]),
+                    seasons: [],
+                    teams: [],
                     divisions: [division],
                 }, false);
 
@@ -467,8 +467,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([]),
+                    seasons: [season],
+                    teams: [],
                     divisions: [division],
                 }, true);
 
@@ -496,8 +496,8 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([season]),
-                    teams: toMap([]),
+                    seasons: [season],
+                    teams: [],
                     divisions: [division],
                 }, false);
 
@@ -546,8 +546,8 @@ describe('Tournament', () => {
 
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
 
@@ -574,8 +574,8 @@ describe('Tournament', () => {
             const team = teamBuilder('TEAM').forSeason(tournamentData.seasonId, divisionData.id).build()
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, 'Add player'));
@@ -612,8 +612,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, 'Add player'));
@@ -641,8 +641,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
 
@@ -672,8 +672,8 @@ describe('Tournament', () => {
 
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
 
@@ -697,8 +697,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             apiResponse = {success: false, errors: ['SOME ERROR']};
@@ -724,8 +724,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             apiResponse = {success: false, errors: ['SOME ERROR']};
@@ -755,8 +755,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             let alert: string;
@@ -790,8 +790,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             let alert: string;
@@ -825,8 +825,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             let alert: string;
@@ -862,8 +862,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             let alert: string;
@@ -919,8 +919,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
@@ -985,8 +985,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
@@ -1044,8 +1044,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
@@ -1120,8 +1120,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest(division.id, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
@@ -1158,8 +1158,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1200,8 +1200,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1244,8 +1244,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
             window.confirm = () => true;
@@ -1296,8 +1296,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
             window.confirm = () => true;
@@ -1342,8 +1342,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             let alert: string;
@@ -1379,8 +1379,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             let alert: string;
@@ -1421,8 +1421,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
             // verify that all 3 players CAN be selected before the side is removed
@@ -1473,8 +1473,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
             // verify that all 3 players CAN be selected before the side is removed
@@ -1516,8 +1516,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: null,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1549,8 +1549,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: notPermittedAccount,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1576,8 +1576,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1605,8 +1605,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
             reportedError.verifyNoError();
@@ -1640,8 +1640,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: null,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1674,8 +1674,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: notPermittedAccount,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1702,8 +1702,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
 
@@ -1735,8 +1735,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([deletedTeam]),
+                seasons: [season],
+                teams: [deletedTeam],
                 divisions: [division],
             }, false);
 
@@ -1771,8 +1771,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([team]),
+                seasons: [season],
+                teams: [team],
                 divisions: [division],
             }, false);
             const addSide = context.container.querySelector('li[datatype="add-side"]');
@@ -1808,8 +1808,8 @@ describe('Tournament', () => {
 
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
 
@@ -1833,8 +1833,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: permitted,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
 
@@ -1862,8 +1862,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: permitted,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📷 Photos'));
@@ -1891,8 +1891,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: permitted,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📷 Photos'));
@@ -1930,8 +1930,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: permitted,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📷 Photos'));
@@ -1972,8 +1972,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: permitted,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📷 Photos'));
@@ -2016,8 +2016,8 @@ describe('Tournament', () => {
             expectDivisionDataRequest('', tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: permitted,
-                seasons: toMap([season]),
-                teams: toMap([]),
+                seasons: [season],
+                teams: [],
                 divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📷 Photos'));
