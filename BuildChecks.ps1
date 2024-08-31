@@ -2,7 +2,7 @@ param([int] $ErrorThreshold, [int] $WarningThreshold)
 
 Function Get-Files($MinLines, $MaxLines)
 {
-    # Write-Host "Finding files with > $($MinLines) lines and <= $($MaxLines)..."
+    Write-Message "Finding files with > $($MinLines) lines and <= $($MaxLines)..."
     return Get-ChildItem -Recurse `
         | Where-Object { $_.Name.EndsWith(".cs") } `
         | Select-Object @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
@@ -28,7 +28,7 @@ Function Print-Files($Heading, $Files)
 Function Get-PullRequestComments() 
 {
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
-    # Write-Host "Get pull-request comments $($Url)"
+    Write-Message "Get pull-request comments"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
@@ -49,7 +49,7 @@ Function Remove-ExistingComment($Comment)
 {
     $CommentId = $Comment.id
     $Url = $Comment.url
-    Write-Host "Deleting comment $($CommentId)"
+    Write-Message "Deleting comment '$($CommentId)'"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
@@ -61,15 +61,20 @@ Function Remove-ExistingComment($Comment)
 
     if ($Response.StatusCode -ne 204) 
     {
+        Write-Error "Error deleting comment at url $($Url)"
         $Response
-        Write-Error "Error creating comment"
     }
 }
 
 Function Remove-ExistingComments() 
 {
-    # Write-Host "Remove existing comments: $($Comments.Count)"
+    Write-Message "Remove existing comments: $($Comments.Count)"
     $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
+}
+
+Function Write-Message($Message)
+{
+    [Console]::Out.WriteLine($Message)
 }
 
 Function Add-PullRequestComment($Markdown)
@@ -85,7 +90,7 @@ Function Add-PullRequestComment($Markdown)
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
 
-    # [Console]::Out.WriteLine("Sending POST request to $($Url) with body $($Body)")
+    Write-Message "Sending POST request to $($Url) with body $($Body)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
@@ -98,8 +103,8 @@ Function Add-PullRequestComment($Markdown)
 
     if ($Response.StatusCode -ne 201) 
     {
+        Write-Error "Error creating comment at url $($Url)"
         $Response
-        Write-Error "Error creating comment"
     }
 }
 
