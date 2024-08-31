@@ -25,6 +25,31 @@ Function Print-Files($Heading, $Files)
     Add-PullRequestComment -Markdown "### $($Heading)`n$($Output)"
 }
 
+Function Get-PullRequestComments() 
+{
+    $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
+    # Write-Host "Get pull-request comments $($Url)"
+
+    $Response = Invoke-WebRequest `
+        -Uri $Url `
+        -Method Get `
+
+    if ($Response.StatusCode -ne 200) 
+    {
+        $Response
+        Write-Error "Error getting comment"
+    }
+
+    $Json = $Response | ConvertFrom-Json
+    Return $Json `
+        | Where-Object { $_.body -like "*file/s approaching limit*" -Or $_.body.Value -like "*Files exceeding limit*" } `
+}
+
+Function Remove-ExistingComments() 
+{
+    Write-Host "TODO: Remove existing comments: $($Comments.Count)"
+}
+
 Function Add-PullRequestComment($Markdown)
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
@@ -33,11 +58,9 @@ Function Add-PullRequestComment($Markdown)
         Return
     }
 
-    $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
-    $Token=$env:GITHUB_TOKEN
-    $PullRequestNumber=$RefName.Replace("/merge", "")
+    Remove-ExistingComments
+
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
-    $Repo = $env:GITHUB_REPOSITORY
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
 
     # [Console]::Out.WriteLine("Sending POST request to $($Url) with body $($Body)")
@@ -47,7 +70,6 @@ Function Add-PullRequestComment($Markdown)
         -Headers @{
             Accept="application/vnd.github+json";
             Authorization="Bearer $($Token)";
-            # X-GitHub-Api-Version="2022-11-28";
         } `
         -Method Post `
         -Body $Body
@@ -58,6 +80,12 @@ Function Add-PullRequestComment($Markdown)
         Write-Error "Error creating comment"
     }
 }
+
+$RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
+$Token=$env:GITHUB_TOKEN
+$PullRequestNumber=$RefName.Replace("/merge", "")
+$Repo = $env:GITHUB_REPOSITORY
+$Comments = Get-PullRequestComments
 
 $FilesOverThreshold = Get-Files -MinLines $ErrorThreshold -MaxLines [int]::MaxValue
 If ($ErrorThreshold -gt 0 -and $FilesOverThreshold.Length -gt 0)
