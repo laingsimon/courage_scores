@@ -45,9 +45,31 @@ Function Get-PullRequestComments()
         | Where-Object { $_.body -like "*file/s approaching limit*" -Or $_.body.Value -like "*Files exceeding limit*" } `
 }
 
+Function Remove-ExistingComment($Comment)
+{
+    $CommentId = $Comment.id
+    $Url = $Comment.url
+    Write-Host "Deleting comment $($CommentId)"
+
+    $Response = Invoke-WebRequest `
+        -Uri $Url `
+        -Headers @{
+            Accept="application/vnd.github+json";
+            Authorization="Bearer $($Token)";
+        } `
+        -Method Delete
+
+    if ($Response.StatusCode -ne 204) 
+    {
+        $Response
+        Write-Error "Error creating comment"
+    }
+}
+
 Function Remove-ExistingComments() 
 {
-    Write-Host "TODO: Remove existing comments: $($Comments.Count)"
+    # Write-Host "Remove existing comments: $($Comments.Count)"
+    $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
 }
 
 Function Add-PullRequestComment($Markdown)
