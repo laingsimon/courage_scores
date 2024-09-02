@@ -16,6 +16,7 @@ import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTea
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
+import {NewTournamentFixture} from "./NewTournamentFixture";
 
 export interface IDivisionFixtureDateProps {
     date: IEditableDivisionFixtureDateDto;
@@ -166,13 +167,18 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                 fixture={f}
                 date={date.date}
                 onUpdateFixtures={onUpdateFixtures}/>))}
-            {date.tournamentFixtures.filter((t: DivisionTournamentFixtureDetailsDto) => !date.isKnockout || !t.proposed || (allowTournamentProposals && t.proposed)).map((tournament: DivisionTournamentFixtureDetailsDto) => (
+            {date.tournamentFixtures.filter((t: DivisionTournamentFixtureDetailsDto) => !date.isKnockout && !t.proposed).map((tournament: DivisionTournamentFixtureDetailsDto) => (
                 <TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
                     date={date.date}
                     onTournamentChanged={onTournamentChanged}
                     expanded={showPlayers[date.date]}/>))}
+            {isAdmin && allowTournamentProposals ? (<NewTournamentFixture
+                    date={date.date}
+                    tournamentFixtures={date.tournamentFixtures}
+                    onTournamentChanged={onTournamentChanged}
+                />) : null}
             </tbody>
         </table>
     </div>);

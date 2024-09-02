@@ -1,15 +1,15 @@
-import {all, any} from "./collections";
-import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../components/division_fixtures/Filter";
-import {isInFuture, isInPast, isDateEqualTo, isToday} from "./dates";
-import {IFilter} from "../components/division_fixtures/IFilter";
+import {all, any} from "../../helpers/collections";
+import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "./Filter";
+import {isInFuture, isInPast, isDateEqualTo, isToday} from "../../helpers/dates";
+import {IFilter} from "./IFilter";
 import {
     DivisionTournamentFixtureDetailsDto
-} from "../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
-import {DivisionFixtureDto} from "../interfaces/models/dtos/Division/DivisionFixtureDto";
-import {DivisionFixtureDateDto} from "../interfaces/models/dtos/Division/DivisionFixtureDateDto";
-import {FixtureDateNoteDto} from "../interfaces/models/dtos/FixtureDateNoteDto";
-import {IEditableDivisionFixtureDateDto} from "../components/division_fixtures/IEditableDivisionFixtureDateDto";
-import {TournamentSideDto} from "../interfaces/models/dtos/Game/TournamentSideDto";
+} from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
+import {IEditableDivisionFixtureDateDto} from "./IEditableDivisionFixtureDateDto";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 
 export interface IRenderContext {
     lastFixtureDateBeforeToday?: string;
@@ -104,7 +104,7 @@ export function getTypeFilter(type: string): IFilter<IFixtureMapping> {
         case 'qualifier':
             return new Filter<IFixtureMapping>(c => (c.fixture && c.fixture.isKnockout));
         case 'tournament':
-            return new Filter<IFixtureMapping>(c => (c.tournamentFixture && !c.tournamentFixture.proposed));
+            return new Filter<IFixtureMapping>(c => !!c.tournamentFixture);
         default:
             return new NullFilter<IFixtureMapping>();
     }

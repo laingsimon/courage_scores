@@ -11,7 +11,7 @@ import {
     getFixtureDateFilters,
     getFixtureFilters,
     IFixtureMapping, getFilter
-} from "../../helpers/filters";
+} from "./filters";
 import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "../season_creation/CreateSeasonDialog";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";

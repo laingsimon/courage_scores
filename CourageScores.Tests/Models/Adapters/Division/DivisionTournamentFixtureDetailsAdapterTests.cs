@@ -14,7 +14,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     private readonly CancellationToken _token = new();
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
     private Mock<IAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
-    private Mock<ITournamentTypeResolver> _tournamentTypeResolver;
+    private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
 
     [SetUp]
     public void SetupEachTest()

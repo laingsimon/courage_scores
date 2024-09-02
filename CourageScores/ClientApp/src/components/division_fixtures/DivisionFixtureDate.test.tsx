@@ -511,8 +511,8 @@ describe('DivisionFixtureDate', () => {
             reportedError.verifyNoError();
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
-            expect(table.querySelectorAll('tr').length).toEqual(1);
-            const row = table.querySelector('tr');
+            expect(table.querySelectorAll('tr:not([datatype="new-tournament-fixture"])').length).toEqual(1);
+            const row = table.querySelector('tr:not([datatype="new-tournament-fixture"])');
             expect(row.textContent).not.toContain('Bye');
             expect(row.textContent).not.toContain('TEAM');
             expect(row.textContent).toContain('TYPE at ADDRESS');
