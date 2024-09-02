@@ -415,10 +415,7 @@ describe('filters', () => {
             })).toEqual(true);
             expect(filter.apply({
                 tournamentFixture: tournamentBuilder().proposed().build(),
-            })).toEqual(false);
-            expect(filter.apply({
-                tournamentFixture: tournamentBuilder().proposed().build(),
-            })).toEqual(false);
+            })).toEqual(true);
         });
 
         it('otherwise', () => {

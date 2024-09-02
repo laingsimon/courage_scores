@@ -104,7 +104,7 @@ export function getTypeFilter(type: string): IFilter<IFixtureMapping> {
         case 'qualifier':
             return new Filter<IFixtureMapping>(c => (c.fixture && c.fixture.isKnockout));
         case 'tournament':
-            return new Filter<IFixtureMapping>(c => (c.tournamentFixture && !c.tournamentFixture.proposed));
+            return new Filter<IFixtureMapping>(c => !!c.tournamentFixture);
         default:
             return new NullFilter<IFixtureMapping>();
     }
