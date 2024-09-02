@@ -113,6 +113,22 @@ public class FinalsNightReport : CompositeReport
             Cell(text: most180 > 0 ? most180.ToString() : null));
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    private static async IAsyncEnumerable<ReportRowDto> TopPlayer(
+        DivisionDataDto division,
+        [EnumeratorCancellation] CancellationToken token)
+    {
+        var topPlayer = division.Players.FirstOrDefault();
+
+        yield return Row(
+            Cell(text: $"{division.Name}: Top Player"),
+            Cell(
+                text: topPlayer?.Name,
+                player: topPlayer,
+                division: division),
+            Cell());
+    }
+
     private static async IAsyncEnumerable<ReportRowDto> TeamRunnerUpThenWinner(
         DivisionDataDto division,
         [EnumeratorCancellation] CancellationToken token)
@@ -255,6 +271,12 @@ public class FinalsNightReport : CompositeReport
 
         token.ThrowIfCancellationRequested();
         await foreach (var row in TournamentWinnersAndRunnersUp(divisionData, token))
+        {
+            yield return row;
+        }
+
+        token.ThrowIfCancellationRequested();
+        await foreach (var row in ForEachDivision(divisionData, TopPlayer, token))
         {
             yield return row;
         }
