@@ -498,7 +498,7 @@ describe('DivisionFixtures', () => {
             reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
-            const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
+            const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr:not([datatype="new-tournament-fixture"])');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye', account);
         });
@@ -521,7 +521,7 @@ describe('DivisionFixtures', () => {
             reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
-            const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
+            const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr:not([datatype="new-tournament-fixture"])');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side', account);
         });
@@ -543,7 +543,7 @@ describe('DivisionFixtures', () => {
             reportedError.verifyNoError();
             const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
-            const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
+            const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr:not([datatype="new-tournament-fixture"])');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at another address', null, account);
         });
@@ -567,6 +567,7 @@ describe('DivisionFixtures', () => {
                 account);
 
             const fixtureDateElement = getFixtureDateElement(0, account);
+            await doSelectOption(fixtureDateElement.querySelector('.address-dropdown .dropdown-menu'), 'another address');
             await doClick(findButton(fixtureDateElement, '➕'));
 
             reportedError.verifyNoError();
