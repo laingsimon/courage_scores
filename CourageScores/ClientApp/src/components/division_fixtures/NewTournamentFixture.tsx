@@ -37,7 +37,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
     const [divisionId, setDivisionId] = useState<string>(id);
     const [customAddress, setCustomAddress] = useState<string>(null);
     const [editCustomAddress, setEditCustomAddress] = useState<boolean>(false);
-    const addressOptions: IBootstrapDropdownItem[] = getCustomAddressItem(customAddress).concat(tournamentFixtures
+    const addressOptions: IBootstrapDropdownItem[] = getCustomAddressItem(customAddress).concat(distinct(tournamentFixtures, 'address')
         .map(f => {
             return {
                 text: f.proposed
