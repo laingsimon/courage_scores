@@ -321,6 +321,20 @@ public class FinalsNightReportTests
     }
 
     [Test]
+    public async Task GetReport_WhenCalled_ReturnsTopPlayerForEachDivisions()
+    {
+        _divisionData1.Players.AddRange(new[] { Player1, Player2 });
+        _divisionData2.Players.AddRange(new[] { Player3, Player4 });
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Helper.AssertReportRow(report, "Division 1: Top Player", "PLAYER_1", "");
+        Helper.AssertReportRow(report, "Division 2: Top Player", "PLAYER_3", "");
+        Helper.AssertPlayerLink(report, "Division 1: Top Player", 1, Player1, _division1);
+        Helper.AssertPlayerLink(report, "Division 2: Top Player", 1, Player3, _division2);
+    }
+
+    [Test]
     public async Task GetReport_WhenSinglePlayerWithMost180s_Returns180sForEachDivisions()
     {
         _divisionData1.Players.Add(Player1);
