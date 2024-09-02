@@ -16,6 +16,8 @@ import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {Dialog} from "../common/Dialog";
+import {stateChanged} from "../../helpers/events";
 
 export interface INewTournamentFixtureProps {
     date: string,
@@ -24,6 +26,7 @@ export interface INewTournamentFixtureProps {
 }
 
 export function NewTournamentFixture({date, tournamentFixtures, onTournamentChanged}: INewTournamentFixtureProps) {
+    const ADD_CUSTOM_ADDRESS_VALUE = 'ADD_CUSTOM_ADDRESS';
     const {id, season, fixtures: fixtureDates} = useDivisionData();
     const {tournamentApi} = useDependencies();
     const {divisions} = useApp();
@@ -32,7 +35,9 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
     const [creating, setCreating] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const [divisionId, setDivisionId] = useState<string>(id);
-    const addressOptions: IBootstrapDropdownItem[] = tournamentFixtures
+    const [customAddress, setCustomAddress] = useState<string>(null);
+    const [editCustomAddress, setEditCustomAddress] = useState<boolean>(false);
+    const addressOptions: IBootstrapDropdownItem[] = getCustomAddressItem(customAddress).concat(tournamentFixtures
         .map(f => {
             return {
                 text: f.proposed
@@ -43,7 +48,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                     ? null
                     : 'text-secondary',
             }
-        });
+        }));
     const allDivisions: IBootstrapDropdownItem = {
         text: 'Cross-divisional',
         value: null,
@@ -73,6 +78,39 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 value: fd.date,
             }
         }));
+
+    function getCustomAddressItem(address: string): IBootstrapDropdownItem[] {
+        if (!address) {
+            return [ {
+                text: '➕ Enter address',
+                value: ADD_CUSTOM_ADDRESS_VALUE,
+            } ];
+        }
+
+        return [ {
+            text: `➕ ${address}`,
+            value: address
+        }]
+    }
+
+    async function useCustomAddress() {
+        setEditCustomAddress(false);
+        setAddress(customAddress);
+    }
+
+    async function closeCustomAddressDialog() {
+        setEditCustomAddress(false);
+        setCustomAddress(null);
+    }
+
+    async function changeAddress(address: string) {
+        if (address === ADD_CUSTOM_ADDRESS_VALUE || address === customAddress) {
+            setEditCustomAddress(true);
+            return;
+        }
+
+        setAddress(address);
+    }
 
     function getTypeName(fixtureDate: DivisionFixtureDateDto): string {
         const uniqueFixtureType: TournamentGameDto[] = distinct(fixtureDate.tournamentFixtures, 'type');
@@ -150,7 +188,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 className="address-dropdown"
                 options={addressOptions}
                 value={address}
-                onChange={async (v) => setAddress(v)}/>
+                onChange={changeAddress}/>
             <span className="margin-right margin-left">add winners from</span>
             <BootstrapDropdown
                 className="copy-sides-from-dropdown"
@@ -170,6 +208,20 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                     onClose={async () => setSaveError(null)}
                     title="Could not create tournament"/>)
                 : null}
+            {editCustomAddress ? (<Dialog title="Enter address">
+                <div className="input-group my-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Address</span>
+                    </div>
+                    <input className="form-control" name="address" value={customAddress || ''} onChange={stateChanged(setCustomAddress)}/>
+                </div>
+                <div className="modal-footer px-0 pb-0">
+                    <div className="left-aligned">
+                        <button className="btn btn-secondary" onClick={closeCustomAddressDialog}>Close</button>
+                    </div>
+                    <button className="btn btn-primary" onClick={useCustomAddress}>Use address</button>
+                </div>
+            </Dialog>) : null}
         </td>
     </tr>)
 }

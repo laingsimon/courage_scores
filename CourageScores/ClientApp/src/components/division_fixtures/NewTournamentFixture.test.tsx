@@ -2,7 +2,7 @@ import {
     api,
     appProps,
     brandingProps,
-    cleanUp,
+    cleanUp, doChange,
     doClick, doSelectOption,
     ErrorState,
     findButton,
@@ -113,7 +113,7 @@ describe('NewTournamentFixture', () => {
 
             const divisionDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
             const options = Array.from(divisionDropDown.querySelectorAll('.dropdown-item')).map(o => o.textContent);
-            expect(options).toEqual(['ADDRESS 1', 'ADDRESS 2']);
+            expect(options).toEqual(['➕ Enter address', 'ADDRESS 1', 'ADDRESS 2']);
         });
 
         it('renders all tournament types in dropdown', async () => {
@@ -245,7 +245,7 @@ describe('NewTournamentFixture', () => {
 
             const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
             const options = Array.from(addressDropDown.querySelectorAll('.dropdown-item')).map(o => o.textContent);
-            expect(options).toEqual(['ADDRESS 1', '⚠ ADDRESS 2 (Already in use)']);
+            expect(options).toEqual(['➕ Enter address', 'ADDRESS 1', '⚠ ADDRESS 2 (Already in use)']);
         });
     });
 
@@ -528,6 +528,130 @@ describe('NewTournamentFixture', () => {
 
             const selectedAddresses = Array.from(addressDropDown.querySelectorAll('.active'));
             expect(selectedAddresses).toEqual([]);
+        });
+
+        it('can enter a custom address', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                },
+                [ division1, division2 ]);
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
+
+            await doSelectOption(addressDropDown, '➕ Enter address');
+            await doChange(context.container, 'input[name="address"]', 'CUSTOM', context.user);
+            await doClick(findButton(context.container, 'Use address'));
+
+            const addresses = Array.from(context.container.querySelectorAll('.address-dropdown .dropdown-menu .dropdown-item')).map(i => i.textContent);
+            expect(addresses).toEqual(['➕ CUSTOM', 'ADDRESS 1']);
+        });
+
+        it('can cancel editing a custom address', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                },
+                [ division1, division2 ]);
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
+
+            await doSelectOption(addressDropDown, '➕ Enter address');
+            await doChange(context.container, 'input[name="address"]', 'CUSTOM', context.user);
+            await doClick(findButton(context.container, 'Close'));
+
+            const addresses = Array.from(context.container.querySelectorAll('.address-dropdown .dropdown-menu .dropdown-item')).map(i => i.textContent);
+            expect(addresses).toEqual(['➕ Enter address', 'ADDRESS 1']);
+        });
+
+        it('can change custom address', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                },
+                [ division1, division2 ]);
+            await doSelectOption(context.container.querySelector('.address-dropdown .dropdown-menu'), '➕ Enter address');
+            await doChange(context.container, 'input[name="address"]', 'CUSTOM', context.user);
+            await doClick(findButton(context.container, 'Use address'));
+
+            await doSelectOption(context.container.querySelector('.address-dropdown .dropdown-menu'), '➕ CUSTOM');
+            await doChange(context.container, 'input[name="address"]', 'NEW CUSTOM', context.user);
+            await doClick(findButton(context.container, 'Use address'));
+
+            const addresses = Array.from(context.container.querySelectorAll('.address-dropdown .dropdown-menu .dropdown-item')).map(i => i.textContent);
+            expect(addresses).toEqual(['➕ NEW CUSTOM', 'ADDRESS 1']);
+        });
+
+        it('can create a tournament with a custom address', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                },
+                [ division1, division2 ]);
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
+            const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
+            const saveButton = findButton(context.container, '➕');
+
+            await doSelectOption(divisionDropDown, 'DIVISION 1');
+            await doSelectOption(addressDropDown, '➕ Enter address');
+            await doChange(context.container, 'input[name="address"]', 'CUSTOM', context.user);
+            await doClick(findButton(context.container, 'Use address'));
+            await doClick(saveButton);
+
+            expect(savedTournament).toEqual({
+                data: {
+                    date: '2024-09-02',
+                    divisionId: division1.id,
+                    address: 'CUSTOM',
+                    id: expect.any(String),
+                    seasonId: season.id,
+                    sides: [ ],
+                    type: null,
+                }
+            });
+            expect(tournamentChanged).toEqual(true);
         });
     });
 });
