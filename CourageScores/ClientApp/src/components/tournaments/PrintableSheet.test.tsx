@@ -11,7 +11,6 @@ import {
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {IPrintableSheetProps, PrintableSheet} from "./PrintableSheet";
 import {renderDate} from "../../helpers/rendering";
-import {DataMap, toMap} from "../../helpers/collections";
 import {createTemporaryId} from "../../helpers/projection";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
@@ -528,10 +527,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideASinglePlayer)
                 .withSide(sideBSinglePlayer)
                 .build();
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
-                    .build()]);
+                    .build()];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -574,10 +573,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideDSinglePlayer)
                 .withSide(sideESinglePlayer)
                 .build();
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
-                    .build()]);
+                    .build()];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -607,10 +606,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideASinglePlayer)
                 .withSide(sideBSinglePlayer)
                 .build();
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
-                    .build()]);
+                    .build()];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -635,10 +634,10 @@ describe('PrintableSheet', () => {
                     .withMatchOption((o: IMatchOptionsBuilder) => o.numberOfLegs(3)))
                 .withSide(sideASinglePlayer).withSide(sideBSinglePlayer)
                 .build();
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player2])
-                    .build()]);
+                    .build()];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -659,10 +658,10 @@ describe('PrintableSheet', () => {
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
                 .build();
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
-                    .build()]);
+                    .build()];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -682,10 +681,10 @@ describe('PrintableSheet', () => {
                 .withSide(createSide('A', [player1]))
                 .withSide(createSide('B', [player2]))
                 .build();
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1], true)
-                    .build()]);
+                    .build()];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -711,7 +710,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideA)
                 .withSide(sideB)
                 .build();
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([team]);
+            const teams: TeamDto[] = [team];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -732,10 +731,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .build();
             const season: SeasonDto = seasonBuilder('SEASON').build();
-            const teams: DataMap<TeamDto> = toMap([ teamBuilder('TEAM')
+            const teams: TeamDto[] = [ teamBuilder('TEAM')
                 .forSeason(season, division)
                 .build()
-            ]);
+            ];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -758,10 +757,10 @@ describe('PrintableSheet', () => {
                 .withSide(sideBSinglePlayer)
                 .build();
             const anotherSeason: SeasonDto = seasonBuilder('SEASON').build();
-            const teams: DataMap<TeamDto> = toMap([ teamBuilder('TEAM')
+            const teams: TeamDto[] = [ teamBuilder('TEAM')
                 .forSeason(anotherSeason, division, [ player1, player2 ])
                 .build()
-            ]);
+            ];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -780,7 +779,7 @@ describe('PrintableSheet', () => {
                 .withSide(sideB)
                 .withSide(Object.assign({}, sideC, {noShow: true}))
                 .build();
-            const teams: DataMap<TeamDto> = toMap([]);
+            const teams: TeamDto[] = [];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -822,11 +821,11 @@ describe('PrintableSheet', () => {
                 .withOneEighty(player1)
                 .withOneEighty(player1)
                 .build();
-            const teams: DataMap<TeamDto> = toMap([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
-            ]);
+            ];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -851,11 +850,11 @@ describe('PrintableSheet', () => {
                 .withOneEighty(player1)
                 .withOneEighty(player1)
                 .build();
-            const teams: DataMap<TeamDto> = toMap([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
-            ]);
+            ];
             const divisions = [division];
 
             await renderComponent(
@@ -879,11 +878,11 @@ describe('PrintableSheet', () => {
                 .withOneEighty(player1)
                 .withOneEighty(player1)
                 .build();
-            const teams: DataMap<TeamDto> = toMap([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, null, [player1])
                     .build()
-            ]);
+            ];
             const divisions: DivisionDto[] = [division];
 
             await renderComponent(
@@ -906,11 +905,11 @@ describe('PrintableSheet', () => {
                 .withHiCheck(player1, 100)
                 .withHiCheck(player2, 120)
                 .build();
-            const teams: DataMap<TeamDto> = toMap([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
-            ]);
+            ];
             const divisions = [division];
 
             await renderComponent(
@@ -933,11 +932,11 @@ describe('PrintableSheet', () => {
                 .withHiCheck(player1, 100)
                 .withHiCheck(player2, 120)
                 .build();
-            const teams: DataMap<TeamDto> = toMap([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
                     .build()
-            ]);
+            ];
             const divisions = [division];
 
             await renderComponent(
@@ -1254,10 +1253,10 @@ describe('PrintableSheet', () => {
                 emailAddress: '',
                 access: {}
             }
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
-                    .build()]);
+                    .build()];
             await renderComponent(
                 {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
                 {editable: true},
@@ -1488,10 +1487,10 @@ describe('PrintableSheet', () => {
         it('can add a side', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
-                    .build()]);
+                    .build()];
             const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent(
                 {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
@@ -1513,10 +1512,10 @@ describe('PrintableSheet', () => {
         it('can add sides from hint', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
-                    .build()]);
+                    .build()];
             const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent(
                 {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},
@@ -1533,10 +1532,10 @@ describe('PrintableSheet', () => {
         it('does not show add sides hint when some sides', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
-                    .build()]);
+                    .build()];
             const tournamentData: TournamentGameDto = tournamentBuilder()
                 .withSide((s: ITournamentSideBuilder) => s.name('SIDE A'))
                 .build();
@@ -1553,10 +1552,10 @@ describe('PrintableSheet', () => {
         it('can close add a side dialog', async () => {
             const player1 = playerBuilder('PLAYER 1').build();
             const allPlayers: ISelectablePlayer[] = [player1];
-            const teams: DataMap<TeamDto> = toMap<TeamDto>([
+            const teams: TeamDto[] = [
                 teamBuilder('TEAM')
                     .forSeason(season, division, [player1])
-                    .build()]);
+                    .build()];
             const tournamentData: TournamentGameDto = tournamentBuilder().build();
             await renderComponent(
                 {tournamentData, season, division, matchOptionDefaults, setTournamentData, allPlayers, alreadyPlaying: {}, preventScroll: false, setPreventScroll},

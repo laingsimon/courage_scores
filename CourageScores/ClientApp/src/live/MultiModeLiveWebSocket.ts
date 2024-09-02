@@ -50,7 +50,9 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             setContext: this.setSocketContext,
             setSubscriptions: this.setSubscriptions,
         };
-        strategies.forEach((s: IUpdateStrategy) => s.refresh(strategyProps));
+        for (let s of strategies) {
+            s.refresh(strategyProps);
+        }
 
         for (const strategy of strategies) {
             const published: IWebSocketContext = await strategy.publish(strategyProps, id, type, data);
@@ -72,7 +74,9 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             setContext: this.setSocketContext,
             setSubscriptions: this.setSubscriptions,
         };
-        strategies.forEach((s: IUpdateStrategy) => s.refresh(strategyProps));
+        for (let s of strategies) {
+            s.refresh(strategyProps);
+        }
 
         const newSubscriptions: ISubscriptions = Object.assign({}, this.subscriptions);
         delete newSubscriptions[id];
@@ -115,8 +119,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             setSubscriptions: this.setSubscriptions,
         };
 
-        for (let i = 0; i < this.socketContext.modes.length; i++) {
-            const mode: WebSocketMode = this.socketContext.modes[i];
+        for (let mode of this.socketContext.modes) {
             const strategy: IUpdateStrategy = this.getStrategy(mode);
             if (!strategy) {
                 continue; // null strategy

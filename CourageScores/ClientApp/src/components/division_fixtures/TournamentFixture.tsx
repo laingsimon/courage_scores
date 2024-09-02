@@ -12,7 +12,6 @@ import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentP
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
-import {createTemporaryId} from "../../helpers/projection";
 import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {Link} from "react-router-dom";
@@ -27,9 +26,8 @@ export interface ITournamentFixtureProps {
 
 export function TournamentFixture({tournament, onTournamentChanged, date, expanded}: ITournamentFixtureProps) {
     const {getPreference} = usePreferences();
-    const {id: divisionId, name: divisionName, season, favouritesEnabled} = useDivisionData();
+    const {name: divisionName, season, favouritesEnabled} = useDivisionData();
     const {account, teams} = useApp();
-    const [creating, setCreating] = useState<boolean>(false);
     const [deleting, setDeleting] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
     const isAdmin: boolean = account && account.access && account.access.manageTournaments;
@@ -39,37 +37,9 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
     const isTeamTournament: boolean = any(tournament.sides, side => !!side.teamId);
     const notAFavourite: boolean = any(favouriteTeamIds) && isTeamTournament && !favouriteTeamPlaying;
 
-    async function createTournamentGame() {
-        /* istanbul ignore next */
-        if (creating || deleting) {
-            /* istanbul ignore next */
-            return;
-        }
-
-        try {
-            setCreating(true);
-
-            const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.update({
-                id: createTemporaryId(),
-                date: date,
-                address: tournament.address,
-                divisionId: divisionId,
-                seasonId: season.id
-            });
-
-            if (response.success) {
-                await onTournamentChanged();
-            } else {
-                setSaveError(response);
-            }
-        } finally {
-            setCreating(false);
-        }
-    }
-
     async function deleteTournamentGame() {
         /* istanbul ignore next */
-        if (deleting || creating) {
+        if (deleting) {
             /* istanbul ignore next */
             return;
         }
@@ -125,7 +95,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
 
     function renderWinner(winningSide: TournamentSideDto) {
         if (winningSide.teamId) {
-            const team: TeamDto = teams[winningSide.teamId];
+            const team: TeamDto = teams.filter(t => t.id === winningSide.teamId)[0];
 
             if (team) {
                 return (<strong className="text-primary">
@@ -138,30 +108,6 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         }
 
         return (<strong className="text-primary">{winningSide.name}</strong>);
-    }
-
-    if (tournament.proposed) {
-        if (!isAdmin) {
-            // don't show proposed tournament addresses when not an admin
-            return null;
-        }
-
-        return (<tr>
-            <td colSpan={5}>
-                Tournament at <strong>{tournament.address}</strong>
-            </td>
-            <td className="medium-column-width text-end">
-                {isAdmin && tournament.proposed ? (
-                        <button className="btn btn-sm btn-primary text-nowrap" onClick={createTournamentGame}>
-                            {creating
-                                ? (<LoadingSpinnerSmall/>)
-                                : '➕'}
-                        </button>)
-                    : null}
-                {saveError ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)}
-                                            title="Could not create tournament"/>) : null}
-            </td>
-        </tr>)
     }
 
     return (<tr className={notAFavourite && favouritesEnabled && !isAdmin ? ' opacity-25' : ''}>

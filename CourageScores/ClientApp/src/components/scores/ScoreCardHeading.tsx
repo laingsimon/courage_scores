@@ -19,7 +19,9 @@ export interface IScoreCardHeadingProps {
 export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {
     const {account, onError, teams} = useApp();
     const {division, season} = useLeagueFixture();
-    const submissionTeam: TeamDto = account && access === 'clerk' && account.teamId ? teams[account.teamId] : null;
+    const submissionTeam: TeamDto = account && access === 'clerk' && account.teamId
+        ? teams.filter(t => t.id === account.teamId)[0]
+        : null;
     const opposingTeam = submissionTeam && data.home.id === submissionTeam.id ? data.away : data.home;
     const homeScore = getScore(data, 'home');
     const awayScore = getScore(data, 'away');

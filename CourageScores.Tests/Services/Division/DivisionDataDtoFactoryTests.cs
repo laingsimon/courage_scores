@@ -28,17 +28,8 @@ public class DivisionDataDtoFactoryTests
         Id = Guid.NewGuid(),
         Name = "season2",
     };
-    private static readonly DivisionDto Division1 = new DivisionDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "division1",
-        Updated = new DateTime(2001, 02, 03),
-    };
-    private static readonly DivisionDto Division2 = new DivisionDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "division2",
-    };
+    private static readonly DivisionDto Division1 = Division("division1", updated: new DateTime(2001, 02, 03));
+    private static readonly DivisionDto Division2 = Division("division2");
     private static readonly GamePlayer Player1 = new GamePlayer
     {
         Id = Guid.NewGuid(),
@@ -49,6 +40,11 @@ public class DivisionDataDtoFactoryTests
         Id = Guid.NewGuid(),
         Name = "Away player",
     };
+    private static readonly GamePlayer NotPlaying = new GamePlayer
+    {
+        Id = Guid.NewGuid(),
+        Name = "Not playing",
+    };
     private static readonly TeamDto Team1 = new TeamDtoBuilder()
         .WithName("Team 1 - Playing")
         .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player1))
@@ -56,6 +52,10 @@ public class DivisionDataDtoFactoryTests
     private static readonly TeamDto Team2 = new TeamDtoBuilder()
         .WithName("Team 2 - Playing")
         .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player2))
+        .Build();
+    private static readonly TeamDto Division1Team = new TeamDtoBuilder()
+        .WithName("Team 1 - Playing")
+        .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1, NotPlaying))
         .Build();
     private static readonly TournamentGame TournamentGame = new TournamentGameBuilder()
         .WithDate(new DateTime(2001, 02, 03))
@@ -68,15 +68,12 @@ public class DivisionDataDtoFactoryTests
         .WithType("Singles")
         .AccoladesCount()
         .Build();
-    private static readonly DivisionDataContext Season1Context = new DivisionDataContextBuilder()
-        .WithTeam(Team1, Team2)
-        .WithSeason(Season1)
-        .Build();
+    private static readonly DivisionDataContext Season1Context = DivisionDataContextBuilder().WithTeam(Team1, Team2).Build();
     private static readonly CosmosGame GameWith2AwayPlayers = new GameBuilder()
         .WithTeams(Team1, Team2)
         .WithMatch(m => m.WithScores(2, 3)
             .WithHomePlayers(Player1)
-            .WithAwayPlayers(Player2, new GamePlayer { Id = Guid.NewGuid(), Name = "C" }))
+            .WithAwayPlayers(Player2, NotPlaying))
         .Build();
 
     private readonly CancellationToken _token = new();
@@ -97,7 +94,6 @@ public class DivisionDataDtoFactoryTests
         _divisionFixtureDateAdapter = new Mock<IDivisionFixtureDateAdapter>();
         _userService = new Mock<IUserService>();
         _user = null;
-
         _factory = new DivisionDataDtoFactory(
             _divisionPlayerAdapter,
             _divisionTeamAdapter,
@@ -123,9 +119,7 @@ public class DivisionDataDtoFactoryTests
                     Date = date,
                 });
 
-        _userService
-            .Setup(s => s.GetUser(_token))
-            .ReturnsAsync(() => _user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
     [Test]
@@ -150,75 +144,43 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenTeams_SetsTeamsCorrectly()
     {
-        var team3 = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Team 3 - Not Playing",
-        };
-        var game = new GameBuilder()
-            .ForDivision(Division1)
-            .WithTeams(Team1, Team2)
+        var team3 = new TeamDtoBuilder().WithName("Team 3 - Not Playing").Build();
+        var game = GameBuilder()
             .WithMatch(b => b.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
+        var context = DivisionDataContextBuilder(game: game, division: Division1)
             .WithTeam(Team1, Team2, team3)
             .WithAllTeamsInSameDivision(Division1, Team1, Team2, team3)
-            .WithDivision(Division1)
             .Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(result.Teams.Select(t => t.Name), Is.EqualTo(new[]
-        {
-            "Team 2 - Playing", // more points
-            "Team 1 - Playing",
-            "Team 3 - Not Playing",
-        }));
+        Assert.That(
+            result.Teams.Select(t => t.Name),
+            Is.EqualTo(new[] { "Team 2 - Playing", /* more points */ "Team 1 - Playing", "Team 3 - Not Playing" }));
         Assert.That(result.Teams.Select(t => t.Division), Has.All.EqualTo(Division1));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalFixtures_SetsTeamsCorrectly()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(b => b.ForSeason(Season1, Division1).WithPlayers(Player1))
-            .Build();
-        var game = new GameBuilder()
-            .ForSeason(Season1)
+        var game = GameBuilder()
             .Knockout()
-            .WithTeams(thisDivisionTeam, Team2)
+            .WithTeams(Division1Team, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithSeason(Season1)
-            .WithTeam(thisDivisionTeam)
-            .Build();
+        var context = DivisionDataContextBuilder(game: game).WithTeam(Division1Team).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(result.Teams.Select(t => t.Name), Is.EqualTo(new[]
-        {
-            "Team 1 - Playing",
-        }));
+        Assert.That(result.Teams.Select(t => t.Name), Is.EqualTo(new[] { "Team 1 - Playing" }));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalTeam_AddsDataError()
     {
-        var game = new GameBuilder()
-            .ForDivision(Division1)
-            .ForSeason(Season1)
-            .WithTeams(Team1, Team2)
-            .WithMatch(m => m.WithScores(2, 3))
-            .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithSeason(Season1)
-            .WithTeam(Team1)
-            .Build();
+        var game = GameBuilder().WithMatch(m => m.WithScores(2, 3)).Build();
+        var context = DivisionDataContextBuilder(game: game).WithTeam(Team1).Build();
         WithUserAccess(importData: true);
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
@@ -229,55 +191,35 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsFixturesCorrectly()
     {
-        var game = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team1, Team2)
+        var game = GameBuilder()
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithTeam(Team1, Team2)
-            .WithTournamentGame(TournamentGame)
-            .Build();
+        var context = DivisionDataContextBuilder(game: game, tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
-        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
-        {
-            game.Date,
-        }));
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { game.Date }));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenTournamentFixturesForDateOnly_SetsFixturesCorrectly()
     {
-        var context = new DivisionDataContextBuilder()
-            .WithTeam(Team1, Team2)
-            .WithTournamentGame(TournamentGame)
-            .Build();
+        var context = DivisionDataContextBuilder(tournamentGame: TournamentGame).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
-        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
-        {
-            TournamentGame.Date,
-        }));
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { TournamentGame.Date }));
         Assert.That(result.Fixtures.SelectMany(fd => fd.Fixtures), Is.Empty);
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWithInDivisionGamesOnly()
     {
-        var inDivisionGame = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team1, Team2)
-            .ForDivision(Division1)
+        var inDivisionGame = GameBuilder()
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
-        var outOfDivisionGame = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team1, Team2)
-            .ForDivision(Guid.NewGuid())
+        var otherDivision = new DivisionDto { Id = Guid.NewGuid() };
+        var outOfDivisionGame = GameBuilder(division: otherDivision)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var context = new DivisionDataContextBuilder()
@@ -287,39 +229,15 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
-        {
-            inDivisionGame.Date,
-        }));
-        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
-            new DateTime(2001, 02, 03),
-            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[]
-            {
-                inDivisionGame,
-            })),
-            It.IsAny<TournamentGame[]>(),
-            It.IsAny<FixtureDateNoteDto[]>(),
-            It.IsAny<IReadOnlyCollection<TeamDto>>(),
-            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[]
-            {
-                outOfDivisionGame,
-            })),
-            true,
-            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
-            _token));
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { inDivisionGame.Date }));
+        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, new[] { inDivisionGame }, new[] { outOfDivisionGame });
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWhereEitherTeamIsInDivision()
     {
-        var homeTeamInDivisionFixture = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team1, Team2)
-            .Build();
-        var awayTeamInDivisionFixture = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team2, Team1)
-            .Build();
+        var homeTeamInDivisionFixture = GameBuilder().Build();
+        var awayTeamInDivisionFixture = GameBuilder().WithTeams(Team2, Team1).Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(homeTeamInDivisionFixture, awayTeamInDivisionFixture)
             .WithTeam(Team1, Team2)
@@ -329,37 +247,16 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
-        {
-            homeTeamInDivisionFixture.Date,
-        }));
-        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
-            new DateTime(2001, 02, 03),
-            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[]
-            {
-                homeTeamInDivisionFixture,
-                awayTeamInDivisionFixture,
-            })),
-            It.IsAny<TournamentGame[]>(),
-            It.IsAny<FixtureDateNoteDto[]>(),
-            It.IsAny<IReadOnlyCollection<TeamDto>>(),
-            It.IsAny<CosmosGame[]>(),
-            true,
-            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
-            _token));
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { homeTeamInDivisionFixture.Date }));
+        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, new[] { homeTeamInDivisionFixture, awayTeamInDivisionFixture });
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixturesAndDivisionIdCannotBeFound_DoesNotIncludeFixture()
     {
-        var homeTeamInDivisionFixture = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team1, Team2)
-            .Build();
-        var awayTeamInDivisionFixture = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team2, Team1)
-            .Build();
+        var otherDivision = new DivisionDto { Id = Guid.NewGuid() };
+        var homeTeamInDivisionFixture = GameBuilder(division: otherDivision).Build();
+        var awayTeamInDivisionFixture = GameBuilder(division: otherDivision).WithTeams(Team2, Team1).Build();
         var context = new DivisionDataContextBuilder()
             .WithGame(homeTeamInDivisionFixture, awayTeamInDivisionFixture)
             .WithTeam(Team1, Team2)
@@ -367,35 +264,18 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
-        {
-            homeTeamInDivisionFixture.Date,
-        }));
-        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
-            new DateTime(2001, 02, 03),
-            It.Is<CosmosGame[]>(games => !games.Any()),
-            It.IsAny<TournamentGame[]>(),
-            It.IsAny<FixtureDateNoteDto[]>(),
-            It.IsAny<IReadOnlyCollection<TeamDto>>(),
-            It.IsAny<CosmosGame[]>(),
-            true,
-            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
-            _token));
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { homeTeamInDivisionFixture.Date }));
+        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, Array.Empty<CosmosGame>());
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenNoDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWithAllGames()
     {
-        var inDivisionGame = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team1, Team2)
-            .ForDivision(Division1)
+        var inDivisionGame = GameBuilder()
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
-        var outOfDivisionGame = new GameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithTeams(Team1, Team2)
-            .ForDivision(Guid.NewGuid())
+        var otherDivision = new DivisionDto { Id = Guid.NewGuid() };
+        var outOfDivisionGame = GameBuilder(division: otherDivision)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
         var context = new DivisionDataContextBuilder()
@@ -405,67 +285,31 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
-        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[]
-        {
-            inDivisionGame.Date,
-        }));
-        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
-            new DateTime(2001, 02, 03),
-            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[]
-            {
-                inDivisionGame, outOfDivisionGame,
-            })),
-            It.IsAny<TournamentGame[]>(),
-            It.IsAny<FixtureDateNoteDto[]>(),
-            It.IsAny<IReadOnlyCollection<TeamDto>>(),
-            It.Is<CosmosGame[]>(games => games.Length == 0),
-            true,
-            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
-            _token));
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { inDivisionGame.Date }));
+        VerifyFixtureDateAdapterCall(new DateTime(2001, 02, 03), true, new[] { inDivisionGame, outOfDivisionGame });
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsPlayersCorrectly()
     {
-        var division = new DivisionDto();
-        var game = new GameBuilder()
-            .ForSeason(Season1)
-            .WithTeams(Team1, Team2)
+        var game = GameBuilder()
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithTeam(Team1, Team2)
-            .WithSeason(Season1)
-            .Build();
+        var context = DivisionDataContextBuilder(game: game).WithTeam(Team1, Team2).Build();
 
-        var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
+        var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
-        Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[]
-        {
-            Player1.Name, Player2.Name,
-        }));
+        Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[] { Player1.Name, Player2.Name }));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalFixtures_SetsCurrentDivisionPlayersCorrectly()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1))
-            .Build();
-        var game = new GameBuilder()
-            .ForSeason(Season1)
-            .ForDivision(Division1)
-            .WithTeams(thisDivisionTeam, Team2)
+        var game = GameBuilder()
+            .WithTeams(Division1Team, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithTeam(thisDivisionTeam)
-            .WithTournamentGame(TournamentGame)
-            .WithSeason(Season1)
-            .Build();
+        var context = DivisionDataContextBuilder(game: game, tournamentGame: TournamentGame).WithTeam(Division1Team).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
@@ -476,33 +320,15 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenTeamWithDeletedSeason_DoesNotIncludePlayers()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1).Deleted())
+        var teamWithDeletedPlayer = new TeamDtoBuilder()
+            .WithName("Team With Deleted Team Season")
+            .WithSeason(s => s.ForSeason(Season1, Division1).Deleted().WithPlayers(Player1))
             .Build();
-        var game = new GameBuilder()
-            .ForSeason(Season1)
-            .ForDivision(Division1)
-            .WithTeams(thisDivisionTeam, Team2)
+        var game = GameBuilder()
+            .WithTeams(teamWithDeletedPlayer, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
-        var tournament = new TournamentGameBuilder()
-            .WithDate(new DateTime(2001, 02, 03))
-            .WithSeason(Season1)
-            .WithOneEighties(new TournamentPlayer
-            {
-                Id = Guid.NewGuid(),
-                Name = "Tournament player",
-            })
-            .WithType("Singles")
-            .AccoladesCount()
-            .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithTeam(thisDivisionTeam)
-            .WithTournamentGame(tournament)
-            .WithSeason(Season1)
-            .Build();
+        var context = DivisionDataContextBuilder(game: game, tournamentGame: TournamentGame).WithTeam(teamWithDeletedPlayer).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { Division1 }, true, _token);
 
@@ -513,22 +339,14 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenCrossDivisionalAccolades_DoesNotReturnDataErrors()
     {
-        var thisDivisionTeam = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1, Division1).WithPlayers(Player1))
-            .Build();
-        var game = new GameBuilder(new CosmosGame { AccoladesCount = true })
-            .ForSeason(Season1)
+        var game = GameBuilder()
+            .AccoladesCount()
             .Knockout()
-            .WithTeams(thisDivisionTeam, Team2)
+            .WithTeams(Division1Team, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .WithOneEighties(Player1, Player2)
             .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithTeam(thisDivisionTeam)
-            .WithSeason(Season1)
-            .Build();
+        var context = DivisionDataContextBuilder(game: game).WithTeam(Division1Team).Build();
         // set user as logged in, with correct access to allow errors to be returned
         WithUserAccess(importData: true);
 
@@ -552,39 +370,22 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(Season1Context, Array.Empty<DivisionDto?>(), true, _token);
 
-        Assert.That(result.Players.Select(p => p.Name), Is.EquivalentTo(new[]
-        {
-            Player1.Name, Player2.Name,
-        }));
+        Assert.That(result.Players.Select(p => p.Name), Is.EquivalentTo(new[] { Player1.Name, Player2.Name }));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenFixturesWhenAPlayerManager_ReturnsAllPlayers()
     {
-        var team1 = new TeamDtoBuilder()
-            .WithName("Team 1 - Playing")
-            .WithSeason(s => s.ForSeason(Season1).WithPlayers(Player1, new GamePlayer { Id = Guid.NewGuid(), Name = "Team 1 not playing player" }))
-            .Build();
-        var game = new GameBuilder()
-            .ForSeason(Season1)
-            .WithTeams(team1, Team2)
+        var game = GameBuilder()
+            .WithTeams(Division1Team, Team2)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Player1).WithAwayPlayers(Player2))
             .Build();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(game)
-            .WithTeam(team1, Team2)
-            .WithSeason(Season1)
-            .Build();
+        var context = DivisionDataContextBuilder(game: game).WithTeam(Division1Team, Team2).Build();
         WithUserAccess(managePlayers: true);
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
-        Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[]
-        {
-            Player1.Name,
-            Player2.Name,
-            "Team 1 not playing player",
-        }));
+        Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[] { Player1.Name, Player2.Name, NotPlaying.Name }));
     }
 
     [Test]
@@ -601,25 +402,19 @@ public class DivisionDataDtoFactoryTests
     {
         WithUserAccess(importData: true);
         var division = new DivisionDto();
-        var context = new DivisionDataContextBuilder()
-            .WithGame(GameWith2AwayPlayers)
-            .WithTeam(Team1, Team2)
-            .Build();
+        var context = DivisionDataContextBuilder(game: GameWith2AwayPlayers).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, new[] { division }, true, _token);
 
         var dataError = result.DataErrors.Single();
-        Assert.That(dataError.Message, Is.EqualTo($"Mismatching number of players: Home players (1): [{Player1.Name}] vs Away players (2): [{Player2.Name}, C]"));
+        Assert.That(dataError.Message, Is.EqualTo($"Mismatching number of players: Home players (1): [{Player1.Name}] vs Away players (2): [{Player2.Name}, {NotPlaying.Name}]"));
         Assert.That(dataError.GameId, Is.EqualTo(GameWith2AwayPlayers.Id));
     }
 
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotLoggedIn_SetsDataErrorsToEmpty()
     {
-        var context = new DivisionDataContextBuilder()
-            .WithGame(GameWith2AwayPlayers)
-            .WithTeam(Team1, Team2)
-            .Build();
+        var context = DivisionDataContextBuilder(game: GameWith2AwayPlayers).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
@@ -630,10 +425,7 @@ public class DivisionDataDtoFactoryTests
     public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotPermitted_SetsDataErrorsToEmpty()
     {
         WithUserAccess(importData: false);
-        var context = new DivisionDataContextBuilder()
-            .WithGame(GameWith2AwayPlayers)
-            .WithTeam(Team1, Team2)
-            .Build();
+        var context = DivisionDataContextBuilder(game: GameWith2AwayPlayers).WithTeam(Team1, Team2).Build();
 
         var result = await _factory.CreateDivisionDataDto(context, Array.Empty<DivisionDto?>(), true, _token);
 
@@ -659,14 +451,8 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenMultipleUnnamedDivisions_ShouldSetNameToOrderedDivisionIds()
     {
-        var division1 = new DivisionDto
-        {
-            Id = Guid.Parse("a314b4f2-378d-4586-8b1d-eb608c9eb8bd"),
-        };
-        var division2 = new DivisionDto
-        {
-            Id = Guid.Parse("6732ee72-b72a-4497-9ef4-d779b101bbfd"),
-        };
+        var division1 = new DivisionDto { Id = Guid.Parse("a314b4f2-378d-4586-8b1d-eb608c9eb8bd") };
+        var division2 = new DivisionDto { Id = Guid.Parse("6732ee72-b72a-4497-9ef4-d779b101bbfd") };
 
         var result = await _factory.CreateDivisionDataDto(Season1Context, new[] { division2, division1 }, true, _token);
 
@@ -695,49 +481,38 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public void DivisionNotFound_GivenSingleDivisionId_ReturnsDivisionIdAndName()
     {
-        var divisionId = Guid.NewGuid();
+        var result = _factory.DivisionNotFound(new[] { Division1.Id }, Array.Empty<DivisionDto>());
 
-        var result = _factory.DivisionNotFound(new[] { divisionId }, Array.Empty<DivisionDto>());
-
-        Assert.That(result.Id, Is.EqualTo(divisionId));
-        Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
-        {
-            $"Requested division ({divisionId}) was not found",
-        }));
+        Assert.That(result.Id, Is.EqualTo(Division1.Id));
+        Assert.That(
+            result.DataErrors.Select(de => de.Message),
+            Is.EquivalentTo(new[] { $"Requested division ({Division1.Id}) was not found" }));
     }
 
     [Test]
     public void DivisionNotFound_GivenDeletedDivisionId_ReturnsDeletedDivisionMessage()
     {
-        var deletedDivision = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "DELETED",
-            Deleted = new DateTime(2001, 02, 03, 04, 05, 06),
-        };
+        var deletedDivision = Division(
+            name: "DELETED",
+            deleted: new DateTime(2001, 02, 03, 04, 05, 06));
 
         var result = _factory.DivisionNotFound(new[] { deletedDivision.Id }, new[] { deletedDivision });
 
         Assert.That(result.Id, Is.EqualTo(deletedDivision.Id));
-        Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
-        {
-            $"Requested division (DELETED / {deletedDivision.Id}) has been deleted 3 Feb 2001 04:05:06",
-        }));
+        Assert.That(
+            result.DataErrors.Select(de => de.Message),
+            Is.EquivalentTo(new[] { $"Requested division (DELETED / {deletedDivision.Id}) has been deleted 3 Feb 2001 04:05:06" }));
     }
 
     [Test]
     public void DivisionNotFound_GivenMultipleDivisionIds_ReturnsEmptyDivisionIdAndCombinedDetail()
     {
-        var divisionId1 = Guid.NewGuid();
-        var divisionId2 = Guid.NewGuid();
-
-        var result = _factory.DivisionNotFound(new[] { divisionId1, divisionId2 }, Array.Empty<DivisionDto>());
+        var result = _factory.DivisionNotFound(new[] { Division1.Id, Division2.Id }, Array.Empty<DivisionDto>());
 
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
-        Assert.That(result.DataErrors.Select(de => de.Message), Is.EquivalentTo(new[]
-        {
-            $"Requested division ({divisionId1}) was not found, Requested division ({divisionId2}) was not found",
-        }));
+        Assert.That(
+            result.DataErrors.Select(de => de.Message),
+            Is.EquivalentTo(new[] { $"Requested division ({Division1.Id}) was not found, Requested division ({Division2.Id}) was not found" }));
     }
 
     private void WithUserAccess(bool importData = false, bool managePlayers = false)
@@ -749,6 +524,72 @@ public class DivisionDataDtoFactoryTests
                 ImportData = importData,
                 ManagePlayers = managePlayers,
             },
+        };
+    }
+
+    private static DivisionDataContextBuilder DivisionDataContextBuilder(
+        SeasonDto? season = null,
+        CosmosGame? game = null,
+        DivisionDto? division = null,
+        TournamentGame? tournamentGame = null)
+    {
+        var builder = new DivisionDataContextBuilder()
+            .WithSeason(season ?? Season1);
+
+        if (game != null)
+        {
+            builder = builder.WithGame(game);
+        }
+
+        if (tournamentGame != null)
+        {
+            builder = builder.WithTournamentGame(tournamentGame);
+        }
+
+        if (division != null)
+        {
+            builder = builder.WithDivision(division);
+        }
+
+        return builder;
+    }
+
+    private static GameBuilder GameBuilder(
+        SeasonDto? season = null,
+        DateTime? date = null,
+        DivisionDto? division = null)
+    {
+        var builder = new GameBuilder()
+            .ForSeason(season ?? Season1)
+            .WithDate(date ?? new DateTime(2001, 02, 03))
+            .ForDivision(division ?? Division1)
+            .WithTeams(Team1, Team2);
+
+        return builder;
+    }
+
+    private void VerifyFixtureDateAdapterCall(DateTime date, bool includeProposals, CosmosGame[] gamesForDate, CosmosGame[]? otherFixturesForDate = null)
+    {
+        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
+            date,
+            It.Is<CosmosGame[]>(g => g.SequenceEqual(gamesForDate)),
+            It.IsAny<TournamentGame[]>(),
+            It.IsAny<FixtureDateNoteDto[]>(),
+            It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            It.Is<CosmosGame[]>(games => otherFixturesForDate == null || games.SequenceEqual(otherFixturesForDate)),
+            includeProposals,
+            It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
+            _token));
+    }
+
+    private static DivisionDto Division(string name, DateTime? deleted = null, DateTime? updated = null)
+    {
+        return new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Deleted = deleted,
+            Updated = updated,
         };
     }
 }

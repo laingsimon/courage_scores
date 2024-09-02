@@ -1,5 +1,4 @@
 import {appProps, brandingProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../../helpers/tests";
-import {toMap} from "../../helpers/collections";
 import {IScoreCardHeadingProps, ScoreCardHeading} from "./ScoreCardHeading";
 import {ILeagueFixtureContainerProps, LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {renderDate} from "../../helpers/rendering";
@@ -40,7 +39,7 @@ describe('ScoreCardHeading', () => {
             brandingProps(),
             appProps({
                 account,
-                teams: toMap(teams || []),
+                teams: teams || [],
             }),
             (<LeagueFixtureContainer {...containerProps}>
                 <ScoreCardHeading {...props} />

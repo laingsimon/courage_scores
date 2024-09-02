@@ -3,7 +3,6 @@ import {sortBy} from "../../helpers/collections";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
-import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {ISaveSideOptions} from "./EditSide";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 
@@ -49,8 +48,7 @@ function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDt
     }
 
     if (round.matches) {
-        for (let index = 0; index < round.matches.length; index++) {
-            const match: TournamentMatchDto = round.matches[index];
+        for (let match of round.matches) {
             if (match.sideA && match.sideA.id === side.id) {
                 match.sideA = side;
             } else if (match.sideB && match.sideB.id === side.id) {

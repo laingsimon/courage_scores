@@ -11,7 +11,7 @@ import {
     noop,
     renderApp, setFile, TestContext
 } from "../../helpers/tests";
-import {any, toMap} from "../../helpers/collections";
+import {any} from "../../helpers/collections";
 import {createTemporaryId, repeat} from "../../helpers/projection";
 import {Score} from "./Score";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
@@ -159,9 +159,9 @@ describe('Score', () => {
             .build();
 
         return appProps({
-            divisions: toMap([division]),
-            seasons: toMap([season]),
-            teams: toMap([homeTeam, awayTeam]),
+            divisions: [division],
+            seasons: [season],
+            teams: [homeTeam, awayTeam],
             account,
             reloadTeams,
         }, reportedError);
@@ -172,8 +172,8 @@ describe('Score', () => {
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
         return fixtureBuilder('2023-01-02T00:00:00')
-            .forSeason(appData.seasons.filter(_ => true)[0])
-            .forDivision(appData.divisions.filter(_ => true)[0])
+            .forSeason(appData.seasons[0])
+            .forDivision(appData.divisions[0])
             .playing(homeTeam, awayTeam)
             .updated('2023-01-02T04:05:06')
             .addTo(fixtureDataMap as any)
@@ -184,8 +184,8 @@ describe('Score', () => {
         const homeTeam: TeamDto = appData.teams.filter((t: TeamDto) => t.name === 'Home team')[0];
         const awayTeam: TeamDto = appData.teams.filter((t: TeamDto) => t.name === 'Away team')[0];
 
-        const firstDivision: DivisionDto = appData.divisions.filter((_: DivisionDto) => true)[0];
-        const firstSeason: SeasonDto = appData.seasons.filter((_: SeasonDto) => true)[0];
+        const firstDivision: DivisionDto = appData.divisions[0];
+        const firstSeason: SeasonDto = appData.seasons[0];
 
         function findPlayer(team: TeamDto, name: string): TeamPlayerDto {
             if (!firstSeason || !team || !team.seasons) {
@@ -464,12 +464,12 @@ describe('Score', () => {
         it('renders when team has no seasons', async () => {
             const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            appData.teams = toMap(appData.teams.map(t => {
+            appData.teams = appData.teams.map(t => {
                 if (t.name === 'Home team') {
                     t.seasons = null;
                 }
                 return t;
-            }));
+            });
 
             await renderComponent(fixture.id, appData);
 
@@ -479,12 +479,12 @@ describe('Score', () => {
         it('renders when team is not registered to season', async () => {
             const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
-            appData.teams = toMap(appData.teams.map((t: TeamDto) => {
+            appData.teams = appData.teams.map((t: TeamDto) => {
                 if (t.name === 'Home team') {
                     t.seasons = [];
                 }
                 return t;
-            }));
+            });
 
             await renderComponent(fixture.id, appData);
 
@@ -493,7 +493,7 @@ describe('Score', () => {
 
         it('renders when team not found', async () => {
             const appData = getDefaultAppData(account);
-            appData.teams = toMap(appData.teams.filter((t: TeamDto) => t.name !== 'Home team'));
+            appData.teams = appData.teams.filter((t: TeamDto) => t.name !== 'Home team');
             const fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
@@ -530,7 +530,7 @@ describe('Score', () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
                 existingTeam.seasons = existingTeam.seasons.map((ts: TeamSeasonDto) => {
                     const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
 
@@ -571,7 +571,7 @@ describe('Score', () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
                 existingTeam.seasons = existingTeam.seasons.filter((_: TeamSeasonDto) => false); // return no team seasons
 
                 return {
@@ -602,8 +602,10 @@ describe('Score', () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
-                existingTeam.seasons.forEach((teamSeasonDto: TeamSeasonDto) => teamSeasonDto.deleted = '2020-01-02T04:05:06Z'); // modify the team season so it is deleted
+                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
+                for (let teamSeasonDto of existingTeam.seasons) {
+                    teamSeasonDto.deleted = '2020-01-02T04:05:06Z'; // modify the team season so it is deleted
+                }
 
                 return {
                     success: true,
@@ -633,7 +635,7 @@ describe('Score', () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
                 existingTeam.seasons = existingTeam.seasons.map((ts: TeamSeasonDto) => {
                     return Object.assign({}, ts);
                 });
@@ -796,10 +798,10 @@ describe('Score', () => {
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
-            fixtureData.homeSubmission.matches.forEach(match => {
+            for (let match of fixtureData.homeSubmission.matches) {
                 match.homeScore = 1;
                 match.awayScore = 1;
-            });
+            };
             await renderComponent(fixtureData.id, appData);
             reportedError.verifyNoError();
             let alert: string;
@@ -825,10 +827,10 @@ describe('Score', () => {
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
-            fixtureData.awaySubmission.matches.forEach(match => {
+            for (let match of fixtureData.awaySubmission.matches) {
                 match.homeScore = 2;
                 match.awayScore = 2;
-            });
+            }
             await renderComponent(fixtureData.id, appData);
             reportedError.verifyNoError();
             let alert: string;
@@ -854,10 +856,10 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = null;
-            fixtureData.homeSubmission.matches.forEach(match => {
+            for (let match of fixtureData.homeSubmission.matches) {
                 match.homeScore = 1;
                 match.awayScore = 1;
-            });
+            }
             fixtureData.homeSubmission.away.manOfTheMatch = null;
             fixtureData.home.manOfTheMatch = null;
             fixtureData.away.manOfTheMatch = null;
@@ -873,10 +875,10 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = null;
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
-            fixtureData.awaySubmission.matches.forEach(match => {
+            for (let match of fixtureData.awaySubmission.matches) {
                 match.homeScore = 1;
                 match.awayScore = 1;
-            });
+            }
             fixtureData.awaySubmission.home.manOfTheMatch = null;
             fixtureData.home.manOfTheMatch = null;
             fixtureData.away.manOfTheMatch = null;

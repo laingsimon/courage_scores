@@ -11,7 +11,7 @@ import {
     getFixtureDateFilters,
     getFixtureFilters,
     IFixtureMapping, getFilter
-} from "../../helpers/filters";
+} from "./filters";
 import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "../season_creation/CreateSeasonDialog";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
@@ -51,11 +51,11 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
         }
 
         const newShowPlayers = {};
-        fixtures.forEach(fixtureDate => {
+        for (let fixtureDate of fixtures) {
             if (any(fixtureDate.tournamentFixtures)) {
                 newShowPlayers[fixtureDate.date] = true;
             }
-        });
+        }
         return newShowPlayers;
     }
 

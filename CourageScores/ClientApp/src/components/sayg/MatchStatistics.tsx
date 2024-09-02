@@ -40,7 +40,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     function getLegDisplayOptions(legs: { [key: number]: LegDto }, showThrowsOnLastLeg?: boolean): ILegDisplayOptionsLookup {
         const options: ILegDisplayOptionsLookup = {};
         let lastLegIndex = null;
-        Object.keys(legs).forEach((legIndex: string) => {
+        for (let legIndex of Object.keys(legs)) {
             options[legIndex] = {
                 showThrows: false,
                 showAverage: false,
@@ -51,7 +51,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                 // leg has started
                 lastLegIndex = legIndex;
             }
-        });
+        }
 
         if (showThrowsOnLastLeg && lastLegIndex) {
             options[lastLegIndex] = lastLegDisplayOptions;

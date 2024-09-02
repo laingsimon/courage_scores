@@ -14,12 +14,16 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     private readonly CancellationToken _token = new();
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
     private Mock<IAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
+    private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _tournamentSideAdapter = new Mock<IAdapter<TournamentSide, TournamentSideDto>>();
-        _adapter = new DivisionTournamentFixtureDetailsAdapter(_tournamentSideAdapter.Object);
+        _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
+        _adapter = new DivisionTournamentFixtureDetailsAdapter(_tournamentSideAdapter.Object, _tournamentTypeResolver.Object);
+
+        _tournamentTypeResolver.Setup(r => r.GetTournamentType(It.IsAny<TournamentGame>())).Returns("TOURNAMENT TYPE");
     }
 
     [Test]
@@ -52,7 +56,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             Address = "address",
             SeasonId = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
-            Type = "type",
+            Type = "TOURNAMENT TYPE",
             Sides =
             {
                 winner,
@@ -82,34 +86,6 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.Proposed, Is.False);
         Assert.That(result.SeasonId, Is.EqualTo(game.SeasonId));
         Assert.That(result.WinningSide, Is.EqualTo(null));
-    }
-
-    [TestCase(0, 0, "Tournament")]
-    [TestCase(1, 0, "Tournament")]
-    [TestCase(1, 1, "Singles")]
-    [TestCase(1, 2, "Pairs")]
-    [TestCase(1, 3, "Tournament")]
-    public async Task Adapt_GivenNoTypeOverride_CalculatesTypeCorrectly(int sideCount, int playerCount, string expectedTypeName)
-    {
-        var game = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Type = null,
-            Sides = Enumerable.Range(1, sideCount).Select(sideNo => new TournamentSide
-            {
-                Name = sideNo.ToString(),
-                Players = Enumerable.Range(1, playerCount).Select(playerNo => new TournamentPlayer
-                {
-                    Name = playerNo.ToString(),
-                }).ToList(),
-            }).ToList(),
-        };
-        var sideDto = new TournamentSideDto();
-        _tournamentSideAdapter.Setup(a => a.Adapt(It.IsAny<TournamentSide>(), _token)).ReturnsAsync(sideDto);
-
-        var result = await _adapter.Adapt(game, _token);
-
-        Assert.That(result.Type, Is.EqualTo(expectedTypeName));
     }
 
     [Test]

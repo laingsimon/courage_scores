@@ -153,7 +153,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
     function getLinkToSide(side: TournamentSideDto) {
         if (side && side.teamId && division) {
-            const team: TeamDto = teams[side.teamId];
+            const team: TeamDto = teams.filter(t => t.id === side.teamId)[0];
 
             return (<Link
                 to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</Link>);
@@ -299,7 +299,7 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
 
     try {
         return (<div datatype="printable-sheet">
-            {winner ? null : (<div className="float-end">
+            {winner ? null : (<div className="float-end d-print-none">
                 <RefreshControl id={tournamentData.id} type={LiveDataType.tournament} />
             </div>)}
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>

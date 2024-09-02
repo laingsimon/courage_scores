@@ -24,10 +24,10 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
-            liveOptions.subscribeAtStartup.forEach((request: ISubscriptionRequest) => {
+            for (let request of liveOptions.subscribeAtStartup) {
                 // noinspection JSIgnoredPromiseFromCall
                 enableLiveUpdates(true, request);
-            });
+            }
         }
     },
     // eslint-disable-next-line

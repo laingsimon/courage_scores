@@ -24,7 +24,7 @@ export interface IAssignPlaceholdersProps {
 
 export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMappings, setPlaceholderMappings }: IAssignPlaceholdersProps) {
     const {divisions, seasons, teams} = useApp();
-    const season: SeasonDto = seasons[seasonId];
+    const season: SeasonDto = seasons.filter(s => s.id === seasonId)[0];
     const applicableDivisions: DivisionDto[] = divisions.filter((division: DivisionDto) => any(season.divisions, (d: DivisionDto) => d.id === division.id));
     const template: TemplateDto = selectedTemplate.result;
     const templateSharedAddresses: string[] = template.sharedAddresses.flatMap((a: string[]) => a);
@@ -36,13 +36,13 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
     function getTeamsWithUniqueAddresses(division: DivisionDto): IBootstrapDropdownItem[] {
         const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
         const addressCounts: { [address: string]: number } = {};
-        teamsInDivision.forEach((team: TeamDto) => {
+        for (let team of teamsInDivision) {
             if (addressCounts[team.address] === undefined) {
                 addressCounts[team.address] = 1;
             } else {
                 addressCounts[team.address]++;
             }
-        });
+        }
         const randomlyAssign: IBootstrapDropdownItem = { value: '', text: '🎲 Randomly assign' };
         return [randomlyAssign].concat(teamsInDivision.sort(sortBy('name')).map((t: TeamDto) => {
             const hasUniqueAddress: boolean = addressCounts[t.address] === 1;

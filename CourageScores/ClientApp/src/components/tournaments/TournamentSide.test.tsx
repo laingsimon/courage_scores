@@ -9,7 +9,6 @@ import {
     renderApp, TestContext
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
-import {toMap} from "../../helpers/collections";
 import {ITournamentContainerProps, TournamentContainer} from "./TournamentContainer";
 import {ITournamentSideProps, TournamentSide} from "./TournamentSide";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
@@ -58,7 +57,7 @@ describe('TournamentSide', () => {
             iocProps(),
             brandingProps(),
             appProps({
-                teams: toMap(teams || []),
+                teams: teams || [],
                 account: {
                     access: {},
                 },

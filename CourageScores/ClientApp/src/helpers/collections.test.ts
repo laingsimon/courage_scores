@@ -12,78 +12,9 @@ import {
     sortBy,
     sum, take,
     toDictionary,
-    toMap
 } from "./collections";
 
 describe('collections', () => {
-    describe('toMap', () => {
-        it('should return map of items', () => {
-            const items = [
-                {id: 'a', name: 'a'},
-                {id: 'b', name: 'b'},
-                {id: 'c', name: 'c'}
-            ];
-
-            const map = toMap(items);
-
-            expect(map['a']).toEqual({id: 'a', name: 'a'});
-            expect(map['b']).toEqual({id: 'b', name: 'b'});
-            expect(map['c']).toEqual({id: 'c', name: 'c'});
-        });
-
-        it('should be able to filter items', () => {
-            const items = [
-                {id: 'a', name: 'a'},
-                {id: 'b', name: 'b'},
-                {id: 'c', name: 'c'}
-            ];
-
-            const filteredItems = toMap(items).filter((item: any) => item.name === 'a');
-
-            expect(filteredItems).toEqual([{id: 'a', name: 'a'}]);
-        });
-
-        it('should be able to map items', () => {
-            const items = [
-                {id: 'a', name: 'a'},
-                {id: 'b', name: 'b'},
-                {id: 'c', name: 'c'}
-            ];
-
-            const mappedItems = toMap(items).map((item: any) => item.name.toUpperCase());
-
-            expect(mappedItems).toEqual(['A', 'B', 'C']);
-        });
-
-        it('should be able to sort items', () => {
-            const items = [
-                {id: 'b', name: 'b'},
-                {id: 'a', name: 'a'},
-                {id: 'c', name: 'c'}
-            ];
-
-            const sortedItems = toMap(items).sort(sortBy('name'));
-
-            expect(sortedItems).toEqual([
-                {id: 'a', name: 'a'},
-                {id: 'b', name: 'b'},
-                {id: 'c', name: 'c'}
-            ]);
-        });
-
-        it('should return length', () => {
-            const items = [
-                {id: 'b', name: 'b'},
-                {id: 'a', name: 'a'},
-                {id: 'c', name: 'c'}
-            ];
-
-            const map = toMap(items);
-
-            expect(map.length).toEqual(3);
-        });
-    });
-
     describe('sortBy', () => {
         it('should sort items in ascending order', () => {
             const items = [

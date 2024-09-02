@@ -21,7 +21,7 @@ jobs:
      - setup
     uses: ./.github/workflows/build.yml
     with: 
-      dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+      ignore_sizes: false
 
   publish:
     needs:

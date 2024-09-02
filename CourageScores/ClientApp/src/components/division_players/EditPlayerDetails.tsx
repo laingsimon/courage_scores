@@ -154,8 +154,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
 
         const results: ICreatedPlayerResponse[] = [];
         let success: boolean = true;
-        for(let index = 0; index < multiPlayerDetails.length; index++) {
-            const playerDetails: IEditPlayerDetailsPlayer = multiPlayerDetails[index];
+        for (let playerDetails of multiPlayerDetails) {
             const createForDivisionId: string = getDivisionIdForTeam();
             const response: ICreatedPlayerResponse = await playerApi.create(createForDivisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);

@@ -3,7 +3,6 @@ import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDrop
 import {Dialog} from "../common/Dialog";
 import {EditMatchOptions} from "../common/EditMatchOptions";
 import {useApp} from "../common/AppContainer";
-import {DataMap} from "../../helpers/collections";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
@@ -13,7 +12,7 @@ export interface ITournamentRoundMatchProps {
     readOnly?: boolean;
     match: TournamentMatchDto;
     hasNextRound?: boolean;
-    sideMap: DataMap<TournamentSideDto>;
+    sides: TournamentSideDto[];
     exceptSelected(side: TournamentSideDto, matchIndex: number, sideAOrB: string): boolean;
     matchIndex: number;
     onChange?(round: TournamentRoundDto): Promise<any>;
@@ -22,7 +21,7 @@ export interface ITournamentRoundMatchProps {
     onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;
 }
 
-export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange,
+export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exceptSelected, matchIndex, onChange,
                                          round, matchOptions, onMatchOptionsChanged }: ITournamentRoundMatchProps) {
     const {onError} = useApp();
     const scoreA: number = match.scoreA;
@@ -47,7 +46,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         try {
             const newRound = Object.assign({}, round);
             const match = newRound.matches[matchIndex];
-            match[property] = sideMap[sideId];
+            match[property] = sides.filter(s => s.id === sideId)[0];
 
             if (onChange) {
                 await onChange(newRound);
@@ -89,11 +88,11 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     return (<tr className="bg-light">
         <td className={hasBothScores && isWinner(scoreA) ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
-                ? (match.sideA.name || sideMap[match.sideA.id].name)
+                ? (match.sideA.name || sides.filter(s => s.id === match.sideA.id)[0].name)
                 : (<BootstrapDropdown
                     readOnly={readOnly}
                     value={match.sideA ? match.sideA.id : null}
-                    options={sideMap.filter((s: TournamentSideDto) => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
+                    options={sides.filter((s: TournamentSideDto) => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
                     onChange={(side) => updateMatch('sideA', side)}
                     slim={true}
                     className="margin-right"/>)}
@@ -107,11 +106,11 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         </td>
         <td className={hasBothScores && isWinner(scoreB) ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
-                ? (match.sideB.name || sideMap[match.sideB.id].name)
+                ? (match.sideB.name || sides.filter(s => s.id === match.sideB.id)[0].name)
                 : (<BootstrapDropdown
                     readOnly={readOnly}
                     value={match.sideB ? match.sideB.id : null}
-                    options={sideMap.filter((s: TournamentSideDto) => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
+                    options={sides.filter((s: TournamentSideDto) => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
                     onChange={(side) => updateMatch('sideB', side)}
                     slim={true}
                     className="margin-right"/>)}

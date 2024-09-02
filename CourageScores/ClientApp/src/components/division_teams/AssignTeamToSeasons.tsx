@@ -44,14 +44,12 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
         setSaving(true);
         try {
             const results: IClientActionResultDto<TeamDto>[] = [];
-            for (let index = 0; index < changes.removed.length; index++) {
-                const seasonId: string = changes.removed[index];
+            for (let seasonId of changes.removed) {
                 const result: IClientActionResultDto<TeamDto> = await teamApi.delete(team.id, seasonId);
                 results.push(result);
             }
 
-            for (let index = 0; index < changes.added.length; index++) {
-                const seasonId: string = changes.added[index];
+            for (let seasonId of changes.added) {
                 const details: ModifyTeamSeasonDto = {
                     id: team.id,
                     seasonId: seasonId,
@@ -70,7 +68,9 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
             }
 
             const errors: IClientActionResultDto<TeamDto>[] = results.filter((r: IClientActionResultDto<TeamDto>) => !r.success);
-            errors.forEach((res: IClientActionResultDto<TeamDto>) => console.error(res));
+            for (let res of errors) {
+                console.error(res);
+            }
             window.alert(`There were ${errors.length} error/s when applying these changes; some changes may not have been saved`);
         } catch (e) {
             /* istanbul ignore next */
@@ -84,16 +84,14 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
         const added: string[] = [];
         const removed: string[] = [];
 
-        for (let index = 0; index < initialIds.length; index++) {
-            const initialId: string = initialIds[index];
+        for (let initialId of initialIds) {
             const hasBeenRemoved: boolean = isEmpty(selectedIds, (id: string) => id === initialId);
             if (hasBeenRemoved) {
                 removed.push(initialId);
             }
         }
 
-        for (let index = 0; index < selectedIds.length; index++) {
-            const selectedId: string = selectedIds[index];
+        for (let selectedId of selectedIds) {
             const hasBeenRemoved: boolean = isEmpty(initialIds, (id: string) => id === selectedId);
             if (hasBeenRemoved) {
                 added.push(selectedId);

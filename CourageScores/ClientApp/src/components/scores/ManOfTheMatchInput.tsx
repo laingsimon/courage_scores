@@ -34,9 +34,9 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
         const players: ISelectablePlayer[] = fixtureData.matches.flatMap((match: GameMatchDto) => {
             const matchPlayers: ISelectablePlayer[] = [];
 
-            (match[property] || []).forEach((player: GamePlayerDto) => {
+            for (let player of match[property] || []) {
                 matchPlayers.push(player as ISelectablePlayer);
-            });
+            }
 
             return matchPlayers;
         });

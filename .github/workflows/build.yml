@@ -3,8 +3,8 @@ name: Build
 on:
   workflow_call:
     inputs:
-      dotnet-root:
-        required: true
+      ignore_sizes:
+        required: false
         type: string
 
 jobs:
@@ -25,6 +25,13 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
+
+      - name: Check file sizes
+        if: ${{ github.event.inputs.ignore_sizes != 'true' }}
+        shell: pwsh
+        run: ./BuildChecks.ps1 -ErrorThreshold 500 -WarningThreshold 450
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Publish dotnet coverage
         uses: coverallsapp/github-action@v2
