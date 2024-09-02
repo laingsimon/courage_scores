@@ -469,7 +469,36 @@ describe('NewTournamentFixture', () => {
             await doSelectOption(addressDropDown, 'ADDRESS 1');
             await doClick(saveButton);
 
-            expect(context.container.innerHTML).toContain('SOME ERROR')
+            expect(context.container.innerHTML).toContain('SOME ERROR');
+        });
+
+        it('can close the error dialog if save was unsuccessful', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                },
+                [ division1, division2 ]);
+            const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            await doSelectOption(divisionDropDown, 'DIVISION 1');
+            await doSelectOption(addressDropDown, 'ADDRESS 1');
+            await doClick(findButton(context.container, '➕'));
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.innerHTML).not.toContain('SOME ERROR');
         });
 
         it('clears the selected address after successful creation', async () => {

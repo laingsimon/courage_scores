@@ -168,7 +168,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 ? (<ErrorDisplay
                     {...saveError}
                     onClose={async () => setSaveError(null)}
-                    title="Could not delete tournament"/>)
+                    title="Could not create tournament"/>)
                 : null}
         </td>
     </tr>)
