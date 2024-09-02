@@ -310,7 +310,7 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
-                    copyWinnersFrom: null,
+                    sides: [],
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -348,7 +348,7 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
-                    copyWinnersFrom: null,
+                    sides: [],
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -385,7 +385,7 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
-                    copyWinnersFrom: null,
+                    sides: [],
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -396,10 +396,12 @@ describe('NewTournamentFixture', () => {
                 .address('ADDRESS 1')
                 .proposed()
                 .build();
+            const tournament = tournamentBuilder()
+                .type('SINGLES')
+                .winner('WINNER')
+                .build();
             const otherDate = fixtureDateBuilder('2024-08-29')
-                .withTournament((t: ITournamentBuilder) => t
-                    .type('SINGLES')
-                    .winner('WINNER'))
+                .withTournament(tournament)
                 .build();
             await renderComponent({
                     date: '2024-09-02',
@@ -431,7 +433,7 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
-                    copyWinnersFrom: '2024-08-29',
+                    sides: [ tournament.winningSide ],
                 }
             });
             expect(tournamentChanged).toEqual(true);

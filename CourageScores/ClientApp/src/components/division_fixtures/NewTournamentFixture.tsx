@@ -14,6 +14,8 @@ import {useApp} from "../common/AppContainer";
 import {any, distinct} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 
 export interface INewTournamentFixtureProps {
     date: string,
@@ -75,6 +77,17 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
             }
         }));
 
+    function getSides(date: string): TournamentSideDto[] {
+        const fixtureDate: DivisionFixtureDateDto = fixtureDates.filter((fd: DivisionFixtureDateDto) => fd.date === date)[0];
+        if (!fixtureDate) {
+            return [];
+        }
+
+        return fixtureDate.tournamentFixtures
+            .filter((tf: DivisionTournamentFixtureDetailsDto) => !!tf.winningSide)
+            .map((tf: DivisionTournamentFixtureDetailsDto) => tf.winningSide);
+    }
+
     async function createFixture() {
         /* istanbul ignore next */
         if (creating) {
@@ -90,7 +103,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 address: address,
                 divisionId: divisionId,
                 seasonId: season.id,
-                copyWinnersFrom: copySidesFrom,
+                sides: copySidesFrom ? getSides(copySidesFrom) : [],
             });
 
             if (response.success) {
