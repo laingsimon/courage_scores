@@ -323,7 +323,7 @@ public class FinalsNightReport : CompositeReport
         IAsyncEnumerable<ReportRowDto>> getRows,
         [EnumeratorCancellation] CancellationToken token)
     {
-        foreach (var division in divisions.OrderByDescending(d => d.Name))
+        foreach (var division in divisions.OrderBy(d => d.Name))
         {
             token.ThrowIfCancellationRequested();
 
