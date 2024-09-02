@@ -166,6 +166,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
 
             if (response.success) {
                 setAddress(null);
+                setCustomAddress(null);
                 await onTournamentChanged();
             } else {
                 setSaveError(response);
