@@ -44,7 +44,7 @@ public class FinalsNightReportTests
     private PlayerLookup _playerLookup = null!;
     private ReportDto _momReport = null!;
     private TournamentGameDto _tournament = null!;
-    private DivisionFixtureDateDto _tournamentFixtureDateDto;
+    private DivisionFixtureDateDto _tournamentFixtureDateDto = null!;
     private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
 
     [SetUp]

@@ -4,7 +4,7 @@ import {renderDate} from "../../helpers/rendering";
 import {ShareButton} from "../common/ShareButton";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {useBranding} from "../common/BrandingContainer";
-import {getFilter, IInitialisedFilters} from "../../helpers/filters";
+import {getFilter, IInitialisedFilters} from "./filters";
 import {usePreferences} from "../common/PreferencesContainer";
 import {Link, useLocation} from "react-router-dom";
 
