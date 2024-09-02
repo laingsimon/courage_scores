@@ -12,7 +12,7 @@ import {renderDate} from "../../helpers/rendering";
 import {FilterFixtures} from "./FilterFixtures";
 import {DivisionDataContainer, IDivisionDataContainerProps} from "../league/DivisionDataContainer";
 import {teamBuilder} from "../../helpers/builders/teams";
-import {IInitialisedFilters} from "../../helpers/filters";
+import {IInitialisedFilters} from "./filters";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {IPreferenceData} from "../common/PreferencesContainer";
 
