@@ -27,6 +27,13 @@ Function Print-Files($Heading, $Files)
 
 Function Get-PullRequestComments() 
 {
+    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    {
+        [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME)")
+        $EmptyList = @()
+        Return ,$EmptyList
+    }
+
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
     Write-Message "Get pull-request comments"
 
