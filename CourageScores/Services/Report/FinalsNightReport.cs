@@ -270,7 +270,13 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in TournamentWinnersAndRunnersUp(divisionData, token))
+        await foreach (var row in ForEachDivision(divisionData, HighestCheckout, token))
+        {
+            yield return row;
+        }
+
+        token.ThrowIfCancellationRequested();
+        await foreach (var row in ForEachDivision(divisionData, Most180s, token))
         {
             yield return row;
         }
@@ -288,13 +294,7 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, Most180s, token))
-        {
-            yield return row;
-        }
-
-        token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, HighestCheckout, token))
+        await foreach (var row in TournamentWinnersAndRunnersUp(divisionData, token))
         {
             yield return row;
         }
