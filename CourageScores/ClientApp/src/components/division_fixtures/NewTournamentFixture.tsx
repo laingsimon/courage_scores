@@ -11,6 +11,9 @@ import {useDivisionData} from "../league/DivisionDataContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useApp} from "../common/AppContainer";
+import {any, distinct} from "../../helpers/collections";
+import {renderDate} from "../../helpers/rendering";
+import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 
 export interface INewTournamentFixtureProps {
     date: string,
@@ -19,13 +22,14 @@ export interface INewTournamentFixtureProps {
 }
 
 export function NewTournamentFixture({date, tournamentFixtures, onTournamentChanged}: INewTournamentFixtureProps) {
-    const {id, season} = useDivisionData();
+    const {id, season, fixtures: fixtureDates} = useDivisionData();
     const {tournamentApi} = useDependencies();
     const {divisions} = useApp();
-    const [address, setAddress] = useState(null);
-    const [creating, setCreating] = useState(false);
+    const [copySidesFrom, setCopySidesFrom] = useState<string>(null);
+    const [address, setAddress] = useState<string>(null);
+    const [creating, setCreating] = useState<boolean>(false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TournamentGameDto> | null>(null);
-    const [divisionId, setDivisionId] = useState(id);
+    const [divisionId, setDivisionId] = useState<string>(id);
     const addressOptions: IBootstrapDropdownItem[] = tournamentFixtures
         .map(f => {
             return {
@@ -49,6 +53,27 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 value: d.id,
             };
         }));
+    const dontCopy: IBootstrapDropdownItem = {
+        text: '-',
+        value: null,
+    };
+    const copySidesFromOptions: IBootstrapDropdownItem[] = [dontCopy].concat((fixtureDates || [])
+        .filter(fd => fd.date !== date)
+        .filter(fd => any(fd.tournamentFixtures || [], t => !!t.winningSide))
+        .map(fd => {
+            const uniqueFixtureType: TournamentGameDto[] = distinct(fd.tournamentFixtures, 'type');
+            const notes: string[] = fd.notes.map((n: FixtureDateNoteDto) => n.note);
+            const prefix: string = uniqueFixtureType.length === 1
+                ? `${uniqueFixtureType[0].type} - `
+                : notes.length === 1
+                    ? `${notes[0]} - `
+                    : '';
+
+            return {
+                text: `${prefix}${renderDate(fd.date)}`,
+                value: fd.date,
+            }
+        }));
 
     async function createFixture() {
         /* istanbul ignore next */
@@ -64,7 +89,8 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 date: date,
                 address: address,
                 divisionId: divisionId,
-                seasonId: season.id
+                seasonId: season.id,
+                copyWinnersFrom: copySidesFrom,
             });
 
             if (response.success) {
@@ -86,15 +112,21 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 options={divisionOptions}
                 value={divisionId}
                 onChange={async (v) => setDivisionId(v)}/>
-            <span className="margin-right margin-left">tournament at:</span>
+            <span className="margin-right margin-left">tournament at</span>
             <BootstrapDropdown
                 className="address-dropdown"
                 options={addressOptions}
                 value={address}
                 onChange={async (v) => setAddress(v)}/>
+            <span className="margin-right margin-left">add winners from</span>
+            <BootstrapDropdown
+                className="copy-sides-from-dropdown"
+                options={copySidesFromOptions}
+                value={copySidesFrom}
+                onChange={async (v) => setCopySidesFrom(v)}/>
         </td>
         <td className="medium-column-width text-end">
-        <button className="btn btn-sm btn-primary" onClick={createFixture} disabled={address == null}>
+            <button className="btn btn-sm btn-primary" onClick={createFixture} disabled={address == null}>
                 {creating
                     ? (<LoadingSpinnerSmall/>)
                     : '➕'}

@@ -6,4 +6,5 @@ namespace CourageScores.Models.Dtos.Game;
 public class EditTournamentGameDto : TournamentGameDto, IIntegrityCheckDto
 {
     public DateTime? LastUpdated { get; set; }
+    public DateTime? CopyWinnersFrom { get; set; }
 }

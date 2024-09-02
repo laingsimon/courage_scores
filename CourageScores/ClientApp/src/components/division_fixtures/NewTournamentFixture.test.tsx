@@ -15,10 +15,11 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
 import {INewTournamentFixtureProps, NewTournamentFixture} from "./NewTournamentFixture";
-import {divisionBuilder} from "../../helpers/builders/divisions";
+import {divisionBuilder, fixtureDateBuilder, INoteBuilder} from "../../helpers/builders/divisions";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
-import {tournamentBuilder} from "../../helpers/builders/tournaments";
+import {ITournamentBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {renderDate} from "../../helpers/rendering";
 
 describe('NewTournamentFixture', () => {
     let context: TestContext;
@@ -115,6 +116,112 @@ describe('NewTournamentFixture', () => {
             expect(options).toEqual(['ADDRESS 1', 'ADDRESS 2']);
         });
 
+        it('renders all tournament types in dropdown', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            const fixture2 = tournamentBuilder()
+                .address('ADDRESS 2')
+                .proposed()
+                .build();
+            const otherDate = fixtureDateBuilder('2024-08-29')
+                .withTournament((t: ITournamentBuilder) => t
+                    .type('SINGLES')
+                    .winner('WINNER'))
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1, fixture2 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                    fixtures: [ otherDate ]
+                },
+                [ division1, division2 ]);
+
+            const copySidesFromDropDown: Element = context.container.querySelector('.copy-sides-from-dropdown .dropdown-menu');
+            const options = Array.from(copySidesFromDropDown.querySelectorAll('.dropdown-item')).map(o => o.textContent);
+            expect(options).toEqual([ '-', `SINGLES - ${renderDate('2024-08-29')}`]);
+        });
+
+        it('renders notes from tournament dates if different types of tournament', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            const fixture2 = tournamentBuilder()
+                .address('ADDRESS 2')
+                .proposed()
+                .build();
+            const otherDate = fixtureDateBuilder('2024-08-29')
+                .withTournament((t: ITournamentBuilder) => t
+                    .type('SINGLES')
+                    .winner('WINNER'))
+                .withTournament((t: ITournamentBuilder) => t
+                    .type('')
+                    .winner('WINNER'))
+                .withNote((n: INoteBuilder) => n.note('SINGLES'))
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1, fixture2 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                    fixtures: [ otherDate ]
+                },
+                [ division1, division2 ]);
+
+            const copySidesFromDropDown: Element = context.container.querySelector('.copy-sides-from-dropdown .dropdown-menu');
+            const options = Array.from(copySidesFromDropDown.querySelectorAll('.dropdown-item')).map(o => o.textContent);
+            expect(options).toEqual([ '-', `SINGLES - ${renderDate('2024-08-29')}`]);
+        });
+
+        it('renders other tournaments when there are no unique types or notes', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            const fixture2 = tournamentBuilder()
+                .address('ADDRESS 2')
+                .proposed()
+                .build();
+            const otherDate = fixtureDateBuilder('2024-08-29')
+                .withTournament((t: ITournamentBuilder) => t
+                    .type('SINGLES')
+                    .winner('WINNER'))
+                .withTournament((t: ITournamentBuilder) => t
+                    .type('')
+                    .winner('WINNER'))
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1, fixture2 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                    fixtures: [ otherDate ]
+                },
+                [ division1, division2 ]);
+
+            const copySidesFromDropDown: Element = context.container.querySelector('.copy-sides-from-dropdown .dropdown-menu');
+            const options = Array.from(copySidesFromDropDown.querySelectorAll('.dropdown-item')).map(o => o.textContent);
+            expect(options).toEqual([ '-', renderDate('2024-08-29') ]);
+        });
+
         it('highlights addresses that are already in use', async () => {
             const fixture1 = tournamentBuilder()
                 .address('ADDRESS 1')
@@ -203,6 +310,7 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
+                    copyWinnersFrom: null,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -240,6 +348,7 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
+                    copyWinnersFrom: null,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -276,6 +385,53 @@ describe('NewTournamentFixture', () => {
                     address: 'ADDRESS 1',
                     id: expect.any(String),
                     seasonId: season.id,
+                    copyWinnersFrom: null,
+                }
+            });
+            expect(tournamentChanged).toEqual(true);
+        });
+
+        it('creates a divisional tournament copying winners from another date', async () => {
+            const fixture1 = tournamentBuilder()
+                .address('ADDRESS 1')
+                .proposed()
+                .build();
+            const otherDate = fixtureDateBuilder('2024-08-29')
+                .withTournament((t: ITournamentBuilder) => t
+                    .type('SINGLES')
+                    .winner('WINNER'))
+                .build();
+            await renderComponent({
+                    date: '2024-09-02',
+                    onTournamentChanged,
+                    tournamentFixtures: [ fixture1 ],
+                }, {
+                    id: division1.id,
+                    name: division1.name,
+                    season: season,
+                    onReloadDivision: noop,
+                    setDivisionData: noop,
+                    fixtures: [ otherDate ],
+                },
+                [ division1, division2 ]);
+            const saveButton = findButton(context.container, '➕');
+            const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
+            const copySidesFromDropDown: Element = context.container.querySelector('.copy-sides-from-dropdown .dropdown-menu');
+
+            await doSelectOption(divisionDropDown, 'DIVISION 1');
+            await doSelectOption(addressDropDown, 'ADDRESS 1');
+            await doSelectOption(copySidesFromDropDown, `SINGLES - ${renderDate('2024-08-29')}`);
+            await doClick(saveButton);
+
+            expect(savedTournament).toEqual({
+                data: {
+                    date: '2024-09-02',
+                    divisionId: division1.id,
+                    address: 'ADDRESS 1',
+                    id: expect.any(String),
+                    seasonId: season.id,
+                    copyWinnersFrom: '2024-08-29',
                 }
             });
             expect(tournamentChanged).toEqual(true);
