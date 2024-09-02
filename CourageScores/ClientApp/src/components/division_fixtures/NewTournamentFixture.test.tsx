@@ -311,6 +311,7 @@ describe('NewTournamentFixture', () => {
                     id: expect.any(String),
                     seasonId: season.id,
                     sides: [],
+                    type: null,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -349,6 +350,7 @@ describe('NewTournamentFixture', () => {
                     id: expect.any(String),
                     seasonId: season.id,
                     sides: [],
+                    type: null,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -386,6 +388,7 @@ describe('NewTournamentFixture', () => {
                     id: expect.any(String),
                     seasonId: season.id,
                     sides: [],
+                    type: null,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -434,6 +437,7 @@ describe('NewTournamentFixture', () => {
                     id: expect.any(String),
                     seasonId: season.id,
                     sides: [ tournament.winningSide ],
+                    type: 'SINGLES final',
                 }
             });
             expect(tournamentChanged).toEqual(true);

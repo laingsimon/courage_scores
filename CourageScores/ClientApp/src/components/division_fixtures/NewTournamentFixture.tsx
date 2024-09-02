@@ -63,19 +63,26 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
         .filter(fd => fd.date !== date)
         .filter(fd => any(fd.tournamentFixtures || [], t => !!t.winningSide))
         .map(fd => {
-            const uniqueFixtureType: TournamentGameDto[] = distinct(fd.tournamentFixtures, 'type');
-            const notes: string[] = fd.notes.map((n: FixtureDateNoteDto) => n.note);
-            const prefix: string = uniqueFixtureType.length === 1
-                ? `${uniqueFixtureType[0].type} - `
-                : notes.length === 1
-                    ? `${notes[0]} - `
-                    : '';
+            const type = getTypeName(fd);
+            const prefix: string = type
+                ? `${type} - `
+                : '';
 
             return {
                 text: `${prefix}${renderDate(fd.date)}`,
                 value: fd.date,
             }
         }));
+
+    function getTypeName(fixtureDate: DivisionFixtureDateDto): string {
+        const uniqueFixtureType: TournamentGameDto[] = distinct(fixtureDate.tournamentFixtures, 'type');
+        const notes: string[] = fixtureDate.notes.map((n: FixtureDateNoteDto) => n.note);
+        return uniqueFixtureType.length === 1
+            ? uniqueFixtureType[0].type
+            : notes.length === 1
+                ? notes[0]
+                : null;
+    }
 
     function getSides(date: string): TournamentSideDto[] {
         const fixtureDate: DivisionFixtureDateDto = fixtureDates.filter((fd: DivisionFixtureDateDto) => fd.date === date)[0];
@@ -86,6 +93,18 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
         return fixtureDate.tournamentFixtures
             .filter((tf: DivisionTournamentFixtureDetailsDto) => !!tf.winningSide)
             .map((tf: DivisionTournamentFixtureDetailsDto) => tf.winningSide);
+    }
+
+    function getType(date: string): string {
+        const fixtureDate: DivisionFixtureDateDto = fixtureDates.filter((fd: DivisionFixtureDateDto) => fd.date === date)[0];
+        if (!fixtureDate) {
+            return null
+        }
+
+        const type = getTypeName(fixtureDate);
+        return type
+            ? `${type} final`
+            : null;
     }
 
     async function createFixture() {
@@ -104,6 +123,7 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
                 divisionId: divisionId,
                 seasonId: season.id,
                 sides: copySidesFrom ? getSides(copySidesFrom) : [],
+                type: copySidesFrom ? getType(copySidesFrom) : null,
             });
 
             if (response.success) {
