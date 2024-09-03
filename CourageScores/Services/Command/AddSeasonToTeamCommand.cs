@@ -37,7 +37,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         return this;
     }
 
-    public virtual AddSeasonToTeamCommand CopyPlayersFromSeasonId(Guid seasonId)
+    public virtual AddSeasonToTeamCommand CopyPlayersFromSeasonId(Guid? seasonId)
     {
         _copyPlayersFromOtherSeasonId = seasonId;
         return this;
