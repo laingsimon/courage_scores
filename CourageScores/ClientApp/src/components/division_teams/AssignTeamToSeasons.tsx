@@ -24,7 +24,7 @@ interface IChanges {
 }
 
 export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeasonsProps) {
-    const {season: currentSeason, onReloadDivision} = useDivisionData();
+    const {id: divisionId, season: currentSeason, onReloadDivision} = useDivisionData();
     const {seasons, teams, onError, reloadAll} = useApp();
     const {teamApi} = useDependencies();
     const team: TeamDto = teams.filter((t: TeamDto) => t.id === teamOverview.id)[0];
@@ -54,6 +54,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
                     id: team.id,
                     seasonId: seasonId,
                     copyPlayersFromSeasonId: copyTeamFromCurrentSeason ? currentSeason.id : null,
+                    divisionId: divisionId,
                 };
                 const result: IClientActionResultDto<TeamDto> = await teamApi.add(details);
                 results.push(result);
