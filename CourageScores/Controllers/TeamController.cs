@@ -55,11 +55,10 @@ public class TeamController : Controller
     [HttpPut("/api/Team/Season")]
     public async Task<ActionResultDto<TeamDto>> Add(ModifyTeamSeasonDto request, CancellationToken token)
     {
-        var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(request.SeasonId).ForDivision(request.DivisionId);
-        if (request.CopyPlayersFromSeasonId != null)
-        {
-            command = command.CopyPlayersFromSeasonId(request.CopyPlayersFromSeasonId.Value);
-        }
+        var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
+            .ForSeason(request.SeasonId)
+            .ForDivision(request.DivisionId)
+            .CopyPlayersFromSeasonId(request.CopyPlayersFromSeasonId);
 
         return await _teamService.Upsert(request.Id, command, token);
     }

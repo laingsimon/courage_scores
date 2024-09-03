@@ -90,17 +90,9 @@ public class SeasonTemplateServiceTests
         };
         _templates = Array.Empty<TemplateDto>();
         var divisionId = Guid.NewGuid();
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Divisions =
-            {
-                new DivisionDto
-                {
-                    Id = divisionId,
-                },
-            },
-        };
+        _season = new SeasonDtoBuilder()
+            .WithDivisions(new DivisionDtoBuilder(divisionId).Build())
+            .Build();
         _division = new DivisionDataDto
         {
             Id = divisionId,

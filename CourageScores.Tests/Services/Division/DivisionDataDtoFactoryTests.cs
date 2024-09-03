@@ -18,18 +18,10 @@ namespace CourageScores.Tests.Services.Division;
 [TestFixture]
 public class DivisionDataDtoFactoryTests
 {
-    private static readonly SeasonDto Season1 = new SeasonDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "season1",
-    };
-    private static readonly SeasonDto Season2 = new SeasonDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "season2",
-    };
-    private static readonly DivisionDto Division1 = Division("division1", updated: new DateTime(2001, 02, 03));
-    private static readonly DivisionDto Division2 = Division("division2");
+    private static readonly SeasonDto Season1 = new SeasonDtoBuilder(name: "season1").Build();
+    private static readonly SeasonDto Season2 = new SeasonDtoBuilder(name: "season2").Build();
+    private static readonly DivisionDto Division1 = new DivisionDtoBuilder(name: "division1").Updated(new DateTime(2001, 02, 03)).Build();
+    private static readonly DivisionDto Division2 = new DivisionDtoBuilder(name: "division2").Build();
     private static readonly GamePlayer Player1 = new GamePlayer
     {
         Id = Guid.NewGuid(),
@@ -218,7 +210,7 @@ public class DivisionDataDtoFactoryTests
         var inDivisionGame = GameBuilder()
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
-        var otherDivision = new DivisionDto { Id = Guid.NewGuid() };
+        var otherDivision = new DivisionDtoBuilder().Build();
         var outOfDivisionGame = GameBuilder(division: otherDivision)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
@@ -254,7 +246,7 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixturesAndDivisionIdCannotBeFound_DoesNotIncludeFixture()
     {
-        var otherDivision = new DivisionDto { Id = Guid.NewGuid() };
+        var otherDivision = new DivisionDtoBuilder().Build();
         var homeTeamInDivisionFixture = GameBuilder(division: otherDivision).Build();
         var awayTeamInDivisionFixture = GameBuilder(division: otherDivision).WithTeams(Team2, Team1).Build();
         var context = new DivisionDataContextBuilder()
@@ -274,7 +266,7 @@ public class DivisionDataDtoFactoryTests
         var inDivisionGame = GameBuilder()
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
-        var otherDivision = new DivisionDto { Id = Guid.NewGuid() };
+        var otherDivision = new DivisionDtoBuilder().Build();
         var outOfDivisionGame = GameBuilder(division: otherDivision)
             .WithMatch(m => m.WithScores(2, 3).WithHomePlayers(Guid.NewGuid()).WithAwayPlayers(Guid.NewGuid()))
             .Build();
@@ -492,9 +484,9 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public void DivisionNotFound_GivenDeletedDivisionId_ReturnsDeletedDivisionMessage()
     {
-        var deletedDivision = Division(
-            name: "DELETED",
-            deleted: new DateTime(2001, 02, 03, 04, 05, 06));
+        var deletedDivision = new DivisionDtoBuilder(name: "DELETED")
+            .Deleted(new DateTime(2001, 02, 03, 04, 05, 06))
+            .Build();
 
         var result = _factory.DivisionNotFound(new[] { deletedDivision.Id }, new[] { deletedDivision });
 
@@ -580,16 +572,5 @@ public class DivisionDataDtoFactoryTests
             includeProposals,
             It.IsAny<IReadOnlyDictionary<Guid, DivisionDto?>>(),
             _token));
-    }
-
-    private static DivisionDto Division(string name, DateTime? deleted = null, DateTime? updated = null)
-    {
-        return new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = name,
-            Deleted = deleted,
-            Updated = updated,
-        };
     }
 }

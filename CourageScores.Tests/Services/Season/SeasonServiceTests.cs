@@ -41,12 +41,9 @@ public class SeasonServiceTests
         {
             Id = Guid.NewGuid(),
         };
-        _seasonDto = new SeasonDto
-        {
-            Id = _season.Id,
-            StartDate = new DateTime(2001, 01, 01),
-            EndDate = new DateTime(2001, 05, 20),
-        };
+        _seasonDto = new SeasonDtoBuilder(_season.Id)
+            .WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 05, 20))
+            .Build();
 
         _repository = new Mock<IGenericRepository<CosmosSeason>>();
         _adapter = new MockAdapter<CosmosSeason, SeasonDto>(_season, _seasonDto);

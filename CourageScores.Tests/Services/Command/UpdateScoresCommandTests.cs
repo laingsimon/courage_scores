@@ -56,12 +56,9 @@ public class UpdateScoresCommandTests
         Name = "HOME PLAYER",
     };
     private static readonly GameMatch AdaptedGameMatch = new GameMatch();
-    private static readonly SeasonDto SeasonDto = new SeasonDto
-    {
-        Id = Guid.NewGuid(),
-        StartDate = new DateTime(2001, 02, 03),
-        EndDate = new DateTime(2002, 03, 04),
-    };
+    private static readonly SeasonDto SeasonDto = new SeasonDtoBuilder()
+        .WithDates(new DateTime(2001, 02, 03), new DateTime(2002, 03, 04))
+        .Build();
     private static readonly CosmosGame SubmissionWithManOfTheMatch = new CosmosGame
     {
         Home = new GameTeam { ManOfTheMatch = Guid.NewGuid() },
@@ -122,6 +119,7 @@ public class UpdateScoresCommandTests
             Away = new GameTeam(),
             Updated = new DateTime(2001, 02, 03),
             Editor = "EDITOR",
+            Date = new DateTime(2001, 02, 03),
         };
         _scores = new RecordScoresDto
         {
@@ -401,7 +399,6 @@ public class UpdateScoresCommandTests
     public async Task ApplyUpdate_WhenPermittedToManageGames_UpdatesGameDetailsAndReturnsSuccessful()
     {
         _game.SeasonId = SeasonDto.Id;
-        _game.Date = new DateTime(2001, 02, 03);
         SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 
@@ -437,14 +434,13 @@ public class UpdateScoresCommandTests
     {
         var seasonId = Guid.NewGuid();
         _game.SeasonId = seasonId;
-        _game.Date = new DateTime(2001, 02, 04);
         SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: _game.Date);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 04)));
+        Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 03)));
         Assert.That(_game.SeasonId, Is.EqualTo(seasonId));
         AssertCacheEviction(divisionId: _game.DivisionId, seasonId: seasonId);
     }
@@ -476,7 +472,6 @@ public class UpdateScoresCommandTests
             Warnings = { "warning" },
             Messages = { "message" },
         };
-        _game.Date = new DateTime(2001, 02, 03);
         SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 

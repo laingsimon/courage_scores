@@ -172,10 +172,7 @@ public class AddOrUpdateSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenSeasonDoesNotExist_CopiesNoTeamsFromOtherSeason()
     {
-        var otherSeason = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
+        var otherSeason = new SeasonDtoBuilder().Build();
         var update = new EditSeasonDto
         {
             Name = "NEW SEASON",
@@ -203,10 +200,7 @@ public class AddOrUpdateSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenSeasonDoesNotExist_CopiesAllTeamsFromOtherSeason()
     {
-        var otherSeason = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
+        var otherSeason = new SeasonDtoBuilder().Build();
         var update = new EditSeasonDto
         {
             Name = "NEW SEASON",

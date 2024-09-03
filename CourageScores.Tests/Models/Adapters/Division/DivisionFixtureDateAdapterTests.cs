@@ -6,6 +6,7 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -33,16 +34,8 @@ public class DivisionFixtureDateAdapterTests
         Address = "addressC",
         Name = "C",
     };
-    private static readonly DivisionDto HomeDivision = new DivisionDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "HOME DIVISION",
-    };
-    private static readonly DivisionDto AwayDivision = new DivisionDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "AWAY DIVISION",
-    };
+    private static readonly DivisionDto HomeDivision = new DivisionDtoBuilder(name: "HOME DIVISION").Build();
+    private static readonly DivisionDto AwayDivision = new DivisionDtoBuilder(name: "AWAY DIVISION").Build();
     private static readonly CosmosGame LeagueFixture = new GameBuilder()
         .WithTeams(TeamA, TeamB)
         .Build();

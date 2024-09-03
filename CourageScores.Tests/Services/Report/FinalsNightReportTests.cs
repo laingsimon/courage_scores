@@ -52,12 +52,12 @@ public class FinalsNightReportTests
     {
         _userService = new Mock<IUserService>();
         _manOfTheMatchReport = new Mock<IReport>();
-        _division1 = new DivisionDto { Id = Guid.NewGuid(), Name = "Division 1", };
-        _division2 = new DivisionDto { Id = Guid.NewGuid(), Name = "Division 2", };
+        _division1 = new DivisionDtoBuilder(name: "Division 1").Build();
+        _division2 = new DivisionDtoBuilder(name: "Division 2").Build();
         _divisions = new[] { _division1, _division2, };
         _divisionData1 = new DivisionDataDto { Id = _division1.Id, Name = _division1.Name, };
         _divisionData2 = new DivisionDataDto { Id = _division2.Id, Name = _division2.Name, };
-        _season = new SeasonDto { Id = Guid.NewGuid(), Divisions = { _division1, _division2 } };
+        _season = new SeasonDtoBuilder().WithDivisions(_division1, _division2).Build();
         _user = new UserDto
         {
             Access = new AccessDto

@@ -1,9 +1,9 @@
 ﻿using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Tests.Models.Cosmos.Game;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -66,16 +66,8 @@ public class DivisionFixtureAdapterTests
             .WithTeams(_homeTeam, _awayTeam)
             .WithMatchOption(b => b.NumberOfLegs(3))
             .Build();
-        var homeDivision = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "HOME DIVISION",
-        };
-        var awayDivision = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "AWAY DIVISION",
-        };
+        var homeDivision = new DivisionDtoBuilder(name: "HOME DIVISION").Build();
+        var awayDivision = new DivisionDtoBuilder(name: "AWAY DIVISION").Build();
 
         var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, homeDivision, awayDivision, _token);
 
@@ -296,11 +288,7 @@ public class DivisionFixtureAdapterTests
             Address = "address",
             Name = "team",
         };
-        var division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "DIVISION",
-        };
+        var division = new DivisionDtoBuilder().Build();
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);

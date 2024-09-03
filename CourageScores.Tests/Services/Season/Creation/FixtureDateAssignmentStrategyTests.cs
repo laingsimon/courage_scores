@@ -31,10 +31,9 @@ public class FixtureDateAssignmentStrategyTests
         Id = Guid.NewGuid(),
         Name = "Team 4",
     };
-    private static readonly SeasonDto Season = new SeasonDto
-    {
-        StartDate = new DateTime(2001, 01, 01),
-    };
+    private static readonly SeasonDto Season = new SeasonDtoBuilder()
+        .WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 09, 01))
+        .Build();
 
     private readonly IEqualityComparer<DivisionDataDto> _comparer = new DateAndTeamNameComparer();
     private readonly CancellationToken _token = new();
