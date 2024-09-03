@@ -56,12 +56,9 @@ public class UpdateScoresCommandTests
         Name = "HOME PLAYER",
     };
     private static readonly GameMatch AdaptedGameMatch = new GameMatch();
-    private static readonly SeasonDto SeasonDto = new SeasonDto
-    {
-        Id = Guid.NewGuid(),
-        StartDate = new DateTime(2001, 02, 03),
-        EndDate = new DateTime(2002, 03, 04),
-    };
+    private static readonly SeasonDto SeasonDto = new SeasonDtoBuilder()
+        .WithDates(new DateTime(2001, 02, 03), new DateTime(2002, 03, 04))
+        .Build();
     private static readonly CosmosGame SubmissionWithManOfTheMatch = new CosmosGame
     {
         Home = new GameTeam { ManOfTheMatch = Guid.NewGuid() },

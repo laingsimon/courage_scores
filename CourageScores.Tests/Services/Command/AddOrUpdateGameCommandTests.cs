@@ -37,10 +37,7 @@ public class AddOrUpdateGameCommandTests
             Id = Guid.NewGuid(),
             DivisionId = Guid.NewGuid(),
         };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
+        _season = new SeasonDtoBuilder().Build();
         _teamSeason = new TeamSeasonDto
         {
             SeasonId = _season.Id,

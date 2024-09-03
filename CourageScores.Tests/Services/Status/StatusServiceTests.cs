@@ -87,10 +87,7 @@ public class StatusServiceTests
     [Test]
     public async Task GetStatus_WhenLatestSeasonIsNotCurrent_ShouldReturnOutOfSeason()
     {
-        var season = new SeasonDto
-        {
-            IsCurrent = false,
-        };
+        var season = new SeasonDtoBuilder().Build();
         _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(season);
 
         var result = await _service.GetStatus(_token);
@@ -102,10 +99,7 @@ public class StatusServiceTests
     [Test]
     public async Task GetStatus_WhenInSeason_ShouldReturnInSeason()
     {
-        var season = new SeasonDto
-        {
-            IsCurrent = true,
-        };
+        var season = new SeasonDtoBuilder().IsCurrent().Build();
         _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(season);
 
         var result = await _service.GetStatus(_token);

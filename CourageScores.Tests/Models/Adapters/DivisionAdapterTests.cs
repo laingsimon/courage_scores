@@ -1,5 +1,5 @@
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Dtos;
+using CourageScores.Tests.Services;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters;
@@ -28,11 +28,7 @@ public class DivisionAdapterTests
     [Test]
     public async Task Adapt_GivenDto_MapsPropertiesCorrectly()
     {
-        var dto = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Division 1",
-        };
+        var dto = new DivisionDtoBuilder(name: "Division 1").Build();
 
         var result = await _adapter.Adapt(dto, _token);
 
@@ -43,11 +39,7 @@ public class DivisionAdapterTests
     [Test]
     public async Task Adapt_GivenDto_TrimsWhitespaceFromName()
     {
-        var dto = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Division 1   ",
-        };
+        var dto = new DivisionDtoBuilder(name: "Division 1   ").Build();
 
         var result = await _adapter.Adapt(dto, _token);
 

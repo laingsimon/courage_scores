@@ -1,8 +1,8 @@
 using CourageScores.Models.Adapters.Division;
-using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
+using CourageScores.Tests.Services;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Division;
@@ -60,10 +60,7 @@ public class DivisionTeamAdapterTests
                 },
             },
         };
-        var division = new DivisionDto
-        {
-            Name = "division",
-        };
+        var division = new DivisionDtoBuilder(name: "division").Build();
 
         var result = await _adapter.Adapt(team, score, teamPlayers, division, _token);
 
@@ -106,11 +103,7 @@ public class DivisionTeamAdapterTests
             Address = "address",
             Updated = new DateTime(2023, 01, 02),
         };
-        var division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "division",
-        };
+        var division = new DivisionDtoBuilder(name: "division").Build();
 
         var result = await _adapter.WithoutFixtures(team, division, _token);
 

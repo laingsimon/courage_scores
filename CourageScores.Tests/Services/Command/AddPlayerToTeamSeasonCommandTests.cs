@@ -25,16 +25,8 @@ public class AddPlayerToTeamSeasonCommandTests
     private Mock<IUserService> _userService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private readonly CancellationToken _token = new();
-    private readonly SeasonDto _season = new()
-    {
-        Id = Guid.NewGuid(),
-        Name = "SEASON",
-    };
-    private readonly DivisionDto _division = new()
-    {
-        Id = Guid.NewGuid(),
-        Name = "DIVISION",
-    };
+    private readonly SeasonDto _season = new SeasonDtoBuilder().Build();
+    private readonly DivisionDto _division = new DivisionDtoBuilder().Build();
     private EditTeamPlayerDto _player = null!;
     private CosmosTeam _team = null!;
     private AddPlayerToTeamSeasonCommand _command = null!;

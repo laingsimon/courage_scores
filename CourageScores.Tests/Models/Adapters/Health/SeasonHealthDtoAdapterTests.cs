@@ -2,7 +2,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
-using CourageScores.Models.Dtos.Season;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -25,13 +25,9 @@ public class SeasonHealthDtoAdapterTests
     [Test]
     public async Task Adapt_GivenMapping_ShouldSetPropertiesCorrectly()
     {
-        var season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "SEASON",
-            StartDate = new DateTime(2001, 02, 03),
-            EndDate = new DateTime(2002, 03, 04),
-        };
+        var season = new SeasonDtoBuilder()
+            .WithDates(new DateTime(2001, 02, 03), new DateTime(2002, 03, 04))
+            .Build();
         var division = new DivisionDataDto();
         var divisionDto = new DivisionHealthDto();
         var mapping = new SeasonHealthDtoAdapter.SeasonAndDivisions(season, new List<DivisionDataDto>

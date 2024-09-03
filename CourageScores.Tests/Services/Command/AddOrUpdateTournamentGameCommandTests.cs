@@ -84,10 +84,7 @@ public class AddOrUpdateTournamentGameCommandTests
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private AddOrUpdateTournamentGameCommand _command = null!;
     private readonly CancellationToken _token = new();
-    private readonly SeasonDto _season = new()
-    {
-        Id = Guid.NewGuid(),
-    };
+    private readonly SeasonDto _season = new SeasonDtoBuilder().Build();
     private TournamentGame _game = null!;
     private EditTournamentGameDto _update = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;

@@ -19,11 +19,7 @@ public class RemovePlayerCommandTests
     private Mock<IUserService> _userService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private readonly CancellationToken _token = new();
-    private readonly SeasonDto _season = new()
-    {
-        Id = Guid.NewGuid(),
-        Name = "SEASON",
-    };
+    private readonly SeasonDto _season = new SeasonDtoBuilder().Build();
     private TeamPlayer _teamPlayer = null!;
     private CosmosTeam _team = null!;
     private UserDto? _user;

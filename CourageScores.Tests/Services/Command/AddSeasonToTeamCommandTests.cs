@@ -35,14 +35,8 @@ public class AddSeasonToTeamCommandTests
             Id = Guid.NewGuid(),
             Name = "TEAM",
         };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
-        _division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-        };
+        _season = new SeasonDtoBuilder().Build();
+        _division = new DivisionDtoBuilder().Build();
     }
 
     [Test]

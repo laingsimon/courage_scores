@@ -1,8 +1,8 @@
 ﻿using CourageScores.Models.Adapters.Division;
-using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -81,11 +81,7 @@ public class DivisionPlayerAdapterTests
         };
         var playerTuple = new DivisionData.TeamPlayerTuple(player, team);
         var fixtures = new Dictionary<DateTime, Guid>();
-        var division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "DIVISION",
-        };
+        var division = new DivisionDtoBuilder().Build();
 
         var result = await _adapter.Adapt(score, playerTuple, fixtures, division, _token);
 
@@ -141,11 +137,7 @@ public class DivisionPlayerAdapterTests
         };
         var playerTuple = new DivisionData.TeamPlayerTuple(player, team);
         var fixtures = new Dictionary<DateTime, Guid>();
-        var division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "DIVISION",
-        };
+        var division = new DivisionDtoBuilder().Build();
 
         var result = await _adapter.Adapt(score, playerTuple, fixtures, division, _token);
 
@@ -206,11 +198,7 @@ public class DivisionPlayerAdapterTests
             Captain = true,
             Updated = new DateTime(2001, 02, 03),
         };
-        var division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "DIVISION",
-        };
+        var division = new DivisionDtoBuilder().Build();
 
         var result = await _adapter.Adapt(team, player, division, _token);
 
@@ -246,11 +234,7 @@ public class DivisionPlayerAdapterTests
             Captain = true,
             Updated = new DateTime(2001, 02, 03),
         };
-        var division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "DIVISION",
-        };
+        var division = new DivisionDtoBuilder().Build();
 
         var result = await _adapter.Adapt(team, player, division, _token);
 

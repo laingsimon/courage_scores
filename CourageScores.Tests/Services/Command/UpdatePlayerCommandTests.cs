@@ -70,11 +70,7 @@ public class UpdatePlayerCommandTests
             },
             TeamId = Guid.Parse(UserTeamId),
         };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "SEASON",
-        };
+        _season = new SeasonDtoBuilder().Build();
         _teamPlayer = new TeamPlayer
         {
             Id = Guid.NewGuid(),
