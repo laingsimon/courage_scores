@@ -44,13 +44,7 @@ public class HealthCheckServiceTests
             _divisionService.Object,
             _healthCheckFactory.Object,
             _seasonAdapter.Object);
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RunHealthChecks = true,
-            },
-        };
+        _user = _user.SetAccess(runHealthChecks: true);
         _division1 = new DivisionDataDto
         {
             Id = Guid.NewGuid(),

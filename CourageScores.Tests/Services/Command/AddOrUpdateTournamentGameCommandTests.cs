@@ -13,6 +13,7 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Tests.Models.Adapters;
+using CourageScores.Tests.Models.Cosmos.Game;
 using Moq;
 using NUnit.Framework;
 
@@ -21,11 +22,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateTournamentGameCommandTests
 {
-    private static readonly TournamentPlayerDto OneEightyPlayerDto = new TournamentPlayerDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "player",
-    };
+    private static readonly TournamentPlayerDto OneEightyPlayerDto = TournamentPlayerDto("player");
     private static readonly NotableTournamentPlayerDto Over100CheckoutPlayerDto = new NotableTournamentPlayerDto
     {
         Id = Guid.NewGuid(),
@@ -40,42 +37,20 @@ public class AddOrUpdateTournamentGameCommandTests
     {
         Id = Over100CheckoutPlayerDto.Id,
     };
-    private static readonly TournamentPlayerDto Side1Player1 = new TournamentPlayerDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "Side1, Player 1",
-    };
-    private static readonly TournamentPlayerDto Side1Player2 = new TournamentPlayerDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "Side1, Player 2",
-    };
-    private static readonly TournamentPlayerDto Side2Player1 = new TournamentPlayerDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "Side2, Player 1",
-    };
-    private static readonly TournamentPlayerDto Side2Player2 = new TournamentPlayerDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "Side2, Player 2",
-    };
+    private static readonly TournamentPlayerDto Side1Player1 = TournamentPlayerDto("Side1, Player 1");
+    private static readonly TournamentPlayerDto Side1Player2 = TournamentPlayerDto("Side1, Player 2");
+    private static readonly TournamentPlayerDto Side2Player1 = TournamentPlayerDto("Side2, Player 1");
+    private static readonly TournamentPlayerDto Side2Player2 = TournamentPlayerDto("Side2, Player 2");
     private static readonly TournamentSideDto Side1NoId = new TournamentSideDto
     {
         Name = "Side 1",
-        Players =
-        {
-            Side1Player1,
-        },
+        Players = { Side1Player1 },
     };
     private static readonly TournamentSideDto Side2 = new TournamentSideDto
     {
         Id = Guid.NewGuid(),
         Name = "Side 2",
-        Players =
-        {
-            Side2Player1,
-        },
+        Players = { Side2Player1 },
     };
 
     private Mock<ICachingSeasonService> _seasonService = null!;
@@ -103,11 +78,7 @@ public class AddOrUpdateTournamentGameCommandTests
     {
         _matchOptions = new GameMatchOption();
         _matchOptionsDto = new GameMatchOptionDto();
-        _game = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Date = new DateTime(2002, 03, 04),
-        };
+        _game = new TournamentGameBuilder().WithDate(new DateTime(2002, 03, 04)).Build();
         _update = new EditTournamentGameDto
         {
             Date = new DateTime(2001, 02, 03),
@@ -115,16 +86,12 @@ public class AddOrUpdateTournamentGameCommandTests
             LastUpdated = _game.Updated,
         };
         _cacheFlags = new ScopedCacheManagementFlags();
-
         _seasonService = new Mock<ICachingSeasonService>();
         _tournamentPlayerAdapter = new Mock<IAdapter<TournamentPlayer, TournamentPlayerDto>>();
         _sideAdapter = new TournamentSideAdapter(_tournamentPlayerAdapter.Object);
         _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOptions, _matchOptionsDto);
         _matchAdapter = new MockAdapter<TournamentMatch, TournamentMatchDto>();
-        _roundAdapter = new TournamentRoundAdapter(
-            _matchAdapter,
-            _sideAdapter,
-            _matchOptionAdapter);
+        _roundAdapter = new TournamentRoundAdapter(_matchAdapter, _sideAdapter, _matchOptionAdapter);
         _auditingHelper = new Mock<IAuditingHelper>();
         _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
         _commandFactory = new Mock<ICommandFactory>();
@@ -164,10 +131,7 @@ public class AddOrUpdateTournamentGameCommandTests
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Season not found",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Season not found" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -196,14 +160,8 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Address, Is.EqualTo(_update.Address));
         Assert.That(result.Result!.Notes, Is.EqualTo(_update.Notes));
         Assert.That(result.Result!.Date, Is.EqualTo(new DateTime(2001, 02, 03)));
-        Assert.That(result.Result!.OneEighties, Is.EquivalentTo(new[]
-        {
-            OneEightyPlayer,
-        }));
-        Assert.That(result.Result!.Over100Checkouts, Is.EquivalentTo(new[]
-        {
-            Over100CheckoutPlayer,
-        }));
+        Assert.That(result.Result!.OneEighties, Is.EquivalentTo(new[] { OneEightyPlayer }));
+        Assert.That(result.Result!.Over100Checkouts, Is.EquivalentTo(new[] { Over100CheckoutPlayer }));
         Assert.That(result.Result!.AccoladesCount, Is.True);
         Assert.That(result.Result!.ExcludeFromReports, Is.True);
         Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
@@ -303,52 +261,27 @@ public class AddOrUpdateTournamentGameCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "Side 1",
-            Players =
-            {
-                Side1Player1,
-                Side1Player2,
-            },
+            Players = { Side1Player1, Side1Player2 },
         };
         var side2 = new TournamentSideDto
         {
             Id = Guid.NewGuid(),
             Name = "Side 2",
-            Players =
-            {
-                Side2Player1,
-                Side2Player2,
-            },
+            Players = { Side2Player1, Side2Player2 },
         };
         var secondRound = new TournamentRoundDto
         {
-            Sides =
-            {
-                side1,
-            },
-            Matches =
-            {
-                MatchDto(side1, side2),
-                MatchDto(side1, side2),
-            },
+            Sides = { side1 },
+            Matches = { MatchDto(side1, side2), MatchDto(side1, side2) },
         };
         var rootRound = new TournamentRoundDto
         {
             NextRound = secondRound,
-            Sides =
-            {
-                side1,
-                side2,
-            },
-            Matches =
-            {
-                MatchDto(side1, side2),
-            },
+            Sides = { side1, side2 },
+            Matches = { MatchDto(side1, side2) },
         };
         _update.Round = rootRound;
-        _update.Sides = new List<TournamentSideDto>(new[]
-        {
-            side1, side2,
-        });
+        _update.Sides = new List<TournamentSideDto>(new[] { side1, side2 });
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
         secondRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
 
@@ -359,17 +292,11 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Round!.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.Result!.Round!.Matches.Count, Is.EqualTo(1));
         Assert.That(result.Result!.Round!.Matches.Select(m => m.Id), Has.All.Not.EqualTo(Guid.Empty));
-        Assert.That(result.Result!.Round!.Sides.Select(s => s.Id), Is.EquivalentTo(new[]
-        {
-            side1.Id, side2.Id,
-        }));
+        Assert.That(result.Result!.Round!.Sides.Select(s => s.Id), Is.EquivalentTo(new[] { side1.Id, side2.Id }));
         Assert.That(result.Result!.Round!.NextRound!.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.Result!.Round!.NextRound.Matches.Count, Is.EqualTo(2));
         Assert.That(result.Result!.Round!.NextRound.Matches.Select(m => m.Id), Has.All.Not.EqualTo(Guid.Empty));
-        Assert.That(result.Result!.Round!.NextRound.Sides.Select(s => s.Id), Is.EquivalentTo(new[]
-        {
-            side1.Id,
-        }));
+        Assert.That(result.Result!.Round!.NextRound.Sides.Select(s => s.Id), Is.EquivalentTo(new[] { side1.Id }));
     }
 
     [Test]
@@ -378,21 +305,11 @@ public class AddOrUpdateTournamentGameCommandTests
         var saygId = Guid.NewGuid();
         var rootRound = new TournamentRoundDto
         {
-            Sides =
-            {
-                Side1NoId,
-                Side2,
-            },
-            Matches =
-            {
-                MatchDto(Side1NoId, Side2, saygId),
-            },
+            Sides = { Side1NoId, Side2 },
+            Matches = { MatchDto(Side1NoId, Side2, saygId) },
         };
         _update.Round = rootRound;
-        _update.Sides = new List<TournamentSideDto>(new[]
-        {
-            Side1NoId, Side2,
-        });
+        _update.Sides = new List<TournamentSideDto>(new[] { Side1NoId, Side2 });
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(Match(Side1NoId, Side2, matchDto.SaygId), matchDto));
         _saygService.Setup(s => s.Get(saygId, _token)).ReturnsAsync(() => null);
 
@@ -417,22 +334,12 @@ public class AddOrUpdateTournamentGameCommandTests
         };
         var rootRound = new TournamentRoundDto
         {
-            Sides =
-            {
-                Side1NoId,
-                Side2,
-            },
-            Matches =
-            {
-                MatchDto(Side1NoId, Side2, sayg.Id),
-            },
+            Sides = { Side1NoId, Side2 },
+            Matches = { MatchDto(Side1NoId, Side2, sayg.Id) },
         };
         var newMatch = Match(Side1NoId, Side2, sayg.Id);
         _update.Round = rootRound;
-        _update.Sides = new List<TournamentSideDto>(new[]
-        {
-            Side1NoId, Side2,
-        });
+        _update.Sides = new List<TournamentSideDto>(new[] { Side1NoId, Side2 });
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
         _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
@@ -461,26 +368,13 @@ public class AddOrUpdateTournamentGameCommandTests
         };
         var rootRound = new TournamentRoundDto
         {
-            Sides =
-            {
-                Side1NoId,
-                Side2,
-            },
-            Matches =
-            {
-                MatchDto(Side1NoId, Side2, sayg.Id),
-            },
-            MatchOptions =
-            {
-                _matchOptionsDto,
-            },
+            Sides = { Side1NoId, Side2 },
+            Matches = { MatchDto(Side1NoId, Side2, sayg.Id) },
+            MatchOptions = { _matchOptionsDto },
         };
         var newMatch = Match(Side1NoId, Side2, sayg.Id);
         _update.Round = rootRound;
-        _update.Sides = new List<TournamentSideDto>(new[]
-        {
-            Side1NoId, Side2,
-        });
+        _update.Sides = new List<TournamentSideDto>(new[] { Side1NoId, Side2 });
         rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
         _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
         _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
@@ -493,10 +387,7 @@ public class AddOrUpdateTournamentGameCommandTests
             .ReturnsAsync(() => new ActionResultDto<RecordedScoreAsYouGoDto>());
         _game.Round = new TournamentRound
         {
-            MatchOptions =
-            {
-                _matchOptions,
-            },
+            MatchOptions = { _matchOptions },
         };
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
@@ -528,6 +419,15 @@ public class AddOrUpdateTournamentGameCommandTests
                 Name = sideB.Name!,
             },
             SaygId = saygId,
+        };
+    }
+
+    private static TournamentPlayerDto TournamentPlayerDto(string name)
+    {
+        return new TournamentPlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
         };
     }
 }

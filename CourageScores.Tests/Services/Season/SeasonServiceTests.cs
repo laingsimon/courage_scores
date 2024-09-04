@@ -30,13 +30,7 @@ public class SeasonServiceTests
     [SetUp]
     public void SetupEachTest()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageGames = true,
-            },
-        };
+        _user = _user.SetAccess(manageGames: true);
         _season = new CosmosSeason
         {
             Id = Guid.NewGuid(),

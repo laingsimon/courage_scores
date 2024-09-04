@@ -29,14 +29,8 @@ public class UploadPhotoCommandTests
     {
         _userService = new Mock<IUserService>();
         _photoService = new Mock<IPhotoService>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                UploadPhotos = true,
-            },
-            Name = "USER",
-        };
+        _user = _user.SetAccess(uploadPhotos: true);
+        _user.Name = "USER";
         _game = new CosmosGame
         {
             Id = Guid.NewGuid(),

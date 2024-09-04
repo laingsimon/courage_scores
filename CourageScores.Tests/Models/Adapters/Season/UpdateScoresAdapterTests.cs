@@ -6,6 +6,7 @@ using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -38,13 +39,7 @@ public class UpdateScoresAdapterTests
             _userService.Object,
             _scoreAsYouGoAdapter);
 
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RecordScoresAsYouGo = true,
-            },
-        };
+        _user = _user.SetAccess(recordScoresAsYouGo: true);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
@@ -136,7 +131,7 @@ public class UpdateScoresAdapterTests
     [Test]
     public async Task AdaptToMatch_WhenNotPermitted_AdaptsToMatch()
     {
-        _user!.Access!.RecordScoresAsYouGo = false;
+        _user.SetAccess(recordScoresAsYouGo: false);
         var inputMatch = new RecordScoresDto.RecordScoresGameMatchDto
         {
             HomePlayers = { HomePlayerDto },
@@ -226,7 +221,7 @@ public class UpdateScoresAdapterTests
     [Test]
     public async Task UpdateMatch_WhenNotPermitted_AdaptsToMatch()
     {
-        _user!.Access!.RecordScoresAsYouGo = false;
+        _user.SetAccess(recordScoresAsYouGo: false);
         var currentMatch = new GameMatch
         {
             Id = Guid.NewGuid(),

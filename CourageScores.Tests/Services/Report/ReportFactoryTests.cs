@@ -40,13 +40,7 @@ public class ReportFactoryTests
             _tournamentService.Object,
             _tournamentTypeResolver.Object);
 
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RunReports = true,
-            },
-        };
+        _user = _user.SetAccess(runReports: true);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
@@ -63,7 +57,7 @@ public class ReportFactoryTests
     [Test]
     public async Task GetReports_WhenNotPermitted_DoesNotReturnManOfMatch()
     {
-        _user!.Access!.ManageScores = false;
+        _user.SetAccess(manageScores: false);
 
         var reports = await _factory.GetReports(new ReportRequestDto(), _token).ToList();
 
@@ -73,7 +67,7 @@ public class ReportFactoryTests
     [Test]
     public async Task GetReports_WhenPermitted_DoesNotReturnManOfMatch()
     {
-        _user!.Access!.ManageScores = true;
+        _user.SetAccess(manageScores: true);
 
         var reports = await _factory.GetReports(new ReportRequestDto(), _token).ToList();
 

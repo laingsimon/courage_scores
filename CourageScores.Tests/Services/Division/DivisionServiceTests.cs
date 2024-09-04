@@ -101,6 +101,7 @@ public class DivisionServiceTests
         _someTournaments.Clear();
         _allTeams.Clear();
         _now = new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero);
+        _userDto = _userDto.SetAccess();
 
         _service = new DivisionService(
             _genericService.Object,
@@ -479,7 +480,7 @@ public class DivisionServiceTests
     public async Task GetDivisionData_WhenLoggedInAndCannotManageGames_GetsFixturesForFilterDivisionOnly()
     {
         _someGames.AddRange(new[] { Division1GameInSeason, Division1GameOutOfSeason });
-        WithAccess(manageGames: false);
+        _userDto.SetAccess(manageGames: false);
 
         await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 
@@ -493,7 +494,7 @@ public class DivisionServiceTests
     public async Task GetDivisionData_WhenLoggedInAndCanManageGames_GetsFixturesForAllDivisions()
     {
         _someGames.AddRange(new[] { Division1GameInSeason, Division1GameOutOfSeason, Division2GameInSeason, Division2GameOutOfSeason });
-        WithAccess(manageGames: true);
+        _userDto.SetAccess(manageGames: true);
 
         await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 
@@ -512,21 +513,10 @@ public class DivisionServiceTests
             DivisionId = { Division1.Id },
             ExcludeProposals = true,
         };
-        WithAccess(manageGames: true);
+        _userDto.SetAccess(manageGames: true);
 
         await _service.GetDivisionData(filter, _token);
 
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, false, _token));
-    }
-
-    private void WithAccess(bool manageGames)
-    {
-        _userDto = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageGames = manageGames,
-            },
-        };
     }
 }

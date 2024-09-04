@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -19,6 +20,7 @@ public class TeamPlayerAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
+        _user = null;
         _userService = new Mock<IUserService>();
         _adapter = new TeamPlayerAdapter(_userService.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -31,13 +33,7 @@ public class TeamPlayerAdapterTests
         {
             EmailAddress = "email@somewhere.com",
         };
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageTeams = true,
-            },
-        };
+        _user = _user.SetAccess(manageTeams: true);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -68,13 +64,7 @@ public class TeamPlayerAdapterTests
         {
             EmailAddress = "email@somewhere.com",
         };
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageTeams = false,
-            },
-        };
+        _user = _user.SetAccess(manageTeams: false);
 
         var result = await _adapter.Adapt(model, _token);
 
@@ -93,15 +83,8 @@ public class TeamPlayerAdapterTests
             Captain = true,
             EmailAddress = "email@somewhere.com",
         };
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageTeams = manageTeams,
-                ManageAccess = manageAccess,
-            },
-            EmailAddress = emailAddress ?? "other@somewhere.com",
-        };
+        _user = _user.SetAccess(manageTeams: manageTeams, manageAccess: manageAccess);
+        _user.EmailAddress = emailAddress ?? "other@somewhere.com";
 
         var result = await _adapter.Adapt(model, _token);
 

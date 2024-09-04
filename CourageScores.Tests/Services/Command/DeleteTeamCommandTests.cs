@@ -30,13 +30,7 @@ public class DeleteTeamCommandTests
         _auditingHelper = new Mock<IAuditingHelper>();
         _command = new DeleteTeamCommand(_userService.Object, _auditingHelper.Object, _cacheFlags);
         _team = new CosmosTeam();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageTeams = true,
-            },
-        };
+        _user = _user.SetAccess(manageTeams: true);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
@@ -95,7 +89,7 @@ public class DeleteTeamCommandTests
     [Test]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.ManageTeams = false;
+        _user.SetAccess(manageTeams: false);
 
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
@@ -293,7 +287,7 @@ public class DeleteTeamCommandTests
         _team.Seasons.Add(teamSeason);
         _auditingHelper.Setup(h => h.SetDeleted(teamSeason, _token)).Callback(() =>
         {
-            _user!.Access!.ManageTeams = false; // change the permissions part way through
+            _user.SetAccess(manageTeams: false); // change the permissions part way through
             teamSeason.Deleted = new DateTime(2001, 02, 03);
         });
 
@@ -320,7 +314,7 @@ public class DeleteTeamCommandTests
         _team.Seasons.Add(teamSeason);
         _auditingHelper.Setup(h => h.SetDeleted(teamSeason, _token)).Callback(() =>
         {
-            _user!.Access!.ManageTeams = false; // change the permissions part way through
+            _user.SetAccess(manageTeams: false); // change the permissions part way through
             teamSeason.Deleted = new DateTime(2001, 02, 03);
         });
 
