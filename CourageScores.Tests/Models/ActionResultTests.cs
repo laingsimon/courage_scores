@@ -7,19 +7,23 @@ namespace CourageScores.Tests.Models;
 [TestFixture]
 public class ActionResultTests
 {
+    private static readonly ActionResult<object> Success = new() { Success = true };
+    private static readonly ActionResult<object> NotSuccess = new() { Success = false };
+    private static readonly ActionResult<object> NullResult = new() { Result = null };
+    private static readonly ActionResult<object> WithResult1 = new() { Result = "RESULT 1" };
+    private static readonly ActionResult<object> WithResult2 = new() { Result = "RESULT 2" };
+    private static readonly ActionResult<object> Delete = new() { Delete = true };
+    private static readonly ActionResult<object> Retain = new() { Delete = false };
+    private static readonly ActionResultDto<object> SuccessDto = new() { Success = true };
+    private static readonly ActionResultDto<object> NotSuccessDto = new() { Success = false };
+    private static readonly ActionResultDto<object> NullResultDto = new() { Result = null };
+    private static readonly ActionResultDto<object> WithResult1Dto = new() { Result = "RESULT 1 DTO" };
+    private static readonly ActionResultDto<object> WithResult2Dto = new() { Result = "RESULT 2 DTO" };
+
     [Test]
     public void MergeActionResult_WhenCurrentSuccessfulAndOtherUnsuccessful_ReturnsUnsuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = true,
-        };
-        var other = new ActionResult<object>
-        {
-            Success = false,
-        };
-
-        var result = current.Merge(other);
+        var result = Success.Merge(NotSuccess);
 
         Assert.That(result.Success, Is.False);
     }
@@ -27,16 +31,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentUnsuccessfulAndOtherSuccessful_ReturnsUnsuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = false,
-        };
-        var other = new ActionResult<object>
-        {
-            Success = true,
-        };
-
-        var result = current.Merge(other);
+        var result = NotSuccess.Merge(Success);
 
         Assert.That(result.Success, Is.False);
     }
@@ -44,16 +39,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentUnsuccessfulAndOtherUnsuccessful_ReturnsUnsuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = false,
-        };
-        var other = new ActionResult<object>
-        {
-            Success = false,
-        };
-
-        var result = current.Merge(other);
+        var result = NotSuccess.Merge(NotSuccess);
 
         Assert.That(result.Success, Is.False);
     }
@@ -61,16 +47,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentSuccessfulAndOtherSuccessful_ReturnsSuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = true,
-        };
-        var other = new ActionResult<object>
-        {
-            Success = true,
-        };
-
-        var result = current.Merge(other);
+        var result = Success.Merge(Success);
 
         Assert.That(result.Success, Is.True);
     }
@@ -78,35 +55,17 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentHasAResultAndOtherHasAResult_ReturnsOtherResult()
     {
-        var current = new ActionResult<string>
-        {
-            Result = "CURRENT",
-        };
-        var other = new ActionResult<string>
-        {
-            Result = "OTHER",
-        };
+        var result = WithResult1.Merge(WithResult2);
 
-        var result = current.Merge(other);
-
-        Assert.That(result.Result, Is.EqualTo("OTHER"));
+        Assert.That(result.Result, Is.EqualTo(WithResult2.Result));
     }
 
     [Test]
     public void MergeActionResult_WhenCurrentHasNoResultAndOtherHasAResult_ReturnsOtherResult()
     {
-        var current = new ActionResult<string>
-        {
-            Result = null,
-        };
-        var other = new ActionResult<string>
-        {
-            Result = "OTHER",
-        };
+        var result = NullResult.Merge(WithResult1);
 
-        var result = current.Merge(other);
-
-        Assert.That(result.Result, Is.EqualTo("OTHER"));
+        Assert.That(result.Result, Is.EqualTo(WithResult1.Result));
     }
 
     [Test]
@@ -129,33 +88,15 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentHasResultAndOtherHasNoResult_ReturnsCurrentResult()
     {
-        var current = new ActionResult<string>
-        {
-            Result = "CURRENT",
-        };
-        var other = new ActionResult<string>
-        {
-            Result = null,
-        };
+        var result = WithResult1.Merge(NullResult);
 
-        var result = current.Merge(other);
-
-        Assert.That(result.Result, Is.EqualTo("CURRENT"));
+        Assert.That(result.Result, Is.EqualTo(WithResult1.Result));
     }
 
     [Test]
     public void MergeActionResult_WhenCurrentDeleteAndOtherNotDelete_ReturnsDelete()
     {
-        var current = new ActionResult<object>
-        {
-            Delete = true,
-        };
-        var other = new ActionResult<object>
-        {
-            Delete = false,
-        };
-
-        var result = current.Merge(other);
+        var result = Delete.Merge(Retain);
 
         Assert.That(result.Delete, Is.True);
     }
@@ -163,16 +104,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentNotDeleteAndOtherDelete_ReturnsDelete()
     {
-        var current = new ActionResult<object>
-        {
-            Delete = false,
-        };
-        var other = new ActionResult<object>
-        {
-            Delete = true,
-        };
-
-        var result = current.Merge(other);
+        var result = Retain.Merge(Delete);
 
         Assert.That(result.Delete, Is.True);
     }
@@ -180,16 +112,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentDeleteAndOtherDelete_ReturnsDelete()
     {
-        var current = new ActionResult<object>
-        {
-            Delete = true,
-        };
-        var other = new ActionResult<object>
-        {
-            Delete = true,
-        };
-
-        var result = current.Merge(other);
+        var result = Delete.Merge(Delete);
 
         Assert.That(result.Delete, Is.True);
     }
@@ -197,16 +120,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResult_WhenCurrentNotDeleteAndOtherNotDelete_ReturnsNotDelete()
     {
-        var current = new ActionResult<object>
-        {
-            Delete = false,
-        };
-        var other = new ActionResult<object>
-        {
-            Delete = false,
-        };
-
-        var result = current.Merge(other);
+        var result = Retain.Merge(Retain);
 
         Assert.That(result.Delete, Is.False);
     }
@@ -277,16 +191,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResultDto_WhenCurrentSuccessfulAndOtherUnsuccessful_ReturnsUnsuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = true,
-        };
-        var other = new ActionResultDto<object>
-        {
-            Success = false,
-        };
-
-        var result = current.Merge(other);
+        var result = Success.Merge(NotSuccessDto);
 
         Assert.That(result.Success, Is.False);
     }
@@ -294,16 +199,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResultDto_WhenCurrentUnsuccessfulAndOtherSuccessful_ReturnsUnsuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = false,
-        };
-        var other = new ActionResultDto<object>
-        {
-            Success = true,
-        };
-
-        var result = current.Merge(other);
+        var result = NotSuccess.Merge(SuccessDto);
 
         Assert.That(result.Success, Is.False);
     }
@@ -311,16 +207,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResultDto_WhenCurrentUnsuccessfulAndOtherUnsuccessful_ReturnsUnsuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = false,
-        };
-        var other = new ActionResultDto<object>
-        {
-            Success = false,
-        };
-
-        var result = current.Merge(other);
+        var result = NotSuccess.Merge(NotSuccessDto);
 
         Assert.That(result.Success, Is.False);
     }
@@ -328,16 +215,7 @@ public class ActionResultTests
     [Test]
     public void MergeActionResultDto_WhenCurrentSuccessfulAndOtherSuccessful_ReturnsSuccessful()
     {
-        var current = new ActionResult<object>
-        {
-            Success = true,
-        };
-        var other = new ActionResultDto<object>
-        {
-            Success = true,
-        };
-
-        var result = current.Merge(other);
+        var result = Success.Merge(SuccessDto);
 
         Assert.That(result.Success, Is.True);
     }
@@ -345,50 +223,23 @@ public class ActionResultTests
     [Test]
     public void MergeActionResultDto_WhenCurrentHasAResultAndOtherHasAResult_ReturnsOtherResult()
     {
-        var current = new ActionResult<string>
-        {
-            Result = "CURRENT",
-        };
-        var other = new ActionResultDto<string>
-        {
-            Result = "OTHER",
-        };
+        var result = WithResult1.Merge(WithResult2Dto);
 
-        var result = current.Merge(other);
-
-        Assert.That(result.Result, Is.EqualTo("OTHER"));
+        Assert.That(result.Result, Is.EqualTo(WithResult2Dto.Result));
     }
 
     [Test]
     public void MergeActionResultDto_WhenCurrentHasNoResultAndOtherHasAResult_ReturnsOtherResult()
     {
-        var current = new ActionResult<string>
-        {
-            Result = null,
-        };
-        var other = new ActionResultDto<string>
-        {
-            Result = "OTHER",
-        };
+        var result = NullResult.Merge(WithResult1Dto);
 
-        var result = current.Merge(other);
-
-        Assert.That(result.Result, Is.EqualTo("OTHER"));
+        Assert.That(result.Result, Is.EqualTo(WithResult1Dto.Result));
     }
 
     [Test]
     public void MergeActionResultDto_WhenCurrentHasNoResultAndOtherHasNoResult_ReturnsNoResult()
     {
-        var current = new ActionResult<string>
-        {
-            Result = null,
-        };
-        var other = new ActionResultDto<string>
-        {
-            Result = null,
-        };
-
-        var result = current.Merge(other);
+        var result = NullResult.Merge(NullResultDto);
 
         Assert.That(result.Result, Is.Null);
     }
@@ -396,30 +247,17 @@ public class ActionResultTests
     [Test]
     public void MergeActionResultDto_WhenCurrentHasResultAndOtherHasNoResult_ReturnsCurrentResult()
     {
-        var current = new ActionResult<string>
-        {
-            Result = "CURRENT",
-        };
-        var other = new ActionResultDto<string>
-        {
-            Result = null,
-        };
+        var result = WithResult1.Merge(NullResultDto);
 
-        var result = current.Merge(other);
-
-        Assert.That(result.Result, Is.EqualTo("CURRENT"));
+        Assert.That(result.Result, Is.EqualTo(WithResult1.Result));
     }
 
     [Test]
     public void MergeActionResultDto_WhenCurrentDelete_ReturnsDelete()
     {
-        var current = new ActionResult<object>
-        {
-            Delete = true,
-        };
         var other = new ActionResultDto<object>();
 
-        var result = current.Merge(other);
+        var result = Delete.Merge(other);
 
         Assert.That(result.Delete, Is.True);
     }
@@ -427,13 +265,9 @@ public class ActionResultTests
     [Test]
     public void MergeActionResultDto_WhenCurrentNotDelete_ReturnsNotDelete()
     {
-        var current = new ActionResult<object>
-        {
-            Delete = false,
-        };
         var other = new ActionResultDto<object>();
 
-        var result = current.Merge(other);
+        var result = Retain.Merge(other);
 
         Assert.That(result.Delete, Is.False);
     }
