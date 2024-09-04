@@ -97,8 +97,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Get_WhenNotPermitted_ShouldExcludeSubmissions(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
 
         var result = await _service.Get(_game!.Id, _token);
 
@@ -110,8 +109,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Get_WhenResultsPublished_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
         _game!.ResultsPublished = true;
 
         var result = await _service.Get(_game!.Id, _token);
@@ -123,8 +121,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Get_WhenResultsUnpublishedAndNotPermitted_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
 
         var result = await _service.Get(_game!.Id, _token);
 
@@ -246,8 +243,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetAll_WhenNotPermitted_ShouldExcludeSubmissions(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
 
         var games = await _service.GetAll(_token).ToList();
 
@@ -259,8 +255,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetAll_WhenResultsPublished_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
         _game!.ResultsPublished = true;
 
         var games = await _service.GetAll(_token).ToList();
@@ -272,8 +267,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetAll_WhenResultsUnpublishedAndNotPermitted_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
 
         var games = await _service.GetAll(_token).ToList();
 
@@ -321,8 +315,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetWhere_WhenNotPermitted_ShouldExcludeSubmissions(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
 
         var games = await _service.GetWhere("query", _token).ToList();
 
@@ -334,8 +327,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetWhere_WhenResultsPublished_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
         _game!.ResultsPublished = true;
 
         var games = await _service.GetWhere("query", _token).ToList();
@@ -347,8 +339,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task GetWhere_WhenResultsUnpublishedAndNotPermitted_ShouldReturnGame(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
 
         var games = await _service.GetWhere("query", _token).ToList();
 
@@ -385,8 +376,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Delete_WhenNotPermitted_ExcludesSubmissionsFromResult(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
         _underlyingService.Setup(s => s.Delete(_game!.Id, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
             Result = _game,
@@ -404,8 +394,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Delete_WhenNotPermitted_ReturnsNull(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
         _underlyingService.Setup(s => s.Delete(_game!.Id, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
             Result = null,
@@ -422,8 +411,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Upsert_WhenNotPermitted_ExcludesSubmissionsFromResult(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
         var command = new Mock<IUpdateCommand<CosmosGame, CosmosGame>>();
         _underlyingService.Setup(s => s.Upsert(_game!.Id, command.Object, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
@@ -442,8 +430,7 @@ public class GameServiceTests
     [TestCase(true, false)]
     public async Task Upsert_WhenNotPermitted_ReturnsNull(bool loggedIn, bool inputResults)
     {
-        _user = loggedIn ? _user : null;
-        _user.SetAccess(inputResults: inputResults);
+        _user = loggedIn ? _user.SetAccess(inputResults: inputResults) : null;
         var command = new Mock<IUpdateCommand<CosmosGame, CosmosGame>>();
         _underlyingService.Setup(s => s.Upsert(_game!.Id, command.Object, _token)).ReturnsAsync(() => new ActionResultDto<GameDto>
         {
