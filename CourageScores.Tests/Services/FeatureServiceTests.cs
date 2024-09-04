@@ -16,12 +16,13 @@ namespace CourageScores.Tests.Services;
 [TestFixture]
 public class FeatureServiceTests
 {
-    private static readonly Feature BooleanFeature = new Feature(
-        Guid.NewGuid(),
-        "NAME",
-        "DESCRIPTION",
-        Feature.FeatureValueType.Boolean,
-        null, new Dictionary<Guid, Feature>());
+    private static readonly Feature BooleanFeature = CreateFeature(Feature.FeatureValueType.Boolean);
+    private static readonly Feature DecimalFeature = CreateFeature(Feature.FeatureValueType.Decimal);
+    private static readonly Feature StringFeature = CreateFeature(Feature.FeatureValueType.String);
+    private static readonly Feature IntFeature = CreateFeature(Feature.FeatureValueType.Integer);
+    private static readonly Feature TimeSpanFeature = CreateFeature(Feature.FeatureValueType.TimeSpan);
+    private static readonly ReconfigureFeatureDto ReconfigureBooleanFeature = ReconfigureFeatureDto(BooleanFeature);
+
     private readonly CancellationToken _token = new CancellationToken();
     private readonly DateTimeOffset _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
     private ConfiguredFeature _configuredBoolFeature = null!;
@@ -36,13 +37,19 @@ public class FeatureServiceTests
     private Mock<ISimpleOnewayAdapter<Guid,ConfiguredFeatureDto>> _unconfiguredAdapter = null!;
     private Mock<ISystemClock> _clock = null!;
     private UserDto? _user;
+    private ConfiguredFeature _untypedFeature = new ConfiguredFeature
+    {
+        Id = Guid.NewGuid(),
+        ConfiguredValue = "CONFIG",
+    };
+    private ReconfigureFeatureDto _reconfigureUntypedFeature = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _configuredBoolFeature = new ConfiguredFeature { Id = BooleanFeature.Id };
+        _configuredBoolFeature = ConfiguredFeature(BooleanFeature);
         _configuredBoolFeatureDto = new ConfiguredFeatureDto { Id = BooleanFeature.Id };
-        _reconfigureBoolFeatureDto = new ReconfigureFeatureDto { Id = BooleanFeature.Id };
+        _reconfigureBoolFeatureDto = ReconfigureFeatureDto(BooleanFeature);
         _user = _user.SetAccess(manageFeatures: true);
         _user.Name = "USER";
         _repository = new Mock<IGenericRepository<ConfiguredFeature>>();
@@ -61,12 +68,25 @@ public class FeatureServiceTests
             _featureLookup.Object,
             new LoadedFeatures(),
             _clock.Object);
+        _untypedFeature = new ConfiguredFeature
+        {
+            Id = Guid.NewGuid(),
+            ConfiguredValue = "CONFIG",
+        };
+        _reconfigureUntypedFeature = new ReconfigureFeatureDto
+        {
+            Id = _untypedFeature.Id,
+            ConfiguredValue = "CONFIG",
+        };
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _unconfiguredAdapter.Setup(a => a.Adapt(_configuredBoolFeature.Id, _token)).ReturnsAsync(_configuredBoolFeatureDto);
         _clock.Setup(c => c.UtcNow).Returns(_now);
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_configuredBoolFeature));
         _adapter.AddMapping(_configuredBoolFeature, _configuredBoolFeatureDto);
+        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureUntypedFeature, _token)).ReturnsAsync(_untypedFeature);
+        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
     }
 
     [Test]
@@ -93,8 +113,7 @@ public class FeatureServiceTests
     public async Task Get_GivenUnknownId_ReturnsNull()
     {
         _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_configuredBoolFeature));
-        var feature = new Feature(Guid.NewGuid(), "NAME 1", "DESC 1", Feature.FeatureValueType.Boolean, null,
-            new Dictionary<Guid, Feature>());
+        var feature = CreateFeature(Feature.FeatureValueType.Boolean);
 
         var result = await _service.Get(feature, _token);
 
@@ -139,13 +158,9 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenLoggedOut_ReturnsUnsuccessful()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = BooleanFeature.Id,
-        };
         _user = null;
 
-        var result = await _service.UpdateFeature(update, _token);
+        var result = await _service.UpdateFeature(ReconfigureBooleanFeature, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
@@ -154,13 +169,9 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = BooleanFeature.Id,
-        };
         _user!.Access!.ManageFeatures = false;
 
-        var result = await _service.UpdateFeature(update, _token);
+        var result = await _service.UpdateFeature(ReconfigureBooleanFeature, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
@@ -169,63 +180,31 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenFeatureNotFound_UpdatesFeature()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = Guid.NewGuid(),
-            ConfiguredValue = "CONFIG",
-        };
-        var updatedFeature = new ConfiguredFeature
-        {
-            Id = update.Id,
-            ConfiguredValue = "CONFIG",
-        };
-        _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
-
-        var result = await _service.UpdateFeature(update, _token);
+        var result = await _service.UpdateFeature(_reconfigureUntypedFeature, _token);
 
         Assert.That(result.Success, Is.True);
-        _repository.Verify(r => r.Upsert(updatedFeature, _token));
+        _repository.Verify(r => r.Upsert(_untypedFeature, _token));
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Feature isn't known (anymore/yet) - data type cannot be validated" }));
     }
 
     [Test]
     public async Task UpdateFeature_WhenFeatureNotConfigured_UpdatesFeatureAndSetsAuthorAndCreated()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = Guid.NewGuid(),
-            ConfiguredValue = "CONFIG",
-        };
-        var updatedFeature = new ConfiguredFeature
-        {
-            Id = update.Id,
-            ConfiguredValue = "CONFIG",
-        };
-        _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
-
-        var result = await _service.UpdateFeature(update, _token);
+        var result = await _service.UpdateFeature(_reconfigureUntypedFeature, _token);
 
         Assert.That(result.Success, Is.True);
-        _repository.Verify(r => r.Upsert(updatedFeature, _token));
-        Assert.That(updatedFeature.Created, Is.EqualTo(_now.UtcDateTime));
-        Assert.That(updatedFeature.Author, Is.EqualTo(_user!.Name));
-        Assert.That(updatedFeature.Updated, Is.EqualTo(_now.UtcDateTime));
-        Assert.That(updatedFeature.Editor, Is.EqualTo(_user!.Name));
+        _repository.Verify(r => r.Upsert(_untypedFeature, _token));
+        Assert.That(_untypedFeature.Created, Is.EqualTo(_now.UtcDateTime));
+        Assert.That(_untypedFeature.Author, Is.EqualTo(_user!.Name));
+        Assert.That(_untypedFeature.Updated, Is.EqualTo(_now.UtcDateTime));
+        Assert.That(_untypedFeature.Editor, Is.EqualTo(_user!.Name));
     }
 
     [Test]
     public async Task UpdateFeature_WhenFeatureAlreadyConfigured_UpdatesFeatureAndSetsEditorAndUpdated()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = _configuredBoolFeature.Id,
-            ConfiguredValue = "TRUE",
-        };
-        var updatedFeature = new ConfiguredFeature
-        {
-            Id = update.Id,
-            ConfiguredValue = "TRUE",
-        };
+        var update = ReconfigureFeatureDto(BooleanFeature, "TRUE");
+        var updatedFeature = ConfiguredFeature(BooleanFeature, "TRUE");
         _configuredBoolFeatureDto.Author = "AUTHOR";
         _configuredBoolFeatureDto.Created = new DateTime(2020, 10, 10);
         _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
@@ -243,16 +222,8 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenFeatureConfigurationDeleted_UpdatesFeatureAndUnDeletesConfiguration()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = _configuredBoolFeature.Id,
-            ConfiguredValue = "TRUE",
-        };
-        var updatedFeature = new ConfiguredFeature
-        {
-            Id = update.Id,
-            ConfiguredValue = "TRUE",
-        };
+        var update = ReconfigureFeatureDto(BooleanFeature, "TRUE");
+        var updatedFeature = ConfiguredFeature(BooleanFeature, "TRUE");
         _configuredBoolFeatureDto.Remover = "REMOVER";
         _configuredBoolFeatureDto.Deleted = new DateTime(2020, 10, 10);
         _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
@@ -268,20 +239,11 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_GivenEmptyConfiguredValue_DeletesConfiguration()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = _configuredBoolFeature.Id,
-            ConfiguredValue = "",
-        };
-        var updatedFeature = new ConfiguredFeature
-        {
-            Id = update.Id,
-            ConfiguredValue = "",
-        };
+        var update = ReconfigureFeatureDto(BooleanFeature, "");
+        var updatedFeature = ConfiguredFeature(BooleanFeature, "");
         _configuredBoolFeatureDto.Editor = "EDITOR";
         _configuredBoolFeatureDto.Updated = new DateTime(2020, 10, 10);
         _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
-        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
 
         var result = await _service.UpdateFeature(update, _token);
 
@@ -296,16 +258,9 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_GivenEmptyConfiguredValueForUnconfiguredFeature_ReturnsWarning()
     {
-        var update = new ReconfigureFeatureDto
-        {
-            Id = Guid.NewGuid(),
-            ConfiguredValue = "",
-        };
-        var updatedFeature = new ConfiguredFeature
-        {
-            Id = update.Id,
-            ConfiguredValue = "",
-        };
+        var unconfiguredFeature = CreateFeature(Feature.FeatureValueType.String);
+        var updatedFeature = ConfiguredFeature(unconfiguredFeature, "");
+        var update = ReconfigureFeatureDto(unconfiguredFeature, "");
         _reconfigureAdapter.Setup(a => a.Adapt(update, _token)).ReturnsAsync(updatedFeature);
 
         var result = await _service.UpdateFeature(update, _token);
@@ -319,8 +274,6 @@ public class FeatureServiceTests
     public async Task UpdateFeature_WhenConfiguredValueNull_UpdatesFeature()
     {
         _reconfigureBoolFeatureDto.ConfiguredValue = null;
-        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
 
         var result = await _service.UpdateFeature(_reconfigureBoolFeatureDto, _token);
 
@@ -332,8 +285,6 @@ public class FeatureServiceTests
     public async Task UpdateFeature_WhenConfiguredValueEmpty_UpdatesFeature()
     {
         _reconfigureBoolFeatureDto.ConfiguredValue = "";
-        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
-        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
 
         var result = await _service.UpdateFeature(_reconfigureBoolFeatureDto, _token);
 
@@ -347,8 +298,6 @@ public class FeatureServiceTests
     [TestCase("FALSE")]
     public async Task UpdateFeature_WhenConfiguredValueIsABool_UpdatesFeature(string value)
     {
-        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
-        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
         _configuredBoolFeature.ConfiguredValue = value;
 
         var result = await _service.UpdateFeature(_reconfigureBoolFeatureDto, _token);
@@ -360,8 +309,6 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueIsNotABool_UpdatesFeature()
     {
-        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
-        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
         _configuredBoolFeature.ConfiguredValue = "foo";
 
         var result = await _service.UpdateFeature(_reconfigureBoolFeatureDto, _token);
@@ -375,17 +322,9 @@ public class FeatureServiceTests
     [TestCase("1")]
     public async Task UpdateFeature_WhenConfiguredValueIsADecimal_UpdatesFeature(string value)
     {
-        var feature = new Feature(Guid.NewGuid(), "DECIMAL", "DESC", Feature.FeatureValueType.Decimal, null, new Dictionary<Guid, Feature>());
-        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = value,
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        _featureLookup.Setup(l => l.Get(DecimalFeature.Id)).Returns(DecimalFeature);
+        var configuredFeature = ConfiguredFeature(DecimalFeature, value);
+        var configuredValueDto = ReconfigureFeatureDto(DecimalFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -397,17 +336,9 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueIsNotADecimal_UpdatesFeature()
     {
-        var feature = new Feature(Guid.NewGuid(), "DECIMAL", "DESC", Feature.FeatureValueType.Decimal, null, new Dictionary<Guid, Feature>());
-        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = "foo",
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        _featureLookup.Setup(l => l.Get(DecimalFeature.Id)).Returns(DecimalFeature);
+        var configuredFeature = ConfiguredFeature(DecimalFeature, "foo");
+        var configuredValueDto = ReconfigureFeatureDto(DecimalFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -420,17 +351,9 @@ public class FeatureServiceTests
     [TestCase("1")]
     public async Task UpdateFeature_WhenConfiguredValueIsAnInt_UpdatesFeature(string value)
     {
-        var feature = new Feature(Guid.NewGuid(), "INT", "DESC", Feature.FeatureValueType.Integer, null, new Dictionary<Guid, Feature>());
-        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = value,
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        _featureLookup.Setup(l => l.Get(IntFeature.Id)).Returns(IntFeature);
+        var configuredFeature = ConfiguredFeature(IntFeature, value);
+        var configuredValueDto = ReconfigureFeatureDto(IntFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -442,17 +365,9 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueIsNotAnInt_UpdatesFeature()
     {
-        var feature = new Feature(Guid.NewGuid(), "INT", "DESC", Feature.FeatureValueType.Integer, null, new Dictionary<Guid, Feature>());
-        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = "foo",
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        _featureLookup.Setup(l => l.Get(IntFeature.Id)).Returns(IntFeature);
+        var configuredFeature = ConfiguredFeature(IntFeature, "foo");
+        var configuredValueDto = ReconfigureFeatureDto(IntFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -465,17 +380,9 @@ public class FeatureServiceTests
     [TestCase("10:20:30")]
     public async Task UpdateFeature_WhenConfiguredValueIsATimeSpan_UpdatesFeature(string value)
     {
-        var feature = new Feature(Guid.NewGuid(), "TIMESPAN", "DESC", Feature.FeatureValueType.TimeSpan, null, new Dictionary<Guid, Feature>());
-        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = value,
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        _featureLookup.Setup(l => l.Get(TimeSpanFeature.Id)).Returns(TimeSpanFeature);
+        var configuredFeature = ConfiguredFeature(TimeSpanFeature, value);
+        var configuredValueDto = ReconfigureFeatureDto(TimeSpanFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -487,17 +394,9 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueIsNotATimeSpan_UpdatesFeature()
     {
-        var feature = new Feature(Guid.NewGuid(), "TIMESPAN", "DESC", Feature.FeatureValueType.TimeSpan, null, new Dictionary<Guid, Feature>());
-        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = "foo",
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        _featureLookup.Setup(l => l.Get(TimeSpanFeature.Id)).Returns(TimeSpanFeature);
+        var configuredFeature = ConfiguredFeature(TimeSpanFeature, "foo");
+        var configuredValueDto = ReconfigureFeatureDto(TimeSpanFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -506,21 +405,12 @@ public class FeatureServiceTests
         _repository.Verify(r => r.Upsert(It.IsAny<ConfiguredFeature>(), _token), Times.Never);
     }
 
-
     [Test]
     public async Task UpdateFeature_WhenConfiguredValueIsAString_UpdatesFeature()
     {
-        var feature = new Feature(Guid.NewGuid(), "STRING", "DESC", Feature.FeatureValueType.String, null, new Dictionary<Guid, Feature>());
-        _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = "some string",
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        _featureLookup.Setup(l => l.Get(StringFeature.Id)).Returns(StringFeature);
+        var configuredFeature = ConfiguredFeature(StringFeature, "some string");
+        var configuredValueDto = ReconfigureFeatureDto(StringFeature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -532,17 +422,10 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenFeatureTypeIsUnknown_UpdatesFeature()
     {
-        var feature = new Feature(Guid.NewGuid(), "UNKNOWN", "DESC", Feature.FeatureValueType.Unknown, null, new Dictionary<Guid, Feature>());
+        var feature = CreateFeature(Feature.FeatureValueType.Unknown);
         _featureLookup.Setup(l => l.Get(feature.Id)).Returns(feature);
-        var configuredFeature = new ConfiguredFeature
-        {
-            Id = feature.Id,
-            ConfiguredValue = "some unknown value",
-        };
-        var configuredValueDto = new ReconfigureFeatureDto
-        {
-            Id = feature.Id,
-        };
+        var configuredFeature = ConfiguredFeature(feature, "some unknown value");
+        var configuredValueDto = ReconfigureFeatureDto(feature);
         _reconfigureAdapter.Setup(a => a.Adapt(configuredValueDto, _token)).ReturnsAsync(configuredFeature);
 
         var result = await _service.UpdateFeature(configuredValueDto, _token);
@@ -554,15 +437,42 @@ public class FeatureServiceTests
     [Test]
     public async Task UpdateFeature_WhenFeatureUpdatedAndFeatureFetched_ReloadsDataFromRepository()
     {
-        _reconfigureAdapter.Setup(a => a.Adapt(_reconfigureBoolFeatureDto, _token)).ReturnsAsync(_configuredBoolFeature);
         await _service.GetAllFeatures(_token).ToList();
         _configuredBoolFeature.ConfiguredValue = "true";
-        _featureLookup.Setup(l => l.Get(BooleanFeature.Id)).Returns(BooleanFeature);
         var result = await _service.UpdateFeature(_reconfigureBoolFeatureDto, _token);
 
         await _service.GetAllFeatures(_token).ToList();
 
         _repository.Verify(r => r.GetAll(_token), Times.Exactly(2));
         Assert.That(result.Messages, Has.Member("Feature cache cleared"));
+    }
+
+    private static Feature CreateFeature(Feature.FeatureValueType type)
+    {
+        return new Feature(
+            Guid.NewGuid(),
+            type.ToString().ToUpper(),
+            "DESC",
+            type,
+            null,
+            new Dictionary<Guid, Feature>());
+    }
+
+    private static ReconfigureFeatureDto ReconfigureFeatureDto(Feature feature, string? configuredValue = null)
+    {
+        return new ReconfigureFeatureDto
+        {
+            Id = feature.Id,
+            ConfiguredValue = configuredValue,
+        };
+    }
+
+    private static ConfiguredFeature ConfiguredFeature(Feature feature, string? configuredValue = null)
+    {
+        return new ConfiguredFeature
+        {
+            Id = feature.Id,
+            ConfiguredValue = configuredValue,
+        };
     }
 }
