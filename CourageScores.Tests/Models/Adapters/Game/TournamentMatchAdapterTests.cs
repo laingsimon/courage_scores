@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -23,13 +24,7 @@ public class TournamentMatchAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RecordScoresAsYouGo = true,
-            },
-        };
+        _user = _user.SetAccess(recordScoresAsYouGo: true);
         _userService = new Mock<IUserService>();
         _adapter = new TournamentMatchAdapter(
             new MockAdapter<TournamentSide, TournamentSideDto>(
@@ -93,7 +88,7 @@ public class TournamentMatchAdapterTests
         }
         else if (!permittedToRecordScoresAsYouGo)
         {
-            _user!.Access!.RecordScoresAsYouGo = false;
+            _user.SetAccess(recordScoresAsYouGo: false);
         }
         var dto = new TournamentMatchDto
         {

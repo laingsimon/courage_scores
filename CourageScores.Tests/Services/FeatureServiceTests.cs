@@ -43,14 +43,8 @@ public class FeatureServiceTests
         _configuredBoolFeature = new ConfiguredFeature { Id = BooleanFeature.Id };
         _configuredBoolFeatureDto = new ConfiguredFeatureDto { Id = BooleanFeature.Id };
         _reconfigureBoolFeatureDto = new ReconfigureFeatureDto { Id = BooleanFeature.Id };
-        _user = new UserDto
-        {
-            Name = "USER",
-            Access = new AccessDto
-            {
-                ManageFeatures = true,
-            },
-        };
+        _user = _user.SetAccess(manageFeatures: true);
+        _user.Name = "USER";
         _repository = new Mock<IGenericRepository<ConfiguredFeature>>();
         _userService = new Mock<IUserService>();
         _featureLookup = new Mock<IFeatureLookup>();

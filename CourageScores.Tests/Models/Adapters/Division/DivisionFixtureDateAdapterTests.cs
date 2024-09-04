@@ -85,10 +85,7 @@ public class DivisionFixtureDateAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
         _userService = new Mock<IUserService>();
         _divisionFixtureAdapter = new Mock<IDivisionFixtureAdapter>();
         _divisionTournamentFixtureDetailsAdapter = new Mock<IDivisionTournamentFixtureDetailsAdapter>();
@@ -133,7 +130,7 @@ public class DivisionFixtureDateAdapterTests
     [Test]
     public async Task Adapt_WhenNotPermittedToCreateGames_DoesNotIncludeTournamentProposals()
     {
-        _user!.Access!.ManageGames = false;
+        _user.SetAccess(manageGames: false);
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(TournamentGameA, _token))
             .ReturnsAsync(TournamentGameDtoA);
@@ -281,7 +278,7 @@ public class DivisionFixtureDateAdapterTests
             Id = Guid.NewGuid(),
             HomeTeam = new DivisionFixtureTeamDto(),
         };
-        _user!.Access!.ManageGames = manageGames;
+        _user.SetAccess(manageGames: manageGames);
         _divisionFixtureAdapter.Setup(a => a.ForUnselectedTeam(TeamC, false, Array.Empty<CosmosGame>(), HomeDivision, _token)).ReturnsAsync(byeDto);
 
         var result = await _adapter.Adapt(
@@ -311,7 +308,7 @@ public class DivisionFixtureDateAdapterTests
     [TestCase(false)]
     public async Task Adapt_WhenLoggedInAndNoTournamentGamesExistButExcludesProposals_OnlyReturnsExistingFixtures(bool manageGames)
     {
-        _user!.Access!.ManageGames = manageGames;
+        _user.SetAccess(manageGames: manageGames);
 
         var result = await _adapter.Adapt(
             _date,
@@ -373,7 +370,7 @@ public class DivisionFixtureDateAdapterTests
             { TeamB.Id, AwayDivision },
             { teamA1.Id, HomeDivision },
         };
-        _user!.Access!.ManageGames = true;
+        _user.SetAccess(manageGames: true);
         _divisionFixtureAdapter.Setup(a => a.ForUnselectedTeam(teamA1, false, new[]
         {
             otherDivisionGame,

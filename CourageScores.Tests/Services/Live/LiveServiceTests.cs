@@ -69,10 +69,7 @@ public class LiveServiceTests
     public async Task Accept_WhenNotPermitted_DoesNotAddWebSocket()
     {
         var socket = new Mock<WebSocket>();
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 
@@ -83,13 +80,7 @@ public class LiveServiceTests
     public async Task Accept_WhenPermitted_AddsWebSocket()
     {
         var socket = new Mock<WebSocket>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                UseWebSockets = true,
-            },
-        };
+        _user = _user.SetAccess(useWebSockets: true);
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 
@@ -100,13 +91,7 @@ public class LiveServiceTests
     public async Task Accept_WhenPermitted_AcceptsTheContract()
     {
         var socket = new Mock<WebSocket>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                UseWebSockets = true,
-            },
-        };
+        _user = _user.SetAccess(useWebSockets: true);
 
         await _service.Accept(socket.Object, "originatingUrl", _token);
 
@@ -128,10 +113,7 @@ public class LiveServiceTests
     [Test]
     public async Task GetSockets_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
 
         var result = await _service.GetSockets(_token);
 
@@ -145,13 +127,7 @@ public class LiveServiceTests
         var socketDto = new WebSocketDto();
         var details = new WebSocketDetail();
         var socket = new Mock<IWebSocketContract>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageSockets = true,
-            },
-        };
+        _user = _user.SetAccess(manageSockets: true);
         _sockets.Add(socket.Object);
         _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
@@ -188,10 +164,7 @@ public class LiveServiceTests
     [Test]
     public async Task CloseSocket_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
         var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
@@ -214,13 +187,7 @@ public class LiveServiceTests
     [Test]
     public async Task CloseSocket_WhenPermittedAndSocketNotFound_ReturnsNotFound()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageSockets = true,
-            },
-        };
+        _user = _user.SetAccess(manageSockets: true);
         var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
@@ -230,13 +197,6 @@ public class LiveServiceTests
             Id = details.Id,
         };
         var socket = new Mock<IWebSocketContract>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageSockets = true,
-            },
-        };
         _sockets.Add(socket.Object);
         _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);
@@ -250,13 +210,7 @@ public class LiveServiceTests
     [Test]
     public async Task CloseSocket_WhenPermitted_ClosesSocket()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageSockets = true,
-            },
-        };
+        _user = _user.SetAccess(manageSockets: true);
         var details = new WebSocketDetail
         {
             Id = Guid.NewGuid(),
@@ -266,13 +220,6 @@ public class LiveServiceTests
             Id = details.Id,
         };
         var socket = new Mock<IWebSocketContract>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageSockets = true,
-            },
-        };
         _sockets.Add(socket.Object);
         _detailsAdapter.Setup(a => a.Adapt(details, _token)).ReturnsAsync(socketDto);
         socket.Setup(s => s.Details).Returns(details);

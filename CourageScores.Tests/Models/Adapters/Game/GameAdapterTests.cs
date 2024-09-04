@@ -9,6 +9,7 @@ using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Tests.Models.Cosmos.Game;
+using CourageScores.Tests.Services;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
@@ -57,13 +58,7 @@ public class GameAdapterTests
     [SetUp]
     public void SetupEachTest()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageScores = true,
-            },
-        };
+        _user = _user.SetAccess(manageScores: true);
         _featureService = new Mock<IFeatureService>();
         _userService = new Mock<IUserService>();
         _clock = new Mock<ISystemClock>();
@@ -173,8 +168,7 @@ public class GameAdapterTests
     public async Task Adapt_GivenRandomiseSinglesConfigurationEnabled_ConditionallyRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway, bool randomises)
     {
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(RandomisesSinglesFeatureDto("true"));
-        _user!.Access!.ManageScores = canManageScores;
-        _user.Access.InputResults = canInputResultsForHome || canInputResultsForAway;
+        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -210,8 +204,7 @@ public class GameAdapterTests
             ConfiguredValue = "false",
         };
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
-        _user!.Access!.ManageScores = canManageScores;
-        _user.Access.InputResults = canInputResultsForHome || canInputResultsForAway;
+        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -237,8 +230,7 @@ public class GameAdapterTests
             ConfiguredValue = null,
         };
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
-        _user!.Access!.ManageScores = canManageScores;
-        _user.Access.InputResults = canInputResultsForHome || canInputResultsForAway;
+        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -260,8 +252,7 @@ public class GameAdapterTests
     public async Task Adapt_GivenRandomiseSinglesNotConfigured_NeverRandomisesSingles(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway)
     {
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(() => null);
-        _user!.Access!.ManageScores = canManageScores;
-        _user.Access.InputResults = canInputResultsForHome || canInputResultsForAway;
+        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         var model = new GameBuilder()
             .WithDate(new DateTime(2001, 02, 03))
@@ -289,7 +280,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_DoesNotAdaptMatchesBeforeVeto()
     {
-        _user!.Access!.ManageScores = false;
+        _user.SetAccess(manageScores: false);
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(VetoFeatureDto("2.00:00:00"));
 
@@ -299,7 +290,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_AdaptMatchesAtVetoBoundaryTime()
     {
-        _user!.Access!.ManageScores = false;
+        _user.SetAccess(manageScores: false);
         _now = new DateTimeOffset(2001, 02, 05, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(VetoFeatureDto("2.00:00:00"));
 
@@ -309,7 +300,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenVetoScoresIsConfiguredAndNotPermitted_AdaptMatchesAfterVeto()
     {
-        _user!.Access!.ManageScores = false;
+        _user.SetAccess(manageScores: false);
         _now = new DateTimeOffset(2001, 02, 06, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(VetoFeatureDto("2.00:00:00"));
 
@@ -322,8 +313,7 @@ public class GameAdapterTests
     [TestCase(true, false, false, false)]
     public async Task Adapt_GivenVetoScoresIsConfigured_DoesNotAdaptMatchesBeforeVeto(bool canManageScores, bool canInputResultsForHome, bool canInputResultsForAway, bool obscuresMatches)
     {
-        _user!.Access!.ManageScores = canManageScores;
-        _user.Access.InputResults = canInputResultsForHome || canInputResultsForAway;
+        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.VetoScores, _token)).ReturnsAsync(VetoFeatureDto("2.00:00:00"));
@@ -340,8 +330,7 @@ public class GameAdapterTests
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         var enabled = VetoFeatureDto(null);
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(enabled);
-        _user!.Access!.ManageScores = canManageScores;
-        _user.Access.InputResults = canInputResultsForHome || canInputResultsForAway;
+        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
 
         await RunVetoScoresTest(new DateTime(2001, 01, 01), true);
@@ -355,8 +344,7 @@ public class GameAdapterTests
     {
         _now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _featureService.Setup(f => f.Get(FeatureLookup.RandomisedSingles, _token)).ReturnsAsync(() => null);
-        _user!.Access!.ManageScores = canManageScores;
-        _user.Access.InputResults = canInputResultsForHome || canInputResultsForAway;
+        _user.SetAccess(manageScores: canManageScores, inputResults: canInputResultsForHome || canInputResultsForAway);
         SetUserTeamId(canInputResultsForHome, canInputResultsForAway);
 
         await RunVetoScoresTest(new DateTime(2001, 01, 01), true);

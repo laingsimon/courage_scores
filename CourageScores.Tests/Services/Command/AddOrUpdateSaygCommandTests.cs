@@ -119,13 +119,7 @@ public class AddOrUpdateSaygCommandTests
     {
         if (loggedIn)
         {
-            _user = new UserDto
-            {
-                Access = new AccessDto
-                {
-                    RecordScoresAsYouGo = permitted,
-                },
-            };
+            _user = _user.SetAccess(recordScoresAsYouGo: permitted);
         }
         var model = new RecordedScoreAsYouGo();
         var updateDto = new UpdateRecordedScoreAsYouGoDto
@@ -152,13 +146,7 @@ public class AddOrUpdateSaygCommandTests
     [Test]
     public async Task ApplyUpdates_GivenRemovalOfTournamentMatchId_ReturnsUnsuccessful()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RecordScoresAsYouGo = true,
-            },
-        };
+        _user = _user.SetAccess(recordScoresAsYouGo: true);
         var model = new RecordedScoreAsYouGo
         {
             TournamentMatchId = Guid.NewGuid(),
@@ -180,13 +168,7 @@ public class AddOrUpdateSaygCommandTests
     [Test]
     public async Task ApplyUpdates_GivenChangeOfTournamentMatchId_ReturnsUnsuccessful()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RecordScoresAsYouGo = true,
-            },
-        };
+        _user = _user.SetAccess(recordScoresAsYouGo: true);
         var model = new RecordedScoreAsYouGo
         {
             TournamentMatchId = Guid.NewGuid(),

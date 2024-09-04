@@ -44,11 +44,8 @@ public class PhotoServiceTests
         {
             MaxPhotoHeight = 5000,
         };
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-            Name = "USER",
-        };
+        _user = _user.SetAccess();
+        _user.Name = "USER";
         _photo = new Photo
         {
             Id = Guid.NewGuid(),

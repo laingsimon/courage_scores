@@ -125,14 +125,8 @@ public class UpdateScoresCommandTests
         {
             LastUpdated = new DateTime(2001, 02, 03),
         };
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageScores = true,
-            },
-            TeamId = Guid.Parse(UserTeamId),
-        };
+        _user = null;
+        _user = _user.SetAccess(manageScores: true, teamId: Guid.Parse(UserTeamId));
         _submissionWithLastUpdate = new CosmosGame
         {
             Updated = _scores.LastUpdated!.Value,
@@ -187,7 +181,7 @@ public class UpdateScoresCommandTests
     [TestCase(false, false, UserTeamId, UserTeamId, UserTeamId)]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsUnsuccessful(bool manageScores, bool inputResults, string? userTeamId, string? homeTeamId, string? awayTeamId)
     {
-        SetAccess(manageScores: manageScores, inputResults: inputResults);
+        _user.SetAccess(manageScores: manageScores, inputResults: inputResults);
         _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
         _game.Home.Id = homeTeamId != null ? Guid.Parse(homeTeamId) : Guid.Empty;
         _game.Away.Id = awayTeamId != null ? Guid.Parse(awayTeamId) : Guid.Empty;
@@ -202,7 +196,7 @@ public class UpdateScoresCommandTests
     [TestCase(true, true)]
     public async Task ApplyUpdate_WhenPermittedToManageScores_UpdatesResultsAndReturnsSuccessful(bool permittedToRecordScoresAsYouGo, bool saygSet)
     {
-        SetAccess(recordScoresAsYouGo: permittedToRecordScoresAsYouGo);
+        _user.SetAccess(recordScoresAsYouGo: permittedToRecordScoresAsYouGo);
         AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -217,7 +211,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenLastUpdatedIsDifferent_ReturnsUnsuccessful()
     {
-        SetAccess(recordScoresAsYouGo: true);
+        _user.SetAccess(recordScoresAsYouGo: true);
         _scores.LastUpdated = new DateTime(2004, 05, 06);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -229,7 +223,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenLastUpdatedIsMissing_ReturnsUnsuccessful()
     {
-        SetAccess(recordScoresAsYouGo: true);
+        _user.SetAccess(recordScoresAsYouGo: true);
         _scores.LastUpdated = null;
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -242,7 +236,7 @@ public class UpdateScoresCommandTests
     public async Task ApplyUpdate_WhenUpdatingMatches_UpdatesResultsAndReturnsSuccessful()
     {
         _game.Matches.Add(CreateMatch());
-        SetAccess();
+        _user.SetAccess();
         AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
         _scoresAdapter.Setup(a => a.UpdateMatch(_game.Matches.Last(), AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
 
@@ -261,7 +255,7 @@ public class UpdateScoresCommandTests
     {
         var matchToKeep = CreateMatch();
         _game.Matches.AddRange(new[] { matchToKeep, CreateMatch() });
-        SetAccess();
+        _user.SetAccess();
         AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
         _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
 
@@ -274,7 +268,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenResultsPublished_ReturnsUnsuccessful()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Away.Id = Guid.Parse(UserTeamId);
         _game.Matches.Add(AdaptedGameMatch);
 
@@ -287,7 +281,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPermittedToInputResults_UpdatesHomeSubmissionAndReturnsSuccessful()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Home.Id = Guid.Parse(UserTeamId);
         _scores.Home!.ManOfTheMatch = HomePlayer.Id;
         AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
@@ -302,7 +296,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingHomeSubmissionAndMatchesAwaySubmission_PublishesScores()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Home.Id = Guid.Parse(UserTeamId);
         SetSubmissions(home: _submissionWithLastUpdate, away: SubmissionWithManOfTheMatch);
 
@@ -314,7 +308,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenFailsToUpdateHomeSubmission_ReturnsUnsuccessful()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Home.Id = Guid.Parse(UserTeamId);
         _scores.LastUpdated = new DateTime(2002, 03, 04); // something different to _game.Updated
 
@@ -327,7 +321,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPermittedToInputResults_UpdatesAwaySubmissionAndReturnsSuccessful()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Away.Id = Guid.Parse(UserTeamId);
         _scores.Away!.ManOfTheMatch = AwayPlayer.Id;
         AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
@@ -342,7 +336,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingAwaySubmissionAndMatchesHomeSubmission_PublishesScores()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Away.Id = Guid.Parse(UserTeamId);
         SetSubmissions(home: SubmissionWithManOfTheMatch, away: _submissionWithLastUpdate);
 
@@ -354,7 +348,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingAwaySubmissionAndDoesNotMatchHomeSubmission_DoesNotPublishScores()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Away.Id = Guid.Parse(UserTeamId);
         SetSubmissions(home: SubmissionWithManOfTheMatch, away: _submissionWithLastUpdate, equal: false);
 
@@ -369,7 +363,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingAwaySubmissionAndNoHomeSubmission_DoesNotPublishScores()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Away.Id = Guid.Parse(UserTeamId);
         SetSubmissions(away: _submissionWithLastUpdate);
 
@@ -385,7 +379,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenFailsToUpdateAwaySubmission_ReturnsUnsuccessful()
     {
-        SetAccess(manageScores: false, inputResults: true);
+        _user.SetAccess(manageScores: false, inputResults: true);
         _game.Away.Id = Guid.Parse(UserTeamId);
         _scores.LastUpdated = new DateTime(2002, 03, 04); // something different to _game.Updated
 
@@ -399,7 +393,7 @@ public class UpdateScoresCommandTests
     public async Task ApplyUpdate_WhenPermittedToManageGames_UpdatesGameDetailsAndReturnsSuccessful()
     {
         _game.SeasonId = SeasonDto.Id;
-        SetAccess(manageGames: true);
+        _user.SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -416,7 +410,7 @@ public class UpdateScoresCommandTests
     public async Task ApplyUpdate_WhenChangesSeason_UpdatesSeason()
     {
         _game.SeasonId = Guid.NewGuid(); // some other season
-        SetAccess(manageGames: true);
+        _user.SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -434,7 +428,7 @@ public class UpdateScoresCommandTests
     {
         var seasonId = Guid.NewGuid();
         _game.SeasonId = seasonId;
-        SetAccess(manageGames: true);
+        _user.SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: _game.Date);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -451,7 +445,7 @@ public class UpdateScoresCommandTests
         var oldSeasonId = Guid.NewGuid(); // some other season
         _game.SeasonId = oldSeasonId;
         _game.Date = new DateTime(2003, 04, 05);
-        SetAccess(manageGames: true);
+        _user.SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
         _seasonService.Setup(s => s.GetForDate(_scores.Date, _token)).ReturnsAsync(() => null);
 
@@ -472,7 +466,7 @@ public class UpdateScoresCommandTests
             Warnings = { "warning" },
             Messages = { "message" },
         };
-        SetAccess(manageGames: true);
+        _user.SetAccess(manageGames: true);
         Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -554,14 +548,6 @@ public class UpdateScoresCommandTests
         _scores.IsKnockout = isKnockout;
         _scores.Address = address;
         _scores.Date = date ?? default;
-    }
-
-    private void SetAccess(bool manageGames = false, bool manageScores = true, bool inputResults = false, bool recordScoresAsYouGo = false)
-    {
-        _user!.Access!.InputResults = inputResults;
-        _user!.Access!.ManageScores = manageScores;
-        _user!.Access!.ManageGames = manageGames;
-        _user!.Access!.RecordScoresAsYouGo = recordScoresAsYouGo;
     }
 
     private void AssertScoresPublished(ActionResult<GameDto> result)

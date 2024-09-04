@@ -56,15 +56,8 @@ public class DataServiceTests
             Zip = new FormFile(new MemoryStream(), 0, 10, "name", "fileName.zip"),
             Password = "correct password",
         };
-        _user = new UserDto
-        {
-            Name = "USER",
-            Access = new AccessDto
-            {
-                ExportData = true,
-                ImportData = true,
-            },
-        };
+        _user = _user.SetAccess(exportData: true, importData: true);
+        _user.Name = "USER";
         _importMetaData = new ExportMetaData
         {
             Hostname = "HOST",
@@ -114,7 +107,7 @@ public class DataServiceTests
     [Test]
     public async Task ExportData_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user!.Access!.ExportData = false;
+        _user.SetAccess(exportData: false);
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
@@ -194,7 +187,7 @@ public class DataServiceTests
     [Test]
     public async Task ImportData_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user!.Access!.ImportData = false;
+        _user.SetAccess(importData: false);
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
@@ -459,7 +452,7 @@ public class DataServiceTests
     [Test]
     public async Task BrowseAllItems_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.ExportData = false;
+        _user.SetAccess(exportData: false);
 
         var result = await _dataService.Browse("table", _token);
 
@@ -516,7 +509,7 @@ public class DataServiceTests
     [Test]
     public async Task View_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.ExportData = false;
+        _user.SetAccess(exportData: false);
         var id = Guid.NewGuid();
 
         var result = await _dataService.View("table", id, _token);

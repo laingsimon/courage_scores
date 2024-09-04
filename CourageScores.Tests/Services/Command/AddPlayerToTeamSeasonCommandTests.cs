@@ -49,16 +49,8 @@ public class AddPlayerToTeamSeasonCommandTests
             Id = Guid.Parse(UserTeamId),
             Name = "TEAM",
         };
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageTeams = true,
-                InputResults = true,
-            },
-            TeamId = Guid.Parse(UserTeamId),
-            Name = "an admin",
-        };
+        _user = _user.SetAccess(manageTeams: true, inputResults: true, teamId: Guid.Parse(UserTeamId));
+        _user.Name = "an admin";
         _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _userService.Object, _cacheFlags);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -105,8 +97,7 @@ public class AddPlayerToTeamSeasonCommandTests
     [TestCase(false, true, "11111111-1111-1111-1111-111111111111")]
     public async Task ApplyUpdate_WhenUserNotPermitted_ReturnsUnsuccessful(bool canManageTeams, bool canInputResults, string? userTeamId)
     {
-        _user!.Access!.ManageTeams = canManageTeams;
-        _user!.Access!.InputResults = canInputResults;
+        _user.SetAccess(manageTeams: canManageTeams, inputResults: canInputResults);
         _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
 
         var result = await _command.ForPlayer(_player).ToDivision(_division.Id).ToSeason(_season.Id).ApplyUpdate(_team, _token);

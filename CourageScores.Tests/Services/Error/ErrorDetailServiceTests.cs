@@ -29,13 +29,7 @@ public class ErrorDetailServiceTests
     [SetUp]
     public void SetupEachTest()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ViewExceptions = true,
-            },
-        };
+        _user = _user.SetAccess(viewExceptions: true);
         _error = new ErrorDetail
         {
             Id = Guid.NewGuid(),

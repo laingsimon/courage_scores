@@ -61,15 +61,8 @@ public class UpdatePlayerCommandTests
             _teamService.Object,
             _commandFactory.Object);
 
-        _user = new UserDto
-        {
-            Name = "USER",
-            Access = new AccessDto
-            {
-                ManageTeams = true,
-            },
-            TeamId = Guid.Parse(UserTeamId),
-        };
+        _user = _user.SetAccess(manageTeams: true, teamId: Guid.Parse(UserTeamId));
+        _user.Name = "USER";
         _season = new SeasonDtoBuilder().Build();
         _teamPlayer = new TeamPlayer
         {
@@ -160,8 +153,7 @@ public class UpdatePlayerCommandTests
     [TestCase(false, true, "8937E8EB-0E3B-4541-AFC6-8025B8E4E625")]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsUnsuccessful(bool manageTeams, bool inputResults, string? userTeamId)
     {
-        _user!.Access!.ManageTeams = manageTeams;
-        _user!.Access!.InputResults = inputResults;
+        _user.SetAccess(manageTeams: manageTeams, inputResults: inputResults);
         _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
 
         var result = await _command

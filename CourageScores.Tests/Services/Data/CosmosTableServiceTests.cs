@@ -36,14 +36,7 @@ public class CosmosTableServiceTests
         _jsonSerializer = new Mock<IJsonSerializerService>();
         _tableNameResolver = new Mock<ICosmosTableNameResolver>();
         _service = new CosmosTableService(_database.Object, _userService.Object, _jsonSerializer.Object, _tableNameResolver.Object);
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ExportData = true,
-                ImportData = true,
-            },
-        };
+        _user = _user.SetAccess(exportData: true, importData: true);
         _database
             .Setup(d => d.GetContainerQueryStreamIterator((string?)null, null, null))
             .Returns(() => new MockFeedIterator(_jsonSerializer, _tables.ToArray()));
@@ -161,8 +154,7 @@ public class CosmosTableServiceTests
     [TestCase(true, true, false, true)]
     public async Task GetTables_WhenDataTypeNotFoundForTable_ReturnsNullDataType(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
-        _user!.Access!.ImportData = canImport;
-        _user!.Access!.ExportData = canExport;
+        _user.SetAccess(importData: canImport, exportData: canExport);
         _tables.Add("unknown");
 
         var tables = await _service.GetTables(_token).ToList();
@@ -192,9 +184,7 @@ public class CosmosTableServiceTests
     [TestCase(true, false, true, false)]
     public async Task GetTables_WhenLoggedInAndUserCanCreateEditAndDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
-        _user!.Access!.ManageGames = true;
-        _user.Access.ImportData = canImport;
-        _user.Access.ExportData = canExport;
+        _user.SetAccess(manageGames: true, importData: canImport, exportData: canExport);
 
         var tables = await _service.GetTables(_token).ToList();
 
@@ -209,9 +199,7 @@ public class CosmosTableServiceTests
     [TestCase(true, false, false, false)]
     public async Task GetTables_WhenLoggedInAndUserCannotCreateEditOrDeleteEntity_ReturnsCorrectly(bool canImport, bool canExport, bool expectedCanImport, bool expectedCanExport)
     {
-        _user!.Access!.ManageGames = false;
-        _user.Access.ImportData = canImport;
-        _user.Access.ExportData = canExport;
+        _user.SetAccess(manageGames: false, importData: canImport, exportData: canExport);
 
         var tables = await _service.GetTables(_token).ToList();
 

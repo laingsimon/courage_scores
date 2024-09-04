@@ -49,10 +49,7 @@ public class CachingSeasonServiceTests
     [Test]
     public async Task GetLatest_WhenLoggedIn_BypassesCache()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
         var result1 = await _service.GetLatest(_token);
         var result2 = await _service.GetLatest(_token);
 
