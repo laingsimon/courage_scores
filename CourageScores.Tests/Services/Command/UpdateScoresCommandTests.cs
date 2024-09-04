@@ -1,5 +1,4 @@
 using CourageScores.Filters;
-using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Cosmos.Game;
@@ -56,7 +55,7 @@ public class UpdateScoresCommandTests
         Id = Guid.NewGuid(),
         Name = "HOME PLAYER",
     };
-    private static readonly GameMatch AdaptedGameMatch = new GameMatch();
+    internal static readonly GameMatch AdaptedGameMatch = new GameMatch();
     private static readonly SeasonDto SeasonDto = new SeasonDtoBuilder()
         .WithDates(new DateTime(2001, 02, 03), new DateTime(2002, 03, 04))
         .Build();
@@ -161,7 +160,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertError("Cannot edit a game that has been deleted");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [Test]
@@ -172,7 +171,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertError("Game cannot be updated, not logged in");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [TestCase(false, false, null, null, null)]
@@ -190,7 +189,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertError("Game cannot be updated, not permitted");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [TestCase(false, false)]
@@ -198,7 +197,7 @@ public class UpdateScoresCommandTests
     public async Task ApplyUpdate_WhenPermittedToManageScores_UpdatesResultsAndReturnsSuccessful(bool permittedToRecordScoresAsYouGo, bool saygSet)
     {
         _user.SetAccess(recordScoresAsYouGo: permittedToRecordScoresAsYouGo);
-        AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
+        _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -206,7 +205,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0], Is.SameAs(AdaptedGameMatch));
         Assert.That(_game.OneEighties[0], Is.SameAs(HomeGamePlayer));
         Assert.That(_game.Over100Checkouts[0], Is.SameAs(Over100CheckoutPlayer));
-        AssertCacheEviction(divisionId: _game.DivisionId, seasonId: _game.SeasonId);
+        _cacheFlags.AssertCacheEviction(divisionId: _game.DivisionId, seasonId: _game.SeasonId);
     }
 
     [Test]
@@ -218,7 +217,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertUnsuccessful("Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [Test]
@@ -230,7 +229,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertUnsuccessful("Unable to update Game, data integrity token is missing");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [Test]
@@ -238,7 +237,7 @@ public class UpdateScoresCommandTests
     {
         _game.Matches.Add(new GameMatchBuilder().Build());
         _user.SetAccess();
-        AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
+        _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
         _scoresAdapter.Setup(a => a.UpdateMatch(_game.Matches.Last(), AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -248,7 +247,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.OneEighties[0], Is.SameAs(HomeGamePlayer));
         Assert.That(_game.Over100Checkouts[0], Is.SameAs(Over100CheckoutPlayer));
         Assert.That(_game.Matches[0].Id, Is.EqualTo(_game.Matches.Single().Id));
-        AssertCacheEviction(divisionId: _game.DivisionId, seasonId: _game.SeasonId);
+        _cacheFlags.AssertCacheEviction(divisionId: _game.DivisionId, seasonId: _game.SeasonId);
     }
 
     [Test]
@@ -257,7 +256,7 @@ public class UpdateScoresCommandTests
         var matchToKeep = new GameMatchBuilder().Build();
         _game.Matches.AddRange(new[] { matchToKeep, new GameMatchBuilder().Build() });
         _user.SetAccess();
-        AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
+        _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
         _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -276,7 +275,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertError("Submissions cannot be accepted, scores have been published");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [Test]
@@ -285,12 +284,13 @@ public class UpdateScoresCommandTests
         _user.SetAccess(manageScores: false, inputResults: true);
         _game.Home.Id = Guid.Parse(UserTeamId);
         _scores.Home!.ManOfTheMatch = HomePlayer.Id;
-        AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
+        _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertSuccessful("Submission updated", "Scores updated");
-        AssertSubmissionUpdated(_game.HomeSubmission!, HomeGamePlayer, Over100CheckoutPlayer);
+        _game.AssertSubmissionUpdated(_game.HomeSubmission!, HomeGamePlayer, Over100CheckoutPlayer);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
         Assert.That(_game.HomeSubmission!.Home.ManOfTheMatch, Is.EqualTo(HomePlayer.Id));
     }
 
@@ -303,7 +303,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        AssertScoresPublished(result);
+        _game.AssertScoresPublished(_cacheFlags, result);
     }
 
     [Test]
@@ -316,7 +316,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertUnsuccessful("Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [Test]
@@ -325,12 +325,13 @@ public class UpdateScoresCommandTests
         _user.SetAccess(manageScores: false, inputResults: true);
         _game.Away.Id = Guid.Parse(UserTeamId);
         _scores.Away!.ManOfTheMatch = AwayPlayer.Id;
-        AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
+        _scores.AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertSuccessful("Submission updated", "Scores updated");
-        AssertSubmissionUpdated(_game.AwaySubmission!, HomeGamePlayer, Over100CheckoutPlayer);
+        _game.AssertSubmissionUpdated(_game.AwaySubmission!, HomeGamePlayer, Over100CheckoutPlayer);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
         Assert.That(_game.AwaySubmission!.Away.ManOfTheMatch, Is.EqualTo(AwayPlayer.Id));
     }
 
@@ -343,7 +344,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        AssertScoresPublished(result);
+        _game.AssertScoresPublished(_cacheFlags, result);
     }
 
     [Test]
@@ -357,7 +358,7 @@ public class UpdateScoresCommandTests
 
         Assert.That(_game.AwaySubmission, Is.Not.Null);
         Assert.That(_game.HomeSubmission, Is.Not.Null);
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
         result.AssertSuccessful("Submission updated", "Scores updated");
     }
 
@@ -373,7 +374,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission, Is.Not.Null);
         Assert.That(_game.HomeSubmission, Is.Null);
         Assert.That(_game.Matches, Is.Empty);
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
         result.AssertSuccessful("Submission updated", "Scores updated");
     }
 
@@ -387,7 +388,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         result.AssertUnsuccessful("Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00");
-        AssertCacheEviction(divisionId: null, seasonId: null);
+        _cacheFlags.AssertCacheEviction(divisionId: null, seasonId: null);
     }
 
     [Test]
@@ -395,7 +396,7 @@ public class UpdateScoresCommandTests
     {
         _game.SeasonId = SeasonDto.Id;
         _user.SetAccess(manageGames: true);
-        Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
+        _scores.Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -412,7 +413,7 @@ public class UpdateScoresCommandTests
     {
         _game.SeasonId = Guid.NewGuid(); // some other season
         _user.SetAccess(manageGames: true);
-        Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
+        _scores.Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -421,7 +422,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.SeasonId, Is.EqualTo(SeasonDto.Id));
         _teamService.Verify(c => c.Upsert(_game.Home.Id, _addSeasonToTeamCommand.Object, _token));
         _teamService.Verify(c => c.Upsert(_game.Away.Id, _addSeasonToTeamCommand.Object, _token));
-        AssertCacheEviction(divisionId: _game.DivisionId, seasonId: SeasonDto.Id);
+        _cacheFlags.AssertCacheEviction(divisionId: _game.DivisionId, seasonId: SeasonDto.Id);
     }
 
     [Test]
@@ -430,14 +431,14 @@ public class UpdateScoresCommandTests
         var seasonId = Guid.NewGuid();
         _game.SeasonId = seasonId;
         _user.SetAccess(manageGames: true);
-        Properties(postponed: true, isKnockout: true, address: "new address", date: _game.Date);
+        _scores.Properties(postponed: true, isKnockout: true, address: "new address", date: _game.Date);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 03)));
         Assert.That(_game.SeasonId, Is.EqualTo(seasonId));
-        AssertCacheEviction(divisionId: _game.DivisionId, seasonId: seasonId);
+        _cacheFlags.AssertCacheEviction(divisionId: _game.DivisionId, seasonId: seasonId);
     }
 
     [Test]
@@ -447,7 +448,7 @@ public class UpdateScoresCommandTests
         _game.SeasonId = oldSeasonId;
         _game.Date = new DateTime(2003, 04, 05);
         _user.SetAccess(manageGames: true);
-        Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
+        _scores.Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
         _seasonService.Setup(s => s.GetForDate(_scores.Date, _token)).ReturnsAsync(() => null);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -468,7 +469,7 @@ public class UpdateScoresCommandTests
             Messages = { "message" },
         };
         _user.SetAccess(manageGames: true);
-        Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
+        _scores.Properties(postponed: true, isKnockout: true, address: "new address", date: new DateTime(2001, 02, 04));
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -484,59 +485,10 @@ public class UpdateScoresCommandTests
         }));
     }
 
-    private void AddAccolades(RecordScoresDto.RecordScoresGamePlayerDto oneEighty, RecordScoresDto.GameOver100CheckoutDto hiCheck, RecordScoresDto.RecordScoresGameMatchDto match)
-    {
-        _scores.OneEighties.Add(oneEighty);
-        _scores.Over100Checkouts.Add(hiCheck);
-        _scores.Matches.Add(match);
-    }
-
     private void SetSubmissions(CosmosGame? home = null, CosmosGame? away = null, bool equal = true)
     {
         _game.HomeSubmission = home;
         _game.AwaySubmission = away;
         _submissionComparer.Setup(c => c.Equals(_game.HomeSubmission, _game.AwaySubmission)).Returns(equal);
-    }
-
-    private void AssertSubmissionUpdated(CosmosGame submission, GamePlayer oneEightyPlayer, NotablePlayer hiCheckPlayer)
-    {
-        Assert.That(submission, Is.Not.Null);
-        Assert.That(submission.Matches[0], Is.SameAs(AdaptedGameMatch));
-        Assert.That(submission.OneEighties[0], Is.SameAs(oneEightyPlayer));
-        Assert.That(submission.Over100Checkouts[0], Is.SameAs(hiCheckPlayer));
-
-        Assert.That(_game.Home.ManOfTheMatch, Is.Null);
-        Assert.That(_game.Away.ManOfTheMatch, Is.Null);
-
-        AssertCacheEviction(divisionId: null, seasonId: null);
-    }
-
-    private void AssertCacheEviction(Guid? divisionId = null, Guid? seasonId = null)
-    {
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(divisionId));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(seasonId));
-    }
-
-    private void Properties(bool postponed = false, bool isKnockout = false, string address = "", DateTime? date = null)
-    {
-        _scores.Postponed = postponed;
-        _scores.IsKnockout = isKnockout;
-        _scores.Address = address;
-        _scores.Date = date ?? default;
-    }
-
-    private void AssertScoresPublished(ActionResult<GameDto> result)
-    {
-        Assert.That(_game.AwaySubmission, Is.Not.Null);
-        Assert.That(_game.HomeSubmission, Is.Not.Null);
-        Assert.That(_game.Matches, Is.EqualTo(_game.HomeSubmission!.Matches));
-        Assert.That(_game.MatchOptions, Is.EqualTo(_game.HomeSubmission!.MatchOptions));
-        Assert.That(_game.OneEighties, Is.EqualTo(_game.HomeSubmission!.OneEighties));
-        Assert.That(_game.Over100Checkouts, Is.EqualTo(_game.HomeSubmission!.Over100Checkouts));
-        Assert.That(_game.Home.ManOfTheMatch, Is.EqualTo(_game.HomeSubmission!.Home.ManOfTheMatch));
-        Assert.That(_game.Away.ManOfTheMatch, Is.EqualTo(_game.AwaySubmission!.Away.ManOfTheMatch));
-
-        AssertCacheEviction(divisionId: null, seasonId: null);
-        result.AssertSuccessful("Submission published", "Scores updated");
     }
 }
