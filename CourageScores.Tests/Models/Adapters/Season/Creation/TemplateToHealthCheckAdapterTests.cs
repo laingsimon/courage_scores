@@ -54,14 +54,8 @@ public class TemplateToHealthCheckAdapterTests
             new DivisionHealthDto
             {
                 Name = "Division 1",
-                Teams =
-                {
-                    TeamA, TeamB, TeamC, TeamD,
-                },
-                Dates =
-                {
-                    DivisionDateHealthDto("A vs B", "C vs D"),
-                },
+                Teams = { TeamA, TeamB, TeamC, TeamD },
+                Dates = { DivisionDateHealthDto("A vs B", "C vs D") },
             });
     }
 
@@ -79,14 +73,8 @@ public class TemplateToHealthCheckAdapterTests
             new DivisionHealthDto
             {
                 Name = "Division 1",
-                Teams =
-                {
-                    TeamA,
-                },
-                Dates =
-                {
-                    DivisionDateHealthDto("A"),
-                },
+                Teams = { TeamA },
+                Dates = { DivisionDateHealthDto("A") },
             });
     }
 
@@ -106,14 +94,8 @@ public class TemplateToHealthCheckAdapterTests
             new DivisionHealthDto
             {
                 Name = "Division 1",
-                Teams =
-                {
-                    TeamA, TeamB, TeamC, TeamD,
-                },
-                Dates =
-                {
-                    DivisionDateHealthDto("A vs B", "C vs D"),
-                },
+                Teams = { TeamA, TeamB, TeamC, TeamD },
+                Dates = { DivisionDateHealthDto("A vs B", "C vs D") },
             });
     }
 
@@ -142,15 +124,10 @@ public class TemplateToHealthCheckAdapterTests
                 },
                 Dates =
                 {
-                    new DivisionDateHealthDto
-                    {
-                        Date = new DateTime(2023, 01, 01),
-                        Fixtures =
-                        {
-                            FixtureHealthDto("A vs B", homeTeamAddress: "A & D"),
-                            FixtureHealthDto("C vs D", awayTeamAddress: "A & D"),
-                        },
-                    },
+                    DivisionDateHealthDto(
+                        new DateTime(2023, 01, 01),
+                        FixtureHealthDto("A vs B", homeTeamAddress: "A & D"),
+                        FixtureHealthDto("C vs D", awayTeamAddress: "A & D")),
                 },
             });
     }
@@ -177,10 +154,7 @@ public class TemplateToHealthCheckAdapterTests
                     DivisionTeamDto("E", address: "E & F"),
                     DivisionTeamDto("F", address: "E & F"),
                 },
-                Dates =
-                {
-                    DivisionDateHealthDto("A vs B", "C vs D"),
-                },
+                Dates = { DivisionDateHealthDto("A vs B", "C vs D") },
             });
     }
 
@@ -210,15 +184,10 @@ public class TemplateToHealthCheckAdapterTests
                 },
                 Dates =
                 {
-                    new DivisionDateHealthDto
-                    {
-                        Date = new DateTime(2023, 01, 01),
-                        Fixtures =
-                        {
-                            FixtureHealthDto("A vs B", homeTeamAddress: "A & D"),
-                            FixtureHealthDto("C vs D", awayTeamAddress: "A & D"),
-                        },
-                    },
+                    DivisionDateHealthDto(
+                        new DateTime(2023, 01, 01),
+                        FixtureHealthDto("A vs B", homeTeamAddress: "A & D"),
+                        FixtureHealthDto("C vs D", awayTeamAddress: "A & D")),
                 },
             });
     }
@@ -250,15 +219,10 @@ public class TemplateToHealthCheckAdapterTests
                 },
                 Dates =
                 {
-                    new DivisionDateHealthDto
-                    {
-                        Date = new DateTime(2023, 01, 01),
-                        Fixtures =
-                        {
-                            FixtureHealthDto("A vs B", homeTeamAddress: "A & B & D", awayTeamAddress: "A & B & D"),
-                            FixtureHealthDto("C vs D", awayTeamAddress: "A & B & D"),
-                        },
-                    },
+                    DivisionDateHealthDto(
+                        new DateTime(2023, 01, 01),
+                        FixtureHealthDto("A vs B", homeTeamAddress: "A & B & D", awayTeamAddress: "A & B & D"),
+                        FixtureHealthDto("C vs D", awayTeamAddress: "A & B & D")),
                 },
             });
     }
@@ -307,15 +271,10 @@ public class TemplateToHealthCheckAdapterTests
                 },
                 Dates =
                 {
-                    new DivisionDateHealthDto
-                    {
-                        Date = new DateTime(2023, 01, 01),
-                        Fixtures =
-                        {
-                            FixtureHealthDto("A vs B", homeTeamAddress: "A & C & D"),
-                            FixtureHealthDto("C vs D", homeTeamAddress: "A & C & D", awayTeamAddress: "A & C & D"),
-                        },
-                    },
+                    DivisionDateHealthDto(
+                        new DateTime(2023, 01, 01),
+                        FixtureHealthDto("A vs B", homeTeamAddress: "A & C & D"),
+                        FixtureHealthDto("C vs D", homeTeamAddress: "A & C & D", awayTeamAddress: "A & C & D")),
                 },
             });
     }
@@ -340,10 +299,7 @@ public class TemplateToHealthCheckAdapterTests
             new DivisionHealthDto
             {
                 Name = "Division 1",
-                Teams =
-                {
-                    TeamA, TeamB, TeamC, TeamD,
-                },
+                Teams = { TeamA, TeamB, TeamC, TeamD },
                 Dates =
                 {
                     DivisionDateHealthDto("A vs B", "C vs D"),
@@ -372,10 +328,7 @@ public class TemplateToHealthCheckAdapterTests
     {
         return new DivisionTemplate
         {
-            SharedAddresses =
-            {
-                sharedAddresses,
-            },
+            SharedAddresses = { sharedAddresses },
             Dates = dates.ToList(),
         };
     }
@@ -384,10 +337,7 @@ public class TemplateToHealthCheckAdapterTests
     {
         return new Template
         {
-            SharedAddresses =
-            {
-                sharedAddresses,
-            },
+            SharedAddresses = { sharedAddresses },
             Divisions = divisions.ToList(),
         };
     }
@@ -408,10 +358,7 @@ public class TemplateToHealthCheckAdapterTests
             {
                 new DivisionTemplate
                 {
-                    Dates =
-                    {
-                        DateTemplate(fixturesInFirstDate),
-                    },
+                    Dates = { DateTemplate(fixturesInFirstDate) },
                 },
             },
         };
@@ -443,10 +390,15 @@ public class TemplateToHealthCheckAdapterTests
 
     private static DivisionDateHealthDto DivisionDateHealthDto(DateTime? date = null, params string[] mnemonics)
     {
+        return DivisionDateHealthDto(date, mnemonics.Select(mnemonic => FixtureHealthDto(mnemonic)).ToArray());
+    }
+
+    private static DivisionDateHealthDto DivisionDateHealthDto(DateTime? date = null, params LeagueFixtureHealthDto[] fixtures)
+    {
         return new DivisionDateHealthDto
         {
             Date = date ?? new DateTime(2023, 01, 01),
-            Fixtures = mnemonics.Select(mnemonic => FixtureHealthDto(mnemonic)).ToList(),
+            Fixtures = fixtures.ToList(),
         };
     }
 
