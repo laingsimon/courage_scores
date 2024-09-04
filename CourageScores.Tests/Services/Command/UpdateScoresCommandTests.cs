@@ -15,6 +15,7 @@ using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
 using CourageScores.Tests.Models.Adapters;
+using CourageScores.Tests.Models.Cosmos.Game;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -235,7 +236,7 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingMatches_UpdatesResultsAndReturnsSuccessful()
     {
-        _game.Matches.Add(CreateMatch());
+        _game.Matches.Add(new GameMatchBuilder().Build());
         _user.SetAccess();
         AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
         _scoresAdapter.Setup(a => a.UpdateMatch(_game.Matches.Last(), AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
@@ -253,8 +254,8 @@ public class UpdateScoresCommandTests
     [Test]
     public async Task ApplyUpdate_WhenMatchRemoved_RemovesMatch()
     {
-        var matchToKeep = CreateMatch();
-        _game.Matches.AddRange(new[] { matchToKeep, CreateMatch() });
+        var matchToKeep = new GameMatchBuilder().Build();
+        _game.Matches.AddRange(new[] { matchToKeep, new GameMatchBuilder().Build() });
         _user.SetAccess();
         AddAccolades(HomePlayer, AwayPlayer, AwayWinnerMatch);
         _scoresAdapter.Setup(a => a.UpdateMatch(matchToKeep, AwayWinnerMatch, _token)).ReturnsAsync(AdaptedGameMatch);
@@ -481,14 +482,6 @@ public class UpdateScoresCommandTests
             "message",
             "Could not add season to home and/or away teams",
         }));
-    }
-
-    private static GameMatch CreateMatch()
-    {
-        return new GameMatch
-        {
-            Id = Guid.NewGuid(),
-        };
     }
 
     private void AddAccolades(RecordScoresDto.RecordScoresGamePlayerDto oneEighty, RecordScoresDto.GameOver100CheckoutDto hiCheck, RecordScoresDto.RecordScoresGameMatchDto match)
