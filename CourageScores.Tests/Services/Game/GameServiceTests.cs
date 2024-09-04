@@ -151,8 +151,8 @@ public class GameServiceTests
 
         Assert.That(result!.Matches, Is.SameAs(_game.HomeSubmission.Matches));
         Assert.That(result.Home, Is.SameAs(_game.HomeSubmission.Home));
-        AssertSubmissionHasGameProperties(result, _game);
-        AssertHasAuditProperties(result, _game.HomeSubmission);
+        result.AssertSubmissionHasGameProperties(_game);
+        result.AssertHasAuditProperties(_game.HomeSubmission);
     }
 
     [Test]
@@ -163,8 +163,8 @@ public class GameServiceTests
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game!.HomeSubmission!.Matches));
-        AssertSubmissionHasGameProperties(result, _game);
-        AssertHasAuditProperties(result, _game);
+        result.AssertSubmissionHasGameProperties(_game);
+        result.AssertHasAuditProperties(_game);
     }
 
     [Test]
@@ -177,8 +177,8 @@ public class GameServiceTests
 
         Assert.That(result, Is.Not.SameAs(_game));
         Assert.That(result!.Home, Is.SameAs(_game.Home));
-        AssertSubmissionHasGameProperties(result, _game);
-        AssertHasAuditProperties(result, _game);
+        result.AssertSubmissionHasGameProperties(_game);
+        result.AssertHasAuditProperties(_game);
     }
 
     [Test]
@@ -201,8 +201,8 @@ public class GameServiceTests
 
         Assert.That(result!.Matches, Is.SameAs(_game.AwaySubmission.Matches));
         Assert.That(result.Away, Is.SameAs(_game.AwaySubmission.Away));
-        AssertSubmissionHasGameProperties(result, _game);
-        AssertHasAuditProperties(result, _game.AwaySubmission);
+        result.AssertSubmissionHasGameProperties(_game);
+        result.AssertHasAuditProperties(_game.AwaySubmission);
     }
 
     [Test]
@@ -215,8 +215,8 @@ public class GameServiceTests
 
         Assert.That(result, Is.Not.SameAs(_game));
         Assert.That(result!.Away, Is.SameAs(_game.Away));
-        AssertSubmissionHasGameProperties(result, _game);
-        AssertHasAuditProperties(result, _game);
+        result.AssertSubmissionHasGameProperties(_game);
+        result.AssertHasAuditProperties(_game);
     }
 
     [Test]
@@ -227,8 +227,8 @@ public class GameServiceTests
         var result = await _service.Get(_game!.Id, _token);
 
         Assert.That(result!.Matches, Is.SameAs(_game!.AwaySubmission!.Matches));
-        AssertSubmissionHasGameProperties(result, _game);
-        AssertHasAuditProperties(result, _game);
+        result.AssertSubmissionHasGameProperties(_game);
+        result.AssertHasAuditProperties(_game);
     }
 
     [Test]
@@ -289,8 +289,8 @@ public class GameServiceTests
         var games = await _service.GetAll(_token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.HomeSubmission.Matches));
-        AssertSubmissionHasGameProperties(games.Single(), _game);
-        AssertHasAuditProperties(games.Single(), _game.HomeSubmission);
+        games.Single().AssertSubmissionHasGameProperties(_game);
+        games.Single().AssertHasAuditProperties(_game.HomeSubmission);
     }
 
     [Test]
@@ -302,8 +302,8 @@ public class GameServiceTests
         var games = await _service.GetAll(_token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.AwaySubmission.Matches));
-        AssertSubmissionHasGameProperties(games.Single(), _game);
-        AssertHasAuditProperties(games.Single(), _game.AwaySubmission);
+        games.Single().AssertSubmissionHasGameProperties(_game);
+        games.Single().AssertHasAuditProperties(_game.AwaySubmission);
     }
 
     [Test]
@@ -364,8 +364,8 @@ public class GameServiceTests
         var games = await _service.GetWhere("query", _token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.HomeSubmission.Matches));
-        AssertSubmissionHasGameProperties(games.Single(), _game);
-        AssertHasAuditProperties(games.Single(), _game.HomeSubmission);
+        games.Single().AssertSubmissionHasGameProperties(_game);
+        games.Single().AssertHasAuditProperties(_game.HomeSubmission);
     }
 
     [Test]
@@ -378,7 +378,7 @@ public class GameServiceTests
         var games = await _service.GetWhere("query", _token).ToList();
 
         Assert.That(games.Single().Matches, Is.SameAs(_game.AwaySubmission.Matches));
-        AssertSubmissionHasGameProperties(games.Single(), _game.AwaySubmission);
+        games.Single().AssertSubmissionHasGameProperties(_game.AwaySubmission);
     }
 
     [TestCase(false, false)]
@@ -557,24 +557,5 @@ public class GameServiceTests
         Assert.That(result.Result, Is.EquivalentTo(new[] { $"{_game!.Id} - 3 Feb 2001 (home vs away)" }));
         Assert.That(result.Success, Is.True);
         _deletableRepository.Verify(d => d.Delete(_game.Id, _token));
-    }
-
-    private static void AssertSubmissionHasGameProperties(GameDto submission, GameDto game)
-    {
-        Assert.That(submission.Id, Is.EqualTo(game.Id));
-        Assert.That(submission.Address, Is.EqualTo(game.Address));
-        Assert.That(submission.Date, Is.EqualTo(game.Date));
-        Assert.That(submission.Postponed, Is.EqualTo(game.Postponed));
-        Assert.That(submission.DivisionId, Is.EqualTo(game.DivisionId));
-        Assert.That(submission.IsKnockout, Is.EqualTo(game.IsKnockout));
-        Assert.That(submission.SeasonId, Is.EqualTo(game.SeasonId));
-    }
-
-    private static void AssertHasAuditProperties(AuditedDto actual, AuditedDto expected)
-    {
-        Assert.That(actual.Author, Is.EqualTo(expected.Author));
-        Assert.That(actual.Created, Is.EqualTo(expected.Created));
-        Assert.That(actual.Editor, Is.EqualTo(expected.Editor));
-        Assert.That(actual.Updated, Is.EqualTo(expected.Updated));
     }
 }
