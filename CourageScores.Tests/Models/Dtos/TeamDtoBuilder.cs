@@ -11,19 +11,26 @@ public class TeamDtoBuilder
         _team = team ?? new TeamDto { Id = Guid.NewGuid() };
     }
 
-    public TeamDto Build()
-    {
-        return _team;
-    }
-
     public TeamDtoBuilder WithName(string name)
     {
         _team.Name = name;
         return this;
     }
+
     public TeamDtoBuilder WithSeason(Func<TeamSeasonDtoBuilder, TeamSeasonDtoBuilder> teamSeasonBuilder)
     {
         _team.Seasons.Add(teamSeasonBuilder(new TeamSeasonDtoBuilder()).Build());
         return this;
+    }
+
+    public TeamDtoBuilder WithAddress(string address)
+    {
+        _team.Address = address;
+        return this;
+    }
+
+    public TeamDto Build()
+    {
+        return _team;
     }
 }
