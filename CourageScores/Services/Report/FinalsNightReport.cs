@@ -113,6 +113,22 @@ public class FinalsNightReport : CompositeReport
             Cell(text: most180 > 0 ? most180.ToString() : null));
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    private static async IAsyncEnumerable<ReportRowDto> TopPlayer(
+        DivisionDataDto division,
+        [EnumeratorCancellation] CancellationToken token)
+    {
+        var topPlayer = division.Players.FirstOrDefault();
+
+        yield return Row(
+            Cell(text: $"{division.Name}: Top Player"),
+            Cell(
+                text: topPlayer?.Name,
+                player: topPlayer,
+                division: division),
+            Cell());
+    }
+
     private static async IAsyncEnumerable<ReportRowDto> TeamRunnerUpThenWinner(
         DivisionDataDto division,
         [EnumeratorCancellation] CancellationToken token)
@@ -254,7 +270,19 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in TournamentWinnersAndRunnersUp(divisionData, token))
+        await foreach (var row in ForEachDivision(divisionData, HighestCheckout, DivisionOrder.Ascending, token))
+        {
+            yield return row;
+        }
+
+        token.ThrowIfCancellationRequested();
+        await foreach (var row in ForEachDivision(divisionData, Most180s, DivisionOrder.Ascending, token))
+        {
+            yield return row;
+        }
+
+        token.ThrowIfCancellationRequested();
+        await foreach (var row in ForEachDivision(divisionData, TopPlayer, DivisionOrder.Ascending, token))
         {
             yield return row;
         }
@@ -266,13 +294,7 @@ public class FinalsNightReport : CompositeReport
         }
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, Most180s, token))
-        {
-            yield return row;
-        }
-
-        token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, HighestCheckout, token))
+        await foreach (var row in TournamentWinnersAndRunnersUp(divisionData, token))
         {
             yield return row;
         }
@@ -289,7 +311,7 @@ public class FinalsNightReport : CompositeReport
         yield return Row(Cell(text: "Singles winner*"));
 
         token.ThrowIfCancellationRequested();
-        await foreach (var row in ForEachDivision(divisionData, TeamRunnerUpThenWinner, token))
+        await foreach (var row in ForEachDivision(divisionData, TeamRunnerUpThenWinner, DivisionOrder.Descending, token))
         {
             yield return row;
         }
@@ -299,9 +321,13 @@ public class FinalsNightReport : CompositeReport
         IEnumerable<DivisionDataDto> divisions,
         Func<DivisionDataDto, CancellationToken,
         IAsyncEnumerable<ReportRowDto>> getRows,
+        DivisionOrder divisionOrder,
         [EnumeratorCancellation] CancellationToken token)
     {
-        foreach (var division in divisions.OrderByDescending(d => d.Name))
+        var orderedDivisions = divisionOrder == DivisionOrder.Ascending
+            ? divisions.OrderBy(d => d.Name)
+            : divisions.OrderByDescending(d => d.Name);
+        foreach (var division in orderedDivisions)
         {
             token.ThrowIfCancellationRequested();
 
@@ -338,5 +364,11 @@ public class FinalsNightReport : CompositeReport
             topPlayers.Length == 1
                 ? topPlayers[0].Cells[2]
                 : Cell(text: rowsDescending.Select(r => r.Cells[2].Text).FirstOrDefault()));
+    }
+
+    private enum DivisionOrder
+    {
+        Ascending,
+        Descending
     }
 }

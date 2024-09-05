@@ -1,6 +1,6 @@
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Season;
+using CourageScores.Tests.Services;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
@@ -144,15 +144,9 @@ public class SeasonAdapterTests
     [Test]
     public async Task Adapt_GivenDto_MapsPropertiesCorrectly()
     {
-        var dto = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Season 1",
-            Divisions =
-            {
-                DivisionDto,
-            },
-        };
+        var dto = new SeasonDtoBuilder(name: "Season 1")
+            .WithDivisions(DivisionDto)
+            .Build();
 
         var result = await _adapter.Adapt(dto, _token);
 
@@ -167,11 +161,8 @@ public class SeasonAdapterTests
     [Test]
     public async Task Adapt_GivenDto_TrimsWhitespaceFromName()
     {
-        var dto = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "Season 1   ",
-        };
+        var dto = new SeasonDtoBuilder(name: "Season 1   ")
+            .Build();
 
         var result = await _adapter.Adapt(dto, _token);
 

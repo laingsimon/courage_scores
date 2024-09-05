@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -15,15 +16,12 @@ public class GameTeamAdapterTests
     private readonly CancellationToken _token = new();
     private GameTeamAdapter _adapter = null!;
     private Mock<IUserService> _userService = null!;
-    private UserDto? _user = new()
-    {
-        TeamId = Guid.Parse(UserTeamId),
-        Access = new AccessDto(),
-    };
+    private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _user = _user.SetAccess(teamId: Guid.Parse(UserTeamId));
         _userService = new Mock<IUserService>();
         _adapter = new GameTeamAdapter(_userService.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -63,8 +61,7 @@ public class GameTeamAdapterTests
     [TestCase(false, false, UserTeamId)]
     public async Task Adapt_GivenModelAndLoggedInAndNotPermitted_DoesNotReturnManOfTheMatch(bool manageScores, bool inputResults, string? teamId)
     {
-        _user!.Access!.ManageScores = manageScores;
-        _user!.Access!.InputResults = inputResults;
+        _user.SetAccess(manageScores: manageScores, inputResults: inputResults);
         var model = new GameTeam
         {
             Id = teamId != null ? Guid.Parse(teamId) : Guid.Empty,
@@ -83,8 +80,7 @@ public class GameTeamAdapterTests
     [TestCase(true, false, "8333B9FA-0C8C-4902-9F07-E697B147333B")]
     public async Task Adapt_GivenModelAndLoggedInAndPermitted_ReturnsManOfTheMatch(bool manageScores, bool inputResults, string? teamId)
     {
-        _user!.Access!.ManageScores = manageScores;
-        _user!.Access!.InputResults = inputResults;
+        _user.SetAccess(manageScores: manageScores, inputResults: inputResults);
         var model = new GameTeam
         {
             Id = teamId != null ? Guid.Parse(teamId) : Guid.Empty,

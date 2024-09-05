@@ -72,10 +72,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetDivisionData_WhenLoggedIn_BypassesCache()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
         var divisionId = Guid.NewGuid();
         var seasonId = Guid.NewGuid();
         var result1 = await _service.GetDivisionData(new DivisionDataFilter
@@ -143,10 +140,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task Get_WhenLoggedIn_ReturnsSecondRequestFromCache()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
         var divisionId = Guid.NewGuid();
         var result1 = await _service.Get(divisionId, _token);
 
@@ -187,10 +181,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetAll_WhenLoggedIn_ReturnsSecondRequestFromCache()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
         var result1 = await _service.GetAll(_token).ToList();
 
         var result2 = await _service.GetAll(_token).ToList();
@@ -228,10 +219,7 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetWhere_WhenLoggedIn_BypassesCache()
     {
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
         var result1 = await _service.GetWhere("where", _token).ToList();
 
         var result2 = await _service.GetWhere("where", _token).ToList();

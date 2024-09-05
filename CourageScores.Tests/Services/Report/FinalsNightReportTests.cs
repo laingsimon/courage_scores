@@ -52,20 +52,13 @@ public class FinalsNightReportTests
     {
         _userService = new Mock<IUserService>();
         _manOfTheMatchReport = new Mock<IReport>();
-        _division1 = new DivisionDto { Id = Guid.NewGuid(), Name = "Division 1", };
-        _division2 = new DivisionDto { Id = Guid.NewGuid(), Name = "Division 2", };
+        _division1 = new DivisionDtoBuilder(name: "Division 1").Build();
+        _division2 = new DivisionDtoBuilder(name: "Division 2").Build();
         _divisions = new[] { _division1, _division2, };
         _divisionData1 = new DivisionDataDto { Id = _division1.Id, Name = _division1.Name, };
         _divisionData2 = new DivisionDataDto { Id = _division2.Id, Name = _division2.Name, };
-        _season = new SeasonDto { Id = Guid.NewGuid(), Divisions = { _division1, _division2 } };
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RunReports = true,
-                ManageScores = true,
-            },
-        };
+        _season = new SeasonDtoBuilder().WithDivisions(_division1, _division2).Build();
+        _user = _user.SetAccess(manageScores: true, runReports: true);
         _playerLookup = new PlayerLookup();
         _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
@@ -278,7 +271,7 @@ public class FinalsNightReportTests
     [Test]
     public async Task GetReport_WhenNotPermitted_ReturnsEmptyManOfTheMatch()
     {
-        _user!.Access!.ManageScores = false;
+        _user.SetAccess(manageScores: false);
 
         var report = await _report.GetReport(_playerLookup, _token);
 
@@ -318,6 +311,20 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Helper.AssertReportRow(report, "Man of the match", "");
+    }
+
+    [Test]
+    public async Task GetReport_WhenCalled_ReturnsTopPlayerForEachDivisions()
+    {
+        _divisionData1.Players.AddRange(new[] { Player1, Player2 });
+        _divisionData2.Players.AddRange(new[] { Player3, Player4 });
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Helper.AssertReportRow(report, "Division 1: Top Player", "PLAYER_1", "");
+        Helper.AssertReportRow(report, "Division 2: Top Player", "PLAYER_3", "");
+        Helper.AssertPlayerLink(report, "Division 1: Top Player", 1, Player1, _division1);
+        Helper.AssertPlayerLink(report, "Division 2: Top Player", 1, Player3, _division2);
     }
 
     [Test]

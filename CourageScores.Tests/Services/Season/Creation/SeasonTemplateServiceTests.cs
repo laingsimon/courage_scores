@@ -81,26 +81,12 @@ public class SeasonTemplateServiceTests
             _healthCheckAdapter.Object,
             _healthCheckService.Object,
             _templateAdapter);
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageGames = true,
-            },
-        };
+        _user = _user.SetAccess(manageGames: true);
         _templates = Array.Empty<TemplateDto>();
         var divisionId = Guid.NewGuid();
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Divisions =
-            {
-                new DivisionDto
-                {
-                    Id = divisionId,
-                },
-            },
-        };
+        _season = new SeasonDtoBuilder()
+            .WithDivisions(new DivisionDtoBuilder(divisionId).Build())
+            .Build();
         _division = new DivisionDataDto
         {
             Id = divisionId,
@@ -141,8 +127,7 @@ public class SeasonTemplateServiceTests
     [Test]
     public async Task GetForSeason_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.ManageGames = false;
-        _user!.Access!.ManageSeasonTemplates = false;
+        _user.SetAccess(manageGames: false, manageSeasonTemplates: false);
 
         var result = await _service.GetForSeason(_season.Id, _token);
 
@@ -164,8 +149,7 @@ public class SeasonTemplateServiceTests
     [TestCase(false, true)]
     public async Task GetForSeason_WhenPermitted_ReturnsEmptyList(bool manageGames, bool manageTemplates)
     {
-        _user!.Access!.ManageGames = manageGames;
-        _user!.Access!.ManageSeasonTemplates = manageTemplates;
+        _user.SetAccess(manageGames: manageGames, manageSeasonTemplates: manageTemplates);
         _templates = Array.Empty<TemplateDto>();
 
         var result = await _service.GetForSeason(_season.Id, _token);
@@ -289,7 +273,7 @@ public class SeasonTemplateServiceTests
     [Test]
     public async Task ProposeForSeason_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.ManageGames = false;
+        _user.SetAccess(manageGames: false);
         _templates = new[] { TemplateDto };
         var request = new ProposalRequestDto
         {
@@ -421,7 +405,7 @@ public class SeasonTemplateServiceTests
     [Test]
     public async Task GetTemplateHealth_WhenNotPermitted_ReturnsNotLoggedIn()
     {
-        _user!.Access!.ManageSeasonTemplates = false;
+        _user.SetAccess(manageSeasonTemplates: false);
         var template = new EditTemplateDto();
 
         var result = await _service.GetTemplateHealth(template, _token);
@@ -433,7 +417,7 @@ public class SeasonTemplateServiceTests
     [Test]
     public async Task GetTemplateHealth_WhenPermitted_ReturnsTemplateHealth()
     {
-        _user!.Access!.ManageSeasonTemplates = true;
+        _user.SetAccess(manageSeasonTemplates: true);
         var editTemplateDto = new EditTemplateDto();
         var templateHealth = new SeasonHealthCheckResultDto();
         var seasonHealth = new SeasonHealthDto();

@@ -23,22 +23,11 @@ namespace CourageScores.Tests.Services.Division;
 [TestFixture]
 public class DivisionServiceTests
 {
-    private static readonly DivisionDto Division1 = new DivisionDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "DIVISION 1",
-    };
-    private static readonly DivisionDto Division2 = new DivisionDto
-    {
-        Id = Guid.NewGuid(),
-        Name = "DIVISION 2",
-    };
-    private static readonly SeasonDto Season = new SeasonDto
-    {
-        Id = Guid.NewGuid(),
-        StartDate = new DateTime(2001, 01, 01),
-        EndDate = new DateTime(2001, 05, 01),
-    };
+    private static readonly DivisionDto Division1 = new DivisionDtoBuilder(name: "DIVISION 1").Build();
+    private static readonly DivisionDto Division2 = new DivisionDtoBuilder(name: "DIVISION 2").Build();
+    private static readonly SeasonDto Season = new SeasonDtoBuilder()
+        .WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 05, 01))
+        .Build();
     private static readonly DivisionDataFilter Division1Filter = new DivisionDataFilter
     {
         DivisionId = { Division1.Id },
@@ -112,6 +101,7 @@ public class DivisionServiceTests
         _someTournaments.Clear();
         _allTeams.Clear();
         _now = new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero);
+        _userDto = _userDto.SetAccess();
 
         _service = new DivisionService(
             _genericService.Object,
@@ -166,11 +156,7 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenDivisionIdFilterWhenDivisionDeleted_ReturnsDivisionNotFound()
     {
-        var division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-            Deleted = new DateTime(2001, 02, 03),
-        };
+        var division = new DivisionDtoBuilder().Deleted(new DateTime(2001, 02, 03)).Build();
         var filter = new DivisionDataFilter
         {
             DivisionId = { division.Id },
@@ -228,18 +214,12 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenNoSeasonIdFilterWhenTwoActiveSeasons_UsesSeasonWithGreatestEndDate()
     {
-        var secondSeason = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            StartDate = new DateTime(2001, 01, 01),
-            EndDate = new DateTime(2001, 06, 01),
-        };
-        var thirdSeason = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            StartDate = new DateTime(2001, 04, 01),
-            EndDate = new DateTime(2001, 07, 01),
-        };
+        var secondSeason = new SeasonDtoBuilder()
+            .WithDates(new DateTime(2001, 01, 01), new DateTime(2001, 06, 01))
+            .Build();
+        var thirdSeason = new SeasonDtoBuilder()
+            .WithDates(new DateTime(2001, 04, 01), new DateTime(2001, 07, 01))
+            .Build();
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(Season, secondSeason, thirdSeason));
 
         await _service.GetDivisionData(Division1Filter, _token);
@@ -500,7 +480,7 @@ public class DivisionServiceTests
     public async Task GetDivisionData_WhenLoggedInAndCannotManageGames_GetsFixturesForFilterDivisionOnly()
     {
         _someGames.AddRange(new[] { Division1GameInSeason, Division1GameOutOfSeason });
-        WithAccess(manageGames: false);
+        _userDto.SetAccess(manageGames: false);
 
         await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 
@@ -514,7 +494,7 @@ public class DivisionServiceTests
     public async Task GetDivisionData_WhenLoggedInAndCanManageGames_GetsFixturesForAllDivisions()
     {
         _someGames.AddRange(new[] { Division1GameInSeason, Division1GameOutOfSeason, Division2GameInSeason, Division2GameOutOfSeason });
-        WithAccess(manageGames: true);
+        _userDto.SetAccess(manageGames: true);
 
         await _service.GetDivisionData(Division1AndSeason1Filter, _token);
 
@@ -533,21 +513,10 @@ public class DivisionServiceTests
             DivisionId = { Division1.Id },
             ExcludeProposals = true,
         };
-        WithAccess(manageGames: true);
+        _userDto.SetAccess(manageGames: true);
 
         await _service.GetDivisionData(filter, _token);
 
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, false, _token));
-    }
-
-    private void WithAccess(bool manageGames)
-    {
-        _userDto = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageGames = manageGames,
-            },
-        };
     }
 }

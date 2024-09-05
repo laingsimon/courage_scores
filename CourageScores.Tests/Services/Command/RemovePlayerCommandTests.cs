@@ -19,11 +19,7 @@ public class RemovePlayerCommandTests
     private Mock<IUserService> _userService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private readonly CancellationToken _token = new();
-    private readonly SeasonDto _season = new()
-    {
-        Id = Guid.NewGuid(),
-        Name = "SEASON",
-    };
+    private readonly SeasonDto _season = new SeasonDtoBuilder().Build();
     private TeamPlayer _teamPlayer = null!;
     private CosmosTeam _team = null!;
     private UserDto? _user;
@@ -35,14 +31,7 @@ public class RemovePlayerCommandTests
         _seasonService = new Mock<ICachingSeasonService>();
         _userService = new Mock<IUserService>();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                ManageTeams = true,
-            },
-            TeamId = Guid.Parse(UserTeamId),
-        };
+        _user = _user.SetAccess(manageTeams: true, teamId: Guid.Parse(UserTeamId));
         _teamPlayer = new TeamPlayer
         {
             Id = Guid.NewGuid(),
@@ -104,8 +93,7 @@ public class RemovePlayerCommandTests
     [TestCase(false, true, "8937E8EB-0E3B-4541-AFC6-8025B8E4E625")]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsUnsuccessful(bool manageTeams, bool inputResults, string? teamId)
     {
-        _user!.Access!.ManageTeams = manageTeams;
-        _user!.Access!.InputResults = inputResults;
+        _user.SetAccess(manageTeams: manageTeams, inputResults: inputResults);
         _user!.TeamId = teamId != null ? Guid.Parse(teamId) : null;
 
         var result = await _command.ForPlayer(_teamPlayer.Id).FromSeason(_season.Id).ApplyUpdate(_team, _token);

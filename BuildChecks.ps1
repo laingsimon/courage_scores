@@ -75,6 +75,12 @@ Function Remove-ExistingComment($Comment)
 
 Function Remove-ExistingComments() 
 {
+    If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
+    {
+        [Console]::Error.WriteLine("Cannot remove existing PR comments; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME)")
+        Return
+    }
+
     Write-Message "Remove existing comments: $($Comments.Count)"
     $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
 }
@@ -91,8 +97,6 @@ Function Add-PullRequestComment($Markdown)
         [Console]::Error.WriteLine("Cannot add PR comment; workflow isn't running from a pull-request - $($env:GITHUB_EVENT_NAME)")
         Return
     }
-
-    Remove-ExistingComments
 
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
@@ -120,6 +124,7 @@ $Token=$env:GITHUB_TOKEN
 $PullRequestNumber=$RefName.Replace("/merge", "")
 $Repo = $env:GITHUB_REPOSITORY
 $Comments = Get-PullRequestComments
+Remove-ExistingComments
 
 $FilesOverThreshold = Get-Files -MinLines $ErrorThreshold -MaxLines [int]::MaxValue
 If ($ErrorThreshold -gt 0 -and $FilesOverThreshold.Length -gt 0)
@@ -139,7 +144,7 @@ else
 
 If ($WarningThreshold -gt 0 -and $FilesNearingLimit.Length -gt 0)
 {
-    Print-Files -Heading "$($FilesNearingLimit.Length) file/s approaching limit" -Files $FilesNearingLimit
+    Print-Files -Heading "$($FilesNearingLimit.Length) file/s approaching line $($WarningThreshold) limit" -Files $FilesNearingLimit
 }
 
 Exit $FilesOverThreshold.Length

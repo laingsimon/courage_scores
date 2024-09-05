@@ -11,6 +11,7 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
+using CourageScores.Tests.Models.Dtos;
 using Moq;
 using NUnit.Framework;
 using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
@@ -37,6 +38,7 @@ public class UpdatePlayerCommandTests
     private SeasonDto _season = null!;
     private EditTeamPlayerDto _update = null!;
     private UserDto? _user;
+    private CosmosGame _game = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -61,20 +63,9 @@ public class UpdatePlayerCommandTests
             _teamService.Object,
             _commandFactory.Object);
 
-        _user = new UserDto
-        {
-            Name = "USER",
-            Access = new AccessDto
-            {
-                ManageTeams = true,
-            },
-            TeamId = Guid.Parse(UserTeamId),
-        };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "SEASON",
-        };
+        _user = _user.SetAccess(manageTeams: true, teamId: Guid.Parse(UserTeamId));
+        _user.Name = "USER";
+        _season = new SeasonDtoBuilder().Build();
         _teamPlayer = new TeamPlayer
         {
             Id = Guid.NewGuid(),
@@ -85,18 +76,12 @@ public class UpdatePlayerCommandTests
         _teamSeason = new TeamSeason
         {
             SeasonId = _season.Id,
-            Players =
-            {
-                _teamPlayer,
-            },
+            Players = { _teamPlayer },
         };
         _team = new CosmosTeam
         {
             Id = Guid.Parse(UserTeamId),
-            Seasons =
-            {
-                _teamSeason,
-            },
+            Seasons = { _teamSeason },
             Name = "TEAM",
         };
         _update = new EditTeamPlayerDto
@@ -124,6 +109,19 @@ public class UpdatePlayerCommandTests
         _addPlayerToSeasonCommand
             .Setup(c => c.AddSeasonToTeamIfMissing(It.IsAny<bool>()))
             .Returns(_addPlayerToSeasonCommand.Object);
+
+        _game = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            Matches =
+            {
+                new GameMatch
+                {
+                    AwayPlayers = { GamePlayer(_teamPlayer.Id) },
+                    HomePlayers = { GamePlayer(_teamPlayer.Id) },
+                },
+            },
+        };
     }
 
     [Test]
@@ -136,10 +134,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Cannot edit a team that has been deleted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
     }
 
     [Test]
@@ -152,10 +147,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Player cannot be updated, not logged in",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be updated, not logged in" }));
     }
 
     [TestCase(false, false, null)]
@@ -164,8 +156,7 @@ public class UpdatePlayerCommandTests
     [TestCase(false, true, "8937E8EB-0E3B-4541-AFC6-8025B8E4E625")]
     public async Task ApplyUpdate_WhenNotPermitted_ReturnsUnsuccessful(bool manageTeams, bool inputResults, string? userTeamId)
     {
-        _user!.Access!.ManageTeams = manageTeams;
-        _user!.Access!.InputResults = inputResults;
+        _user.SetAccess(manageTeams: manageTeams, inputResults: inputResults);
         _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
 
         var result = await _command
@@ -173,10 +164,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Player cannot be updated, not permitted",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be updated, not permitted" }));
     }
 
     [Test]
@@ -187,10 +175,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Season could not be found",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Season could not be found" }));
     }
 
     [Test]
@@ -203,10 +188,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Team TEAM is not registered to the SEASON season",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team TEAM is not registered to the SEASON season" }));
     }
 
     [Test]
@@ -217,10 +199,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Team does not have a player with this id for the SEASON season",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team does not have a player with this id for the SEASON season" }));
     }
 
     [Test]
@@ -236,10 +215,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update TeamPlayer, data integrity token is missing",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update TeamPlayer, data integrity token is missing" }));
     }
 
     [Test]
@@ -255,10 +231,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Unable to update TeamPlayer, EDITOR updated it before you at 4 Mar 2002 00:00:00",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update TeamPlayer, EDITOR updated it before you at 4 Mar 2002 00:00:00" }));
     }
 
     [Test]
@@ -272,10 +245,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Player PLAYER (new) updated in the SEASON season, 0 game/s updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 0 game/s updated" }));
         Assert.That(_teamPlayer.Name, Is.EqualTo("PLAYER (new)"));
         Assert.That(_teamPlayer.EmailAddress, Is.EqualTo("email@address.com"));
         Assert.That(_teamPlayer.Captain, Is.True);
@@ -287,21 +257,14 @@ public class UpdatePlayerCommandTests
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
             .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
-        var otherTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "OTHER TEAM",
-        };
+        var otherTeam = new TeamDtoBuilder().WithName("OTHER TEAM").Build();
         _update.NewTeamId = otherTeam.Id;
         _teamService
             .Setup(s => s.Upsert(otherTeam.Id, _addPlayerToSeasonCommand.Object, _token))
             .ReturnsAsync(() => new ActionResultDto<TeamDto>
             {
                 Success = false,
-                Errors =
-                {
-                    "Some error",
-                },
+                Errors = { "Some error" },
             });
 
         var result = await _command
@@ -309,10 +272,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[]
-        {
-            "Some error", "Could not move the player to other team",
-        }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Some error", "Could not move the player to other team" }));
     }
 
     [Test]
@@ -320,21 +280,14 @@ public class UpdatePlayerCommandTests
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
             .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
-        var otherTeam = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "OTHER TEAM",
-        };
+        var otherTeam = new TeamDtoBuilder().WithName("OTHER TEAM").Build();
         _update.NewTeamId = otherTeam.Id;
         _teamService
             .Setup(s => s.Upsert(otherTeam.Id, _addPlayerToSeasonCommand.Object, _token))
             .ReturnsAsync(() => new ActionResultDto<TeamDto>
             {
                 Success = true,
-                Messages =
-                {
-                    "Player added to the OTHER TEAM team for the SEASON season",
-                },
+                Messages = { "Player added to the OTHER TEAM team for the SEASON season" },
             });
 
         var result = await _command
@@ -344,10 +297,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Player added to the OTHER TEAM team for the SEASON season",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player added to the OTHER TEAM team for the SEASON season" }));
         _auditingHelper.Verify(h => h.SetDeleted(_teamPlayer, _token));
     }
 
@@ -363,42 +313,15 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Player PLAYER (new) updated in the SEASON season, 0 game/s updated",
-        }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 0 game/s updated" }));
         _auditingHelper.Verify(h => h.SetUpdated(_teamPlayer, _token));
     }
 
     [Test]
     public async Task ApplyUpdate_WhenDifferentTeamIdProvidedAndPlayerPlayingInGames_ReturnsUnsuccessful()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            Matches =
-            {
-                new GameMatch
-                {
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = _teamPlayer.Id,
-                        },
-                    },
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = _teamPlayer.Id,
-                        },
-                    },
-                },
-            },
-        };
         _gameRepository.Setup(r => r.GetSome($"t.seasonId = '{_season.Id}'", _token))
-            .Returns(TestUtilities.AsyncEnumerable(game));
+            .Returns(TestUtilities.AsyncEnumerable(_game));
         _update.NewTeamId = Guid.NewGuid();
 
         var result = await _command
@@ -406,101 +329,44 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[]
-        {
-            "Cannot move a player once they've played in some games",
-        }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Cannot move a player once they've played in some games" }));
     }
 
     [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAGame_UpdatesPlayerDetailsInGivenGame()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            Matches =
-            {
-                new GameMatch
-                {
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = _teamPlayer.Id,
-                        },
-                    },
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = _teamPlayer.Id,
-                        },
-                    },
-                },
-            },
-        };
-        _update.GameId = game.Id;
-        _gameRepository.Setup(r => r.GetSome($"t.id = '{game.Id}' and t.seasonId = '{_season.Id}'", _token))
-            .Returns(TestUtilities.AsyncEnumerable(game));
+        _update.GameId = _game.Id;
+        _gameRepository.Setup(r => r.GetSome($"t.id = '{_game.Id}' and t.seasonId = '{_season.Id}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(_game));
 
         var result = await _command
             .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Player PLAYER (new) updated in the SEASON season, 1 game/s updated",
-        }));
-        Assert.That(game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
-        Assert.That(game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
-        _gameRepository.Verify(r => r.GetSome($"t.id = '{game.Id}' and t.seasonId = '{_season.Id}'", _token));
-        _gameRepository.Verify(r => r.Upsert(game, _token));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 1 game/s updated" }));
+        Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
+        Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
+        _gameRepository.Verify(r => r.GetSome($"t.id = '{_game.Id}' and t.seasonId = '{_season.Id}'", _token));
+        _gameRepository.Verify(r => r.Upsert(_game, _token));
     }
 
     [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAllGames_UpdatesPlayerDetailsInGivenGame()
     {
-        var game = new CosmosGame
-        {
-            Id = Guid.NewGuid(),
-            Matches =
-            {
-                new GameMatch
-                {
-                    AwayPlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = _teamPlayer.Id,
-                        },
-                    },
-                    HomePlayers =
-                    {
-                        new GamePlayer
-                        {
-                            Id = _teamPlayer.Id,
-                        },
-                    },
-                },
-            },
-        };
         _gameRepository.Setup(r => r.GetSome($"t.seasonId = '{_season.Id}'", _token))
-            .Returns(TestUtilities.AsyncEnumerable(game));
+            .Returns(TestUtilities.AsyncEnumerable(_game));
 
         var result = await _command
             .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[]
-        {
-            "Player PLAYER (new) updated in the SEASON season, 1 game/s updated",
-        }));
-        Assert.That(game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
-        Assert.That(game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 1 game/s updated" }));
+        Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
+        Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
         _gameRepository.Verify(r => r.GetSome($"t.seasonId = '{_season.Id}'", _token));
-        _gameRepository.Verify(r => r.Upsert(game, _token));
+        _gameRepository.Verify(r => r.Upsert(_game, _token));
     }
 
     [Test]
@@ -515,17 +381,11 @@ public class UpdatePlayerCommandTests
                 {
                     AwayPlayers =
                     {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
+                        GamePlayer(),
                     },
                     HomePlayers =
                     {
-                        new GamePlayer
-                        {
-                            Id = Guid.NewGuid(),
-                        },
+                        GamePlayer(),
                     },
                 },
             },
@@ -540,9 +400,14 @@ public class UpdatePlayerCommandTests
 
         Assert.That(result.Success, Is.True);
         _gameRepository.Verify(r => r.Upsert(game, _token), Times.Never);
-        Assert.That(result.Messages, Is.EqualTo(new[]
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 0 game/s updated" }));
+    }
+
+    private static GamePlayer GamePlayer(Guid? id = null)
+    {
+        return new GamePlayer
         {
-            "Player PLAYER (new) updated in the SEASON season, 0 game/s updated",
-        }));
+            Id = id ?? Guid.NewGuid(),
+        };
     }
 }

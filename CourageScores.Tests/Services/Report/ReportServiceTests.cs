@@ -55,21 +55,9 @@ public class ReportServiceTests
             _clock.Object,
             _reportFactory.Object);
 
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RunReports = true,
-            },
-        };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
-        _division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-        };
+        _user = _user.SetAccess(runReports: true);
+        _season = new SeasonDtoBuilder().Build();
+        _division = new DivisionDtoBuilder().Build();
         _game1 = new CosmosGame
         {
             Home = new GameTeam(),
@@ -185,7 +173,7 @@ public class ReportServiceTests
             SeasonId = _season.Id,
             DivisionId = _division.Id,
         };
-        _user!.Access!.ManageScores = false;
+        _user.SetAccess(manageScores: false);
 
         var reports = await _service.GetReports(request, _token);
 

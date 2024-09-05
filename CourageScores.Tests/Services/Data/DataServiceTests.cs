@@ -56,19 +56,9 @@ public class DataServiceTests
             Zip = new FormFile(new MemoryStream(), 0, 10, "name", "fileName.zip"),
             Password = "correct password",
         };
-        _user = new UserDto
-        {
-            Name = "USER",
-            Access = new AccessDto
-            {
-                ExportData = true,
-                ImportData = true,
-            },
-        };
-        _importMetaData = new ExportMetaData
-        {
-            Hostname = "HOST",
-        };
+        _user = _user.SetAccess(exportData: true, importData: true);
+        _user.Name = "USER";
+        _importMetaData = new ExportMetaData { Hostname = "HOST" };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _zipBuilderFactory.Setup(f => f.Create("USER", _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
         _cosmosTableService
@@ -85,6 +75,7 @@ public class DataServiceTests
             .ReturnsAsync(_tableImporter.Object);
         _importZip.Setup(z => z.ReadJson<ExportMetaData>(ExportMetaData.FileName))
             .ReturnsAsync(_importMetaData);
+        _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
         _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
 
@@ -107,19 +98,17 @@ public class DataServiceTests
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not logged in"));
+        result.AssertError("Not logged in");
     }
 
     [Test]
     public async Task ExportData_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user!.Access!.ExportData = false;
+        _user.SetAccess(exportData: false);
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not permitted"));
+        result.AssertError("Not permitted");
     }
 
     [Test]
@@ -131,8 +120,7 @@ public class DataServiceTests
 
         var result = await _dataService.ExportData(_exportRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("some error"));
+        result.AssertError("some error");
     }
 
     [Test]
@@ -157,10 +145,7 @@ public class DataServiceTests
     public async Task ExportData_WhenTablesReturned_ExportsEachTable()
     {
         var table = new Mock<ITableAccessor>();
-        _tables = new[]
-        {
-            table.Object,
-        };
+        _tables = new[] { table.Object };
 
         await _dataService.ExportData(_exportRequest, _token);
 
@@ -187,19 +172,17 @@ public class DataServiceTests
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not logged in"));
+        result.AssertError("Not logged in");
     }
 
     [Test]
     public async Task ImportData_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _user!.Access!.ImportData = false;
+        _user.SetAccess(importData: false);
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not permitted"));
+        result.AssertError("Not permitted");
     }
 
     [Test]
@@ -209,8 +192,7 @@ public class DataServiceTests
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Password is incorrect"));
+        result.AssertError("Password is incorrect");
     }
 
     [Test]
@@ -220,8 +202,7 @@ public class DataServiceTests
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("No zip file provided"));
+        result.AssertError("No zip file provided");
     }
 
     [Test]
@@ -235,8 +216,7 @@ public class DataServiceTests
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("some error"));
+        result.AssertError("some error");
     }
 
     [Test]
@@ -246,31 +226,24 @@ public class DataServiceTests
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Zip file does not contain a meta.json file"));
+        result.AssertError("Zip file does not contain a meta.json file");
     }
 
     [Test]
     public async Task ImportData_WithV2PartialDataExportAndPurge_ReturnsUnsuccessful()
     {
-        _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         _importRequest.PurgeData = true;
-        _importMetaData.RequestedTables.Add("TABLE 1", new List<Guid>(new[]
-        {
-            Guid.Empty,
-        }));
+        _importMetaData.RequestedTables.Add("TABLE 1", new List<Guid>(new[] { Guid.Empty }));
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Purge is not permitted for partial data exports"));
+        result.AssertError("Purge is not permitted for partial data exports");
     }
 
     [Test]
     public async Task ImportData_WithPurgeDataRequested_PurgesData()
     {
         _importRequest.PurgeData = true;
-        _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         SetupImportMessage();
         _tableImporter
             .Setup(i => i.PurgeData(It.IsAny<IReadOnlyCollection<string>>(), _token))
@@ -279,35 +252,30 @@ public class DataServiceTests
         var result = await _dataService.ImportData(_importRequest, _token);
 
         _tableImporter.Verify(i => i.PurgeData(It.IsAny<IReadOnlyCollection<string>>(), _token));
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Has.Member("purge message1"));
+        result.AssertSuccessful("Processing data from HOST exported on 01 Jan 0001 by ", "purge message1", "import message1");
     }
 
     [Test]
     public async Task ImportData_WithoutPurgeDataRequested_DoesNotPurgeData()
     {
         _importRequest.PurgeData = false;
-        _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         SetupImportMessage();
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
         _tableImporter.Verify(i => i.PurgeData(It.IsAny<IReadOnlyCollection<string>>(), _token), Times.Never);
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Has.Member("import message1"));
+        result.AssertSuccessful("Processing data from HOST exported on 01 Jan 0001 by ", "import message1");
     }
 
     [Test]
     public async Task ImportData_WhenComplete_ImportsData()
     {
-        _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         SetupImportMessage();
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
         _tableImporter.Verify(i => i.ImportData(It.IsAny<IReadOnlyCollection<string>>(), _importZip.Object, _token));
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Has.Member("import message1"));
+        result.AssertSuccessful("Processing data from HOST exported on 01 Jan 0001 by ", "import message1");
     }
 
     [TestCase("")]
@@ -318,8 +286,7 @@ public class DataServiceTests
 
         var result = await _dataService.BackupData(request, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        result.AssertError("Invalid request token");
     }
 
     [TestCase("")]
@@ -330,8 +297,7 @@ public class DataServiceTests
 
         var result = await _dataService.BackupData(request, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Missing identity" }));
+        result.AssertError("Missing identity");
     }
 
     [TestCase("incorrect")]
@@ -342,8 +308,7 @@ public class DataServiceTests
 
         var result = await _dataService.BackupData(request, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        result.AssertError("Invalid request token");
     }
 
     [Test]
@@ -359,8 +324,7 @@ public class DataServiceTests
 
         var result = await _dataService.BackupData(request, _token);
 
-        Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Success, Is.True);
+        result.AssertSuccessful();
     }
 
     [Test]
@@ -388,8 +352,7 @@ public class DataServiceTests
 
         var result = await _dataService.RestoreData(request, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        result.AssertError("Invalid request token");
     }
 
     [TestCase("")]
@@ -400,8 +363,7 @@ public class DataServiceTests
 
         var result = await _dataService.RestoreData(request, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Missing identity" }));
+        result.AssertError("Missing identity");
     }
 
     [TestCase("incorrect")]
@@ -412,8 +374,7 @@ public class DataServiceTests
 
         var result = await _dataService.RestoreData(request, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        result.AssertError("Invalid request token");
     }
 
     [Test]
@@ -423,8 +384,7 @@ public class DataServiceTests
 
         var result = await _dataService.RestoreData(request, _token);
 
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "No zip file provided" }));
-        Assert.That(result.Success, Is.False);
+        result.AssertError("No zip file provided");
     }
 
     [Test]
@@ -441,8 +401,7 @@ public class DataServiceTests
 
         var result = await _dataService.RestoreData(request, _token);
 
-        Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Success, Is.True);
+        result.AssertSuccessful("Processing data from HOST exported on 01 Jan 0001 by ", "import message1");
     }
 
     [Test]
@@ -452,19 +411,17 @@ public class DataServiceTests
 
         var result = await _dataService.Browse("table", _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not logged in"));
+        result.AssertError("Not logged in");
     }
 
     [Test]
     public async Task BrowseAllItems_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.ExportData = false;
+        _user.SetAccess(exportData: false);
 
         var result = await _dataService.Browse("table", _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not permitted"));
+        result.AssertError("Not permitted");
     }
 
     [Test]
@@ -472,8 +429,7 @@ public class DataServiceTests
     {
         var result = await _dataService.Browse("", _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Table not supplied"));
+        result.AssertError("Table not supplied");
     }
 
     [Test]
@@ -483,8 +439,7 @@ public class DataServiceTests
 
         var result = await _dataService.Browse("table", _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Table not found: table"));
+        result.AssertError("Table not found: table");
     }
 
     [Test]
@@ -509,20 +464,18 @@ public class DataServiceTests
 
         var result = await _dataService.View("table", id, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not logged in"));
+        result.AssertError("Not logged in");
     }
 
     [Test]
     public async Task View_WhenNotPermitted_ReturnsNotPermitted()
     {
-        _user!.Access!.ExportData = false;
+        _user.SetAccess(exportData: false);
         var id = Guid.NewGuid();
 
         var result = await _dataService.View("table", id, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Not permitted"));
+        result.AssertError("Not permitted");
     }
 
     [Test]
@@ -532,42 +485,34 @@ public class DataServiceTests
 
         var result = await _dataService.View("", id, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Table not supplied"));
+        result.AssertError("Table not supplied");
     }
 
     [Test]
     public async Task View_WhenTableNotFound_ReturnsTableNotFound()
     {
-        var id = Guid.NewGuid();
-        _dataViewRepository.Setup(r => r.TableExists("table")).ReturnsAsync(false);
+        var id = SetupDataView(tableExists: false);
 
         var result = await _dataService.View("table", id, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Table not found: table"));
+        result.AssertError("Table not found: table");
     }
 
     [Test]
     public async Task View_WhenRecordNotFound_ReturnsRecordNotFound()
     {
-        var id = Guid.NewGuid();
-        _dataViewRepository.Setup(r => r.TableExists("table")).ReturnsAsync(true);
-        _dataViewRepository.Setup(r => r.GetItem("table", id, _token)).ReturnsAsync(() => null);
+        var id = SetupDataView();
 
         var result = await _dataService.View("table", id, _token);
 
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Has.Member("Record not found"));
+        result.AssertError("Record not found");
     }
 
     [Test]
     public async Task View_WhenItemFound_ReturnsData()
     {
-        var id = Guid.NewGuid();
         var item = new object();
-        _dataViewRepository.Setup(r => r.TableExists("table")).ReturnsAsync(true);
-        _dataViewRepository.Setup(r => r.GetItem("table", id, _token)).ReturnsAsync(item);
+        var id = SetupDataView(item);
 
         var result = await _dataService.View("table", id, _token);
 
@@ -601,5 +546,14 @@ public class DataServiceTests
         _tableImporter
             .Setup(i => i.ImportData(It.IsAny<IReadOnlyCollection<string>>(), _importZip.Object, _token))
             .Returns(TestUtilities.AsyncEnumerable(message));
+    }
+
+    private Guid SetupDataView(object? item = null, bool tableExists = true)
+    {
+        var id = Guid.NewGuid();
+        _dataViewRepository.Setup(r => r.TableExists("table")).ReturnsAsync(tableExists);
+        _dataViewRepository.Setup(r => r.GetItem("table", id, _token)).ReturnsAsync(() => item);
+
+        return id;
     }
 }

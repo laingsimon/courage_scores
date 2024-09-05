@@ -35,14 +35,8 @@ public class AddSeasonToTeamCommandTests
             Id = Guid.NewGuid(),
             Name = "TEAM",
         };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
-        _division = new DivisionDto
-        {
-            Id = Guid.NewGuid(),
-        };
+        _season = new SeasonDtoBuilder().Build();
+        _division = new DivisionDtoBuilder().Build();
     }
 
     [Test]
@@ -130,6 +124,7 @@ public class AddSeasonToTeamCommandTests
         }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
+        Assert.That(teamSeason.DivisionId, Is.EqualTo(_division.Id));
         _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token));
     }
 
@@ -165,6 +160,11 @@ public class AddSeasonToTeamCommandTests
 
         _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token)); // will undelete the TeamSeason
         Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season already exists, 1 players copied",
+        }));
+        Assert.That(teamSeason.DivisionId, Is.EqualTo(_division.Id));
     }
 
     [Test]
@@ -211,6 +211,7 @@ public class AddSeasonToTeamCommandTests
         }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+        Assert.That(teamSeason.DivisionId, Is.EqualTo(_division.Id));
         _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token));
     }
 
@@ -253,6 +254,7 @@ public class AddSeasonToTeamCommandTests
             .ApplyUpdate(_team, _token);
 
         _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token)); // this will undelete the TeamSeason
+        Assert.That(teamSeason.DivisionId, Is.EqualTo(_division.Id));
         Assert.That(result.Success, Is.True);
     }
 
@@ -312,6 +314,7 @@ public class AddSeasonToTeamCommandTests
         var newTeamSeason = _team.Seasons.SingleOrDefault(s => s.SeasonId == _season.Id);
         Assert.That(newTeamSeason, Is.Not.Null);
         Assert.That(newTeamSeason!.Players, Is.Empty);
+        Assert.That(newTeamSeason.DivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }

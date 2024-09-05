@@ -62,10 +62,7 @@ public class CachingTeamServiceTests
     public async Task GetTeamsForSeason_GivenSeasonIdWhenLoggedIn_BypassesCache()
     {
         var seasonId = Guid.NewGuid();
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
 
         var result = await _service.GetTeamsForSeason(seasonId, _token).ToList();
 
@@ -108,10 +105,7 @@ public class CachingTeamServiceTests
     {
         var seasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
-        _user = new UserDto
-        {
-            Access = new AccessDto(),
-        };
+        _user = _user.SetAccess();
 
         var result = await _service.GetTeamsForSeason(seasonId, divisionId, _token).ToList();
 

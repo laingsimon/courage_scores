@@ -277,7 +277,7 @@ export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
         sideA: (side: any, score?: number) => {
             match.sideA = side.name
                 ? side
-                : { id: createTemporaryId(), name: side };
+                : sideBuilder(side).build();
             if (score !== undefined) {
                 match.scoreA = score;
             }
@@ -286,7 +286,7 @@ export function tournamentMatchBuilder(id?: string): ITournamentMatchBuilder {
         sideB: (side: any, score?: number) => {
             match.sideB = side.name
                 ? side
-                : { id: createTemporaryId(), name: side };
+                : sideBuilder(side).build();
             if (score !== undefined) {
                 match.scoreB = score;
             }

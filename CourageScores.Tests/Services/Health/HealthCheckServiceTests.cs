@@ -1,6 +1,5 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Health;
-using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
@@ -45,13 +44,7 @@ public class HealthCheckServiceTests
             _divisionService.Object,
             _healthCheckFactory.Object,
             _seasonAdapter.Object);
-        _user = new UserDto
-        {
-            Access = new AccessDto
-            {
-                RunHealthChecks = true,
-            },
-        };
+        _user = _user.SetAccess(runHealthChecks: true);
         _division1 = new DivisionDataDto
         {
             Id = Guid.NewGuid(),
@@ -60,22 +53,11 @@ public class HealthCheckServiceTests
         {
             Id = Guid.NewGuid(),
         };
-        _season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "SEASON",
-            Divisions =
-            {
-                new DivisionDto
-                {
-                    Id = _division1.Id,
-                },
-                new DivisionDto
-                {
-                    Id = _division2.Id,
-                },
-            },
-        };
+        _season = new SeasonDtoBuilder()
+            .WithDivisions(
+                new DivisionDtoBuilder().Build(),
+                new DivisionDtoBuilder().Build())
+            .Build();
 
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -126,10 +108,7 @@ public class HealthCheckServiceTests
     [Test]
     public async Task Check_GivenNoDivisionsForSeason_ShouldReturnSuccess()
     {
-        var emptySeason = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
+        var emptySeason = new SeasonDtoBuilder().Build();
         var emptySeasonHealth = new SeasonHealthDto();
         _seasonService.Setup(s => s.Get(emptySeason.Id, _token)).ReturnsAsync(emptySeason);
         _seasonAdapter
@@ -145,17 +124,9 @@ public class HealthCheckServiceTests
     public async Task Check_GivenMissingDivision_ShouldReturnFailure()
     {
         var divisionId = Guid.NewGuid();
-        var seasonWithMissingDivision = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-            Divisions =
-            {
-                new DivisionDto
-                {
-                    Id = divisionId,
-                },
-            },
-        };
+        var seasonWithMissingDivision = new SeasonDtoBuilder()
+            .WithDivisions(new DivisionDtoBuilder(divisionId).Build())
+            .Build();
         _seasonService.Setup(s => s.Get(seasonWithMissingDivision.Id, _token)).ReturnsAsync(seasonWithMissingDivision);
         _divisionService
             .Setup(d => d.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId.Contains(divisionId)), _token))
