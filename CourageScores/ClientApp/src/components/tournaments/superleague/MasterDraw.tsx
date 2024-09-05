@@ -16,7 +16,7 @@ export interface IMasterDrawProps {
     gender: string;
     date: string;
     notes: string;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<boolean>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean>;
     readOnly?: boolean;
 }
 
@@ -42,7 +42,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
         }
 
         const roundPatch: PatchTournamentRoundDto = patch as PatchTournamentRoundDto;
-        await patchData(roundPatch, nestInRound);
+        await patchData(roundPatch, nestInRound, saygId);
     }
 
     try {
