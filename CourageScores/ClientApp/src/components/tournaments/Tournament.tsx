@@ -315,6 +315,7 @@ export function Tournament() {
             return;
         }
 
+        saveTournament();
         setEditTournament(null);
     }
 
