@@ -40,7 +40,7 @@ describe('MatchSayg', () => {
     let reportedError: ErrorState;
     let updatedTournament: TournamentGameDto;
     let changedData: TournamentRoundDto;
-    let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean }[];
+    let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string }[];
     let tournamentSaved: { preventLoading?: boolean };
     let addedSayg: { id: string, saygRequest: CreateTournamentSaygDto };
     let apiResponse = null;
@@ -97,8 +97,8 @@ describe('MatchSayg', () => {
         changedData = newRound;
     }
 
-    async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
-        patchedData.push({ patch, nestInRound });
+    async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string) {
+        patchedData.push({ patch, nestInRound, saygId });
     }
 
     function setPreventScroll(prevent: boolean) {
@@ -923,6 +923,7 @@ describe('MatchSayg', () => {
                         sideB: sideB.id,
                     },
                 },
+                saygId: saygData.id,
             }]);
         });
 

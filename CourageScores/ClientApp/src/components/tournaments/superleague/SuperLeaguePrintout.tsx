@@ -22,7 +22,7 @@ import {LiveDataType} from "../../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<boolean>;
     readOnly?: boolean;
 }
 
@@ -110,6 +110,23 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
         }
     }
 
+    async function patchDataAndTriggerSaygReload(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean> {
+        if (!patchData) {
+            return false;
+        }
+
+        const result: boolean = await patchData(patch, nestInRound);
+        if (result && nestInRound) {
+            if (saygId && saygDataMap[saygId]) {
+                const newSaygDataMap: ISaygDataMap = Object.assign({}, saygDataMap);
+                delete newSaygDataMap[saygId];
+                setSaygDataMap(newSaygDataMap); // changing this will trigger the useEffect that calls onto loadSaygData()
+                // NOTE: cannot change `finishedLoading` as it closes the sayg dialog
+            }
+        }
+        return result;
+    }
+
     if ((any(unloadedIds) || loading) && !finishedLoading) {
         return (<div>Loading...</div>);
     }
@@ -135,7 +152,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 date={tournamentData.date}
                 gender={tournamentData.gender}
                 notes={tournamentData.notes}
-                patchData={patchData}
+                patchData={patchDataAndTriggerSaygReload}
                 readOnly={readOnly} />
             {preventScroll ? null : (<MatchLog
                 host={tournamentData.host}

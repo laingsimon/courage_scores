@@ -16,7 +16,7 @@ export interface IMasterDrawProps {
     gender: string;
     date: string;
     notes: string;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean>;
     readOnly?: boolean;
 }
 
@@ -34,7 +34,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
         await setTournamentData(newTournamentData);
     }
 
-    async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
+    async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string) {
         if (!nestInRound) {
             // e.g. 180s/hi-checks, which don't apply to rounds, so can be pass up without including the nested round info.
             await patchData(patch, nestInRound);
@@ -42,7 +42,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
         }
 
         const roundPatch: PatchTournamentRoundDto = patch as PatchTournamentRoundDto;
-        await patchData(roundPatch, nestInRound);
+        await patchData(roundPatch, nestInRound, saygId);
     }
 
     try {
