@@ -24,6 +24,8 @@ export interface IEditSideProps {
     onClose(): Promise<any>;
     onApply(saveOptions: ISaveSideOptions): Promise<any>;
     onDelete?(side: TournamentSideDto): Promise<any>;
+    initialAddAsIndividuals?: boolean;
+    initialAddMultiplePlayers?: boolean;
 }
 
 export interface ISaveSideOptions {
@@ -41,12 +43,12 @@ interface ITournamentSideType {
     canSelectTeams: boolean;
 }
 
-export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSideProps) {
+export function EditSide({side, onChange, onClose, onApply, onDelete, initialAddAsIndividuals, initialAddMultiplePlayers }: IEditSideProps) {
     const {teams, onError, account, reloadTeams} = useApp();
     const {tournamentData, season, alreadyPlaying} = useTournament();
     const [playerFilter, setPlayerFilter] = useState('');
     const [addPlayerDialogOpen, setAddPlayerDialogOpen] = useState<boolean>(false);
-    const [saveOptions, setSaveOptions] = useState<ISaveSideOptions>({addAsIndividuals: false});
+    const [saveOptions, setSaveOptions] = useState<ISaveSideOptions>({addAsIndividuals: initialAddAsIndividuals || false});
     const [newPlayerDetails, setNewPlayerDetails] = useState<EditTeamPlayerDto>({name: '', captain: false});
     const divisionId: string = tournamentData.divisionId;
     const selectATeam: IBootstrapDropdownItem = {value: '', text: 'Select team', className: 'text-warning'};
@@ -213,7 +215,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}: IEditSide
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={async () => setAddPlayerDialogOpen(false)}
                 onSaved={reloadPlayers}
-            />
+                initialMultiple={initialAddMultiplePlayers} />
         </Dialog>);
     }
 
