@@ -57,7 +57,8 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
             onApply={async (options: ISaveSideOptions) => {
                 await setTournamentData(addSide(tournamentData, newSide, options));
                 setNewSide(null);
-            }}/>);
+            }}
+            initialAddAsIndividuals={tournamentData.singleRound} />);
     }
 
     const canShowResults: boolean = any((tournamentData.round || {}).matches || [], (match: TournamentMatchDto) => !!match.scoreA || !!match.scoreB) || !readOnly;
