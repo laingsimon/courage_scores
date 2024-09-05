@@ -23,8 +23,7 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
     const {tournamentData, setTournamentData} = useTournament();
     const isAdmin: boolean = account && account.access && account.access.manageTournaments;
     const readOnly: boolean = !isAdmin || !canSave || disabled || saving;
-    const hasStarted: boolean = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
-    const winningSideId: string = hasStarted ? getWinningSide(tournamentData.round) : null;
+    const winningSideId: string = getWinningSide(tournamentData.round);
     const [newSide, setNewSide] = useState<TournamentSideDto>(null);
 
     function getWinningSide(round: TournamentRoundDto): string {
@@ -77,10 +76,10 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
                         setNewSide(null);
                     }}/>);
             })}
-            {!readOnly && !hasStarted
-                ? (<button className="btn btn-primary" onClick={() => setNewSide({ id: null })}>➕</button>)
-                : null}
-            {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
+            {readOnly
+                ? null
+                : (<button className="btn btn-primary" onClick={() => setNewSide({id: null})}>➕</button>)}
+            {newSide && !readOnly ? renderEditNewSide() : null}
         </div>
         {canShowResults ? (<TournamentRound
             round={tournamentData.round || {}}
