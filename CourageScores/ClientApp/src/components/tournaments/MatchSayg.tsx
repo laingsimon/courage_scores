@@ -29,7 +29,7 @@ export interface IMatchSaygProps {
     matchIndex: number;
     matchOptions: GameMatchOptionDto;
     onChange?(round: TournamentRoundDto): Promise<any>;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<any>;
     readOnly?: boolean;
     showViewSayg?: boolean;
 }
@@ -157,7 +157,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                             scoreA: data.homeScore,
                             scoreB: data.awayScore,
                         }
-                    }, true);
+                    }, true, saygId);
                 }): null}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
