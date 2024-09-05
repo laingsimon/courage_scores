@@ -650,7 +650,6 @@ describe('Tournament', () => {
             const dialog = context.container.querySelector('div.modal-dialog');
             await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
             await doClick(findButton(dialog, 'Close'));
-            await doClick(findButton(context.container, 'Save'));
 
             expect(updatedTournamentData.length).toEqual(1);
             expect(updatedTournamentData[0].type).toEqual('NEW TYPE');
