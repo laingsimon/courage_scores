@@ -34,7 +34,7 @@ import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 
 export interface IPrintableSheetProps {
     editable?: boolean;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<boolean>;
 }
 
 interface IMovement {

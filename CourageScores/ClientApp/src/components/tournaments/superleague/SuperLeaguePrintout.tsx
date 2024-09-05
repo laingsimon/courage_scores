@@ -22,7 +22,7 @@ import {LiveDataType} from "../../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface ISuperLeaguePrintoutProps {
     division: DivisionDto;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<boolean>;
     readOnly?: boolean;
 }
 

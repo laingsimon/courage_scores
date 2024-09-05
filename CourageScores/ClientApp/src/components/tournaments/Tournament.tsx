@@ -203,11 +203,11 @@ export function Tournament() {
         }
     }
 
-    async function applyPatch(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound: boolean) {
+    async function applyPatch(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound: boolean): Promise<boolean> {
         /* istanbul ignore next */
         if (saving || patching) {
             /* istanbul ignore next */
-            return;
+            return false;
         }
 
         setPatching(true);
@@ -219,9 +219,11 @@ export function Tournament() {
 
             if (!response.success) {
                 setSaveError(response);
+                return false;
             } else {
                 await updateTournamentData(response.result);
                 await publishLiveUpdate(response.result);
+                return true;
             }
         } finally {
             setPatching(false);

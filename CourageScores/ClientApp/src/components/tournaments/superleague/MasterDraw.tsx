@@ -16,7 +16,7 @@ export interface IMasterDrawProps {
     gender: string;
     date: string;
     notes: string;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<boolean>;
     readOnly?: boolean;
 }
 
