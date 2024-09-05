@@ -315,6 +315,7 @@ export function Tournament() {
             return;
         }
 
+        await saveTournament();
         setEditTournament(null);
     }
 
@@ -349,7 +350,7 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {canManageTournaments && tournamentData && editTournament === 'details'
-                ? (<Dialog onClose={async () => setEditTournament(null)} className="d-print-none">
+                ? (<Dialog onClose={closeEditTournamentDialog} className="d-print-none">
                     <TournamentDetails
                         tournamentData={tournamentData}
                         disabled={saving}
