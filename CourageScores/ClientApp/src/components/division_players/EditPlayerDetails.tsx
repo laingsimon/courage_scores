@@ -22,6 +22,7 @@ export interface IEditPlayerDetailsProps {
     newTeamId?: string;
     divisionId: string;
     player: IEditPlayerDetailsPlayer;
+    initialMultiple?: boolean;
 }
 
 export interface IEditPlayerDetailsPlayer {
@@ -44,9 +45,9 @@ interface IMultiPlayerCreationResult extends IClientActionResultDto<TeamDto> {
     playerDetails: IEditPlayerDetailsPlayer[];
 }
 
-export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, player }: IEditPlayerDetailsProps) {
+export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, player, initialMultiple }: IEditPlayerDetailsProps) {
     const [saving, setSaving] = useState<boolean>(false);
-    const [multiple, setMultiple] = useState<boolean>(false);
+    const [multiple, setMultiple] = useState<boolean>(initialMultiple || false);
     const [saveError, setSaveError] = useState<IClientActionResultDto<TeamDto> | null>(null);
     const {playerApi} = useDependencies();
     const {teams, divisions, onError} = useApp();
