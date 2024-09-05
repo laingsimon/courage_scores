@@ -87,7 +87,8 @@ export function PrintableSheet({editable, patchData}: IPrintableSheetProps) {
                 await setTournamentData(addSide(tournamentData, newSide, options));
                 setNewSide(null);
             }}
-            initialAddAsIndividuals={tournamentData.singleRound} />);
+            initialAddAsIndividuals={tournamentData.singleRound}
+            initialAddMultiplePlayers={tournamentData.singleRound} />);
     }
 
     function setupWiggle() {

@@ -58,7 +58,8 @@ export function EditTournament({canSave, disabled, saving}: IEditTournamentProps
                 await setTournamentData(addSide(tournamentData, newSide, options));
                 setNewSide(null);
             }}
-            initialAddAsIndividuals={tournamentData.singleRound} />);
+            initialAddAsIndividuals={tournamentData.singleRound}
+            initialAddMultiplePlayers={tournamentData.singleRound} />);
     }
 
     const canShowResults: boolean = any((tournamentData.round || {}).matches || [], (match: TournamentMatchDto) => !!match.scoreA || !!match.scoreB) || !readOnly;
