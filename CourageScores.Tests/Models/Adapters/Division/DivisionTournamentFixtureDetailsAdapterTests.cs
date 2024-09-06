@@ -86,19 +86,28 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.WinningSide, Is.EqualTo(null));
     }
 
-    [TestCase(3, 2, 1, "A")]
-    [TestCase(3, 1, 2, "B")]
-    [TestCase(5, 2, 1, null)]
-    [TestCase(5, 1, 2, null)]
-    [TestCase(null, 2, 1, null)]
-    [TestCase(null, 1, 2, null)]
-    [TestCase(null, 3, 1, "A")]
-    [TestCase(null, 1, 3, "B")]
-    public async Task Adapt_GivenWinningRound_SetsPropertiesCorrectly(int? bestOf, int scoreA, int scoreB, string? winnerName)
+    [TestCase(false, 3, 2, 1, "A")]
+    [TestCase(false, 3, 1, 2, "B")]
+    [TestCase(false, 5, 2, 1, null)]
+    [TestCase(false, 5, 1, 2, null)]
+    [TestCase(false, null, 2, 1, null)]
+    [TestCase(false, null, 1, 2, null)]
+    [TestCase(false, null, 3, 1, "A")]
+    [TestCase(false, null, 1, 3, "B")]
+    [TestCase(true, 3, 2, 1, null)]
+    [TestCase(true, 3, 1, 2, null)]
+    [TestCase(true, 5, 2, 1, null)]
+    [TestCase(true, 5, 1, 2, null)]
+    [TestCase(true, null, 2, 1, null)]
+    [TestCase(true, null, 1, 2, null)]
+    [TestCase(true, null, 3, 1, null)]
+    [TestCase(true, null, 1, 3, null)]
+    public async Task Adapt_GivenWinningRound_SetsPropertiesCorrectly(bool singleRound, int? bestOf, int scoreA, int scoreB, string? winnerName)
     {
         var sideA = new TournamentSideBuilder("A").Build();
         var sideB = new TournamentSideBuilder("B").Build();
         var game = new TournamentGameBuilder()
+            .SingleRound(singleRound)
             .WithRound(r1 => r1.WithRound(r2 => r2
                 .WithSide(sideA, sideB)
                 .WithMatch(m => m.WithSides(sideA, sideB).WithScores(scoreA, scoreB))
@@ -162,5 +171,6 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.Type, Is.Null);
         Assert.That(result.Sides, Is.Empty);
         Assert.That(result.SeasonId, Is.EqualTo(default(Guid)));
+        Assert.That(result.WinningSide, Is.Null);
     }
 }
