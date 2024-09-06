@@ -53,4 +53,39 @@ public class TournamentGameBuilder
         _tournament.DivisionId = division.Id;
         return this;
     }
+
+    public TournamentGameBuilder WithAddress(string address)
+    {
+        _tournament.Address = address;
+        return this;
+    }
+
+    public TournamentGameBuilder WithNotes(string notes)
+    {
+        _tournament.Notes = notes;
+        return this;
+    }
+
+    public TournamentGameBuilder WithSides(params TournamentSide[] sides)
+    {
+        _tournament.Sides.AddRange(sides);
+        return this;
+    }
+
+    public TournamentGameBuilder WithRound(TournamentRound round)
+    {
+        _tournament.Round = round;
+        return this;
+    }
+
+    public TournamentGameBuilder WithRound(Func<TournamentRoundBuilder, TournamentRoundBuilder> builder)
+    {
+        return WithRound(builder(new TournamentRoundBuilder()).Build());
+    }
+
+    public TournamentGameBuilder SingleRound(bool singleRound = true)
+    {
+        _tournament.SingleRound = singleRound;
+        return this;
+    }
 }
