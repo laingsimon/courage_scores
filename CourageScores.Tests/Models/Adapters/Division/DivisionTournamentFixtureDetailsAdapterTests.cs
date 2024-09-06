@@ -2,7 +2,11 @@
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Tests.Models.Cosmos.Game;
+using CourageScores.Tests.Models.Dtos;
+using CourageScores.Tests.Services;
 using Moq;
 using NUnit.Framework;
 
@@ -11,6 +15,10 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionTournamentFixtureDetailsAdapterTests
 {
+    private static readonly SeasonDto Season = new SeasonDtoBuilder().Build();
+    private static readonly TeamDto Team1 = new TeamDtoBuilder().WithName("team1").WithAddress("address").Build();
+    private static readonly TeamDto Team2 = new TeamDtoBuilder().WithName("team2").WithAddress("address").Build();
+
     private readonly CancellationToken _token = new();
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
     private Mock<IAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
@@ -29,40 +37,20 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     [Test]
     public async Task Adapt_GivenNoRound_SetsPropertiesCorrectly()
     {
-        var winner = new TournamentSide
-        {
-            Players =
-            {
-                new TournamentPlayer
-                {
-                    Id = Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"),
-                },
-            },
-        };
-        var runnerUp = new TournamentSide
-        {
-            Players =
-            {
-                new TournamentPlayer
-                {
-                    Id = Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"),
-                },
-            },
-        };
-        var game = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Notes = "notes",
-            Address = "address",
-            SeasonId = Guid.NewGuid(),
-            Date = new DateTime(2001, 02, 03),
-            Type = "TOURNAMENT TYPE",
-            Sides =
-            {
-                winner,
-                runnerUp,
-            },
-        };
+        var winner = new TournamentSideBuilder()
+            .WithPlayer("PLAYER 1", Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"))
+            .Build();
+        var runnerUp = new TournamentSideBuilder()
+            .WithPlayer("PLAYER 2", Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"))
+            .Build();
+        var game = new TournamentGameBuilder()
+            .WithSeason(Season)
+            .WithDate(new DateTime(2001, 02, 03))
+            .WithType("TOURNAMENT TYPE")
+            .WithAddress("address")
+            .WithNotes("notes")
+            .WithSides(winner, runnerUp)
+            .Build();
         var winnerDto = new TournamentSideDto();
         var runnerUpDto = new TournamentSideDto();
         _tournamentSideAdapter.Setup(a => a.Adapt(winner, _token)).ReturnsAsync(winnerDto);
@@ -74,14 +62,12 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.Date, Is.EqualTo(game.Date));
         Assert.That(result.Type, Is.EqualTo(game.Type));
         Assert.That(result.Notes, Is.EqualTo(game.Notes));
-        Assert.That(result.Sides, Is.EqualTo(new[]
-        {
-            winnerDto, runnerUpDto,
-        }));
+        Assert.That(result.Sides, Is.EqualTo(new[] { winnerDto, runnerUpDto }));
         Assert.That(result.Id, Is.EqualTo(game.Id));
         Assert.That(result.Players, Is.EqualTo(new[]
         {
-            Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"), Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"),
+            Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357"),
+            Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C"),
         }));
         Assert.That(result.Proposed, Is.False);
         Assert.That(result.SeasonId, Is.EqualTo(game.SeasonId));
@@ -91,11 +77,9 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     [Test]
     public async Task Adapt_GivenNoWinningRound_WinnerToNull()
     {
-        var game = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Round = new TournamentRound(),
-        };
+        var game = new TournamentGameBuilder()
+            .WithRound(new TournamentRound())
+            .Build();
 
         var result = await _adapter.Adapt(game, _token);
 
@@ -112,46 +96,17 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     [TestCase(null, 1, 3, "B")]
     public async Task Adapt_GivenWinningRound_SetsPropertiesCorrectly(int? bestOf, int scoreA, int scoreB, string? winnerName)
     {
-        var sideA = new TournamentSide
-        {
-            Name = "A",
-        };
-        var sideB = new TournamentSide
-        {
-            Name = "B",
-        };
-        var game = new TournamentGame
-        {
-            Id = Guid.NewGuid(),
-            Round = new TournamentRound
-            {
-                NextRound = new TournamentRound
+        var sideA = new TournamentSideBuilder("A").Build();
+        var sideB = new TournamentSideBuilder("B").Build();
+        var game = new TournamentGameBuilder()
+            .WithRound(r1 => r1.WithRound(r2 => r2
+                .WithSide(sideA, sideB)
+                .WithMatch(m => m.WithSides(sideA, sideB).WithScores(scoreA, scoreB))
+                .WithMatchOption(new GameMatchOption
                 {
-                    Sides =
-                    {
-                        sideA,
-                        sideB,
-                    },
-                    Matches =
-                    {
-                        new TournamentMatch
-                        {
-                            SideA = sideA,
-                            SideB = sideB,
-                            ScoreA = scoreA,
-                            ScoreB = scoreB,
-                        },
-                    },
-                    MatchOptions =
-                    {
-                        new GameMatchOption
-                        {
-                            NumberOfLegs = bestOf,
-                        },
-                    },
-                },
-            },
-        };
+                    NumberOfLegs = bestOf,
+                })))
+            .Build();
         var sideADto = new TournamentSideDto
         {
             Name = "A",
@@ -179,17 +134,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     [Test]
     public async Task ForUnselectedVenue_WithSingleTeam_ReturnsCorrectly()
     {
-        var teamsWithSameAddress = new[]
-        {
-            new TeamDto
-            {
-                Id = Guid.NewGuid(),
-                Name = "team1",
-                Address = "address",
-            },
-        };
-
-        var result = await _adapter.ForUnselectedVenue(teamsWithSameAddress, _token);
+        var result = await _adapter.ForUnselectedVenue(new[] { Team1 }, _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Id, Is.EqualTo(default(Guid)));
@@ -200,28 +145,13 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.Type, Is.Null);
         Assert.That(result.Sides, Is.Empty);
         Assert.That(result.SeasonId, Is.EqualTo(default(Guid)));
+        Assert.That(result.WinningSide, Is.Null);
     }
 
     [Test]
     public async Task ForUnselectedVenue_WithMultipleTeams_ReturnsCorrectly()
     {
-        var teamsWithSameAddress = new[]
-        {
-            new TeamDto
-            {
-                Id = Guid.NewGuid(),
-                Name = "team1",
-                Address = "address",
-            },
-            new TeamDto
-            {
-                Id = Guid.NewGuid(),
-                Name = "team2",
-                Address = "address",
-            },
-        };
-
-        var result = await _adapter.ForUnselectedVenue(teamsWithSameAddress, _token);
+        var result = await _adapter.ForUnselectedVenue(new[] { Team1, Team2 }, _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Id, Is.EqualTo(default(Guid)));
