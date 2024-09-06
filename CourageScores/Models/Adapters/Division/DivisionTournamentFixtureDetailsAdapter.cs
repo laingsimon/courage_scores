@@ -27,7 +27,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             Address = tournamentGame.Address,
             Date = tournamentGame.Date,
             SeasonId = tournamentGame.SeasonId,
-            WinningSide = winningSide != null
+            WinningSide = !tournamentGame.SingleRound && winningSide != null
                 ? await _tournamentSideAdapter.Adapt(winningSide, token)
                 : null,
             Type = _tournamentTypeResolver.GetTournamentType(tournamentGame),
