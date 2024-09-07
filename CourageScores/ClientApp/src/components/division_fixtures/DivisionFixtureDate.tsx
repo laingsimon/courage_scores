@@ -33,7 +33,8 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     const navigate = useNavigate();
     const location = useLocation();
     const {fixtures, teams} = useDivisionData();
-    const isAdmin: boolean = account && account.access && account.access.manageGames;
+    const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
+    const canManageGames: boolean = account && account.access && account.access.manageGames;
     const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
 
     async function toggleShowPlayers(date: string) {
@@ -92,7 +93,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
             return false;
         }
 
-        if (any(date.fixtures, (f: DivisionFixtureDto) => f.isKnockout) && !fixture.awayTeam && !isAdmin) {
+        if (any(date.fixtures, (f: DivisionFixtureDto) => f.isKnockout) && !fixture.awayTeam && !canManageGames) {
             // don't show byes for any knockout/qualifier fixtures when logged out
             return false;
         }
@@ -130,7 +131,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     }
 
     const hasKnockoutFixture: boolean = any(date.fixtures, (f: DivisionFixtureDto) => f.id !== f.homeTeam.id && f.isKnockout);
-    const showQualifierToggle: boolean = isAdmin && ((!hasKnockoutFixture && !any(date.tournamentFixtures, (f: DivisionTournamentFixtureDetailsDto) => !f.proposed) && !any(date.fixtures, f => f.id !== f.homeTeam.id)) || date.isNew);
+    const showQualifierToggle: boolean = canManageGames && ((!hasKnockoutFixture && !any(date.tournamentFixtures, (f: DivisionTournamentFixtureDetailsDto) => !f.proposed) && !any(date.fixtures, f => f.id !== f.homeTeam.id)) || date.isNew);
     const allowTournamentProposals: boolean = !any(date.fixtures, (f: DivisionFixtureDto) => f.id !== f.homeTeam.id || !!f.awayTeam || f.isKnockout);
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
@@ -174,7 +175,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                     date={date.date}
                     onTournamentChanged={onTournamentChanged}
                     expanded={showPlayers[date.date]}/>))}
-            {isAdmin && allowTournamentProposals ? (<NewTournamentFixture
+            {canManageTournaments && allowTournamentProposals ? (<NewTournamentFixture
                     date={date.date}
                     tournamentFixtures={date.tournamentFixtures}
                     onTournamentChanged={onTournamentChanged}
