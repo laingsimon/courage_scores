@@ -7,6 +7,7 @@ import {useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
+import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -21,10 +22,16 @@ export interface IPlayLegProps {
     singlePlayer?: boolean;
 }
 
+export interface IEditThrow {
+    player: string;
+    throwIndex: number;
+}
+
 export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState(false);
     const [score, setScore] = useState('');
+    const [editScore, setEditScore] = useState<IEditThrow>(null);
     const {onError} = useApp();
     const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
@@ -66,12 +73,36 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
 
     async function handleScore(value: string) {
         const score: number = Number.parseInt(value);
+
+        if (editScore) {
+            const newPlayerScores: LegCompetitorScoreDto = await changeScore(score);
+            const newRemainingScore: number = leg.startingScore - newPlayerScores.score;
+            setEditScore(null);
+
+            if (newRemainingScore === 0) {
+                setShowCheckout(true);
+            }
+            return;
+        }
+
         if (score === remainingScore) {
             setShowCheckout(true);
         }
         else if (Number.isFinite(score) && score >= 0 && score <= 180) {
             await addThrow(score, 3);
         }
+    }
+
+    async function changeScore(score: number): Promise<LegCompetitorScoreDto> {
+        const newLeg: LegDto = Object.assign({}, leg);
+        const playerThrows: LegCompetitorScoreDto = newLeg[editScore.player];
+        const thr: LegThrowDto = playerThrows.throws[editScore.throwIndex];
+        thr.score = score;
+        playerThrows.score = playerThrows.throws.reduce((total, t) => total + t.score, 0);
+
+        await onChange(newLeg);
+        setScore('');
+        return playerThrows;
     }
 
     async function addThrow(score: number, noOfDarts: number) {
@@ -146,6 +177,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         return value <= 180;
     }
 
+    async function beginEditScore(request: IEditThrow, score: number) {
+        setEditScore(request);
+        setScore(score.toString());
+    }
+
     if (!leg) {
         return (<div>No leg!</div>);
     }
@@ -168,6 +204,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             singlePlayer={singlePlayer}
             undoLastThrow={undoLastThrow}
             showRemainingScore={true}
+            setEditScore={beginEditScore}
+            editScore={editScore}
+            maxThrowsToShow={5}
+            home={home}
+            away={away}
         />) : null}
         {leg.playerSequence && leg.currentThrow ? (<PlayerInput
             score={score}
