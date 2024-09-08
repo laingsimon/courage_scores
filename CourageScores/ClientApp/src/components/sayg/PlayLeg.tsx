@@ -166,7 +166,9 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             homeScore={homeScore}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            undoLastThrow={undoLastThrow}/>) : null}
+            undoLastThrow={undoLastThrow}
+            showRemainingScore={true}
+        />) : null}
         {leg.playerSequence && leg.currentThrow ? (<PlayerInput
             score={score}
             setScore={async (v: string) => setScore(v)}
