@@ -61,15 +61,12 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         </div>)}
         {leg.playerSequence && leg.currentThrow ? (<PreviousPlayerScore
             leg={leg}
-            home={home}
-            away={away}
+            homeScore={homeScore}
+            awayScore={awayScore}
+            singlePlayer={singlePlayer}
             undoLastThrow={undoLastThrow}/>) : null}
         {leg.playerSequence && leg.currentThrow ? (<PlayerInput
             leg={leg}
-            home={home}
-            away={away}
-            homeScore={homeScore}
-            awayScore={awayScore}
             onLegComplete={onLegComplete}
             on180={on180}
             onHiCheck={onHiCheck}

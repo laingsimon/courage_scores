@@ -1,4 +1,3 @@
-import {round2dp} from "../../helpers/rendering";
 import {stateChanged} from "../../helpers/events";
 import React, {useState} from "react";
 import {useApp} from "../common/AppContainer";
@@ -9,10 +8,6 @@ import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/c
 import {Dialog} from "../common/Dialog";
 
 export interface IPlayerInputProps {
-    home: string;
-    away?: string;
-    homeScore: number;
-    awayScore?: number;
     on180(accumulatorName: string): Promise<any>;
     onHiCheck(accumulatorName: string, score: number): Promise<any>;
     onChange(leg: LegDto): Promise<any>;
@@ -21,17 +16,13 @@ export interface IPlayerInputProps {
     singlePlayer?: boolean;
 }
 
-export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }: IPlayerInputProps) {
+export function PlayerInput({ on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }: IPlayerInputProps) {
     const {browser} = useApp();
     const [score, setScore] = useState('');
     const {onError} = useApp();
     const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
     const [savingInput, setSavingInput] = useState<boolean>(false);
-    const playerLookup: { home: string, away: string } = {
-        home: home,
-        away: away
-    }
     const [showCheckout, setShowCheckout] = useState(false);
 
     async function keyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -140,16 +131,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const hasRemainingDouble: boolean = remainingScore - intScore >= 2;
 
     return (<div className="text-center">
-        <h2>
-            <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong
-            className="text-primary">{leg.startingScore - accumulator.score}</strong>
-        </h2>
-        {singlePlayer ? (<h5>Leg {homeScore + 1}</h5>) : (<h5>{homeScore} - {awayScore}</h5>)}
-        {accumulator.noOfDarts ? (<p>
-            thrown
-            <strong> {accumulator.noOfDarts} </strong>
-            darts, average: <strong>{round2dp(accumulator.score / (accumulator.noOfDarts / 3))}</strong>
-        </p>) : <p>&nbsp;</p>}
         <h4>
             <label>
                 <span className="margin-right">
