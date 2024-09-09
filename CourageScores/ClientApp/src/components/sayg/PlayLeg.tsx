@@ -163,7 +163,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         const newLeg: LegDto = Object.assign({}, leg);
         const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
         accumulator.throws.pop(); // remove the last throw
-        accumulator.score = accumulator.throws.reduce((total: 0, thr: LegThrowDto) => total + thr.score, 0);
+        accumulator.score = accumulator.throws.reduce((total: 0, thr: LegThrowDto) => total + (thr.bust ? 0 : thr.score), 0);
         newLeg.currentThrow = accumulatorName;
 
         await onChange(newLeg);
