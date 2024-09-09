@@ -22,16 +22,23 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
 
     useEffect(() => {
-        console.log('useEffect(maxThrows)');
+        window.setTimeout(scrollToLastScore, 50);
+    },
+    // eslint-disable-next-line
+    [maxThrows]);
+
+    function scrollToLastScore() {
         const scrollableScores = document.querySelector('div[datatype="previous-scores"]');
+        if (!scrollableScores) {
+            return;
+        }
         const previousScoreRows: HTMLDivElement[] = Array.from(scrollableScores.querySelectorAll('div'));
         const lastScore = previousScoreRows.pop();
         if (lastScore && lastScore.scrollIntoView) {
-            console.log(`useEffect(maxThrows): lastScore=${lastScore.textContent}`);
             /* istanbul ignore next */
             lastScore.scrollIntoView();
         }
-    }, [maxThrows]);
+    }
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string = leg.currentThrow === currentPlayer
