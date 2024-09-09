@@ -50,7 +50,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         </div>);
     }
 
-    function renderScore(player: string, score: number, runningScore: number, throwIndex: number) {
+    function renderScore(player: 'home' | 'away', score: number, runningScore: number, throwIndex: number) {
         const throwToEdit: IEditThrow = {
             player,
             throwIndex,

@@ -23,13 +23,13 @@ export interface IPlayLegProps {
 }
 
 export interface IEditThrow {
-    player: string;
+    player: 'home' | 'away';
     throwIndex: number;
 }
 
 export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
-    const [showCheckout, setShowCheckout] = useState<string>(null);
+    const [showCheckout, setShowCheckout] = useState<'home' | 'away'>(null);
     const [score, setScore] = useState('');
     const [editScore, setEditScore] = useState<IEditThrow>(null);
     const {onError} = useApp();
@@ -77,7 +77,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             await addThrow(score);
 
             if (score === remainingScore) {
-                setShowCheckout(leg.currentThrow);
+                setShowCheckout(leg.currentThrow as 'home' | 'away');
             }
         }
     }
@@ -137,7 +137,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     async function setLastThrowNoOfDarts(noOfDarts: number) {
-        const accumulatorName: string = showCheckout;
+        const accumulatorName: 'home' | 'away' = showCheckout;
         const newLeg: LegDto = Object.assign({}, leg);
         const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
         const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
@@ -155,6 +155,18 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         newLeg.winner = accumulatorName;
         // await onChange(newLeg); // NOTE: Intentionally omitted to reduce a save here, which is also triggered by onLegComplete()
         await onLegComplete(accumulatorName, newLeg);
+        setShowCheckout(null);
+    }
+
+    async function cancelCheckout() {
+        const accumulatorName: 'home' | 'away' = showCheckout;
+        const newLeg: LegDto = Object.assign({}, leg);
+        const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
+        accumulator.throws.pop(); // remove the last throw
+        accumulator.score = accumulator.throws.reduce((total: 0, thr: LegThrowDto) => total + thr.score, 0);
+        newLeg.currentThrow = accumulatorName;
+
+        await onChange(newLeg);
         setShowCheckout(null);
     }
 
@@ -192,7 +204,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             savingInput={savingInput}
             remainingScore={remainingScore}
         />) : null}
-        {showCheckout ? (<Dialog onClose={async () => setShowCheckout(null)} title="Checkout">
+        {showCheckout ? (<Dialog onClose={cancelCheckout} title="Checkout">
             <div className="my-3" datatype="gameshot-buttons-score">
                 <h6>How many darts to checkout?</h6>
                 <div className="d-flex flex-row justify-content-stretch">

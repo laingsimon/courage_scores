@@ -347,6 +347,41 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.awayScore).toEqual(1);
         });
 
+        it('can close the checkout dialog', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+
+            // opponent first
+            await enterScores(checkoutScores, nonCheckoutScores);
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(sayg.legs[0].currentThrow).toEqual('away');
+            expect(sayg.legs[0].away.throws.reduce((total, thr) => total + thr.score, 0)).toEqual(481);
+            expect(sayg.homeScore).toEqual(0);
+            expect(sayg.awayScore).toEqual(0);
+        });
+
+        it('can close the checkout dialog and re-checkout', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+
+            // opponent first
+            await enterScores(checkoutScores, nonCheckoutScores);
+            await doClick(findButton(context.container, 'Close'));
+            await keyPad([ '2', '0', ENTER_SCORE_BUTTON ]);
+            await checkoutWith(CHECKOUT_2_DART);
+
+            expect(sayg.legs[1].currentThrow).toEqual('home');
+            expect(sayg.homeScore).toEqual(0);
+            expect(sayg.awayScore).toEqual(1);
+        });
+
         it('asks who should start final leg', async () => {
             sayg.numberOfLegs = 3;
 
