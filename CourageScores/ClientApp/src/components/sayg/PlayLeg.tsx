@@ -14,7 +14,7 @@ export interface IPlayLegProps {
     home: string;
     away: string;
     onChange(newLeg: LegDto): Promise<any>;
-    onLegComplete(accumulatorName: string): Promise<any>;
+    onLegComplete(accumulatorName: string, leg: LegDto): Promise<any>;
     on180(accumulatorName: string): Promise<any>;
     onHiCheck(accumulatorName: string, score: number): Promise<any>;
     homeScore: number;
@@ -152,10 +152,9 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
 
         lastThrow.noOfDarts = noOfDarts;
         lastThrow.bust = false;
-        accumulator.score = accumulator.throws.reduce((total: number, thr: LegThrowDto) => total + (thr.bust ? 0 : thr.score), 0); // NOTE: not required - but helps with the tests
         newLeg.winner = accumulatorName;
-        await onChange(newLeg);
-        await onLegComplete(accumulatorName);
+        // await onChange(newLeg); // NOTE: Intentionally omitted to reduce a save here, which is also triggered by onLegComplete()
+        await onLegComplete(accumulatorName, newLeg);
         setShowCheckout(null);
     }
 

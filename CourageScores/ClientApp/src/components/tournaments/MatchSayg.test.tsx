@@ -913,7 +913,7 @@ describe('MatchSayg', () => {
 
             await executeSaygScoringTest(match, [177, 177, 100, 47]);
 
-            expect(patchedData).toEqual([{
+            expect(patchedData).toEqual([ {
                 nestInRound: true,
                 patch: {
                     match: {

@@ -4,13 +4,13 @@ import {useApp} from "../common/AppContainer";
 import {Loading} from "../common/Loading";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
-import {isEmpty} from "../../helpers/collections";
 import {LiveContainer} from "../../live/LiveContainer";
 import {IBaseSayg, ISayg} from "./ISayg";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 
 const SaygContext = createContext({});
 
@@ -122,11 +122,13 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             return;
         }
 
-        if (!newData.legs[0]) {
-            return;
-        }
-
-        if (!sayg.legs[0] || isEmpty(sayg.legs[0].playerSequence || [])) {
+        const newFirstLeg: LegDto = newData.legs[0];
+        const oldFirstLeg: LegDto = sayg.legs[0];
+        const newLastLeg: LegDto = newData.legs[Object.keys(newData.legs).length - 1];
+        const oldLastLeg: LegDto = sayg.legs[Object.keys(sayg.legs).length - 1];
+        if ((newFirstLeg && !oldFirstLeg && newFirstLeg.currentThrow)
+            || (newLastLeg && oldLastLeg && newLastLeg.winner && !oldLastLeg.winner)
+            || (newLastLeg && oldLastLeg && newLastLeg.currentThrow && !oldLastLeg.currentThrow)) {
             await saveDataAndGetId(newSayg);
         }
     }
