@@ -13,16 +13,14 @@ export interface IPreviousPlayerScoreProps {
     showRemainingScore?: boolean;
     setEditScore(throwToEdit: IEditThrow, score: number): Promise<any>;
     editScore?: IEditThrow;
-    maxThrowsToShow?: number;
     home: string;
     away: string;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, showRemainingScore, setEditScore, editScore, maxThrowsToShow}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, showRemainingScore, setEditScore, editScore}: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
     const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
-    const showsThrowsFromIndex: number = maxThrowsToShow ? maxThrows - maxThrowsToShow : -1;
 
     useEffect(() => {
         const scrollableScores = document.querySelector('div[datatype="previous-scores"]');
@@ -87,12 +85,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             const homeThrow: LegThrowDto = homeThrows[index] || {};
             const awayThrow: LegThrowDto = awayThrows[index] || {};
             homeRunningScore -= homeThrow.score;
-            if (!singlePlayer) {
-                awayRunningScore -= awayThrow.score;
-            }
-            if (index < showsThrowsFromIndex && showsThrowsFromIndex > 0) {
-                return null;
-            }
+            awayRunningScore -= awayThrow.score;
 
             return (<div key={index} className="d-flex flex-row justify-content-evenly fs-4">
                 {renderScore('home', homeThrow.score, homeRunningScore, index)}
