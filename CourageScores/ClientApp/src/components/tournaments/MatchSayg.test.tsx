@@ -2,7 +2,7 @@ import {
     api,
     appProps,
     brandingProps,
-    cleanUp, doChange,
+    cleanUp,
     doClick,
     ErrorState, findButton,
     iocProps,
@@ -33,7 +33,8 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../helpers/builders/sayg";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
+import {ENTER_SCORE_BUTTON} from "../../helpers/constants";
+import {checkoutWith, keyPad} from "../../helpers/sayg";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -505,19 +506,9 @@ describe('MatchSayg', () => {
         };
 
         async function enterScore(score: number, noOfDarts?: number) {
-            await doChange(context.container, 'input[data-score-input="true"]', score.toString(), context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-
-            switch (noOfDarts) {
-                case 1:
-                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_1_DART));
-                    break;
-                case 2:
-                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
-                    break;
-                case 3:
-                    await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
-                    break;
+            await keyPad(context, score.toString().split('').concat(ENTER_SCORE_BUTTON));
+            if (noOfDarts) {
+                await checkoutWith(context, noOfDarts.toString());
             }
         }
 

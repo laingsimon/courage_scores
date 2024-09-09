@@ -27,7 +27,9 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
     }
 
     async function hapticFeedback() {
-        navigator.vibrate([50]);
+        if (navigator.vibrate) {
+            navigator.vibrate([50]);
+        }
     }
 
     function renderNumberButton(buttonValue: number) {

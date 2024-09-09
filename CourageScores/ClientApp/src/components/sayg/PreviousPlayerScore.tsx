@@ -14,18 +14,28 @@ export interface IPreviousPlayerScoreProps {
     editScore?: IEditThrow;
     home: string;
     away: string;
+    currentScore?: string;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, showRemainingScore, setEditScore, editScore}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, showRemainingScore, setEditScore, editScore, currentScore}: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
-    const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
+    const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);
     },
     // eslint-disable-next-line
     [maxThrows]);
+
+    function getMaxThrows(homeThrows: LegThrowDto[], awayThrows: LegThrowDto[]) {
+        const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
+        if (maxThrows === homeThrows.length && maxThrows === awayThrows.length && currentScore) {
+            return maxThrows + 1;
+        }
+
+        return maxThrows;
+    }
 
     function scrollToLastScore() {
         const scrollableScores = document.querySelector('div[datatype="previous-scores"]');
@@ -51,7 +61,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         </div>);
     }
 
-    function renderScore(player: 'home' | 'away', score: number, runningScore: number, throwIndex: number) {
+    function renderScore(player: 'home' | 'away', throwDto: LegThrowDto, runningScore: number, throwIndex: number) {
         const throwToEdit: IEditThrow = {
             player,
             throwIndex,
@@ -64,17 +74,21 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             } else {
                 classNameSuffix = ' opacity-25';
             }
+        } else if (!throwDto) {
+            classNameSuffix = ' opacity-25';
         }
 
         return (<>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`}
-                 onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, score)}>
-                {score === undefined ? null : <span>{score}</span>}
+                 onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, throwDto.score)}>
+                {throwDto ? (<span>{throwDto.score}</span>) : null}
+                {!throwDto && player === leg.currentThrow ? (<span>{currentScore}</span>) : null}
             </div>
             {showRemainingScore
                 ? (<div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`}
-                        onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, score)}>
-                    {Number.isNaN(runningScore) || runningScore <= 1 ? null : runningScore}
+                        onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, throwDto.score)} title={`CurrentScore=${currentScore}`}>
+                    {!throwDto && player === leg.currentThrow && !Number.isNaN(Number.parseInt(currentScore)) ? runningScore - Number.parseInt(currentScore) : null}
+                    {!throwDto || runningScore <= 1 ? null : runningScore}
                     </div>)
                 : null}
         </>);
@@ -93,10 +107,10 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         </div>
         <div className="d-flex flex-column overflow-auto height-100 max-height-100" datatype="previous-scores">
         {repeat(maxThrows, (index: number) => {
-            const homeThrow: LegThrowDto = homeThrows[index] || {};
-            const awayThrow: LegThrowDto = awayThrows[index] || {};
-            homeRunningScore -= homeThrow.score;
-            awayRunningScore -= awayThrow.score;
+            const homeThrow: LegThrowDto = homeThrows[index];
+            const awayThrow: LegThrowDto = awayThrows[index];
+            homeRunningScore -= homeThrow ? homeThrow.score : 0;
+            awayRunningScore -= awayThrow ? awayThrow.score : 0;
 
             const numberOfDarts = (
                 <div className="flex-basis-0 flex-shrink-1 text-center text-secondary-50 small">
@@ -105,9 +119,9 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
             return (<div key={index} className="d-flex flex-row justify-content-evenly fs-4">
                 {singlePlayer ? numberOfDarts : null}
-                {renderScore('home', homeThrow.score, homeRunningScore, index)}
+                {renderScore('home', homeThrow, homeRunningScore, index)}
                 {singlePlayer ? null : numberOfDarts}
-                {!singlePlayer ? renderScore('away', awayThrow.score, awayRunningScore, index) : null}
+                {!singlePlayer ? renderScore('away', awayThrow, awayRunningScore, index) : null}
             </div>);
         })}
         </div>

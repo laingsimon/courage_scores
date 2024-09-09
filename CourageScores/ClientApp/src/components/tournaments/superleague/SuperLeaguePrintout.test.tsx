@@ -2,7 +2,7 @@ import {
     api,
     appProps,
     brandingProps,
-    cleanUp, doChange, doClick,
+    cleanUp, doClick,
     doSelectOption,
     ErrorState, findButton,
     iocProps, MockSocketFactory,
@@ -24,10 +24,11 @@ import {
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {MessageType} from "../../../interfaces/models/dtos/MessageType";
-import {any} from "../../../helpers/collections";
 import {AccessDto} from "../../../interfaces/models/dtos/Identity/AccessDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../common/IClientActionResultDto";
+import {CHECKOUT_2_DART} from "../../../helpers/constants";
+import {checkoutWith, enterScores} from "../../../helpers/sayg";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -90,25 +91,6 @@ describe('SuperLeaguePrintout', () => {
             (<TournamentContainer {...tournamentData}>
                 <SuperLeaguePrintout {...props} />
             </TournamentContainer>));
-    }
-
-    async function enterScores(dialog: Element, player1: number[], player2: number[], checkoutDarts: number): Promise<any> {
-        const scoresToEnter = [];
-        while (any(player1) || any(player2)) {
-            [player1, player2].forEach(player => {
-                if (any(player)) {
-                    scoresToEnter.push(player.shift());
-                }
-            });
-        }
-
-        while (any(scoresToEnter)) {
-            const score: number = scoresToEnter.shift();
-            await doChange(dialog, 'input[data-score-input="true"]', score.toString(), context.user);
-            await doClick(findButton(dialog, '→'));
-        }
-
-        await doClick(findButton(dialog.querySelector('div[datatype="gameshot-buttons-score"]'), checkoutDarts.toString()));
     }
 
     function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
@@ -376,11 +358,11 @@ describe('SuperLeaguePrintout', () => {
                 patchSuccess = false;
 
                 await enterScores(
-                    dialog,
+                    context,
                     [100, 100, 100, 100, 50, 51], // PLAYER A
-                    [10, 10, 10, 10, 10], // PLAYER B,
-                    2 // checkout with 2 darts
+                    [10, 10, 10, 10, 10], // PLAYER B
                 );
+                await checkoutWith(context, CHECKOUT_2_DART);
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 
@@ -418,11 +400,11 @@ describe('SuperLeaguePrintout', () => {
                 patchSuccess = false;
 
                 await enterScores(
-                    dialog,
+                    context,
                     [100, 100, 100, 100, 50, 51], // PLAYER A
-                    [10, 10, 10, 10, 10], // PLAYER B,
-                    2 // checkout with 2 darts
+                    [10, 10, 10, 10, 10], // PLAYER B
                 );
+                await checkoutWith(context, CHECKOUT_2_DART);
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 

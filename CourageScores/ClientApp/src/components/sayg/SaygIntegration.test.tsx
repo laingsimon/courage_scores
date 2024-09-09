@@ -18,6 +18,7 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {createTemporaryId} from "../../helpers/projection";
 import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
+import {checkoutWith, enterScores, keyPad, playsFirst} from "../../helpers/sayg";
 
 describe('SaygIntegrationTest', () => {
     let context: TestContext;
@@ -71,54 +72,6 @@ describe('SaygIntegrationTest', () => {
             brandingProps(),
             appProps({account}, reportedError),
             <SaygLoadingContainer {...props} />);
-    }
-
-    async function playsFirst(name: string) {
-        await doClick(findButton(context.container, '🎯' + name));
-    }
-
-    async function keyPad(keys: string[]) {
-        for (let key of keys) {
-            await doClick(findButton(context.container, key));
-        }
-    }
-
-    async function keyboard(keys: string[]) {
-        const input: HTMLInputElement = context.container.querySelector('input[data-score-input="true"]');
-        let value: string = input.value;
-        for (let key of keys) {
-            if (key.startsWith('{')) {
-                await context.user.type(input, key);
-                continue;
-            }
-
-            value += key;
-            await doChange(context.container, 'input[data-score-input="true"]', value, context.user);
-        }
-    }
-
-    async function enterScores(homeScores: number[], awayScores: number[], awayFirst?: boolean) {
-        const scores: number[] = [];
-        for (let index = 0; index < Math.max(homeScores.length, awayScores.length); index++) {
-            scores.push(awayFirst ? awayScores[index] : homeScores[index]);
-            scores.push(awayFirst ? homeScores[index] : awayScores[index]);
-        }
-
-        for (let score of scores) {
-            if (score || score === 0) {
-                const scoreToEnter: string[] = score.toString().split('');
-                scoreToEnter.push(ENTER_SCORE_BUTTON);
-                await keyPad(scoreToEnter);
-            }
-        }
-    }
-
-    async function checkoutWith(noOfDarts: string) {
-        const buttonContainer = context.container.querySelector('div[datatype="gameshot-buttons-score"]');
-        if (!buttonContainer) {
-            throw new Error('Checkout dialog is not open');
-        }
-        await doClick(findButton(buttonContainer, noOfDarts));
     }
 
     function assertWaitingForScoreFor(side: string) {
@@ -188,7 +141,7 @@ describe('SaygIntegrationTest', () => {
                 '🎯CONTENDER',
                 '🎯OPPONENT'
             ]);
-            await playsFirst('CONTENDER');
+            await playsFirst(context, 'CONTENDER');
             expect(sayg.legs[0].playerSequence).toEqual([
                 { text: 'CONTENDER', value: 'home' },
                 { text: 'OPPONENT', value: 'away' } ]);
@@ -212,25 +165,8 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
 
-            await playsFirst('CONTENDER');
-            await keyPad([ '1', '2', '0', ENTER_SCORE_BUTTON ]);
-
-            expect(sayg.legs[0].home.throws).toEqual([{
-                score: 120,
-                bust: false,
-                noOfDarts: 3
-            }]);
-        });
-
-        it('allows first score to be recorded via keyboard', async () => {
-            await renderComponent({
-                id: sayg.id,
-                liveOptions: {},
-                autoSave: true,
-            });
-
-            await playsFirst('CONTENDER');
-            await keyboard([ '1', '2', '0', '{Enter}' ]);
+            await playsFirst(context, 'CONTENDER');
+            await keyPad(context, [ '1', '2', '0', ENTER_SCORE_BUTTON ]);
 
             expect(sayg.legs[0].home.throws).toEqual([{
                 score: 120,
@@ -246,15 +182,15 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
 
-            await playsFirst('CONTENDER');
-            await enterScores([
+            await playsFirst(context, 'CONTENDER');
+            await enterScores(context, [
                 120, // 120 (381)
                 120, // 240 (261)
                 120, // 360 (141)
                 121, // 481 (20)
                 20, // 501 (0)
             ], [ 10, 10, 10, 10 ]);
-            await checkoutWith(CHECKOUT_2_DART);
+            await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(sayg.legs[0].winner).toEqual('home');
             expect(sayg.legs[1].currentThrow).toEqual('away');
@@ -268,14 +204,14 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
 
-            await enterScores([
+            await enterScores(context, [
                 120, // 120 (381)
                 120, // 240 (261)
                 120, // 360 (141)
                 121, // 481 (20)
                 20, // 501 (0)
             ], [ ]);
-            await checkoutWith(CHECKOUT_2_DART);
+            await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(sayg.legs[0].winner).toEqual('home');
             expect(sayg.legs[1].currentThrow).toEqual('home');
@@ -336,8 +272,8 @@ describe('SaygIntegrationTest', () => {
             });
 
             // opponent first
-            await enterScores(checkoutScores, nonCheckoutScores);
-            await checkoutWith(CHECKOUT_1_DART);
+            await enterScores(context, checkoutScores, nonCheckoutScores);
+            await checkoutWith(context, CHECKOUT_1_DART);
 
             expect(sayg.legs[0].winner).toEqual('away');
             expect(sayg.legs[1].currentThrow).toEqual('home');
@@ -353,8 +289,8 @@ describe('SaygIntegrationTest', () => {
             });
 
             // opponent first
-            await enterScores(checkoutScores, nonCheckoutScores);
-            await checkoutWith(CHECKOUT_2_DART);
+            await enterScores(context, checkoutScores, nonCheckoutScores);
+            await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(sayg.legs[0].winner).toEqual('away');
             expect(sayg.legs[1].currentThrow).toEqual('home');
@@ -370,8 +306,8 @@ describe('SaygIntegrationTest', () => {
             });
 
             // opponent first
-            await enterScores(checkoutScores, nonCheckoutScores);
-            await checkoutWith(CHECKOUT_3_DART);
+            await enterScores(context, checkoutScores, nonCheckoutScores);
+            await checkoutWith(context, CHECKOUT_3_DART);
 
             expect(sayg.legs[0].winner).toEqual('away');
             expect(sayg.legs[1].currentThrow).toEqual('home');
@@ -387,7 +323,7 @@ describe('SaygIntegrationTest', () => {
             });
 
             // opponent first
-            await enterScores(checkoutScores, nonCheckoutScores);
+            await enterScores(context, checkoutScores, nonCheckoutScores);
             await doClick(findButton(context.container, 'Close'));
 
             expect(sayg.legs[0].currentThrow).toEqual('away');
@@ -404,10 +340,10 @@ describe('SaygIntegrationTest', () => {
             });
 
             // opponent first
-            await enterScores(checkoutScores, nonCheckoutScores);
+            await enterScores(context, checkoutScores, nonCheckoutScores);
             await doClick(findButton(context.container, 'Close'));
-            await keyPad([ '2', '0', ENTER_SCORE_BUTTON ]);
-            await checkoutWith(CHECKOUT_2_DART);
+            await keyPad(context, [ '2', '0', ENTER_SCORE_BUTTON ]);
+            await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(sayg.legs[1].currentThrow).toEqual('home');
             expect(sayg.homeScore).toEqual(0);
@@ -424,12 +360,12 @@ describe('SaygIntegrationTest', () => {
             });
 
             // opponent first
-            await enterScores(checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
-            await checkoutWith(CHECKOUT_3_DART); // leg1: opponent checks out with 3 darts
+            await enterScores(context, checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
+            await checkoutWith(context, CHECKOUT_3_DART); // leg1: opponent checks out with 3 darts
             expect(sayg.homeScore).toEqual(0);
             expect(sayg.awayScore).toEqual(1);
-            await enterScores(checkoutScores, nonCheckoutScores); // leg2: contender starts & wins
-            await checkoutWith(CHECKOUT_3_DART); // leg2: contender checks out with 3 darts
+            await enterScores(context, checkoutScores, nonCheckoutScores); // leg2: contender starts & wins
+            await checkoutWith(context, CHECKOUT_3_DART); // leg2: contender checks out with 3 darts
             expect(sayg.homeScore).toEqual(1);
             expect(sayg.awayScore).toEqual(1);
 
@@ -451,11 +387,11 @@ describe('SaygIntegrationTest', () => {
             });
 
             // opponent first
-            await enterScores(checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
-            await checkoutWith(CHECKOUT_3_DART); // leg1: opponent checks out with 3 darts
-            await enterScores(checkoutScores, nonCheckoutScores); // leg2: contender starts & wins
-            await checkoutWith(CHECKOUT_3_DART); // leg2: contender checks out with 3 darts
-            await playsFirst('CONTENDER');
+            await enterScores(context, checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
+            await checkoutWith(context, CHECKOUT_3_DART); // leg1: opponent checks out with 3 darts
+            await enterScores(context, checkoutScores, nonCheckoutScores); // leg2: contender starts & wins
+            await checkoutWith(context, CHECKOUT_3_DART); // leg2: contender checks out with 3 darts
+            await playsFirst(context, 'CONTENDER');
 
             expect(sayg.legs[2].currentThrow).toEqual('home'); // contender plays first in the 3rd leg
         });
@@ -678,14 +614,14 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
             // contender first
-            await enterScores([100, 101], [50, 51]);
+            await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws[1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
 
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
             const secondHomeScore = previousScores[1].querySelector('div:first-child'); // home score
             await doClick(secondHomeScore);
-            await keyPad(['1', '2', '0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1', '2', '0', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].home.throws[1].score).toEqual(120);
             expect(sayg.legs[0].home.score).toEqual(220);
@@ -698,14 +634,14 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
             // contender first
-            await enterScores([100, 101], [50, 51]);
+            await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].away.throws[1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
             const secondAwayScore = previousScores[1].querySelector('div:last-child'); // away score
             await doClick(secondAwayScore);
-            await keyPad(['6', '2', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['6', '2', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].away.throws[1].score).toEqual(62);
             expect(sayg.legs[0].away.score).toEqual(112);
@@ -718,7 +654,7 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
             // contender first
-            await enterScores([100, 101], [50, 51]);
+            await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].home.throws[1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
 
@@ -738,7 +674,7 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
             // contender first
-            await enterScores([100, 101], [50, 51]);
+            await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].away.throws[1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
@@ -758,7 +694,7 @@ describe('SaygIntegrationTest', () => {
                 autoSave: true,
             });
             // contender first
-            await enterScores([100, 101], [50, 51]);
+            await enterScores(context, [100, 101], [50, 51]);
             expect(sayg.legs[0].away.throws[1].score).toEqual(51);
             expect(sayg.legs[0].away.score).toEqual(101);
 
@@ -767,7 +703,7 @@ describe('SaygIntegrationTest', () => {
             const secondAwayScore = previousScores[1].querySelector('div:last-child'); // away score
             await doClick(secondHomeScore);
             await doClick(secondAwayScore);
-            await keyPad(['6', '2', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['6', '2', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].away.throws[1].score).toEqual(62);
             expect(sayg.legs[0].away.score).toEqual(112);
@@ -781,17 +717,18 @@ describe('SaygIntegrationTest', () => {
             });
             // contender first
             await enterScores(
+                context,
                 [100, 101, 100, 100, 10], // 411
                 [51, 52, 53, 54]);
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
             const secondHomeScore = previousScores[4].querySelector('div:first-child'); // home score
             await doClick(secondHomeScore);
-            await keyPad(['1', '0', '0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1', '0', '0', ENTER_SCORE_BUTTON]);
             expect(sayg.legs[0].home.throws[4].score).toEqual(100);
             expect(sayg.legs[0].home.score).toEqual(501);
             expect(context.container.innerHTML).toContain('How many darts to checkout?');
 
-            await checkoutWith(CHECKOUT_2_DART);
+            await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(sayg.legs[0].winner).toEqual('home');
         });
@@ -845,7 +782,7 @@ describe('SaygIntegrationTest', () => {
             });
 
             // contender first
-            await keyPad(['1', '8', '0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON]);
 
             expect(recorded180s).toEqual(['home']);
         });
@@ -861,8 +798,8 @@ describe('SaygIntegrationTest', () => {
             });
 
             // contender first
-            await enterScores(checkoutScores, nonCheckoutScores);
-            await checkoutWith(CHECKOUT_2_DART);
+            await enterScores(context, checkoutScores, nonCheckoutScores);
+            await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(recordedHiChecks).toEqual([{sideName: 'home', score: 101}]);
         });
@@ -881,52 +818,10 @@ describe('SaygIntegrationTest', () => {
             });
 
             // contender first
-            await enterScores(checkoutScores, nonCheckoutScores);
-            await checkoutWith(CHECKOUT_2_DART);
+            await enterScores(context, checkoutScores, nonCheckoutScores);
+            await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(newScores).toEqual({homeScore: 1, awayScore: 0});
-        });
-    });
-
-    describe('invalid', () => {
-        let sayg: UpdateRecordedScoreAsYouGoDto;
-
-        beforeEach(() => {
-            sayg = saygBuilder()
-                .yourName('CONTENDER')
-                .opponentName('OPPONENT')
-                .numberOfLegs(5)
-                .startingScore(501)
-                .scores(0, 0)
-                .withLeg(0, (l: ILegBuilder) => l
-                    .playerSequence('home', 'away')
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(0))
-                    .startingScore(501)
-                    .currentThrow('home'))
-                .addTo(saygData)
-                .build();
-
-            apiResultFunc = (data: UpdateRecordedScoreAsYouGoDto): IClientActionResultDto<RecordedScoreAsYouGoDto> => {
-                sayg = data;
-                return {
-                    result: data,
-                    success: true,
-                } as IClientActionResultDto<RecordedScoreAsYouGoDto>
-            };
-        });
-
-        it('cannot record a score greater than 180 via keyboard', async () => {
-            await renderComponent({
-                id: sayg.id,
-                liveOptions: {},
-            });
-
-            // contender first
-            await keyboard(['1', '8', '1', '{Enter}']);
-
-            expect(sayg.legs[0].home.throws).toEqual([]);
-            expect(sayg.legs[0].home.score).toEqual(0);
         });
     });
 });
