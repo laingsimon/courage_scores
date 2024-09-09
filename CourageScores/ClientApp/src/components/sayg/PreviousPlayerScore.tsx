@@ -58,12 +58,12 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         }
 
         return (<>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center ${classNameSuffix}`}
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`}
                  onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, score)}>
                 {score === undefined ? null : <span>{score}</span>}
             </div>
             {showRemainingScore
-                ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-0 text-center"
+                ? (<div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`}
                         onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, score)}>
                     {Number.isNaN(runningScore) || runningScore < 0 ? null : runningScore}
                     </div>)
