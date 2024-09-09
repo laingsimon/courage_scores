@@ -36,7 +36,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             ? 'text-primary fw-bold text-decoration-underline'
             : null;
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`}>
-            {currentPlayer === 'home' ? home : away} {leg.startingScore - score}
+            {currentPlayer === 'home' ? home : away}
+            <span className="fs-1 ms-3">{leg.startingScore - score}</span>
         </div>);
     }
 
@@ -61,7 +62,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 {score === undefined ? null : <span>{score}</span>}
             </div>
             {showRemainingScore
-                ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-0 text-secondary-50 margin-right extra-small text-center"
+                ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-0 text-center"
                         onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, score)}>
                     {Number.isNaN(runningScore) || runningScore < 0 ? null : runningScore}
                     </div>)
@@ -87,10 +88,15 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             homeRunningScore -= homeThrow.score;
             awayRunningScore -= awayThrow.score;
 
+            const numberOfDarts = (
+                <div className="flex-basis-0 flex-shrink-1 text-center text-secondary-50 small">
+                    {(index + 1) * 3}
+                </div>);
+
             return (<div key={index} className="d-flex flex-row justify-content-evenly fs-4">
+                {singlePlayer ? numberOfDarts : null}
                 {renderScore('home', homeThrow.score, homeRunningScore, index)}
-                <div
-                    className="flex-basis-0 flex-grow-1 flex-shrink-0 text-center text-secondary-50">{(index + 1) * 3}</div>
+                {singlePlayer ? null : numberOfDarts}
                 {!singlePlayer ? renderScore('away', awayThrow.score, awayRunningScore, index) : null}
             </div>);
         })}
