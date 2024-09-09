@@ -2,6 +2,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {repeat} from "../../helpers/projection";
 import {IEditThrow} from "./PlayLeg";
+import {useEffect} from "react";
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;
@@ -22,6 +23,15 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
     const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
     const showsThrowsFromIndex: number = maxThrowsToShow ? maxThrows - maxThrowsToShow : -1;
+
+    useEffect(() => {
+        const scrollableScores = document.querySelector('div[datatype="previous-scores"]');
+        const previousScoreRows: HTMLDivElement[] = Array.from(scrollableScores.querySelectorAll('div'));
+        const lastScore = previousScoreRows.pop();
+        if (lastScore) {
+            lastScore.scrollIntoView();
+        }
+    }, [maxThrows]);
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string = leg.currentThrow === currentPlayer
@@ -72,7 +82,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
             {!singlePlayer ? renderPlayer('away', leg.away.score, 'ms-5') : null}
         </div>
-        <div className="d-flex flex-column overflow-auto height-100 max-height-100">
+        <div className="d-flex flex-column overflow-auto height-100 max-height-100" datatype="previous-scores">
         {repeat(maxThrows, (index: number) => {
             const homeThrow: LegThrowDto = homeThrows[index] || {};
             const awayThrow: LegThrowDto = awayThrows[index] || {};
