@@ -175,10 +175,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         setScore('');
     }
 
-    if (!leg) {
-        return (<div>No leg!</div>);
-    }
-
     return (<div>
         {leg.playerSequence && leg.currentThrow ? null : (<div className="text-center">
             {leg.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
