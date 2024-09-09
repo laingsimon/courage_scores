@@ -154,7 +154,7 @@ describe('SaygIntegrationTest', () => {
             };
         });
 
-        it('can load details', async () => {
+        it('can load two player details', async () => {
             await renderComponent({
                 id: sayg.id,
                 liveOptions: {}
@@ -162,6 +162,17 @@ describe('SaygIntegrationTest', () => {
 
             expect(context.container.textContent).toContain('CONTENDER');
             expect(context.container.textContent).toContain('OPPONENT');
+        });
+
+        it('can load single player details', async () => {
+            sayg.opponentName = null;
+
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {}
+            });
+
+            expect(context.container.textContent).toContain('CONTENDER');
         });
 
         it('asks who should start', async () => {
@@ -247,6 +258,27 @@ describe('SaygIntegrationTest', () => {
 
             expect(sayg.legs[0].winner).toEqual('home');
             expect(sayg.legs[1].currentThrow).toEqual('away');
+        });
+
+        it('does switch to second player if single player', async () => {
+            sayg.opponentName = null;
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+
+            await enterScores([
+                120, // 120 (381)
+                120, // 240 (261)
+                120, // 360 (141)
+                121, // 481 (20)
+                20, // 501 (0)
+            ], [ ]);
+            await checkoutWith(CHECKOUT_2_DART);
+
+            expect(sayg.legs[0].winner).toEqual('home');
+            expect(sayg.legs[1].currentThrow).toEqual('home');
         });
     });
 
@@ -479,7 +511,7 @@ describe('SaygIntegrationTest', () => {
             };
         });
 
-        it('presents statistics', async () => {
+        it('presents statistics for two player', async () => {
             await renderComponent({
                 id: sayg.id,
                 liveOptions: {}
@@ -496,6 +528,33 @@ describe('SaygIntegrationTest', () => {
             expect(rows[2].textContent).toContain('Leg: 2Winner: OPPONENT');
             expect(rows[2].textContent).toContain('Checkout: 101');
             expect(rows[2].textContent).toContain('Remaining: 201');
+        });
+
+        it('presents statistics for single player', async () => {
+            sayg = saygBuilder()
+                .yourName('CONTENDER')
+                .numberOfLegs(3)
+                .startingScore(501)
+                .scores(3)
+                .withLeg(0, (l: ILegBuilder) => buildLeg(l, 'home', 'home'))
+                .withLeg(1, (l: ILegBuilder) => buildLeg(l, 'home', 'home'))
+                .withLeg(2, (l: ILegBuilder) => buildLeg(l, 'home', 'home'))
+                .addTo(saygData)
+                .build();
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {}
+            });
+
+            expect(context.container.textContent).toContain('Match statistics');
+            const headerRows = Array.from(context.container.querySelectorAll('.table thead tr'));
+            expect(headerRows.length).toEqual(0);
+            const rows = Array.from(context.container.querySelectorAll('.table tbody tr'));
+            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual([ 'Score', '3']);
+            expect(rows[1].textContent).toContain('Leg: 1');
+            expect(rows[1].textContent).toContain('Checkout: 101');
+            expect(rows[2].textContent).toContain('Leg: 2');
+            expect(rows[2].textContent).toContain('Checkout: 101');
         });
 
         describe('when permitted', () => {
