@@ -87,7 +87,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         return (<>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
                 {throwDto && !editingThisScore ? (<span>{throwDto.score}</span>) : null}
-                {throwDto && editingThisScore ? (<span>{currentScore}</span>) : null}
+                {throwDto && editingThisScore ? (<span>{currentScore || throwDto.score}</span>) : null}
                 {!throwDto && player === leg.currentThrow ? (<span>{currentScore}</span>) : null}
             </div>
             {showRemainingScore
