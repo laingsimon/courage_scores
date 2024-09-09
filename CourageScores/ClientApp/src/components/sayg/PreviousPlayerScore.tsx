@@ -26,7 +26,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         const scrollableScores = document.querySelector('div[datatype="previous-scores"]');
         const previousScoreRows: HTMLDivElement[] = Array.from(scrollableScores.querySelectorAll('div'));
         const lastScore = previousScoreRows.pop();
-        if (lastScore) {
+        if (lastScore && lastScore.scrollIntoView) {
+            /* istanbul ignore next */
             lastScore.scrollIntoView();
         }
     }, [maxThrows]);
