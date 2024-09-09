@@ -68,8 +68,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             {!singlePlayer ? renderPlayer('away', leg.away.score, 'ms-5') : null}
         </div>
         {repeat(maxThrows, (index: number) => {
-            const homeThrow: LegThrowDto = homeThrows[index];
-            const awayThrow: LegThrowDto = awayThrows[index] || {score: undefined};
+            const homeThrow: LegThrowDto = homeThrows[index] || {};
+            const awayThrow: LegThrowDto = awayThrows[index] || {};
             homeRunningScore -= homeThrow.score;
             if (!singlePlayer) {
                 awayRunningScore -= awayThrow.score;
