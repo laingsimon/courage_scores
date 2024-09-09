@@ -30,7 +30,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     function getMaxThrows(homeThrows: LegThrowDto[], awayThrows: LegThrowDto[]) {
         const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
-        if (maxThrows === homeThrows.length && maxThrows === awayThrows.length && currentScore) {
+        if (maxThrows === homeThrows.length && (maxThrows === awayThrows.length || singlePlayer) && currentScore) {
             return maxThrows + 1;
         }
 
