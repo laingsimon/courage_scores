@@ -644,8 +644,70 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].away.score).toEqual(101);
 
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
-            const secondHomeScore = previousScores[1].querySelector('div:last-child'); // away score
+            const secondAwayScore = previousScores[1].querySelector('div:last-child'); // away score
+            await doClick(secondAwayScore);
+            await keyPad(['6', '2', ENTER_SCORE_BUTTON]);
+
+            expect(sayg.legs[0].away.throws[1].score).toEqual(62);
+            expect(sayg.legs[0].away.score).toEqual(112);
+        });
+
+        it('can cancel editing a previous home score', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores([100, 101], [50, 51]);
+            expect(sayg.legs[0].home.throws[1].score).toEqual(101);
+            expect(sayg.legs[0].home.score).toEqual(201);
+
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            const secondHomeScore = previousScores[1].querySelector('div:first-child'); // home score
             await doClick(secondHomeScore);
+            await doClick(secondHomeScore);
+
+            expect(sayg.legs[0].home.throws[1].score).toEqual(101);
+            expect(sayg.legs[0].home.score).toEqual(201);
+        });
+
+        it('can cancel editing a previous away score', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores([100, 101], [50, 51]);
+            expect(sayg.legs[0].away.throws[1].score).toEqual(51);
+            expect(sayg.legs[0].away.score).toEqual(101);
+
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            const secondAwayScore = previousScores[1].querySelector('div:last-child'); // away score
+            await doClick(secondAwayScore);
+            await doClick(secondAwayScore);
+
+            expect(sayg.legs[0].away.throws[1].score).toEqual(51);
+            expect(sayg.legs[0].away.score).toEqual(101);
+        });
+
+        it('can edit a different previous score', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores([100, 101], [50, 51]);
+            expect(sayg.legs[0].away.throws[1].score).toEqual(51);
+            expect(sayg.legs[0].away.score).toEqual(101);
+
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            const secondHomeScore = previousScores[1].querySelector('div:first-child'); // home score
+            const secondAwayScore = previousScores[1].querySelector('div:last-child'); // away score
+            await doClick(secondHomeScore);
+            await doClick(secondAwayScore);
             await keyPad(['6', '2', ENTER_SCORE_BUTTON]);
 
             expect(sayg.legs[0].away.throws[1].score).toEqual(62);
