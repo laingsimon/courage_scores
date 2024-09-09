@@ -37,13 +37,18 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             player,
             throwIndex,
         };
-        const editingThisScore = editScore && editScore.player === player && throwIndex === editScore.throwIndex;
-        const editScoreStyle: string = editScore && !editingThisScore
-            ? ' opacity-25'
-            : '';
+        const editingThisScore: boolean = editScore && editScore.player === player && throwIndex === editScore.throwIndex;
+        let classNameSuffix: string = '';
+        if (editScore) {
+            if (editingThisScore) {
+                classNameSuffix = ' bg-warning';
+            } else {
+                classNameSuffix = ' opacity-25';
+            }
+        }
 
         return (<>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center ${editScoreStyle}`}
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center ${classNameSuffix}`}
                  onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, score)}>
                 {score === undefined ? (<>-</>) : <span>{score}</span>}
             </div>
