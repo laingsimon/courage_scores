@@ -55,18 +55,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         await onChange(newLeg);
     }
 
-    async function undoLastThrow() {
-        const oppositePlayer: string = leg.currentThrow === 'home' ? 'away' : 'home';
-        const newLeg: LegDto = Object.assign({}, leg);
-
-        const removedThrow = newLeg[oppositePlayer].throws.pop();
-        newLeg.currentThrow = oppositePlayer;
-        newLeg[oppositePlayer].score -= removedThrow.score;
-        newLeg[oppositePlayer].noOfDarts -= removedThrow.noOfDarts;
-
-        await onChange(newLeg);
-    }
-
     function opposite(player: 'home' | 'away'): 'away' | 'home' {
         return player === 'home' ? 'away' : 'home';
     }
@@ -192,7 +180,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             homeScore={homeScore}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            undoLastThrow={undoLastThrow}
             showRemainingScore={true}
             setEditScore={beginEditScore}
             editScore={editScore}

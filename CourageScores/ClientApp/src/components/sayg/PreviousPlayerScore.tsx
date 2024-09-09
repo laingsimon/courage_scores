@@ -9,7 +9,6 @@ export interface IPreviousPlayerScoreProps {
     awayScore?: number;
     singlePlayer?: boolean;
     leg: LegDto;
-    undoLastThrow(): Promise<any>;
     showRemainingScore?: boolean;
     setEditScore(throwToEdit: IEditThrow, score: number): Promise<any>;
     editScore?: IEditThrow;
