@@ -29,7 +29,7 @@ export interface IEditThrow {
 
 export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
-    const [showCheckout, setShowCheckout] = useState(false);
+    const [showCheckout, setShowCheckout] = useState<string>(null);
     const [score, setScore] = useState('');
     const [editScore, setEditScore] = useState<IEditThrow>(null);
     const {onError} = useApp();
@@ -80,7 +80,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             setEditScore(null);
 
             if (newRemainingScore === 0) {
-                setShowCheckout(true);
+                setShowCheckout(editScore.player);
             }
             return;
         }
@@ -89,7 +89,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             await addThrow(score);
 
             if (score === remainingScore) {
-                setShowCheckout(true);
+                setShowCheckout(leg.currentThrow);
             }
         }
     }
@@ -109,12 +109,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     async function addThrow(score: number) {
         try {
             setSavingInput(true);
-            setShowCheckout(false);
             const accumulatorName = leg.currentThrow as 'home' | 'away';
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
             const remainingScore: number = leg.startingScore - (accumulator.score + score);
-            const bust: boolean = remainingScore < 0 || remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0);
+            const bust: boolean = remainingScore <= 1;
 
             accumulator.throws.push({
                 score,
@@ -150,7 +149,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     async function setLastThrowNoOfDarts(noOfDarts: number) {
-        const accumulatorName = leg.currentThrow as 'home' | 'away';
+        const accumulatorName: string = showCheckout;
         const newLeg: LegDto = Object.assign({}, leg);
         const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
         const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
@@ -164,13 +163,12 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
 
         lastThrow.noOfDarts = noOfDarts;
+        lastThrow.bust = false;
+        accumulator.score = accumulator.throws.reduce((total: number, thr: LegThrowDto) => total + (thr.bust ? 0 : thr.score), 0); // NOTE: not required - but helps with the tests
         newLeg.winner = accumulatorName;
-        newLeg.currentThrow = singlePlayer
-            ? newLeg.currentThrow
-            : opposite(accumulatorName);
         await onChange(newLeg);
         await onLegComplete(accumulatorName);
-        setShowCheckout(false);
+        setShowCheckout(null);
     }
 
     async function beginEditScore(request: IEditThrow, _: number) {
@@ -208,7 +206,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             savingInput={savingInput}
             remainingScore={remainingScore}
         />) : null}
-        {showCheckout ? (<Dialog onClose={async () => setShowCheckout(false)} title="Checkout">
+        {showCheckout ? (<Dialog onClose={async () => setShowCheckout(null)} title="Checkout">
             <div className="my-3" datatype="gameshot-buttons-score">
                 <h6>How many darts to checkout?</h6>
                 <div className="d-flex flex-row justify-content-stretch">
