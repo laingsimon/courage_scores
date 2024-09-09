@@ -55,7 +55,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         const suffix: string = leg.currentThrow === currentPlayer
             ? 'text-primary fw-bold bg-info text-white'
             : null;
-        return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`}>
+        return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
             {currentPlayer === 'home' ? home : away}
             <span className="fs-1 ms-3">{leg.startingScore - score}</span>
         </div>);

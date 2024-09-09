@@ -75,14 +75,8 @@ describe('SaygIntegrationTest', () => {
     }
 
     function assertWaitingForScoreFor(side: string) {
-        const underlined = Array.from(context.container.querySelectorAll('div.text-decoration-underline'));
-        for (let element of underlined) {
-            if (element.textContent.indexOf(side) !== -1) {
-                return true;
-            }
-        }
-
-        expect(underlined.map(u => u.textContent)).toContain(side);
+        const element = context.container.querySelector('div[datatype="current-player"]');
+        expect(element.textContent).toContain(side);
     }
 
     describe('when unstarted', () => {
