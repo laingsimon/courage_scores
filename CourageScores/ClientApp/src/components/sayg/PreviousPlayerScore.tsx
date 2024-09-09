@@ -65,7 +65,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             {showRemainingScore
                 ? (<div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`}
                         onClick={() => editingThisScore ? setEditScore(null, 0) : setEditScore(throwToEdit, score)}>
-                    {Number.isNaN(runningScore) || runningScore < 0 ? null : runningScore}
+                    {Number.isNaN(runningScore) || runningScore <= 1 ? null : runningScore}
                     </div>)
                 : null}
         </>);
