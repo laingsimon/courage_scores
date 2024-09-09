@@ -85,11 +85,12 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             return;
         }
 
-        if (score === remainingScore) {
-            setShowCheckout(true);
-        }
-        else if (Number.isFinite(score) && score >= 0 && score <= 180) {
-            await addThrow(score, 3);
+        if (Number.isFinite(score) && score >= 0 && score <= 180) {
+            await addThrow(score);
+
+            if (score === remainingScore) {
+                setShowCheckout(true);
+            }
         }
     }
 
@@ -105,7 +106,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         return playerThrows;
     }
 
-    async function addThrow(score: number, noOfDarts: number) {
+    async function addThrow(score: number) {
         try {
             setSavingInput(true);
             setShowCheckout(false);
@@ -113,15 +114,15 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             const newLeg: LegDto = Object.assign({}, leg);
             const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
             const remainingScore: number = leg.startingScore - (accumulator.score + score);
-            const bust: boolean = remainingScore < 0 || remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1);
+            const bust: boolean = remainingScore < 0 || remainingScore === 1 || (remainingScore === 0 && score % 2 !== 0);
 
             accumulator.throws.push({
                 score,
-                noOfDarts,
+                noOfDarts: 3,
                 bust,
             });
 
-            accumulator.noOfDarts += noOfDarts;
+            accumulator.noOfDarts += 3;
 
             if (!bust) {
                 accumulator.score += score;
@@ -132,28 +133,12 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
                         await on180(accumulatorName);
                     }
                 }
-
-                if (accumulator.score === leg.startingScore) {
-                    // checked out
-                    newLeg.winner = accumulatorName;
-
-                    if (score >= 100) {
-                        // hi-check
-                        if (onHiCheck) {
-                            await onHiCheck(accumulatorName, score);
-                        }
-                    }
-                }
             }
 
             newLeg.currentThrow = singlePlayer
                 ? newLeg.currentThrow
                 : opposite(accumulatorName);
             await onChange(newLeg);
-
-            if (newLeg.winner) {
-                await onLegComplete(accumulatorName);
-            }
 
             setScore('');
         } catch (e) {
@@ -164,31 +149,38 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
     }
 
-    function isSingleDartScore(value: number): boolean {
-        return (value % 2 === 0 && value / 2 <= 20)
-            || value === 50;
+    async function setLastThrowNoOfDarts(noOfDarts: number) {
+        const accumulatorName = leg.currentThrow as 'home' | 'away';
+        const newLeg: LegDto = Object.assign({}, leg);
+        const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
+        const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
+        const lastScore: number = lastThrow.score;
+
+        if (lastScore >= 100) {
+            // hi-check
+            if (onHiCheck) {
+                await onHiCheck(accumulatorName, lastScore);
+            }
+        }
+
+        lastThrow.noOfDarts = noOfDarts;
+        newLeg.winner = accumulatorName;
+        newLeg.currentThrow = singlePlayer
+            ? newLeg.currentThrow
+            : opposite(accumulatorName);
+        await onChange(newLeg);
+        await onLegComplete(accumulatorName);
+        setShowCheckout(false);
     }
 
-    function isTwoDartScore(value: number): boolean {
-        return value <= 120;
-    }
-
-    function isThreeDartScore(value: number): boolean {
-        return value <= 180;
-    }
-
-    async function beginEditScore(request: IEditThrow, score: number) {
+    async function beginEditScore(request: IEditThrow, _: number) {
         setEditScore(request);
-        setScore(score.toString());
+        setScore('');
     }
 
     if (!leg) {
         return (<div>No leg!</div>);
     }
-
-    const intScore: number = Number.parseInt(score);
-    const checkout: boolean = intScore === remainingScore;
-    const hasRemainingDouble: boolean = remainingScore - intScore >= 2;
 
     return (<div>
         {leg.playerSequence && leg.currentThrow ? null : (<div className="text-center">
@@ -221,21 +213,21 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
                 <h6>How many darts to checkout?</h6>
                 <div className="d-flex flex-row justify-content-stretch">
                     <button
-                        disabled={savingInput || !checkout || !isSingleDartScore(intScore)}
+                        disabled={savingInput}
                         className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
-                        onClick={async () => await addThrow(intScore, 1)}>
+                        onClick={async () => await setLastThrowNoOfDarts(1)}>
                         {CHECKOUT_1_DART}
                     </button>
                     <button
-                        disabled={savingInput || !checkout || !isTwoDartScore(intScore)}
+                        disabled={savingInput}
                         className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
-                        onClick={async () => await addThrow(intScore, 2)}>
+                        onClick={async () => await setLastThrowNoOfDarts(2)}>
                         {CHECKOUT_2_DART}
                     </button>
                     <button
-                        disabled={savingInput || !isThreeDartScore(intScore) || (!hasRemainingDouble && !checkout)}
+                        disabled={savingInput}
                         className="btn btn-success margin-right fs-3 my-2 flex-grow-1"
-                        onClick={async () => await addThrow(intScore, 3)}>
+                        onClick={async () => await setLastThrowNoOfDarts(3)}>
                         {CHECKOUT_3_DART}
                     </button>
                 </div>
