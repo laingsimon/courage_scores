@@ -30,7 +30,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     function getMaxThrows(homeThrows: LegThrowDto[], awayThrows: LegThrowDto[]) {
         const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
-        if (maxThrows === homeThrows.length && (maxThrows === awayThrows.length || singlePlayer) && currentScore) {
+        if (maxThrows === homeThrows.length && (maxThrows === awayThrows.length || singlePlayer) && currentScore && !editScore) {
             return maxThrows + 1;
         }
 
@@ -86,13 +86,14 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
         return (<>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
-                {throwDto ? (<span>{throwDto.score}</span>) : null}
+                {throwDto && !editScore ? (<span>{throwDto.score}</span>) : null}
+                {throwDto && editScore ? (<span>{currentScore}</span>) : null}
                 {!throwDto && player === leg.currentThrow ? (<span>{currentScore}</span>) : null}
             </div>
             {showRemainingScore
                 ? (<div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
                     {!throwDto && player === leg.currentThrow && !Number.isNaN(Number.parseInt(currentScore)) ? runningScore - Number.parseInt(currentScore) : null}
-                    {!throwDto || runningScore <= 1 ? null : runningScore}
+                    {throwDto && runningScore > 1 ? runningScore : null}
                     </div>)
                 : null}
         </>);
