@@ -206,7 +206,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             showRemainingScore={true}
             setEditScore={beginEditScore}
             editScore={editScore}
-            maxThrowsToShow={5}
             home={home}
             away={away}
         />) : null}

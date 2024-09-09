@@ -12,7 +12,7 @@ export interface IPreviousPlayerScoreProps {
     showRemainingScore?: boolean;
     setEditScore(throwToEdit: IEditThrow, score: number): Promise<any>;
     editScore?: IEditThrow;
-    maxThrowsToShow: number;
+    maxThrowsToShow?: number;
     home: string;
     away: string;
 }
@@ -21,7 +21,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
     const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
-    const showsThrowsFromIndex: number = maxThrows - maxThrowsToShow;
+    const showsThrowsFromIndex: number = maxThrowsToShow ? maxThrows - maxThrowsToShow : -1;
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string = leg.currentThrow === currentPlayer
@@ -63,7 +63,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     let homeRunningScore = leg.startingScore;
     let awayRunningScore = leg.startingScore;
-    return (<div className="d-flex flex-column overflow-auto max-height-250">
+    return (<div className="d-flex flex-column">
         <div className="d-flex flex-row justify-content-stretch fs-3">
             {renderPlayer('home', leg.home.score, 'text-end me-5')}
             {singlePlayer
@@ -72,6 +72,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
             {!singlePlayer ? renderPlayer('away', leg.away.score, 'ms-5') : null}
         </div>
+        <div className="d-flex flex-column overflow-auto height-100 max-height-100">
         {repeat(maxThrows, (index: number) => {
             const homeThrow: LegThrowDto = homeThrows[index] || {};
             const awayThrow: LegThrowDto = awayThrows[index] || {};
@@ -79,7 +80,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             if (!singlePlayer) {
                 awayRunningScore -= awayThrow.score;
             }
-            if (index < showsThrowsFromIndex) {
+            if (index < showsThrowsFromIndex && showsThrowsFromIndex > 0) {
                 return null;
             }
 
@@ -90,5 +91,6 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 {!singlePlayer ? renderScore('away', awayThrow.score, awayRunningScore, index) : null}
             </div>);
         })}
+        </div>
     </div>);
 }
