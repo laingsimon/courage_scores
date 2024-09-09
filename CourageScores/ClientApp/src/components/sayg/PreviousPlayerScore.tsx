@@ -22,7 +22,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const maxThrows: number = Math.max(homeThrows.length, awayThrows.length);
 
     useEffect(() => {
-        window.setTimeout(scrollToLastScore, 50);
+        window.setTimeout(scrollToLastScore, 10);
     },
     // eslint-disable-next-line
     [maxThrows]);
@@ -34,6 +34,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         }
         const previousScoreRows: HTMLDivElement[] = Array.from(scrollableScores.querySelectorAll('div'));
         const lastScore = previousScoreRows.pop();
+        /* istanbul ignore next */
         if (lastScore && lastScore.scrollIntoView) {
             /* istanbul ignore next */
             lastScore.scrollIntoView();
@@ -42,7 +43,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string = leg.currentThrow === currentPlayer
-            ? 'text-primary fw-bold text-decoration-underline'
+            ? 'text-primary fw-bold text-decoration-underline bg-info'
             : null;
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`}>
             {currentPlayer === 'home' ? home : away}

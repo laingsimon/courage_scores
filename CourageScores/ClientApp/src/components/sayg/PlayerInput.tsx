@@ -11,7 +11,7 @@ export interface IPlayerInputProps {
     remainingScore: number;
 }
 
-export function PlayerInput({ savingInput, score, handleScore, setScore, remainingScore }: IPlayerInputProps) {
+export function PlayerInput({savingInput, score, handleScore, setScore, remainingScore}: IPlayerInputProps) {
     const {browser} = useApp();
 
     async function keyUp(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -48,7 +48,8 @@ export function PlayerInput({ savingInput, score, handleScore, setScore, remaini
         </h4>
         <div className="d-flex flex-row justify-content-center">
             <div>
-                <NumberKeyboard value={score} maxValue={180} onChange={async (score: string) => setScore(score)} onEnter={handleScore} />
+                <NumberKeyboard value={score} maxValue={180} onChange={async (score: string) => setScore(score)}
+                                onEnter={handleScore}/>
             </div>
         </div>
         {Number.isFinite(intScore) && remainingScore - intScore >= 0 ? (

@@ -193,13 +193,15 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             home={home}
             away={away}
         />) : null}
-        {leg.playerSequence && leg.currentThrow ? (<PlayerInput
-            score={score}
-            setScore={async (v: string) => setScore(v)}
-            handleScore={handleScore}
-            savingInput={savingInput}
-            remainingScore={remainingScore}
-        />) : null}
+        {leg.playerSequence && leg.currentThrow ? (<div className={editScore ? ' bg-warning' : ''}>
+            <PlayerInput
+                score={score}
+                setScore={async (v: string) => setScore(v)}
+                handleScore={handleScore}
+                savingInput={savingInput}
+                remainingScore={remainingScore}
+            />
+        </div>) : null}
         {showCheckout ? (<Dialog onClose={cancelCheckout} title="Checkout">
             <div className="my-3" datatype="gameshot-buttons-score">
                 <h6>How many darts to checkout?</h6>
