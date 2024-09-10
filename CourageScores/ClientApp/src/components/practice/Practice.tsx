@@ -16,19 +16,25 @@ export function Practice() {
     const [dataError, setDataError] = useState<string | null>(null);
     const location = useLocation();
     const navigate = useNavigate();
-    const hasHash = location.hash && location.hash !== '#';
+    const hasHash: boolean = location.hash && location.hash !== '#';
+    const query: URLSearchParams = new URLSearchParams(location.search);
 
     if (appLoading) {
         return (<Loading/>);
     }
 
+    function getInteger(key: string): number {
+        let value = query.get(key);
+        return value ? Number.parseInt(value) : null;
+    }
+
     const defaultSaygData: IPracticeScoreAsYouGoDto = {
-        yourName: account ? account.givenName : 'you',
-        opponentName: null,
+        yourName: query.get('yourName') || (account ? account.givenName : 'you'),
+        opponentName: query.get('opponentName'),
         homeScore: 0,
         awayScore: 0,
-        numberOfLegs: 3,
-        startingScore: 501,
+        numberOfLegs: getInteger('numberOfLegs') || 3,
+        startingScore: getInteger('startingScore') || 501,
         legs: {},
         loaded: false,
     };
