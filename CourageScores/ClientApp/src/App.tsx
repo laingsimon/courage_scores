@@ -21,6 +21,7 @@ import {Tv} from "./components/Tv";
 import {IBrowserType} from "./components/common/IBrowserType";
 import {PreferencesContainer} from "./components/common/PreferencesContainer";
 import {DivisionUriContainer, UrlStyle} from "./components/league/DivisionUriContainer";
+import {Division} from "./components/league/Division";
 
 export interface IAppProps {
     embed: boolean;
@@ -139,15 +140,15 @@ export function App({embed, controls, testRoute}: IAppProps) {
                 <Layout>
                     <Routes>
                         <Route path='/' element={<Home/>}/>
-                        <Route path='/division/:divisionId' element={<DivisionUriContainer urlStyle={UrlStyle.Single} />} />
-                        <Route path='/division/:divisionId/:mode' element={<DivisionUriContainer urlStyle={UrlStyle.Single} />} />
-                        <Route path='/division/:divisionId/:mode/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Single} />} />
-                        <Route path='/teams/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams" />} />
-                        <Route path='/players/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players" />} />
-                        <Route path='/fixtures/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures" />} />
-                        <Route path='/teams' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams" />} />
-                        <Route path='/players' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players" />} />
-                        <Route path='/fixtures' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures" />} />
+                        <Route path='/division/:divisionId' element={<DivisionUriContainer urlStyle={UrlStyle.Single}><Division/></DivisionUriContainer>} />
+                        <Route path='/division/:divisionId/:mode' element={<DivisionUriContainer urlStyle={UrlStyle.Single}><Division/></DivisionUriContainer>} />
+                        <Route path='/division/:divisionId/:mode/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Single}><Division/></DivisionUriContainer>} />
+                        <Route path='/teams/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams"><Division/></DivisionUriContainer>} />
+                        <Route path='/players/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players"><Division/></DivisionUriContainer>} />
+                        <Route path='/fixtures/:seasonId' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures"><Division/></DivisionUriContainer>} />
+                        <Route path='/teams' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="teams"><Division/></DivisionUriContainer>} />
+                        <Route path='/players' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="players"><Division/></DivisionUriContainer>} />
+                        <Route path='/fixtures' element={<DivisionUriContainer urlStyle={UrlStyle.Multiple} mode="fixtures"><Division/></DivisionUriContainer>} />
                         <Route path='/score/:fixtureId' element={<Score/>}/>
                         <Route path='/admin' element={<AdminHome/>}/>
                         <Route path='/admin/:mode' element={<AdminHome/>}/>
