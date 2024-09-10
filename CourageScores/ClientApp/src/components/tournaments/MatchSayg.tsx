@@ -22,6 +22,7 @@ import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentP
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {add180, addHiCheck} from "../common/Accolades";
+import {START_SCORING} from "./tournaments";
 
 export interface IMatchSaygProps {
     round: TournamentRoundDto;
@@ -247,10 +248,10 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             ? (<Link className="btn btn-sm float-start p-0" to={`/live/match/${saygId}`}>👁️</Link>)
             : null}
         {canOpenSaygDialog()
-            ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
+            ? (<button className="btn btn-sm btn-primary float-start d-print-none" onClick={openSaygDialog}>
                 {creatingSayg
                     ? (<LoadingSpinnerSmall/>)
-                    : '📊'}
+                    : START_SCORING}
             </button>)
             : null}
         {saveError

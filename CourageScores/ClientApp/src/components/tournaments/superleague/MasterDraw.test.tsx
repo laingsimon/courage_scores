@@ -26,6 +26,7 @@ import {createTemporaryId} from "../../../helpers/projection";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../helpers/builders/sayg";
+import {START_SCORING} from "../tournaments";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -423,7 +424,7 @@ describe('MasterDraw', () => {
             }, account);
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '📊'));
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
 
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -463,7 +464,7 @@ describe('MasterDraw', () => {
                 setPreventScroll,
             }, account);
             reportedError.verifyNoError();
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '📊'));
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             window.confirm = (_: string) => true;
