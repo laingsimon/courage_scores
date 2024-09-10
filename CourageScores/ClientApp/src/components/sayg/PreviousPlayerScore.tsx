@@ -74,7 +74,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         const isCurrentPlayer: boolean = player === leg.currentThrow;
         let thisScore: number;
         if (editingThisScore) {
-            thisScore = currentScore && !Number.isNaN(currentScore)
+            thisScore = (currentScore && !Number.isNaN(currentScore)) || currentScore === 0
                 ? currentScore
                 : throwDto.score;
         } else if (editScore) {
