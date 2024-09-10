@@ -193,7 +193,9 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                     homeScore={match.homeScore}
                     awayScore={match.awayScore}
                     on180={singlePlayerMatch && on180 && !readOnly ? add180 : null}
-                    onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null}/>
+                    onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null}
+                    saveDataAndGetId={null}
+                />
             </LiveContainer>
             </EditableSaygContainer>
         </Dialog>)

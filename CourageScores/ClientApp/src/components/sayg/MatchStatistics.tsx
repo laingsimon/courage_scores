@@ -3,7 +3,6 @@ import {MatchDartCount} from "./MatchDartCount";
 import {MatchAverage} from "./MatchAverage";
 import {LegStatistics} from "./LegStatistics";
 import {useState} from "react";
-import {useSayg} from "./SaygLoadingContainer";
 import {RefreshControl} from "../common/RefreshControl";
 import {useLive} from "../../live/LiveContainer";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
@@ -21,15 +20,15 @@ export interface IMatchStatisticsProps {
     legChanged?(leg: LegDto, index: number): Promise<any>;
     numberOfLegs: number;
     changeStatisticsView(widescreen: boolean): Promise<any>;
+    lastLegDisplayOptions: ILegDisplayOptions;
 }
 
 interface ILegDisplayOptionsLookup {
     [key: number]: ILegDisplayOptions
 }
 
-export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, changeStatisticsView, saygId }: IMatchStatisticsProps) {
+export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, changeStatisticsView, saygId, lastLegDisplayOptions }: IMatchStatisticsProps) {
     const [oneDartAverage, setOneDartAverage] = useState<boolean>(false);
-    const {lastLegDisplayOptions} = useSayg();
     const {subscriptions, liveOptions} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState<ILegDisplayOptionsLookup>(getLegDisplayOptions(legs));
     const finished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
