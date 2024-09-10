@@ -79,6 +79,26 @@ describe('SaygIntegrationTest', () => {
         expect(element.textContent).toContain(side);
     }
 
+    function homeScore(ps: HTMLDivElement) {
+        return ps.querySelector('div:nth-child(1)').textContent;
+    }
+
+    function homeRemaining(ps: HTMLDivElement) {
+        return ps.querySelector('div:nth-child(2)').textContent;
+    }
+
+    function noOfDarts(ps: HTMLDivElement) {
+        return ps.querySelector('div:nth-child(3)').textContent;
+    }
+
+    function awayScore(ps: HTMLDivElement) {
+        return ps.querySelector('div:nth-child(4)').textContent;
+    }
+
+    function awayRemaining(ps: HTMLDivElement) {
+        return ps.querySelector('div:nth-child(5)').textContent;
+    }
+
     describe('when unstarted', () => {
         let sayg: UpdateRecordedScoreAsYouGoDto;
 
@@ -667,15 +687,44 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws[1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(1)').textContent)).toEqual(['100', '101']); // home scores
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(2)').textContent)).toEqual(['401', '300']); // home remaining
+            expect(previousScores.map(homeScore)).toEqual(['100', '101']); // home scores
+            expect(previousScores.map(homeRemaining)).toEqual(['401', '300']); // home remaining
 
             const secondHomeScore = previousScores[1].querySelector('div:first-child'); // home score
             await doClick(secondHomeScore);
             await keyPad(context, ['1', '2', '0']);
 
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(1)').textContent)).toEqual(['100', '120']); // home scores
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(2)').textContent)).toEqual(['401', '281']); // home remaining
+            expect(previousScores.map(homeScore)).toEqual(['100', '120']); // home scores
+            expect(previousScores.map(homeRemaining)).toEqual(['401', '281']); // home remaining
+            expect(previousScores.map(noOfDarts)).toEqual(['3', '6']); // no-of-darts
+            expect(previousScores.map(awayScore)).toEqual(['50', '51']); // away scores
+            expect(previousScores.map(awayRemaining)).toEqual(['451', '400']); // away remaining
+        });
+
+        it('shows edited home score in the score card home column only when no away score', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores(context, [100], []);
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            expect(previousScores.map(homeScore)).toEqual(['100']); // home scores
+            expect(previousScores.map(homeRemaining)).toEqual(['401']); // home remaining
+            expect(previousScores.map(noOfDarts)).toEqual(['3']); // no-of-darts
+            expect(previousScores.map(awayScore)).toEqual(['']); // away scores
+            expect(previousScores.map(awayRemaining)).toEqual(['501']); // away remaining
+
+            const firstHomeScore = previousScores[0].querySelector('div:first-child'); // home score
+            await doClick(firstHomeScore);
+            await keyPad(context, ['1', '2', '0']);
+
+            expect(previousScores.map(homeScore)).toEqual(['120']); // home scores
+            expect(previousScores.map(homeRemaining)).toEqual(['381']); // home remaining
+            expect(previousScores.map(noOfDarts)).toEqual(['3']); // no-of-darts
+            expect(previousScores.map(awayScore)).toEqual(['']); // away scores
+            expect(previousScores.map(awayRemaining)).toEqual(['501']); // away remaining
         });
 
         it('updates following score results as throw is edited', async () => {
@@ -689,15 +738,15 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.throws[1].score).toEqual(101);
             expect(sayg.legs[0].home.score).toEqual(201);
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(1)').textContent)).toEqual(['100', '101']); // home scores
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(2)').textContent)).toEqual(['401', '300']); // home remaining
+            expect(previousScores.map(homeScore)).toEqual(['100', '101']); // home scores
+            expect(previousScores.map(homeRemaining)).toEqual(['401', '300']); // home remaining
 
             const secondHomeScore = previousScores[0].querySelector('div:first-child'); // home score
             await doClick(secondHomeScore);
             await keyPad(context, ['8', '0']);
 
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(1)').textContent)).toEqual(['80', '101']); // home scores
-            expect(previousScores.map(ps => ps.querySelector('div:nth-child(2)').textContent)).toEqual(['421', '320']); // home remaining
+            expect(previousScores.map(homeScore)).toEqual(['80', '101']); // home scores
+            expect(previousScores.map(homeRemaining)).toEqual(['421', '320']); // home remaining
         });
 
         it('can change a previous home score', async () => {
