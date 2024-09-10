@@ -2,9 +2,11 @@ import {valueChanged} from "../../helpers/events";
 import {ShareButton} from "../common/ShareButton";
 import {useSayg} from "../sayg/SaygLoadingContainer";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
+import {useEditableSayg} from "../sayg/EditableSaygContainer";
 
 export function EditSaygPracticeOptions() {
-    const {sayg, setSayg, saveDataAndGetId, setEditScore} = useSayg();
+    const {sayg, setSayg, saveDataAndGetId} = useSayg();
+    const {setEditScore} = useEditableSayg();
 
     async function restart() {
         const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg);

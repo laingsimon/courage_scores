@@ -3,14 +3,13 @@ import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {useSayg} from "./SaygLoadingContainer";
 import {isEmpty} from "../../helpers/collections";
-import {IEditingThrow} from "./IEditingThrow";
+import {useEditableSayg} from "./EditableSaygContainer";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -32,10 +31,14 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     const [showCheckout, setShowCheckout] = useState<'home' | 'away'>(null);
     const [score, setScore] = useState('');
     const {onError} = useApp();
+    const {editScore, setEditScore} = useEditableSayg();
     const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
-    const {editScore, setEditScore} = useSayg();
     const canEditPreviousCheckout: boolean = !score && previousLeg && isEmpty(leg.home.throws) && (singlePlayer || isEmpty(leg.away.throws));
+
+    useEffect(() => {
+        setScore('');
+    }, [editScore]);
 
     function playerOptions(): IBootstrapDropdownItem[] {
         return [
@@ -175,11 +178,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         setShowCheckout(null);
     }
 
-    async function beginEditScore(request: IEditingThrow, _: number) {
-        await setEditScore(request);
-        setScore('');
-    }
-
     function renderEditCheckoutDarts() {
         const previousWinner = previousLeg.winner as 'home' | 'away';
         const winner: LegCompetitorScoreDto = previousLeg[previousWinner];
@@ -191,7 +189,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         return (<div className="position-absolute left-0 right-0 mt-2" datatype="change-checkout">
             <div className="alert alert-info mt-5 text-center">
                 <div>
-                    <b>{previousWinner === 'home' ? home : 'away'}</b> checked out {lastThrow.score} with <b>{lastThrow.noOfDarts}</b> dart/s.
+                    <b>{previousWinner === 'home' ? home : 'away'}</b> checked out <b>{lastThrow.score}</b> with <b>{lastThrow.noOfDarts}</b> dart/s.
                 </div>
                 <div className="text-center">
                     <button className="btn btn-primary" onClick={() => setShowCheckout(previousWinner)}>Change</button>
@@ -213,8 +211,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             homeScore={homeScore}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            setEditScore={beginEditScore}
-            editScore={editScore}
             home={home}
             away={away}
             currentScore={score ? Number.parseInt(score) : null}

@@ -11,7 +11,7 @@ import {ILiveOptions} from "../../live/ILiveOptions";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
-import {IEditingThrow} from "./IEditingThrow";
+import {EditableSaygContainer} from "./EditableSaygContainer";
 
 const SaygContext = createContext({});
 
@@ -45,7 +45,6 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     const [loading, setLoading] = useState<boolean>(false);
     const {saygApi, webSocket} = useDependencies();
     const {onError} = useApp();
-    const [editScore, setEditScore] = useState<IEditingThrow>(null);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -156,12 +155,11 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         saveDataAndGetId,
         matchStatisticsOnly,
         lastLegDisplayOptions,
-        editScore,
-        setEditScore: async (edit: IEditingThrow) => setEditScore(edit),
     };
 
     try {
         return (<LiveContainer liveOptions={liveOptions} onDataUpdate={async (data: ILoadedScoreAsYouGoDto) => setSayg(data)}>
+            <EditableSaygContainer>
             <SaygContext.Provider value={saygProps}>
                 {saveError ? (
                     <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save data"/>) : null}
@@ -190,6 +188,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                         }}/>
                 </div>) : null}
             </SaygContext.Provider>
+            </EditableSaygContainer>
         </LiveContainer>);
     } catch (e) {
         /* istanbul ignore next */
