@@ -781,6 +781,30 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].home.score).toEqual(422);
         });
 
+        it('editing a bust score to make it non-bust should affect the total remaining score', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores(context,
+                [100, 100 /*=200*/, 100 /*=300*/, 100 /*=400*/, 120 /*=520*/, 110 /*=510*/],
+                [10, 20, 30, 40, 50, 60]);
+            expect(sayg.legs[0].home.throws[4].score).toEqual(120);
+            expect(sayg.legs[0].home.throws[4].bust).toEqual(true);
+            expect(sayg.legs[0].home.score).toEqual(400);
+
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            const lastHomeScore = previousScores[4].querySelector('div:first-child'); // home score
+            await doClick(lastHomeScore);
+            await keyPad(context, ['7', '0', ENTER_SCORE_BUTTON]);
+
+            expect(sayg.legs[0].home.throws[4].score).toEqual(70);
+            expect(sayg.legs[0].home.throws[4].bust).toEqual(false);
+            expect(sayg.legs[0].home.score).toEqual(470);
+        });
+
         it('can edit a different previous score', async () => {
             await renderComponent({
                 id: sayg.id,
@@ -812,7 +836,7 @@ describe('SaygIntegrationTest', () => {
             // contender first
             await enterScores(
                 context,
-                [100, 101, 100, 100, 10], // 411
+                [100, 101 /*=201*/, 100 /*=301*/, 100 /*=401*/, 10 /*=411*/], // 411
                 [51, 52, 53, 54]);
             const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
             const secondHomeScore = previousScores[4].querySelector('div:first-child'); // home score
