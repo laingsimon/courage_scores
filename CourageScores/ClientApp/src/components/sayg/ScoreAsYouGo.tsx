@@ -27,12 +27,13 @@ export interface IScoreAsYouGoProps {
     matchStatisticsOnly?: boolean;
     saveDataAndGetId(useData?: ScoreAsYouGoDto): Promise<string>;
     firstPlayerStartsFinalLeg?: boolean;
+    firstPlayerStartsFirstLeg?: boolean;
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
-                                 saveDataAndGetId, firstPlayerStartsFinalLeg
+                                 saveDataAndGetId, firstPlayerStartsFinalLeg, firstPlayerStartsFirstLeg
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
     const canEditThrows: boolean = account && account.access && account.access.recordScoresAsYouGo;
@@ -54,18 +55,32 @@ export function ScoreAsYouGo({
 
     function addLeg(legIndex: number): ScoreAsYouGoDto {
         const newData: ScoreAsYouGoDto = Object.assign({}, data);
+        const playerSequence = legIndex === 0 || singlePlayer
+            ? getPlayerSequence()
+            : null;
         newData.legs[legIndex] = {
-            playerSequence: singlePlayer ? [{value: 'home', text: home}, {
-                value: 'away',
-                text: 'unused-single-player'
-            }] : null,
+            playerSequence,
             home: {throws: [], score: 0, noOfDarts: 0},
             away: {throws: [], score: 0, noOfDarts: 0},
             startingScore: startingScore,
             isLastLeg: legIndex === numberOfLegs - 1,
-            currentThrow: singlePlayer ? 'home' : null
+            currentThrow: playerSequence ? playerSequence[0].value : null,
         };
         return newData;
+    }
+
+    function getPlayerSequence() {
+        if (singlePlayer) {
+            return [{value: 'home', text: home}, {value: 'away',text: 'unused-single-player'}];
+        }
+
+        if (firstPlayerStartsFirstLeg) {
+            return [
+                {value: 'home', text: home},
+                {value: 'away', text: away}];
+        }
+
+        return null;
     }
 
     async function legChanged(newLeg: LegDto, legIndex: number): Promise<ScoreAsYouGoDto> {

@@ -68,8 +68,8 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             TournamentMatchId = match.Id,
             NumberOfLegs = _request.MatchOptions?.NumberOfLegs ?? model.BestOf ?? DefaultMatchOptions.NumberOfLegs ?? 0,
             StartingScore = _request.MatchOptions?.StartingScore ?? DefaultMatchOptions.StartingScore ?? 0,
-            YourName = match.SideA.Name!,
-            OpponentName = match.SideB.Name,
+            YourName = _request.ReverseOrder ? match.SideB.Name! : match.SideA.Name!,
+            OpponentName = _request.ReverseOrder ? match.SideA.Name : match.SideB.Name,
         };
         var saygCommand = _commandFactory.GetCommand<AddOrUpdateSaygCommand>()
             .WithData(saygUpdate);

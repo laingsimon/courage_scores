@@ -62,6 +62,8 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                         </thead>
                         <tbody>
                         {matches.map((m: TournamentMatchDto, index: number) => {
+                            const evenNumberedMatch: boolean = (index + 1) % 2 === 0;
+
                             return (<tr key={index}>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{index + 1}</td>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{m.sideA.name}</td>
@@ -77,7 +79,9 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                                         patchData={patchRoundData}
                                         readOnly={readOnly}
                                         showViewSayg={false}
-                                        firstPlayerStartsFinalLeg={true} />
+                                        firstPlayerStartsFinalLeg={true}
+                                        firstPlayerStartsFirstLeg={true}
+                                        reverseOrder={evenNumberedMatch} />
                                 </td>
                             </tr>);
                         })}
