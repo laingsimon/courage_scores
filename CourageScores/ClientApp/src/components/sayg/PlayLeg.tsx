@@ -192,7 +192,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             editScore={editScore}
             home={home}
             away={away}
-            currentScore={score}
+            currentScore={score ? Number.parseInt(score) : null}
         />) : null}
         {leg.playerSequence && leg.currentThrow ? (<div className={editScore ? ' bg-warning' : ''}>
             <PlayerInput
