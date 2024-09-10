@@ -56,12 +56,12 @@ export function EditSaygPracticeOptions() {
     return (<>
         <div className="input-group my-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Number of legs</span>
+                <span className="input-group-text">Legs</span>
             </div>
             <input type="number" className="form-control" name="numberOfLegs" value={sayg.numberOfLegs}
                    onChange={valueChanged(sayg, updateQueryParameters)}/>
             <div className="input-group-prepend">
-                <span className="input-group-text">Starting score</span>
+                <span className="input-group-text">From</span>
             </div>
             <input type="number" className="form-control" name="startingScore" value={sayg.startingScore}
                    onChange={valueChanged(sayg, updateQueryParameters)}/>
@@ -69,7 +69,7 @@ export function EditSaygPracticeOptions() {
         </div>
         <div className="input-group my-3">
             <div className="input-group-prepend">
-                <span className="input-group-text">Your name</span>
+                <span className="input-group-text">Contender</span>
             </div>
             <input className="form-control" value={sayg.yourName} name="yourName"
                    onChange={valueChanged(sayg, updateQueryParameters)}/>
