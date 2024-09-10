@@ -756,6 +756,31 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.legs[0].away.score).toEqual(101);
         });
 
+        it('bust scores are excluded from total remaining score after edit', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores(context,
+                [180, 180 /*=360*/, 180 /*=540*/, 30 /*=390*/],
+                [50, 51, 20]);
+            expect(sayg.legs[0].home.throws[2].score).toEqual(180);
+            expect(sayg.legs[0].home.throws[2].bust).toEqual(true);
+            expect(sayg.legs[0].home.throws[3].score).toEqual(30);
+            expect(sayg.legs[0].home.throws[3].bust).toEqual(false);
+            expect(sayg.legs[0].home.score).toEqual(390);
+
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            const lastHomeScore = previousScores[3].querySelector('div:first-child'); // home score
+            await doClick(lastHomeScore);
+            await keyPad(context, ['6', '2', ENTER_SCORE_BUTTON]);
+
+            expect(sayg.legs[0].home.throws[3].score).toEqual(62);
+            expect(sayg.legs[0].home.score).toEqual(422);
+        });
+
         it('can edit a different previous score', async () => {
             await renderComponent({
                 id: sayg.id,
