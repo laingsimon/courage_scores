@@ -30,6 +30,7 @@ import {teamBuilder} from "../../helpers/builders/teams";
 import {ILegBuilder, ILegCompetitorScoreBuilder, IRecordedSaygBuilder} from "../../helpers/builders/sayg";
 import {createTemporaryId} from "../../helpers/projection";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
+import {checkoutWith, keyPad} from "../../helpers/sayg";
 
 describe('MatchPlayerSelection', () => {
     let context: TestContext;
@@ -1213,8 +1214,7 @@ describe('MatchPlayerSelection', () => {
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
 
-            await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(saygDialog, ENTER_SCORE_BUTTON));
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON], saygDialog);
 
             expect(additional180).toEqual({
                 name: 'HOME',
@@ -1256,8 +1256,7 @@ describe('MatchPlayerSelection', () => {
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
 
-            await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(saygDialog, ENTER_SCORE_BUTTON));
+            await keyPad(context, ['1', '8', '0', ENTER_SCORE_BUTTON], saygDialog);
 
             expect(additional180).toEqual({
                 name: 'AWAY',
@@ -1299,9 +1298,8 @@ describe('MatchPlayerSelection', () => {
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
 
-            await doChange(saygDialog, 'input[data-score-input="true"]', '101', context.user);
-            await doClick(findButton(saygDialog, ENTER_SCORE_BUTTON));
-            await doClick(findButton(saygDialog.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
+            await keyPad(context, ['1', '0', '1', ENTER_SCORE_BUTTON], saygDialog);
+            await checkoutWith(context, CHECKOUT_3_DART, saygDialog);
 
             expect(additionalHiCheck).toEqual({
                 notablePlayer: {
@@ -1349,9 +1347,8 @@ describe('MatchPlayerSelection', () => {
             await doClick(findButton(cells[0], '📊'));
             const saygDialog = cells[0].querySelector('div.modal-dialog');
 
-            await doChange(saygDialog, 'input[data-score-input="true"]', '101', context.user);
-            await doClick(findButton(saygDialog, ENTER_SCORE_BUTTON));
-            await doClick(findButton(saygDialog.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
+            await keyPad(context, ['1', '0', '1', ENTER_SCORE_BUTTON], saygDialog);
+            await checkoutWith(context, CHECKOUT_3_DART, saygDialog);
 
             expect(additionalHiCheck).toEqual({
                 notablePlayer: {

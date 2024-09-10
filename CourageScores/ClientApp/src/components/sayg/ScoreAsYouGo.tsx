@@ -79,17 +79,16 @@ export function ScoreAsYouGo({
         await saveDataAndGetId(newData);
     }
 
-    async function recordWinner(winnerName: string) {
+    async function recordWinner(winnerName: string, currentLeg: LegDto) {
         try {
-            const newHomeScore = winnerName === 'home' ? homeScore + 1 : (homeScore || 0);
-            const newAwayScore = winnerName === 'away' ? awayScore + 1 : (awayScore || 0);
+            const newHomeScore: number = winnerName === 'home' ? homeScore + 1 : (homeScore || 0);
+            const newAwayScore: number = winnerName === 'away' ? awayScore + 1 : (awayScore || 0);
+            const currentLegIndex: number = (homeScore || 0) + (awayScore || 0);
+            const unbeatable: boolean = newHomeScore > (numberOfLegs / 2) || newAwayScore > (numberOfLegs / 2);
 
-            const currentLegIndex = (homeScore || 0) + (awayScore || 0);
-            const currentLeg = data.legs[currentLegIndex];
-
-            const unbeatable = newHomeScore > (numberOfLegs / 2) || newAwayScore > (numberOfLegs / 2);
             if (!currentLeg.isLastLeg && !unbeatable) {
                 const newData: ScoreAsYouGoDto = addLeg(currentLegIndex + 1);
+                newData.legs[currentLegIndex] = currentLeg; // ensure any updated leg data isn't lost (data may not have been updated)
                 const newLeg: LegDto = newData.legs[currentLegIndex + 1];
 
                 if (!singlePlayer) {

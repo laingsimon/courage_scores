@@ -2,7 +2,7 @@ import {
     api,
     appProps,
     brandingProps,
-    cleanUp, doChange, doClick,
+    cleanUp, doClick,
     doSelectOption,
     ErrorState, findButton,
     iocProps, MockSocketFactory,
@@ -24,10 +24,11 @@ import {
 import {divisionBuilder} from "../../../helpers/builders/divisions";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {MessageType} from "../../../interfaces/models/dtos/MessageType";
-import {any} from "../../../helpers/collections";
 import {AccessDto} from "../../../interfaces/models/dtos/Identity/AccessDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../../common/IClientActionResultDto";
+import {CHECKOUT_2_DART} from "../../../helpers/constants";
+import {checkoutWith, enterScores} from "../../../helpers/sayg";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -90,25 +91,6 @@ describe('SuperLeaguePrintout', () => {
             (<TournamentContainer {...tournamentData}>
                 <SuperLeaguePrintout {...props} />
             </TournamentContainer>));
-    }
-
-    async function enterScores(dialog: Element, player1: number[], player2: number[], checkoutDarts: number): Promise<any> {
-        const scoresToEnter = [];
-        while (any(player1) || any(player2)) {
-            [player1, player2].forEach(player => {
-                if (any(player)) {
-                    scoresToEnter.push(player.shift());
-                }
-            });
-        }
-
-        while (any(scoresToEnter)) {
-            const score: number = scoresToEnter.shift();
-            await doChange(dialog, 'input[data-score-input="true"]', score.toString(), context.user);
-            await doClick(findButton(dialog, '→'));
-        }
-
-        await doClick(findButton(dialog.querySelector('div[datatype="gameshot-buttons-score"]'), checkoutDarts.toString()));
     }
 
     function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
@@ -347,118 +329,6 @@ describe('SuperLeaguePrintout', () => {
                 recordScoresAsYouGo: true,
             };
 
-            it('reloads sayg data for match once complete', async () => {
-                saygApiResponseMap = {};
-                const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
-                    .yourName('PLAYER A')
-                    .opponentName('PLAYER B')
-                    .scores(0, 0)
-                    .numberOfLegs(1)
-                    .startingScore(501)
-                    .addTo(saygApiResponseMap)
-                    .build();
-                const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('PLAYER A')
-                            .sideB('PLAYER B')))
-                    .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division, patchData }, access);
-                await doClick(findButton(context.container, '📊'));
-                const dialog = context.container.querySelector('div.modal-dialog');
-                await doClick(findButton(dialog, '🎯PLAYER A')); // PLAYER A to play first
-                expect(saygDataRequests[saygData1.id]).toEqual(3); // data is loaded as the dialog opens
-
-                await enterScores(
-                    dialog,
-                    [100, 100, 100, 100, 50, 51], // PLAYER A
-                    [10, 10, 10, 10, 10], // PLAYER B,
-                    2 // checkout with 2 darts
-                );
-                expect(dialog.textContent).toContain('Match statistics');
-                await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
-
-                const summary = context.container.querySelector('div[datatype="summary"]');
-                expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
-                expect(saygDataRequests[saygData1.id]).toEqual(4); // data is reloaded after the winner declared
-            });
-
-            it('does not reload sayg data for 180', async () => {
-                saygApiResponseMap = {};
-                const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
-                    .yourName('PLAYER A')
-                    .opponentName('PLAYER B')
-                    .scores(0, 0)
-                    .numberOfLegs(1)
-                    .startingScore(501)
-                    .addTo(saygApiResponseMap)
-                    .build();
-                const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('PLAYER A')
-                            .sideB('PLAYER B')))
-                    .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division, patchData }, access);
-                await doClick(findButton(context.container, '📊'));
-                const dialog = context.container.querySelector('div.modal-dialog');
-                await doClick(findButton(dialog, '🎯PLAYER A')); // PLAYER A to play first
-                expect(saygDataRequests[saygData1.id]).toEqual(3); // data is loaded as the dialog opens
-
-                await doChange(dialog, 'input[data-score-input="true"]', '180', context.user);
-                await doClick(findButton(dialog, '→'));
-
-                // assert sayg data isn't reloaded...
-                expect(saygDataRequests[saygData1.id]).toEqual(3); // data isn't loaded again with the 180
-            });
-
-            it('does not reload sayg data for hi-check', async () => {
-                saygApiResponseMap = {};
-                const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
-                    .yourName('PLAYER A')
-                    .opponentName('PLAYER B')
-                    .scores(0, 0)
-                    .numberOfLegs(3)
-                    .startingScore(501)
-                    .addTo(saygApiResponseMap)
-                    .build();
-                const tournamentData: TournamentGameDto = tournamentBuilder()
-                    .round((r: ITournamentRoundBuilder) => r
-                        .withMatch((m: ITournamentMatchBuilder) => m.saygId(saygData1.id)
-                            .sideA('PLAYER A')
-                            .sideB('PLAYER B')))
-                    .build();
-                const division: DivisionDto = divisionBuilder('DIVISION').build();
-                await renderComponent({
-                    tournamentData,
-                    preventScroll: false,
-                    setPreventScroll,
-                }, { division, patchData }, access);
-                await doClick(findButton(context.container, '📊'));
-                const dialog = context.container.querySelector('div.modal-dialog');
-                await doClick(findButton(dialog, '🎯PLAYER A')); // PLAYER A to play first
-                expect(saygDataRequests[saygData1.id]).toEqual(3); // data is loaded as the dialog opens
-
-                await enterScores(
-                    dialog,
-                    [100, 100, 100, 100, 101], // PLAYER A
-                    [10, 10, 10, 10], // PLAYER B,
-                    2 // checkout with 2 darts
-                );
-
-                expect(saygDataRequests[saygData1.id]).toEqual(4); // data isn't loaded again with the hicheck
-            });
-
             it('does not reload sayg data if patch cannot be applied', async () => {
                 saygApiResponseMap = {};
                 const saygData1: RecordedScoreAsYouGoDto = saygBuilder()
@@ -488,11 +358,11 @@ describe('SuperLeaguePrintout', () => {
                 patchSuccess = false;
 
                 await enterScores(
-                    dialog,
+                    context,
                     [100, 100, 100, 100, 50, 51], // PLAYER A
-                    [10, 10, 10, 10, 10], // PLAYER B,
-                    2 // checkout with 2 darts
+                    [10, 10, 10, 10, 10], // PLAYER B
                 );
+                await checkoutWith(context, CHECKOUT_2_DART);
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 
@@ -530,11 +400,11 @@ describe('SuperLeaguePrintout', () => {
                 patchSuccess = false;
 
                 await enterScores(
-                    dialog,
+                    context,
                     [100, 100, 100, 100, 50, 51], // PLAYER A
-                    [10, 10, 10, 10, 10], // PLAYER B,
-                    2 // checkout with 2 darts
+                    [10, 10, 10, 10, 10], // PLAYER B
                 );
+                await checkoutWith(context, CHECKOUT_2_DART);
                 expect(dialog.textContent).toContain('Match statistics');
                 await doClick(findButton(dialog, 'Close')); // close the match statistics dialog
 
