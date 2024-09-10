@@ -76,7 +76,8 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                                         matchIndex={index}
                                         patchData={patchRoundData}
                                         readOnly={readOnly}
-                                        showViewSayg={false} />
+                                        showViewSayg={false}
+                                        firstPlayerStartsFinalLeg={true} />
                                 </td>
                             </tr>);
                         })}
