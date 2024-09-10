@@ -1,4 +1,4 @@
-import {MouseEvent} from "react";
+import {MouseEvent, useEffect} from "react";
 
 export interface INumberKeyboardProps {
     value: string;
@@ -8,6 +8,40 @@ export interface INumberKeyboardProps {
 }
 
 export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKeyboardProps) {
+    useEffect(() => {
+        document.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            document.removeEventListener('keyup', handleKeyUp);
+        }
+    });
+
+    async function handleKeyUp(event: KeyboardEvent) {
+        const target = event.target as Element;
+        if (target.tagName.toLowerCase() === 'input' || target.tagName.toLowerCase() === 'select' || target.tagName.toLowerCase() === 'textarea') {
+            return;
+        }
+
+        if (event.key === 'Enter') {
+            await onEnter(value);
+            return;
+        }
+
+        if (event.key === 'Backspace') {
+            await onDelete();
+            return;
+        }
+
+        const keyNumber: number = Number.parseInt(event.key);
+        if (!Number.isNaN(keyNumber)) {
+            const newValue: number = Number.parseInt(value + event.key);
+            if (!maxValue || newValue <= maxValue) {
+                await onChange(newValue.toString());
+            }
+            return;
+        }
+    }
+
     async function numberClick(event: MouseEvent<HTMLButtonElement>) {
         const button: HTMLButtonElement = event.target as HTMLButtonElement;
         const buttonValue: string = button.textContent;
