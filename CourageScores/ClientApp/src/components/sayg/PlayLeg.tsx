@@ -3,34 +3,42 @@ import {PreviousPlayerScore} from "./PreviousPlayerScore";
 import {IBootstrapDropdownItem} from "../common/BootstrapDropdown";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {IEditThrow, useSayg} from "./SaygLoadingContainer";
+import {isEmpty} from "../../helpers/collections";
+import {useEditableSayg} from "./EditableSaygContainer";
 
 export interface IPlayLegProps {
     leg?: LegDto;
     home: string;
     away: string;
     onChange(newLeg: LegDto): Promise<any>;
+    onChangePrevious(newLeg: LegDto): Promise<any>;
     onLegComplete(accumulatorName: string, leg: LegDto): Promise<any>;
     on180(accumulatorName: string): Promise<any>;
     onHiCheck(accumulatorName: string, score: number): Promise<any>;
     homeScore: number;
     awayScore?: number;
     singlePlayer?: boolean;
+    previousLeg?: LegDto;
 }
 
-export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer}: IPlayLegProps) {
+export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away'>(null);
     const [score, setScore] = useState('');
     const {onError} = useApp();
+    const {editScore, setEditScore} = useEditableSayg();
     const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
-    const {editScore, setEditScore} = useSayg();
+    const canEditPreviousCheckout: boolean = !score && previousLeg && isEmpty(leg.home.throws) && (singlePlayer || isEmpty(leg.away.throws));
+
+    useEffect(() => {
+        setScore('');
+    }, [editScore]);
 
     function playerOptions(): IBootstrapDropdownItem[] {
         return [
@@ -133,13 +141,14 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     async function setLastThrowNoOfDarts(noOfDarts: number) {
+        const legToEdit = canEditPreviousCheckout ? previousLeg : leg;
         const accumulatorName: 'home' | 'away' = showCheckout;
-        const newLeg: LegDto = Object.assign({}, leg);
+        const newLeg: LegDto = Object.assign({}, legToEdit);
         const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
         const lastThrow: LegThrowDto = accumulator.throws[accumulator.throws.length - 1];
         const lastScore: number = lastThrow.score;
 
-        if (lastScore >= 100) {
+        if (lastScore >= 100 && !canEditPreviousCheckout) {
             // hi-check
             if (onHiCheck) {
                 await onHiCheck(accumulatorName, lastScore);
@@ -149,8 +158,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         lastThrow.noOfDarts = noOfDarts;
         lastThrow.bust = false;
         newLeg.winner = accumulatorName;
-        // await onChange(newLeg); // NOTE: Intentionally omitted to reduce a save here, which is also triggered by onLegComplete()
-        await onLegComplete(accumulatorName, newLeg);
+        if (canEditPreviousCheckout) {
+            await onChangePrevious(newLeg);
+        } else {
+            await onLegComplete(accumulatorName, newLeg);
+        }
         setShowCheckout(null);
     }
 
@@ -166,25 +178,39 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         setShowCheckout(null);
     }
 
-    async function beginEditScore(request: IEditThrow, _: number) {
-        await setEditScore(request);
-        setScore('');
+    function renderEditCheckoutDarts() {
+        const previousWinner = previousLeg.winner as 'home' | 'away';
+        const winner: LegCompetitorScoreDto = previousLeg[previousWinner];
+        if (!winner || !winner.throws || isEmpty(winner.throws)) {
+            return null;
+        }
+        const lastThrow: LegThrowDto = winner.throws[winner.throws.length - 1];
+
+        return (<div className="position-absolute left-0 right-0 mt-2" datatype="change-checkout">
+            <div className="alert alert-info mt-5 text-center">
+                <div>
+                    <b>{previousWinner === 'home' ? home : 'away'}</b> checked out <b>{lastThrow.score}</b> with <b>{lastThrow.noOfDarts}</b> dart/s.
+                </div>
+                <div className="text-center">
+                    <button className="btn btn-primary" onClick={() => setShowCheckout(previousWinner)}>Change</button>
+                </div>
+            </div>
+        </div>)
     }
 
-    return (<div>
-        {leg.playerSequence && leg.currentThrow ? null : (<div className="text-center">
+    return (<div className="position-relative">
+        {leg.playerSequence && leg.currentThrow ? null : (<div className="text-center" datatype="bull-up">
             {leg.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (
                 <p>Who plays first?</p>)}
             {playerOptions().map((op: IBootstrapDropdownItem) => (<button key={op.value} className="btn btn-primary margin-right"
                                                                           onClick={() => firstPlayerChanged(op.value)}>🎯<br/>{op.text}</button>))}
         </div>)}
+        {canEditPreviousCheckout ? renderEditCheckoutDarts() : null}
         {leg.playerSequence && leg.currentThrow ? (<PreviousPlayerScore
             leg={leg}
             homeScore={homeScore}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            setEditScore={beginEditScore}
-            editScore={editScore}
             home={home}
             away={away}
             currentScore={score ? Number.parseInt(score) : null}

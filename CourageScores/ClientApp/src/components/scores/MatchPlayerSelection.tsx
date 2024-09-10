@@ -17,6 +17,7 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {LiveContainer} from "../../live/LiveContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {Link} from "react-router-dom";
+import {EditableSaygContainer} from "../sayg/EditableSaygContainer";
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
@@ -179,6 +180,7 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
 
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
                         onClose={async () => setSaygOpen(false)} className="text-start">
+            <EditableSaygContainer>
             <LiveContainer liveOptions={noLiveOptions}>
                 <ScoreAsYouGo
                     data={(match.sayg as UpdateRecordedScoreAsYouGoDto) || defaultSaygData}
@@ -191,8 +193,11 @@ export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChang
                     homeScore={match.homeScore}
                     awayScore={match.awayScore}
                     on180={singlePlayerMatch && on180 && !readOnly ? add180 : null}
-                    onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null}/>
+                    onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null}
+                    saveDataAndGetId={null}
+                />
             </LiveContainer>
+            </EditableSaygContainer>
         </Dialog>)
     }
 

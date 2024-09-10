@@ -2,15 +2,14 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {repeat} from "../../helpers/projection";
 import {useEffect} from "react";
-import {IEditThrow} from "./SaygLoadingContainer";
+import {IEditingThrow} from "./IEditingThrow";
+import {useEditableSayg} from "./EditableSaygContainer";
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;
     awayScore?: number;
     singlePlayer?: boolean;
     leg: LegDto;
-    setEditScore(throwToEdit: IEditThrow, score: number): Promise<any>;
-    editScore?: IEditThrow;
     home: string;
     away: string;
     currentScore?: number;
@@ -21,9 +20,10 @@ interface IRunningScore {
     away: number;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, setEditScore, editScore, currentScore}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore}: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
+    const {editScore, setEditScore} = useEditableSayg();
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
 
     useEffect(() => {
@@ -66,7 +66,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     }
 
     function renderScore(player: 'home' | 'away', throwDto: LegThrowDto, runningScore: IRunningScore, throwIndex: number) {
-        const throwToEdit: IEditThrow = {
+        const throwToEdit: IEditingThrow = {
             player,
             throwIndex,
         };
@@ -104,8 +104,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
         const editTheScore = throwDto
             ? (() => editingThisScore
-                ? setEditScore(null, 0)
-                : setEditScore(throwToEdit, throwDto.score))
+                ? setEditScore(null)
+                : setEditScore(throwToEdit))
             : null;
 
         return (<>

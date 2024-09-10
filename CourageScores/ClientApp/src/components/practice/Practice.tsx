@@ -71,7 +71,7 @@ export function Practice() {
                 }}
                 liveOptions={liveOptions}
                 onLoadError={async (error: string) => setDataError(error)}>
-                <EditSaygPracticeOptions/>
+                <EditSaygPracticeOptions />
             </SaygLoadingContainer>
         </div>);
     } catch (e) {

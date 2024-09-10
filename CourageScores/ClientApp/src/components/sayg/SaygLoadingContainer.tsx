@@ -5,12 +5,14 @@ import {Loading} from "../common/Loading";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
 import {LiveContainer} from "../../live/LiveContainer";
-import {IBaseSayg, ISayg} from "./ISayg";
+import {ISayg} from "./ISayg";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {EditableSaygContainer} from "./EditableSaygContainer";
+import {ILegDisplayOptions} from "./ILegDisplayOptions";
 
 const SaygContext = createContext({});
 
@@ -18,7 +20,7 @@ export function useSayg(): ISayg {
     return useContext(SaygContext) as ISayg;
 }
 
-export interface ISaygLoadingContainerProps extends IBaseSayg {
+export interface ISaygLoadingContainerProps {
     children?: React.ReactNode;
     id: string;
     defaultData?: ILoadedScoreAsYouGoDto;
@@ -28,6 +30,8 @@ export interface ISaygLoadingContainerProps extends IBaseSayg {
     onSaved?(data: ILoadedScoreAsYouGoDto): Promise<any>;
     onLoadError?(error: string): Promise<any>;
     liveOptions: ILiveOptions;
+    matchStatisticsOnly?: boolean;
+    lastLegDisplayOptions?: ILegDisplayOptions;
 
     // for testing only
     onScoreChange?(homeScore: number, awayScore: number): Promise<any>;
@@ -37,11 +41,6 @@ export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     lastUpdated?: string;
 }
 
-export interface IEditThrow {
-    player: 'home' | 'away';
-    throwIndex: number;
-}
-
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
                                          onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions }: ISaygLoadingContainerProps) {
     const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto>(defaultData);
@@ -49,7 +48,6 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     const [loading, setLoading] = useState<boolean>(false);
     const {saygApi, webSocket} = useDependencies();
     const {onError} = useApp();
-    const [editScore, setEditScore] = useState<IEditThrow>(null);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -158,14 +156,11 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         sayg,
         setSayg: updateSayg,
         saveDataAndGetId,
-        matchStatisticsOnly,
-        lastLegDisplayOptions,
-        editScore,
-        setEditScore: async (edit: IEditThrow) => setEditScore(edit),
     };
 
     try {
         return (<LiveContainer liveOptions={liveOptions} onDataUpdate={async (data: ILoadedScoreAsYouGoDto) => setSayg(data)}>
+            <EditableSaygContainer>
             <SaygContext.Provider value={saygProps}>
                 {saveError ? (
                     <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save data"/>) : null}
@@ -191,9 +186,14 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                             if (onScoreChange) {
                                 await onScoreChange(homeScore, awayScore);
                             }
-                        }}/>
+                        }}
+                        lastLegDisplayOptions={lastLegDisplayOptions}
+                        matchStatisticsOnly={matchStatisticsOnly}
+                        saveDataAndGetId={saveDataAndGetId}
+                    />
                 </div>) : null}
             </SaygContext.Provider>
+            </EditableSaygContainer>
         </LiveContainer>);
     } catch (e) {
         /* istanbul ignore next */

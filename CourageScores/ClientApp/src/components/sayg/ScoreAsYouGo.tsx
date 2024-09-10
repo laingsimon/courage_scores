@@ -1,7 +1,6 @@
 import {PlayLeg} from "./PlayLeg";
 import {MatchStatistics} from "./MatchStatistics";
 import {useApp} from "../common/AppContainer";
-import {useSayg} from "./SaygLoadingContainer";
 import {WidescreenMatchStatistics} from "./WidescreenMatchStatistics";
 import {Location, useLocation} from "react-router-dom";
 import {useState} from "react";
@@ -9,6 +8,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {ScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
 import {IBrowserType} from "../common/IBrowserType";
+import {ILegDisplayOptions} from "./ILegDisplayOptions";
 
 export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
@@ -23,14 +23,17 @@ export interface IScoreAsYouGoProps {
     on180(accumulatorName: string): Promise<any>;
     onHiCheck(accumulatorName: string, score: number): Promise<any>;
     singlePlayer?: boolean;
+    lastLegDisplayOptions?: ILegDisplayOptions;
+    matchStatisticsOnly?: boolean;
+    saveDataAndGetId(useData?: ScoreAsYouGoDto): Promise<string>;
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
-                                 homeScore, on180, onHiCheck, singlePlayer
+                                 homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
+                                 saveDataAndGetId
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
-    const {saveDataAndGetId, matchStatisticsOnly} = useSayg();
     const canEditThrows: boolean = account && account.access && account.access.recordScoresAsYouGo;
     const location: Location = useLocation();
     const [useWidescreenStatistics, setUseWidescreenStatistics] = useState<boolean>(shouldUseWidescreenStatistics(location, browser));
@@ -112,10 +115,12 @@ export function ScoreAsYouGo({
     }
 
     const legIndex: number = (homeScore || 0) + (awayScore || 0);
+    const previousLeg: LegDto = legIndex > 0 ? data.legs[legIndex - 1] : null;
     const hasFinished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
     if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
         if (useWidescreenStatistics) {
             return <WidescreenMatchStatistics
+                saygId={data.id}
                 legs={data.legs}
                 awayScore={awayScore}
                 homeScore={homeScore}
@@ -123,10 +128,12 @@ export function ScoreAsYouGo({
                 away={away}
                 singlePlayer={singlePlayer}
                 numberOfLegs={numberOfLegs}
-                changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)} />
+                changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)}
+                lastLegDisplayOptions={lastLegDisplayOptions} />
         }
 
         return <MatchStatistics
+            saygId={data.id}
             legs={data.legs}
             awayScore={awayScore}
             homeScore={homeScore}
@@ -135,7 +142,8 @@ export function ScoreAsYouGo({
             singlePlayer={singlePlayer}
             numberOfLegs={numberOfLegs}
             legChanged={canEditThrows ? saveChangedLeg : null}
-            changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)} />
+            changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)}
+            lastLegDisplayOptions={lastLegDisplayOptions} />
     }
 
     const leg: LegDto = getLeg(legIndex);
@@ -145,10 +153,12 @@ export function ScoreAsYouGo({
             home={home}
             away={away}
             onChange={(newLeg: LegDto) => legChanged(newLeg, legIndex)}
+            onChangePrevious={(newLeg: LegDto) => legChanged(newLeg, legIndex - 1)}
             onLegComplete={recordWinner}
             on180={on180}
             onHiCheck={onHiCheck}
             homeScore={homeScore}
             awayScore={awayScore}
-            singlePlayer={singlePlayer}/>);
+            singlePlayer={singlePlayer}
+            previousLeg={previousLeg} />);
 }
