@@ -402,6 +402,30 @@ describe('SaygIntegrationTest', () => {
             ]);
         });
 
+        it('does not ask who should start final leg', async () => {
+            sayg.numberOfLegs = 3;
+
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+                firstPlayerStartsFinalLeg: true,
+            });
+
+            // opponent first
+            await enterScores(context, checkoutScores, nonCheckoutScores); // leg1: opponent starts & wins
+            await checkoutWith(context, CHECKOUT_3_DART); // leg1: opponent checks out with 3 darts
+            expect(sayg.homeScore).toEqual(0);
+            expect(sayg.awayScore).toEqual(1);
+            await enterScores(context, checkoutScores, nonCheckoutScores); // leg2: contender starts & wins
+            await checkoutWith(context, CHECKOUT_3_DART); // leg2: contender checks out with 3 darts
+            expect(sayg.homeScore).toEqual(1);
+            expect(sayg.awayScore).toEqual(1);
+
+            expect(context.container.textContent).not.toContain('Who won the bull?');
+            expect(sayg.legs[2].currentThrow).toEqual('away');
+        });
+
         it('records who plays the final leg after up for the bull', async () => {
             sayg.numberOfLegs = 3;
 

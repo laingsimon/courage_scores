@@ -26,12 +26,13 @@ export interface IScoreAsYouGoProps {
     lastLegDisplayOptions?: ILegDisplayOptions;
     matchStatisticsOnly?: boolean;
     saveDataAndGetId(useData?: ScoreAsYouGoDto): Promise<string>;
+    firstPlayerStartsFinalLeg?: boolean;
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
-                                 saveDataAndGetId
+                                 saveDataAndGetId, firstPlayerStartsFinalLeg
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
     const canEditThrows: boolean = account && account.access && account.access.recordScoresAsYouGo;
@@ -99,7 +100,7 @@ export function ScoreAsYouGo({
                     newLeg.currentThrow = newLeg.playerSequence[0].value;
                 }
 
-                if (newLeg.isLastLeg && newHomeScore === newAwayScore && newHomeScore > 0) {
+                if (newLeg.isLastLeg && newHomeScore === newAwayScore && newHomeScore > 0 && !firstPlayerStartsFinalLeg) {
                     // prompt for who should throw first.
                     newLeg.currentThrow = null;
                 }
