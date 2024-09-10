@@ -2,15 +2,15 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {repeat} from "../../helpers/projection";
 import {useEffect} from "react";
-import {IEditThrow} from "./SaygLoadingContainer";
+import {IEditingThrow} from "./IEditingThrow";
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;
     awayScore?: number;
     singlePlayer?: boolean;
     leg: LegDto;
-    setEditScore(throwToEdit: IEditThrow, score: number): Promise<any>;
-    editScore?: IEditThrow;
+    setEditScore(throwToEdit: IEditingThrow, score: number): Promise<any>;
+    editScore?: IEditingThrow;
     home: string;
     away: string;
     currentScore?: number;
@@ -66,7 +66,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     }
 
     function renderScore(player: 'home' | 'away', throwDto: LegThrowDto, runningScore: IRunningScore, throwIndex: number) {
-        const throwToEdit: IEditThrow = {
+        const throwToEdit: IEditingThrow = {
             player,
             throwIndex,
         };

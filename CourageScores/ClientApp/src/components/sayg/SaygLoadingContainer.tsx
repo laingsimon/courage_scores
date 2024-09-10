@@ -11,6 +11,7 @@ import {ILiveOptions} from "../../live/ILiveOptions";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {IEditingThrow} from "./IEditingThrow";
 
 const SaygContext = createContext({});
 
@@ -37,11 +38,6 @@ export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
     lastUpdated?: string;
 }
 
-export interface IEditThrow {
-    player: 'home' | 'away';
-    throwIndex: number;
-}
-
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
                                          onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions }: ISaygLoadingContainerProps) {
     const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto>(defaultData);
@@ -49,7 +45,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     const [loading, setLoading] = useState<boolean>(false);
     const {saygApi, webSocket} = useDependencies();
     const {onError} = useApp();
-    const [editScore, setEditScore] = useState<IEditThrow>(null);
+    const [editScore, setEditScore] = useState<IEditingThrow>(null);
 
     useEffect(() => {
             /* istanbul ignore next */
@@ -161,7 +157,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         matchStatisticsOnly,
         lastLegDisplayOptions,
         editScore,
-        setEditScore: async (edit: IEditThrow) => setEditScore(edit),
+        setEditScore: async (edit: IEditingThrow) => setEditScore(edit),
     };
 
     try {

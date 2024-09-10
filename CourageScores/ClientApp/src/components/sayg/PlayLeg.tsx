@@ -8,8 +8,9 @@ import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
-import {IEditThrow, useSayg} from "./SaygLoadingContainer";
+import {useSayg} from "./SaygLoadingContainer";
 import {isEmpty} from "../../helpers/collections";
+import {IEditingThrow} from "./IEditingThrow";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -174,7 +175,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         setShowCheckout(null);
     }
 
-    async function beginEditScore(request: IEditThrow, _: number) {
+    async function beginEditScore(request: IEditingThrow, _: number) {
         await setEditScore(request);
         setScore('');
     }
@@ -190,7 +191,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         return (<div className="position-absolute left-0 right-0 mt-2" datatype="change-checkout">
             <div className="alert alert-info mt-5 text-center">
                 <div>
-                    <b>{previousWinner === 'home' ? home : 'away'}</b> checked out with <b>{lastThrow.noOfDarts}</b> dart/s.
+                    <b>{previousWinner === 'home' ? home : 'away'}</b> checked out {lastThrow.score} with <b>{lastThrow.noOfDarts}</b> dart/s.
                 </div>
                 <div className="text-center">
                     <button className="btn btn-primary" onClick={() => setShowCheckout(previousWinner)}>Change</button>
