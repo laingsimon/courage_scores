@@ -91,7 +91,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         const playerThrows: LegCompetitorScoreDto = newLeg[editScore.player];
         const thr: LegThrowDto = playerThrows.throws[editScore.throwIndex];
         thr.score = score;
-        playerThrows.score = playerThrows.throws.reduce((total, t) => total + t.score, 0);
+        playerThrows.score = playerThrows.throws.reduce((total, t) => total + (t.bust ? 0 : t.score), 0);
 
         await onChange(newLeg);
         setScore('');
