@@ -92,6 +92,7 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: false,
                     changeStatisticsView,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -109,6 +110,7 @@ describe('WidescreenSaygPlayer', () => {
                     finished: false,
                     showOptions: false,
                     changeStatisticsView,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -119,12 +121,14 @@ describe('WidescreenSaygPlayer', () => {
         it('score second', async () => {
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: false,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -135,12 +139,14 @@ describe('WidescreenSaygPlayer', () => {
         it('no options', async () => {
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: false,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -153,12 +159,14 @@ describe('WidescreenSaygPlayer', () => {
                 {
                     canSubscribe: true,
                 },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
+                    saygId: null,
                 }, {
                     defaultData: sayg,
                     id: null,
@@ -176,12 +184,14 @@ describe('WidescreenSaygPlayer', () => {
                 {
                     canSubscribe: false,
                 },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
+                    saygId: null,
                 }, {
                     defaultData: sayg,
                     id: null,
@@ -199,12 +209,14 @@ describe('WidescreenSaygPlayer', () => {
                 {
                     canSubscribe: true,
                 },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: true,
                     showOptions: true,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
+                    saygId: null,
                 }, {
                     defaultData: sayg,
                     id: null,
@@ -220,12 +232,14 @@ describe('WidescreenSaygPlayer', () => {
         it('change of view', async () => {
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -237,12 +251,14 @@ describe('WidescreenSaygPlayer', () => {
         it('no change of view', async () => {
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
                     changeStatisticsView: null,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -256,12 +272,14 @@ describe('WidescreenSaygPlayer', () => {
 
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: true,
                     showOptions: true,
                     changeStatisticsView: null,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -274,12 +292,14 @@ describe('WidescreenSaygPlayer', () => {
 
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
                     changeStatisticsView: null,
+                    saygId: null,
                 });
 
             reportedError.verifyNoError();
@@ -307,12 +327,14 @@ describe('WidescreenSaygPlayer', () => {
 
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
                     changeStatisticsView: null,
+                    saygId: sayg.id,
                 });
 
             reportedError.verifyNoError();
@@ -351,12 +373,14 @@ describe('WidescreenSaygPlayer', () => {
 
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
                     changeStatisticsView: null,
+                    saygId: sayg.id,
                 });
 
             reportedError.verifyNoError();
@@ -382,12 +406,14 @@ describe('WidescreenSaygPlayer', () => {
 
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
                     changeStatisticsView: null,
+                    saygId: sayg.id,
                 });
 
             reportedError.verifyNoError();
@@ -416,12 +442,14 @@ describe('WidescreenSaygPlayer', () => {
         it('can change statistics view', async () => {
             await renderComponent(
                 { },
-                {   scoreFirst: false,
+                {
+                    scoreFirst: false,
                     legs: sayg.legs,
                     player: 'home',
                     finished: false,
                     showOptions: true,
-                    changeStatisticsView: changeStatisticsView,
+                    changeStatisticsView,
+                    saygId: sayg.id,
                 });
 
             await doClick(findButton(context.container, '📊'));
