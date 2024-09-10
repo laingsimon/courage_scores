@@ -34,8 +34,10 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
     }
 
     async function hapticFeedback() {
+        /* istanbul ignore next */
         if (navigator.vibrate) {
-            navigator.vibrate([50]);
+            /* istanbul ignore next */
+            navigator.vibrate([30]);
         }
     }
 
