@@ -117,6 +117,7 @@ export function ScoreAsYouGo({
     if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
         if (useWidescreenStatistics) {
             return <WidescreenMatchStatistics
+                saygId={data.id}
                 legs={data.legs}
                 awayScore={awayScore}
                 homeScore={homeScore}
@@ -128,6 +129,7 @@ export function ScoreAsYouGo({
         }
 
         return <MatchStatistics
+            saygId={data.id}
             legs={data.legs}
             awayScore={awayScore}
             homeScore={homeScore}

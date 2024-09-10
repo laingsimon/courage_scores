@@ -11,6 +11,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface IMatchStatisticsProps {
+    saygId: string;
     legs: { [key: number]: LegDto };
     homeScore: number;
     awayScore: number;
@@ -26,13 +27,13 @@ interface ILegDisplayOptionsLookup {
     [key: number]: ILegDisplayOptions
 }
 
-export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, changeStatisticsView }: IMatchStatisticsProps) {
+export function MatchStatistics({legs, homeScore, awayScore, home, away, singlePlayer, legChanged, numberOfLegs, changeStatisticsView, saygId }: IMatchStatisticsProps) {
     const [oneDartAverage, setOneDartAverage] = useState<boolean>(false);
-    const {sayg, lastLegDisplayOptions} = useSayg();
+    const {lastLegDisplayOptions} = useSayg();
     const {subscriptions, liveOptions} = useLive();
     const [legDisplayOptionsState, setLegDisplayOptions] = useState<ILegDisplayOptionsLookup>(getLegDisplayOptions(legs));
     const finished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
-    const isSubscribed: boolean = !!(sayg && subscriptions[sayg.id]);
+    const isSubscribed: boolean = !!(saygId && subscriptions[saygId]);
     const legDisplayOptions: ILegDisplayOptionsLookup = isSubscribed && !finished
         ? getLegDisplayOptions(legs, true)
         : legDisplayOptionsState;
@@ -73,7 +74,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     return (<div>
         <h4 className="text-center">
             Match statistics
-            {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id} type={LiveDataType.sayg} /> : null}
+            {liveOptions.canSubscribe && !finished ? <RefreshControl id={saygId} type={LiveDataType.sayg} /> : null}
             {liveOptions.canSubscribe && !finished ? <button className="btn btn-sm btn-outline-primary border-dark float-end" onClick={() => changeStatisticsView(true)}>🖥</button> : null}
         </h4>
         <table className="table">
