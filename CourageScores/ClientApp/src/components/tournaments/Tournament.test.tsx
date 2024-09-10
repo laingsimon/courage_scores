@@ -972,7 +972,6 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -989,7 +988,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -1030,7 +1029,6 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1047,7 +1045,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -1105,7 +1103,6 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1122,7 +1119,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
