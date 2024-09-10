@@ -4,6 +4,7 @@ import viteTsconfigPaths from 'vite-tsconfig-paths';
 import mkcert from 'vite-plugin-mkcert';
 import eslint from 'vite-plugin-eslint';
 import legacy from '@vitejs/plugin-legacy';
+import circleDependency from 'vite-plugin-circular-dependency';
 
 /* istanbul ignore file */
 
@@ -17,6 +18,9 @@ export default defineConfig({
             failOnWarning: true
         }),
         legacy({}),
+        circleDependency({
+            circleImportThrowErr: false,
+        })
     ],
     server: {
         open: true,
