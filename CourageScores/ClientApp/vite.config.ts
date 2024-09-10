@@ -19,7 +19,7 @@ export default defineConfig({
         }),
         legacy({}),
         circleDependency({
-            circleImportThrowErr: false,
+            circleImportThrowErr: true,
         })
     ],
     server: {
