@@ -35,10 +35,6 @@ describe('NumberKeyboard', () => {
     });
 
     async function renderComponent(props: INumberKeyboardProps) {
-        navigator.vibrate = (_: Iterable<number> | number | number[]) => {
-            return true;
-        }
-
         context = await renderApp(
             iocProps(),
             brandingProps(),
@@ -238,6 +234,31 @@ describe('NumberKeyboard', () => {
             await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
 
             expect(enteredValue).toEqual('10');
+        });
+
+        it('sends quick button value immediately', async () => {
+            await renderComponent({
+                value: '',
+                onChange,
+                onEnter,
+            });
+
+            await doClick(findButton(context.container, '140'));
+
+            expect(enteredValue).toEqual('140');
+            expect(newValue).toEqual(null);
+        });
+
+        it('cannot click quick button when value entered', async () => {
+            await renderComponent({
+                value: '3',
+                maxValue: 180,
+                onChange,
+                onEnter,
+            });
+
+            const oneFourtyQuickButton: HTMLButtonElement = findButton(context.container, '140');
+            expect(oneFourtyQuickButton.disabled).toEqual(true);
         });
     });
 });

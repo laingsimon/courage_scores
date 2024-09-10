@@ -49,12 +49,6 @@ describe('SaygIntegrationTest', () => {
         cleanUp(context);
     });
 
-    beforeAll(() => {
-        navigator.vibrate = (_: Iterable<number> | number | number[]) => {
-            return true;
-        };
-    })
-
     beforeEach(() => {
         reportedError = new ErrorState();
         saygData = {};
