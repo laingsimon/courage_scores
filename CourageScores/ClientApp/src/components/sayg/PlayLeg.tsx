@@ -183,7 +183,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             homeScore={homeScore}
             awayScore={awayScore}
             singlePlayer={singlePlayer}
-            showRemainingScore={true}
             setEditScore={beginEditScore}
             editScore={editScore}
             home={home}

@@ -9,7 +9,6 @@ export interface IPreviousPlayerScoreProps {
     awayScore?: number;
     singlePlayer?: boolean;
     leg: LegDto;
-    showRemainingScore?: boolean;
     setEditScore(throwToEdit: IEditThrow, score: number): Promise<any>;
     editScore?: IEditThrow;
     home: string;
@@ -17,7 +16,7 @@ export interface IPreviousPlayerScoreProps {
     currentScore?: number;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, showRemainingScore, setEditScore, editScore, currentScore}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, setEditScore, editScore, currentScore}: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
@@ -81,8 +80,6 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 runningScore.away -= thisScore;
                 newRunningScore = runningScore.away;
                 break;
-            default:
-                return null;
         }
 
         let classNameSuffix: string = '';
@@ -96,7 +93,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             }
         } else if (!throwDto) {
             // new score
-            classNameSuffix = ' opacity-25';
+            classNameSuffix = ' opacity-50 fst-italic';
         }
 
         const editTheScore = throwDto
@@ -109,11 +106,9 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
                 <span>{thisScore}</span>
             </div>
-            {showRemainingScore
-                ? (<div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
-                    {newRunningScore > 1 ? newRunningScore : null}
-                   </div>)
-                : null}
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
+                {newRunningScore > 1 ? newRunningScore : null}
+            </div>
         </>);
     }
 
