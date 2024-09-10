@@ -101,6 +101,9 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             // new score
             classNameSuffix = ' opacity-50 fst-italic';
         }
+        const bustSuffix: string = newRunningScore <= 1
+            ? ' text-decoration-line-through'
+            : '';
 
         const editTheScore = throwDto
             ? (() => editingThisScore
@@ -109,7 +112,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             : null;
 
         return (<>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}${bustSuffix}`} onClick={editTheScore}>
                 <span>{thisScore}</span>
             </div>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
