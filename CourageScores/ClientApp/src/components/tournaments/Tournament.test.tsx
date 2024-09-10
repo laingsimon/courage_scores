@@ -50,6 +50,7 @@ import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
+import {START_SCORING} from "./tournaments";
 
 interface IScenario {
     account?: UserDto;
@@ -923,7 +924,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -988,7 +989,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -1046,7 +1047,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
@@ -1121,7 +1122,7 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: false, errors: ['SOME ERROR']};
 

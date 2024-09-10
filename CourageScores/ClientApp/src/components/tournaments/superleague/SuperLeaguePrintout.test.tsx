@@ -29,6 +29,7 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Gam
 import {IClientActionResultDto} from "../../common/IClientActionResultDto";
 import {CHECKOUT_2_DART} from "../../../helpers/constants";
 import {checkoutWith, enterScores} from "../../../helpers/sayg";
+import {START_SCORING} from "../tournaments";
 
 describe('SuperLeaguePrintout', () => {
     let context: TestContext;
@@ -351,7 +352,7 @@ describe('SuperLeaguePrintout', () => {
                     preventScroll: false,
                     setPreventScroll,
                 }, { division, patchData: null }, access);
-                await doClick(findButton(context.container, '📊'));
+                await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog');
                 await doClick(findButton(dialog, '🎯PLAYER A')); // PLAYER A to play first
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
@@ -393,7 +394,7 @@ describe('SuperLeaguePrintout', () => {
                     preventScroll: false,
                     setPreventScroll,
                 }, { division, patchData }, access);
-                await doClick(findButton(context.container, '📊'));
+                await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog');
                 await doClick(findButton(dialog, '🎯PLAYER A')); // PLAYER A to play first
                 expect(saygDataRequests[saygData1.id]).toEqual(3); // data is loaded as the dialog opens

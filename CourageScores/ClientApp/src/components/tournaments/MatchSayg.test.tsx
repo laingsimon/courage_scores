@@ -35,6 +35,7 @@ import {saygBuilder} from "../../helpers/builders/sayg";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
+import {START_SCORING} from "./tournaments";
 
 describe('MatchSayg', () => {
     let context: TestContext;
@@ -184,7 +185,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and not logged in', async () => {
@@ -208,7 +209,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and not permitted', async () => {
@@ -232,7 +233,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and sideA not selected', async () => {
@@ -256,7 +257,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows no sayg links when no data and sideB not selected', async () => {
@@ -280,7 +281,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows view sayg link when data and not logged in', async () => {
@@ -305,7 +306,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows view sayg link when data and not permitted', async () => {
@@ -330,7 +331,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('does not show view sayg link when data and not permitted and not requested', async () => {
@@ -355,7 +356,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows edit sayg link when data and permitted', async () => {
@@ -379,7 +380,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).toContain('📊');
+            expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
         it('shows edit sayg link when no data but single round (superleague)', async () => {
@@ -403,7 +404,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).toContain('📊');
+            expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
         it('shows edit sayg link when no data and both sides have single players', async () => {
@@ -427,7 +428,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).toContain('📊');
+            expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
         it('shows no edit sayg link when no data and sideA does not have a single player', async () => {
@@ -451,7 +452,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
         it('shows no edit sayg link when no data and sideB does not have a single player', async () => {
@@ -475,7 +476,7 @@ describe('MatchSayg', () => {
 
             reportedError.verifyNoError();
             expect(context.container.innerHTML).not.toContain('👁️');
-            expect(context.container.innerHTML).not.toContain('📊');
+            expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
     });
 
@@ -543,7 +544,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog');
 
@@ -602,7 +603,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             let message: string;
             window.alert = (msg) => message = msg;
 
@@ -633,7 +634,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             let message: string;
             window.alert = (msg) => message = msg;
 
@@ -666,7 +667,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
 
             await doClick(createDataButton);
 
@@ -700,7 +701,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             apiResponse = {
                 success: false,
                 errors: [
@@ -736,7 +737,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
 
             await doClick(createDataButton);
 
@@ -775,7 +776,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
 
             await doClick(createDataButton);
 
@@ -811,7 +812,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
 
             await doClick(createDataButton);
 
@@ -847,7 +848,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
 
             await doClick(createDataButton);
 
@@ -881,7 +882,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog');
 
@@ -1094,7 +1095,7 @@ describe('MatchSayg', () => {
             }, permittedWithDebug);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog');
             let confirm: string;
@@ -1141,7 +1142,7 @@ describe('MatchSayg', () => {
             }, permittedWithDebug);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog');
             window.confirm = () => true;
@@ -1193,7 +1194,7 @@ describe('MatchSayg', () => {
             }, permittedWithDebug);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual('📊');
+            expect(createDataButton.textContent).toEqual(START_SCORING);
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog');
             window.confirm = () => true;

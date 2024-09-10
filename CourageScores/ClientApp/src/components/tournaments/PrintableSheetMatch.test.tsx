@@ -31,6 +31,7 @@ import {saygBuilder} from "../../helpers/builders/sayg";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
+import {START_SCORING} from "./tournaments";
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;
@@ -855,7 +856,7 @@ describe('PrintableSheetMatch', () => {
                 patchData
             }, appProps({ account }, reportedError));
 
-            await doClick(findButton(context.container, '📊'));
+            await doClick(findButton(context.container, START_SCORING));
             reportedError.verifyNoError();
             const saygDialog = context.container.querySelector('.modal-dialog');
             // set sideA to play first
@@ -924,7 +925,7 @@ describe('PrintableSheetMatch', () => {
                 patchData
             }, appProps({ account }, reportedError));
 
-            await doClick(findButton(context.container, '📊'));
+            await doClick(findButton(context.container, START_SCORING));
             reportedError.verifyNoError();
             const saygDialog = context.container.querySelector('.modal-dialog');
             // set sideA to play first
