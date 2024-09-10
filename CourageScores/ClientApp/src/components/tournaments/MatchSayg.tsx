@@ -33,9 +33,12 @@ export interface IMatchSaygProps {
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<any>;
     readOnly?: boolean;
     showViewSayg?: boolean;
+    firstPlayerStartsFinalLeg?: boolean;
+    reverseOrder?: boolean;
+    firstPlayerStartsFirstLeg?: boolean;
 }
 
-export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg } : IMatchSaygProps) {
+export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg, firstPlayerStartsFinalLeg, reverseOrder, firstPlayerStartsFirstLeg } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
@@ -79,6 +82,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             const request: CreateTournamentSaygDto = {
                 matchOptions: matchOptions,
                 matchId: match.id,
+                reverseOrder,
             };
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
@@ -159,7 +163,9 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                             scoreB: data.awayScore,
                         }
                     }, true, saygId);
-                }): null}>
+                }): null}
+                firstPlayerStartsFinalLeg={firstPlayerStartsFinalLeg}
+                firstPlayerStartsFirstLeg={firstPlayerStartsFirstLeg}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
             <div className="modal-footer px-0 pb-0 mt-3">

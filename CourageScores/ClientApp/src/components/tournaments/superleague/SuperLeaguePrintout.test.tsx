@@ -354,7 +354,6 @@ describe('SuperLeaguePrintout', () => {
                 }, { division, patchData: null }, access);
                 await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog');
-                await doClick(findButton(dialog, '🎯PLAYER A')); // PLAYER A to play first
                 expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
@@ -396,8 +395,7 @@ describe('SuperLeaguePrintout', () => {
                 }, { division, patchData }, access);
                 await doClick(findButton(context.container, START_SCORING));
                 const dialog = context.container.querySelector('div.modal-dialog');
-                await doClick(findButton(dialog, '🎯PLAYER A')); // PLAYER A to play first
-                expect(saygDataRequests[saygData1.id]).toEqual(3); // data is loaded as the dialog opens
+                expect(saygDataRequests[saygData1.id]).toEqual(2); // data is loaded as the dialog opens
                 patchSuccess = false;
 
                 await enterScores(
@@ -411,7 +409,7 @@ describe('SuperLeaguePrintout', () => {
 
                 const summary = context.container.querySelector('div[datatype="summary"]');
                 expect(summary.textContent).toContain('PLAYER A'); // player should be shown in the table
-                expect(saygDataRequests[saygData1.id]).toEqual(3); // data isn't reloaded if the patch fails
+                expect(saygDataRequests[saygData1.id]).toEqual(2); // data isn't reloaded if the patch fails
             });
         });
     });
