@@ -146,6 +146,37 @@ describe('SaygIntegrationTest', () => {
             expect(context.container.textContent).not.toContain('Who plays first?');
         });
 
+        it('shows first home score in the player score card as entered', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+
+            await playsFirst(context, 'CONTENDER');
+            await keyPad(context, [ '1', '2', '0' ]);
+
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            expect(previousScores.length).toEqual(1);
+            expect(Array.from(Array.from(previousScores[0].querySelectorAll('div')).map(d => d.textContent))).toEqual(['120', '381', '3', '', '']);
+        });
+
+        it('shows first away score in the player score card as entered', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+
+            await playsFirst(context, 'CONTENDER');
+            await keyPad(context, [ '1', '2', '0', ENTER_SCORE_BUTTON ]); // home
+            await keyPad(context, [ '2', '6', ENTER_SCORE_BUTTON ]); // away
+
+            const previousScores = Array.from(context.container.querySelectorAll('div[datatype="previous-scores"] > div'));
+            expect(previousScores.length).toEqual(1);
+            expect(Array.from(Array.from(previousScores[0].querySelectorAll('div')).map(d => d.textContent))).toEqual(['120', '381', '3', '26', '475']);
+        });
+
         it('allows first score to be recorded via key pad', async () => {
             await renderComponent({
                 id: sayg.id,

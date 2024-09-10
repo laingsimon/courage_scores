@@ -66,9 +66,10 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             throwIndex,
         };
         const editingThisScore: boolean = editScore && editScore.player === player && throwIndex === editScore.throwIndex;
+        const isCurrentPlayer = player === leg.currentThrow;
         const thisScore: number = editingThisScore
             ? (currentScore && !Number.isNaN(currentScore) ? currentScore : throwDto.score)
-            : (throwDto ? throwDto.score : currentScore);
+            : (throwDto ? throwDto.score : (isCurrentPlayer ? currentScore : null));
         let newRunningScore: number = -1;
 
         switch (player) {
@@ -107,7 +108,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 <span>{thisScore}</span>
             </div>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
-                {newRunningScore > 1 ? newRunningScore : null}
+                {newRunningScore > 1 && (throwDto || isCurrentPlayer) ? newRunningScore : null}
             </div>
         </>);
     }
