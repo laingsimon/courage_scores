@@ -17,7 +17,13 @@ import {RecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/Re
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {createTemporaryId} from "../../helpers/projection";
-import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
+import {
+    CHECKOUT_1_DART,
+    CHECKOUT_2_DART,
+    CHECKOUT_3_DART,
+    DELETE_SCORE_BUTTON,
+    ENTER_SCORE_BUTTON
+} from "../../helpers/constants";
 import {checkoutWith, enterScores, keyPad, playsFirst} from "../../helpers/sayg";
 
 describe('SaygIntegrationTest', () => {
@@ -124,7 +130,7 @@ describe('SaygIntegrationTest', () => {
             });
 
             expect(context.container.textContent).toContain('Who plays first?');
-            const buttons = Array.from(context.container.querySelectorAll('button.btn-primary'));
+            const buttons = Array.from(context.container.querySelectorAll('div[datatype="bull-up"] button.btn-primary'));
             expect(buttons.map(b => b.textContent)).toEqual([
                 '🎯CONTENDER',
                 '🎯OPPONENT'
@@ -389,7 +395,7 @@ describe('SaygIntegrationTest', () => {
             expect(sayg.awayScore).toEqual(1);
 
             expect(context.container.textContent).toContain('Who won the bull?');
-            const buttons = Array.from(context.container.querySelectorAll('button.btn-primary'));
+            const buttons = Array.from(context.container.querySelectorAll('div[datatype="bull-up"] button.btn-primary'));
             expect(buttons.map(b => b.textContent)).toEqual([
                 '🎯CONTENDER',
                 '🎯OPPONENT'
@@ -794,6 +800,69 @@ describe('SaygIntegrationTest', () => {
             await checkoutWith(context, CHECKOUT_2_DART);
 
             expect(sayg.legs[0].winner).toEqual('home');
+        });
+
+        it('can change home checkout for previous leg', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores(
+                context,
+                [100, 101, 100, 100, 100], // 501
+                [51, 52, 53, 54]);
+            await checkoutWith(context, CHECKOUT_3_DART);
+            expect(sayg.legs[0].home.throws[4].noOfDarts).toEqual(3);
+
+            const changePrompt = context.container.querySelector('div[datatype="change-checkout"]');
+            await doClick(findButton(changePrompt, 'Change'));
+            await checkoutWith(context, CHECKOUT_2_DART);
+
+            expect(sayg.legs[0].winner).toEqual('home');
+            expect(sayg.legs[0].home.throws[4].noOfDarts).toEqual(2);
+        });
+
+        it('cannot change checkout for previous leg after scores recorded', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores(
+                context,
+                [100, 101, 100, 100, 100], // 501
+                [51, 52, 53, 54]);
+            await checkoutWith(context, CHECKOUT_3_DART);
+            expect(sayg.legs[0].home.throws[4].noOfDarts).toEqual(3);
+
+            await keyPad(context, [ '1' ]);
+
+            const changePrompt = context.container.querySelector('div[datatype="change-checkout"]');
+            expect(changePrompt).toEqual(null);
+        });
+
+        it('can change checkout for previous leg after score entered and then removed', async () => {
+            await renderComponent({
+                id: sayg.id,
+                liveOptions: {},
+                autoSave: true,
+            });
+            // contender first
+            await enterScores(
+                context,
+                [100, 101, 100, 100, 100], // 501
+                [51, 52, 53, 54]);
+            await checkoutWith(context, CHECKOUT_3_DART);
+            expect(sayg.legs[0].home.throws[4].noOfDarts).toEqual(3);
+
+            await keyPad(context, [ '1' ]);
+            await keyPad(context, [ DELETE_SCORE_BUTTON ]);
+
+            const changePrompt = context.container.querySelector('div[datatype="change-checkout"]');
+            expect(changePrompt).toBeTruthy();
         });
     });
 

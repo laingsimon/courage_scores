@@ -112,6 +112,7 @@ export function ScoreAsYouGo({
     }
 
     const legIndex: number = (homeScore || 0) + (awayScore || 0);
+    const previousLeg: LegDto = legIndex > 0 ? data.legs[legIndex - 1] : null;
     const hasFinished: boolean = (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0);
     if (matchStatisticsOnly || (singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || hasFinished))) {
         if (useWidescreenStatistics) {
@@ -145,10 +146,12 @@ export function ScoreAsYouGo({
             home={home}
             away={away}
             onChange={(newLeg: LegDto) => legChanged(newLeg, legIndex)}
+            onChangePrevious={(newLeg: LegDto) => legChanged(newLeg, legIndex - 1)}
             onLegComplete={recordWinner}
             on180={on180}
             onHiCheck={onHiCheck}
             homeScore={homeScore}
             awayScore={awayScore}
-            singlePlayer={singlePlayer}/>);
+            singlePlayer={singlePlayer}
+            previousLeg={previousLeg} />);
 }
