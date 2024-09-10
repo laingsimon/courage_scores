@@ -4,7 +4,7 @@ import {useSayg} from "../sayg/SaygLoadingContainer";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 
 export function EditSaygPracticeOptions() {
-    const {sayg, setSayg, saveDataAndGetId} = useSayg();
+    const {sayg, setSayg, saveDataAndGetId, setEditScore} = useSayg();
 
     async function restart() {
         const newSayg: UpdateRecordedScoreAsYouGoDto = Object.assign({}, sayg);
@@ -12,6 +12,7 @@ export function EditSaygPracticeOptions() {
         newSayg.homeScore = 0;
         newSayg.awayScore = 0;
         await setSayg(newSayg);
+        await setEditScore(null);
     }
 
     return (<>

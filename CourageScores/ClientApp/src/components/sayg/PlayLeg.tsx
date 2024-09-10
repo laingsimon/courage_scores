@@ -8,6 +8,7 @@ import {useApp} from "../common/AppContainer";
 import {Dialog} from "../common/Dialog";
 import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/constants";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import {IEditThrow, useSayg} from "./SaygLoadingContainer";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -22,19 +23,14 @@ export interface IPlayLegProps {
     singlePlayer?: boolean;
 }
 
-export interface IEditThrow {
-    player: 'home' | 'away';
-    throwIndex: number;
-}
-
 export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away'>(null);
     const [score, setScore] = useState('');
-    const [editScore, setEditScore] = useState<IEditThrow>(null);
     const {onError} = useApp();
     const accumulator: LegCompetitorScoreDto = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore: number = accumulator ? leg.startingScore - accumulator.score : -1;
+    const {editScore, setEditScore} = useSayg();
 
     function playerOptions(): IBootstrapDropdownItem[] {
         return [
@@ -65,7 +61,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         if (editScore) {
             const newPlayerScores: LegCompetitorScoreDto = await changeScore(score);
             const newRemainingScore: number = leg.startingScore - newPlayerScores.score;
-            setEditScore(null);
+            await setEditScore(null);
 
             if (newRemainingScore === 0) {
                 setShowCheckout(editScore.player);
@@ -171,7 +167,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     async function beginEditScore(request: IEditThrow, _: number) {
-        setEditScore(request);
+        await setEditScore(request);
         setScore('');
     }
 

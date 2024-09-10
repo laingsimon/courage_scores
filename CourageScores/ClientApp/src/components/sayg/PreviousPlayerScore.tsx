@@ -1,8 +1,8 @@
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {repeat} from "../../helpers/projection";
-import {IEditThrow} from "./PlayLeg";
 import {useEffect} from "react";
+import {IEditThrow} from "./SaygLoadingContainer";
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;
