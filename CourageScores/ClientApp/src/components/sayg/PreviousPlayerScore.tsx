@@ -16,6 +16,11 @@ export interface IPreviousPlayerScoreProps {
     currentScore?: number;
 }
 
+interface IRunningScore {
+    home: number;
+    away: number;
+}
+
 export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, setEditScore, editScore, currentScore}: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
@@ -60,7 +65,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         </div>);
     }
 
-    function renderScore(player: 'home' | 'away', throwDto: LegThrowDto, runningScore: { home: number, away: number }, throwIndex: number) {
+    function renderScore(player: 'home' | 'away', throwDto: LegThrowDto, runningScore: IRunningScore, throwIndex: number) {
         const throwToEdit: IEditThrow = {
             player,
             throwIndex,
@@ -113,7 +118,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         </>);
     }
 
-    const runningScore = {
+    const runningScore: IRunningScore = {
         home: leg.startingScore,
         away: leg.startingScore,
     };
