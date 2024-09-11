@@ -648,7 +648,7 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
 
-            await doClick(findButton(context.container, 'Edit'));
+            await doClick(context.container.querySelector('div[datatype="details"] > div.alert'));
             const dialog = context.container.querySelector('div.modal-dialog');
             await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
             await doClick(findButton(dialog, 'Close'));
@@ -802,7 +802,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
@@ -837,7 +837,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;
@@ -874,7 +874,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;
@@ -1347,7 +1347,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;
@@ -1384,7 +1384,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;
