@@ -129,7 +129,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
                 <span>{thisScore}</span>
             </div>
             <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
-                {newRunningScore > 1 && (throwDto || isCurrentPlayer) ? newRunningScore : null}
+                {newRunningScore > 1 && (throwDto || (isCurrentPlayer && currentScore)) ? newRunningScore : null}
             </div>
         </>);
     }
