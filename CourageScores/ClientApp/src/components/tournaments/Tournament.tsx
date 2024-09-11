@@ -389,19 +389,15 @@ export function Tournament() {
                             patchData={applyPatch}
                             editable={canEnterTournamentResults || canManageTournaments} />)}
                 </TournamentContainer>
-                {canManageTournaments || canEnterTournamentResults ? (
+                {(canManageTournaments || canEnterTournamentResults) && !tournamentData.singleRound ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                         {saving ? (<LoadingSpinnerSmall/>) : null}
                         Save
                     </button>) : null}
-                {canManagePlayers ? (
+                {canManagePlayers && !tournamentData.singleRound ? (
                     <button className="btn btn-primary d-print-none margin-right" onClick={() => setAddPlayerDialogOpen(true)}>Add
                         player</button>) : null}
-                {canManageTournaments && tournamentData.singleRound
-                    ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setEditTournament('details')}>
-                        Edit
-                    </button>) : null}
-                {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto) && photosEnabled
+                {account && account.access && (account.access.uploadPhotos || account.access.viewAnyPhoto) && photosEnabled && !tournamentData.singleRound
                     ? (<button className="btn btn-primary d-print-none margin-right" onClick={() => setShowPhotoManager(true)}>📷 Photos</button>)
                     : null}
             </div>) : (<div>Tournament not found</div>)}

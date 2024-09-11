@@ -65,73 +65,91 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         </div>);
     }
 
+    function renderScoreBeingEdited(score: number, remaining: number, bust: boolean) {
+        const bustSuffix: string = bust
+            ? ' text-decoration-line-through'
+            : '';
+
+        return (<>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning${bustSuffix}`} onClick={() => setEditScore(null)}>
+                <span>{score}</span>
+            </div>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center bg-warning`} onClick={() => setEditScore(null)}>
+                {remaining > 1 || remaining === 0 ? remaining : null}
+            </div>
+        </>);
+    }
+
+    function renderNewScore(score: number, remaining: number, bust: boolean) {
+        const bustSuffix: string = bust
+            ? ' text-decoration-line-through'
+            : '';
+
+        return (<>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center opacity-50 fst-italic${bustSuffix}`}>
+                <span>{score}</span>
+            </div>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center opacity-50 fst-italic`}>
+                {remaining > 1 && (score || score === 0) ? remaining : null}
+            </div>
+        </>);
+    }
+
+    function renderExistingScore(score: number, remaining: number, bust: boolean, throwToEdit: IEditingThrow) {
+        const bustSuffix: string = bust
+            ? ' text-decoration-line-through'
+            : '';
+        const otherScoreEditingStyle: string = editScore
+            ? ' opacity-25'
+            : '';
+
+        return (<>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}${bustSuffix}`} onClick={() => setEditScore(throwToEdit)}>
+                <span>{score}</span>
+            </div>
+            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${otherScoreEditingStyle}`} onClick={() => setEditScore(throwToEdit)}>
+                {remaining}
+            </div>
+        </>);
+    }
+
+    function getThisScore(throwDto: LegThrowDto, player: 'home' | 'away', editingThisScore: boolean) {
+        if (editingThisScore) {
+            return (currentScore && !Number.isNaN(currentScore)) || currentScore === 0
+                ? currentScore
+                : throwDto.score;
+        }
+
+        if (editScore) {
+            return throwDto ? throwDto.score : null;
+        }
+
+        return throwDto
+            ? throwDto.score
+            : (player === leg.currentThrow ? currentScore : null);
+    }
+
     function renderScore(player: 'home' | 'away', throwDto: LegThrowDto, runningScore: IRunningScore, throwIndex: number) {
+        const editingThisScore: boolean = editScore && editScore.player === player && throwIndex === editScore.throwIndex;
+        const thisScore: number = getThisScore(throwDto, player, editingThisScore);
+        const wouldBeBust: boolean = runningScore[player] - thisScore < 0 || runningScore[player] - thisScore === 1;
+
+        if (!wouldBeBust && thisScore) {
+            runningScore[player] -= thisScore;
+        }
+
+        if (editingThisScore) {
+            return renderScoreBeingEdited(thisScore, runningScore[player], wouldBeBust);
+        }
+
         const throwToEdit: IEditingThrow = {
             player,
             throwIndex,
         };
-        const editingThisScore: boolean = editScore && editScore.player === player && throwIndex === editScore.throwIndex;
-        const isCurrentPlayer: boolean = player === leg.currentThrow;
-        let thisScore: number;
-        if (editingThisScore) {
-            thisScore = (currentScore && !Number.isNaN(currentScore)) || currentScore === 0
-                ? currentScore
-                : throwDto.score;
-        } else if (editScore) {
-            thisScore = throwDto ? throwDto.score : null;
-        } else {
-            thisScore = throwDto
-                ? throwDto.score
-                : (isCurrentPlayer ? currentScore : null);
-        }
-        let newRunningScore: number = -1;
 
-        switch (player) {
-            case 'home':
-                if (!throwDto || !throwDto.bust) {
-                    runningScore.home -= thisScore;
-                }
-                newRunningScore = runningScore.home;
-                break;
-            case 'away':
-                if (!throwDto || !throwDto.bust) {
-                    runningScore.away -= thisScore;
-                }
-                newRunningScore = runningScore.away;
-                break;
-        }
-
-        let classNameSuffix: string = '';
-        if (editScore) {
-            if (editingThisScore) {
-                // editing this score
-                classNameSuffix = ' bg-warning';
-            } else {
-                // editing another score
-                classNameSuffix = ' opacity-25';
-            }
-        } else if (!throwDto) {
-            // new score
-            classNameSuffix = ' opacity-50 fst-italic';
-        }
-        const bustSuffix: string = ((throwDto && throwDto.bust) || newRunningScore < 0 || newRunningScore === 1) && !editingThisScore
-            ? ' text-decoration-line-through'
-            : '';
-
-        const editTheScore = throwDto
-            ? (() => editingThisScore
-                ? setEditScore(null)
-                : setEditScore(throwToEdit))
-            : null;
-
-        return (<>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}${bustSuffix}`} onClick={editTheScore}>
-                <span>{thisScore}</span>
-            </div>
-            <div className={`flex-basis-0 flex-grow-1 flex-shrink-0 text-center${classNameSuffix}`} onClick={editTheScore}>
-                {newRunningScore > 1 && (throwDto || isCurrentPlayer) ? newRunningScore : null}
-            </div>
-        </>);
+        return throwDto
+            ? renderExistingScore(thisScore, runningScore[player], wouldBeBust, throwToEdit)
+            : renderNewScore(thisScore, runningScore[player], wouldBeBust);
     }
 
     const runningScore: IRunningScore = {
