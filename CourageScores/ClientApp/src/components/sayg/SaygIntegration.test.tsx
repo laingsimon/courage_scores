@@ -755,7 +755,7 @@ describe('SaygIntegrationTest', () => {
             expect(previousScores.map(homeRemaining)).toEqual(['381']); // home remaining
             expect(previousScores.map(noOfDarts)).toEqual(['3']); // no-of-darts
             expect(previousScores.map(awayScore)).toEqual(['']); // away scores
-            expect(previousScores.map(awayRemaining)).toEqual(['501']); // away remaining
+            expect(previousScores.map(awayRemaining)).toEqual(['']); // away remaining
         });
 
         it('updates following score results as throw is edited', async () => {
