@@ -344,7 +344,7 @@ export function Tournament() {
             setTitle(`${tournamentData.type || 'tournament'} at ${tournamentData.address} - ${renderDate(tournamentData.date)}`);
         }
 
-        return (<div>
+        return (<div className="landscape">
             <DivisionControls
                 originalSeasonData={season}
                 originalDivisionData={division}
