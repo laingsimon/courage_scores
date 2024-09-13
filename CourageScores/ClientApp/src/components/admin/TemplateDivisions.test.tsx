@@ -17,8 +17,8 @@ describe('TemplateDivisions', () => {
     let reportedError: ErrorState;
     let update: DivisionTemplateDto[];
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

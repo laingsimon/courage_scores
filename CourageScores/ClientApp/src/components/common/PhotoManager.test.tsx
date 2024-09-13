@@ -23,8 +23,8 @@ describe('PhotoManager', () => {
     let deleteId: string;
     let deleteResult: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

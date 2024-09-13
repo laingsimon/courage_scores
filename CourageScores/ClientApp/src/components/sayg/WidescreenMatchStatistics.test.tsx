@@ -17,8 +17,8 @@ describe('WidescreenMatchStatistics', () => {
         saygData = {};
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(saygProps: ISaygLoadingContainerProps) {

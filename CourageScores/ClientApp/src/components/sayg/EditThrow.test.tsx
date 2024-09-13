@@ -19,8 +19,8 @@ describe('EditThrow', () => {
     let changed: { [key: string]: LegThrowDto };
     let saved: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

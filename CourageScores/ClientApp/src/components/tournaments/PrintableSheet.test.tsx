@@ -53,8 +53,8 @@ describe('PrintableSheet', () => {
     let updatedTournament: TournamentGameDto;
     let editTournament: string;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

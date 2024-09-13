@@ -19,8 +19,8 @@ describe('MergeManOfTheMatch', () => {
     let reportedError: ErrorState;
     let updatedData: GameDto;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

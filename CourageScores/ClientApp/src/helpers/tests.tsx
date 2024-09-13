@@ -66,10 +66,10 @@ export async function setFile(container: Element, selector: string, file: any, u
 }
 
 export interface TestContext {
-    container: HTMLElement,
-    cleanUp(): void
-    user: UserEvent,
-    cookies: Cookies,
+    container: HTMLElement;
+    cleanUp(): Promise<any>;
+    user: UserEvent;
+    cookies: Cookies;
 }
 
 export function api<T>(methods: Partial<T>): T {
@@ -235,6 +235,7 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     cookies.update();
 
     const currentPathAsInitialEntry: any = currentPath;
+    let root: ReactDOM.Root;
     await act(async () => {
         const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]}>
             <Routes>
@@ -251,13 +252,17 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
                 </IocContainer>}/>
             </Routes>
         </MemoryRouter>);
-        ReactDOM.createRoot(container).render(component);
+        root = ReactDOM.createRoot(container);
+        root.render(component);
     });
 
     return {
         container: container,
-        cleanUp: () => {
-            if (container) {
+        cleanUp: async () => {
+            await act(async () => {
+                root.unmount();
+            });
+            if (container && document && document.body) {
                 document.body.removeChild(container);
             }
         },
@@ -282,9 +287,9 @@ function ReplaceCookieOnLoad({ cookieName, cookieValue, children }) {
     return (<>{children}</>);
 }
 
-export function cleanUp(context: TestContext) {
+export async function cleanUp(context: TestContext): Promise<any> {
     if (context) {
-        context.cleanUp();
+        await context.cleanUp();
     }
 }
 

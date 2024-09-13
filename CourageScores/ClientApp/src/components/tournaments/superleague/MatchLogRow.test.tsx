@@ -15,8 +15,8 @@ describe('MatchLogRow', () => {
     let context: TestContext;
     let reportedError: ErrorState;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

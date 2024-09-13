@@ -14,8 +14,8 @@ describe('ShareButton', () => {
     let context: TestContext;
     let shareData: ShareData;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IShareButtonProps, name?: string, currentPath?: string) {

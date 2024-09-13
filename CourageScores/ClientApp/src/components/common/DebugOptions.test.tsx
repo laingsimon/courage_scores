@@ -6,8 +6,8 @@ import React from "react";
 describe('DebugOptions', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(account: UserDto | null, children: React.ReactNode) {

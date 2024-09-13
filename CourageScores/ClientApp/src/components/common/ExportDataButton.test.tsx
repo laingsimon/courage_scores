@@ -18,8 +18,8 @@ describe('ExportDataButton', () => {
         },
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IExportDataButtonProps, account: UserDto) {

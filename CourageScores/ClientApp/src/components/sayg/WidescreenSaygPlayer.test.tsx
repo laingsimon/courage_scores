@@ -31,8 +31,8 @@ describe('WidescreenSaygPlayer', () => {
         }
     })
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

@@ -19,8 +19,8 @@ describe('TemplateTextEditor', () => {
     let update: TemplateDto;
     let valid: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

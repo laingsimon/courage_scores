@@ -5,8 +5,8 @@ import {ILegBuilder, saygBuilder} from "../../helpers/builders/sayg";
 describe('WidescreenSaygMatchDetails', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IWidescreenSaygMatchDetailsProps) {

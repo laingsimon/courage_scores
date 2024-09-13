@@ -161,11 +161,11 @@ describe('Tournament', () => {
         divisionDataLookup[key] = data;
     }
 
-    afterEach(() => {
+    afterEach(async () => {
         divisionDataLookup = {};
         tournamentDataLookup = {};
         saygDataLookup = {};
-        cleanUp(context);
+        await cleanUp(context);
     });
 
     beforeEach(() => {

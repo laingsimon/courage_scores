@@ -15,8 +15,8 @@ describe('SharedAddresses', () => {
     let context: TestContext;
     let updatedAddresses: string[][];
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

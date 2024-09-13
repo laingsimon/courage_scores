@@ -29,8 +29,8 @@ describe('ExportData', () => {
         }
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

@@ -127,8 +127,8 @@ describe('Score', () => {
         deletePhotoResponse = null;
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
         console.log = originalConsoleLog;
     });
 

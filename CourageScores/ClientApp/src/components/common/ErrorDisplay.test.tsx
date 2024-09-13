@@ -19,8 +19,8 @@ describe('ErrorDisplay', () => {
         closed = true;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IErrorDisplayProps) {

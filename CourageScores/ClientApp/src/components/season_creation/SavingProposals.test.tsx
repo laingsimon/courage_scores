@@ -4,8 +4,8 @@ import {ISavingProposalsProps, SavingProposals} from "./SavingProposals";
 describe('SavingProposals', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: ISavingProposalsProps) {
