@@ -77,7 +77,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                                         matchIndex={index}
                                         patchData={patchRoundData}
                                         readOnly={readOnly}
-                                        showViewSayg={false}
+                                        showViewSayg={true}
                                         firstPlayerStartsFinalLeg={true}
                                         firstPlayerStartsFirstLeg={true}
                                         reverseOrder={evenNumberedMatch} />
