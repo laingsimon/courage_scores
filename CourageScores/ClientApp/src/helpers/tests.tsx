@@ -45,6 +45,13 @@ export async function doChange(container: Element, selector: string, text: strin
     await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
+export async function doKeyPress(container: Element, key: string) {
+    const keyboardEvent = new KeyboardEvent('keyup', { bubbles: true, key: key });
+    await act(async () => {
+        container!.dispatchEvent(keyboardEvent);
+    });
+}
+
 export async function setFile(container: Element, selector: string, file: any, user: UserEvent) {
     const input = container.querySelector(selector);
     if (!input) {
