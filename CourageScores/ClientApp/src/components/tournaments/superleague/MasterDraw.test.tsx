@@ -112,7 +112,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
@@ -130,14 +130,14 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'Board 1',
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).toContain('Date: ' + renderDate('2023-05-06'));
-            expect(tournamentProperties.textContent).toContain('Notes: NOTES');
+            expect(tournamentProperties.textContent).toContain('Notes: Board 1');
         });
 
         it('when no notes', async () => {
@@ -147,7 +147,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: '',
+                type: '',
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
@@ -165,7 +165,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -187,7 +187,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -213,7 +213,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -239,7 +239,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -265,7 +265,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -291,7 +291,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -313,7 +313,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -335,7 +335,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -357,7 +357,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
@@ -379,7 +379,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
@@ -413,7 +413,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().singleRound().build(),
@@ -454,7 +454,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder(tournamentId).round((r: ITournamentRoundBuilder) => r.withMatch(match)).singleRound().build(),

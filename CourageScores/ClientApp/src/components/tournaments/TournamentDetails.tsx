@@ -143,14 +143,13 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
                 </div>
             </div>
         </div>) : null}
-        <div className="form-group input-group mb-1" datatype="notes">
+        {tournamentData.singleRound ? null : (<div className="form-group input-group mb-1" datatype="notes">
             <label htmlFor="note-text" className="input-group-text width-75">Notes</label>
             <textarea id="note-text" className="form-control" disabled={disabled}
                       value={tournamentData.notes || ''} name="notes"
                       onChange={valueChanged(tournamentData, setTournamentData)}
-                      placeholder={tournamentData.singleRound ? 'Notes (e.g. board number)' : 'Notes for the tournament'}>
-                        </textarea>
-        </div>
+                      placeholder="Notes for the tournament" />
+        </div>)}
         <div className="form-group input-group" datatype="tournament-options">
             <label className="input-group-text width-75">Options</label>
             <div className="form-control">

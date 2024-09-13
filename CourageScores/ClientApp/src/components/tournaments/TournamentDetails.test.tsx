@@ -369,7 +369,6 @@ describe('TournamentDetails', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .updated('2023-07-01T00:00:00')
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({

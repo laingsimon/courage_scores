@@ -151,7 +151,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
                 opponent={tournamentData.opponent}
                 date={tournamentData.date}
                 gender={tournamentData.gender}
-                notes={tournamentData.notes}
+                type={tournamentData.type}
                 patchData={patchDataAndTriggerSaygReload}
                 readOnly={readOnly} />
             {preventScroll ? null : (<MatchLog
