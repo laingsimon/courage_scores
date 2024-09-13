@@ -184,7 +184,7 @@ describe('MatchSayg', () => {
             }, permitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -208,7 +208,7 @@ describe('MatchSayg', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -232,7 +232,7 @@ describe('MatchSayg', () => {
             }, notPermitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -256,7 +256,7 @@ describe('MatchSayg', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -280,7 +280,7 @@ describe('MatchSayg', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -305,7 +305,7 @@ describe('MatchSayg', () => {
             });
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toContain('👁️');
+            expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -330,7 +330,7 @@ describe('MatchSayg', () => {
             }, notPermitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).toContain('👁️');
+            expect(context.container.innerHTML).toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -355,7 +355,6 @@ describe('MatchSayg', () => {
             }, notPermitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -379,7 +378,6 @@ describe('MatchSayg', () => {
             }, permitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
             expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
@@ -403,7 +401,6 @@ describe('MatchSayg', () => {
             }, permitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
             expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
@@ -427,7 +424,6 @@ describe('MatchSayg', () => {
             }, permitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
             expect(context.container.innerHTML).toContain(START_SCORING);
         });
 
@@ -451,7 +447,7 @@ describe('MatchSayg', () => {
             }, permitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
 
@@ -475,7 +471,7 @@ describe('MatchSayg', () => {
             }, permitted);
 
             reportedError.verifyNoError();
-            expect(context.container.innerHTML).not.toContain('👁️');
+            expect(context.container.innerHTML).not.toContain('📊');
             expect(context.container.innerHTML).not.toContain(START_SCORING);
         });
     });
@@ -579,7 +575,7 @@ describe('MatchSayg', () => {
             reportedError.verifyNoError();
 
             const viewLink = context.container.querySelector('a');
-            expect(viewLink.textContent).toEqual('👁️');
+            expect(viewLink.textContent).toEqual('📊 1 - 2');
             expect(viewLink.href).toEqual(`http://localhost/live/match/${saygId}`);
         });
 
@@ -776,7 +772,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual(START_SCORING);
+            expect(createDataButton.textContent).toEqual('📊 3 - 0');
 
             await doClick(createDataButton);
 
@@ -812,7 +808,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual(START_SCORING);
+            expect(createDataButton.textContent).toEqual('📊 0 - 3');
 
             await doClick(createDataButton);
 
@@ -848,7 +844,7 @@ describe('MatchSayg', () => {
             }, permitted);
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
-            expect(createDataButton.textContent).toEqual(START_SCORING);
+            expect(createDataButton.textContent).toEqual('📊 1 - 1');
 
             await doClick(createDataButton);
 
