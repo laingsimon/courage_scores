@@ -297,7 +297,7 @@ export function findButton(container: Element | undefined | null, text: string) 
     if (!container) {
         throw new Error('Container is null');
     }
-    const matching = Array.from(container.querySelectorAll('button')).filter(b => b.textContent === text);
+    const matching = Array.from(container.querySelectorAll('.btn')).filter(b => b.textContent === text);
     if (matching.length === 1) {
         return matching[0];
     }
