@@ -15,7 +15,7 @@ export function DebugOptions({ children }: IDebugOptionsProps) {
         return null;
     }
 
-    return (<ButtonDropdown isOpen={open} toggle={() => setOpen(!open)}>
+    return (<ButtonDropdown isOpen={open} toggle={() => setOpen(!open)} datatype="debug-options">
         <DropdownToggle caret color="info">
             Debug options
         </DropdownToggle>
