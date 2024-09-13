@@ -185,7 +185,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const zeroButton: HTMLButtonElement = findButton(context.container, DELETE_SCORE_BUTTON);
+            const zeroButton = findButton(context.container, DELETE_SCORE_BUTTON);
             expect(zeroButton.disabled).toEqual(true);
         });
 
@@ -208,7 +208,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const zeroButton: HTMLButtonElement = findButton(context.container, '0');
+            const zeroButton = findButton(context.container, '0');
             expect(zeroButton.disabled).toEqual(true);
         });
 
@@ -257,7 +257,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const oneFourtyQuickButton: HTMLButtonElement = findButton(context.container, '140');
+            const oneFourtyQuickButton = findButton(context.container, '140');
             expect(oneFourtyQuickButton.disabled).toEqual(true);
         });
     });

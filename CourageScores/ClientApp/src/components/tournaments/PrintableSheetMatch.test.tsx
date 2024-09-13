@@ -1036,7 +1036,7 @@ describe('PrintableSheetMatch', () => {
             }, appProps({ }, reportedError));
 
             expect(context.container.innerHTML).toContain('📊');
-            const link = findButton(context.container, '📊 ') as HTMLAnchorElement;
+            const link = findButton(context.container, '📊 ');
             expect(link.href).toEqual(`http://localhost/live/match/${saygData.id}`);
         });
 

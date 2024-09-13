@@ -293,20 +293,25 @@ export async function cleanUp(context: TestContext): Promise<any> {
     }
 }
 
-export function findButton(container: Element | undefined | null, text: string) {
+export function findButton(container: Element | undefined | null, text: string): IFoundButton {
     if (!container) {
         throw new Error('Container is null');
     }
-    const matching = Array.from(container.querySelectorAll('.btn')).filter(b => b.textContent === text);
+    const matching = Array.from(container.querySelectorAll('.btn, button')).filter(b => b.textContent === text) as HTMLButtonElement[];
     if (matching.length === 1) {
         return matching[0];
     }
     if (matching.length === 0) {
-        const buttons = Array.from(container.querySelectorAll('.btn')).map(b => b.textContent).join(', ');
+        const buttons: string = Array.from(container.querySelectorAll('.btn, button')).map(b => b.textContent).join(', ');
 
         throw new Error(`Unable to find button with text = ${text} - buttons are ${buttons}`);
     }
     throw new Error(`Multiple buttons (${matching.length}) exist with text = ${text}`);
+}
+
+export interface IFoundButton extends Element {
+    disabled?: boolean;
+    href?: string;
 }
 
 export async function doSelectOption(container: Element | undefined | null, text: string) {

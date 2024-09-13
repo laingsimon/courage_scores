@@ -1203,7 +1203,7 @@ describe('EditSide', () => {
             const dialog = headingForDialog.closest('.modal-dialog');
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             reportedError.verifyNoError();
@@ -1240,7 +1240,7 @@ describe('EditSide', () => {
             const dialog = headingForDialog.closest('.modal-dialog');
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             expect(teamsReloaded).toEqual(true);
@@ -1268,7 +1268,7 @@ describe('EditSide', () => {
             const dialog = headingForDialog.closest('.modal-dialog');
 
             await doChange(dialog, 'input[name="name"]', 'NAME', context.user);
-            await doClick(findButton(dialog.querySelector('.dropdown-menu'), team.name));
+            await doSelectOption(dialog.querySelector('.dropdown-menu'), team.name);
             await doClick(findButton(dialog, 'Add player'));
 
             expect(Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...').length).toEqual(0);

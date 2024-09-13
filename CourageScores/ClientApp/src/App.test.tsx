@@ -173,10 +173,10 @@ describe('App', () => {
         const error = {message: 'ERROR'};
 
         return (<div>
-            <button onClick={() => onError(error)}>onError</button>
-            <button onClick={clearError}>clearError</button>
-            <button onClick={invalidateCacheAndTryAgain}>invalidateCacheAndTryAgain</button>
-            <button onClick={() => reportClientSideException(error)}>reportClientSideException</button>
+            <button className="btn" onClick={() => onError(error)}>onError</button>
+            <button className="btn" onClick={clearError}>clearError</button>
+            <button className="btn" onClick={invalidateCacheAndTryAgain}>invalidateCacheAndTryAgain</button>
+            <button className="btn" onClick={() => reportClientSideException(error)}>reportClientSideException</button>
         </div>);
     }
 

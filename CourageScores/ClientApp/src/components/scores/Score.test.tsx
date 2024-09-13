@@ -731,7 +731,7 @@ describe('Score', () => {
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
 
-            await doClick(findButton(playerSelection, 'Another player'));
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Another player');
             await doClick(findButton(context.container, 'Save'));
 
             reportedError.verifyNoError();
