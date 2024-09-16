@@ -5,6 +5,7 @@ Function Get-Files($MinLines, $MaxLines)
     Write-Message "Finding $($Extension) files with > $($MinLines) lines and <= $($MaxLines)..."
     return Get-ChildItem -Recurse `
         | Where-Object { $_.Name.EndsWith($Extension) } `
+        | Where-Object { $_.FullName.Contains("node_modules") -eq $False } `
         | Select-Object @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
         | Where-Object { $_.lines -gt $MinLines -and $_.lines -le $MaxLines } `
         | Sort-Object -descending -property 'lines' `
