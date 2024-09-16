@@ -47,8 +47,8 @@ describe('TournamentDetails', () => {
         updatedTournamentData = null;
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: ITournamentDetailsProps, appProps: IAppContainerProps) {
@@ -369,7 +369,6 @@ describe('TournamentDetails', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .updated('2023-07-01T00:00:00')
                 .build();
             await renderComponent({ tournamentData, setTournamentData }, appProps({

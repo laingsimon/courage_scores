@@ -37,8 +37,8 @@ describe('DivisionHealth', () => {
         reportedError = new ErrorState();
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(divisionDataProps: IDivisionDataContainerProps) {

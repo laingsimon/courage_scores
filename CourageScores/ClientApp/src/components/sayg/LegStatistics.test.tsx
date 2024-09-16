@@ -17,8 +17,8 @@ describe('LegStatistics', () => {
     let context: TestContext;
     let newLegDisplayOptions: ILegDisplayOptions;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

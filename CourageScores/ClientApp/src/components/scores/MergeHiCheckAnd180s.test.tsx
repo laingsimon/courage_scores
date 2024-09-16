@@ -18,8 +18,8 @@ describe('MergeHiCheckAnd180s', () => {
     let reportedError: ErrorState;
     let updatedData: GameDto;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

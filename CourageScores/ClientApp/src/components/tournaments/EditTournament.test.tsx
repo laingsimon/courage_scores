@@ -31,8 +31,8 @@ describe('EditTournament', () => {
     let updatedData: TournamentGameDto;
     let preventScroll: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function setTournamentData(newData: TournamentGameDto) {

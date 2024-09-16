@@ -17,8 +17,8 @@ describe('TeamOverview', () => {
     let reportedError: ErrorState;
     let account: UserDto;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

@@ -1,12 +1,13 @@
-param([int] $ErrorThreshold, [int] $WarningThreshold)
+param([int] $ErrorThreshold, [int] $WarningThreshold, [string] $Extension)
 
 Function Get-Files($MinLines, $MaxLines)
 {
-    Write-Message "Finding files with > $($MinLines) lines and <= $($MaxLines)..."
+    Write-Message "Finding $($Extension) files with > $($MinLines) lines and <= $($MaxLines)..."
     return Get-ChildItem -Recurse `
-        | Where-Object { $_.Name.EndsWith(".cs") } `
+        | Where-Object { $_.Name.EndsWith($Extension) } `
+        | Where-Object { $_.FullName.Contains("node_modules") -eq $False } `
         | Select-Object @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
-        | Where-Object { $_.lines -gt $MinLines -and $_lines -le $MaxLines } `
+        | Where-Object { $_.lines -gt $MinLines -and $_.lines -le $MaxLines } `
         | Sort-Object -descending -property 'lines' `
         | Select-Object @{ label='row'; expression = {"| $($_.name) | $($_.lines) |" } }
 }
@@ -49,7 +50,7 @@ Function Get-PullRequestComments()
 
     $Json = $Response | ConvertFrom-Json
     Return $Json `
-        | Where-Object { $_.body -like "*file/s approaching limit*" -Or $_.body.Value -like "*Files exceeding limit*" } `
+        | Where-Object { $_.body -like "*$($Extension) file/s approaching limit*" -Or $_.body.Value -like "*$($Extension) file/s exceeding limit*" } `
 }
 
 Function Remove-ExistingComment($Comment)
@@ -119,32 +120,57 @@ Function Add-PullRequestComment($Markdown)
     }
 }
 
-$RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
-$Token=$env:GITHUB_TOKEN
-$PullRequestNumber=$RefName.Replace("/merge", "")
-$Repo = $env:GITHUB_REPOSITORY
-$Comments = Get-PullRequestComments
-Remove-ExistingComments
-
-$FilesOverThreshold = Get-Files -MinLines $ErrorThreshold -MaxLines [int]::MaxValue
-If ($ErrorThreshold -gt 0 -and $FilesOverThreshold.Length -gt 0)
+If ($Extension -eq $null -or $Extension -eq "" -or $Extension -eq ".")
 {
-    Print-Files -Heading "Files exceeding limit" -Files $FilesOverThreshold
-    [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) file/s that have more than $($ErrorThreshold) lines")
+    [Console]::Error.WriteLine("File extension must be supplied")
+    Exit 1
 }
 
-If ($ErrorThreshold -le 0 -or $ErrorThreshold -eq $null) 
+$RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
+$Token=$env:GITHUB_TOKEN
+If ($RefName -ne $null)
 {
-    $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines [int]::MaxValue
+    $PullRequestNumber=$RefName.Replace("/merge", "")
 }
 else
 {
-    $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $ErrorThreshold
+    $PullRequestNumber = ""
+}
+$Repo = $env:GITHUB_REPOSITORY
+$Comments = Get-PullRequestComments
+$MaxLines = [int]::MaxValue
+Remove-ExistingComments
+
+If ($ErrorThreshold -gt 0)
+{
+    $FilesOverThreshold = Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines
+    If ($FilesOverThreshold.Length -gt 0)
+    {
+        Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold
+        [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) $($Extension) file/s that have more than $($ErrorThreshold) lines")
+    }
 }
 
-If ($WarningThreshold -gt 0 -and $FilesNearingLimit.Length -gt 0)
+If ($WarningThreshold -gt 0)
 {
-    Print-Files -Heading "$($FilesNearingLimit.Length) file/s approaching line $($WarningThreshold) limit" -Files $FilesNearingLimit
+    If ($ErrorThreshold -le 0)
+    {
+        $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $MaxLines
+    }
+    else
+    {
+        $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $ErrorThreshold
+    }
+
+    If ($FilesNearingLimit.Length -gt 0)
+    {
+        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s approaching line $($WarningThreshold) limit" -Files $FilesNearingLimit
+    }
+}
+
+if ($ErrorThreshold -le 0 -and $WarningThreshold -le 0)
+{
+    [Console]::Error.WriteLine("Neither -ErrorThreshold nor -WarningThreshold are supplied; no constraints to apply to files")
 }
 
 Exit $FilesOverThreshold.Length

@@ -29,8 +29,8 @@ describe('EditFeature', () => {
         }
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function onChanged() {

@@ -11,8 +11,8 @@ describe('NavMenu', () => {
     let context: TestContext;
     let errorCleared: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     function clearError() {

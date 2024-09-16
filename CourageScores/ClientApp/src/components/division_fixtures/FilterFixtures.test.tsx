@@ -19,8 +19,8 @@ import {IPreferenceData} from "../common/PreferencesContainer";
 describe('FilterFixtures', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function onReloadDivision(_?: boolean): Promise<DivisionDataDto | null> {

@@ -5,8 +5,8 @@ import {IAppContainerProps} from "../common/AppContainer";
 describe('NotPermitted', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IAppContainerProps) {

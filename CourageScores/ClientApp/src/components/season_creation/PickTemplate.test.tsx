@@ -22,8 +22,8 @@ describe('PickTemplate', () => {
         selectedTemplate = template;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

@@ -5,8 +5,8 @@ import {toDictionary} from "../../helpers/collections";
 describe('BootstrapDropdown', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IBootstrapDropdownProps) {

@@ -50,8 +50,8 @@ describe('TournamentFixture', () => {
         return null;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

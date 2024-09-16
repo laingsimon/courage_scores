@@ -68,8 +68,8 @@ describe('SaygLoadingContainer', () => {
         loadError = null;
     })
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function on180(_: string) {

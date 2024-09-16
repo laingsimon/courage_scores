@@ -18,8 +18,8 @@ describe('TemplateVisualEditor', () => {
     let reportedError: ErrorState;
     let update: TemplateDto;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

@@ -15,12 +15,12 @@ export interface IMasterDrawProps {
     opponent: string;
     gender: string;
     date: string;
-    notes: string;
+    type: string;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean>;
     readOnly?: boolean;
 }
 
-export function MasterDraw({matches, host, opponent, gender, date, notes, patchData, readOnly}: IMasterDrawProps) {
+export function MasterDraw({matches, host, opponent, gender, date, type, patchData, readOnly}: IMasterDrawProps) {
     const {onError} = useApp();
     const {tournamentData, setTournamentData, setEditTournament } = useTournament();
     const matchOptions: GameMatchOptionDto = {
@@ -77,7 +77,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                                         matchIndex={index}
                                         patchData={patchRoundData}
                                         readOnly={readOnly}
-                                        showViewSayg={false}
+                                        showViewSayg={true}
                                         firstPlayerStartsFinalLeg={true}
                                         firstPlayerStartsFirstLeg={true}
                                         reverseOrder={evenNumberedMatch} />
@@ -99,7 +99,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                 <div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
                     <div>Gender: <span className="fw-bold">{gender}</span></div>
                     <div>Date: <span className="fw-bold">{renderDate(date)}</span></div>
-                    {notes ? (<div>Notes: <span className="fw-bold">{notes}</span></div>) : null}
+                    {type ? (<div>Notes: <span className="fw-bold">{type}</span></div>) : null}
 
                     {setEditTournament ? (<div className="d-print-none alert alert-warning p-2 m-3 ms-0">
                         Click to edit details

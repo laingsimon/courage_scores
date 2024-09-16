@@ -17,8 +17,8 @@ describe('TemplateDates', () => {
     let reportedError: ErrorState;
     let update: DateTemplateDto[];
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

@@ -24,8 +24,8 @@ describe('HiCheckAnd180s', () => {
         updatedFixtureData = newFixtureData;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

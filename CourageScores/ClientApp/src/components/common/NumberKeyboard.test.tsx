@@ -1,7 +1,7 @@
 import {
     appProps,
     brandingProps,
-    cleanUp, doClick,
+    cleanUp, doClick, doKeyPress,
     ErrorState, findButton,
     iocProps,
     renderApp, TestContext
@@ -24,8 +24,8 @@ describe('NumberKeyboard', () => {
         enteredValue = value;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {
@@ -153,7 +153,7 @@ describe('NumberKeyboard', () => {
         });
     });
 
-    describe('interactivity', () => {
+    describe('mouse interactivity', () => {
         it('can delete last digit', async () => {
             await renderComponent({
                 value: '10',
@@ -185,7 +185,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const zeroButton: HTMLButtonElement = findButton(context.container, DELETE_SCORE_BUTTON);
+            const zeroButton = findButton(context.container, DELETE_SCORE_BUTTON);
             expect(zeroButton.disabled).toEqual(true);
         });
 
@@ -208,7 +208,7 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const zeroButton: HTMLButtonElement = findButton(context.container, '0');
+            const zeroButton = findButton(context.container, '0');
             expect(zeroButton.disabled).toEqual(true);
         });
 
@@ -257,8 +257,120 @@ describe('NumberKeyboard', () => {
                 onEnter,
             });
 
-            const oneFourtyQuickButton: HTMLButtonElement = findButton(context.container, '140');
+            const oneFourtyQuickButton = findButton(context.container, '140');
             expect(oneFourtyQuickButton.disabled).toEqual(true);
+        });
+    });
+
+    describe('keyboard interactivity', () => {
+        it('can delete last digit', async () => {
+            await renderComponent({
+                value: '10',
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, 'Backspace');
+
+            expect(newValue).toEqual('1');
+        });
+
+        it('can add digit', async () => {
+            await renderComponent({
+                value: '10',
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, '5');
+
+            expect(newValue).toEqual('105');
+        });
+
+        it('cannot delete when value is empty', async () => {
+            await renderComponent({
+                value: '',
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, 'Backspace');
+
+            expect(newValue).toEqual('');
+        });
+
+        it('can add 0 when value is empty', async () => {
+            await renderComponent({
+                value: '',
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, '0');
+
+            expect(newValue).toEqual('0');
+        });
+
+        it('cannot add 0 when value is 0', async () => {
+            await renderComponent({
+                value: '0',
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, '0');
+
+            expect(newValue).toEqual('0');
+        });
+
+        it('can add 0 when preceded by other digits', async () => {
+            await renderComponent({
+                value: '5',
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, '0');
+
+            expect(newValue).toEqual('50');
+        });
+
+        it('triggers callback when enter pressed', async () => {
+            await renderComponent({
+                value: '10',
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, 'Enter');
+
+            expect(enteredValue).toEqual('10');
+        });
+
+        it('does not change value with non-numeric key press', async () => {
+            await renderComponent({
+                value: '3',
+                maxValue: 180,
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, 'F');
+
+            expect(newValue).toEqual(null);
+        });
+
+        it('does not change value when value exceeds maximum', async () => {
+            await renderComponent({
+                value: '19',
+                maxValue: 180,
+                onChange,
+                onEnter,
+            });
+
+            await doKeyPress(context.container, '9');
+
+            expect(newValue).toEqual(null);
         });
     });
 });

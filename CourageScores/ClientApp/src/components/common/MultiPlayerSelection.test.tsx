@@ -3,7 +3,7 @@ import {
     brandingProps,
     cleanUp,
     doChange,
-    doClick, ErrorState,
+    doClick, doSelectOption, ErrorState,
     findButton,
     iocProps,
     renderApp, TestContext
@@ -28,8 +28,8 @@ describe('MultiPlayerSelection', () => {
         removedPlayer = {id, index};
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {
@@ -379,7 +379,7 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'PLAYER'));
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'PLAYER');
             await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).not.toBeNull();
@@ -413,7 +413,7 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'PLAYER'));
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'PLAYER');
             await doChange(context.container, 'ol > li:last-child > input[type="number"]', '100', context.user);
             await doClick(findButton(context.container, '➕'));
 
@@ -432,7 +432,7 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'PLAYER'));
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'PLAYER');
             // notes not updated
             await doClick(findButton(context.container, '➕'));
 
@@ -450,7 +450,7 @@ describe('MultiPlayerSelection', () => {
             });
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container, 'PLAYER'));
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'PLAYER');
             await doChange(context.container, 'ol > li:last-child > input[type="number"]', '.', context.user);
             await doClick(findButton(context.container, '➕'));
 

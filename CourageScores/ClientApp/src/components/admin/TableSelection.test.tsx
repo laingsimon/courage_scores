@@ -16,8 +16,8 @@ describe('TableSelection', () => {
     let reportedError: ErrorState;
     let tableChanged: string[];
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

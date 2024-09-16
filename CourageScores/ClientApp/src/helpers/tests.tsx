@@ -45,6 +45,13 @@ export async function doChange(container: Element, selector: string, text: strin
     await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
+export async function doKeyPress(container: Element, key: string) {
+    const keyboardEvent = new KeyboardEvent('keyup', { bubbles: true, key: key });
+    await act(async () => {
+        container!.dispatchEvent(keyboardEvent);
+    });
+}
+
 export async function setFile(container: Element, selector: string, file: any, user: UserEvent) {
     const input = container.querySelector(selector);
     if (!input) {
@@ -59,10 +66,10 @@ export async function setFile(container: Element, selector: string, file: any, u
 }
 
 export interface TestContext {
-    container: HTMLElement,
-    cleanUp(): void
-    user: UserEvent,
-    cookies: Cookies,
+    container: HTMLElement;
+    cleanUp(): Promise<any>;
+    user: UserEvent;
+    cookies: Cookies;
 }
 
 export function api<T>(methods: Partial<T>): T {
@@ -228,6 +235,7 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     cookies.update();
 
     const currentPathAsInitialEntry: any = currentPath;
+    let root: ReactDOM.Root;
     await act(async () => {
         const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]}>
             <Routes>
@@ -244,13 +252,17 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
                 </IocContainer>}/>
             </Routes>
         </MemoryRouter>);
-        ReactDOM.createRoot(container).render(component);
+        root = ReactDOM.createRoot(container);
+        root.render(component);
     });
 
     return {
         container: container,
-        cleanUp: () => {
-            if (container) {
+        cleanUp: async () => {
+            await act(async () => {
+                root.unmount();
+            });
+            if (container && document && document.body) {
                 document.body.removeChild(container);
             }
         },
@@ -275,26 +287,31 @@ function ReplaceCookieOnLoad({ cookieName, cookieValue, children }) {
     return (<>{children}</>);
 }
 
-export function cleanUp(context: TestContext) {
+export async function cleanUp(context: TestContext): Promise<any> {
     if (context) {
-        context.cleanUp();
+        await context.cleanUp();
     }
 }
 
-export function findButton(container: Element | undefined | null, text: string) {
+export function findButton(container: Element | undefined | null, text: string): IFoundButton {
     if (!container) {
         throw new Error('Container is null');
     }
-    const matching = Array.from(container.querySelectorAll('button')).filter(b => b.textContent === text);
+    const matching = Array.from(container.querySelectorAll('.btn, button')).filter(b => b.textContent === text) as HTMLButtonElement[];
     if (matching.length === 1) {
         return matching[0];
     }
     if (matching.length === 0) {
-        const buttons = Array.from(container.querySelectorAll('.btn')).map(b => b.textContent).join(', ');
+        const buttons: string = Array.from(container.querySelectorAll('.btn, button')).map(b => b.textContent).join(', ');
 
         throw new Error(`Unable to find button with text = ${text} - buttons are ${buttons}`);
     }
     throw new Error(`Multiple buttons (${matching.length}) exist with text = ${text}`);
+}
+
+export interface IFoundButton extends Element {
+    disabled?: boolean;
+    href?: string;
 }
 
 export async function doSelectOption(container: Element | undefined | null, text: string) {

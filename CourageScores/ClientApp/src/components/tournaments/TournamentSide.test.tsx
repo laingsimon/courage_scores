@@ -29,8 +29,8 @@ describe('TournamentSide', () => {
     let removed: boolean;
     let changeOptions: ISaveSideOptions;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {
