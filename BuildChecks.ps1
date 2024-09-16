@@ -50,7 +50,7 @@ Function Get-PullRequestComments()
 
     $Json = $Response | ConvertFrom-Json
     Return $Json `
-        | Where-Object { $_.body -like "*file/s approaching limit*" -Or $_.body.Value -like "*Files exceeding limit*" } `
+        | Where-Object { $_.body -like "*$($Extension) file/s approaching limit*" -Or $_.body.Value -like "*$($Extension) file/s exceeding limit*" } `
 }
 
 Function Remove-ExistingComment($Comment)
@@ -147,7 +147,7 @@ If ($ErrorThreshold -gt 0)
     If ($FilesOverThreshold.Length -gt 0)
     {
         Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold
-        [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) file/s that have more than $($ErrorThreshold) lines")
+        [Console]::Error.WriteLine("There are $($FilesOverThreshold.Length) $($Extension) file/s that have more than $($ErrorThreshold) lines")
     }
 }
 
@@ -164,7 +164,7 @@ If ($WarningThreshold -gt 0)
 
     If ($FilesNearingLimit.Length -gt 0)
     {
-        Print-Files -Heading "$($FilesNearingLimit.Length) file/s approaching line $($WarningThreshold) limit" -Files $FilesNearingLimit
+        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s approaching line $($WarningThreshold) limit" -Files $FilesNearingLimit
     }
 }
 
