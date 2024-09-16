@@ -1,10 +1,10 @@
-param([int] $ErrorThreshold, [int] $WarningThreshold)
+param([int] $ErrorThreshold, [int] $WarningThreshold, [string] $Extension)
 
 Function Get-Files($MinLines, $MaxLines)
 {
-    Write-Message "Finding files with > $($MinLines) lines and <= $($MaxLines)..."
+    Write-Message "Finding $($Extension) files with > $($MinLines) lines and <= $($MaxLines)..."
     return Get-ChildItem -Recurse `
-        | Where-Object { $_.Name.EndsWith(".cs") } `
+        | Where-Object { $_.Name.EndsWith($Extension) } `
         | Select-Object @{ label='name'; expression={$_.name} }, @{ label='lines'; expression={(Get-Content $_.FullName | Measure-Object -Line).Lines} } `
         | Where-Object { $_.lines -gt $MinLines -and $_.lines -le $MaxLines } `
         | Sort-Object -descending -property 'lines' `
@@ -117,6 +117,12 @@ Function Add-PullRequestComment($Markdown)
         Write-Error "Error creating comment at url $($Url)"
         $Response
     }
+}
+
+If ($Extension -eq $null -or $Extension -eq "" -or $Extension -eq ".")
+{
+    [Console]::Error.WriteLine("File extension must be supplied")
+    Exit 1
 }
 
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
