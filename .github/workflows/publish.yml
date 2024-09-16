@@ -32,6 +32,20 @@ jobs:
           VITE_APP_SHA: "${{ inputs.commit-sha }}"
           VITE_APP_DATE: "${{ inputs.commit-date }}"
 
+      - name: Check .tsx file sizes
+        if: ${{ github.event.inputs.ignore_sizes != 'true' }}
+        shell: pwsh
+        run: ./BuildChecks.ps1 -ErrorThreshold 2000 -WarningThreshold 1000 -Extension '.tsx'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Check .ts file sizes
+        if: ${{ github.event.inputs.ignore_sizes != 'true' }}
+        shell: pwsh
+        run: ./BuildChecks.ps1 -ErrorThreshold 1000 -WarningThreshold 500 -Extension '.ts'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Publish react coverage
         uses: coverallsapp/github-action@v2
         with:

@@ -27,8 +27,8 @@ describe('RefreshControl', () => {
         socketFactory = new MockSocketFactory();
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IRefreshControlProps, account?: UserDto) {

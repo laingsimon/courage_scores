@@ -50,8 +50,8 @@ describe('AssignTeamToSeasons', () => {
         closed = true;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

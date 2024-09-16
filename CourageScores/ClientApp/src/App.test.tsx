@@ -55,8 +55,8 @@ describe('App', () => {
         }
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(build?: IBuild, embed?: boolean, testRoute?: React.ReactNode) {
@@ -85,17 +85,22 @@ describe('App', () => {
         const container = document.createElement('div');
         document.body.appendChild(container);
 
+        let root: ReactDOM.Root;
         await act(async () => {
             const component = (<MemoryRouter initialEntries={[currentPath]}>
                 <IocContainer {...iocProps}>{content}</IocContainer>
             </MemoryRouter>);
-            ReactDOM.createRoot(container).render(component);
+            root = ReactDOM.createRoot(container)
+            root.render(component);
         });
 
         return {
             container: container,
-            cleanUp: () => {
-                if (container) {
+            cleanUp: async () => {
+                await act(async () => {
+                    root.unmount();
+                });
+                if (container && document && document.body) {
                     document.body.removeChild(container);
                 }
             },
@@ -168,10 +173,10 @@ describe('App', () => {
         const error = {message: 'ERROR'};
 
         return (<div>
-            <button onClick={() => onError(error)}>onError</button>
-            <button onClick={clearError}>clearError</button>
-            <button onClick={invalidateCacheAndTryAgain}>invalidateCacheAndTryAgain</button>
-            <button onClick={() => reportClientSideException(error)}>reportClientSideException</button>
+            <button className="btn" onClick={() => onError(error)}>onError</button>
+            <button className="btn" onClick={clearError}>clearError</button>
+            <button className="btn" onClick={invalidateCacheAndTryAgain}>invalidateCacheAndTryAgain</button>
+            <button className="btn" onClick={() => reportClientSideException(error)}>reportClientSideException</button>
         </div>);
     }
 

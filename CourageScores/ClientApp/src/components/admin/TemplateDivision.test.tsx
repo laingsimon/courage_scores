@@ -18,8 +18,8 @@ describe('TemplateDivision', () => {
     let update: DivisionTemplateDto;
     let deleted: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

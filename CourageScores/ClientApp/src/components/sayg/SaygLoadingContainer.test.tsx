@@ -3,7 +3,6 @@ import {
     appProps,
     brandingProps,
     cleanUp,
-    doChange,
     doClick,
     ErrorState,
     findButton,
@@ -34,17 +33,14 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {MessageType} from "../../interfaces/models/dtos/MessageType";
-import {CHECKOUT_2_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
     let reportedError: ErrorState;
-    let changedScore: {homeScore: number, awayScore: number};
     let saved: ILoadedScoreAsYouGoDto;
     let loadError: string;
     let saygDataMap: { [id: string]: RecordedScoreAsYouGoDto };
     let apiResponse: IClientActionResultDto<RecordedScoreAsYouGoDto>;
-    let upsertedData: UpdateRecordedScoreAsYouGoDto;
     let socketFactory: MockSocketFactory;
 
     const saygApi = api<ISaygApi>({
@@ -56,7 +52,6 @@ describe('SaygLoadingContainer', () => {
             return saygDataMap[id];
         },
         upsert: async (data: UpdateRecordedScoreAsYouGoDto): Promise<IClientActionResultDto<RecordedScoreAsYouGoDto>> => {
-            upsertedData = data;
             return apiResponse || {
                 success: true,
                 result: Object.assign({id: 'NEW_ID', yourName: ''}, data),
@@ -67,16 +62,14 @@ describe('SaygLoadingContainer', () => {
     beforeEach(() => {
         saygDataMap = {};
         apiResponse = null;
-        upsertedData = null;
         socketFactory = new MockSocketFactory();
         reportedError = new ErrorState();
-        changedScore = null;
         saved = null;
         loadError = null;
     })
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function on180(_: string) {
@@ -85,8 +78,7 @@ describe('SaygLoadingContainer', () => {
     async function onHiCheck(_: string, __: number) {
     }
 
-    async function onScoreChange(homeScore: number, awayScore: number) {
-        changedScore = {homeScore, awayScore};
+    async function onScoreChange(_: number, __: number) {
     }
 
     async function onSaved(data: ILoadedScoreAsYouGoDto) {
@@ -424,102 +416,6 @@ describe('SaygLoadingContainer', () => {
                 message: 'Cannot create property \'lastUpdated\' on string \'SOMETHING THAT WILL TRIGGER AN EXCEPTION\'',
                 stack: expect.any(String),
             });
-        });
-
-        it('should save data when score changes and auto save enabled', async () => {
-            await renderComponent({
-                id: null,
-                defaultData: saygBuilder()
-                    .scores(0, 0)
-                    .startingScore(501)
-                    .numberOfLegs(3)
-                    .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .startingScore(501)
-                        .currentThrow('home')
-                        .playerSequence('home', 'away')
-                        .home((c: ILegCompetitorScoreBuilder) => c.score(451))
-                        .away((c: ILegCompetitorScoreBuilder) => c.score(200).withThrow(0)))
-                    .build(),
-                autoSave: true,
-                liveOptions: { },
-                on180,
-                onHiCheck,
-                onScoreChange,
-                onLoadError,
-                onSaved,
-            });
-
-            await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
-
-            expect(upsertedData).not.toBeNull();
-            expect(saved).not.toBeNull();
-            expect(changedScore).toEqual({homeScore: 1, awayScore: 0});
-        });
-
-        it('should save data when player sequence changes and auto save enabled', async () => {
-            await renderComponent({
-                id: null,
-                defaultData: saygBuilder()
-                    .noId()
-                    .scores(0, 0)
-                    .startingScore(501)
-                    .numberOfLegs(3)
-                    .yourName('HOME')
-                    .opponentName('AWAY')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .startingScore(501)
-                        .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                        .away((c: ILegCompetitorScoreBuilder) => c.score(0)))
-                    .build(),
-                autoSave: true,
-                liveOptions: { },
-                on180,
-                onHiCheck,
-                onScoreChange,
-                onLoadError,
-                onSaved,
-            });
-
-            await doClick(findButton(context.container, '🎯HOME'));
-
-            expect(upsertedData).not.toBeNull();
-            expect(saved).not.toBeNull();
-        });
-
-        it('should not save data when score changes and auto save disabled', async () => {
-            await renderComponent({
-                id: null,
-                defaultData: saygBuilder()
-                    .scores(0, 0)
-                    .startingScore(501)
-                    .numberOfLegs(3)
-                    .yourName('HOME')
-                    .withLeg(0, (l: ILegBuilder) => l
-                        .startingScore(501)
-                        .currentThrow('home')
-                        .playerSequence('home', 'away')
-                        .home((c: ILegCompetitorScoreBuilder) => c.score(451))
-                        .away((c: ILegCompetitorScoreBuilder) => c.score(200).withThrow(0)))
-                    .build(),
-                autoSave: false,
-                liveOptions: { },
-                on180,
-                onHiCheck,
-                onScoreChange,
-                onLoadError,
-                onSaved,
-            });
-
-            await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_2_DART));
-
-            expect(upsertedData).toBeNull();
-            expect(saved).toBeNull();
-            expect(changedScore).toEqual({homeScore: 1, awayScore: 0});
         });
     });
 

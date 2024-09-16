@@ -22,8 +22,8 @@ describe('ManOfTheMatchInput', () => {
         updatedFixtureData = newFixtureData;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

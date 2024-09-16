@@ -4,8 +4,8 @@ import {IReviewProposalHealthProps, ReviewProposalHealth} from "./ReviewProposal
 describe('ReviewProposalHealth', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IReviewProposalHealthProps) {

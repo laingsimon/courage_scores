@@ -6,6 +6,8 @@ import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRo
 import {ISaveSideOptions} from "./EditSide";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 
+export const START_SCORING: string = '📊 Start scoring...';
+
 export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number, _: ISaveSideOptions): TournamentGameDto {
     const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
     newSide.name = (newSide.name || '').trim();

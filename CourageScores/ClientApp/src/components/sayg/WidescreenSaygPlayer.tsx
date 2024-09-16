@@ -1,6 +1,5 @@
 import {WidescreenSaygRecentThrow} from "./WidescreenSaygRecentThrow";
 import {reverse} from "../../helpers/collections";
-import {useSayg} from "./SaygLoadingContainer";
 import {useLive} from "../../live/LiveContainer";
 import {RefreshControl} from "../common/RefreshControl";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
@@ -9,6 +8,7 @@ import {useApp} from "../common/AppContainer";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 
 export interface IWidescreenSaygPlayerProps {
+    saygId: string;
     legs: { [legKey: number]: LegDto };
     player: 'home' | 'away';
     scoreFirst?: boolean;
@@ -17,9 +17,8 @@ export interface IWidescreenSaygPlayerProps {
     showOptions?: boolean;
 }
 
-export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, changeStatisticsView, showOptions }: IWidescreenSaygPlayerProps) {
+export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, changeStatisticsView, showOptions, saygId }: IWidescreenSaygPlayerProps) {
     const {onError} = useApp();
-    const {sayg} = useSayg();
     const {liveOptions} = useLive();
     const orderedLegKeys: string[] = Object.keys(legs).sort((keyA, keyB) => Number.parseInt(keyA) - Number.parseInt(keyB));
     const lastLegKey: string = orderedLegKeys[orderedLegKeys.length - 1];
@@ -52,7 +51,7 @@ export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, chang
             </div>
             {scoreFirst ? null : score}
             {showOptions ? (<div className="position-absolute p-1">
-                {liveOptions.canSubscribe && !finished ? <RefreshControl id={sayg.id} type={LiveDataType.sayg} /> : null}
+                {liveOptions.canSubscribe && !finished ? <RefreshControl id={saygId} type={LiveDataType.sayg} /> : null}
                 {changeStatisticsView ?
                     <button className="btn btn-sm btn-outline-primary border-dark"
                             onClick={() => changeStatisticsView(false)}>

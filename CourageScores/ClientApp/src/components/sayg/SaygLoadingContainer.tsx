@@ -4,13 +4,15 @@ import {useApp} from "../common/AppContainer";
 import {Loading} from "../common/Loading";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
-import {isEmpty} from "../../helpers/collections";
 import {LiveContainer} from "../../live/LiveContainer";
-import {IBaseSayg, ISayg} from "./ISayg";
+import {ISayg} from "./ISayg";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {EditableSaygContainer} from "./EditableSaygContainer";
+import {ILegDisplayOptions} from "./ILegDisplayOptions";
 
 const SaygContext = createContext({});
 
@@ -18,7 +20,7 @@ export function useSayg(): ISayg {
     return useContext(SaygContext) as ISayg;
 }
 
-export interface ISaygLoadingContainerProps extends IBaseSayg {
+export interface ISaygLoadingContainerProps {
     children?: React.ReactNode;
     id: string;
     defaultData?: ILoadedScoreAsYouGoDto;
@@ -28,6 +30,10 @@ export interface ISaygLoadingContainerProps extends IBaseSayg {
     onSaved?(data: ILoadedScoreAsYouGoDto): Promise<any>;
     onLoadError?(error: string): Promise<any>;
     liveOptions: ILiveOptions;
+    matchStatisticsOnly?: boolean;
+    lastLegDisplayOptions?: ILegDisplayOptions;
+    firstPlayerStartsFinalLeg?: boolean;
+    firstPlayerStartsFirstLeg?: boolean;
 
     // for testing only
     onScoreChange?(homeScore: number, awayScore: number): Promise<any>;
@@ -38,7 +44,7 @@ export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
 }
 
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
-                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions }: ISaygLoadingContainerProps) {
+                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions, firstPlayerStartsFinalLeg, firstPlayerStartsFirstLeg }: ISaygLoadingContainerProps) {
     const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto>(defaultData);
     const [saveError, setSaveError] = useState<IClientActionResultDto<ILoadedScoreAsYouGoDto> | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -122,11 +128,13 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             return;
         }
 
-        if (!newData.legs[0]) {
-            return;
-        }
-
-        if (!sayg.legs[0] || isEmpty(sayg.legs[0].playerSequence || [])) {
+        const newFirstLeg: LegDto = newData.legs[0];
+        const oldFirstLeg: LegDto = sayg.legs[0];
+        const newLastLeg: LegDto = newData.legs[Object.keys(newData.legs).length - 1];
+        const oldLastLeg: LegDto = sayg.legs[Object.keys(sayg.legs).length - 1];
+        if ((newFirstLeg && !oldFirstLeg && newFirstLeg.currentThrow)
+            || (newLastLeg && oldLastLeg && newLastLeg.winner && !oldLastLeg.winner)
+            || (newLastLeg && oldLastLeg && newLastLeg.currentThrow && !oldLastLeg.currentThrow)) {
             await saveDataAndGetId(newSayg);
         }
     }
@@ -150,12 +158,11 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         sayg,
         setSayg: updateSayg,
         saveDataAndGetId,
-        matchStatisticsOnly,
-        lastLegDisplayOptions,
     };
 
     try {
         return (<LiveContainer liveOptions={liveOptions} onDataUpdate={async (data: ILoadedScoreAsYouGoDto) => setSayg(data)}>
+            <EditableSaygContainer>
             <SaygContext.Provider value={saygProps}>
                 {saveError ? (
                     <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save data"/>) : null}
@@ -181,9 +188,16 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                             if (onScoreChange) {
                                 await onScoreChange(homeScore, awayScore);
                             }
-                        }}/>
+                        }}
+                        lastLegDisplayOptions={lastLegDisplayOptions}
+                        matchStatisticsOnly={matchStatisticsOnly}
+                        saveDataAndGetId={saveDataAndGetId}
+                        firstPlayerStartsFinalLeg={firstPlayerStartsFinalLeg}
+                        firstPlayerStartsFirstLeg={firstPlayerStartsFirstLeg}
+                    />
                 </div>) : null}
             </SaygContext.Provider>
+            </EditableSaygContainer>
         </LiveContainer>);
     } catch (e) {
         /* istanbul ignore next */

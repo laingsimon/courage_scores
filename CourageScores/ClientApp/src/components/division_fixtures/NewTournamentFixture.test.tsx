@@ -39,8 +39,8 @@ describe('NewTournamentFixture', () => {
         tournamentChanged = true;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

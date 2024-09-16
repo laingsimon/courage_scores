@@ -12,7 +12,7 @@ import {
     renderApp,
     TestContext
 } from "../../helpers/tests";
-import {IRequestedDivisionDataDto} from "./Division";
+import {Division, IRequestedDivisionDataDto} from "./Division";
 import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
@@ -78,8 +78,8 @@ describe('Division', () => {
         }
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {
@@ -113,7 +113,7 @@ describe('Division', () => {
                 seasons: [seasonBuilder('SEASON').build()],
                 controls: true,
             }, reportedError), '/division/:divisionId', `/division/${divisionId}`,
-                { urlStyle: UrlStyle.Single });
+                { urlStyle: UrlStyle.Single, children: <Division /> });
 
             reportedError.verifyNoError();
             const seasonSelection = context.container.querySelector('.btn-group .btn-group:nth-child(1)') as HTMLElement;
@@ -129,7 +129,7 @@ describe('Division', () => {
                 seasons: [seasonBuilder('SEASON').build()],
                 controls: false,
             }, reportedError), '/division/:divisionId', `/division/${divisionId}`,
-                { urlStyle: UrlStyle.Single });
+                { urlStyle: UrlStyle.Single, children: <Division /> });
 
             reportedError.verifyNoError();
             const seasonSelection = context.container.querySelector('.btn-group .btn-group:nth-child(1)') as HTMLElement;
@@ -170,7 +170,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams', `/teams/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -183,7 +183,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams', `/teams/?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -196,7 +196,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams/:seasonId', `/teams/${season.name}/?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -209,7 +209,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams/:seasonId', `/teams/${season.name}/?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -222,7 +222,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams/:seasonId', `/teams/${season.name}?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'teams' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'teams', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -235,7 +235,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams/:seasonId', `/teams/${season.id}?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'teams' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'teams', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -251,7 +251,7 @@ describe('Division', () => {
                     seasons: [season],
                     teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/team:${team.id}/${season.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
@@ -264,7 +264,7 @@ describe('Division', () => {
                     seasons: [season],
                     teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:${team.name}/${season.name}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
@@ -277,7 +277,7 @@ describe('Division', () => {
                     seasons: [season],
                     teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:/${season.name}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -290,7 +290,7 @@ describe('Division', () => {
                     seasons: [season],
                     teams: [team],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:UNKNOWN_TEAM/${season.name}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -304,7 +304,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -316,7 +316,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/fixtures', `/fixtures/?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -328,7 +328,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/fixtures/${season.name}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -340,7 +340,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/fixtures/${season.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -352,7 +352,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.name}?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -364,7 +364,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.id}?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -384,7 +384,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.id}/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -398,7 +398,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/players', `/players/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'players' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'players', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -411,7 +411,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/players', `/players/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'players' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'players', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -424,7 +424,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.name}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -437,7 +437,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -450,7 +450,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/players/:seasonId', `/players/${season.name}?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'players' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'players', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -463,7 +463,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/players/:seasonId', `/players/${season.id}?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'players' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'players', children: <Division /> });
 
                 reportedError.verifyNoError();
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
@@ -478,7 +478,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/player:${player.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
@@ -490,7 +490,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@${team.name}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h3') as HTMLHeadingElement;
@@ -502,7 +502,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@UNKNOWN_TEAM`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
@@ -514,7 +514,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/player:UNKNOWN_PLAYER@${team.name}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
@@ -526,7 +526,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/player:`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
@@ -538,7 +538,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.name}/player:foo`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('.content-background h5') as HTMLHeadingElement;
@@ -552,7 +552,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item')) as HTMLElement[];
@@ -569,7 +569,7 @@ describe('Division', () => {
                         }
                     }
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item')) as HTMLElement[];
@@ -587,7 +587,7 @@ describe('Division', () => {
                     },
                     controls: true,
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/reports`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
@@ -604,7 +604,7 @@ describe('Division', () => {
                         }
                     }
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/reports`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const button = context.container.querySelector('.btn.btn-primary') as HTMLButtonElement;
@@ -621,7 +621,7 @@ describe('Division', () => {
                         }
                     }
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/reports`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const button = context.container.querySelector('.btn.btn-primary') as HTMLButtonElement;
@@ -635,7 +635,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
@@ -652,7 +652,7 @@ describe('Division', () => {
                         }
                     }
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
@@ -670,7 +670,7 @@ describe('Division', () => {
                     },
                     controls: true,
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/health`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
@@ -687,7 +687,7 @@ describe('Division', () => {
                         }
                     }
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/health`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const button = context.container.querySelector('.btn.btn-primary');
@@ -704,7 +704,7 @@ describe('Division', () => {
                         }
                     }
                 }, reportedError), '/division/:divisionId/:mode', `/division/${division.id}/health`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const component = context.container.querySelector('div[datatype="health"]') as HTMLElement;
@@ -731,7 +731,7 @@ describe('Division', () => {
                     seasons: [season],
                     account: {},
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('h3') as HTMLHeadingElement;
@@ -744,7 +744,7 @@ describe('Division', () => {
                     seasons: [season],
                     account: {},
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
                 const heading = context.container.querySelector('h3') as HTMLHeadingElement;
                 expect(heading.textContent).toEqual('⚠ Errors in division data');
 
@@ -758,7 +758,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/division/:divisionId', `/division/${division.id}`,
-                    { urlStyle: UrlStyle.Single });
+                    { urlStyle: UrlStyle.Single, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const heading = context.container.querySelector('h3') as HTMLHeadingElement;
@@ -781,7 +781,7 @@ describe('Division', () => {
                     seasons: [season],
                     account: {},
                 }, reportedError), '/teams/:seasonId', `/teams/${season.id}/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 expect(reportedError.error).toEqual(`Data for a different season returned, requested: ${season.id}`);
             });
@@ -798,7 +798,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams', `/teams/?division=unknown`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -810,7 +810,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams/:seasonId', `/teams/UNKNOWN/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -822,7 +822,7 @@ describe('Division', () => {
                     divisions: [],
                     seasons: [season],
                 }, reportedError), '/teams', `/teams/?division=${division.name}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 reportedError.verifyNoError();
                 const content = context.container.querySelector('.content-background') as HTMLElement;
@@ -844,7 +844,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams', `/teams/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 expect(reportedError.error).toEqual('Error accessing division: Code: 500 -- key1: some error1, key2: some error2');
             });
@@ -859,7 +859,7 @@ describe('Division', () => {
                     divisions: [division],
                     seasons: [season],
                 }, reportedError), '/teams', `/teams/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple });
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
                 expect(reportedError.error).toEqual('Error accessing division: Code: 500');
             });
@@ -885,7 +885,7 @@ describe('Division', () => {
                     },
                     teams: [homeTeam, awayTeam],
                 }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
                 expect(dataRequested).toEqual([
                     {divisionId: division.id},
                 ]); // data loaded once
@@ -923,7 +923,7 @@ describe('Division', () => {
                     },
                     teams: [homeTeam, awayTeam],
                 }, reportedError), '/fixtures', `/fixtures/?division=${division.id}`,
-                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures' });
+                    { urlStyle: UrlStyle.Multiple, mode: 'fixtures', children: <Division /> });
                 expect(dataRequested).toEqual([
                     {divisionId: division.id},
                 ]); // data loaded once
@@ -965,7 +965,7 @@ describe('Division', () => {
                 seasons: [season],
                 controls: true,
             }, reportedError), '/teams', `/teams/?division=${division.id}`,
-                { urlStyle: UrlStyle.Multiple });
+                { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-group')).toBeTruthy();
@@ -979,7 +979,7 @@ describe('Division', () => {
                 seasons: [season],
                 controls: true,
             }, reportedError), '/teams', `/teams/?division=${division.id}`,
-                { urlStyle: UrlStyle.Multiple });
+                { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.nav-tabs')).toBeTruthy();
@@ -994,7 +994,7 @@ describe('Division', () => {
                 seasons: [season],
                 controls: false,
             }, reportedError), '/teams', `/teams/?division=${division.id}`,
-                { urlStyle: UrlStyle.Multiple });
+                { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-group')).toBeFalsy();
@@ -1006,7 +1006,7 @@ describe('Division', () => {
                 seasons: [season],
                 controls: false,
             }, reportedError), '/teams', `/teams/?division=${division.id}`,
-                { urlStyle: UrlStyle.Multiple });
+                { urlStyle: UrlStyle.Multiple, children: <Division /> });
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.nav-tabs')).toBeFalsy();

@@ -49,6 +49,8 @@ import {UploadPhotoDto} from "../../interfaces/models/dtos/UploadPhotoDto";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {IFeatureApi} from "../../interfaces/apis/IFeatureApi";
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
+import {checkoutWith, keyPad} from "../../helpers/sayg";
+import {START_SCORING} from "./tournaments";
 
 interface IScenario {
     account?: UserDto;
@@ -159,11 +161,11 @@ describe('Tournament', () => {
         divisionDataLookup[key] = data;
     }
 
-    afterEach(() => {
+    afterEach(async () => {
         divisionDataLookup = {};
         tournamentDataLookup = {};
         saygDataLookup = {};
-        cleanUp(context);
+        await cleanUp(context);
     });
 
     beforeEach(() => {
@@ -646,7 +648,7 @@ describe('Tournament', () => {
                 divisions: [division],
             }, false);
 
-            await doClick(findButton(context.container, 'Edit'));
+            await doClick(context.container.querySelector('div[datatype="details"] > div.alert'));
             const dialog = context.container.querySelector('div.modal-dialog');
             await doChange(dialog, 'input[name="type"]', 'NEW TYPE', context.user);
             await doClick(findButton(dialog, 'Close'));
@@ -800,7 +802,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
@@ -835,7 +837,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;
@@ -872,7 +874,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕'));
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;
@@ -922,13 +924,12 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
-            await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
+            await keyPad(context, [ '5', '0', ENTER_SCORE_BUTTON ]);
+            await checkoutWith(context, CHECKOUT_3_DART);
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
@@ -971,7 +972,6 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -988,12 +988,11 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
-            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
+            await keyPad(context, [ '1', '8', '0', ENTER_SCORE_BUTTON ]);
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
@@ -1030,7 +1029,6 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1047,13 +1045,12 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: true, result: tournamentData};
 
-            await doChange(context.container, 'input[data-score-input="true"]', '100', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART));
+            await keyPad(context, [ '1', '0', '0', ENTER_SCORE_BUTTON ]);
+            await checkoutWith(context, CHECKOUT_3_DART);
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).toEqual([{
@@ -1106,7 +1103,6 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
-                .singleRound()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .saygId(sayg.id)
@@ -1123,12 +1119,11 @@ describe('Tournament', () => {
                 teams: [],
                 divisions: [division],
             }, false);
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"] tbody tr:nth-child(1)'), '📊')); // first match
+            await doClick(findButton(context.container.querySelector('div[datatype="match"]'), START_SCORING)); // first match
             reportedError.verifyNoError();
             apiResponse = {success: false, errors: ['SOME ERROR']};
 
-            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
+            await keyPad(context, [ '1', '8', '0', ENTER_SCORE_BUTTON ]);
 
             reportedError.verifyNoError();
             expect(patchedTournamentData).not.toBeNull();
@@ -1352,7 +1347,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;
@@ -1389,7 +1384,7 @@ describe('Tournament', () => {
             await doSelectOption(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
             await doClick(findButton(context.container.querySelector('div[datatype="edit-tournament"] table tr td:nth-child(6)'), '➕')); // add match
 
-            await doClick(findButton(context.container, 'Save'));
+            await doClick(findButton(context.container, 'Close'));
 
             expect(alert).toBeFalsy();
             const round = updatedTournamentData[0].round;

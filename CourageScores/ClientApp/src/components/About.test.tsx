@@ -20,8 +20,8 @@ describe('About', () => {
         },
     };
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(build: IBuild, branding: IBrandingContainerProps) {

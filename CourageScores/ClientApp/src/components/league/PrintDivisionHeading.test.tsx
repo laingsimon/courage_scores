@@ -7,8 +7,8 @@ import {ISeasonBuilder} from "../../helpers/builders/seasons";
 describe('PrintDivisionHeading', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IPrintDivisionHeadingProps, divisionData : IDivisionDataContainerProps) {

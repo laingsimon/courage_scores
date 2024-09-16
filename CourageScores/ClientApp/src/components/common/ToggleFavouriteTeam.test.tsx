@@ -13,8 +13,8 @@ import {DivisionDataContainer} from "../league/DivisionDataContainer";
 describe('ToggleFavouriteTeam', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

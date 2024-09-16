@@ -51,8 +51,8 @@ describe('EditNote', () => {
         saved = true;
     }
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

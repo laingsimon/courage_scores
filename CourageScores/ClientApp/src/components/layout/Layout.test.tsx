@@ -4,8 +4,8 @@ import {Layout} from "./Layout";
 describe('Layout', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(error: any, embed: boolean) {

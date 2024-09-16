@@ -17,8 +17,8 @@ describe('PageError', () => {
     let appError: IError;
     let reportedClientSideException: IError[];
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     function clearError() {

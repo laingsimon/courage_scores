@@ -19,6 +19,7 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILegBuilder, ILegCompetitorScoreBuilder, saygBuilder} from "../../helpers/builders/sayg";
 import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
+import {checkoutWith, keyPad} from "../../helpers/sayg";
 
 describe('Practice', () => {
     let context: TestContext;
@@ -46,8 +47,8 @@ describe('Practice', () => {
         },
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {
@@ -94,11 +95,6 @@ describe('Practice', () => {
         expect(input.value).toEqual(value);
     }
 
-    function assertScoreInputVisible() {
-        const scoreInput = context.container.querySelector('input[data-score-input="true"]') as HTMLInputElement;
-        expect(scoreInput).toBeTruthy();
-    }
-
     describe('logged out', () => {
         const account = null;
 
@@ -119,7 +115,6 @@ describe('Practice', () => {
             assertInputValue('startingScore', '501');
             assertInputValue('numberOfLegs', '3');
             assertInputValue('opponentName', '');
-            assertScoreInputVisible();
         });
 
         it('renders given empty saved data', async () => {
@@ -131,7 +126,6 @@ describe('Practice', () => {
             assertInputValue('startingScore', '501');
             assertInputValue('numberOfLegs', '3');
             assertInputValue('opponentName', '');
-            assertScoreInputVisible();
         });
 
         it('renders given not-found data', async () => {
@@ -175,7 +169,6 @@ describe('Practice', () => {
             assertInputValue('startingScore', '123');
             assertInputValue('numberOfLegs', '2');
             assertInputValue('opponentName', '');
-            assertScoreInputVisible();
         });
 
         it('renders given valid finished json data', async () => {
@@ -334,8 +327,7 @@ describe('Practice', () => {
             reportedError.verifyNoError();
             assertNoDataError();
 
-            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
+            await keyPad(context, ['1','8','0', ENTER_SCORE_BUTTON]);
 
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
@@ -355,13 +347,10 @@ describe('Practice', () => {
             reportedError.verifyNoError();
             assertNoDataError();
             await doChange(context.container, 'input[name="startingScore"]', '501', context.user);
-            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doChange(context.container, 'input[data-score-input="true"]', '141', context.user);
-            await doClick(findButton(context.container, ENTER_SCORE_BUTTON));
-            await doClick(findButton(context.container.querySelector('div[datatype="gameshot-buttons-score"]'), CHECKOUT_3_DART)); // checkout
+            await keyPad(context, ['1','8','0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1','8','0', ENTER_SCORE_BUTTON]);
+            await keyPad(context, ['1','4','1', ENTER_SCORE_BUTTON]);
+            await checkoutWith(context, CHECKOUT_3_DART);
 
             await doClick(findButton(context.container, 'Save '));
             const id = Object.keys(saygData)[0];
@@ -385,7 +374,6 @@ describe('Practice', () => {
 
             reportedError.verifyNoError();
             assertInputValue('yourName', 'GIVEN NAME');
-            assertScoreInputVisible();
         });
 
         it('renders given valid unfinished json data', async () => {
@@ -409,7 +397,6 @@ describe('Practice', () => {
             assertInputValue('startingScore', '123');
             assertInputValue('numberOfLegs', '2');
             assertInputValue('opponentName', '');
-            assertScoreInputVisible();
         });
 
         it('renders given valid completed json data', async () => {

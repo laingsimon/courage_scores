@@ -5,8 +5,8 @@ describe('MatchAverage', () => {
     let context: TestContext;
     let oneDartAverage: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

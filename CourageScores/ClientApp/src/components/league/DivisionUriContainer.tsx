@@ -1,4 +1,4 @@
-import {createContext, useContext} from "react";
+import React, {createContext, useContext} from "react";
 import {IDivisionUri, IIdish} from "./IDivisionUri";
 import {isGuid} from "../../helpers/projection";
 import {any} from "../../helpers/collections";
@@ -6,7 +6,6 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {useApp} from "../common/AppContainer";
 import {useLocation, useParams} from "react-router-dom";
-import {Division} from "./Division";
 
 function makeIdish(item: { id: string, name?: string}): IIdish {
     return {
@@ -32,12 +31,13 @@ export enum UrlStyle {
 }
 
 export interface IDivisionUriContainerProps {
+    children: React.ReactNode;
     urlStyle: UrlStyle;
     mode?: string;
 }
 
 /* istanbul ignore next */
-export function DivisionUriContainer({ urlStyle, mode: overrideMode }: IDivisionUriContainerProps) {
+export function DivisionUriContainer({ children, urlStyle, mode: overrideMode }: IDivisionUriContainerProps) {
     const {divisions, seasons} = useApp();
     const {divisionId, mode, seasonId} = useParams();
     const location = useLocation();
@@ -90,7 +90,7 @@ export function DivisionUriContainer({ urlStyle, mode: overrideMode }: IDivision
 
     try {
         return (<DivisionUriContext.Provider value={data}>
-            <Division/>
+            {children}
         </DivisionUriContext.Provider>);
     } catch (e) {
         onError(e);

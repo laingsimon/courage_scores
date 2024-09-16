@@ -7,8 +7,8 @@ describe('WidescreenSaygPlayerStatistic', () => {
     let context: TestContext;
     let newOneDartAverage: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

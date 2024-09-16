@@ -18,8 +18,8 @@ describe('TemplateDate', () => {
     let update: DateTemplateDto;
     let deleted: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

@@ -26,6 +26,7 @@ import {createTemporaryId} from "../../../helpers/projection";
 import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../helpers/builders/sayg";
+import {START_SCORING} from "../tournaments";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -57,8 +58,8 @@ describe('MasterDraw', () => {
         }
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {
@@ -111,7 +112,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
@@ -129,14 +130,14 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'Board 1',
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
             const tournamentProperties = context.container.querySelector('div.d-flex > div:nth-child(2)');
             expect(tournamentProperties.textContent).toContain('Gender: GENDER');
             expect(tournamentProperties.textContent).toContain('Date: ' + renderDate('2023-05-06'));
-            expect(tournamentProperties.textContent).toContain('Notes: NOTES');
+            expect(tournamentProperties.textContent).toContain('Notes: Board 1');
         });
 
         it('when no notes', async () => {
@@ -146,7 +147,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: '',
+                type: '',
             }, defaultContainerProps);
 
             reportedError.verifyNoError();
@@ -164,7 +165,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -186,7 +187,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -212,7 +213,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -238,7 +239,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -264,7 +265,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -290,7 +291,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -312,7 +313,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -334,7 +335,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().build(),
@@ -356,7 +357,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
@@ -378,7 +379,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament: null,
                 tournamentData: tournamentBuilder().build(),
@@ -412,7 +413,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder().singleRound().build(),
@@ -423,7 +424,7 @@ describe('MasterDraw', () => {
             }, account);
             reportedError.verifyNoError();
 
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '📊'));
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
 
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -453,7 +454,7 @@ describe('MasterDraw', () => {
                 opponent: 'OPPONENT',
                 gender: 'GENDER',
                 date: '2023-05-06',
-                notes: 'NOTES',
+                type: 'TYPE',
             }, {
                 setEditTournament,
                 tournamentData: tournamentBuilder(tournamentId).round((r: ITournamentRoundBuilder) => r.withMatch(match)).singleRound().build(),
@@ -463,7 +464,7 @@ describe('MasterDraw', () => {
                 setPreventScroll,
             }, account);
             reportedError.verifyNoError();
-            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), '📊'));
+            await doClick(findButton(context.container.querySelector('div[datatype="master-draw"]'), START_SCORING));
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
             window.confirm = (_: string) => true;

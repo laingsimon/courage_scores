@@ -15,12 +15,12 @@ export interface IMasterDrawProps {
     opponent: string;
     gender: string;
     date: string;
-    notes: string;
+    type: string;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<boolean>;
     readOnly?: boolean;
 }
 
-export function MasterDraw({matches, host, opponent, gender, date, notes, patchData, readOnly}: IMasterDrawProps) {
+export function MasterDraw({matches, host, opponent, gender, date, type, patchData, readOnly}: IMasterDrawProps) {
     const {onError} = useApp();
     const {tournamentData, setTournamentData, setEditTournament } = useTournament();
     const matchOptions: GameMatchOptionDto = {
@@ -36,8 +36,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
 
     async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string) {
         if (!nestInRound) {
-            // e.g. 180s/hi-checks, which don't apply to rounds, so can be pass up without including the nested round info.
-            await patchData(patch, nestInRound);
+            // no need to pass this up, super-league tournaments don't record 180s and hi-checks differently
             return;
         }
 
@@ -62,6 +61,8 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                         </thead>
                         <tbody>
                         {matches.map((m: TournamentMatchDto, index: number) => {
+                            const evenNumberedMatch: boolean = (index + 1) % 2 === 0;
+
                             return (<tr key={index}>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{index + 1}</td>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{m.sideA.name}</td>
@@ -76,7 +77,10 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                                         matchIndex={index}
                                         patchData={patchRoundData}
                                         readOnly={readOnly}
-                                        showViewSayg={false} />
+                                        showViewSayg={true}
+                                        firstPlayerStartsFinalLeg={true}
+                                        firstPlayerStartsFirstLeg={true}
+                                        reverseOrder={evenNumberedMatch} />
                                 </td>
                             </tr>);
                         })}
@@ -95,7 +99,7 @@ export function MasterDraw({matches, host, opponent, gender, date, notes, patchD
                 <div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
                     <div>Gender: <span className="fw-bold">{gender}</span></div>
                     <div>Date: <span className="fw-bold">{renderDate(date)}</span></div>
-                    {notes ? (<div>Notes: <span className="fw-bold">{notes}</span></div>) : null}
+                    {type ? (<div>Notes: <span className="fw-bold">{type}</span></div>) : null}
 
                     {setEditTournament ? (<div className="d-print-none alert alert-warning p-2 m-3 ms-0">
                         Click to edit details

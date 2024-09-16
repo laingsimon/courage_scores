@@ -5,8 +5,8 @@ import {IBrandingData} from "./IBrandingData";
 describe('BrandingContainer', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IBrandingData) {

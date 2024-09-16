@@ -4,8 +4,8 @@ import {IWidescreenSaygRecentThrowProps, WidescreenSaygRecentThrow} from "./Wide
 describe('WidescreenSaygRecentThrow', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IWidescreenSaygRecentThrowProps) {

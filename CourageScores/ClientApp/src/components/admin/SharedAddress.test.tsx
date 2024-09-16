@@ -17,8 +17,8 @@ describe('SharedAddress', () => {
     let updatedAddresses: string[];
     let deleted: boolean;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function onUpdate(addresses: string[]) {

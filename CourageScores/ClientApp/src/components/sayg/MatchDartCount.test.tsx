@@ -4,8 +4,8 @@ import {IMatchDartCountProps, MatchDartCount} from "./MatchDartCount";
 describe('MatchDartCount', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(props: IMatchDartCountProps) {

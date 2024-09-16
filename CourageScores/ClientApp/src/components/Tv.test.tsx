@@ -34,8 +34,8 @@ describe('Tv', () => {
         }
     });
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {

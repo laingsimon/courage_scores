@@ -6,8 +6,8 @@ import {IBrandingContainerProps} from "../common/BrandingContainer";
 describe('Heading', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function renderComponent(build: IBuild, branding: IBrandingContainerProps) {

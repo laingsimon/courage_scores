@@ -7,8 +7,8 @@ import {DataErrorDto} from "../../interfaces/models/dtos/Division/DataErrorDto";
 describe('DataError', () => {
     let context: TestContext;
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     async function setDivisionData() {

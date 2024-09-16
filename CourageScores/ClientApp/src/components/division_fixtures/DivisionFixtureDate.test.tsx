@@ -51,8 +51,8 @@ describe('DivisionFixtureDate', () => {
 
     async function onTournamentChanged() {}
 
-    afterEach(() => {
-        cleanUp(context);
+    afterEach(async () => {
+        await cleanUp(context);
     });
 
     beforeEach(() => {
