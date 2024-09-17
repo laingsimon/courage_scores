@@ -159,7 +159,7 @@ public class UserService : IUserService
         await foreach (var team in _teamRepository.GetAll(token))
         {
             var teamHasPlayerWithEmailAddress = team.Seasons.Any(s =>
-                s.Players.Any(p => p.EmailAddress?.Equals(emailAddress, StringComparison.OrdinalIgnoreCase) == true));
+                s.Players.Any(p => p.Deleted == null && p.EmailAddress?.Equals(emailAddress, StringComparison.OrdinalIgnoreCase) == true));
 
             if (teamHasPlayerWithEmailAddress)
             {

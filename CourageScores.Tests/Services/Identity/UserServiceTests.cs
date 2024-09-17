@@ -129,10 +129,7 @@ public class UserServiceTests
             {
                 new TeamSeason
                 {
-                    Players =
-                    {
-                        teamPlayer,
-                    },
+                    Players = { teamPlayer },
                 },
             },
         };
@@ -152,6 +149,46 @@ public class UserServiceTests
                 && u.GivenName == "Simon"
                 && u.EmailAddress == "simon@email.com"
                 && u.TeamId == team.Id)));
+    }
+
+    [Test]
+    public async Task GetUser_WhenCalledFirstTimeAndUserDeletedInDbWithNoTeamIdAndTeamUserFoundForEmailAddress_UpdatesUser()
+    {
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var existingUser = GetUser();
+        var teamPlayer = new TeamPlayer
+        {
+            Id = Guid.NewGuid(),
+            EmailAddress = "simon@email.com",
+            Deleted = new DateTime(2001, 02, 03),
+        };
+        var team = new CosmosTeam
+        {
+            Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeason
+                {
+                    Players = { teamPlayer },
+                },
+            },
+        };
+        _userRepository
+            .Setup(r => r.GetUser("simon@email.com"))
+            .ReturnsAsync(existingUser);
+        _allTeams.Add(team);
+
+        await _service.GetUser(_token);
+
+        _userRepository
+            .Verify(r => r.GetUser("simon@email.com"));
+        _userRepository
+            .Verify(r => r.UpsertUser(It.Is<User>(u =>
+                u != existingUser
+                && u.Name == "Simon Laing"
+                && u.GivenName == "Simon"
+                && u.EmailAddress == "simon@email.com"
+                && u.TeamId == null)));
     }
 
     [Test]

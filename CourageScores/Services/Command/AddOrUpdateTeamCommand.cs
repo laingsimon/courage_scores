@@ -75,7 +75,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
         team.Name = update.Name;
         team.Address = update.Address;
-        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
+        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId && ts.Deleted == null);
         if (teamSeason == null)
         {
             var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();

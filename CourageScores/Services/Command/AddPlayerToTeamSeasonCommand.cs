@@ -115,7 +115,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             };
         }
 
-        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
+        var teamSeason = model.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id && ts.Deleted == null);
         if (teamSeason == null)
         {
             if (!_addSeasonToTeamIfMissing)
@@ -152,9 +152,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             teamSeason = result.Result;
         }
 
-        var players = teamSeason.Players;
-
-        var existingPlayer = players.SingleOrDefault(p => p.Name == _player!.Name);
+        var existingPlayer = teamSeason.Players.SingleOrDefault(p => p.Name == _player!.Name);
         if (existingPlayer != null)
         {
             if (existingPlayer.Deleted == null)
@@ -170,7 +168,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 };
             }
 
-            await _auditingHelper.SetUpdated(existingPlayer, token);
+            await _auditingHelper.SetUpdated(existingPlayer, token); // will undelete the player
             existingPlayer.Captain = _player!.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
@@ -193,7 +191,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             Id = Guid.NewGuid(),
         };
         await _auditingHelper.SetUpdated(newPlayer, token);
-        players.Add(newPlayer);
+        teamSeason.Players.Add(newPlayer);
         _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
 
         return new ActionResult<TeamPlayer>

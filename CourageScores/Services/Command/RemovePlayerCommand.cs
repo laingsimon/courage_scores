@@ -92,7 +92,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
+        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id && s.Deleted == null);
         if (teamSeason == null)
         {
             return new ActionResult<TeamPlayer>
@@ -105,7 +105,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
+        var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId); // allow player to be 're-deleted'
         if (player == null)
         {
             return new ActionResult<TeamPlayer>
