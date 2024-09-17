@@ -372,17 +372,11 @@ public class UserServiceTests
         var loggedInUser = GetUser(name: "Logged in user", manageAccess: true);
         var otherUser = GetUser(name: "Other user");
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
-        _userRepository.Setup(r => r.GetAll()).Returns(TestUtilities.AsyncEnumerable(new[]
-        {
-            otherUser, loggedInUser,
-        }));
+        _userRepository.Setup(r => r.GetAll()).Returns(TestUtilities.AsyncEnumerable(otherUser, loggedInUser));
 
         var users = await _service.GetAll(_token).ToList();
 
-        Assert.That(users.Select(u => u.Name), Is.EquivalentTo(new[]
-        {
-            "Logged in user", "Other user",
-        }));
+        Assert.That(users.Select(u => u.Name), Is.EquivalentTo(new[] { "Logged in user", "Other user" }));
     }
 
     [Test]
@@ -394,10 +388,7 @@ public class UserServiceTests
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Not logged in",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
     }
 
     [Test]
@@ -411,10 +402,7 @@ public class UserServiceTests
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Not permitted",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
     }
 
     [Test]
@@ -429,10 +417,7 @@ public class UserServiceTests
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Not found",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not found" }));
     }
 
     [Test]
@@ -446,10 +431,7 @@ public class UserServiceTests
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[]
-        {
-            "Cannot remove your own user access",
-        }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Cannot remove your own user access" }));
     }
 
     [Test]
@@ -466,10 +448,7 @@ public class UserServiceTests
 
         _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == true)));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[]
-        {
-            "Access updated",
-        }));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
     }
 
     [Test]
@@ -486,10 +465,7 @@ public class UserServiceTests
 
         _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == false)));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[]
-        {
-            "Access updated",
-        }));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
     }
 
     private void CreateTicket(string fullName, string email, string givenName)
