@@ -40,6 +40,9 @@ Function Get-PullRequestComments()
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        } `
         -Method Get `
 
     if ($Response.StatusCode -ne 200) 
@@ -50,7 +53,7 @@ Function Get-PullRequestComments()
 
     $Json = $Response | ConvertFrom-Json
     Return $Json `
-        | Where-Object { $_.body -like "*$($Extension) file/s approaching limit*" -Or $_.body.Value -like "*$($Extension) file/s exceeding limit*" } `
+        | Where-Object { $_.body -like "*$($Extension) file/s approaching line*" -Or $_.body.Value -like "*$($Extension) file/s exceeding*" } `
 }
 
 Function Remove-ExistingComment($Comment)
