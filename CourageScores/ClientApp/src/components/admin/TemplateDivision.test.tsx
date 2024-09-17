@@ -11,6 +11,7 @@ import {
 } from "../../helpers/tests";
 import {ITemplateDivisionProps, TemplateDivision} from "./TemplateDivision";
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 describe('TemplateDivision', () => {
     let context: TestContext;
@@ -36,6 +37,9 @@ describe('TemplateDivision', () => {
         deleted = true;
     }
 
+    async function onCopyToDivision(newDates: DateTemplateDto[], divisionIndex: number) {
+    }
+
     async function renderComponent(props: ITemplateDivisionProps) {
         context = await renderApp(
             iocProps(),
@@ -57,6 +61,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             const heading = context.container.querySelector('h6');
@@ -73,6 +79,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             const divisionSharedAddresses = context.container.querySelector('div > ul:nth-child(2)');
@@ -94,6 +102,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             const dates = context.container.querySelector('div > ul:nth-child(3)');
@@ -112,6 +122,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
             const heading = context.container.querySelector('h6');
 
@@ -130,6 +142,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
             const heading = context.container.querySelector('h6');
 
@@ -149,6 +163,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '➕ Add shared address'));
@@ -169,6 +185,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -191,6 +209,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove division'));

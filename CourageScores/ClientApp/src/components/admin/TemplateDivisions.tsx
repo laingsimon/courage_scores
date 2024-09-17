@@ -1,5 +1,6 @@
 import {TemplateDivision} from "./TemplateDivision";
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
+import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 export interface ITemplateDivisionsProps {
     divisions: DivisionTemplateDto[];
@@ -24,6 +25,18 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
         await onUpdate(divisions.filter((_: DivisionTemplateDto, i: number) => index !== i));
     }
 
+    async function onCopyToDivision(newDates: DateTemplateDto[], divisionIndex: number) {
+        await onUpdate(divisions.map((division: DivisionTemplateDto, index: number) => {
+            if (index === divisionIndex) {
+                const newDivision: DivisionTemplateDto = Object.assign({}, division);
+                newDivision.dates = newDates;
+                return newDivision;
+            }
+
+            return division;
+        }));
+    }
+
     return (<ul className="list-group mb-3">
         <li className="list-group-item bg-light">Divisions</li>
         {divisions.map((d: DivisionTemplateDto, index: number) => <li className="list-group-item" key={index}>
@@ -32,7 +45,9 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
                 division={d}
                 onDelete={() => deleteDivision(index)}
                 onUpdate={(update: DivisionTemplateDto) => updateDivision(update, index)}
-                templateSharedAddresses={templateSharedAddresses} />
+                templateSharedAddresses={templateSharedAddresses}
+                divisionCount={divisions.length}
+                onCopyToDivision={onCopyToDivision} />
         </li>)}
         <button className="list-group-item btn-primary small" onClick={addDivision}>
             ➕ Add another division

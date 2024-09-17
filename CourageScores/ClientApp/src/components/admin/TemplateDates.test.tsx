@@ -30,6 +30,9 @@ describe('TemplateDates', () => {
         update = value;
     }
 
+    async function onCopyToDivision(newDates: DateTemplateDto[], divisionIndex: number) {
+    }
+
     async function renderComponent(props: ITemplateDatesProps) {
         context = await renderApp(
             iocProps(),
@@ -49,6 +52,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -61,6 +67,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             const dateElements = Array.from(context.container.querySelectorAll('ul li')) as HTMLElement[];
@@ -78,6 +87,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             const dateElement = context.container.querySelector('ul li:nth-child(2)');
@@ -92,6 +104,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -112,6 +127,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '🗑️'));
@@ -135,6 +153,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
             const secondDate = context.container.querySelector('.list-group-item:nth-child(3)');
 
@@ -169,6 +190,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
             const firstDate = context.container.querySelector('.list-group-item:nth-child(2)');
 
@@ -203,6 +227,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, 'A - B ×'));
