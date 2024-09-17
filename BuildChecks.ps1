@@ -40,6 +40,9 @@ Function Get-PullRequestComments()
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        } `
         -Method Get `
 
     if ($Response.StatusCode -ne 200) 
