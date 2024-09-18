@@ -109,6 +109,21 @@ public class CosmosTableServiceTests
     }
 
     [Test]
+    public async Task GetTables_WhenNotLoggedIn_ExcludesTablesFromOtherEnvironments()
+    {
+        _tables.Add("user_uat");
+        _user = null;
+        var tables = await _service.GetTables(_token).ToList();
+
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
+        {
+            "game",
+            "tournamentgame",
+            "team",
+        }));
+    }
+
+    [Test]
     public async Task GetTables_WhenLoggedIn_ReturnsTableDtoForAllTables()
     {
         var tables = await _service.GetTables(_token).ToList();
