@@ -236,6 +236,75 @@ public class AddressAssignmentStrategyTests
     }
 
     [Test]
+    public async Task AssignAddresses_GivenMissingPreSelectedDivisionSharedAddressesMapping_ReturnsFailure()
+    {
+        var missingTeamId = Guid.NewGuid();
+        var context = ProposalContext(
+            new[] { Division1 },
+            ABTemplate,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { Division1.Id, new[] { TeamB, TeamA } },
+            },
+            new Dictionary<string, Guid>
+            {
+                { "A", missingTeamId },
+                { "B", TeamA.Id },
+            });
+
+        var result = await _strategy.AssignAddresses(context, _token);
+
+        Assert.That(result, Is.False);
+        Assert.That(context.Result.Errors, Is.EquivalentTo(new[] { $"Could not find team {missingTeamId} in shared address group" }));
+    }
+
+    [Test]
+    public async Task AssignAddresses_GivenSameNumberOfPreSelectedDivisionSharedAddressesAsInTemplateDivision_MapsEachDivisionSharedAddressCorrectly()
+    {
+        var context = ProposalContext(
+            new[] { Division1 },
+            ABTemplate,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { Division1.Id, new[] { TeamB, TeamA } },
+            },
+            new Dictionary<string, Guid>
+            {
+                { "A", TeamB.Id },
+                { "B", TeamA.Id },
+            });
+
+        var result = await _strategy.AssignAddresses(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(TeamB));
+        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(TeamA));
+    }
+
+    [Test]
+    public async Task AssignAddresses_GivenNoPreSelectedDivisionSharedAddresses_DoesNotMapAnyTeams()
+    {
+        var context = ProposalContext(
+            new[] { Division1 },
+            ABTemplate,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { Division1.Id, new[] { TeamB, TeamA } },
+            },
+            new Dictionary<string, Guid>
+            {
+                { "C", TeamB.Id },
+                { "D", TeamA.Id },
+            });
+
+        var result = await _strategy.AssignAddresses(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(TeamB));
+        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(TeamA));
+    }
+
+    [Test]
     public async Task AssignAddresses_GivenFewerDivisionSharedAddressesThanInTemplateDivision_MapsEachDivisionSharedAddressCorrectly()
     {
         var template = new TemplateDto
@@ -266,6 +335,43 @@ public class AddressAssignmentStrategyTests
         Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(TeamA).Or.EqualTo(TeamB));
         Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(TeamB).Or.EqualTo(TeamA));
         Assert.That(context.PlaceholderMapping.Values, Is.EquivalentTo(new[] { TeamA, TeamB }));
+    }
+
+    [Test]
+    public async Task AssignAddresses_GivenFewerPreSelectedDivisionSharedAddressesThanInTemplateDivision_MapsEachDivisionSharedAddressCorrectly()
+    {
+        var template = new TemplateDto
+        {
+            Divisions =
+            {
+                new DivisionTemplateDto
+                {
+                    SharedAddresses =
+                    {
+                        List(TeamPlaceholderA, TeamPlaceholderB),
+                        List(TeamPlaceholderC, TeamPlaceholderD),
+                    },
+                },
+            },
+        };
+        var context = ProposalContext(
+            new[] { Division1 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { Division1.Id, new[] { TeamB, TeamA } },
+            },
+            new Dictionary<string, Guid>
+            {
+                { "A", TeamB.Id },
+                { "B", TeamA.Id },
+            });
+
+        var result = await _strategy.AssignAddresses(context, _token);
+
+        Assert.That(result, Is.True);
+        Assert.That(context.PlaceholderMapping["A"], Is.EqualTo(TeamB));
+        Assert.That(context.PlaceholderMapping["B"], Is.EqualTo(TeamA));
     }
 
     [Test]
