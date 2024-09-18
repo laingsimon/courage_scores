@@ -6,7 +6,8 @@ on:
       ignore_sizes:
         required: false
         type: string
-
+permissions:
+  pull-requests: write  
 jobs:
   with-dotnet:
     runs-on: ubuntu-latest
