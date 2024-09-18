@@ -144,8 +144,8 @@ describe('DivisionFixtures', () => {
 
     function getFixtureDateElement(index: number, account?: UserDto): Element {
         const fixtureElements = Array.from(context.container.querySelectorAll('div.content-background > div')) as HTMLElement[];
-        expect(fixtureElements.length).toEqual(2 + (account ? 1 : 0));
-        const fixtureDatesContainer = fixtureElements[1];
+        expect(fixtureElements.length).toEqual(2 + (account ? 2 : 0));
+        const fixtureDatesContainer = fixtureElements[account ? 2 : 1];
         const fixtureDates = fixtureDatesContainer.children;
         expect(fixtureElements.length).toBeGreaterThan(index);
         return fixtureDates[index];
@@ -652,7 +652,7 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
 
-            await doClick(findButton(context.container, '➕ Add date'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '➕ Add date'));
 
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -664,7 +664,7 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
 
-            await doClick(findButton(context.container, '➕ Add date'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '➕ Add date'));
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
 
             reportedError.verifyNoError();
@@ -675,7 +675,7 @@ describe('DivisionFixtures', () => {
         it('prevents adding a date when no date selected', async () => {
             const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
-            await doClick(findButton(context.container, '➕ Add date'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
             let alert: string;
             window.alert = (message) => alert = message;
@@ -698,7 +698,7 @@ describe('DivisionFixtures', () => {
                     .forSeason(divisionData.season))
                 .build());
             await renderComponent(divisionData, account);
-            await doClick(findButton(context.container, '➕ Add date'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
 
             await doChange(dialog, 'input[type="date"]', '2022-10-13', context.user);
@@ -717,7 +717,7 @@ describe('DivisionFixtures', () => {
             const outOfSeasonTeam = teamBuilder('OUT OF SEASON TEAM')
                 .build();
             await renderComponent(divisionData, account, null, null, null, [team, outOfSeasonTeam]);
-            await doClick(findButton(context.container, '➕ Add date'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
 
             await doChange(dialog, 'input[type="date"]', '2023-05-06', context.user);
@@ -755,7 +755,7 @@ describe('DivisionFixtures', () => {
                 .forSeason(divisionData.season, divisionData, null, true)
                 .build();
             await renderComponent(divisionData, account, null, null, null, [team, deletedTeam]);
-            await doClick(findButton(context.container, '➕ Add date'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
 
             await doChange(dialog, 'input[type="date"]', '2023-05-06', context.user);
@@ -798,7 +798,7 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
 
-            await doClick(findButton(context.container, '🗓️ Create fixtures'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '🗓️ Create fixtures'));
 
             reportedError.verifyNoError();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -809,7 +809,7 @@ describe('DivisionFixtures', () => {
         it('can close create new fixtures dialog', async () => {
             const divisionData = getInSeasonDivisionData();
             await renderComponent(divisionData, account);
-            await doClick(findButton(context.container, '🗓️ Create fixtures'));
+            await doClick(findButton(context.container.querySelector('div[datatype="fixture-management-1"]'), '🗓️ Create fixtures'));
             reportedError.verifyNoError();
 
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'))

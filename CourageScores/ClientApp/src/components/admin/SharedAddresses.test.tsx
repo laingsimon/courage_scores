@@ -126,5 +126,20 @@ describe('SharedAddresses', () => {
 
             expect(updatedAddresses).toEqual([ [ 'A' ], [ 'C', 'D' ] ]);
         });
+
+        it('can add suggested shared addresses', async () => {
+            await renderComponent({
+                addresses: [ [ 'A', 'B' ] ],
+                className: 'bg-warning',
+                onUpdate,
+                highlight: '',
+                setHighlight,
+                mnemonicsThatCanShareAddresses: [ [ 'C', 'D' ] ],
+            });
+
+            await doClick(context.container.querySelector('ul[datatype="shareable-addresses"] > li'));
+
+            expect(updatedAddresses).toEqual([ [ 'A', 'B' ], [ 'C', 'D' ] ]);
+        });
     });
 });
