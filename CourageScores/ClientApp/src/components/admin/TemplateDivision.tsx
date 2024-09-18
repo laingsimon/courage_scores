@@ -8,7 +8,7 @@ export interface ITemplateDivisionProps {
     divisionNo: number;
     division: DivisionTemplateDto;
     onUpdate(update: DivisionTemplateDto): Promise<any>;
-    onCopyToDivision(newDates: DateTemplateDto[], divisionIndex: number): Promise<any>;
+    onCopyToDivision(destinationDivisionIndex: number): Promise<any>;
     onDelete(): Promise<any>;
     templateSharedAddresses: string[];
     divisionCount: number;

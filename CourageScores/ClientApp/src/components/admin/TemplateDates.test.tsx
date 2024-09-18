@@ -30,7 +30,7 @@ describe('TemplateDates', () => {
         update = value;
     }
 
-    async function onCopyToDivision(newDates: DateTemplateDto[], divisionIndex: number) {
+    async function onCopyToDivision(destinationDivisionIndex: number) {
     }
 
     async function renderComponent(props: ITemplateDatesProps) {

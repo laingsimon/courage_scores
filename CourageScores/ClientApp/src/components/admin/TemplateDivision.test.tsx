@@ -11,7 +11,6 @@ import {
 } from "../../helpers/tests";
 import {ITemplateDivisionProps, TemplateDivision} from "./TemplateDivision";
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
-import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 
 describe('TemplateDivision', () => {
     let context: TestContext;
@@ -37,7 +36,7 @@ describe('TemplateDivision', () => {
         deleted = true;
     }
 
-    async function onCopyToDivision(newDates: DateTemplateDto[], divisionIndex: number) {
+    async function onCopyToDivision(sourceDivisionIndex: number) {
     }
 
     async function renderComponent(props: ITemplateDivisionProps) {

@@ -1,6 +1,7 @@
 import {TemplateDivision} from "./TemplateDivision";
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 
 export interface ITemplateDivisionsProps {
     divisions: DivisionTemplateDto[];
@@ -25,16 +26,41 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
         await onUpdate(divisions.filter((_: DivisionTemplateDto, i: number) => index !== i));
     }
 
-    async function onCopyToDivision(newDates: DateTemplateDto[], divisionIndex: number) {
-        await onUpdate(divisions.map((division: DivisionTemplateDto, index: number) => {
-            if (index === divisionIndex) {
+    async function onCopyToDivision(sourceDivisionIndex: number, destinationDivisionIndex: number) {
+        const sourceDivision: DivisionTemplateDto = divisions[sourceDivisionIndex];
+
+        const newDivisions: DivisionTemplateDto[] = divisions.map((division: DivisionTemplateDto, index: number) => {
+            if (index === destinationDivisionIndex) {
+                const newPrefix: string = (destinationDivisionIndex + 1).toString();
                 const newDivision: DivisionTemplateDto = Object.assign({}, division);
-                newDivision.dates = newDates;
+                newDivision.dates = prefixDateMnemonics(sourceDivision.dates, newPrefix);
+                newDivision.sharedAddresses = prefixSharedAddressMnemonics(sourceDivision.sharedAddresses, newPrefix);
                 return newDivision;
             }
 
             return division;
-        }));
+        });
+
+        await onUpdate(newDivisions);
+    }
+
+    function prefixDateMnemonics(dates: DateTemplateDto[], prefix: string): DateTemplateDto[] {
+        return dates.map((d: DateTemplateDto): DateTemplateDto => {
+            return {
+                fixtures: d.fixtures.map((f: FixtureTemplateDto): FixtureTemplateDto => {
+                    return {
+                        home: f.home ? prefix + f.home : f.home,
+                        away: f.away ? prefix + f.away : f.away,
+                    };
+                }),
+            };
+        });
+    }
+
+    function prefixSharedAddressMnemonics(sharedAddresses: string[][], prefix: string): string[][] {
+        return sharedAddresses.map((sharedAddress: string[]): string[] => {
+            return sharedAddress.map((mnemonic: string) => prefix + mnemonic);
+        });
     }
 
     return (<ul className="list-group mb-3">
@@ -47,7 +73,7 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
                 onUpdate={(update: DivisionTemplateDto) => updateDivision(update, index)}
                 templateSharedAddresses={templateSharedAddresses}
                 divisionCount={divisions.length}
-                onCopyToDivision={onCopyToDivision} />
+                onCopyToDivision={async (destIndex: number) => onCopyToDivision(index, destIndex)} />
         </li>)}
         <button className="list-group-item btn-primary small" onClick={addDivision}>
             ➕ Add another division
