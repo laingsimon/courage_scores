@@ -54,6 +54,27 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
         }));
     }
 
+    function getTeamsWithSharedAddresses(division: DivisionDto, sharedAddressSize: number): IBootstrapDropdownItem[] {
+        const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
+        const addressCounts: { [address: string]: number } = {};
+        for (let team of teamsInDivision) {
+            if (addressCounts[team.address] === undefined) {
+                addressCounts[team.address] = 1;
+            } else {
+                addressCounts[team.address]++;
+            }
+        }
+        const automaticallyAssign: IBootstrapDropdownItem = { value: '', text: '⚙ Automatically assign' };
+        return [automaticallyAssign].concat(teamsInDivision.sort(sortBy('name')).map((t: TeamDto) => {
+            const hasSharedAddress: boolean = addressCounts[t.address] === sharedAddressSize;
+            const text: string = hasSharedAddress
+                ? t.name
+                : `🚫 ${t.name} (${addressCounts[t.address] === 1 ? `has unique address` : `${addressCounts[t.address]} use this venue, ${sharedAddressSize} is required`})`;
+
+            return { value: t.id, text: text, disabled: !hasSharedAddress };
+        }));
+    }
+
     async function setSelectedPlaceholder(teamId: string, placeholder: string) {
         const newMappings: IPlaceholderMappings = Object.assign({}, placeholderMappings);
         if (teamId) {
@@ -64,17 +85,44 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
         await setPlaceholderMappings(newMappings);
     }
 
+    async function setSelectedSharedAddressPlaceholder(divisionIndex: number, teamId: string, placeholder: string) {
+        const newMappings: IPlaceholderMappings = Object.assign({}, placeholderMappings);
+        const allSharedAddressPlaceholders: string[] = template.divisions[divisionIndex].sharedAddresses
+            .filter((sa: string[]) => any(sa, (a: string) => a === placeholder))[0] || [];
+        const otherSharedAddressPlaceholders: string[] = allSharedAddressPlaceholders.filter((a: string) => a !== placeholder);
+        const division = divisions[divisionIndex];
+
+        if (teamId) {
+            const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
+            const team: TeamDto = teamsInDivision.filter((t: TeamDto) => t.id === teamId)[0];
+            const otherTeamsWithSameAddress: TeamDto[] = teamsInDivision.filter((t: TeamDto) => t.address === team.address).filter((t: TeamDto) => t.id !== teamId);
+
+            newMappings[placeholder] = teamId;
+            for (let otherPlaceholder of otherSharedAddressPlaceholders) {
+                const otherTeam: TeamDto = otherTeamsWithSameAddress.shift();
+                newMappings[otherPlaceholder] = otherTeam.id;
+            }
+        } else {
+            delete newMappings[placeholder];
+            for (let otherPlaceholder of otherSharedAddressPlaceholders) {
+                delete newMappings[otherPlaceholder];
+            }
+        }
+        await setPlaceholderMappings(newMappings);
+    }
+
     return (<div>
         {applicableDivisions.sort(sortBy('name')).map((division: DivisionDto, index: number) => {
             const templateDivision: DivisionTemplateDto = template.divisions[index];
             const templatePlaceholders: string[] = getPlaceholdersForTemplateDivision(templateDivision);
-            const availableTeams: IBootstrapDropdownItem[] = getTeamsWithUniqueAddresses(division);
+            const teamsWithUniqueAddresses: IBootstrapDropdownItem[] = getTeamsWithUniqueAddresses(division);
 
             return (<div key={division.id}>
                 <h6>{division.name}</h6>
                 <ul>
                     {templatePlaceholders.sort().map((placeholder: string) => {
-                        const hasDivisionSharedAddress: boolean = any(templateDivision.sharedAddresses.flatMap((a: string[]) => a), (a: string) => a === placeholder);
+                        const divisionSharedAddresses: string[] = (templateDivision.sharedAddresses.filter((sa: string[]) => any(sa, (a: string) => a === placeholder))[0]) || [];
+                        const hasDivisionSharedAddress: boolean = divisionSharedAddresses.length > 1
                         const hasTemplateSharedAddress: boolean = any(templateSharedAddresses, (a: string) => a === placeholder);
                         let className: string = '';
                         if (hasTemplateSharedAddress) {
@@ -84,14 +132,21 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
                             className += ' bg-secondary text-light';
                         }
                         const selectedTeamId: string = placeholderMappings[placeholder];
-                        const availableTeamsForPlaceholder: IBootstrapDropdownItem[] = availableTeams.filter((o: IBootstrapDropdownItem) => {
+                        const availableTeamsForPlaceholder: IBootstrapDropdownItem[] = teamsWithUniqueAddresses.filter((o: IBootstrapDropdownItem) => {
+                            const selected: boolean = any(Object.values(placeholderMappings), (t: string) => t === o.value);
+                            return !o.value || o.value === selectedTeamId || !selected;
+                        });
+                        const teamsWithSharedAddresses: IBootstrapDropdownItem[] = getTeamsWithSharedAddresses(division, divisionSharedAddresses.length);
+                        const availableSharedDivisionTeamsForPlaceholder: IBootstrapDropdownItem[] = teamsWithSharedAddresses.filter((o: IBootstrapDropdownItem) => {
                             const selected: boolean = any(Object.values(placeholderMappings), (t: string) => t === o.value);
                             return !o.value || o.value === selectedTeamId || !selected;
                         });
 
                         return (<li key={placeholder}>
                             <span className={`width-20 d-inline-block text-center margin-right ${className}`}>{placeholder}</span>
-                            {hasDivisionSharedAddress ? 'Reserved for use by team with shared address in division' : null}
+                            {hasDivisionSharedAddress && !hasTemplateSharedAddress
+                                ? (<BootstrapDropdown options={availableSharedDivisionTeamsForPlaceholder} value={selectedTeamId || ''} onChange={id => setSelectedSharedAddressPlaceholder(index, id, placeholder)} />)
+                                : null}
                             {hasTemplateSharedAddress ? 'Reserved for use by team with shared address across divisions' : null}
                             {!hasTemplateSharedAddress && !hasDivisionSharedAddress
                                 ? (<BootstrapDropdown options={availableTeamsForPlaceholder} value={selectedTeamId || ''} onChange={id => setSelectedPlaceholder(id, placeholder)} />)
