@@ -134,5 +134,45 @@ describe('TemplateDivisions', () => {
                 sharedAddresses: [ [ 'B' ] ],
             }]);
         });
+
+        it('can copy details between templates', async () => {
+            await renderComponent({
+                divisions: [{
+                    dates: [ {
+                        fixtures: [
+                            { home: 'A', away: 'B' },
+                        ]
+                    }],
+                    sharedAddresses: [ [ 'A' ] ],
+                }, {
+                    dates: [ {
+                        fixtures: [
+                            { home: 'C', away: 'D' },
+                        ]
+                    }],
+                    sharedAddresses: [ [ 'B' ] ],
+                }],
+                templateSharedAddresses: [],
+                onUpdate,
+            });
+
+            await doClick(findButton(context.container, 'Copy to division 2'));
+
+            expect(update).toEqual([{
+                dates: [ {
+                    fixtures: [
+                        { home: 'A', away: 'B' },
+                    ]
+                }],
+                sharedAddresses: [ [ 'A' ] ],
+            }, {
+                dates: [ {
+                    fixtures: [
+                        { home: '2A', away: '2B' },
+                    ]
+                }],
+                sharedAddresses: [ [ '2A' ] ],
+            }]);
+        });
     });
 });
