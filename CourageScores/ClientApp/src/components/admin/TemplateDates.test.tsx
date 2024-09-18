@@ -36,6 +36,9 @@ describe('TemplateDates', () => {
         copyToDivisionIndex = destinationDivisionIndex;
     }
 
+    async function setHighlight(_?: string) {
+    }
+
     async function renderComponent(props: ITemplateDatesProps) {
         context = await renderApp(
             iocProps(),
@@ -58,6 +61,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -75,6 +80,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -90,6 +97,8 @@ describe('TemplateDates', () => {
                 divisionCount: 3,
                 divisionNo: 2,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -107,6 +116,8 @@ describe('TemplateDates', () => {
                 divisionCount: 3,
                 divisionNo: 2,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -123,6 +134,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const dateElements = Array.from(context.container.querySelectorAll('ul li')) as HTMLElement[];
@@ -143,6 +156,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const dateElement = context.container.querySelector('ul li:nth-child(2)');
@@ -160,6 +175,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -183,6 +200,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '🗑️'));
@@ -209,6 +228,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
             const secondDate = context.container.querySelector('.list-group-item:nth-child(3)');
 
@@ -246,6 +267,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
             const firstDate = context.container.querySelector('.list-group-item:nth-child(2)');
 
@@ -283,6 +306,8 @@ describe('TemplateDates', () => {
                 divisionCount: 1,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, 'A - B ×'));
@@ -316,6 +341,8 @@ describe('TemplateDates', () => {
                 divisionCount: 2,
                 divisionNo: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, 'Copy to division 2'));

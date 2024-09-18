@@ -7,9 +7,11 @@ export interface ITemplateDivisionsProps {
     divisions: DivisionTemplateDto[];
     onUpdate(a: DivisionTemplateDto[]): Promise<any>;
     templateSharedAddresses: string[];
+    highlight?: string;
+    setHighlight(highlight?: string): Promise<any>;
 }
 
-export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses }: ITemplateDivisionsProps) {
+export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses, highlight, setHighlight }: ITemplateDivisionsProps) {
     async function updateDivision(update: DivisionTemplateDto, updateIndex: number) {
         await onUpdate(divisions.map((a: DivisionTemplateDto, index: number) => index === updateIndex ? update : a));
     }
@@ -73,7 +75,9 @@ export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses
                 onUpdate={(update: DivisionTemplateDto) => updateDivision(update, index)}
                 templateSharedAddresses={templateSharedAddresses}
                 divisionCount={divisions.length}
-                onCopyToDivision={async (destIndex: number) => onCopyToDivision(index, destIndex)} />
+                onCopyToDivision={async (destIndex: number) => onCopyToDivision(index, destIndex)}
+                highlight={highlight}
+                setHighlight={setHighlight} />
         </li>)}
         <button className="list-group-item btn-primary small" onClick={addDivision}>
             ➕ Add another division

@@ -27,6 +27,9 @@ describe('SharedAddresses', () => {
         updatedAddresses = addresses;
     }
 
+    async function setHighlight(_?: string) {
+    }
+
     async function renderComponent(props: ISharedAddressesProps) {
         context = await renderApp(
             iocProps(),
@@ -43,6 +46,8 @@ describe('SharedAddresses', () => {
                 addresses: [],
                 className: 'bg-warning',
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             const heading = context.container.querySelector('ul li.list-group-item:first-child');
@@ -54,6 +59,8 @@ describe('SharedAddresses', () => {
                 addresses: [],
                 className: 'bg-warning',
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             const items = Array.from(context.container.querySelectorAll('ul li.list-group-item')) as HTMLElement[];
@@ -65,6 +72,8 @@ describe('SharedAddresses', () => {
                 addresses: [ [ 'A' ] ],
                 className: 'bg-warning',
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             const items = Array.from(context.container.querySelectorAll('ul li.list-group-item')) as HTMLElement[];
@@ -79,6 +88,8 @@ describe('SharedAddresses', () => {
                 addresses: [],
                 className: 'bg-warning',
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
             const addButton = findButton(context.container, '➕ Add shared address');
             expect(addButton).toBeTruthy();
@@ -93,6 +104,8 @@ describe('SharedAddresses', () => {
                 addresses: [ [] ],
                 className: 'bg-warning',
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove'));
@@ -105,6 +118,8 @@ describe('SharedAddresses', () => {
                 addresses: [ [ 'A', 'B' ], [ 'C', 'D' ] ],
                 className: 'bg-warning',
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, 'B ×'));

@@ -11,9 +11,11 @@ export interface ITemplateDatesProps {
     templateSharedAddresses: string[];
     divisionNo: number;
     divisionCount: number;
+    highlight?: string;
+    setHighlight(highlight?: string): Promise<any>;
 }
 
-export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templateSharedAddresses, divisionCount, divisionNo, onCopyToDivision }: ITemplateDatesProps) {
+export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templateSharedAddresses, divisionCount, divisionNo, onCopyToDivision, highlight, setHighlight }: ITemplateDatesProps) {
     async function updateDate(update: DateTemplateDto, updateIndex: number) {
         await onUpdate(dates.map((a: DateTemplateDto, index: number) => index === updateIndex ? update : a));
     }
@@ -63,7 +65,9 @@ export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templa
                 divisionSharedAddresses={divisionSharedAddresses}
                 templateSharedAddresses={templateSharedAddresses}
                 moveEarlier={index > 0 ? () => moveDate(index, -1) : null}
-                moveLater={index < (dates.length - 1) ? () => moveDate(index, 1) : null} />
+                moveLater={index < (dates.length - 1) ? () => moveDate(index, 1) : null}
+                highlight={highlight}
+                setHighlight={setHighlight} />
         </li>)}
         <button className="list-group-item btn-primary small" onClick={addDate}>
             ➕ Add a week

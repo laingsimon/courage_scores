@@ -42,6 +42,9 @@ describe('TemplateDivision', () => {
         copyToDivisionIndex = destinationDivisionIndex;
     }
 
+    async function setHighlight(_?: string) {
+    }
+
     async function renderComponent(props: ITemplateDivisionProps) {
         context = await renderApp(
             iocProps(),
@@ -65,6 +68,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const heading = context.container.querySelector('h6');
@@ -83,6 +88,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const divisionSharedAddresses = context.container.querySelector('div > ul:nth-child(2)');
@@ -106,6 +113,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             const dates = context.container.querySelector('div > ul:nth-child(3)');
@@ -126,6 +135,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
             const heading = context.container.querySelector('h6');
 
@@ -146,6 +157,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
             const heading = context.container.querySelector('h6');
 
@@ -167,6 +180,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '➕ Add shared address'));
@@ -189,6 +204,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -213,6 +230,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 1,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove division'));
@@ -237,6 +256,8 @@ describe('TemplateDivision', () => {
                 onDelete,
                 divisionCount: 2,
                 onCopyToDivision,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, 'Copy to division 2'));
