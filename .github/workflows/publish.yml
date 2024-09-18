@@ -15,7 +15,8 @@ on:
       commit-date:
         required: true
         type: string
-  
+permissions:
+  pull-requests: write  
 jobs:
   with-dotnet:
     runs-on: ubuntu-latest
