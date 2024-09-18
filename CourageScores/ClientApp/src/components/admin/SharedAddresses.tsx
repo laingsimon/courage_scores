@@ -6,9 +6,10 @@ export interface ISharedAddressesProps {
     className: string;
     highlight?: string;
     setHighlight(highlight?: string): Promise<any>;
+    mnemonicsThatCanShareAddresses?: string[][];
 }
 
-export function SharedAddresses({ addresses, onUpdate, className, highlight, setHighlight }: ISharedAddressesProps) {
+export function SharedAddresses({ addresses, onUpdate, className, highlight, setHighlight, mnemonicsThatCanShareAddresses }: ISharedAddressesProps) {
     async function updateSharedAddress(update: string[], updateIndex: number) {
         await onUpdate(addresses.map((a: string[], index: number) => index === updateIndex ? update : a));
     }
@@ -20,6 +21,10 @@ export function SharedAddresses({ addresses, onUpdate, className, highlight, set
 
     async function deleteSharedAddress(index: number) {
         await onUpdate(addresses.filter((_: string[], i: number) => index !== i));
+    }
+
+    async function addAsSharedAddress(group: string[]) {
+        await onUpdate(addresses.concat([ group ]));
     }
 
     return (<ul className="list-group mb-3">
@@ -36,6 +41,14 @@ export function SharedAddresses({ addresses, onUpdate, className, highlight, set
                 highlight={highlight}
                 setHighlight={setHighlight} />
         </li>)}
+        {mnemonicsThatCanShareAddresses ? (<ul className="list-group-item small" datatype="shareable-addresses">
+            Mnemonics that share addresses are:
+            {mnemonicsThatCanShareAddresses.map((group: string[]) => {
+                return (<li className="ms-4" key={group.join(',')} onClick={async () => await addAsSharedAddress(group)}>
+                    {group.sort().join(',')}
+                </li>);
+            })}
+        </ul>) : null}
         <button className="list-group-item btn-primary small" onClick={addAddress}>
             ➕ Add shared address
         </button>

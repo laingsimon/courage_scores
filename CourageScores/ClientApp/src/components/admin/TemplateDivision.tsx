@@ -3,6 +3,8 @@ import {TemplateDates} from "./TemplateDates";
 import {useState} from "react";
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
+import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
+import {any, distinct} from "../../helpers/collections";
 
 export interface ITemplateDivisionProps {
     divisionNo: number;
@@ -31,6 +33,36 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
         await onUpdate(newDivision);
     }
 
+    function findMnemonicsThatNeverPlayAtTheSameVenueAcrossAnyDate(): string[][] {
+        let allMnemonics: string[] = distinct(division.dates
+            .flatMap((d: DateTemplateDto) => d.fixtures)
+            .flatMap((f: FixtureTemplateDto) => [ f.home, f.away ])
+            .filter((mnemonic: string) => !!mnemonic));
+        const mnemonics: string[][] = [];
+
+        for (let mnemonic of allMnemonics) {
+            let mnemonicsThatArePlayingAlwaysAtDifferentVenues: string[] = allMnemonics.filter((m: string) => !!m); // copy the array of all mnemonics
+
+            for (let date of division.dates) {
+                const mnemonicsThatAreAtHome: string[] = date.fixtures.map((f: FixtureTemplateDto) => f.home);
+                if (!any(mnemonicsThatAreAtHome, m => m === mnemonic)) {
+                    continue;
+                }
+
+                mnemonicsThatArePlayingAlwaysAtDifferentVenues = mnemonicsThatArePlayingAlwaysAtDifferentVenues
+                    .filter((m: string) => !any(mnemonicsThatAreAtHome, (atHomeOnDate: string) => atHomeOnDate === m))
+            }
+
+            if (any(mnemonicsThatArePlayingAlwaysAtDifferentVenues)) {
+                mnemonics.push([mnemonic].concat(mnemonicsThatArePlayingAlwaysAtDifferentVenues));
+                allMnemonics = allMnemonics
+                    .filter((m: string) => m !== mnemonic && !any(mnemonicsThatArePlayingAlwaysAtDifferentVenues, addedMnemonic => addedMnemonic === m));
+            }
+        }
+
+        return distinct(mnemonics);
+    }
+
     return (<div>
         <h6 title="Click to expand/collapse"
             className="hover-highlight py-1"
@@ -43,7 +75,8 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
             onUpdate={updateSharedAddresses}
             className="bg-secondary"
             highlight={highlight}
-            setHighlight={setHighlight} />) : null}
+            setHighlight={setHighlight}
+            mnemonicsThatCanShareAddresses={findMnemonicsThatNeverPlayAtTheSameVenueAcrossAnyDate()} />) : null}
         {expanded ? (<TemplateDates
             dates={division.dates}
             onUpdate={updateDates}
