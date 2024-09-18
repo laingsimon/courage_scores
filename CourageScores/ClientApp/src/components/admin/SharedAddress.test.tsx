@@ -8,7 +8,7 @@ import {
     findButton,
     iocProps,
     renderApp,
-    TestContext
+    TestContext, triggerMouseLeave, triggerMouseMove
 } from "../../helpers/tests";
 import {ISharedAddressProps, SharedAddress} from "./SharedAddress";
 
@@ -16,6 +16,7 @@ describe('SharedAddress', () => {
     let context: TestContext;
     let updatedAddresses: string[];
     let deleted: boolean;
+    let highlightedMnemonic: string;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -29,9 +30,14 @@ describe('SharedAddress', () => {
         deleted = true;
     }
 
+    async function setHighlight(mnemonic?: string) {
+        highlightedMnemonic = mnemonic;
+    }
+
     beforeEach(() => {
         updatedAddresses = null;
         deleted = false;
+        highlightedMnemonic = null;
     });
 
     async function renderComponent(props: ISharedAddressProps) {
@@ -51,6 +57,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
@@ -65,6 +73,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
@@ -79,6 +89,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
@@ -91,12 +103,28 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             const addressBadges = Array.from(context.container.querySelectorAll('button.badge')) as HTMLButtonElement[];
             expect(addressBadges.map(b => b.className.indexOf(' bg-warning') !== -1)).toEqual([ true ]);
             const newAddressBadge = context.container.querySelector('span.badge');
             expect(newAddressBadge.className).toContain(' bg-warning');
+        });
+
+        it('with highlight', async () => {
+            await renderComponent({
+                address: [ 'A' ],
+                className: 'bg-warning',
+                onUpdate,
+                onDelete,
+                highlight: 'A',
+                setHighlight,
+            });
+
+            const newAddressBadge = context.container.querySelector('button.badge');
+            expect(newAddressBadge.className).toContain(' bg-danger');
         });
     });
 
@@ -107,6 +135,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             await doChange(context.container, 'input', 'B', context.user);
@@ -121,6 +151,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             await doChange(context.container, 'input', 'B', context.user);
@@ -135,6 +167,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             await doChange(context.container, 'input', 'B', context.user);
@@ -149,6 +183,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
             let alert: string;
             window.alert = (msg) => alert = msg;
@@ -165,6 +201,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
             let alert: string;
             window.alert = (msg) => alert = msg;
@@ -181,6 +219,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, 'B ×'));
@@ -194,6 +234,8 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, 'A ×'));
@@ -207,11 +249,60 @@ describe('SharedAddress', () => {
                 className: 'bg-warning',
                 onUpdate,
                 onDelete,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove'));
 
             expect(deleted).toEqual(true);
+        });
+
+        it('sets highlight', async () => {
+            await renderComponent({
+                address: [ 'A' ],
+                className: 'bg-warning',
+                onUpdate,
+                onDelete,
+                highlight: '',
+                setHighlight,
+            });
+
+            await triggerMouseMove(context.container.querySelector('button.badge'), true);
+
+            expect(highlightedMnemonic).toEqual('A');
+        });
+
+        it('removes highlight when mouse leaves', async () => {
+            highlightedMnemonic = 'A';
+            await renderComponent({
+                address: [ 'A' ],
+                className: 'bg-warning',
+                onUpdate,
+                onDelete,
+                highlight: 'A',
+                setHighlight,
+            });
+
+            await triggerMouseLeave(context.container.querySelector('button.badge'), true);
+
+            expect(highlightedMnemonic).toBeNull();
+        });
+
+        it('removes highlight when mouse moves and ctrl not pressed', async () => {
+            highlightedMnemonic = 'A';
+            await renderComponent({
+                address: [ 'A' ],
+                className: 'bg-warning',
+                onUpdate,
+                onDelete,
+                highlight: 'A',
+                setHighlight,
+            });
+
+            await triggerMouseMove(context.container.querySelector('button.badge'), false);
+
+            expect(highlightedMnemonic).toBeNull();
         });
     });
 });

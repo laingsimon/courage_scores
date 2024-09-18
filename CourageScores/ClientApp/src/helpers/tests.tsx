@@ -65,6 +65,20 @@ export async function setFile(container: Element, selector: string, file: any, u
     await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
+export async function triggerMouseMove(element: Element, ctrlDown: boolean) {
+    const mouseEvent = new MouseEvent('mousemove', { bubbles: true, ctrlKey: ctrlDown });
+    await act(async () => {
+        element!.dispatchEvent(mouseEvent);
+    });
+}
+
+export async function triggerMouseLeave(element: Element, ctrlDown: boolean) {
+    const mouseEvent = new MouseEvent('mouseout', { bubbles: true, ctrlKey: ctrlDown });
+    await act(async () => {
+        element!.dispatchEvent(mouseEvent);
+    });
+}
+
 export interface TestContext {
     container: HTMLElement;
     cleanUp(): Promise<any>;

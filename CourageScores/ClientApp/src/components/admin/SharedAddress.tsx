@@ -5,10 +5,12 @@ export interface ISharedAddressProps {
     address: string[];
     onUpdate(addresses: string[]): Promise<any>;
     onDelete(): Promise<any>,
-    className?: string
+    className?: string;
+    highlight?: string;
+    setHighlight(highlight?: string): Promise<any>;
 }
 
-export function SharedAddress({ address, onUpdate, onDelete, className }: ISharedAddressProps) {
+export function SharedAddress({ address, onUpdate, onDelete, className, highlight, setHighlight }: ISharedAddressProps) {
     const [ newAddress, setNewAddress ] = useState<string>('');
 
     async function deleteAddress(index: number) {
@@ -31,11 +33,30 @@ export function SharedAddress({ address, onUpdate, onDelete, className }: IShare
         }
     }
 
+    async function highlightIfCtrlDown(event: React.MouseEvent<HTMLSpanElement>, mnemonic: string) {
+        if (!event.ctrlKey) {
+            if (highlight) {
+                await setHighlight(null);
+            }
+            return;
+        }
+
+        await setHighlight(mnemonic);
+    }
+
+    function getHighlightClassName(mnemonic: string): string {
+        return highlight === mnemonic
+            ? ' bg-danger'
+            : '';
+    }
+
     return (<div title="Teams with the same address">
         {address.map((a: string, index: number) => <button
             key={index}
             onClick={() => deleteAddress(index)}
-            className={`btn btn-sm margin-right badge py-1 ${className}`}>{a} &times;</button>)}
+            className={`btn btn-sm margin-right badge py-1 ${className}${getHighlightClassName(a)}`}
+            onMouseMove={async (event) => await highlightIfCtrlDown(event, a)}
+            onMouseLeave={async () => await setHighlight(null)}>{a} &times;</button>)}
         <span className={`margin-right badge ${className}`}>
             <input className="width-20 outline-0 border-0" value={newAddress} onKeyUp={onKeyUp} onChange={stateChanged(setNewAddress)} />
             <button className={`${className} ms-1 border-0 px-0`} onClick={addAddress}>➕</button>

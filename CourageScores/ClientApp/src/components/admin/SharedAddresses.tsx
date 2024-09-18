@@ -4,9 +4,11 @@ export interface ISharedAddressesProps {
     addresses: string[][];
     onUpdate(addresses: string[][]): Promise<any>;
     className: string;
+    highlight?: string;
+    setHighlight(highlight?: string): Promise<any>;
 }
 
-export function SharedAddresses({ addresses, onUpdate, className }: ISharedAddressesProps) {
+export function SharedAddresses({ addresses, onUpdate, className, highlight, setHighlight }: ISharedAddressesProps) {
     async function updateSharedAddress(update: string[], updateIndex: number) {
         await onUpdate(addresses.map((a: string[], index: number) => index === updateIndex ? update : a));
     }
@@ -30,7 +32,9 @@ export function SharedAddresses({ addresses, onUpdate, className }: ISharedAddre
                 address={a}
                 onDelete={async () => await deleteSharedAddress(index)}
                 onUpdate={async (update: string[]) => await updateSharedAddress(update, index)}
-                className={className} />
+                className={className}
+                highlight={highlight}
+                setHighlight={setHighlight} />
         </li>)}
         <button className="list-group-item btn-primary small" onClick={addAddress}>
             ➕ Add shared address
