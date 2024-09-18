@@ -14,9 +14,10 @@ export interface ITemplateDateProps {
     moveLater?(): Promise<any>;
     highlight?: string;
     setHighlight(highlight?: string): Promise<any>;
+    deleteDates(mnemonic: string): Promise<any>;
 }
 
-export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater, highlight, setHighlight }: ITemplateDateProps) {
+export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater, highlight, setHighlight, deleteDates }: ITemplateDateProps) {
     const [ newFixture, setNewFixture ] = useState<FixtureTemplateDto>({
         home: null,
         away: null,
@@ -80,10 +81,22 @@ export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses
             : '';
     }
 
+    async function deleteFixtureOrMnemonic(index: number) {
+        if (highlight) {
+            if (window.confirm(`Are you sure you want to delete all fixtures where ${highlight} are playing?`)) {
+                await deleteDates(highlight);
+                await setHighlight(null);
+            }
+            return;
+        }
+
+        await deleteFixture(index);
+    }
+
     return (<div className="position-relative">
         {date.fixtures.map((f, index: number) => (<button
             key={index}
-            onClick={() => deleteFixture(index)}
+            onClick={async () => await deleteFixtureOrMnemonic(index)}
             className={`btn btn-sm margin-right px-1 badge ${f.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>
             <span
                 className={`px-1 ${sharedAddressClassName(f.home)}${getHighlightClassName(f.home)}`}

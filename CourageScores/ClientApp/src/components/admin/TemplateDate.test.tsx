@@ -18,6 +18,7 @@ describe('TemplateDate', () => {
     let update: DateTemplateDto;
     let deleted: boolean;
     let highlightedMnemonic: string;
+    let deleteDatesContaining: string;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -28,6 +29,7 @@ describe('TemplateDate', () => {
         update = null;
         deleted = null;
         highlightedMnemonic = null;
+        deleteDatesContaining = null;
     });
 
     async function onUpdate(value: DateTemplateDto) {
@@ -40,6 +42,10 @@ describe('TemplateDate', () => {
 
     async function setHighlight(mnemonic?: string) {
         highlightedMnemonic = mnemonic;
+    }
+
+    async function deleteDates(mnemonic: string) {
+        deleteDatesContaining = mnemonic;
     }
 
     async function renderComponent(props: ITemplateDateProps) {
@@ -64,6 +70,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -85,6 +92,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -106,6 +114,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -127,6 +136,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -149,6 +159,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -171,6 +182,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -193,6 +205,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: 'A',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -215,6 +228,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: 'B',
                 setHighlight,
+                deleteDates,
             });
 
             const fixtures = Array.from(context.container.querySelectorAll('div > button'));
@@ -235,6 +249,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -260,6 +275,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -285,6 +301,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
             let alert: string;
             window.alert = (msg) => alert = msg;
@@ -309,6 +326,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
             let alert: string;
             window.alert = (msg) => alert = msg;
@@ -333,6 +351,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await doChange(context.container, 'input[name="home"]', 'A', context.user);
@@ -360,6 +379,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await doClick(findButton(context.container, 'A - B ×'));
@@ -383,6 +403,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await doClick(findButton(context.container, 'A ×'));
@@ -406,6 +427,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await doClick(findButton(context.container, '🗑️'));
@@ -427,6 +449,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await triggerMouseMove(context.container.querySelector('button.badge > span:first-child'), true);
@@ -448,6 +471,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: '',
                 setHighlight,
+                deleteDates,
             });
 
             await triggerMouseMove(context.container.querySelector('button.badge > span:nth-child(3)'), true);
@@ -470,6 +494,7 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: 'A',
                 setHighlight,
+                deleteDates,
             });
 
             await triggerMouseLeave(context.container.querySelector('button.badge > span:first-child'), true);
@@ -492,10 +517,63 @@ describe('TemplateDate', () => {
                 onDelete,
                 highlight: 'A',
                 setHighlight,
+                deleteDates,
             });
 
             await triggerMouseMove(context.container.querySelector('button.badge > span:first-child'), false);
 
+            expect(highlightedMnemonic).toBeNull();
+        });
+
+        it('can delete all fixtures for the home mnemonic', async () => {
+            highlightedMnemonic = 'A';
+            await renderComponent({
+                date: {
+                    fixtures: [{
+                        home: 'A',
+                        away: 'B',
+                    }]
+                },
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
+                highlight: 'A',
+                setHighlight,
+                deleteDates,
+            });
+            window.confirm = () => true;
+
+            await doClick(findButton(context.container, 'A - B ×'));
+
+            expect(update).toBeNull();
+            expect(deleteDatesContaining).toEqual('A');
+            expect(highlightedMnemonic).toBeNull();
+        });
+
+        it('can delete all fixtures for the away mnemonic', async () => {
+            highlightedMnemonic = 'B';
+            await renderComponent({
+                date: {
+                    fixtures: [{
+                        home: 'A',
+                        away: 'B',
+                    }]
+                },
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
+                highlight: 'B',
+                setHighlight,
+                deleteDates,
+            });
+            window.confirm = () => true;
+
+            await doClick(findButton(context.container, 'A - B ×'));
+
+            expect(update).toBeNull();
+            expect(deleteDatesContaining).toEqual('B');
             expect(highlightedMnemonic).toBeNull();
         });
     });

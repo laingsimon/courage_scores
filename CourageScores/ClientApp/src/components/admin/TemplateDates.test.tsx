@@ -349,5 +349,50 @@ describe('TemplateDates', () => {
 
             expect(copyToDivisionIndex).toEqual(1);
         });
+
+        it('can delete all fixtures for a given mnemonic', async () => {
+            await renderComponent({
+                dates: [{
+                    fixtures: [{
+                        home: 'A',
+                        away: 'C',
+                    }, {
+                        home: 'A',
+                        away: 'B',
+                    }]
+                }, {
+                    fixtures: [{
+                        home: 'C',
+                        away: 'D',
+                    }, {
+                        home: 'B',
+                        away: 'A',
+                    }]
+                }],
+                divisionSharedAddresses: [ 'A', 'C' ],
+                templateSharedAddresses: [],
+                onUpdate,
+                divisionCount: 2,
+                divisionNo: 1,
+                onCopyToDivision,
+                highlight: 'C',
+                setHighlight,
+            });
+            window.confirm = () => true;
+
+            await doClick(findButton(context.container, 'A - C ×'));
+
+            expect(update).toEqual([{
+                fixtures: [{
+                    home: 'A',
+                    away: 'B',
+                }]
+            }, {
+                fixtures: [{
+                    home: 'B',
+                    away: 'A',
+                }]
+            }]);
+        });
     });
 });
