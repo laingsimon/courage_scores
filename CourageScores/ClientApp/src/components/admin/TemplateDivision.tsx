@@ -8,11 +8,13 @@ export interface ITemplateDivisionProps {
     divisionNo: number;
     division: DivisionTemplateDto;
     onUpdate(update: DivisionTemplateDto): Promise<any>;
+    onCopyToDivision(destinationDivisionIndex: number): Promise<any>;
     onDelete(): Promise<any>;
     templateSharedAddresses: string[];
+    divisionCount: number;
 }
 
-export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, templateSharedAddresses }: ITemplateDivisionProps) {
+export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, templateSharedAddresses, divisionCount, onCopyToDivision }: ITemplateDivisionProps) {
     const [ expanded, setExpanded ] = useState<boolean>(true);
 
     async function updateSharedAddresses(updatedAddresses: string[][]) {
@@ -42,7 +44,11 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
             dates={division.dates}
             onUpdate={updateDates}
             divisionSharedAddresses={division.sharedAddresses.flatMap((a: string[]) => a)}
-            templateSharedAddresses={templateSharedAddresses} />) : null}
+            templateSharedAddresses={templateSharedAddresses}
+            divisionNo={divisionNo}
+            divisionCount={divisionCount}
+            onCopyToDivision={onCopyToDivision}
+        />) : null}
         {expanded ? (<button className="btn btn-sm btn-outline-danger float-end" onClick={onDelete}>🗑️ Remove division</button>) : null}
     </div>);
 }

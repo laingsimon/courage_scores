@@ -158,7 +158,6 @@ export function Templates() {
             template.lastUpdated = selected.updated;
             const result: IClientActionResultDto<TemplateDto> = await templateApi.update(template);
             if (result.success) {
-                setSelected(null);
                 await loadTemplates();
             } else {
                 setSaveError(result);

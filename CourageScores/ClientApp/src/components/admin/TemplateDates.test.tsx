@@ -16,6 +16,7 @@ describe('TemplateDates', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let update: DateTemplateDto[];
+    let copyToDivisionIndex: number;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -24,10 +25,15 @@ describe('TemplateDates', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         update = null;
+        copyToDivisionIndex = null;
     });
 
     async function onUpdate(value: DateTemplateDto[]) {
         update = value;
+    }
+
+    async function onCopyToDivision(destinationDivisionIndex: number) {
+        copyToDivisionIndex = destinationDivisionIndex;
     }
 
     async function renderComponent(props: ITemplateDatesProps) {
@@ -49,10 +55,63 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
             expect(prefix.textContent).toEqual('WeeksLeague fixtures (or byes) per-week');
+        });
+
+        it('no copy button when only division', async () => {
+            await renderComponent({
+                dates: [{
+                    fixtures: []
+                }],
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+                onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
+            });
+
+            const prefix = context.container.querySelector('ul li:first-child');
+            expect(Array.from(prefix.querySelectorAll('button'))).toEqual([]);
+        });
+
+        it('no copy button when no dates', async () => {
+            await renderComponent({
+                dates: [],
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+                onUpdate,
+                divisionCount: 3,
+                divisionNo: 2,
+                onCopyToDivision,
+            });
+
+            const prefix = context.container.querySelector('ul li:first-child');
+            expect(Array.from(prefix.querySelectorAll('button'))).toEqual([]);
+        });
+
+        it('copy buttons for other divisions', async () => {
+            await renderComponent({
+                dates: [{
+                    fixtures: []
+                }],
+                divisionSharedAddresses: [],
+                templateSharedAddresses: [],
+                onUpdate,
+                divisionCount: 3,
+                divisionNo: 2,
+                onCopyToDivision,
+            });
+
+            const prefix = context.container.querySelector('ul li:first-child');
+            const copyButtons = Array.from(prefix.querySelectorAll('button'));
+            expect(copyButtons.map(b => b.textContent)).toEqual([ 'Copy to division 1', 'Copy to division 3' ]);
         });
 
         it('when empty dates', async () => {
@@ -61,6 +120,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             const dateElements = Array.from(context.container.querySelectorAll('ul li')) as HTMLElement[];
@@ -78,6 +140,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             const dateElement = context.container.querySelector('ul li:nth-child(2)');
@@ -92,6 +157,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -112,6 +180,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '🗑️'));
@@ -135,6 +206,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
             const secondDate = context.container.querySelector('.list-group-item:nth-child(3)');
 
@@ -169,6 +243,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
             const firstDate = context.container.querySelector('.list-group-item:nth-child(2)');
 
@@ -203,6 +280,9 @@ describe('TemplateDates', () => {
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                divisionCount: 1,
+                divisionNo: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, 'A - B ×'));
@@ -215,6 +295,32 @@ describe('TemplateDates', () => {
                     away: 'D',
                 }]
             }]);
+        });
+
+        it('can copy to another division', async () => {
+            await renderComponent({
+                dates: [{
+                    fixtures: [{
+                        home: 'A',
+                        away: 'B',
+                    }]
+                }, {
+                    fixtures: [{
+                        home: 'C',
+                        away: 'D',
+                    }]
+                }],
+                divisionSharedAddresses: [ 'A', 'C' ],
+                templateSharedAddresses: [],
+                onUpdate,
+                divisionCount: 2,
+                divisionNo: 1,
+                onCopyToDivision,
+            });
+
+            await doClick(findButton(context.container, 'Copy to division 2'));
+
+            expect(copyToDivisionIndex).toEqual(1);
         });
     });
 });

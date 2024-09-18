@@ -17,6 +17,7 @@ describe('TemplateDivision', () => {
     let reportedError: ErrorState;
     let update: DivisionTemplateDto;
     let deleted: boolean;
+    let copyToDivisionIndex: number;
 
     afterEach(async () => {
         await cleanUp(context);
@@ -26,6 +27,7 @@ describe('TemplateDivision', () => {
         reportedError = new ErrorState();
         update = null;
         deleted = null;
+        copyToDivisionIndex = null;
     });
 
     async function onUpdate(value: DivisionTemplateDto) {
@@ -34,6 +36,10 @@ describe('TemplateDivision', () => {
 
     async function onDelete() {
         deleted = true;
+    }
+
+    async function onCopyToDivision(destinationDivisionIndex: number) {
+        copyToDivisionIndex = destinationDivisionIndex;
     }
 
     async function renderComponent(props: ITemplateDivisionProps) {
@@ -57,6 +63,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             const heading = context.container.querySelector('h6');
@@ -73,6 +81,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             const divisionSharedAddresses = context.container.querySelector('div > ul:nth-child(2)');
@@ -94,6 +104,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             const dates = context.container.querySelector('div > ul:nth-child(3)');
@@ -112,6 +124,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
             const heading = context.container.querySelector('h6');
 
@@ -130,6 +144,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
             const heading = context.container.querySelector('h6');
 
@@ -149,6 +165,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '➕ Add shared address'));
@@ -169,6 +187,8 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '➕ Add a week'));
@@ -191,11 +211,37 @@ describe('TemplateDivision', () => {
                 templateSharedAddresses: [],
                 onUpdate,
                 onDelete,
+                divisionCount: 1,
+                onCopyToDivision,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove division'));
 
             expect(deleted).toEqual(true);
+        });
+
+        it('can copy details to another division', async () => {
+            await renderComponent({
+                divisionNo: 1,
+                division: {
+                    sharedAddresses: [],
+                    dates: [{
+                        fixtures: [{
+                            home: 'A',
+                            away: 'B',
+                        }],
+                    }],
+                },
+                templateSharedAddresses: [],
+                onUpdate,
+                onDelete,
+                divisionCount: 2,
+                onCopyToDivision,
+            });
+
+            await doClick(findButton(context.container, 'Copy to division 2'));
+
+            expect(copyToDivisionIndex).toEqual(1);
         });
     });
 });
