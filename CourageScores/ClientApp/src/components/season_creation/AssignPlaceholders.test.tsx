@@ -191,7 +191,7 @@ describe('AssignPlaceholders', () => {
             await renderComponent(appProps({
                     divisions: [division2, division1],
                     seasons: [season],
-                    teams: [teamA, teamB],
+                    teams: [teamA, teamB, teamAA, teamC],
                 }),
                 {
                     seasonId: season.id,
@@ -203,8 +203,9 @@ describe('AssignPlaceholders', () => {
             const div1 = context.container.querySelector('div > div > div:nth-child(1)');
             const div1Placeholders = Array.from(div1.querySelectorAll('ul > li'));
             const placeholderB = div1Placeholders.filter(p => p.querySelector('span').textContent === 'B')[0];
-            expect(placeholderB.textContent).toContain('Reserved for use by team with shared address in division');
             expect(placeholderB.querySelector('span').className).toContain('bg-secondary text-light');
+            const items = Array.from(placeholderB.querySelectorAll('.dropdown-item'));
+            expect(items.map(i => i.textContent)).toEqual(['⚙ Automatically assign', 'TEAM A', 'TEAM AA', '🚫 TEAM C (has unique address)']);
         });
 
         it('teams appropriate to each division in order', async () => {
@@ -283,6 +284,10 @@ describe('AssignPlaceholders', () => {
             .address('ADDRESS A')
             .forSeason(season, division1, [])
             .build();
+        const teamAA: TeamDto = teamBuilder('TEAM AA')
+            .address('ADDRESS A')
+            .forSeason(season, division1, [])
+            .build();
         const teamC: TeamDto = teamBuilder('TEAM C')
             .address('ADDRESS C')
             .forSeason(season, division1, [])
@@ -355,6 +360,96 @@ describe('AssignPlaceholders', () => {
             await doSelectOption(placeholderA.querySelector('.dropdown-menu'), '🎲 Randomly assign');
 
             expect(placeholderMappings).toEqual({});
+        });
+
+        it('can assign two teams to shared address placeholder', async () => {
+            const templateWithSharedAddresses: TemplateDto = {
+                id: createTemporaryId(),
+                name: 'TEMPLATE 3',
+                sharedAddresses: [],
+                divisions: [{
+                    sharedAddresses: [ [ 'B', 'C' ] ],
+                    dates: [{
+                        fixtures: [
+                            { home: 'C', away: 'B' },
+                            { home: 'A' },
+                        ]
+                    }],
+                }, {
+                    sharedAddresses: [],
+                    dates: [{
+                        fixtures: [
+                            { home: 'D' },
+                        ]
+                    }],
+                }],
+            };
+            await renderComponent(appProps({
+                    divisions: [division1, division2],
+                    seasons: [season],
+                    teams: [teamA, teamAA],
+                }),
+                {
+                    seasonId: season.id,
+                    selectedTemplate: { result: templateWithSharedAddresses },
+                    placeholderMappings: {},
+                    setPlaceholderMappings,
+                });
+            const div1 = context.container.querySelector('div > div > div:nth-child(1)');
+            const div1Placeholders = Array.from(div1.querySelectorAll('ul > li'));
+            const placeholderB = div1Placeholders.filter(p => p.querySelector('span').textContent === 'B')[0];
+
+            await doSelectOption(placeholderB.querySelector('.dropdown-menu'), 'TEAM AA');
+
+            expect(placeholderMappings).toEqual({
+                'B': teamAA.id,
+                'C': teamA.id,
+            });
+        });
+
+        it('can unassign two teams to shared address placeholder', async () => {
+            const templateWithSharedAddresses: TemplateDto = {
+                id: createTemporaryId(),
+                name: 'TEMPLATE 3',
+                sharedAddresses: [],
+                divisions: [{
+                    sharedAddresses: [ [ 'B', 'C' ] ],
+                    dates: [{
+                        fixtures: [
+                            { home: 'C', away: 'B' },
+                            { home: 'A' },
+                        ]
+                    }],
+                }, {
+                    sharedAddresses: [],
+                    dates: [{
+                        fixtures: [
+                            { home: 'D' },
+                        ]
+                    }],
+                }],
+            };
+            await renderComponent(appProps({
+                    divisions: [division1, division2],
+                    seasons: [season],
+                    teams: [teamA, teamAA],
+                }),
+                {
+                    seasonId: season.id,
+                    selectedTemplate: { result: templateWithSharedAddresses },
+                    placeholderMappings: {
+                        'B': teamAA.id,
+                        'C': teamA.id,
+                    },
+                    setPlaceholderMappings,
+                });
+            const div1 = context.container.querySelector('div > div > div:nth-child(1)');
+            const div1Placeholders = Array.from(div1.querySelectorAll('ul > li'));
+            const placeholderB = div1Placeholders.filter(p => p.querySelector('span').textContent === 'B')[0];
+
+            await doSelectOption(placeholderB.querySelector('.dropdown-menu'), '⚙ Automatically assign');
+
+            expect(placeholderMappings).toEqual({ });
         });
     });
 });
