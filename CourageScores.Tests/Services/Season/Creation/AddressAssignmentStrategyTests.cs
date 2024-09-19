@@ -5,6 +5,7 @@ using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season.Creation;
 using CourageScores.Tests.Models.Dtos;
+using CourageScores.Tests.Models.Dtos.Season.Creation;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Season.Creation;
@@ -88,18 +89,13 @@ public class AddressAssignmentStrategyTests
     [Test]
     public async Task AssignAddresses_GivenSameNumberOfSeasonSharedAddressesAsInTemplate_MapsEachSeasonSharedAddressCorrectly()
     {
-        var template = new TemplateDto
-        {
-            SharedAddresses =
-            {
-                List(TeamPlaceholderA, TeamPlaceholderB),
-            },
-            Divisions =
-            {
-                Division(FixtureDate("A", "D"), FixtureDate("A")),
-                Division(FixtureDate("B", "C"), FixtureDate("C")),
-            },
-        };
+        var template = new TemplateDtoBuilder()
+            .WithSharedAddress(
+                List(TeamPlaceholderA, TeamPlaceholderB))
+            .WithDivision(
+                b => b.WithDates(d => d.WithFixture("A", "D"), d => d.WithFixture("A")),
+                b => b.WithDates(d => d.WithFixture("B", "C"), d => d.WithFixture("C")))
+            .Build();
         var context = ProposalContext(
             new[] { Division1, Division2 },
             template,
@@ -120,19 +116,14 @@ public class AddressAssignmentStrategyTests
     [Test]
     public async Task AssignAddresses_GivenFewerSeasonSharedAddressesThanInTemplate_MapsEachSeasonSharedAddressCorrectly()
     {
-        var template = new TemplateDto
-        {
-            SharedAddresses =
-            {
+        var template = new TemplateDtoBuilder()
+            .WithSharedAddress(
                 List(TeamPlaceholderB, TeamPlaceholderA),
-                List(TeamPlaceholderD, TeamPlaceholderC),
-            },
-            Divisions =
-            {
-                Division(FixtureDate("A", "C"), FixtureDate("A")),
-                Division(FixtureDate("B", "D"), FixtureDate("B")),
-            },
-        };
+                List(TeamPlaceholderD, TeamPlaceholderC))
+            .WithDivision(
+                b => b.WithDates(d => d.WithFixture("A", "C"), d => d.WithFixture("A")),
+                b => b.WithDates(d => d.WithFixture("B", "D"), d => d.WithFixture("B")))
+            .Build();
         var context = ProposalContext(
             new[] { Division1, Division2 },
             template,
@@ -153,19 +144,14 @@ public class AddressAssignmentStrategyTests
     [Test]
     public async Task AssignAddresses_GivenSeasonSharedAddressWithMoreTeamsThanInTemplate_ReturnsFailure()
     {
-        var template = new TemplateDto
-        {
-            SharedAddresses =
-            {
-                List(TeamPlaceholderA, TeamPlaceholderB),
-            },
-            Divisions =
-            {
-                Division(FixtureDate("A", "D"), FixtureDate("A")),
-                Division(FixtureDate("D", "B"), FixtureDate("D")),
-                Division(FixtureDate("C")),
-            },
-        };
+        var template = new TemplateDtoBuilder()
+            .WithSharedAddress(
+                List(TeamPlaceholderA, TeamPlaceholderB))
+            .WithDivision(
+                b => b.WithDates(d => d.WithFixture("A", "D"), d => d.WithFixture("A")),
+                b => b.WithDates(d => d.WithFixture("D", "B"), d => d.WithFixture("D")),
+                b => b.WithDates(d => d.WithFixture("C")))
+            .Build();
         var division3 = new DivisionDataDto
         {
             Id = Guid.NewGuid(),
@@ -192,13 +178,9 @@ public class AddressAssignmentStrategyTests
     [Test]
     public async Task AssignAddresses_GivenMoreDivisionSharedAddressesThanInTemplateDivision_ReturnsFailure()
     {
-        var template = new TemplateDto
-        {
-            Divisions =
-            {
-                new DivisionTemplateDto(),
-            },
-        };
+        var template = new TemplateDtoBuilder()
+            .WithDivision(new DivisionTemplateDto())
+            .Build();
         var context = ProposalContext(
             new[] { Division1 },
             template,
@@ -307,20 +289,9 @@ public class AddressAssignmentStrategyTests
     [Test]
     public async Task AssignAddresses_GivenFewerDivisionSharedAddressesThanInTemplateDivision_MapsEachDivisionSharedAddressCorrectly()
     {
-        var template = new TemplateDto
-        {
-            Divisions =
-            {
-                new DivisionTemplateDto
-                {
-                    SharedAddresses =
-                    {
-                        List(TeamPlaceholderA, TeamPlaceholderB),
-                        List(TeamPlaceholderC, TeamPlaceholderD),
-                    },
-                },
-            },
-        };
+        var template = new TemplateDtoBuilder()
+            .WithDivision(b => b.WithSharedAddress(List(TeamPlaceholderA, TeamPlaceholderB), List(TeamPlaceholderC, TeamPlaceholderD)))
+            .Build();
         var context = ProposalContext(
             new[] { Division1 },
             template,
@@ -340,20 +311,9 @@ public class AddressAssignmentStrategyTests
     [Test]
     public async Task AssignAddresses_GivenFewerPreSelectedDivisionSharedAddressesThanInTemplateDivision_MapsEachDivisionSharedAddressCorrectly()
     {
-        var template = new TemplateDto
-        {
-            Divisions =
-            {
-                new DivisionTemplateDto
-                {
-                    SharedAddresses =
-                    {
-                        List(TeamPlaceholderA, TeamPlaceholderB),
-                        List(TeamPlaceholderC, TeamPlaceholderD),
-                    },
-                },
-            },
-        };
+        var template = new TemplateDtoBuilder()
+            .WithDivision(b => b.WithSharedAddress(List(TeamPlaceholderA, TeamPlaceholderB), List(TeamPlaceholderC, TeamPlaceholderD)))
+            .Build();
         var context = ProposalContext(
             new[] { Division1 },
             template,
@@ -397,13 +357,7 @@ public class AddressAssignmentStrategyTests
     [Test]
     public async Task AssignAddresses_GivenInsufficientNonSharedAddressPlaceholders_ReturnsFailure()
     {
-        var template = new TemplateDto
-        {
-            Divisions =
-            {
-                new DivisionTemplateDto(),
-            },
-        };
+        var template = new TemplateDtoBuilder().WithDivision(new DivisionTemplateDto()).Build();
         var context = ProposalContext(
             new[] { Division1 },
             template,
@@ -510,29 +464,6 @@ public class AddressAssignmentStrategyTests
             {
                 Result = new ProposalResultDto(),
             });
-    }
-
-    private static DateTemplateDto FixtureDate(string home, string? away = null)
-    {
-        return new DateTemplateDto
-        {
-            Fixtures =
-            {
-                new FixtureTemplateDto
-                {
-                    Home = new TeamPlaceholderDto(home),
-                    Away = away != null ? new TeamPlaceholderDto(away) : null,
-                },
-            }
-        };
-    }
-
-    private static DivisionTemplateDto Division(params DateTemplateDto[] dates)
-    {
-        return new DivisionTemplateDto
-        {
-            Dates = dates.ToList(),
-        };
     }
 
     private static DivisionDataDto DivisionDataDto(string name)
