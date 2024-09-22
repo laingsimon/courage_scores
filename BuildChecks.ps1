@@ -158,16 +158,18 @@ If ($WarningThreshold -gt 0)
 {
     If ($ErrorThreshold -le 0)
     {
+        $Warning = "over $($WarningThreshold) line warning threshold"
         $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $MaxLines
     }
     else
     {
+        $Warning = "approaching $($ErrorThreshold) line limit"
         $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $ErrorThreshold
     }
 
     If ($FilesNearingLimit.Length -gt 0)
     {
-        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s approaching line $($WarningThreshold) limit" -Files $FilesNearingLimit
+        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s $($Warning)" -Files $FilesNearingLimit
     }
 }
 
