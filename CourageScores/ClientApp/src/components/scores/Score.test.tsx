@@ -246,7 +246,7 @@ describe('Score', () => {
         }
     }
 
-    function user(manageScores?: boolean, uploadPhotos?: boolean): UserDto {
+    function user(manageScores?: boolean, uploadPhotos?: boolean, inputResults?: boolean, teamId?: string): UserDto {
         return {
             name: '',
             emailAddress: '',
@@ -254,7 +254,9 @@ describe('Score', () => {
             access: {
                 manageScores,
                 uploadPhotos,
+                inputResults,
             },
+            teamId,
         };
     }
 
@@ -1059,16 +1061,7 @@ describe('Score', () => {
     });
 
     describe('when logged in as a home clerk', () => {
-        const account: UserDto = {
-            name: '',
-            givenName: '',
-            emailAddress: '',
-            access: {
-                manageScores: false,
-                inputResults: true,
-            },
-            teamId: createTemporaryId(),
-        };
+        const account: UserDto = user(false, false, true, createTemporaryId());
         const appData = getDefaultAppData(account);
         const fixture = getUnplayedFixtureData(appData);
 
@@ -1126,16 +1119,7 @@ describe('Score', () => {
     });
 
     describe('when logged in as an away clerk', () => {
-        const account: UserDto = {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                manageScores: false,
-                inputResults: true,
-            },
-            teamId: createTemporaryId(),
-        };
+        const account: UserDto = user(false, false, true, createTemporaryId());
         const appData = getDefaultAppData(account);
         const fixture = getUnplayedFixtureData(appData);
 
