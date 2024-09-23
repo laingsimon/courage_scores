@@ -120,6 +120,16 @@ describe('ScoreCardHeading', () => {
         expect(linkToTeam.textContent).toEqual(text);
     }
 
+    function props(access: string, submissionData: GameDto, submission?: string): IScoreCardHeadingProps {
+        return {
+            access,
+            submission,
+            setSubmission,
+            setFixtureData,
+            data: submissionData,
+        };
+    }
+
     describe('when logged out', () => {
         const access = '';
         const account = null;
@@ -149,13 +159,7 @@ describe('ScoreCardHeading', () => {
             it('renders home team details', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertLinkAddress(true, submissionData, fixtureData);
@@ -167,13 +171,7 @@ describe('ScoreCardHeading', () => {
             it('renders away team details', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertLinkAddress(false, submissionData, fixtureData);
@@ -212,13 +210,7 @@ describe('ScoreCardHeading', () => {
             it('renders home team details', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertLinkAddress(true, submissionData, fixtureData);
@@ -230,13 +222,7 @@ describe('ScoreCardHeading', () => {
             it('renders away team details', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertLinkAddress(false, submissionData, fixtureData);
@@ -275,13 +261,7 @@ describe('ScoreCardHeading', () => {
             it('renders home team details', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertLinkAddress(true, submissionData, fixtureData);
@@ -293,13 +273,7 @@ describe('ScoreCardHeading', () => {
             it('renders away team details', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertLinkAddress(false, submissionData, fixtureData);
@@ -344,13 +318,7 @@ describe('ScoreCardHeading', () => {
             it('does not show home submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertToggleNotShown(true);
@@ -359,13 +327,7 @@ describe('ScoreCardHeading', () => {
             it('does not show away submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertToggleNotShown(false);
@@ -407,13 +369,7 @@ describe('ScoreCardHeading', () => {
 
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: 'home',
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData, 'home'),
                     account,
                     [team]);
 
@@ -425,13 +381,7 @@ describe('ScoreCardHeading', () => {
             it('shows home submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertToggleShown(true, 'HOME (3-2)');
@@ -440,13 +390,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle switches to submission and data', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 await assertDisplayOfSubmissionData(true, submissionData);
@@ -455,13 +399,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle reverts fixture data', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: 'home',
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData, 'home'),
                     account);
 
                 await assertRevertToFixtureData(true, submissionData);
@@ -499,13 +437,7 @@ describe('ScoreCardHeading', () => {
             it('shows away submission toggle', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 assertToggleShown(false, 'AWAY (3-2)');
@@ -514,13 +446,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle switches to submission and data', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: null,
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData),
                     account);
 
                 await assertDisplayOfSubmissionData(false, submissionData);
@@ -529,13 +455,7 @@ describe('ScoreCardHeading', () => {
             it('clicking toggle reverts fixture data', async () => {
                 await renderComponent(
                     fixtureData,
-                    {
-                        access,
-                        submission: 'away',
-                        setSubmission,
-                        setFixtureData,
-                        data: submissionData,
-                    },
+                    props(access, submissionData, 'away'),
                     account);
 
                 await assertRevertToFixtureData(false, submissionData);
@@ -578,13 +498,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true);
@@ -593,13 +507,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -629,13 +537,7 @@ describe('ScoreCardHeading', () => {
                     const teams = [team];
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account,
                         teams);
 
@@ -647,13 +549,7 @@ describe('ScoreCardHeading', () => {
                 it('shows unpublished alert when no submission team', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     const alert = context.container.querySelector('.alert');
@@ -664,13 +560,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true);
@@ -679,13 +569,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -714,13 +598,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true);
@@ -729,13 +607,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -766,13 +638,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true);
@@ -781,13 +647,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -825,13 +685,7 @@ describe('ScoreCardHeading', () => {
                 it('shows home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleShown(true, 'HOME (3-2)');
@@ -840,13 +694,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle switches to submission and data', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     await assertDisplayOfSubmissionData(true, submissionData);
@@ -855,13 +703,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle reverts fixture data', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: 'home',
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData, 'home'),
                         account);
 
                     await assertRevertToFixtureData(true, submissionData);
@@ -870,13 +712,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -905,13 +741,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true)
@@ -920,13 +750,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -957,13 +781,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true);
@@ -972,13 +790,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -1007,13 +819,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true);
@@ -1022,13 +828,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(false);
@@ -1066,13 +866,7 @@ describe('ScoreCardHeading', () => {
                 it('shows away submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleShown(false, 'AWAY (3-2)');
@@ -1081,13 +875,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle switches to submission and data', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     await assertDisplayOfSubmissionData(false, submissionData);
@@ -1096,13 +884,7 @@ describe('ScoreCardHeading', () => {
                 it('clicking toggle reverts fixture data', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: 'away',
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData, 'away'),
                         account);
 
                     await assertRevertToFixtureData(false, submissionData);
@@ -1111,13 +893,7 @@ describe('ScoreCardHeading', () => {
                 it('does not show home submission toggle', async () => {
                     await renderComponent(
                         fixtureData,
-                        {
-                            access,
-                            submission: null,
-                            setSubmission,
-                            setFixtureData,
-                            data: submissionData,
-                        },
+                        props(access, submissionData),
                         account);
 
                     assertToggleNotShown(true);
