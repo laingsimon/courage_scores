@@ -146,6 +146,16 @@ describe('MatchSayg', () => {
         };
     }
 
+    function containerProps(tournamentData: TournamentGameDto): ITournamentContainerProps {
+        return {
+            setTournamentData,
+            tournamentData,
+            preventScroll: false,
+            setPreventScroll,
+            saveTournament,
+        };
+    }
+
     describe('renders', () => {
         const matchOptions = matchOptionsBuilder().build();
         const sideA = sideBuilder('SIDE A').withPlayer('PLAYER A').build();
@@ -156,6 +166,8 @@ describe('MatchSayg', () => {
             .build();
         const notPermitted: UserDto = user(false);
         const permitted: UserDto = user(true);
+        const sideAvsSideBMatch: TournamentMatchDto = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
+        const sideAvsSideBRound = roundBuilder().withMatch(sideAvsSideBMatch).build();
 
         it('shows no sayg links when no players', async () => {
             const match = tournamentMatchBuilder()
@@ -187,19 +199,12 @@ describe('MatchSayg', () => {
         });
 
         it('shows no sayg links when no data and not logged in', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -211,19 +216,12 @@ describe('MatchSayg', () => {
         });
 
         it('shows no sayg links when no data and not permitted', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -239,12 +237,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -263,12 +256,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -283,19 +271,12 @@ describe('MatchSayg', () => {
         });
 
         it('shows view sayg link when data and not logged in', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -308,19 +289,12 @@ describe('MatchSayg', () => {
         });
 
         it('shows view sayg link when data and not permitted', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -333,19 +307,12 @@ describe('MatchSayg', () => {
         });
 
         it('does not show view sayg link when data and not permitted and not requested', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -357,19 +324,12 @@ describe('MatchSayg', () => {
         });
 
         it('shows edit sayg link when data and permitted', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).saygId(createTemporaryId()).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -380,19 +340,12 @@ describe('MatchSayg', () => {
         });
 
         it('shows edit sayg link when no data but single round (superleague)', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().singleRound().round(round).build();
+            const tournamentData = tournamentBuilder().singleRound().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -403,19 +356,12 @@ describe('MatchSayg', () => {
         });
 
         it('shows edit sayg link when no data and both sides have single players', async () => {
-            const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
-            const round = roundBuilder().withMatch(match).build();
-            const tournamentData = tournamentBuilder().round(round).build();
+            const tournamentData = tournamentBuilder().round(sideAvsSideBRound).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
-                match,
+            await renderComponent(containerProps(tournamentData), {
+                match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round,
+                round: sideAvsSideBRound,
                 onChange,
                 patchData,
                 matchOptions,
@@ -430,12 +376,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -454,12 +395,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -484,6 +420,12 @@ describe('MatchSayg', () => {
         const pairB = sideBuilder('PAIR B').withPlayer('PLAYER B 1').withPlayer('PLAYER B 2').build();
         const permitted: UserDto = user(true);
         const permittedWithDebug: UserDto = user(true, true);
+        let message: string;
+
+        beforeEach(() => {
+            message = null;
+            window.alert = (msg) => message = msg;
+        });
 
         async function enterScore(score: number, noOfDarts?: number) {
             await keyPad(context, score.toString().split('').concat(ENTER_SCORE_BUTTON));
@@ -541,12 +483,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -566,13 +503,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().noId().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -583,8 +514,6 @@ describe('MatchSayg', () => {
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
             expect(createDataButton.textContent).toEqual(START_SCORING);
-            let message: string;
-            window.alert = (msg) => message = msg;
 
             await doClick(createDataButton);
 
@@ -597,13 +526,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -614,8 +537,6 @@ describe('MatchSayg', () => {
             reportedError.verifyNoError();
             const createDataButton = context.container.querySelector('button');
             expect(createDataButton.textContent).toEqual(START_SCORING);
-            let message: string;
-            window.alert = (msg) => message = msg;
 
             await doClick(createDataButton);
 
@@ -630,13 +551,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -664,13 +579,7 @@ describe('MatchSayg', () => {
             const match = tournamentMatchBuilder().sideA(sideA).sideB(sideB).build();
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -700,13 +609,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -739,13 +642,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -775,13 +672,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -811,13 +702,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -845,13 +730,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -1058,13 +937,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -1105,13 +978,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
@@ -1157,13 +1024,7 @@ describe('MatchSayg', () => {
             const round = roundBuilder().withMatch(match).build();
             const tournamentData = tournamentBuilder().round(round).build();
 
-            await renderComponent({
-                setTournamentData,
-                tournamentData,
-                saveTournament,
-                preventScroll: false,
-                setPreventScroll,
-            }, {
+            await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
                 round,
