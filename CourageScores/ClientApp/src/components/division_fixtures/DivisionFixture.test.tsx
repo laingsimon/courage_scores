@@ -109,9 +109,9 @@ describe('DivisionFixture', () => {
         const division: DivisionDto = divisionBuilder('DIVISION').build();
         const team: TeamDto = teamBuilder('TEAM').build();
         const account: UserDto = null;
+        const date: string = '2023-05-06T00:00:00';
 
         it('renders unplayed fixture', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .build();
@@ -136,7 +136,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders postponed fixture', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .postponed()
                 .playing('HOME', 'AWAY')
@@ -162,7 +161,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders qualifier fixture', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .knockout()
@@ -188,7 +186,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders bye', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye('HOME')
                 .build();
@@ -213,7 +210,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade when no favourites', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye('HOME')
                 .build();
@@ -235,7 +231,6 @@ describe('DivisionFixture', () => {
         });
 
         it('shades non-favourite teams', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye('HOME')
                 .build();
@@ -259,7 +254,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade bye for favourite-team', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye('HOME')
                 .build();
@@ -283,7 +277,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade home-team favourite', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .build();
@@ -307,7 +300,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade away-team favourite', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .build();
@@ -331,7 +323,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can set a favourite team', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .build();
@@ -356,7 +347,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can unset a favourite team', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing('HOME', 'AWAY')
                 .build();
@@ -400,9 +390,15 @@ describe('DivisionFixture', () => {
                 manageGames: true,
             }
         };
+        const date: string = '2023-05-06T00:00:00';
+        const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
+            .address('ANOTHER ADDRESS')
+            .build();
+        const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+            .playing(homeTeam, awayTeam)
+            .build();
 
         it('renders unplayed fixture', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .build();
@@ -425,7 +421,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders postponed fixture', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .postponed()
@@ -449,7 +444,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders qualifier fixture', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .knockout()
@@ -473,7 +467,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders bye', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
@@ -496,7 +489,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders selectable away team with same address (league fixture)', async () => {
-            const date = '2023-05-06T00:00:00';
             const anotherTeamAtHomeAddress: TeamDto = teamBuilder('ANOTHER TEAM')
                 .address('HOME ADDRESS')
                 .build();
@@ -520,17 +512,13 @@ describe('DivisionFixture', () => {
         });
 
         it('renders unselectable away team playing elsewhere (league fixture)', async () => {
-            const date = '2023-05-06T00:00:00';
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
+            const byeFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
-            const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
-                {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
+                {fixture: byeFixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
-                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(fixture).withFixture(anotherFixture), date)
+                    .withFixtureDate((d: IDivisionFixtureDateBuilder) => d.withFixture(byeFixture).withFixture(fixture), date)
                     .season(season)
                     .withTeam(homeTeam).withTeam(awayTeam)
                     .build(),
@@ -543,7 +531,7 @@ describe('DivisionFixture', () => {
         });
 
         it('renders unselectable away team played fixture previously (league fixture)', async () => {
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-06T00:00:00')
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
             const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-13T00:00:00')
@@ -566,7 +554,7 @@ describe('DivisionFixture', () => {
         });
 
         it('renders selectable away team when away team is playing a qualifier on another date', async () => {
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-06T00:00:00')
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
             const anotherFixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-13T00:00:00')
@@ -590,7 +578,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders selectable away team with same address (qualifier)', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
@@ -615,7 +602,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not render team with deleted team season', async () => {
-            const date = '2023-05-06T00:00:00';
             const deletedAwayTeam: TeamDto = teamBuilder('DELETED AWAY')
                 .forSeason(season, division, null, true)
                 .build();
@@ -639,7 +625,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders unselectable away team playing elsewhere (qualifier)', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
@@ -664,7 +649,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders selectable home team when no other fixtures for date', async () => {
-            const date = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
@@ -684,7 +668,6 @@ describe('DivisionFixture', () => {
         });
 
         it('renders no away selection when home address is in use', async () => {
-            const date = '2023-05-06T00:00:00';
             const otherFixtureId = createTemporaryId();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
@@ -709,7 +692,7 @@ describe('DivisionFixture', () => {
         });
 
         it('renders unselectable away team played fixture previously (qualifier)', async () => {
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder('2023-05-06T00:00:00')
+            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .knockout()
                 .build();
@@ -734,10 +717,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can change away team', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
@@ -773,10 +752,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can change away team for qualifiers', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
@@ -813,10 +788,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can save league fixture change', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .originalAwayTeamId('unset')
@@ -842,10 +813,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can save qualifier change', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .originalAwayTeamId('unset')
@@ -872,10 +839,6 @@ describe('DivisionFixture', () => {
         });
 
         it('handles error during save', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .knockout()
@@ -905,13 +868,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can delete league fixture', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
@@ -939,13 +895,6 @@ describe('DivisionFixture', () => {
         });
 
         it('cannot delete fixture if readonly', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
@@ -967,13 +916,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not delete league fixture', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
@@ -996,13 +938,6 @@ describe('DivisionFixture', () => {
         });
 
         it('handles error during delete', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
@@ -1028,13 +963,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can close error dialog from deletion failure', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 {fixture, date, readOnly: false, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
@@ -1057,10 +985,6 @@ describe('DivisionFixture', () => {
         });
 
         it('can delete qualifier', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .knockout()
@@ -1092,10 +1016,6 @@ describe('DivisionFixture', () => {
         });
 
         it('cannot save when readonly', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .playing(homeTeam, awayTeam)
                 .originalAwayTeamId('unset')
@@ -1116,13 +1036,6 @@ describe('DivisionFixture', () => {
         });
 
         it('cannot delete when readonly', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
-            const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
-                .playing(homeTeam, awayTeam)
-                .build();
             await renderComponent(
                 {fixture, date, readOnly: true, beforeReloadDivision, onUpdateFixtures},
                 divisionDataBuilder(division)
@@ -1139,10 +1052,6 @@ describe('DivisionFixture', () => {
         });
 
         it('cannot change away team when readonly', async () => {
-            const date = '2023-05-06T00:00:00';
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
-                .address('ANOTHER ADDRESS')
-                .build();
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye(homeTeam)
                 .build();
@@ -1164,7 +1073,6 @@ describe('DivisionFixture', () => {
         });
 
         it('does not shade non-favourite team when an admin', async () => {
-            const date: string = '2023-05-06T00:00:00';
             const fixture: IDatedDivisionFixtureDto = divisionFixtureBuilder(date)
                 .bye('HOME')
                 .build();
