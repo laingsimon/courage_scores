@@ -311,11 +311,8 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const singleRow = tableBody.querySelector('tr td');
-            expect(singleRow).toBeTruthy();
             expect(singleRow.textContent).toEqual('No scores, yet');
         });
 
@@ -326,9 +323,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
             expect(matchRows.length).toEqual(12);
             assertMatchRow(matchRows[0], 'Singles');
@@ -388,9 +383,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
             expect(matchRows.length).toEqual(14);
             assertMatchRow(matchRows[0], 'Singles');
@@ -416,9 +409,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
             expect(matchRows.length).toEqual(14);
             assertMatchRow(matchRows[0], 'Singles');
@@ -516,11 +507,9 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
 
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             expect(playerSelection.querySelector('.dropdown-toggle').textContent).toEqual('New name (nee Old name)');
             const selectedPlayer = playerSelection.querySelector('.dropdown-menu .active');
-            expect(selectedPlayer).toBeTruthy();
             expect(selectedPlayer.textContent).toEqual('New name (nee Old name)');
         });
 
@@ -549,11 +538,9 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
-            expect(addPlayerDialog).toBeTruthy();
             expect(addPlayerDialog.textContent).toContain('Create home player...');
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
@@ -579,11 +566,9 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
-            expect(addPlayerDialog).toBeTruthy();
             expect(addPlayerDialog.textContent).toContain('Create home player...');
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
@@ -611,11 +596,9 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
-            expect(addPlayerDialog).toBeTruthy();
             expect(addPlayerDialog.textContent).toContain('Create home player...');
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
@@ -643,11 +626,9 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
-            expect(addPlayerDialog).toBeTruthy();
             expect(addPlayerDialog.textContent).toContain('Create home player...');
             await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
@@ -664,12 +645,10 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
 
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
-            expect(addPlayerDialog).toBeTruthy();
             expect(addPlayerDialog.textContent).toContain('Create away player...');
         });
 
@@ -678,7 +657,6 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             reportedError.verifyNoError();
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
 
@@ -718,7 +696,6 @@ describe('Score', () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
 
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Another player');
@@ -734,12 +711,10 @@ describe('Score', () => {
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
-            expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
 
             await doClick(findButton(playerSelection, '🛠'));
             const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeTruthy();
             await doChange(dialog, 'input[name="numberOfLegs"]', '30', context.user);
             await doClick(findButton(dialog, 'Close'));
             await doClick(findButton(context.container, 'Save'));
@@ -892,7 +867,6 @@ describe('Score', () => {
             await doClick(findButton(context.container, '📷 Photos'));
 
             const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog).toBeTruthy();
             expect(dialog.querySelector('div[datatype="upload-control"]')).toBeTruthy();
         });
 
@@ -1070,9 +1044,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
             expect(matchRows.length).toEqual(14);
             assertMatchRow(matchRows[0], 'Singles');
@@ -1098,9 +1070,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
             expect(matchRows.length).toEqual(12);
             assertMatchRow(matchRows[0], 'Singles');
@@ -1128,9 +1098,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
             expect(matchRows.length).toEqual(14);
             assertMatchRow(matchRows[0], 'Singles');
@@ -1156,9 +1124,7 @@ describe('Score', () => {
 
             reportedError.verifyNoError();
             const container = context.container.querySelector('.content-background');
-            expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
             expect(matchRows.length).toEqual(12);
             assertMatchRow(matchRows[0], 'Singles');
