@@ -246,12 +246,29 @@ describe('Score', () => {
         }
     }
 
+    function user(manageScores?: boolean, uploadPhotos?: boolean): UserDto {
+        return {
+            name: '',
+            emailAddress: '',
+            givenName: '',
+            access: {
+                manageScores,
+                uploadPhotos,
+            },
+        };
+    }
+
     describe('when logged out', () => {
         const account = null;
+        let fixture: GameDto;
+        let appData: IAppContainerProps;
+
+        beforeEach(() => {
+            fixture = fixtureBuilder().build();
+            appData = getDefaultAppData(account);
+        });
 
         it('renders when fixture not found', async () => {
-            const fixture = fixtureBuilder().build();
-            const appData = getDefaultAppData(account);
             fixtureDataMap[fixture.id] = null;
 
             await renderComponent(fixture.id, appData);
@@ -260,8 +277,6 @@ describe('Score', () => {
         });
 
         it('renders when fixture data not returned successfully', async () => {
-            const fixture = fixtureBuilder().build();
-            const appData = getDefaultAppData(account);
             const failedRequest: IFailedRequest = {
                 status: 400,
                 errors: {'key': ['Some error']}
@@ -274,8 +289,6 @@ describe('Score', () => {
         });
 
         it('renders when home or away are not defined', async () => {
-            const fixture = fixtureBuilder().build();
-            const appData = getDefaultAppData(account);
             fixtureDataMap[fixture.id] = {
                 id: '',
                 date: '',
@@ -290,8 +303,7 @@ describe('Score', () => {
         });
 
         it('renders score card with no results', async () => {
-            const appData = getDefaultAppData(account);
-            const fixture = getUnplayedFixtureData(appData);
+            fixture = getUnplayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
@@ -306,8 +318,7 @@ describe('Score', () => {
         });
 
         it('renders score card with results', async () => {
-            const appData = getDefaultAppData(account);
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
@@ -333,9 +344,8 @@ describe('Score', () => {
         });
 
         it('renders when no divisions', async () => {
-            const appData = getDefaultAppData(account);
             appData.divisions = [];
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
@@ -343,9 +353,8 @@ describe('Score', () => {
         });
 
         it('renders when no seasons', async () => {
-            const appData = getDefaultAppData(account);
             appData.seasons = [];
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
@@ -353,9 +362,8 @@ describe('Score', () => {
         });
 
         it('renders when no teams', async () => {
-            const appData = getDefaultAppData(account);
             appData.teams = [];
-            const fixture = getPlayedFixtureData(appData);
+            fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
 
@@ -364,17 +372,14 @@ describe('Score', () => {
     });
 
     describe('when logged in', () => {
-        const account: UserDto = {
-            name: '',
-            emailAddress: '',
-            givenName: '',
-            access: {
-                manageScores: true
-            },
-        };
+        const account: UserDto = user(true);
+        let appData: IAppContainerProps;
+
+        beforeEach(() => {
+            appData = getDefaultAppData(account);
+        });
 
         it('renders score card without results', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getUnplayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
@@ -403,7 +408,6 @@ describe('Score', () => {
         });
 
         it('renders score card with results', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
 
             await renderComponent(fixture.id, appData);
@@ -432,7 +436,6 @@ describe('Score', () => {
         });
 
         it('renders when no divisions', async () => {
-            const appData = getDefaultAppData(account);
             appData.divisions = [];
             const fixture = getPlayedFixtureData(appData);
 
@@ -442,7 +445,6 @@ describe('Score', () => {
         });
 
         it('renders when no seasons', async () => {
-            const appData = getDefaultAppData(account);
             appData.seasons = [];
             const fixture = getPlayedFixtureData(appData);
 
@@ -452,7 +454,6 @@ describe('Score', () => {
         });
 
         it('renders when no teams', async () => {
-            const appData = getDefaultAppData(account);
             appData.teams = [];
             const fixture = getPlayedFixtureData(appData);
 
@@ -462,7 +463,6 @@ describe('Score', () => {
         });
 
         it('renders when team has no seasons', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             appData.teams = appData.teams.map(t => {
                 if (t.name === 'Home team') {
@@ -477,7 +477,6 @@ describe('Score', () => {
         });
 
         it('renders when team is not registered to season', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             appData.teams = appData.teams.map((t: TeamDto) => {
                 if (t.name === 'Home team') {
@@ -492,7 +491,6 @@ describe('Score', () => {
         });
 
         it('renders when team not found', async () => {
-            const appData = getDefaultAppData(account);
             appData.teams = appData.teams.filter((t: TeamDto) => t.name !== 'Home team');
             const fixture = getPlayedFixtureData(appData);
 
@@ -502,7 +500,6 @@ describe('Score', () => {
         });
 
         it('renders previously renamed players', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
             const newHomeTeamPlayer = playerBuilder('New name').captain().build();
@@ -526,7 +523,6 @@ describe('Score', () => {
         });
 
         it('can add a player to home team', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
@@ -567,7 +563,6 @@ describe('Score', () => {
         });
 
         it('can handle missing team season during add new player', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
@@ -598,7 +593,6 @@ describe('Score', () => {
         });
 
         it('can handle deleted team season during add new player', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
@@ -631,7 +625,6 @@ describe('Score', () => {
         });
 
         it('can handle new player not found after creating new player', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
@@ -664,7 +657,6 @@ describe('Score', () => {
         });
 
         it('can add a player to away team', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
 
@@ -680,7 +672,6 @@ describe('Score', () => {
         });
 
         it('can close add player dialog', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             reportedError.verifyNoError();
@@ -696,7 +687,6 @@ describe('Score', () => {
         });
 
         it('can save scores', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
 
@@ -708,7 +698,6 @@ describe('Score', () => {
         });
 
         it('renders error if save fails', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             saveGameApiResult = {
@@ -721,7 +710,6 @@ describe('Score', () => {
         });
 
         it('can change player', async () => {
-            const appData = getDefaultAppData(account);
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
             const anotherHomePlayer = playerBuilder('Another player').build();
             homeTeam.seasons[0].players.push(anotherHomePlayer);
@@ -741,7 +729,6 @@ describe('Score', () => {
         });
 
         it('can change match options', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             await renderComponent(fixture.id, appData);
             const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
@@ -762,7 +749,6 @@ describe('Score', () => {
         });
 
         it('can unpublish unselected submission', async () => {
-            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
@@ -793,7 +779,6 @@ describe('Score', () => {
         });
 
         it('can unpublish home submission', async () => {
-            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
@@ -801,7 +786,7 @@ describe('Score', () => {
             for (let match of fixtureData.homeSubmission.matches) {
                 match.homeScore = 1;
                 match.awayScore = 1;
-            };
+            }
             await renderComponent(fixtureData.id, appData);
             reportedError.verifyNoError();
             let alert: string;
@@ -822,7 +807,6 @@ describe('Score', () => {
         });
 
         it('can unpublish away submission', async () => {
-            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
@@ -851,7 +835,6 @@ describe('Score', () => {
         });
 
         it('can show when only home submission present', async () => {
-            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
@@ -870,7 +853,6 @@ describe('Score', () => {
         });
 
         it('can show when only away submission present', async () => {
-            const appData = getDefaultAppData(account);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = null;
@@ -889,8 +871,7 @@ describe('Score', () => {
         });
 
         it('does not render photos button when not permitted', async () => {
-            const notPermitted = Object.assign({}, account);
-            account.access.uploadPhotos = false;
+            const notPermitted = user(true, false);
             const appData = getDefaultAppData(notPermitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -900,8 +881,7 @@ describe('Score', () => {
         });
 
         it('can open photo manager to view photos', async () => {
-            const permitted = Object.assign({}, account);
-            account.access.uploadPhotos = true;
+            const permitted = user(true, true);
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -915,8 +895,7 @@ describe('Score', () => {
         });
 
         it('can close photo manager', async () => {
-            const permitted = Object.assign({}, account);
-            account.access.uploadPhotos = true;
+            const permitted = user(true, true);
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -930,8 +909,7 @@ describe('Score', () => {
         });
 
         it('can upload photo', async () => {
-            const permitted = Object.assign({}, account);
-            account.access.uploadPhotos = true;
+            const permitted = user(true, true);
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -955,8 +933,7 @@ describe('Score', () => {
         });
 
         it('handles error when uploading photo', async () => {
-            const permitted = Object.assign({}, account);
-            account.access.uploadPhotos = true;
+            const permitted = user(true, true);
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -976,8 +953,7 @@ describe('Score', () => {
         });
 
         it('can delete photo', async () => {
-            const permitted = Object.assign({}, account);
-            account.access.uploadPhotos = true;
+            const permitted = user(true, true);
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1006,8 +982,7 @@ describe('Score', () => {
         });
 
         it('handles error when deleting photo', async () => {
-            const permitted = Object.assign({}, account);
-            account.access.uploadPhotos = true;
+            const permitted = user(true, true);
             const appData = getDefaultAppData(permitted);
             const fixtureData = getPlayedFixtureData(appData);
             fixtureData.resultsPublished = false;
@@ -1034,7 +1009,6 @@ describe('Score', () => {
         });
 
         it('can change to qualifier', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             fixture.isKnockout = false;
             await renderComponent(fixture.id, appData);
@@ -1051,7 +1025,6 @@ describe('Score', () => {
         });
 
         it('can change to league fixture', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             fixture.isKnockout = true;
             await renderComponent(fixture.id, appData);
@@ -1068,7 +1041,6 @@ describe('Score', () => {
         });
 
         it('can change to league fixture when match options are missing', async () => {
-            const appData = getDefaultAppData(account);
             const fixture = getPlayedFixtureData(appData);
             fixture.isKnockout = true;
             fixture.matchOptions = fixture.matchOptions.filter((_: GameMatchOptionDto, index: number) => index < 5);
