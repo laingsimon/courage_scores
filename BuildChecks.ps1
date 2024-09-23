@@ -53,7 +53,7 @@ Function Get-PullRequestComments()
 
     $Json = $Response | ConvertFrom-Json
     Return $Json `
-        | Where-Object { $_.body -like "*$($Extension) file/s approaching line*" -Or $_.body.Value -like "*$($Extension) file/s exceeding*" } `
+        | Where-Object { $_.body -like "*$($Extension) file/s approaching*" -Or $_.body.Value -like "*$($Extension) file/s exceeding*" } `
 }
 
 Function Remove-ExistingComment($Comment)
