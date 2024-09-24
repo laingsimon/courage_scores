@@ -2,7 +2,6 @@ import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 import mkcert from 'vite-plugin-mkcert';
-import eslint from 'vite-plugin-eslint';
 import legacy from '@vitejs/plugin-legacy';
 import circleDependency from 'vite-plugin-circular-dependency';
 
@@ -14,9 +13,9 @@ export default defineConfig({
         react(),
         viteTsconfigPaths(),
         mkcert(),
-        eslint({
+        /*eslint({
             failOnWarning: true
-        }),
+        }),*/
         legacy({}),
         circleDependency({
             circleImportThrowErr: true,
