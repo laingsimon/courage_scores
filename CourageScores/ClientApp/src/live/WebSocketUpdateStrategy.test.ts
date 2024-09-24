@@ -19,6 +19,22 @@ describe('WebSocketUpdateStrategy', () => {
         newContext = null;
     });
 
+    function createMockWebSocket(readyState: number, sent?: string[], onClosed?: () => void): WebSocket {
+        return {
+            readyState,
+            send: (data: string) => {
+                if (sent) {
+                    sent.push(data);
+                }
+            },
+            close: () => {
+                if (onClosed) {
+                    onClosed();
+                }
+            },
+        } as WebSocket;
+    }
+
     describe('refresh', () => {
         it('accepts no websocket', async () => {
             const strategy = new WebSocketUpdateStrategy(null);
@@ -33,9 +49,7 @@ describe('WebSocketUpdateStrategy', () => {
         it('binds websocket onmessage', async () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
-                webSocket: {
-
-                } as any,
+                webSocket: {} as any,
                 modes: [],
             }
 
@@ -47,9 +61,7 @@ describe('WebSocketUpdateStrategy', () => {
         it('binds websocket onclose', async () => {
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
-                webSocket: {
-
-                } as any,
+                webSocket: {} as any,
                 modes: [],
             }
 
@@ -61,10 +73,7 @@ describe('WebSocketUpdateStrategy', () => {
 
     describe('publish', () => {
         it('creates a socket if none exists', async () => {
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: any) => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
@@ -83,11 +92,7 @@ describe('WebSocketUpdateStrategy', () => {
         });
 
         it('returns null if new socket is unable to connect', async () => {
-            const mockWebSocket = {
-                readyState: 2,
-                send: (_: any) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(2);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
@@ -106,12 +111,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('sends update to new socket and returns true', async () => {
             const sent: string[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (data: string) => {
-                    sent.push(data);
-                }
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, sent);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
@@ -135,12 +135,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('sends update to existing socket and returns true', async () => {
             const sent: string[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (data: string) => {
-                    sent.push(data);
-                }
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, sent);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -181,13 +176,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('sends unsubscribed if socket exists', async () => {
             const sent: string[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (data: string) => {
-                    sent.push(data);
-                },
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, sent);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -207,14 +196,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('closes websocket if no subscriptions', async () => {
             let closed: boolean = false;
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {
-                },
-                close: () => {
-                    closed = true;
-                },
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, null, () => closed = true);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -235,14 +217,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('leaves websocket open if subscriptions remain', async () => {
             let closed: boolean = false;
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {
-                },
-                close: () => {
-                    closed = true;
-                },
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, null, () => closed = true);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -272,10 +247,7 @@ describe('WebSocketUpdateStrategy', () => {
 
     describe('subscribe', () => {
         it('creates a socket if none exists', async () => {
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: any) => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
@@ -295,11 +267,7 @@ describe('WebSocketUpdateStrategy', () => {
         });
 
         it('returns null if new socket is unable to connect', async () => {
-            const mockWebSocket = {
-                readyState: 2,
-                send: (_: any) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(2);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
@@ -319,13 +287,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('sends subscribed to new socket and returns true', async () => {
             const sent: string[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (data: string) => {
-                    sent.push(data);
-                },
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, sent);
             const strategy = new WebSocketUpdateStrategy(() => mockWebSocket);
             const context: IWebSocketContext = {
                 webSocket: null,
@@ -348,13 +310,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('sends subscribed to existing socket and returns true', async () => {
             const sent: string[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (data: string) => {
-                    sent.push(data);
-                },
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, sent);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -378,11 +334,7 @@ describe('WebSocketUpdateStrategy', () => {
 
     describe('server-side messages', () => {
         it('ignores non-message events', async () => {
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -405,11 +357,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('publishes Update messages to all subscribers', async () => {
             let updates: { data: object, id: string }[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -464,11 +412,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('publishes Update message to identified subscription', async () => {
             let updates: { data: object, id: string }[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -521,13 +465,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('responds with polo to Marco messages', async () => {
             const sent: string[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (data: string) => {
-                    sent.push(data);
-                },
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, sent);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -549,13 +487,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('does nothing when Polo message received', async () => {
             const sent: string[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (data: string) => {
-                    sent.push(data);
-                },
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1, sent);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -575,11 +507,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('publishes Error messages to all subscribers', async () => {
             let errors: { error: string, id: string }[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -632,11 +560,7 @@ describe('WebSocketUpdateStrategy', () => {
 
         it('publishes Error message to identified subscription', async () => {
             let errors: { error: string, id: string }[] = [];
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -686,11 +610,7 @@ describe('WebSocketUpdateStrategy', () => {
         });
 
         it('handles unknown message type', async () => {
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
@@ -711,11 +631,7 @@ describe('WebSocketUpdateStrategy', () => {
         });
 
         it('removes webSocket from context', async () => {
-            const mockWebSocket = {
-                readyState: 1,
-                send: (_: string) => {},
-                close: () => {},
-            } as WebSocket;
+            const mockWebSocket = createMockWebSocket(1);
             const strategy = new WebSocketUpdateStrategy(null);
             const context: IWebSocketContext = {
                 webSocket: mockWebSocket,
