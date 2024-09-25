@@ -146,7 +146,7 @@ Remove-ExistingComments
 
 If ($ErrorThreshold -gt 0)
 {
-    $FilesOverThreshold = Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines
+    $FilesOverThreshold = [array] (Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines)
     If ($FilesOverThreshold.Length -gt 0)
     {
         Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold
@@ -159,7 +159,7 @@ If ($WarningThreshold -gt 0)
     If ($ErrorThreshold -le 0)
     {
         $Warning = "over $($WarningThreshold) line warning threshold"
-        $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $MaxLines
+        $FilesNearingLimit = [array] (Get-Files -MinLines $WarningThreshold -MaxLines $MaxLines)
     }
     else
     {

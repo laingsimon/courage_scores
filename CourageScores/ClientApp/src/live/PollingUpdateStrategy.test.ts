@@ -11,6 +11,7 @@ import {IClientActionResultDto} from "../components/common/IClientActionResultDt
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 import {IStrategyData} from "./IStrategyData";
+import {ISubscription} from "./ISubscription";
 
 describe('PollingUpdateStrategy', () => {
     let updateLookup: { [id: string]: () => IClientActionResultDto<object> };
@@ -25,6 +26,13 @@ describe('PollingUpdateStrategy', () => {
         }
     });
 
+    function createWebSocketContext(pollingHandle?: number, ...modes: WebSocketMode[]): IWebSocketContext {
+        return {
+            pollingHandle,
+            modes
+        };
+    }
+
     beforeEach(() => {
         updateLookup = {};
         postedUpdates = [];
@@ -33,7 +41,7 @@ describe('PollingUpdateStrategy', () => {
     describe('refresh', () => {
         it('should accept context and subscriptions', async () => {
             const strategy: IUpdateStrategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = { modes: [] };
+            const context: IWebSocketContext = createWebSocketContext();
 
             strategy.refresh({context, subscriptions: {}, setContext: noop, setSubscriptions: noop});
         });
@@ -42,7 +50,7 @@ describe('PollingUpdateStrategy', () => {
     describe('publish', () => {
         it('should publish update', async () => {
             const strategy: IUpdateStrategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = { modes: [] };
+            const context: IWebSocketContext = createWebSocketContext();
             const id = createTemporaryId();
 
             const result = await strategy.publish(
@@ -59,12 +67,10 @@ describe('PollingUpdateStrategy', () => {
     });
 
     describe('unsubscribe', () => {
+        const strategy: IUpdateStrategy = new PollingUpdateStrategy(liveApi, 1, 2);
+
         it('should do nothing if subscriptions remain', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                pollingHandle: 1,
-                modes: [],
-            };
+            const context: IWebSocketContext = createWebSocketContext(1);
             const subscriptions: ISubscriptions = {
                 anotherId: {
                     id: 'anotherId',
@@ -85,8 +91,7 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should do nothing if no subscriptions and no polling handle', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = { modes: [] };
+            const context: IWebSocketContext = createWebSocketContext();
             const subscriptions: ISubscriptions = {
                 anotherId: {
                     id: 'anotherId',
@@ -107,11 +112,7 @@ describe('PollingUpdateStrategy', () => {
 
         it('should clear timeout if no subscriptions and polling handle', async () => {
             let clearedTimeout: number;
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                pollingHandle: 1,
-                modes: [],
-            };
+            const context: IWebSocketContext = createWebSocketContext(1);
             window.clearTimeout = (id: number) => {
                 clearedTimeout = id;
             }
@@ -129,12 +130,10 @@ describe('PollingUpdateStrategy', () => {
     });
 
     describe('subscribe', () => {
+        const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
+
         it('should return context if polling handle already defined', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                pollingHandle: 1,
-                modes: [],
-            };
+            const context: IWebSocketContext = createWebSocketContext(1);
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
                 type: LiveDataType.sayg,
@@ -151,8 +150,7 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should setup new timeout and return new context if polling handle not defined', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = { modes: [] };
+            const context: IWebSocketContext = createWebSocketContext();
             const request: ISubscriptionRequest = {
                 id: createTemporaryId(),
                 type: LiveDataType.sayg,
@@ -173,6 +171,9 @@ describe('PollingUpdateStrategy', () => {
     });
 
     describe('polling interval', () => {
+        const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
+        const context: IWebSocketContext = createWebSocketContext(null, WebSocketMode.polling);
+
         let timerCallback: () => Promise<void>;
         let timerHandle: number;
         let newContext: IWebSocketContext;
@@ -192,11 +193,17 @@ describe('PollingUpdateStrategy', () => {
             newContext = context;
         }
 
-        it('should accept no refreshContext (refresh not called)', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
+        function subscription(id: string, updateHandler?: (data: any) => void, errorHandler?: (data: any) => void, type: LiveDataType = LiveDataType.sayg, method: WebSocketMode = WebSocketMode.polling): ISubscription {
+            return {
+                type,
+                method,
+                id,
+                updateHandler: updateHandler || noop,
+                errorHandler: errorHandler || noop,
             };
+        }
+
+        it('should accept no refreshContext (refresh not called)', async () => {
             await strategy.subscribe(
                 {context, subscriptions: {}, setContext: noop, setSubscriptions: noop},
                 null);
@@ -210,12 +217,7 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should not re-create timeout if no subscriptions', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
-            const subscriptions: ISubscriptions = {
-            };
+            const subscriptions: ISubscriptions = {};
             const props: IStrategyData = {context, subscriptions, setContext, setSubscriptions: noop};
             strategy.refresh(props);
             await strategy.subscribe(props, null);
@@ -228,18 +230,8 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should not re-create timeout if all requests fail', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: () => {},
-                    errorHandler: () => {},
-                },
+                '1234': subscription('1234'),
             };
             const props: IStrategyData = {context, subscriptions, setContext, setSubscriptions: noop};
             strategy.refresh(props);
@@ -260,25 +252,9 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should re-create timeout if some requests pass', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: () => {},
-                    errorHandler: () => {},
-                },
-                '5678': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '5678',
-                    updateHandler: () => {},
-                    errorHandler: () => {},
-                },
+                '1234': subscription('1234'),
+                '5678': subscription('5678'),
             };
             const props: IStrategyData = {context, subscriptions, setContext, setSubscriptions: noop};
             strategy.refresh(props);
@@ -315,25 +291,9 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should exclude polling strategy if all requests fail', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: () => {},
-                    errorHandler: () => {},
-                },
-                '5678': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '5678',
-                    updateHandler: () => {},
-                    errorHandler: () => {},
-                },
+                '1234': subscription('1234'),
+                '5678': subscription('5678'),
             };
             const props: IStrategyData = {context, subscriptions, setContext, setSubscriptions: noop};
             strategy.refresh(props);
@@ -356,21 +316,11 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should call updateHandler if request succeeds', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             let updatedData: any;
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: (data) => {
-                        updatedData = data;
-                    },
-                    errorHandler: () => {},
-                },
+                '1234': subscription('1234', (data) => {
+                    updatedData = data;
+                }),
             };
             const data = {
                 type: 'updated',
@@ -396,21 +346,11 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should not call updateHandler if result is null (no change)', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             let updatedData: any;
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: (data) => {
-                        updatedData = data;
-                    },
-                    errorHandler: () => {},
-                },
+                '1234': subscription('1234', (data) => {
+                    updatedData = data;
+                }),
             };
             const props: IStrategyData = {context, subscriptions, setContext, setSubscriptions: noop};
             strategy.refresh(props);
@@ -433,19 +373,9 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should unsubscribe if data is not live-tracked', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             let newSubscriptions: ISubscriptions;
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: () => {},
-                    errorHandler: () => {},
-                },
+                '1234': subscription('1234'),
             };
             const props: IStrategyData = {
                 context,
@@ -469,21 +399,11 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should call errorHandler if request fails', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             let errorData: any;
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: () => {},
-                    errorHandler: (error) => {
-                        errorData = error;
-                    },
-                },
+                '1234': subscription('1234', null, (error) => {
+                    errorData = error;
+                }),
             };
             const props: IStrategyData = {context, subscriptions, setContext, setSubscriptions: noop};
             strategy.refresh(props);
@@ -504,19 +424,9 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should unsubscribe if request fails', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             let newSubscriptions: ISubscriptions;
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: () => {},
-                    errorHandler: () => {},
-                },
+                '1234': subscription('1234'),
             };
             const props: IStrategyData = {
                 context,
@@ -539,21 +449,11 @@ describe('PollingUpdateStrategy', () => {
         });
 
         it('should call errorHandler if exception thrown when sending request', async () => {
-            const strategy = new PollingUpdateStrategy(liveApi, 1, 2);
-            const context: IWebSocketContext = {
-                modes: [ WebSocketMode.polling ]
-            };
             let errorData: any;
             const subscriptions: ISubscriptions = {
-                '1234': {
-                    type: LiveDataType.sayg,
-                    method: WebSocketMode.polling,
-                    id: '1234',
-                    updateHandler: () => {},
-                    errorHandler: (error) => {
-                        errorData = error;
-                    },
-                },
+                '1234': subscription('1234', null, (error) => {
+                    errorData = error;
+                }),
             };
             const props: IStrategyData = {context, subscriptions, setContext, setSubscriptions: noop};
             strategy.refresh(props);
