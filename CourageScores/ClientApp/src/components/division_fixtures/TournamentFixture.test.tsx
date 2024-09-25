@@ -130,7 +130,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop },
                 account);
 
@@ -150,7 +150,7 @@ describe('TournamentFixture', () => {
                 .winner('WINNER', sideId)
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
 
@@ -171,7 +171,7 @@ describe('TournamentFixture', () => {
                 .winner('WINNER', sideId, team.id)
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, name: division.name, season, players: [player], onReloadDivision, setDivisionData: noop},
                 account,
                 [team]);
@@ -197,7 +197,7 @@ describe('TournamentFixture', () => {
                 .winner('WINNER', sideId)
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, name: division.name, season, players: [player], onReloadDivision, setDivisionData: noop},
                 account,
                 []);
@@ -221,7 +221,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {tournament, expanded: true, onTournamentChanged},
                 {
                     id: division.id,
                     name: division.name,
@@ -249,7 +249,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {tournament, expanded: true, onTournamentChanged},
                 {
                     id: division.id,
                     name: division.name,
@@ -278,7 +278,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {tournament, expanded: true, onTournamentChanged},
                 {
                     id: division.id,
                     name: division.name,
@@ -308,7 +308,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {tournament, expanded: true, onTournamentChanged},
                 {
                     id: division.id,
                     name: division.name,
@@ -338,7 +338,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {tournament, expanded: true, onTournamentChanged},
                 {
                     id: division.id,
                     name: division.name,
@@ -380,7 +380,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
@@ -405,7 +405,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
@@ -430,7 +430,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
@@ -454,7 +454,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: false, onTournamentChanged},
+                {tournament, expanded: false, onTournamentChanged},
                 {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop},
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
@@ -479,7 +479,7 @@ describe('TournamentFixture', () => {
                 .type('TYPE')
                 .build();
             await renderComponent(
-                {tournament, date: '2023-05-06T00:00:00', expanded: true, onTournamentChanged},
+                {tournament, expanded: true, onTournamentChanged},
                 {
                     id: division.id,
                     name: division.name,

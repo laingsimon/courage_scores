@@ -172,7 +172,6 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                 <TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
-                    date={date.date}
                     onTournamentChanged={onTournamentChanged}
                     expanded={showPlayers[date.date]}/>))}
             {canManageTournaments && allowTournamentProposals ? (<NewTournamentFixture
