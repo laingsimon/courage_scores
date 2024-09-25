@@ -20,6 +20,8 @@ import {seasonBuilder} from "../../helpers/builders/seasons";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {ITournamentBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
 import {renderDate} from "../../helpers/rendering";
+import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 
 describe('NewTournamentFixture', () => {
     let context: TestContext;
@@ -37,6 +39,25 @@ describe('NewTournamentFixture', () => {
 
     async function onTournamentChanged() {
         tournamentChanged = true;
+    }
+
+    function divisionData(division: DivisionDto, season: SeasonDto, ...fixtures: DivisionFixtureDateDto[]): IDivisionDataContainerProps {
+        return {
+            id: division.id,
+            name: division.name,
+            season: season,
+            onReloadDivision: noop,
+            setDivisionData: noop,
+            fixtures,
+        };
+    }
+
+    function props(date: string, ...tournamentFixtures: TournamentGameDto[]): INewTournamentFixtureProps {
+        return {
+            date,
+            onTournamentChanged,
+            tournamentFixtures,
+        };
     }
 
     afterEach(async () => {
@@ -64,25 +85,17 @@ describe('NewTournamentFixture', () => {
     }
 
     describe('renders', () => {
-        const division1 = divisionBuilder('DIVISION 1')
-            .build();
-        const division2 = divisionBuilder('DIVISION 2')
-            .build();
+        const division1 = divisionBuilder('DIVISION 1').build();
+        const division2 = divisionBuilder('DIVISION 2').build();
         const season = seasonBuilder('SEASON').build();
+        const proposedFixture1 = tournamentBuilder().address('ADDRESS 1').proposed().build();
+        const proposedFixture2 = tournamentBuilder().address('ADDRESS 2').proposed().build();
 
         it('renders all divisions - and cross-division option - in drop down', async () => {
-            await renderComponent({
-                date: '2024-09-02',
-                onTournamentChanged,
-                tournamentFixtures: [],
-            }, {
-                id: division1.id,
-                name: division1.name,
-                season: season,
-                onReloadDivision: noop,
-                setDivisionData: noop,
-            },
-            [ division1, division2 ]);
+            await renderComponent(
+                props('2024-09-02'),
+                divisionData(division1, season),
+                [ division1, division2 ]);
 
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
             const options = Array.from(divisionDropDown.querySelectorAll('.dropdown-item')).map(o => o.textContent);
@@ -90,25 +103,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('renders all addresses in drop down', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            const fixture2 = tournamentBuilder()
-                .address('ADDRESS 2')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1, fixture2 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1, proposedFixture2),
+                divisionData(division1, season),
                 [ division1, division2 ]);
 
             const divisionDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
@@ -117,31 +114,14 @@ describe('NewTournamentFixture', () => {
         });
 
         it('renders all tournament types in dropdown', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            const fixture2 = tournamentBuilder()
-                .address('ADDRESS 2')
-                .proposed()
-                .build();
             const otherDate = fixtureDateBuilder('2024-08-29')
                 .withTournament((t: ITournamentBuilder) => t
                     .type('SINGLES')
                     .winner('WINNER'))
                 .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1, fixture2 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                    fixtures: [ otherDate ]
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1, proposedFixture2),
+                divisionData(division1, season, otherDate),
                 [ division1, division2 ]);
 
             const copySidesFromDropDown: Element = context.container.querySelector('.copy-sides-from-dropdown .dropdown-menu');
@@ -150,14 +130,6 @@ describe('NewTournamentFixture', () => {
         });
 
         it('renders notes from tournament dates if different types of tournament', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            const fixture2 = tournamentBuilder()
-                .address('ADDRESS 2')
-                .proposed()
-                .build();
             const otherDate = fixtureDateBuilder('2024-08-29')
                 .withTournament((t: ITournamentBuilder) => t
                     .type('SINGLES')
@@ -167,18 +139,9 @@ describe('NewTournamentFixture', () => {
                     .winner('WINNER'))
                 .withNote((n: INoteBuilder) => n.note('SINGLES'))
                 .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1, fixture2 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                    fixtures: [ otherDate ]
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1, proposedFixture2),
+                divisionData(division1, season, otherDate),
                 [ division1, division2 ]);
 
             const copySidesFromDropDown: Element = context.container.querySelector('.copy-sides-from-dropdown .dropdown-menu');
@@ -187,14 +150,6 @@ describe('NewTournamentFixture', () => {
         });
 
         it('renders other tournaments when there are no unique types or notes', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            const fixture2 = tournamentBuilder()
-                .address('ADDRESS 2')
-                .proposed()
-                .build();
             const otherDate = fixtureDateBuilder('2024-08-29')
                 .withTournament((t: ITournamentBuilder) => t
                     .type('SINGLES')
@@ -203,18 +158,9 @@ describe('NewTournamentFixture', () => {
                     .type('')
                     .winner('WINNER'))
                 .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1, fixture2 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                    fixtures: [ otherDate ]
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1, proposedFixture2),
+                divisionData(division1, season, otherDate),
                 [ division1, division2 ]);
 
             const copySidesFromDropDown: Element = context.container.querySelector('.copy-sides-from-dropdown .dropdown-menu');
@@ -223,24 +169,12 @@ describe('NewTournamentFixture', () => {
         });
 
         it('highlights addresses that are already in use', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
             const fixture2 = tournamentBuilder()
                 .address('ADDRESS 2') // in use
                 .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1, fixture2 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1, fixture2),
+                divisionData(division1, season),
                 [ division1, division2 ]);
 
             const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
@@ -250,28 +184,15 @@ describe('NewTournamentFixture', () => {
     });
 
     describe('interactivity', () => {
-        const division1 = divisionBuilder('DIVISION 1')
-            .build();
-        const division2 = divisionBuilder('DIVISION 2')
-            .build();
+        const division1 = divisionBuilder('DIVISION 1').build();
+        const division2 = divisionBuilder('DIVISION 2').build();
         const season = seasonBuilder('SEASON').build();
+        const proposedFixture1 = tournamentBuilder().address('ADDRESS 1').proposed().build();
 
         it('prevents save when no address selected', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const saveButton = findButton(context.container, '➕');
 
@@ -279,21 +200,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('creates a cross-divisional tournament', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const saveButton = findButton(context.container, '➕');
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
@@ -318,21 +227,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('creates a divisional tournament', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const saveButton = findButton(context.container, '➕');
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
@@ -360,17 +257,9 @@ describe('NewTournamentFixture', () => {
             const fixture1 = tournamentBuilder()
                 .address('ADDRESS 1')
                 .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', fixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const saveButton = findButton(context.container, '➕');
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
@@ -395,10 +284,6 @@ describe('NewTournamentFixture', () => {
         });
 
         it('creates a divisional tournament copying winners from another date', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
             const tournament = tournamentBuilder()
                 .type('SINGLES')
                 .winner('WINNER')
@@ -406,18 +291,9 @@ describe('NewTournamentFixture', () => {
             const otherDate = fixtureDateBuilder('2024-08-29')
                 .withTournament(tournament)
                 .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                    fixtures: [ otherDate ],
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season, otherDate),
                 [ division1, division2 ]);
             const saveButton = findButton(context.container, '➕');
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
@@ -444,21 +320,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('displays an error if save is unsuccessful', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const saveButton = findButton(context.container, '➕');
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
@@ -473,21 +337,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('can close the error dialog if save was unsuccessful', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
             const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
@@ -502,21 +354,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('clears the selected address after successful creation', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const saveButton = findButton(context.container, '➕');
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
@@ -531,21 +371,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('can enter a custom address', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
 
@@ -558,21 +386,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('can cancel editing a custom address', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
 
@@ -585,21 +401,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('can change custom address', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             await doSelectOption(context.container.querySelector('.address-dropdown .dropdown-menu'), '➕ Enter address');
             await doChange(context.container, 'input[name="address"]', 'CUSTOM', context.user);
@@ -614,21 +418,9 @@ describe('NewTournamentFixture', () => {
         });
 
         it('can create a tournament with a custom address', async () => {
-            const fixture1 = tournamentBuilder()
-                .address('ADDRESS 1')
-                .proposed()
-                .build();
-            await renderComponent({
-                    date: '2024-09-02',
-                    onTournamentChanged,
-                    tournamentFixtures: [ fixture1 ],
-                }, {
-                    id: division1.id,
-                    name: division1.name,
-                    season: season,
-                    onReloadDivision: noop,
-                    setDivisionData: noop,
-                },
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(division1, season),
                 [ division1, division2 ]);
             const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
             const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
