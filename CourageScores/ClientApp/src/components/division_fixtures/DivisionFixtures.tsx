@@ -224,9 +224,9 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                 <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
                     ➕ Add date
                 </button>
-                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
+                {superleague ? null : (<button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
                     🗓️ Create fixtures
-                </button>
+                </button>)}
             </div>) : null}
             {controls
                 ? (<FilterFixtures />)
@@ -245,9 +245,9 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                 <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
                     ➕ Add date
                 </button>
-                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
+                {superleague ? null : (<button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
                     🗓️ Create fixtures
-                </button>
+                </button>)}
             </div>) : null}
         </div>);
     } catch (exc) {
