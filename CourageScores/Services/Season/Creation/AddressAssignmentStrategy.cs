@@ -87,15 +87,59 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
                 return false;
             }
 
+            if (context.RequestedPlaceholderMappings.Any())
+            {
+                success = await AssignRequestedSharedAddressesPerDivision(context, divisionMapping, token);
+            }
+
+            var unmappedTeams = divisionMapping.SharedAddressesFromSeason.Select(grp => grp.Except(context.PlaceholderMapping.Values).ToArray()).Where(grp => grp.Any()).ToArray();
             success = await ApplyTemplatePlaceholders(
                 context,
-                divisionSharedAddresses,
-                templateDivisionSharedAddressPlaceholders,
+                unmappedTeams,
+                divisionMapping.TemplateDivision.SharedAddresses,
                 divisionMapping.SeasonDivision.Name + ": ",
                 token) && success;
         }
 
         return success;
+    }
+
+    private static Task<bool> AssignRequestedSharedAddressesPerDivision(ProposalContext context,
+        TemplateMatchContext.DivisionSharedAddressMapping divisionMapping,
+        CancellationToken token)
+    {
+        foreach (var templateDivisionSharedAddressPlaceholder in divisionMapping.TemplateDivision.SharedAddresses)
+        {
+            token.ThrowIfCancellationRequested();
+
+            TeamDto[]? teamsToUse = null;
+
+            if (!templateDivisionSharedAddressPlaceholder.Any(placeholder => context.RequestedPlaceholderMappings.ContainsKey(placeholder.Key)))
+            {
+                // no placeholders have been mapped to teams
+                continue;
+            }
+
+            foreach (var placeholder in templateDivisionSharedAddressPlaceholder)
+            {
+                token.ThrowIfCancellationRequested();
+
+                var teamId = context.RequestedPlaceholderMappings[placeholder.Key];
+                teamsToUse ??= divisionMapping.SharedAddressesFromSeason.SingleOrDefault(grp => grp.Any(t => t.Id == teamId)) ?? Array.Empty<TeamDto>();
+                var team = teamsToUse.SingleOrDefault(t => t.Id == teamId);
+                if (team == null)
+                {
+                    context.Result.Errors.Add($"Could not find team {teamId} in shared address group");
+                    return Task.FromResult(false);
+                }
+
+                context.PlaceholderMapping.Add(placeholder.Key, team);
+            }
+
+            divisionMapping.TemplateDivision.SharedAddresses = divisionMapping.TemplateDivision.SharedAddresses.Except(new[] { templateDivisionSharedAddressPlaceholder }).ToList();
+        }
+
+        return Task.FromResult(true);
     }
 
     private static Task<bool> AssignRemainingTeamsPerDivision(ProposalContext context, CancellationToken token)

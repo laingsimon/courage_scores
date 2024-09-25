@@ -40,6 +40,9 @@ Function Get-PullRequestComments()
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
+        -Headers @{
+            Authorization="Bearer $($Token)";
+        } `
         -Method Get `
 
     if ($Response.StatusCode -ne 200) 
@@ -50,7 +53,7 @@ Function Get-PullRequestComments()
 
     $Json = $Response | ConvertFrom-Json
     Return $Json `
-        | Where-Object { $_.body -like "*$($Extension) file/s approaching limit*" -Or $_.body.Value -like "*$($Extension) file/s exceeding limit*" } `
+        | Where-Object { $_.body -like "*$($Extension) file/s approaching*" -Or $_.body.Value -like "*$($Extension) file/s exceeding*" } `
 }
 
 Function Remove-ExistingComment($Comment)
@@ -143,7 +146,7 @@ Remove-ExistingComments
 
 If ($ErrorThreshold -gt 0)
 {
-    $FilesOverThreshold = Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines
+    $FilesOverThreshold = [array] (Get-Files -MinLines $ErrorThreshold -MaxLines $MaxLines)
     If ($FilesOverThreshold.Length -gt 0)
     {
         Print-Files -Heading "$($FilesOverThreshold.Length) file/s exceeding limit" -Files $FilesOverThreshold
@@ -155,16 +158,18 @@ If ($WarningThreshold -gt 0)
 {
     If ($ErrorThreshold -le 0)
     {
-        $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $MaxLines
+        $Warning = "over $($WarningThreshold) line warning threshold"
+        $FilesNearingLimit = [array] (Get-Files -MinLines $WarningThreshold -MaxLines $MaxLines)
     }
     else
     {
+        $Warning = "approaching $($ErrorThreshold) line limit"
         $FilesNearingLimit = Get-Files -MinLines $WarningThreshold -MaxLines $ErrorThreshold
     }
 
     If ($FilesNearingLimit.Length -gt 0)
     {
-        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s approaching line $($WarningThreshold) limit" -Files $FilesNearingLimit
+        Print-Files -Heading "$($FilesNearingLimit.Length) $($Extension) file/s $($Warning)" -Files $FilesNearingLimit
     }
 }
 

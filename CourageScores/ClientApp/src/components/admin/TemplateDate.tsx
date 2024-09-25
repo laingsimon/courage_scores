@@ -12,9 +12,12 @@ export interface ITemplateDateProps {
     templateSharedAddresses: string[];
     moveEarlier?(): Promise<any>;
     moveLater?(): Promise<any>;
+    highlight?: string;
+    setHighlight(highlight?: string): Promise<any>;
+    deleteDates(mnemonic: string): Promise<any>;
 }
 
-export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater }: ITemplateDateProps) {
+export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater, highlight, setHighlight, deleteDates }: ITemplateDateProps) {
     const [ newFixture, setNewFixture ] = useState<FixtureTemplateDto>({
         home: null,
         away: null,
@@ -61,14 +64,49 @@ export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses
         return '';
     }
 
+    async function highlightIfCtrlDown(event: React.MouseEvent<HTMLSpanElement>, mnemonic: string) {
+        if (!event.ctrlKey) {
+            if (highlight) {
+                await setHighlight(null);
+            }
+            return;
+        }
+
+        await setHighlight(mnemonic);
+    }
+
+    function getHighlightClassName(mnemonic: string) {
+        return highlight === mnemonic
+            ? ' bg-danger'
+            : '';
+    }
+
+    async function deleteFixtureOrMnemonic(index: number) {
+        if (highlight) {
+            if (window.confirm(`Are you sure you want to delete all fixtures where ${highlight} are playing?`)) {
+                await deleteDates(highlight);
+                await setHighlight(null);
+            }
+            return;
+        }
+
+        await deleteFixture(index);
+    }
+
     return (<div className="position-relative">
         {date.fixtures.map((f, index: number) => (<button
             key={index}
-            onClick={() => deleteFixture(index)}
+            onClick={async () => await deleteFixtureOrMnemonic(index)}
             className={`btn btn-sm margin-right px-1 badge ${f.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>
-            <span className={`px-1 ${sharedAddressClassName(f.home)}`}>{f.home}</span>
+            <span
+                className={`px-1 ${sharedAddressClassName(f.home)}${getHighlightClassName(f.home)}`}
+                onMouseMove={async (event) => await highlightIfCtrlDown(event, f.home)}
+                onMouseLeave={async () => await setHighlight(null)}>{f.home}</span>
             {f.away ? (<span> - </span>) : null}
-            {f.away ? (<span className="px-1">{f.away}</span>) : null} &times;</button>))}
+            {f.away ? (<span
+                className={`px-1${getHighlightClassName(f.away)}`}
+                onMouseMove={async (event) => await highlightIfCtrlDown(event, f.away)}
+                onMouseLeave={async () => await setHighlight(null)}>{f.away}</span>) : null} &times;</button>))}
         <span className="margin-right badge bg-info ps-1">
             <input className="width-20 border-0 outline-0"
                    name="home"

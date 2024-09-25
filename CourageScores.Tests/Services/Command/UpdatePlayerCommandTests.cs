@@ -192,10 +192,36 @@ public class UpdatePlayerCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WhenTeamDeletedFromSeason_ReturnsUnsuccessful()
+    {
+        _teamSeason.Deleted = new DateTime(2001, 02, 03);
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team TEAM is not registered to the SEASON season" }));
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenPlayerIsNotRegisteredToTeamSeason_ReturnsUnsuccessful()
     {
         var result = await _command
             .ForPlayer(Guid.NewGuid()).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team does not have a player with this id for the SEASON season" }));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenPlayerIsDeletedFromTeamSeason_ReturnsUnsuccessful()
+    {
+        _teamPlayer.Deleted = new DateTime(2001, 02, 03);
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
@@ -379,14 +405,8 @@ public class UpdatePlayerCommandTests
             {
                 new GameMatch
                 {
-                    AwayPlayers =
-                    {
-                        GamePlayer(),
-                    },
-                    HomePlayers =
-                    {
-                        GamePlayer(),
-                    },
+                    AwayPlayers = { GamePlayer() },
+                    HomePlayers = { GamePlayer() },
                 },
             },
         };

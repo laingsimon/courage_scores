@@ -15,7 +15,8 @@ on:
       commit-date:
         required: true
         type: string
-  
+permissions:
+  pull-requests: write  
 jobs:
   with-dotnet:
     runs-on: ubuntu-latest
@@ -35,14 +36,14 @@ jobs:
       - name: Check .tsx file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
-        run: ./BuildChecks.ps1 -ErrorThreshold 2000 -WarningThreshold 1000 -Extension '.tsx'
+        run: ./BuildChecks.ps1 -ErrorThreshold 1000 -Extension '.tsx'
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Check .ts file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
-        run: ./BuildChecks.ps1 -ErrorThreshold 1000 -WarningThreshold 500 -Extension '.ts'
+        run: ./BuildChecks.ps1 -ErrorThreshold 500 -Extension '.ts'
         env:
           GITHUB_TOKEN: ${{ github.token }}
 

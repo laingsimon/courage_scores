@@ -31,51 +31,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
     protected override async Task<ActionResult<Models.Cosmos.Team.Team>> ApplyUpdates(Models.Cosmos.Team.Team team, EditTeamDto update, CancellationToken token)
     {
-        var games = _gameService
-            .GetWhere($"t.DivisionId = '{update.DivisionId}' and t.SeasonId = '{update.SeasonId}'", token);
+        var games = _gameService.GetWhere($"t.DivisionId = '{update.DivisionId}' and t.SeasonId = '{update.SeasonId}'", token);
 
         var gamesToUpdate = new List<EditGameDto>();
-        var addressLookup = new Dictionary<Guid, TeamDto?>();
-        var gamesWithSameHomeAddressAsUpdate = new Dictionary<DateTime, HashSet<GameDto>>();
-
-        await foreach (var game in games)
-        {
-            if (!addressLookup.ContainsKey(game.Home.Id))
-            {
-                addressLookup.Add(game.Home.Id, await _teamService.Get(game.Home.Id, token));
-            }
-
-            if (!gamesWithSameHomeAddressAsUpdate.ContainsKey(game.Date))
-            {
-                gamesWithSameHomeAddressAsUpdate.Add(game.Date, new HashSet<GameDto>());
-            }
-
-            var homeTeam = addressLookup[game.Home.Id];
-            if (homeTeam?.Id == update.Id)
-            {
-                // the address will be the same
-                gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
-            }
-            else if (homeTeam?.Address != null)
-            {
-                if (homeTeam.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
-                {
-                    gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
-                }
-                else if (!string.IsNullOrEmpty(game.Address) && game.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
-                {
-                    gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
-                }
-            }
-
-            if (game.Home.Id == update.Id)
-            {
-                var editGame = GameDtoToEditGameDto(game);
-                editGame.Address = update.Address;
-                editGame.DivisionId = update.NewDivisionId;
-                gamesToUpdate.Add(editGame);
-            }
-        }
+        var gamesWithSameHomeAddressAsUpdate = await GamesWithSameHomeAddress(update, games, gamesToUpdate, token);
 
         if (gamesWithSameHomeAddressAsUpdate.Any(date => date.Value.Count > 1))
         {
@@ -116,7 +75,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
         team.Name = update.Name;
         team.Address = update.Address;
-        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
+        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId && ts.Deleted == null);
         if (teamSeason == null)
         {
             var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
@@ -146,6 +105,56 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
                 "Team updated",
             },
         };
+    }
+
+    private async Task<Dictionary<DateTime, HashSet<GameDto>>> GamesWithSameHomeAddress(EditTeamDto update,
+        IAsyncEnumerable<GameDto> games,
+        List<EditGameDto> gamesToUpdate,
+        CancellationToken token)
+    {
+        var gamesWithSameHomeAddressAsUpdate = new Dictionary<DateTime, HashSet<GameDto>>();
+        var addressLookup = new Dictionary<Guid, TeamDto?>();
+
+        await foreach (var game in games.WithCancellation(token))
+        {
+            if (!addressLookup.ContainsKey(game.Home.Id))
+            {
+                addressLookup.Add(game.Home.Id, await _teamService.Get(game.Home.Id, token));
+            }
+
+            if (!gamesWithSameHomeAddressAsUpdate.ContainsKey(game.Date))
+            {
+                gamesWithSameHomeAddressAsUpdate.Add(game.Date, new HashSet<GameDto>());
+            }
+
+            var homeTeam = addressLookup[game.Home.Id];
+            if (homeTeam?.Id == update.Id)
+            {
+                // the address will be the same
+                gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
+            }
+            else if (homeTeam?.Address != null)
+            {
+                if (homeTeam.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
+                {
+                    gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
+                }
+                else if (!string.IsNullOrEmpty(game.Address) && game.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
+                {
+                    gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
+                }
+            }
+
+            if (game.Home.Id == update.Id)
+            {
+                var editGame = GameDtoToEditGameDto(game);
+                editGame.Address = update.Address;
+                editGame.DivisionId = update.NewDivisionId;
+                gamesToUpdate.Add(editGame);
+            }
+        }
+
+        return gamesWithSameHomeAddressAsUpdate;
     }
 
     private EditGameDto GameDtoToEditGameDto(GameDto game)

@@ -54,6 +54,12 @@ public class CosmosTableService : ICosmosTableService
                 var partitionKey = table.PartitionKey.Paths.Single();
                 typeLookup.TryGetValue(_tableNameResolver.GetTableTypeName(tableName), out var dataType);
 
+                if (dataType == null && tableName.Contains("_") && _tableNameResolver.GetTableTypeName(tableName) == tableName)
+                {
+                    // this table doesn't have a related dotnet type and appears to be for a different environment (it contains an _, but doesn't have this environment's suffix)
+                    continue;
+                }
+
                 yield return new TableDto
                 {
                     Name = _tableNameResolver.GetTableTypeName(tableName),

@@ -221,6 +221,14 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             .filter((fd: DivisionFixtureDateDto) => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
             .map(renderFixtureDate);
         return (<div className="content-background p-3">
+            {isAdmin ? (<div className="float-end" datatype="fixture-management-1">
+                <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
+                    ➕ Add date
+                </button>
+                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
+                    🗓️ Create fixtures
+                </button>
+            </div>) : null}
             {controls
                 ? (<FilterFixtures />)
                 : null}
@@ -234,7 +242,7 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             </div>
             {isAdmin && createFixturesDialogOpen ? (
                 <CreateSeasonDialog seasonId={season.id} onClose={async () => setCreateFixturesDialogOpen(false)}/>) : null}
-            {isAdmin ? (<div className="mt-3">
+            {isAdmin ? (<div className="mt-3" datatype="fixture-management-1">
                 <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
                     ➕ Add date
                 </button>

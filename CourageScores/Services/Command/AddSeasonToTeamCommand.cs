@@ -78,12 +78,12 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             };
         }
 
-        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == _seasonId);
+        var teamSeason = model.Seasons.SingleOrDefault(ts => ts.SeasonId == _seasonId); // allow deleted seasons to be found, so they can be restored
         if (teamSeason != null)
         {
             teamSeason.DivisionId = _divisionId!.Value;
 
-            if (_copyPlayersFromOtherSeasonId.HasValue && teamSeason.Players.Count == 0)
+            if (_copyPlayersFromOtherSeasonId.HasValue && teamSeason.Players.All(p => p.Deleted != null)) // there are no non-deleted players
             {
                 teamSeason.Players = GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value);
                 _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
@@ -142,9 +142,9 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
 
     private static List<TeamPlayer> GetPlayersFromOtherSeason(Models.Cosmos.Team.Team team, Guid seasonId)
     {
-        var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == seasonId);
+        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == seasonId && ts.Deleted == null);
         return teamSeason == null
             ? new List<TeamPlayer>()
-            : teamSeason.Players;
+            : teamSeason.Players.Where(p => p.Deleted == null).ToList();
     }
 }

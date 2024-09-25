@@ -113,7 +113,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
+        var teamSeason = model.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id && ts.Deleted == null);
         if (teamSeason == null)
         {
             return new ActionResult<TeamPlayer>
@@ -126,7 +126,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             };
         }
 
-        var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
+        var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId && p.Deleted == null);
         if (player == null)
         {
             return new ActionResult<TeamPlayer>

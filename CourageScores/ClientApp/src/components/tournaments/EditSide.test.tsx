@@ -138,6 +138,37 @@ describe('EditSide', () => {
         return playing;
     }
 
+    function user(managePlayers?: boolean): UserDto {
+        return {
+            name: '',
+            emailAddress: '',
+            givenName: '',
+            access: {
+                managePlayers,
+            },
+        };
+    }
+
+    function props(side: TournamentSideDto): IEditSideProps {
+        return {
+            side,
+            onChange,
+            onClose,
+            onApply,
+            onDelete,
+        };
+    }
+
+    function containerProps(tournamentData: TournamentGameDto, season: SeasonDto): ITournamentContainerProps {
+        return {
+            tournamentData,
+            season,
+            alreadyPlaying: {},
+            preventScroll,
+            setPreventScroll,
+        };
+    }
+
     describe('renders', () => {
         const player: TeamPlayerDto = playerBuilder('PLAYER').build();
         const anotherPlayer: TeamPlayerDto = playerBuilder('ANOTHER PLAYER').build();
@@ -154,17 +185,15 @@ describe('EditSide', () => {
         const team: TeamDto = teamBuilder('TEAM')
             .forSeason(season, tournamentData.divisionId, [ player, anotherPlayer ])
             .build();
+        const sideWithPlayer: TournamentSideDto = sideBuilder('SIDE NAME')
+            .withPlayer(player)
+            .build();
+        const teamSide: TournamentSideDto = sideBuilder('SIDE NAME')
+            .teamId(team.id)
+            .build();
 
         it('new side', async () => {
-            const side: TournamentSideDto = sideBuilder().build();
-
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, null);
+            await renderComponent(containerProps(tournamentData, season), props(sideBuilder().build()), null);
 
             reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
@@ -172,17 +201,13 @@ describe('EditSide', () => {
         });
 
         it('side with players', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: {},
                 preventScroll,
                 setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(sideWithPlayer), [team]);
 
             reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
@@ -197,17 +222,8 @@ describe('EditSide', () => {
             const deletedTeam: TeamDto = teamBuilder('DELETED TEAM')
                 .forSeason(season, tournamentData.divisionId, [ deletedPlayer ], true)
                 .build();
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [deletedTeam, team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [deletedTeam, team]);
 
             reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
@@ -218,16 +234,7 @@ describe('EditSide', () => {
         });
 
         it('filtered players', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
 
             await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER', context.user);
 
@@ -237,19 +244,12 @@ describe('EditSide', () => {
         });
 
         it('players with common name with their team name', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             const playerWithSameNameInDifferentTeam: TeamPlayerDto = playerBuilder(player.name).build();
             const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .forSeason(season, tournamentData.divisionId, [ playerWithSameNameInDifferentTeam ])
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team, anotherTeam]);
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
@@ -260,20 +260,11 @@ describe('EditSide', () => {
         });
 
         it('side with teamId', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .teamId(team.id)
-                .build();
             const emptyTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(division)
                 .build();
 
-            await renderComponent({
-                tournamentData: emptyTournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(emptyTournamentData, season), props(teamSide), [team]);
 
             reportedError.verifyNoError();
             const nameInput = context.container.querySelector('input[name="name"]') as HTMLInputElement;
@@ -288,13 +279,7 @@ describe('EditSide', () => {
                 .noShow()
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
 
             reportedError.verifyNoError();
             const noShowInput = context.container.querySelector('input[name="noShow"]') as HTMLInputElement;
@@ -302,17 +287,13 @@ describe('EditSide', () => {
         });
 
         it('side which did show', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .teamId(team.id)
-                .build();
-
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: {},
                 preventScroll,
                 setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(sideWithPlayer), [team]);
 
             reportedError.verifyNoError();
             const noShowInput = context.container.querySelector('input[name="noShow"]') as HTMLInputElement;
@@ -330,13 +311,7 @@ describe('EditSide', () => {
                 .teamId(teamNotInSeason.id)
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [teamNotInSeason]);
+            await renderComponent(containerProps(tournamentData, season), props(side), [teamNotInSeason]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -357,13 +332,7 @@ describe('EditSide', () => {
                 .teamId(deletedTeam.id)
                 .build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [deletedTeam]);
+            await renderComponent(containerProps(tournamentData, season), props(side), [deletedTeam]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -373,7 +342,6 @@ describe('EditSide', () => {
         });
 
         it('excludes players from another division when for a division', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             const otherDivisionTeam: TeamDto = teamBuilder('OTHER DIVISION TEAM')
                 .forSeason(
                     season,
@@ -387,7 +355,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll
-            }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
+            }, props(sideWithPlayer), [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -395,7 +363,6 @@ describe('EditSide', () => {
         });
 
         it('includes players from another division when cross-divisional', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             const otherDivisionTeam: TeamDto = teamBuilder('OTHER DIVISION TEAM')
                 .forSeason(
                     season,
@@ -410,7 +377,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [otherDivisionTeam, team]);
+            }, props(sideWithPlayer), [otherDivisionTeam, team]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -418,15 +385,13 @@ describe('EditSide', () => {
         });
 
         it('warning about players that are selected in another tournament', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
-
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(sideWithPlayer), [team]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -434,15 +399,7 @@ describe('EditSide', () => {
         });
 
         it('unselectable players when selected in another side', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
-
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -450,13 +407,7 @@ describe('EditSide', () => {
         });
 
         it('selectable players when selected in this side', async () => {
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side: tournamentData.sides[0], onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(tournamentData.sides[0]), [team]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -464,17 +415,7 @@ describe('EditSide', () => {
         });
 
         it('delete button when side exists', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .teamId(team.id)
-                .build();
-
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(teamSide), [team]);
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-danger')).toBeTruthy();
@@ -484,13 +425,7 @@ describe('EditSide', () => {
         it('no delete button when side is new', async () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME').id(undefined).build();
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
 
             reportedError.verifyNoError();
             expect(context.container.querySelector('.btn-danger')).toBeFalsy();
@@ -500,20 +435,8 @@ describe('EditSide', () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME')
                 .id(undefined)
                 .build();
-            const account: UserDto = {
-                name: '',
-                emailAddress: '',
-                givenName: '',
-                access: { managePlayers: true },
-            };
 
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(side), [team], user(true));
 
             reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
@@ -522,21 +445,7 @@ describe('EditSide', () => {
         });
 
         it('add player button when permitted and editing side', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
-            const account: UserDto = {
-                emailAddress: '',
-                name: '',
-                givenName: '',
-                access: { managePlayers: true },
-            };
-
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
 
             reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
@@ -545,23 +454,7 @@ describe('EditSide', () => {
         });
 
         it('no add player button when not permitted', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .teamId(team.id)
-                .build();
-            const account: UserDto = {
-                name: '',
-                emailAddress: '',
-                givenName: '',
-                access: { managePlayers: false },
-            };
-
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(teamSide), [team], user(false));
 
             reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
@@ -570,23 +463,7 @@ describe('EditSide', () => {
         });
 
         it('no add player button when permitted and team side', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .teamId(team.id)
-                .build();
-            const account: UserDto = {
-                name: '',
-                emailAddress: '',
-                givenName: '',
-                access: { managePlayers: false },
-            };
-
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(teamSide), [team], user(false));
 
             reportedError.verifyNoError();
             const buttons = Array.from(context.container.querySelectorAll('.btn'));
@@ -611,17 +488,18 @@ describe('EditSide', () => {
         const team: TeamDto = teamBuilder('TEAM')
             .forSeason(season, division.id, [ player, anotherPlayer ])
             .build();
+        const teamSide: TournamentSideDto = sideBuilder('SIDE NAME')
+            .teamId(team.id)
+            .build();
+        const sideWithPlayer: TournamentSideDto = sideBuilder('SIDE NAME')
+            .withPlayer(player)
+            .build();
+        const otherDivisionTournament: TournamentGameDto = tournamentBuilder()
+            .forDivision(divisionBuilder('DIVISION').build())
+            .build();
 
         it('can change side name', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
 
             await doChange(context.container, 'input[name="name"]', 'NEW NAME', context.user);
 
@@ -629,20 +507,12 @@ describe('EditSide', () => {
             expect(updatedData).toEqual({
                 id: expect.any(String),
                 name: 'NEW NAME',
-                players: [],
+                players: expect.any(Array),
             });
         });
 
         it('can change noShow', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
 
             await doClick(context.container, 'input[name="noShow"]');
 
@@ -651,7 +521,7 @@ describe('EditSide', () => {
                 id: expect.any(String),
                 name: 'SIDE NAME',
                 noShow: true,
-                players: [],
+                players: expect.any(Array),
             });
         });
 
@@ -664,13 +534,7 @@ describe('EditSide', () => {
                 .forDivision(division)
                 .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
-            await renderComponent({
-                tournamentData: teamTournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
+            await renderComponent(containerProps(teamTournamentData, season), props(side), [team, anotherTeam]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEAM');
 
@@ -684,9 +548,6 @@ describe('EditSide', () => {
         });
 
         it('can unset team id', async () => {
-            const side: TournamentSideDto = sideBuilder('TEAM')
-                .teamId(team.id)
-                .build();
             const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
                 .forSeason(season, division.id)
                 .build();
@@ -694,35 +555,22 @@ describe('EditSide', () => {
                 .forDivision(division)
                 .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').teamId(anotherTeam.id))
                 .build();
-            await renderComponent({
-                tournamentData: teamTournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team, anotherTeam]);
+            await renderComponent(containerProps(teamTournamentData, season), props(teamSide), [team, anotherTeam]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Select team');
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
                 id: expect.any(String),
-                name: 'TEAM',
+                name: 'SIDE NAME',
                 teamId: undefined,
                 players: [],
             });
         });
 
         it('can select player', async () => {
-            const side: TournamentSideDto = sideBuilder('')
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            const side: TournamentSideDto = sideBuilder('').build();
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
@@ -739,15 +587,8 @@ describe('EditSide', () => {
         });
 
         it('sets side name to player name when player selected for new side', async () => {
-            const side: TournamentSideDto = sideBuilder(undefined)
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            const side: TournamentSideDto = sideBuilder(undefined).build();
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
@@ -764,15 +605,8 @@ describe('EditSide', () => {
         });
 
         it('can select player and team name does not change', async () => {
-            const side: TournamentSideDto = sideBuilder('OTHER NAME')
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            const side: TournamentSideDto = sideBuilder('OTHER NAME').build();
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
@@ -789,19 +623,13 @@ describe('EditSide', () => {
         });
 
         it('can select another player', async () => {
-            const side: TournamentSideDto = sideBuilder('PLAYER')
+            const sideWithPlayerName: TournamentSideDto = sideBuilder('PLAYER')
                 .withPlayer(player)
                 .build();
             const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
-            await renderComponent({
-                tournamentData: noSidesTournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(noSidesTournamentData, season), props(sideWithPlayerName), [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
@@ -822,19 +650,10 @@ describe('EditSide', () => {
         });
 
         it('can select another player and team name does not change', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
             const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
-            await renderComponent({
-                tournamentData: noSidesTournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(noSidesTournamentData, season), props(sideWithPlayer), [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
@@ -862,13 +681,7 @@ describe('EditSide', () => {
             const noSidesTournamentData: TournamentGameDto = tournamentBuilder()
                 .forDivision(tournamentData.divisionId)
                 .build();
-            await renderComponent({
-                tournamentData: noSidesTournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(noSidesTournamentData, season), props(side), [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
@@ -882,14 +695,7 @@ describe('EditSide', () => {
         });
 
         it('can delete side', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
             let confirm: string;
             window.confirm = (msg) => {
                 confirm = msg;
@@ -904,14 +710,7 @@ describe('EditSide', () => {
         });
 
         it('does not delete side when rejected', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
             let confirm: string;
             window.confirm = (msg) => {
                 confirm = msg;
@@ -926,16 +725,8 @@ describe('EditSide', () => {
         });
 
         it('cannot save side if no name', async () => {
-            const side: TournamentSideDto = sideBuilder('')
-                .teamId(team.id)
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            const side: TournamentSideDto = sideBuilder('').teamId(team.id).build();
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
             let alert: string;
             window.alert = (msg) => {
                 alert = msg;
@@ -949,14 +740,8 @@ describe('EditSide', () => {
         });
 
         it('cannot save side if no teamId and no players', async () => {
-            const side: TournamentSideDto = sideBuilder('').build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            const side: TournamentSideDto = sideBuilder('NAME').build();
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
             let alert: string;
             window.alert = (msg) => {
                 alert = msg;
@@ -970,16 +755,7 @@ describe('EditSide', () => {
         });
 
         it('can save side', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -991,16 +767,7 @@ describe('EditSide', () => {
         });
 
         it('can close', async () => {
-            const side: TournamentSideDto = sideBuilder('')
-                .withPlayer(player)
-                .build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
 
             await doClick(findButton(context.container, 'Close'));
 
@@ -1010,19 +777,17 @@ describe('EditSide', () => {
         });
 
         it('can select players that are selected in another tournament', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
+            const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(side), [team]);
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             const playerItem = playerItems.filter(li => li.textContent === 'PLAYER (⚠ Playing in ANOTHER TOURNAMENT)')[0];
-            expect(playerItem).toBeTruthy();
             expect(playerItem.className).not.toContain('disabled');
 
             await doClick(playerItem);
@@ -1040,17 +805,10 @@ describe('EditSide', () => {
 
         it('cannot select players that are selected in another side', async () => {
             const side: TournamentSideDto = sideBuilder('SIDE NAME').build();
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            await renderComponent(containerProps(tournamentData, season), props(side), [team]);
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             const playerItem = playerItems.filter(li => li.textContent === 'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")')[0];
-            expect(playerItem).toBeTruthy();
             expect(playerItem.className).toContain('disabled');
 
             await doClick(playerItem);
@@ -1060,48 +818,23 @@ describe('EditSide', () => {
         });
 
         it('can open add player dialog', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: { managePlayers: true },
-            };
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: {},
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            }, props(sideWithPlayer), [team], user(true));
 
             await doClick(findButton(context.container, 'Add player/s'));
 
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
-            const dialog = headingForDialog.closest('.modal-dialog');
             expect(headingForDialog).toBeTruthy();
-            expect(dialog).toBeTruthy();
+            expect(headingForDialog.closest('.modal-dialog')).toBeTruthy();
         });
 
         it('can close add player dialog', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: { managePlayers: true },
-            };
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -1112,22 +845,7 @@ describe('EditSide', () => {
         });
 
         it('can add player', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: { managePlayers: true },
-            };
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -1145,26 +863,11 @@ describe('EditSide', () => {
         });
 
         it('can add player to multi-division tournament', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
             const multiDivisionTournament: TournamentGameDto = tournamentBuilder()
                 .withSide((s: ITournamentSideBuilder) => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
                 .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: { managePlayers: true },
-            };
             divisions = [ division ];
-            await renderComponent({
-                tournamentData: multiDivisionTournament,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(multiDivisionTournament, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -1182,22 +885,7 @@ describe('EditSide', () => {
         });
 
         it('selects newly created player', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: { managePlayers: true },
-            };
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -1208,7 +896,7 @@ describe('EditSide', () => {
 
             reportedError.verifyNoError();
             expect(updatedData).toEqual({
-                id: side.id,
+                id: sideWithPlayer.id,
                 name: 'SIDE NAME',
                 players: [player, {
                     id: expect.any(String),
@@ -1219,22 +907,7 @@ describe('EditSide', () => {
         });
 
         it('reloads teams after player added', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: { managePlayers: true },
-            };
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -1247,22 +920,7 @@ describe('EditSide', () => {
         });
 
         it('closes dialog after adding a player', async () => {
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .withPlayer(player)
-                .build();
-            const account: UserDto = {
-                name: '',
-                givenName: '',
-                emailAddress: '',
-                access: { managePlayers: true },
-            };
-            await renderComponent({
-                tournamentData,
-                season,
-                alreadyPlaying: {},
-                preventScroll,
-                setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team], account);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team], user(true));
             await doClick(findButton(context.container, 'Add player/s'));
             const headingForDialog = Array.from(context.container.querySelectorAll('h5')).filter(h5 => h5.textContent === 'Add a player...')[0];
             const dialog = headingForDialog.closest('.modal-dialog');
@@ -1275,37 +933,25 @@ describe('EditSide', () => {
         });
 
         it('can select team when no other sides', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
-                .forDivision(divisionBuilder('DIVISION').build())
-                .build();
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
-
             await renderComponent({
-                tournamentData,
+                tournamentData: otherDivisionTournament,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(teamSide), [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
         });
 
         it('can select players when no other sides', async () => {
-            const tournamentData: TournamentGameDto = tournamentBuilder()
-                .forDivision(divisionBuilder('DIVISION').build())
-                .build();
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
-
             await renderComponent({
-                tournamentData,
+                tournamentData: otherDivisionTournament,
                 season,
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
         });
@@ -1315,8 +961,6 @@ describe('EditSide', () => {
                 .forDivision(divisionBuilder('DIVISION').build())
                 .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
                 .build();
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
 
             await renderComponent({
                 tournamentData,
@@ -1324,7 +968,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(teamSide), [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeTruthy();
         });
@@ -1334,8 +978,6 @@ describe('EditSide', () => {
                 .forDivision(divisionBuilder('DIVISION').build())
                 .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
                 .build();
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
 
             await renderComponent({
                 tournamentData,
@@ -1343,7 +985,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.list-group')).toBeTruthy();
         });
@@ -1353,8 +995,6 @@ describe('EditSide', () => {
                 .forDivision(divisionBuilder('DIVISION').build())
                 .withSide((s: ITournamentSideBuilder) => s.name('PLAYER').withPlayer(player))
                 .build();
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
 
             await renderComponent({
                 tournamentData,
@@ -1362,7 +1002,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.dropdown-menu')).toBeFalsy();
         });
@@ -1372,8 +1012,6 @@ describe('EditSide', () => {
                 .forDivision(divisionBuilder('DIVISION').build())
                 .withSide((s: ITournamentSideBuilder) => s.name('TEAM').teamId(team.id))
                 .build();
-            const side: TournamentSideDto = sideBuilder('SIDE NAME')
-                .build();
 
             await renderComponent({
                 tournamentData,
@@ -1381,7 +1019,7 @@ describe('EditSide', () => {
                 alreadyPlaying: alreadyPlaying(player, anotherTournament),
                 preventScroll,
                 setPreventScroll,
-            }, { side, onChange, onClose, onApply, onDelete }, [team]);
+            }, props(sideWithPlayer), [team]);
 
             expect(context.container.querySelector('.list-group')).toBeFalsy();
         });

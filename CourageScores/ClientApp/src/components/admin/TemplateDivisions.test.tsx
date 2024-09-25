@@ -30,6 +30,9 @@ describe('TemplateDivisions', () => {
         update = value;
     }
 
+    async function setHighlight(_?: string) {
+    }
+
     async function renderComponent(props: ITemplateDivisionsProps) {
         context = await renderApp(
             iocProps(),
@@ -46,6 +49,8 @@ describe('TemplateDivisions', () => {
                 divisions: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             const prefix = context.container.querySelector('ul li:first-child');
@@ -57,6 +62,8 @@ describe('TemplateDivisions', () => {
                 divisions: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             const divisionElements = Array.from(context.container.querySelectorAll('ul li'));
@@ -71,6 +78,8 @@ describe('TemplateDivisions', () => {
                 }],
                 templateSharedAddresses: [],
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             const divisionElement = context.container.querySelector('ul li:nth-child(2)');
@@ -84,6 +93,8 @@ describe('TemplateDivisions', () => {
                 divisions: [],
                 templateSharedAddresses: [],
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '➕ Add another division'));
@@ -102,6 +113,8 @@ describe('TemplateDivisions', () => {
                 }],
                 templateSharedAddresses: [],
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container, '🗑️ Remove division'));
@@ -120,6 +133,8 @@ describe('TemplateDivisions', () => {
                 }],
                 templateSharedAddresses: [],
                 onUpdate,
+                highlight: '',
+                setHighlight,
             });
 
             await doClick(findButton(context.container.querySelector('ul>li:nth-child(2)'), '➕ Add a week'));
@@ -132,6 +147,48 @@ describe('TemplateDivisions', () => {
             }, {
                 dates: [],
                 sharedAddresses: [ [ 'B' ] ],
+            }]);
+        });
+
+        it('can copy details between templates', async () => {
+            await renderComponent({
+                divisions: [{
+                    dates: [ {
+                        fixtures: [
+                            { home: 'A', away: 'B' },
+                        ]
+                    }],
+                    sharedAddresses: [ [ 'A' ] ],
+                }, {
+                    dates: [ {
+                        fixtures: [
+                            { home: 'C', away: 'D' },
+                        ]
+                    }],
+                    sharedAddresses: [ [ 'B' ] ],
+                }],
+                templateSharedAddresses: [],
+                onUpdate,
+                highlight: '',
+                setHighlight,
+            });
+
+            await doClick(findButton(context.container, 'Copy to division 2'));
+
+            expect(update).toEqual([{
+                dates: [ {
+                    fixtures: [
+                        { home: 'A', away: 'B' },
+                    ]
+                }],
+                sharedAddresses: [ [ 'A' ] ],
+            }, {
+                dates: [ {
+                    fixtures: [
+                        { home: '2A', away: '2B' },
+                    ]
+                }],
+                sharedAddresses: [ [ '2A' ] ],
             }]);
         });
     });

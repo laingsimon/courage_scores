@@ -51,7 +51,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             };
         }
 
-        var matchingSeasons = model.Seasons.Where(s => s.SeasonId == _seasonId!.Value && s.Deleted == null).ToList();
+        var matchingSeasons = model.Seasons.Where(ts => ts.SeasonId == _seasonId!.Value && ts.Deleted == null).ToList();
         foreach (var matchingSeason in matchingSeasons)
         {
             await _auditingHelper.SetDeleted(matchingSeason, token);
