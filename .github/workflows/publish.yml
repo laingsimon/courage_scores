@@ -43,7 +43,7 @@ jobs:
       - name: Check .ts file sizes
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
-        run: ./BuildChecks.ps1 -ErrorThreshold 1000 -WarningThreshold 500 -Extension '.ts'
+        run: ./BuildChecks.ps1 -ErrorThreshold 500 -Extension '.ts'
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
