@@ -251,6 +251,7 @@ export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & 
     name(name?: string): IDivisionDataBuilder;
     withTeam(teamOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
     withPlayer(playerOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
+    superleague(): IDivisionDataBuilder;
 
     onReloadDivision(onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>): IDivisionDataBuilder;
     setDivisionData(setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => Promise<any>): IDivisionDataBuilder;
@@ -273,6 +274,7 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
         setDivisionData: null,
         onReloadDivision: null,
         children: null,
+        superleague: divisionOrId && divisionOrId.superleague,
     };
 
     const builder: IDivisionDataBuilder = {
@@ -327,6 +329,10 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
         },
         favouritesEnabled: (enabled?: boolean) => {
             divisionData.favouritesEnabled = enabled;
+            return builder;
+        },
+        superleague: () => {
+            divisionData.superleague = true;
             return builder;
         },
     };
