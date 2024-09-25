@@ -154,14 +154,16 @@ export function NewTournamentFixture({date, tournamentFixtures, onTournamentChan
 
         setCreating(true);
         try {
+            const division = divisions.filter(d => d.id === divisionId)[0];
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.update({
                 id: createTemporaryId(),
                 date: date,
                 address: address,
-                divisionId: divisionId,
+                divisionId: division ? division.id : null,
                 seasonId: season.id,
                 sides: copySidesFrom ? getSides(copySidesFrom) : [],
                 type: copySidesFrom ? getType(copySidesFrom) : null,
+                singleRound: division ? division.superleague : false,
             });
 
             if (response.success) {

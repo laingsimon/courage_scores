@@ -10,6 +10,7 @@ public class DivisionAdapter : IAdapter<Cosmos.Division, DivisionDto>
         {
             Id = model.Id,
             Name = model.Name,
+            Superleague = model.Superleague,
         }.AddAuditProperties(model));
     }
 
@@ -19,6 +20,7 @@ public class DivisionAdapter : IAdapter<Cosmos.Division, DivisionDto>
         {
             Id = dto.Id,
             Name = dto.Name.Trim(),
+            Superleague = dto.Superleague,
         }.AddAuditProperties(dto));
     }
 }

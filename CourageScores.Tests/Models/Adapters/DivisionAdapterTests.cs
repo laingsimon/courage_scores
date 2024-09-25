@@ -17,23 +17,26 @@ public class DivisionAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "Division 1",
+            Superleague = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
+        Assert.That(result.Superleague, Is.True);
     }
 
     [Test]
     public async Task Adapt_GivenDto_MapsPropertiesCorrectly()
     {
-        var dto = new DivisionDtoBuilder(name: "Division 1").Build();
+        var dto = new DivisionDtoBuilder(name: "Division 1").Superleague().Build();
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
+        Assert.That(result.Superleague, Is.True);
     }
 
     [Test]

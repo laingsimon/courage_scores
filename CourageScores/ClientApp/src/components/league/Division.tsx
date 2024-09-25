@@ -248,7 +248,8 @@ export function Division() {
                 originalDivisionData={{
                     name: divisionDataToUse.name,
                     id: divisionDataToUse.id,
-                    updated: divisionDataToUse.updated
+                    updated: divisionDataToUse.updated,
+                    superleague: divisionDataToUse.superleague,
                 }}
                 onDivisionOrSeasonChanged={reloadDivisionData}
                 overrideMode={requestedMode}
@@ -270,11 +271,11 @@ export function Division() {
                     <NavLink tag={Link} className={effectiveTab === 'fixtures' ? 'active' : ''}
                              to={`/fixtures${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Fixtures</NavLink>
                 </li>
-                <li className="nav-item">
+                {divisionData.superleague ? null : (<li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'players' ? 'active' : ''}
                              to={`/players${requestedSeason ? '/' + requestedSeason : ''}/${toQueryString(requestedDivisions)}`}>Players</NavLink>
-                </li>
+                </li>)}
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
@@ -282,11 +283,11 @@ export function Division() {
                         {getPlayerProps(effectiveTab.substring('player:'.length)).playerName || 'Player Details'}
                     </NavLink>
                 </li>) : null}
-                {account && account.access && account.access.runReports && requestedDivisions.length === 1 ? (<li className="nav-item">
+                {account && account.access && account.access.runReports && requestedDivisions.length === 1 && !divisionData.superleague ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
                              to={`/division/${requestedDivisions}/reports${requestedSeason ? '/' + requestedSeason : ''}`}>Reports</NavLink>
                 </li>) : null}
-                {account && account.access && account.access.runHealthChecks && requestedDivisions.length === 1 ? (<li className="nav-item">
+                {account && account.access && account.access.runHealthChecks && requestedDivisions.length === 1 && !divisionData.superleague ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'health' ? 'active' : ''}
                              to={`/division/${requestedDivisions}/health${requestedSeason ? '/' + requestedSeason : ''}`}>Health</NavLink>
                 </li>) : null}

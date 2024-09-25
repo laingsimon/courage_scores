@@ -27,6 +27,7 @@ public class AddOrUpdateDivisionCommandTests
         _update = new EditDivisionDto
         {
             LastUpdated = _division.Updated,
+            Superleague = true,
         };
     }
 
@@ -39,6 +40,7 @@ public class AddOrUpdateDivisionCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(_division.Name, Is.EqualTo(_update.Name));
+        Assert.That(_division.Superleague, Is.EqualTo(_update.Superleague));
     }
 
     [Test]

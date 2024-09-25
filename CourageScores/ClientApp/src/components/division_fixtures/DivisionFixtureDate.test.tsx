@@ -757,6 +757,37 @@ describe('DivisionFixtureDate', () => {
             expect(row.querySelector('td:nth-child(5) .dropdown-toggle').textContent).toEqual('AWAY');
         });
 
+        it('does not render league qualifier/knockout fixtures for superleague divisions', async () => {
+            const superleagueDivision: DivisionDto = divisionBuilder('DIVISION').superleague().build();
+            const awayTeam = teamBuilder('AWAY')
+                .forSeason(season, superleagueDivision)
+                .build();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture((f: IDivisionFixtureBuilder) => f.playing(team, awayTeam).knockout())
+                .build();
+            await renderComponent({
+                date: fixtureDate,
+                showPlayers: {},
+                setShowPlayers,
+                onTournamentChanged,
+                setEditNote,
+                startAddNote,
+                setNewFixtures,
+            }, divisionDataBuilder(superleagueDivision)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account, null, [team, awayTeam]);
+
+            reportedError.verifyNoError();
+            const heading = context.container.querySelector('h4');
+            expect(heading).toBeTruthy();
+            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
+            const table = context.container.querySelector('table');
+            expect(table).toBeTruthy();
+            expect(table.querySelectorAll('tr').length).toEqual(0);
+        });
+
         it('renders league qualifier/knockout byes', async () => {
             const awayTeam = teamBuilder('AWAY')
                 .forSeason(season, division)

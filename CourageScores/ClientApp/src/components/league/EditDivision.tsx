@@ -82,8 +82,17 @@ export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}
             <div className="input-group-prepend">
                 <label htmlFor="name" className="input-group-text">Name</label>
             </div>
-            <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name" id="name"
+            <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name"
+                   id="name"
                    className="form-control margin-right"/>
+        </div>
+        <div className="input-group mb-3">
+            <div className="form-check form-switch input-group-prepend">
+                <input disabled={saving} type="checkbox" className="form-check-input"
+                       name="superleague" id="superleague" checked={data.superleague}
+                       onChange={valueChanged(data, onUpdateData)}/>
+                <label className="form-check-label" htmlFor="superleague">Superleague</label>
+            </div>
         </div>
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
