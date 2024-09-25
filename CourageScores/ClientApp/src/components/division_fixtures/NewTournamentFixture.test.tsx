@@ -221,6 +221,7 @@ describe('NewTournamentFixture', () => {
                     seasonId: season.id,
                     sides: [],
                     type: null,
+                    singleRound: false,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -248,6 +249,37 @@ describe('NewTournamentFixture', () => {
                     seasonId: season.id,
                     sides: [],
                     type: null,
+                    singleRound: false,
+                }
+            });
+            expect(tournamentChanged).toEqual(true);
+        });
+
+        it('creates a superleague tournament', async () => {
+            const superleagueDivision = divisionBuilder('SUPERLEAGUE DIVISION').superleague().build();
+
+            await renderComponent(
+                props('2024-09-02', proposedFixture1),
+                divisionData(superleagueDivision, season),
+                [ superleagueDivision, division2 ]);
+            const saveButton = findButton(context.container, '➕');
+            const divisionDropDown: Element = context.container.querySelector('.division-dropdown .dropdown-menu');
+            const addressDropDown: Element = context.container.querySelector('.address-dropdown .dropdown-menu');
+
+            await doSelectOption(divisionDropDown, 'SUPERLEAGUE DIVISION');
+            await doSelectOption(addressDropDown, 'ADDRESS 1');
+            await doClick(saveButton);
+
+            expect(savedTournament).toEqual({
+                data: {
+                    date: '2024-09-02',
+                    divisionId: superleagueDivision.id,
+                    address: 'ADDRESS 1',
+                    id: expect.any(String),
+                    seasonId: season.id,
+                    sides: [],
+                    type: null,
+                    singleRound: true,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -278,6 +310,7 @@ describe('NewTournamentFixture', () => {
                     seasonId: season.id,
                     sides: [],
                     type: null,
+                    singleRound: false,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -314,6 +347,7 @@ describe('NewTournamentFixture', () => {
                     seasonId: season.id,
                     sides: [ tournament.winningSide ],
                     type: 'SINGLES final',
+                    singleRound: false,
                 }
             });
             expect(tournamentChanged).toEqual(true);
@@ -441,6 +475,7 @@ describe('NewTournamentFixture', () => {
                     seasonId: season.id,
                     sides: [ ],
                     type: null,
+                    singleRound: false,
                 }
             });
             expect(tournamentChanged).toEqual(true);
