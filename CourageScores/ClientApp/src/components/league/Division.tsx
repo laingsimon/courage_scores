@@ -248,7 +248,8 @@ export function Division() {
                 originalDivisionData={{
                     name: divisionDataToUse.name,
                     id: divisionDataToUse.id,
-                    updated: divisionDataToUse.updated
+                    updated: divisionDataToUse.updated,
+                    superleague: divisionDataToUse.superleague,
                 }}
                 onDivisionOrSeasonChanged={reloadDivisionData}
                 overrideMode={requestedMode}

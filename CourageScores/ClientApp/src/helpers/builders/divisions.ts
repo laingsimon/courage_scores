@@ -215,6 +215,7 @@ export function noteBuilder(date?: string, id?: string): INoteBuilder {
 }
 
 export interface IDivisionBuilder extends IAddableBuilder<DivisionDto> {
+    superleague(): IDivisionBuilder;
     updated(updated: string): IDivisionBuilder;
 }
 
@@ -222,6 +223,7 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
     const division: DivisionDto = {
         id: id || createTemporaryId(),
         name,
+        superleague: false,
     };
 
     const builder: IDivisionBuilder = {
@@ -232,6 +234,10 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
         },
         updated(updated: string): IDivisionBuilder {
             division.updated = updated;
+            return builder;
+        },
+        superleague(): IDivisionBuilder {
+            division.superleague = true;
             return builder;
         }
     };
