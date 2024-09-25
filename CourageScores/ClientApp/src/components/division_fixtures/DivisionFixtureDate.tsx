@@ -32,7 +32,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     const {account, controls} = useApp();
     const navigate = useNavigate();
     const location = useLocation();
-    const {fixtures, teams} = useDivisionData();
+    const {fixtures, teams, superleague} = useDivisionData();
     const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
     const canManageGames: boolean = account && account.access && account.access.manageGames;
     const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
@@ -163,7 +163,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
         {date.notes.map((note: FixtureDateNoteDto) => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">
             <tbody>
-            {date.fixtures.filter(isPotentialFixtureValid).map((f: DivisionFixtureDto) => (<DivisionFixture
+            {superleague ? null : date.fixtures.filter(isPotentialFixtureValid).map((f: DivisionFixtureDto) => (<DivisionFixture
                 key={f.id}
                 fixture={f}
                 date={date.date}
