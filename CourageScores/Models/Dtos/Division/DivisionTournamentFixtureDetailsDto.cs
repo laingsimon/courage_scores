@@ -16,4 +16,6 @@ public class DivisionTournamentFixtureDetailsDto
     public bool Proposed { get; set; }
     public List<Guid> Players { get; set; } = new();
     public List<TournamentSideDto> Sides { get; set; } = new();
+    public bool SingleRound { get; set; }
+    public List<TournamentMatchDto> FirstRoundMatches { get; set; } = new();
 }
