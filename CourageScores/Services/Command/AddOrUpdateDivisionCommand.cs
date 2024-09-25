@@ -17,6 +17,7 @@ public class AddOrUpdateDivisionCommand : AddOrUpdateCommand<Models.Cosmos.Divis
         EditDivisionDto update, CancellationToken token)
     {
         division.Name = update.Name;
+        division.Superleague = update.Superleague;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = division.Id;
         return Task.FromResult(new ActionResult<Models.Cosmos.Division>
         {

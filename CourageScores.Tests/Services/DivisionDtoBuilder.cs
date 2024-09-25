@@ -12,6 +12,7 @@ public class DivisionDtoBuilder
         {
             Id = id ?? Guid.NewGuid(),
             Name = name,
+            Superleague = false,
         };
     }
 
@@ -30,6 +31,12 @@ public class DivisionDtoBuilder
     public DivisionDtoBuilder Updated(DateTime updated)
     {
         _division.Updated = updated;
+        return this;
+    }
+
+    public DivisionDtoBuilder Superleague(bool superleague = true)
+    {
+        _division.Superleague = superleague;
         return this;
     }
 

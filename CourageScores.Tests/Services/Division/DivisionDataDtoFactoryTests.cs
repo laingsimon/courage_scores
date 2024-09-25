@@ -120,6 +120,16 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
+    public async Task CreateDivisionDataDto_GivenDivision_SetsSuperleagueCorrectly()
+    {
+        var superleagueDivision = new DivisionDtoBuilder(name: "superleague division1").Superleague().Build();
+
+        var result = await _factory.CreateDivisionDataDto(Season1Context, new[] { superleagueDivision }, true, _token);
+
+        Assert.That(result.Superleague, Is.True);
+    }
+
+    [Test]
     public async Task CreateDivisionDataDto_GivenNoDivision_SetsDivisionPropertiesCorrectly()
     {
         var result = await _factory.CreateDivisionDataDto(Season1Context, Array.Empty<DivisionDto?>(), true, _token);

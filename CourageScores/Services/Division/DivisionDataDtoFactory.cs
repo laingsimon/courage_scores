@@ -62,6 +62,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             Id = (divisions.Count == 1 ? divisions.ElementAt(0)?.Id : null) ?? Guid.Empty,
             Name = GetDivisionName(divisions),
+            Superleague = divisions.All(d => d?.Superleague == true),
             Teams = teamResults
                 .OrderByDescending(t => t.Points)
                 .ThenByDescending(t => t.Difference)
