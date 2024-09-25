@@ -150,7 +150,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                     <label className="form-check-label margin-left"
                            htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                 </span>) : null}
-            {showQualifierToggle ? (<span className="margin-left form-switch h6 text-body">
+            {showQualifierToggle && !superleague ? (<span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            disabled={any(date.fixtures, f => f.isKnockout && f.id !== f.homeTeam.id)}
                            id={'isKnockout_' + date.date}

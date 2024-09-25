@@ -33,7 +33,7 @@ export interface IDivisionFixturesProps {
 }
 
 export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
-    const {id: divisionId, name, season, fixtures, onReloadDivision} = useDivisionData();
+    const {id: divisionId, name, season, fixtures, onReloadDivision, superleague} = useDivisionData();
     const location = useLocation();
     const {account, onError, controls, teams} = useApp();
     const isAdmin: boolean = account && account.access && account.access.manageGames;
@@ -174,12 +174,11 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
                 <span className="margin-right">Select date:</span>
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)}
                        className="margin-right" value={newDate} onChange={stateChanged(setNewDate)}/>
-
-                <div className="form-check form-switch d-inline-block">
+                {superleague ? null : (<div className="form-check form-switch d-inline-block">
                     <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout"
                            checked={isKnockout} onChange={stateChanged(setIsKnockout)}/>
                     <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
-                </div>
+                </div>)}
             </div>
             <div className="modal-footer px-0 pb-0">
                 <div className="left-aligned">
