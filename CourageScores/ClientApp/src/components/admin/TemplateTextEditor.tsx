@@ -75,29 +75,31 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
     function formatFixtureLine(excelLine: string): string {
         const fixtures: string[] = excelLine.split(/\s+/);
 
-        const toFormat: DateTemplateDto = {
-            fixtures: []
-        };
-        let fixtureBatch: string[] = [];
-        while (fixtures.length > 0) {
-            const fixture: string = fixtures.shift();
-            if (!fixture) {
-                continue;
-            }
-
-            fixtureBatch.push(fixture);
-            if (fixtureBatch.length === 2) {
-                const fixture: FixtureTemplateDto = {
-                    home: fixtureBatch[0],
-                };
-                if (fixtureBatch[1] !== '-') {
-                    fixture.away = fixtureBatch[1];
+        function* generateFixtures(fixtures: string[]) {
+            let fixtureBatch: string[] = [];
+            for (let fixture of fixtures) {
+                if (!fixture) {
+                    continue;
                 }
 
-                toFormat.fixtures.push(fixture);
-                fixtureBatch = [];
+                fixtureBatch.push(fixture);
+                if (fixtureBatch.length === 2) {
+                    const fixture: FixtureTemplateDto = {
+                        home: fixtureBatch[0],
+                    };
+                    if (fixtureBatch[1] !== '-') {
+                        fixture.away = fixtureBatch[1];
+                    }
+
+                    fixtureBatch = [];
+                    yield fixture;
+                }
             }
         }
+
+        const toFormat: DateTemplateDto = {
+            fixtures: [...generateFixtures(fixtures)]
+        };
 
         return JSON.stringify(toFormat, null, '    ');
     }

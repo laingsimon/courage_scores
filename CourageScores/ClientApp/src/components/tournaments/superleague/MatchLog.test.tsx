@@ -45,9 +45,8 @@ describe('MatchLog', () => {
         return Array.from(row.querySelectorAll(tagName)).map(cell => cell.textContent);
     }
 
-    function after(iterable: string[], afterText: string): string[] {
+    function* after(iterable: string[], afterText: string) {
         let collect: boolean = false;
-        const items: string[] = [];
 
         for (let item of iterable) {
             if (item === afterText) {
@@ -56,11 +55,9 @@ describe('MatchLog', () => {
             }
 
             if (collect) {
-                items.push(item);
+                yield item;
             }
         }
-
-        return items;
     }
 
     describe('renders', () => {
@@ -121,9 +118,9 @@ describe('MatchLog', () => {
             const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[];
             /* 2 heading rows, 3 data rows - repeated for home and away */
             const hostHeadings = rowContent(rows[1], 'th');
-            expect(after(hostHeadings, 'GD')).toEqual(['1', '2', '3', '4', '5', '6']);
+            expect([...after(hostHeadings, 'GD')]).toEqual(['1', '2', '3', '4', '5', '6']);
             const opponentHeadings = rowContent(rows[4], 'th');
-            expect(after(opponentHeadings, 'GD')).toEqual(['1', '2', '3', '4', '5', '6']);
+            expect([...after(opponentHeadings, 'GD')]).toEqual(['1', '2', '3', '4', '5', '6']);
         });
 
         it('first match content for host', async () => {

@@ -82,22 +82,8 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
     }
 
     function getChanges(initialIds: string[], selectedIds: string[]): IChanges {
-        const added: string[] = [];
-        const removed: string[] = [];
-
-        for (let initialId of initialIds) {
-            const hasBeenRemoved: boolean = isEmpty(selectedIds, (id: string) => id === initialId);
-            if (hasBeenRemoved) {
-                removed.push(initialId);
-            }
-        }
-
-        for (let selectedId of selectedIds) {
-            const hasBeenRemoved: boolean = isEmpty(initialIds, (id: string) => id === selectedId);
-            if (hasBeenRemoved) {
-                added.push(selectedId);
-            }
-        }
+        const removed: string[] = initialIds.filter(initialId => isEmpty(selectedIds, (id: string) => id === initialId));
+        const added: string[] = selectedIds.filter(selectedId => isEmpty(initialIds, (id: string) => id === selectedId));
 
         return {
             added: added,
