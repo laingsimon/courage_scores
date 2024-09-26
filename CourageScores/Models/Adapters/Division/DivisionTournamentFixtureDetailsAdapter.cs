@@ -10,11 +10,16 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
 {
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly ITournamentTypeResolver _tournamentTypeResolver;
+    private readonly IAdapter<TournamentMatch, TournamentMatchDto> _tournamentMatchAdapter;
 
-    public DivisionTournamentFixtureDetailsAdapter(IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter, ITournamentTypeResolver tournamentTypeResolver)
+    public DivisionTournamentFixtureDetailsAdapter(
+        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        ITournamentTypeResolver tournamentTypeResolver,
+        IAdapter<TournamentMatch, TournamentMatchDto> tournamentMatchAdapter)
     {
         _tournamentSideAdapter = tournamentSideAdapter;
         _tournamentTypeResolver = tournamentTypeResolver;
+        _tournamentMatchAdapter = tournamentMatchAdapter;
     }
 
     public async Task<DivisionTournamentFixtureDetailsDto> Adapt(TournamentGame tournamentGame, CancellationToken token)
@@ -35,6 +40,10 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             Players = tournamentGame.Sides.SelectMany(side => side.Players).Select(p => p.Id).ToList(),
             Sides = await tournamentGame.Sides.SelectAsync(side => _tournamentSideAdapter.Adapt(side, token)).ToList(),
             Notes = tournamentGame.Notes,
+            SingleRound = tournamentGame.SingleRound,
+            FirstRoundMatches = tournamentGame.Round != null
+                ? await tournamentGame.Round.Matches.SelectAsync(m => _tournamentMatchAdapter.Adapt(m, token)).ToList()
+                : new List<TournamentMatchDto>(),
         };
     }
 

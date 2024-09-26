@@ -9,7 +9,7 @@ import {usePreferences} from "../common/PreferencesContainer";
 import {Link, useLocation} from "react-router-dom";
 
 export function FilterFixtures() {
-    const {teams, favouritesEnabled} = useDivisionData();
+    const {teams, favouritesEnabled, superleague} = useDivisionData();
     const {getPreference, upsertPreference} = usePreferences();
     const {name} = useBranding();
     const location = useLocation();
@@ -87,10 +87,10 @@ export function FilterFixtures() {
     }
 
     return (<div className="mb-3" datatype="fixture-filters">
-        <BootstrapDropdown options={typeFilters}
+        {superleague ? null : (<BootstrapDropdown options={typeFilters}
                            value={filter.type || null}
                            datatype="type-filter"
-                           className="dynamic-width-dropdown margin-right"/>
+                           className="dynamic-width-dropdown margin-right"/>)}
         <BootstrapDropdown options={dateFilters}
                            value={filter.date || null}
                            datatype="date-filter"

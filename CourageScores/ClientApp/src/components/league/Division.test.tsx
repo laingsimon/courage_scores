@@ -94,7 +94,9 @@ describe('Division', () => {
             iocProps({divisionApi, seasonApi, gameApi, featureApi}),
             brandingProps(),
             appProps(appContainerProps, reportedError),
-            (<DivisionUriContainer {...containerProps} />),
+            (<DivisionUriContainer {...containerProps}>
+                {containerProps.children}
+            </DivisionUriContainer>),
             route,
             address);
     }
@@ -241,6 +243,28 @@ describe('Division', () => {
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
                 const headings = Array.from(table.querySelectorAll('thead tr th')) as HTMLTableCellElement[];
                 expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
+            });
+
+            it('renders teams tab for superleague', async () => {
+                const superleagueDivision = divisionBuilder('superleague').superleague().build();
+                const superleagueDivisionData = divisionDataBuilder(division)
+                    .season(season)
+                    .withPlayer(player)
+                    .withTeam(team)
+                    .superleague()
+                    .build();
+                divisionDataMap[superleagueDivision.id] = superleagueDivisionData;
+                divisionDataMap[superleagueDivision.id + ':' + season.id] = superleagueDivisionData;
+
+                await renderComponent(appProps({
+                        divisions: [superleagueDivision],
+                        seasons: [season],
+                    }, reportedError), '/teams', `/teams/?division=${superleagueDivision.id}`,
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
+
+                reportedError.verifyNoError();
+                const tabs = Array.from(context.container.querySelectorAll('a.nav-link'));
+                expect(tabs.map(t => t.textContent)).toContain('Teams');
             });
         });
 
@@ -390,6 +414,28 @@ describe('Division', () => {
                 const content = context.container.querySelector('.content-background') as HTMLElement;
                 expect(content.textContent).toContain('No fixtures, yet');
             });
+
+            it('renders fixtures tab for superleague', async () => {
+                const superleagueDivision = divisionBuilder('superleague').superleague().build();
+                const superleagueDivisionData = divisionDataBuilder(division)
+                    .season(season)
+                    .withPlayer(player)
+                    .withTeam(team)
+                    .superleague()
+                    .build();
+                divisionDataMap[superleagueDivision.id] = superleagueDivisionData;
+                divisionDataMap[superleagueDivision.id + ':' + season.id] = superleagueDivisionData;
+
+                await renderComponent(appProps({
+                        divisions: [superleagueDivision],
+                        seasons: [season],
+                    }, reportedError), '/fixtures/:seasonId', `/fixtures/${season.id}/?division=${superleagueDivision.id}`,
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
+
+                reportedError.verifyNoError();
+                const tabs = Array.from(context.container.querySelectorAll('a.nav-link'));
+                expect(tabs.map(t => t.textContent)).toContain('Fixtures');
+            });
         });
 
         describe('players', () => {
@@ -469,6 +515,28 @@ describe('Division', () => {
                 const table = context.container.querySelector('.content-background table.table') as HTMLTableElement;
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
                 expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
+            });
+
+            it('does not render players tab for superleague', async () => {
+                const superleagueDivision = divisionBuilder('superleague').superleague().build();
+                const superleagueDivisionData = divisionDataBuilder(division)
+                    .season(season)
+                    .withPlayer(player)
+                    .withTeam(team)
+                    .superleague()
+                    .build();
+                divisionDataMap[superleagueDivision.id] = superleagueDivisionData;
+                divisionDataMap[superleagueDivision.id + ':' + season.id] = superleagueDivisionData;
+
+                await renderComponent(appProps({
+                        divisions: [superleagueDivision],
+                        seasons: [season],
+                    }, reportedError), '/players/:seasonId', `/players/${season.id}/?division=${superleagueDivision.id}`,
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
+
+                reportedError.verifyNoError();
+                const tabs = Array.from(context.container.querySelectorAll('a.nav-link'));
+                expect(tabs.map(t => t.textContent)).not.toContain('Players');
             });
         });
 
@@ -627,6 +695,28 @@ describe('Division', () => {
                 const button = context.container.querySelector('.btn.btn-primary') as HTMLButtonElement;
                 expect(button.textContent).toEqual('📊 Get reports...');
             });
+
+            it('does not render reports tab for superleague', async () => {
+                const superleagueDivision = divisionBuilder('superleague').superleague().build();
+                const superleagueDivisionData = divisionDataBuilder(division)
+                    .season(season)
+                    .withPlayer(player)
+                    .withTeam(team)
+                    .superleague()
+                    .build();
+                divisionDataMap[superleagueDivision.id] = superleagueDivisionData;
+                divisionDataMap[superleagueDivision.id + ':' + season.id] = superleagueDivisionData;
+
+                await renderComponent(appProps({
+                        divisions: [superleagueDivision],
+                        seasons: [season],
+                    }, reportedError), '/division/:divisionId/:mode', `/division/${superleagueDivision.id}/reports`,
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
+
+                reportedError.verifyNoError();
+                const tabs = Array.from(context.container.querySelectorAll('a.nav-link'));
+                expect(tabs.map(t => t.textContent)).not.toContain('Reports');
+            });
         });
 
         describe('health', () => {
@@ -709,6 +799,28 @@ describe('Division', () => {
                 reportedError.verifyNoError();
                 const component = context.container.querySelector('div[datatype="health"]') as HTMLElement;
                 expect(component).toBeTruthy();
+            });
+
+            it('does not render health tab for superleague', async () => {
+                const superleagueDivision = divisionBuilder('superleague').superleague().build();
+                const superleagueDivisionData = divisionDataBuilder(division)
+                    .season(season)
+                    .withPlayer(player)
+                    .withTeam(team)
+                    .superleague()
+                    .build();
+                divisionDataMap[superleagueDivision.id] = superleagueDivisionData;
+                divisionDataMap[superleagueDivision.id + ':' + season.id] = superleagueDivisionData;
+
+                await renderComponent(appProps({
+                        divisions: [superleagueDivision],
+                        seasons: [season],
+                    }, reportedError), '/division/:divisionId/:mode', `/division/${superleagueDivision.id}/health`,
+                    { urlStyle: UrlStyle.Multiple, children: <Division /> });
+
+                reportedError.verifyNoError();
+                const tabs = Array.from(context.container.querySelectorAll('a.nav-link'));
+                expect(tabs.map(t => t.textContent)).not.toContain('Health');
             });
         });
 

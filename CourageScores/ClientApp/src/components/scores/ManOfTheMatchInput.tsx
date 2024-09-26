@@ -32,13 +32,7 @@ export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData,
         const property: string = side + 'Players';
 
         const players: ISelectablePlayer[] = fixtureData.matches.flatMap((match: GameMatchDto) => {
-            const matchPlayers: ISelectablePlayer[] = [];
-
-            for (let player of match[property] || []) {
-                matchPlayers.push(player as ISelectablePlayer);
-            }
-
-            return matchPlayers;
+            return match[property] || [] as ISelectablePlayer[];
         });
 
         return distinct(players, 'id').sort(sortBy('name'));

@@ -23,13 +23,15 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     private DivisionTournamentFixtureDetailsAdapter _adapter = null!;
     private Mock<IAdapter<TournamentSide, TournamentSideDto>> _tournamentSideAdapter = null!;
     private Mock<ITournamentTypeResolver> _tournamentTypeResolver = null!;
+    private Mock<IAdapter<TournamentMatch,TournamentMatchDto>> _tournamentMatchAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _tournamentSideAdapter = new Mock<IAdapter<TournamentSide, TournamentSideDto>>();
         _tournamentTypeResolver = new Mock<ITournamentTypeResolver>();
-        _adapter = new DivisionTournamentFixtureDetailsAdapter(_tournamentSideAdapter.Object, _tournamentTypeResolver.Object);
+        _tournamentMatchAdapter = new Mock<IAdapter<TournamentMatch, TournamentMatchDto>>();
+        _adapter = new DivisionTournamentFixtureDetailsAdapter(_tournamentSideAdapter.Object, _tournamentTypeResolver.Object, _tournamentMatchAdapter.Object);
 
         _tournamentTypeResolver.Setup(r => r.GetTournamentType(It.IsAny<TournamentGame>())).Returns("TOURNAMENT TYPE");
     }
@@ -72,6 +74,8 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.Proposed, Is.False);
         Assert.That(result.SeasonId, Is.EqualTo(game.SeasonId));
         Assert.That(result.WinningSide, Is.EqualTo(null));
+        Assert.That(result.SingleRound, Is.False);
+        Assert.That(result.FirstRoundMatches, Is.Empty);
     }
 
     [Test]
@@ -138,6 +142,31 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             Assert.That(result.WinningSide, Is.Not.Null);
             Assert.That(result.WinningSide!.Name, Is.EqualTo(winnerName));
         }
+    }
+
+    [Test]
+    public async Task Adapt_GivenSingleRound_SetsFirstRoundMatchesCorrectly()
+    {
+        var sideA = new TournamentSideBuilder("A").Build();
+        var sideB = new TournamentSideBuilder("B").Build();
+        var matchDto = new TournamentMatchDto();
+        var match = new TournamentMatch();
+        var game = new TournamentGameBuilder()
+            .SingleRound()
+            .WithRound(r1 => r1
+                .WithSide(sideA, sideB)
+                .WithMatch(match)
+                .WithMatchOption(new GameMatchOption
+                {
+                    NumberOfLegs = 7,
+                }))
+            .Build();
+        _tournamentMatchAdapter.Setup(a => a.Adapt(match, _token)).ReturnsAsync(matchDto);
+
+        var result = await _adapter.Adapt(game, _token);
+
+        Assert.That(result.SingleRound, Is.True);
+        Assert.That(result.FirstRoundMatches, Is.EqualTo(new[] { matchDto }));
     }
 
     [Test]

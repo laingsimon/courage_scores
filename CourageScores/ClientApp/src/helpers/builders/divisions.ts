@@ -215,6 +215,7 @@ export function noteBuilder(date?: string, id?: string): INoteBuilder {
 }
 
 export interface IDivisionBuilder extends IAddableBuilder<DivisionDto> {
+    superleague(): IDivisionBuilder;
     updated(updated: string): IDivisionBuilder;
 }
 
@@ -222,6 +223,7 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
     const division: DivisionDto = {
         id: id || createTemporaryId(),
         name,
+        superleague: false,
     };
 
     const builder: IDivisionBuilder = {
@@ -232,6 +234,10 @@ export function divisionBuilder(name: string, id?: string): IDivisionBuilder {
         },
         updated(updated: string): IDivisionBuilder {
             division.updated = updated;
+            return builder;
+        },
+        superleague(): IDivisionBuilder {
+            division.superleague = true;
             return builder;
         }
     };
@@ -245,6 +251,7 @@ export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & 
     name(name?: string): IDivisionDataBuilder;
     withTeam(teamOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
     withPlayer(playerOrBuilderFunc: any, name?: string, id?: string): IDivisionDataBuilder;
+    superleague(): IDivisionDataBuilder;
 
     onReloadDivision(onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>): IDivisionDataBuilder;
     setDivisionData(setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => Promise<any>): IDivisionDataBuilder;
@@ -267,6 +274,7 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
         setDivisionData: null,
         onReloadDivision: null,
         children: null,
+        superleague: divisionOrId && divisionOrId.superleague,
     };
 
     const builder: IDivisionDataBuilder = {
@@ -321,6 +329,10 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
         },
         favouritesEnabled: (enabled?: boolean) => {
             divisionData.favouritesEnabled = enabled;
+            return builder;
+        },
+        superleague: () => {
+            divisionData.superleague = true;
             return builder;
         },
     };

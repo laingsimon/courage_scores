@@ -32,7 +32,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
     const {account, controls} = useApp();
     const navigate = useNavigate();
     const location = useLocation();
-    const {fixtures, teams} = useDivisionData();
+    const {fixtures, teams, superleague} = useDivisionData();
     const canManageTournaments: boolean = account && account.access && account.access.manageTournaments;
     const canManageGames: boolean = account && account.access && account.access.manageGames;
     const isNoteAdmin: boolean = account && account.access && account.access.manageNotes;
@@ -150,7 +150,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                     <label className="form-check-label margin-left"
                            htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                 </span>) : null}
-            {showQualifierToggle ? (<span className="margin-left form-switch h6 text-body">
+            {showQualifierToggle && !superleague ? (<span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            disabled={any(date.fixtures, f => f.isKnockout && f.id !== f.homeTeam.id)}
                            id={'isKnockout_' + date.date}
@@ -163,7 +163,7 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
         {date.notes.map((note: FixtureDateNoteDto) => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote}/>))}
         <table className="table layout-fixed">
             <tbody>
-            {date.fixtures.filter(isPotentialFixtureValid).map((f: DivisionFixtureDto) => (<DivisionFixture
+            {superleague ? null : date.fixtures.filter(isPotentialFixtureValid).map((f: DivisionFixtureDto) => (<DivisionFixture
                 key={f.id}
                 fixture={f}
                 date={date.date}
@@ -172,7 +172,6 @@ export function DivisionFixtureDate({date, showPlayers, startAddNote, setEditNot
                 <TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
-                    date={date.date}
                     onTournamentChanged={onTournamentChanged}
                     expanded={showPlayers[date.date]}/>))}
             {canManageTournaments && allowTournamentProposals ? (<NewTournamentFixture

@@ -16,15 +16,15 @@ import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {Link} from "react-router-dom";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
     onTournamentChanged(): Promise<any>;
-    date: string;
     expanded: boolean;
 }
 
-export function TournamentFixture({tournament, onTournamentChanged, date, expanded}: ITournamentFixtureProps) {
+export function TournamentFixture({tournament, onTournamentChanged, expanded}: ITournamentFixtureProps) {
     const {getPreference} = usePreferences();
     const {name: divisionName, season, favouritesEnabled} = useDivisionData();
     const {account, teams} = useApp();
@@ -69,7 +69,25 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
         </Link>);
     }
 
+    function renderFirstRoundMatches(matches: TournamentMatchDto[]) {
+        return <div className="px-3" datatype="superleague-players">
+            <Link to={`/tournament/${tournament.id}`} className="text-decoration-none">
+                {matches.map((match, index) => (<div key={index} className="d-flex flex-row justify-content-stretch">
+                    <div className="flex-grow-1 text-end flex-basis-0 fw-bold">{match.sideA.name}</div>
+                    <div className="width-50 text-center">{match.scoreA}</div>
+                    <div className="">-</div>
+                    <div className="width-50 text-center">{match.scoreB}</div>
+                    <div className="flex-grow-1 flex-basis-0 fw-bold">{match.sideB.name}</div>
+                </div>))}
+            </Link>
+        </div>
+    }
+
     function showTournamentSidesPlayers() {
+        if (tournament.singleRound && any(tournament.firstRoundMatches)) {
+            return renderFirstRoundMatches(tournament.firstRoundMatches);
+        }
+
         tournament.sides.sort(sortBy('name'));
 
         return (<div className="px-3">

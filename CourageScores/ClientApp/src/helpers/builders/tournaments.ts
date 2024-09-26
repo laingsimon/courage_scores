@@ -32,6 +32,7 @@ export interface ITournamentBuilder extends IAddableBuilder<TournamentGameDto & 
     singleRound(): ITournamentBuilder;
     withHiCheck(playerOrName: any, score: number): ITournamentBuilder;
     withOneEighty(playerOrName: any): ITournamentBuilder;
+    withFirstRoundMatch(...matchBuilders: ((builder: ITournamentMatchBuilder) => ITournamentMatchBuilder)[]): ITournamentBuilder;
 }
 
 export function tournamentBuilder(id?: string): ITournamentBuilder {
@@ -163,6 +164,11 @@ export function tournamentBuilder(id?: string): ITournamentBuilder {
             }
             return builder;
         },
+        withFirstRoundMatch: (...matchBuilders: ((builder: ITournamentMatchBuilder) => ITournamentMatchBuilder)[]) => {
+            const matches: TournamentMatchDto[] = matchBuilders.map(matchBuilderFunc => matchBuilderFunc(tournamentMatchBuilder()).build());
+            tournament.firstRoundMatches = (tournament.firstRoundMatches || []).concat(matches);
+            return builder;
+        }
     };
 
     return builder;

@@ -15,5 +15,10 @@ public class EditDivisionDto : IIntegrityCheckDto
     /// </summary>
     public string Name { get; set; } = null!;
 
+    /// <summary>
+    /// Is this division meant to be for superleague tournaments only
+    /// </summary>
+    public bool Superleague { get; set; }
+
     public DateTime? LastUpdated { get; set; }
 }

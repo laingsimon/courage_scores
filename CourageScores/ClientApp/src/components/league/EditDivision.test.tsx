@@ -132,6 +132,23 @@ describe('EditDivision', () => {
         expect(saved).toEqual(false);
     });
 
+    it('updates superleague property', async () => {
+        const division = divisionBuilder('DIVISION').build();
+        await renderComponent({
+            data: division,
+            onUpdateData,
+            onSave,
+            onClose,
+            setSaveError,
+        });
+        reportedError.verifyNoError();
+
+        await doClick(context.container, 'input[name="superleague"]');
+
+        reportedError.verifyNoError();
+        expect(updatedData.superleague).toEqual(true);
+    });
+
     it('saves division updates', async () => {
         const division = divisionBuilder('DIVISION').updated('2024-01-01').build();
         await renderComponent({
