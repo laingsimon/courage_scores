@@ -70,10 +70,8 @@ ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newN
         }
 
         const newRound: TournamentRoundDto = Object.assign({}, round);
-        newRound.matches = round.matches || [];
-        newRound.matches.push(newMatch);
-        newRound.matchOptions = newRound.matchOptions || [];
-        newRound.matchOptions.push(matchOptionDefaults);
+        newRound.matches = (round.matches || []).concat(newMatch);
+        newRound.matchOptions = (newRound.matchOptions || []).concat(matchOptionDefaults);
         setNewMatch(createNewMatch());
         await setWarnBeforeEditDialogClose(null);
 
