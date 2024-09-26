@@ -71,9 +71,15 @@ export function TournamentFixture({tournament, onTournamentChanged, expanded}: I
 
     function renderFirstRoundMatches(matches: TournamentMatchDto[]) {
         return <div className="px-3">
-            {matches.map((match, index) => (<div key={index}>
-                <b>{match.sideA.name}</b> vs <b>{match.sideB.name}</b>
-            </div>))}
+            <Link to={`/tournament/${tournament.id}`} className="text-decoration-none">
+                {matches.map((match, index) => (<div key={index} className="d-flex flex-row justify-content-stretch">
+                    <div className="flex-grow-1 text-end flex-basis-0 fw-bold">{match.sideA.name}</div>
+                    <div className="width-50 text-center">{match.scoreA}</div>
+                    <div className="">-</div>
+                    <div className="width-50 text-center">{match.scoreB}</div>
+                    <div className="flex-grow-1 flex-basis-0 fw-bold">{match.sideB.name}</div>
+                </div>))}
+            </Link>
         </div>
     }
 
