@@ -20,7 +20,12 @@ import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {DivisionPlayerDto} from "../../interfaces/models/dtos/Division/DivisionPlayerDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
-import {ITournamentSideBuilder, sideBuilder, tournamentBuilder} from "../../helpers/builders/tournaments";
+import {
+    ITournamentMatchBuilder,
+    ITournamentSideBuilder,
+    sideBuilder,
+    tournamentBuilder
+} from "../../helpers/builders/tournaments";
 import {teamBuilder} from "../../helpers/builders/teams";
 import {seasonBuilder} from "../../helpers/builders/seasons";
 import {divisionBuilder} from "../../helpers/builders/divisions";
@@ -238,6 +243,43 @@ describe('TournamentFixture', () => {
             assertSinglePlayerDisplay(playersCell, 2, side1.name, side1.players[0]);
             assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, []);
             assertPlayerDisplayWithPlayerLinks(playersCell, 4, side4.players);
+        });
+
+        it('renders who is playing for superleague tournaments', async () => {
+            const side1 = sideBuilder('PLAYER 1').build();
+            const side2 = sideBuilder('PLAYER 2').build();
+            const side3 = sideBuilder('PLAYER 3').build();
+            const side4 = sideBuilder('PLAYER 4').build();
+            const tournament = tournamentBuilder()
+                .address('ADDRESS')
+                .withSide(side1).withSide(side2).withSide(side3).withSide(side4)
+                .withFirstRoundMatch(
+                    (m: ITournamentMatchBuilder) => m.sideA(side1, 2).sideB(side2, 4),
+                    (m: ITournamentMatchBuilder) => m.sideA(side3, 4).sideB(side4, 2)
+                )
+                .type('SUPERLEAGUE')
+                .singleRound()
+                .build();
+            await renderComponent(
+                {tournament, expanded: true, onTournamentChanged},
+                {
+                    id: division.id,
+                    name: division.name,
+                    season,
+                    players: [],
+                    onReloadDivision,
+                    setDivisionData: noop,
+                },
+                account);
+
+            reportedError.verifyNoError();
+            const playersCell = context.container.querySelector('td:first-child');
+            const superleaguePlayers = playersCell.querySelector('div[datatype="superleague-players"]');
+            expect(superleaguePlayers.querySelector('a').href).toEqual(`http://localhost/tournament/${tournament.id}`);
+            const matches = Array.from(superleaguePlayers.querySelectorAll('a > div'));
+            expect(matches.length).toEqual(2);
+            expect(Array.from(matches[0].querySelectorAll('div')).map(d => d.textContent)).toEqual(['PLAYER 1', '2', '-', '4', 'PLAYER 2']);
+            expect(Array.from(matches[1].querySelectorAll('div')).map(d => d.textContent)).toEqual(['PLAYER 3', '4', '-', '2', 'PLAYER 4']);
         });
 
         it('shades team tournament if favourites defined and tournament does not have favourite team playing', async () => {

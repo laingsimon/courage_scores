@@ -70,7 +70,7 @@ export function TournamentFixture({tournament, onTournamentChanged, expanded}: I
     }
 
     function renderFirstRoundMatches(matches: TournamentMatchDto[]) {
-        return <div className="px-3">
+        return <div className="px-3" datatype="superleague-players">
             <Link to={`/tournament/${tournament.id}`} className="text-decoration-none">
                 {matches.map((match, index) => (<div key={index} className="d-flex flex-row justify-content-stretch">
                     <div className="flex-grow-1 text-end flex-basis-0 fw-bold">{match.sideA.name}</div>
