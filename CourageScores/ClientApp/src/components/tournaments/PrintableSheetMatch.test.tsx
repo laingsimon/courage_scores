@@ -33,6 +33,8 @@ import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 import {START_SCORING} from "./tournaments";
 import {ITournamentGameApi} from "../../interfaces/apis/ITournamentGameApi";
+import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 
 describe('PrintableSheetMatch', () => {
     let context: TestContext;
@@ -107,6 +109,31 @@ describe('PrintableSheetMatch', () => {
         };
     }
 
+    function props(matchData: ILayoutDataForMatch, editable?: boolean, ...possibleSides: TournamentSideDto[]): IPrintableSheetMatchProps {
+        return {
+            matchData,
+            matchIndex: 0,
+            roundIndex: 0,
+            possibleSides,
+            editable,
+        };
+    }
+
+    function withRound(props: IPrintableSheetMatchProps, round: TournamentRoundDto): IPrintableSheetMatchProps {
+        props.round = round;
+        return props;
+    }
+
+    function patchable(props: IPrintableSheetMatchProps): IPrintableSheetMatchProps {
+        props.patchData = patchData;
+        return props;
+    }
+
+    function withRoundIndex(props: IPrintableSheetMatchProps, index: number): IPrintableSheetMatchProps {
+        props.roundIndex = index;
+        return props;
+    }
+
     function user(recordScoresAsYouGo?: boolean, showDebugOptions?: boolean): UserDto {
         return {
             name: '',
@@ -131,12 +158,10 @@ describe('PrintableSheetMatch', () => {
                 sideB: { id: createTemporaryId(), link: null, name: '', mnemonic: 'B' },
                 mnemonic: 'M1',
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData),
+                appProps({}, reportedError));
 
             const matchMnemonic = context.container.querySelector('span[datatype="match-mnemonic"]');
             expect(matchMnemonic).toBeTruthy();
@@ -152,12 +177,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData),
+                appProps({}, reportedError));
 
             const matchMnemonic = context.container.querySelector('span[datatype="match-mnemonic"]');
             expect(matchMnemonic).toBeFalsy();
@@ -172,12 +195,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData),
+                appProps({}, reportedError));
 
             const sideA = context.container.querySelector('div[datatype="sideA"]');
             expect(sideA).toBeTruthy();
@@ -194,12 +215,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData),
+                appProps({}, reportedError));
 
             const sideB = context.container.querySelector('div[datatype="sideB"]');
             expect(sideB).toBeTruthy();
@@ -224,13 +243,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideA"]');
             await doClick(side);
             const dialog = context.container.querySelector('.modal-dialog');
@@ -266,13 +282,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideB"]');
             await doClick(side);
             const dialog = context.container.querySelector('.modal-dialog');
@@ -314,13 +327,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideB"]');
             await doClick(side);
             const dialog = context.container.querySelector('.modal-dialog');
@@ -357,13 +367,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             const side = context.container.querySelector('div[datatype="sideB"]');
             await doClick(side);
             const dialog = context.container.querySelector('.modal-dialog');
@@ -391,13 +398,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData: nestedMatchData,
-                matchIndex: 0,
-                roundIndex: 1,
-                possibleSides: [],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                withRoundIndex(props(nestedMatchData, true), 1),
+                appProps({}, reportedError));
             let alert: string;
             window.alert = (msg) => alert = msg;
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
@@ -420,13 +424,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData: nestedMatchData,
-                matchIndex: 0,
-                roundIndex: 1,
-                possibleSides: [sideA, sideB],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                withRoundIndex(props(nestedMatchData, true, sideA, sideB), 1),
+                appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
             const dialog = context.container.querySelector('.modal-dialog');
             await doSelectOption(dialog.querySelector('.form-group :nth-child(4) div.dropdown-menu'), '3');
@@ -462,13 +463,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideA"]'));
             const dialog = context.container.querySelector('.modal-dialog');
             await doSelectOption(dialog.querySelector('.form-group :nth-child(4) div.dropdown-menu'), '1');
@@ -502,13 +500,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             let alert: string;
             window.alert = (msg) => alert = msg;
             await doClick(context.container.querySelector('div[datatype="sideA"]'));
@@ -529,13 +524,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: false,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, false),
+                appProps({}, reportedError));
             const sideB = context.container.querySelector('div[datatype="sideA"]');
 
             await doClick(sideB);
@@ -553,13 +545,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true),
+                appProps({}, reportedError));
 
             await doClick(context.container.querySelector('div[datatype="sideA"]'));
 
@@ -576,13 +565,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: false,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, false),
+                appProps({}, reportedError));
 
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
@@ -599,13 +585,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true),
+                appProps({}, reportedError));
 
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
@@ -628,13 +611,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true),
+                appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideA"]'));
 
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Remove'));
@@ -673,13 +653,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true),
+                appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Remove'));
@@ -717,13 +694,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true),
+                appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Remove'));
@@ -746,13 +720,10 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
                 matchOptions,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
             const dialog = context.container.querySelector('.modal-dialog');
@@ -771,13 +742,10 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [sideA, sideB, sideC],
-                editable: true,
-            }, appProps({}, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                props(matchData, true, sideA, sideB, sideC),
+                appProps({}, reportedError));
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
             const dialog = context.container.querySelector('.modal-dialog');
@@ -812,14 +780,10 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
                 match: tournamentData.round.matches[0],
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-                patchData
-            }, appProps({ account: user(true) }, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                patchable(props(matchData, true)),
+                appProps({ account: user(true) }, reportedError));
 
             await doClick(findButton(context.container, START_SCORING));
             reportedError.verifyNoError();
@@ -867,14 +831,10 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
                 match: tournamentData.round.matches[0],
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 1,
-                possibleSides: [],
-                editable: true,
-                patchData
-            }, appProps({ account: user(true) }, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                patchable(withRoundIndex(props(matchData, true), 1)),
+                appProps({ account: user(true) }, reportedError));
 
             await doClick(findButton(context.container, START_SCORING));
             reportedError.verifyNoError();
@@ -915,14 +875,10 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
                 match: tournamentData.round.matches[0],
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-                patchData
-            }, appProps({ }, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                patchable(props(matchData, true)),
+                appProps({ }, reportedError));
 
             expect(context.container.innerHTML).not.toContain('📊');
         });
@@ -952,14 +908,10 @@ describe('PrintableSheetMatch', () => {
                 hideMnemonic: true,
                 match: tournamentData.round.matches[0],
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-                patchData
-            }, appProps({ }, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                patchable(props(matchData, true)),
+                appProps({ }, reportedError));
 
             expect(context.container.innerHTML).toContain('📊');
             const link = findButton(context.container, '📊 ');
@@ -992,15 +944,10 @@ describe('PrintableSheetMatch', () => {
                 match: tournamentData.round.matches[0],
                 saygId: saygData.id,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-                patchData,
-                round: tournamentData.round,
-            }, appProps({ account: user(true, true) }, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                withRound(patchable(props(matchData, true)), tournamentData.round),
+                appProps({ account: user(true, true) }, reportedError));
             window.confirm = (msg: string) => msg === 'Are you sure you want to delete the sayg data for this match?';
             let alert: string = null;
             window.alert = (msg) => alert = msg;
@@ -1050,15 +997,10 @@ describe('PrintableSheetMatch', () => {
                 match: tournamentData.round.matches[0],
                 saygId: saygData.id,
             };
-            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
-                matchData,
-                matchIndex: 0,
-                roundIndex: 0,
-                possibleSides: [],
-                editable: true,
-                patchData,
-                round: tournamentData.round,
-            }, appProps({ account: user(true, true) }, reportedError));
+            await renderComponent(
+                containerProps(tournamentData, matchOptionDefaults),
+                withRound(patchable(props(matchData, true)), tournamentData.round),
+                appProps({ account: user(true, true) }, reportedError));
             window.confirm = (msg: string) => msg === 'Are you sure you want to delete the sayg data for this match?';
             deletedSaygResponse = {
                 success: false,
