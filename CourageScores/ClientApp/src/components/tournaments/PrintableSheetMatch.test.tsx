@@ -2,7 +2,7 @@
     api,
     appProps,
     brandingProps,
-    cleanUp,
+    cleanUp, doChange,
     doClick, doSelectOption,
     ErrorState, findButton,
     iocProps,
@@ -297,6 +297,84 @@ describe('PrintableSheetMatch', () => {
                     },
                 }]
             });
+        });
+
+        it('can change best-of', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(sideA, 5)
+                        .sideB(sideB, 7)))
+                .build();
+            const matchData: ILayoutDataForMatch = {
+                scoreB: '7',
+                scoreA: '5',
+                sideA: { id: sideA.id, link: (<span>SIDE A</span>), name: '', mnemonic: 'A' },
+                sideB: { id: sideB.id, link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
+                mnemonic: 'M1',
+                hideMnemonic: true,
+            };
+            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
+                matchData,
+                matchIndex: 0,
+                roundIndex: 0,
+                possibleSides: [sideA, sideB, sideC],
+                editable: true,
+            }, appProps({}, reportedError));
+            const side = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(side);
+            const dialog = context.container.querySelector('.modal-dialog');
+            await doChange(dialog, 'input[name="bestOf"]', '11', context.user);
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(updatedTournament.round).toEqual({
+                matchOptions: [{
+                    numberOfLegs: 11,
+                }],
+                matches: [{
+                    id: expect.any(String),
+                    scoreA: 5,
+                    scoreB: 7,
+                    sideA: sideA,
+                    sideB: sideB,
+                }],
+                nextRound: null,
+            });
+        });
+
+        it('cannot save if best-of is invalid', async () => {
+            const tournamentData: TournamentGameDto = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(sideA, 5)
+                        .sideB(sideB, 7)))
+                .build();
+            const matchData: ILayoutDataForMatch = {
+                scoreB: '7',
+                scoreA: '5',
+                sideA: { id: sideA.id, link: (<span>SIDE A</span>), name: '', mnemonic: 'A' },
+                sideB: { id: sideB.id, link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
+                mnemonic: 'M1',
+                hideMnemonic: true,
+            };
+            await renderComponent(containerProps(tournamentData, matchOptionDefaults), {
+                matchData,
+                matchIndex: 0,
+                roundIndex: 0,
+                possibleSides: [sideA, sideB, sideC],
+                editable: true,
+            }, appProps({}, reportedError));
+            const side = context.container.querySelector('div[datatype="sideB"]');
+            await doClick(side);
+            const dialog = context.container.querySelector('.modal-dialog');
+            let alert: string;
+            window.alert = (msg) => alert = msg;
+
+            await doChange(dialog, 'input[name="bestOf"]', '', context.user);
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(alert).toEqual('Best of is invalid');
+            expect(updatedTournament).toBeNull();
         });
 
         it('does not open dialog match in subsequent round when first round is not complete', async () => {
@@ -678,7 +756,8 @@ describe('PrintableSheetMatch', () => {
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
             const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog.textContent).toContain('Best of 9');
+            const bestOf: HTMLInputElement = dialog.querySelector('input[name="bestOf"]');
+            expect(bestOf.value).toContain('9');
             const scoreDropdownItems = Array.from(dialog.querySelectorAll('.form-group :nth-child(4) div.dropdown-menu .dropdown-item'));
             expect(scoreDropdownItems.map(i => i.textContent)).toEqual([ '0', '1', '2', '3', '4', '5']); // best of 9
         });
@@ -702,7 +781,8 @@ describe('PrintableSheetMatch', () => {
             await doClick(context.container.querySelector('div[datatype="sideB"]'));
 
             const dialog = context.container.querySelector('.modal-dialog');
-            expect(dialog.textContent).toContain('Best of 7');
+            const bestOf: HTMLInputElement = dialog.querySelector('input[name="bestOf"]');
+            expect(bestOf.value).toContain('7');
             const scoreDropdownItems = Array.from(dialog.querySelectorAll('.form-group :nth-child(4) div.dropdown-menu .dropdown-item'));
             expect(scoreDropdownItems.map(i => i.textContent)).toEqual([ '0', '1', '2', '3', '4' ]); // best of 7
         });
