@@ -78,8 +78,7 @@ public class DivisionService : IDivisionService
 
         var allSeasons = await _genericSeasonService.GetAll(token).ToList();
         var season = filter.SeasonId == null
-            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date)
-                .MaxBy(s => s.EndDate)
+            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date && HasAnyDivision(s, divisions)).MaxBy(s => s.EndDate)
             : allSeasons.SingleOrDefault(s => s.Id == filter.SeasonId);
 
         if (season == null)
@@ -91,6 +90,12 @@ public class DivisionService : IDivisionService
             .WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id && ts.Deleted == null) || !t.Seasons.Any()).ToList();
         var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, divisions, token);
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, divisions, !filter.ExcludeProposals, token);
+    }
+
+    private static bool HasAnyDivision(SeasonDto season, IReadOnlyCollection<DivisionDto> divisions)
+    {
+        var comparer = new ByIdComparer();
+        return divisions.Any(d => season.Divisions.Contains(d, comparer));
     }
 
     private static Guid? GetDivisionIdForTeam(TeamDto teamInSeason, SeasonDto season)
@@ -191,4 +196,16 @@ public class DivisionService : IDivisionService
 
     private class DivisionNotFound : DivisionDto
     { }
+
+    private class ByIdComparer : IEqualityComparer<DivisionDto>
+    {
+        public bool Equals(DivisionDto? x, DivisionDto? y)
+        {
+            return x?.Id == y?.Id;
+        }
+        public int GetHashCode(DivisionDto obj)
+        {
+            return obj.Id.GetHashCode();
+        }
+    }
 }
