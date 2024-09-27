@@ -57,7 +57,7 @@ public class DivisionService : IDivisionService
         var divisions = await filter.DivisionId.SelectAsync(async divisionId =>
         {
             var division = await _genericDivisionService.Get(divisionId, token);
-            if (filter.DivisionId.Any() && (division == null || division.Deleted != null))
+            if (division == null || division.Deleted != null)
             {
                 return new DivisionNotFound
                 {
@@ -103,7 +103,7 @@ public class DivisionService : IDivisionService
         DivisionDataFilter filter,
         SeasonDto season,
         IReadOnlyCollection<TeamDto> allTeamsInSeason,
-        List<DivisionDto?> divisions,
+        List<DivisionDto> divisions,
         CancellationToken token)
     {
         var teamsInSeasonAndDivision = allTeamsInSeason
@@ -128,7 +128,7 @@ public class DivisionService : IDivisionService
             notes,
             season,
             teamIdToDivisionIdLookup,
-            divisions.Where(d => d != null).ToDictionary(d => d!.Id, d => d!));
+            divisions.ToDictionary(d => d.Id));
     }
 
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
