@@ -290,21 +290,9 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenDivisionIdFilter_IncludesMatchingNotesOnly()
     {
-        var note = new FixtureDateNoteDto
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-        };
-        var otherDivisionNote = new FixtureDateNoteDto
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-        };
-        var allDivisionsNote = new FixtureDateNoteDto
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = null,
-        };
+        var note = Note(Division1.Id);
+        var otherDivisionNote = Note(Guid.NewGuid());
+        var allDivisionsNote = Note();
         _someNotes.AddRange(new[] { note, otherDivisionNote, allDivisionsNote });
 
         await _service.GetDivisionData(Division1Filter, _token);
@@ -318,21 +306,9 @@ public class DivisionServiceTests
     [Test]
     public async Task GetDivisionData_GivenNoDivisionIdFilter_IncludesAllNotes()
     {
-        var note = new FixtureDateNoteDto
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Division1.Id,
-        };
-        var otherDivisionNote = new FixtureDateNoteDto
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-        };
-        var allDivisionsNote = new FixtureDateNoteDto
-        {
-            Id = Guid.NewGuid(),
-            DivisionId = null,
-        };
+        var note = Note(Division1.Id);
+        var otherDivisionNote = Note(Guid.NewGuid());
+        var allDivisionsNote = Note();
         _someNotes.AddRange(new[] { note, otherDivisionNote, allDivisionsNote });
 
         await _service.GetDivisionData(SeasonIdFilter, _token);
@@ -518,5 +494,15 @@ public class DivisionServiceTests
         await _service.GetDivisionData(filter, _token);
 
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), new[] { Division1 }, false, _token));
+    }
+
+    private FixtureDateNoteDto Note(Guid? divisionId = null, string note = "note")
+    {
+        return new FixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = divisionId,
+            Note = note,
+        };
     }
 }
