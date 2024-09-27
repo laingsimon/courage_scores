@@ -18,4 +18,5 @@ public class DivisionTournamentFixtureDetailsDto
     public List<TournamentSideDto> Sides { get; set; } = new();
     public bool SingleRound { get; set; }
     public List<TournamentMatchDto> FirstRoundMatches { get; set; } = new();
+    public string? Opponent { get; set; }
 }

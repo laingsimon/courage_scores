@@ -133,6 +133,7 @@ export function TournamentFixture({tournament, onTournamentChanged, expanded}: I
             <Link to={`/tournament/${tournament.id}`}>
                 {tournament.type} at <strong>{tournament.address}</strong>
             </Link>
+            {tournament.singleRound && tournament.opponent ? (<span className="margin-left">vs {tournament.opponent}</span>) : null}
             {expanded ? showTournamentSidesPlayers() : null}
         </td>
         {tournament.winningSide ? (<td colSpan={2}>
