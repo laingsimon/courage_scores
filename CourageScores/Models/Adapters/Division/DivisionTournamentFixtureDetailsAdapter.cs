@@ -44,6 +44,9 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             FirstRoundMatches = tournamentGame.Round != null
                 ? await tournamentGame.Round.Matches.SelectAsync(m => _tournamentMatchAdapter.Adapt(m, token)).ToList()
                 : new List<TournamentMatchDto>(),
+            Opponent = tournamentGame.SingleRound
+                ? tournamentGame.Opponent
+                : null,
         };
     }
 

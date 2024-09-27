@@ -76,6 +76,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         Assert.That(result.WinningSide, Is.EqualTo(null));
         Assert.That(result.SingleRound, Is.False);
         Assert.That(result.FirstRoundMatches, Is.Empty);
+        Assert.That(result.Opponent, Is.Null);
     }
 
     [Test]
@@ -145,7 +146,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
     }
 
     [Test]
-    public async Task Adapt_GivenSingleRound_SetsFirstRoundMatchesCorrectly()
+    public async Task Adapt_GivenSingleRound_SetsPropertiesCorrectly()
     {
         var sideA = new TournamentSideBuilder("A").Build();
         var sideB = new TournamentSideBuilder("B").Build();
@@ -153,6 +154,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         var match = new TournamentMatch();
         var game = new TournamentGameBuilder()
             .SingleRound()
+            .WithOpponent("OPPONENT")
             .WithRound(r1 => r1
                 .WithSide(sideA, sideB)
                 .WithMatch(match)
@@ -167,6 +169,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
 
         Assert.That(result.SingleRound, Is.True);
         Assert.That(result.FirstRoundMatches, Is.EqualTo(new[] { matchDto }));
+        Assert.That(result.Opponent, Is.EqualTo(game.Opponent));
     }
 
     [Test]

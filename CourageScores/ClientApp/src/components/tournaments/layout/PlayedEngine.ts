@@ -81,8 +81,9 @@ export class PlayedEngine implements ILayoutEngine {
     private createMatch(context: ITournamentLayoutGenerationContext, playedRound: TournamentRoundDto, unplayedMatch: ILayoutDataForMatch,
                          playedMatch: TournamentMatchDto, index: number, alreadySelectedSides: TournamentSideDto[], winners: TournamentSideDto[],
                          nextRound?: ILayoutDataForRound): ILayoutDataForMatch {
+        const matchOptions: GameMatchOptionDto = playedRound.matchOptions[index] || context.matchOptionDefaults;
         const winner: string = this.getMatchWinner(
-            playedRound.matchOptions[index] || context.matchOptionDefaults,
+            matchOptions,
             winners,
             playedMatch,
             unplayedMatch,
@@ -104,7 +105,7 @@ export class PlayedEngine implements ILayoutEngine {
             mnemonic: unplayedMatch.mnemonic,
             hideMnemonic: unplayedMatch.hideMnemonic,
             numberOfSidesOnTheNight: undefined,
-            matchOptions: unplayedMatch.matchOptions,
+            matchOptions: matchOptions,
             saygId: playedMatch.saygId,
         };
     }

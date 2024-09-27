@@ -178,7 +178,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                         👁️ Live
                     </a>)}
                 <DebugOptions>
-                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Game/Sayg/${saygId}`} className="dropdown-item">
+                    <a target="_blank" rel="noreferrer" href={`${settings.apiHost}/api/Sayg/${saygId}`} className="dropdown-item">
                         <strong>Sayg data</strong><small className="d-block">{saygId}</small>
                     </a>
                     <a className="dropdown-item" target="_blank" rel="noreferrer" href={`/live/match/${saygId}`}>Live match statistics</a>

@@ -88,4 +88,10 @@ public class TournamentGameBuilder
         _tournament.SingleRound = singleRound;
         return this;
     }
+
+    public TournamentGameBuilder WithOpponent(string opponent)
+    {
+        _tournament.Opponent = opponent;
+        return this;
+    }
 }

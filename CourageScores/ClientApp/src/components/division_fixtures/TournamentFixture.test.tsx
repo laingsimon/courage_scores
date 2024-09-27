@@ -145,6 +145,25 @@ describe('TournamentFixture', () => {
             expect(cellText).toEqual(['TYPE at ADDRESS']);
         });
 
+        it('renders superleague tournament with opponent', async () => {
+            const tournament = tournamentBuilder()
+                .singleRound()
+                .opponent('OPPONENT')
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .build();
+            await renderComponent(
+                {tournament, expanded: false, onTournamentChanged},
+                {id: division.id, season, players: [player], onReloadDivision, name: '', setDivisionData: noop },
+                account);
+
+            reportedError.verifyNoError();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cellText = cells.map(td => td.textContent);
+            expect(cellText).toEqual(['TYPE at ADDRESSvs OPPONENT']);
+        });
+
         it('renders tournament won', async () => {
             const sideId = createTemporaryId();
             const tournament = tournamentBuilder()
