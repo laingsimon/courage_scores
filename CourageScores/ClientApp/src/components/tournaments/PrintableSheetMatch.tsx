@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
-import {propChanged} from "../../helpers/events";
+import {propChanged, stateChanged} from "../../helpers/events";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {useTournament} from "./TournamentContainer";
 import {any, sortBy} from "../../helpers/collections";
@@ -14,6 +14,7 @@ import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournam
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 import {ILayoutDataForSide} from "./layout/ILayoutDataForSide";
+import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
@@ -32,15 +33,15 @@ interface IEditSide {
 }
 
 export function PrintableSheetMatch({ round, matchData, possibleSides, roundIndex, matchIndex, editable, patchData } : IPrintableSheetMatchProps) {
-    const [ editSide, setEditSide ] = useState<IEditSide>(null);
     const { tournamentData, setTournamentData, matchOptionDefaults } = useTournament();
     const matchOptions = matchData.matchOptions || { numberOfLegs: tournamentData.bestOf || matchOptionDefaults.numberOfLegs || 5 };
-    const bestOf: number = matchOptions.numberOfLegs;
+    const [ editSide, setEditSide ] = useState<IEditSide>(null);
+    const [ bestOf, setBestOf ] = useState<string>(matchOptions.numberOfLegs ? matchOptions.numberOfLegs.toString() : '5');
     const possibleSideOptions: IBootstrapDropdownItem[] = possibleSides.sort(sortBy('name')).map((side: TournamentSideDto): IBootstrapDropdownItem => { return {
         value: side.id,
         text: side.name,
     }});
-    const possibleScoreOptions: IBootstrapDropdownItem[] = repeat(Math.ceil(bestOf / 2) + 1, (index: number): IBootstrapDropdownItem => {
+    const possibleScoreOptions: IBootstrapDropdownItem[] = repeat(Math.ceil(Number.parseInt(bestOf) / 2) + 1, (index: number): IBootstrapDropdownItem => {
         return {
             value: index,
             text: index
@@ -123,27 +124,39 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             return;
         }
 
+        const newBestOf = Number.parseInt(bestOf);
+        if (!Number.isFinite(newBestOf)) {
+            window.alert('Best of is invalid');
+            return;
+        }
+
         const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
         const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
 
         let currentMatch: TournamentMatchDto;
+        let currentMatchOptions: GameMatchOptionDto;
         if (matchIndex >= newRound.matches.length) {
             currentMatch = {
                 id: createTemporaryId(),
                 sideB: { id: null, name: null },
                 sideA: { id: null, name: null },
             };
+            currentMatchOptions = Object.assign({}, matchOptionDefaults);
             newRound.matches.push(currentMatch);
-            newRound.matchOptions.push(matchOptionDefaults);
+            newRound.matchOptions.push(currentMatchOptions);
         } else {
             currentMatch = newRound.matches[matchIndex];
+            currentMatchOptions = newRound.matchOptions[matchIndex];
         }
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
+        const newMatchOptions: GameMatchOptionDto = Object.assign({}, currentMatchOptions);
 
         newMatch['side' + editSide.designation] = possibleSides.filter((s: TournamentSideDto) => s.id === editSide.sideId)[0];
         newMatch['score' + editSide.designation] = Number.parseInt(editSide.score);
+        newMatchOptions.numberOfLegs = newBestOf;
 
         newRound.matches[matchIndex] = newMatch;
+        newRound.matchOptions[matchIndex] = newMatchOptions;
 
         await setTournamentData(newTournamentData);
         setEditSide(null);
@@ -232,7 +245,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                     onChange={propChanged(editSide, setEditSide, 'score')} />
             </div>
             <div>
-                Best of {bestOf} legs
+                Best of <input value={bestOf} name="bestOf" type="number" min="1" className="width-50" onChange={stateChanged(setBestOf)} /> legs
             </div>
             <div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
