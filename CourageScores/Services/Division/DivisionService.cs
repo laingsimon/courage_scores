@@ -57,7 +57,7 @@ public class DivisionService : IDivisionService
         var divisions = await filter.DivisionId.SelectAsync(async divisionId =>
         {
             var division = await _genericDivisionService.Get(divisionId, token);
-            if (filter.DivisionId.Any() && (division == null || division.Deleted != null))
+            if (division == null || division.Deleted != null)
             {
                 return new DivisionNotFound
                 {
@@ -78,8 +78,7 @@ public class DivisionService : IDivisionService
 
         var allSeasons = await _genericSeasonService.GetAll(token).ToList();
         var season = filter.SeasonId == null
-            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date)
-                .MaxBy(s => s.EndDate)
+            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date && HasAnyDivision(s, divisions)).MaxBy(s => s.EndDate)
             : allSeasons.SingleOrDefault(s => s.Id == filter.SeasonId);
 
         if (season == null)
@@ -93,6 +92,12 @@ public class DivisionService : IDivisionService
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, divisions, !filter.ExcludeProposals, token);
     }
 
+    private static bool HasAnyDivision(SeasonDto season, IReadOnlyCollection<DivisionDto> divisions)
+    {
+        var comparer = new ByIdComparer();
+        return divisions.Any(d => season.Divisions.Contains(d, comparer));
+    }
+
     private static Guid? GetDivisionIdForTeam(TeamDto teamInSeason, SeasonDto season)
     {
         var teamSeason = teamInSeason.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id && ts.Deleted == null);
@@ -103,7 +108,7 @@ public class DivisionService : IDivisionService
         DivisionDataFilter filter,
         SeasonDto season,
         IReadOnlyCollection<TeamDto> allTeamsInSeason,
-        List<DivisionDto?> divisions,
+        List<DivisionDto> divisions,
         CancellationToken token)
     {
         var teamsInSeasonAndDivision = allTeamsInSeason
@@ -128,7 +133,7 @@ public class DivisionService : IDivisionService
             notes,
             season,
             teamIdToDivisionIdLookup,
-            divisions.Where(d => d != null).ToDictionary(d => d!.Id, d => d!));
+            divisions.ToDictionary(d => d.Id));
     }
 
     private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
@@ -191,4 +196,16 @@ public class DivisionService : IDivisionService
 
     private class DivisionNotFound : DivisionDto
     { }
+
+    private class ByIdComparer : IEqualityComparer<DivisionDto>
+    {
+        public bool Equals(DivisionDto? x, DivisionDto? y)
+        {
+            return x?.Id == y?.Id;
+        }
+        public int GetHashCode(DivisionDto obj)
+        {
+            return obj.Id.GetHashCode();
+        }
+    }
 }
