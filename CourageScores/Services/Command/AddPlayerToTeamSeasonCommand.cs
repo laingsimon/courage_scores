@@ -172,6 +172,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             existingPlayer.Captain = _player!.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
+            _cacheFlags.EvictDivisionDataCacheForDivisionId = _divisionId;
             return new ActionResult<TeamPlayer>
             {
                 Success = true,
@@ -193,6 +194,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         await _auditingHelper.SetUpdated(newPlayer, token);
         teamSeason.Players.Add(newPlayer);
         _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
+        _cacheFlags.EvictDivisionDataCacheForDivisionId = _divisionId;
 
         return new ActionResult<TeamPlayer>
         {
