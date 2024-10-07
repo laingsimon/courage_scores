@@ -155,7 +155,7 @@ describe('EditNote', () => {
             const previewGroup = context.container.querySelector('.modal-body > div > div:nth-child(3)');
             expect(previewGroup).toBeTruthy();
             expect(previewGroup.textContent).toContain('Preview');
-            expect(previewGroup.querySelector('div > div.alert > p').innerHTML).toEqual('<strong>Some</strong> note');
+            expect(previewGroup.querySelector('div > div.alert > p').innerHTML).toEqual('**Some** note');
         });
 
         it('season', async () => {
