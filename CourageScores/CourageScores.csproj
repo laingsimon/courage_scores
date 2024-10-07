@@ -63,9 +63,9 @@
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm outdated" IgnoreExitCode="true"/>
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm audit --omit=dev"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --outDir $(ProjectDir)$(PublishDir)wwwroot"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage --reporters=jest-junit --reporters=default" UseUtf8Encoding="Always"/>
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm audit"/>
 
         <!-- Include the newly-built files in the publish output -->
         <ItemGroup>
