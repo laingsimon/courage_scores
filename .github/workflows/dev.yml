@@ -53,7 +53,7 @@ jobs:
       branch-name: ${{ needs.branch-name.outputs.branch-name }}
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
-      bypass-npm-cve-warnings:  ${{ github.event.inputs.bypass_npm_cve_warnings }}
+      bypass-npm-cve-warnings: ${{ needs.setup.outputs.bypass-npm-cve-warnings }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}
