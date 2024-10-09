@@ -11,10 +11,11 @@ import {useApp} from "../common/AppContainer";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;
-    setTournamentData(data: TournamentGameDto): Promise<any>;
+    setTournamentData(data: TournamentGameDto): UntypedPromise;
     disabled?: boolean;
 }
 

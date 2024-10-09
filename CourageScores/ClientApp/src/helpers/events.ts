@@ -2,8 +2,9 @@
 * Change a property of a state-object based on on event
 * */
 import {Dispatch, SetStateAction} from "react";
+import {UntypedPromise} from "../interfaces/UntypedPromise";
 
-export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((value: T) => Promise<any>), nullIf?: string) {
+export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((value: T) => UntypedPromise), nullIf?: string) {
     return async (event: any) => {
         const newData: any = Object.assign({}, get);
         const target: any = event.target;
@@ -25,7 +26,8 @@ export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((val
 *
 * Returned function will return the newly set data
 * */
-export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: string): (x: any, y?: any) => Promise<any> {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: string): (x: any, y?: any) => UntypedPromise {
     const setProp = (prop: string, value: any) => {
         const newData: any = Object.assign({}, get);
         newData[prop] = value;
@@ -55,7 +57,7 @@ export function stateChanged<T>(set: Dispatch<SetStateAction<T>>) {
 }
 
 /* An event handler that will invoke a function with the name of the element and its value */
-export function handleChange(handler?: (name: string, value: any) => Promise<any>) {
+export function handleChange(handler?: (name: string, value: any) => UntypedPromise) {
     if (!handler) {
         // prevent updates
         return () => false;

@@ -19,13 +19,14 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
     date: string;
     readOnly?: boolean;
-    onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): Promise<any>;
-    beforeReloadDivision?(): Promise<any>;
+    onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): UntypedPromise;
+    beforeReloadDivision?(): UntypedPromise;
 }
 
 export interface IEditableDivisionFixtureDto extends DivisionFixtureDto {

@@ -7,10 +7,11 @@ import remarkGfm from 'remark-gfm';
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IFixtureDateNoteProps {
     note: EditFixtureDateNoteDto;
-    setEditNote?(note: EditFixtureDateNoteDto): Promise<any>;
+    setEditNote?(note: EditFixtureDateNoteDto): UntypedPromise;
     preventDelete?: boolean;
 }
 

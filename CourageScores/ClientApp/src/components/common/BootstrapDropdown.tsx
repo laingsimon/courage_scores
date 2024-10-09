@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
 import {isEmpty} from "../../helpers/collections";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IBootstrapDropdownItem {
     value: any;
@@ -11,14 +12,15 @@ export interface IBootstrapDropdownItem {
 }
 
 export interface IBootstrapDropdownProps {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     value?: any;
     options?: IBootstrapDropdownItem[];
     color?: string;
     className?: string;
     disabled?: boolean;
     readOnly?: boolean;
-    onChange?(value: any): Promise<any>;
-    onOpen?(willBeOpen: boolean): Promise<any>;
+    onChange?(value: any): UntypedPromise;
+    onOpen?(willBeOpen: boolean): UntypedPromise;
     slim?: boolean;
     datatype?: string;
 }

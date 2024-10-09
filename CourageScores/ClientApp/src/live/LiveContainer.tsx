@@ -4,6 +4,7 @@ import {useApp} from "../components/common/AppContainer";
 import {ILive} from "./ILive";
 import {ILiveOptions} from "./ILiveOptions";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
+import {UntypedPromise} from "../interfaces/UntypedPromise";
 
 const LiveContext = createContext({});
 
@@ -13,7 +14,7 @@ export function useLive(): ILive {
 
 export interface ILiveContainerProps {
     children?: React.ReactNode;
-    onDataUpdate?(data: any): Promise<any>;
+    onDataUpdate?(data: any): UntypedPromise;
     liveOptions: ILiveOptions;
 }
 

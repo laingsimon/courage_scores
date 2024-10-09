@@ -1,8 +1,9 @@
 import React from 'react';
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IDialogProps {
     children: React.ReactNode;
-    onClose?(): Promise<any>;
+    onClose?(): UntypedPromise;
     title?: string;
     slim?: boolean;
     className?: string;

@@ -25,6 +25,7 @@ import {
     ENTER_SCORE_BUTTON
 } from "../../helpers/constants";
 import {checkoutWith, enterScores, keyPad, playsFirst} from "../../helpers/sayg";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 describe('SaygIntegrationTest', () => {
     let context: TestContext;
@@ -1061,7 +1062,7 @@ describe('SaygIntegrationTest', () => {
             await renderComponent({
                 id: sayg.id,
                 liveOptions: {},
-                async on180(sideName: string): Promise<any> {
+                async on180(sideName: string): UntypedPromise {
                     recorded180s.push(sideName);
                 },
             });
@@ -1077,7 +1078,7 @@ describe('SaygIntegrationTest', () => {
             await renderComponent({
                 id: sayg.id,
                 liveOptions: {},
-                async onHiCheck(sideName: string, score: number): Promise<any> {
+                async onHiCheck(sideName: string, score: number): UntypedPromise {
                     recordedHiChecks.push({sideName, score});
                 }
             });
@@ -1094,7 +1095,7 @@ describe('SaygIntegrationTest', () => {
             await renderComponent({
                 id: sayg.id,
                 liveOptions: {},
-                async onScoreChange(homeScore: number, awayScore: number): Promise<any> {
+                async onScoreChange(homeScore: number, awayScore: number): UntypedPromise {
                     newScores = {
                         homeScore,
                         awayScore

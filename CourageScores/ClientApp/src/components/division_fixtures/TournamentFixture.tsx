@@ -17,10 +17,11 @@ import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {Link} from "react-router-dom";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournamentFixtureProps {
     tournament: DivisionTournamentFixtureDetailsDto;
-    onTournamentChanged(): Promise<any>;
+    onTournamentChanged(): UntypedPromise;
     expanded: boolean;
 }
 

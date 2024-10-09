@@ -1,15 +1,16 @@
 import {ISettings} from "./settings";
+import {UntypedPromise} from "../interfaces/UntypedPromise";
 
 export interface IHeaders {
     [name: string]: string;
 }
 
 export interface IHttp {
-    get(relativeUrl: string, headers: IHeaders): Promise<any>;
-    post(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
-    patch(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
-    delete(relativeUrl: string, headers: IHeaders, content?: any): Promise<any>;
-    put(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
+    get(relativeUrl: string, headers: IHeaders): UntypedPromise;
+    post(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
+    patch(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
+    delete(relativeUrl: string, headers: IHeaders, content?: any): UntypedPromise;
+    put(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
 }
 
 /* istanbul ignore file */

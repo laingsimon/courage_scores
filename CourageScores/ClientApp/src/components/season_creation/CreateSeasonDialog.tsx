@@ -20,10 +20,11 @@ import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDat
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;
-    onClose(): Promise<any>;
+    onClose(): UntypedPromise;
 }
 
 export interface IFixtureToSave {

@@ -8,6 +8,7 @@ import {useLive} from "../../live/LiveContainer";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMatchStatisticsProps {
     saygId: string;
@@ -17,9 +18,9 @@ export interface IMatchStatisticsProps {
     home: string;
     away?: string;
     singlePlayer?: boolean;
-    legChanged?(leg: LegDto, index: number): Promise<any>;
+    legChanged?(leg: LegDto, index: number): UntypedPromise;
     numberOfLegs: number;
-    changeStatisticsView(widescreen: boolean): Promise<any>;
+    changeStatisticsView(widescreen: boolean): UntypedPromise;
     lastLegDisplayOptions: ILegDisplayOptions;
 }
 

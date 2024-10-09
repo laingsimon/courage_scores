@@ -5,17 +5,18 @@ import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 import {any, distinct} from "../../helpers/collections";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateDivisionProps {
     divisionNo: number;
     division: DivisionTemplateDto;
-    onUpdate(update: DivisionTemplateDto): Promise<any>;
-    onCopyToDivision(destinationDivisionIndex: number): Promise<any>;
-    onDelete(): Promise<any>;
+    onUpdate(update: DivisionTemplateDto): UntypedPromise;
+    onCopyToDivision(destinationDivisionIndex: number): UntypedPromise;
+    onDelete(): UntypedPromise;
     templateSharedAddresses: string[];
     divisionCount: number;
     highlight?: string;
-    setHighlight(highlight?: string): Promise<any>;
+    setHighlight(highlight?: string): UntypedPromise;
 }
 
 export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, templateSharedAddresses, divisionCount, onCopyToDivision, highlight, setHighlight }: ITemplateDivisionProps) {

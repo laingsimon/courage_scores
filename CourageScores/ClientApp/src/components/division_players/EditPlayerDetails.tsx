@@ -11,11 +11,12 @@ import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditPlayerDetailsProps {
-    onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): Promise<any>;
-    onChange(name: string, value: string): Promise<any>;
-    onCancel(): Promise<any>;
+    onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): UntypedPromise;
+    onChange(name: string, value: string): UntypedPromise;
+    onCancel(): UntypedPromise;
     seasonId: string;
     team?: { id: string };
     gameId?: string;

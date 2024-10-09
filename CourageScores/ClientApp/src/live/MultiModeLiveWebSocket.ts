@@ -7,20 +7,21 @@ import {WebSocketMode} from "./WebSocketMode";
 import {IStrategyData} from "./IStrategyData";
 import {ISubscription} from "./ISubscription";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {UntypedPromise} from "../interfaces/UntypedPromise";
 
 interface IMultiModeLiveWebSocketProps {
     socketContext: IWebSocketContext;
     subscriptions: ISubscriptions;
-    setSubscriptions(subscriptions: ISubscriptions): Promise<any>;
-    setSocketContext(socket: IWebSocketContext): Promise<any>;
+    setSubscriptions(subscriptions: ISubscriptions): UntypedPromise;
+    setSocketContext(socket: IWebSocketContext): UntypedPromise;
     webSocketStrategy: IUpdateStrategy;
     pollingStrategy: IUpdateStrategy;
 }
 
 export class MultiModeLiveWebSocket implements ILiveWebSocket {
     private readonly socketContext: IWebSocketContext;
-    private readonly setSubscriptions: (subscriptions: ISubscriptions) => Promise<any>;
-    private readonly setSocketContext: (socket: IWebSocketContext) => Promise<any>;
+    private readonly setSubscriptions: (subscriptions: ISubscriptions) => UntypedPromise;
+    private readonly setSocketContext: (socket: IWebSocketContext) => UntypedPromise;
     private readonly webSocketStrategy: IUpdateStrategy;
     private readonly pollingStrategy: IUpdateStrategy;
 

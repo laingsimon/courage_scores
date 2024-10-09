@@ -10,6 +10,7 @@ import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/F
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPlaceholderMappings {
     [placeholder: string]: string;
@@ -19,7 +20,7 @@ export interface IAssignPlaceholdersProps {
     seasonId: string;
     selectedTemplate: ActionResultDto<TemplateDto>;
     placeholderMappings: IPlaceholderMappings;
-    setPlaceholderMappings(newMappings: IPlaceholderMappings): Promise<any>;
+    setPlaceholderMappings(newMappings: IPlaceholderMappings): UntypedPromise;
 }
 
 export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMappings, setPlaceholderMappings }: IAssignPlaceholdersProps) {

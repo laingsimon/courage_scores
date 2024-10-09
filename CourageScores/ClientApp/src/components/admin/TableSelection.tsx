@@ -1,10 +1,11 @@
 import {any, sortBy} from "../../helpers/collections";
 import {TableDto} from "../../interfaces/models/dtos/Data/TableDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITableSelectionProps {
     allTables?: TableDto[];
     selected: string[];
-    onTableChange(tables: string[]): Promise<any>;
+    onTableChange(tables: string[]): UntypedPromise;
     requireCanExport?: boolean;
     requireCanImport?: boolean;
 }

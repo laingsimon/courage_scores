@@ -3,11 +3,12 @@ import {stateChanged} from "../../helpers/events";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateTextEditorProps {
     template: EditTemplateDto;
-    setValid(valid: boolean): Promise<any>;
-    onUpdate(update: EditTemplateDto): Promise<any>;
+    setValid(valid: boolean): UntypedPromise;
+    onUpdate(update: EditTemplateDto): UntypedPromise;
 }
 
 export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTextEditorProps) {

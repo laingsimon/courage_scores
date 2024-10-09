@@ -7,13 +7,14 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditDivisionProps {
-    onClose(): Promise<any>;
-    onSave(): Promise<any>;
-    setSaveError(error: IClientActionResultDto<DivisionDto>): Promise<any>;
+    onClose(): UntypedPromise;
+    onSave(): UntypedPromise;
+    setSaveError(error: IClientActionResultDto<DivisionDto>): UntypedPromise;
     data: DivisionDataDto;
-    onUpdateData(data: DivisionDataDto): Promise<any>;
+    onUpdateData(data: DivisionDataDto): UntypedPromise;
 }
 
 export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}: IEditDivisionProps) {

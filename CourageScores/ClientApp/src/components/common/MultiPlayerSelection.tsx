@@ -10,13 +10,14 @@ import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {Link} from "react-router-dom";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMultiPlayerSelectionProps {
-    onAddPlayer?(player: ISelectablePlayer, score: number): Promise<any>;
+    onAddPlayer?(player: ISelectablePlayer, score: number): UntypedPromise;
     players?: NotablePlayerDto[] | TeamPlayerDto[] | GamePlayerDto[];
     disabled?: boolean;
     allPlayers: ISelectablePlayer[];
-    onRemovePlayer?(playerId: string, playerIndex: number): Promise<any>;
+    onRemovePlayer?(playerId: string, playerIndex: number): UntypedPromise;
     readOnly?: boolean;
     showScore?: boolean;
     scoreClassName?: string;

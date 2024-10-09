@@ -11,10 +11,11 @@ import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTea
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ModifyTeamSeasonDto} from "../../interfaces/models/dtos/Team/ModifyTeamSeasonDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IAssignTeamToSeasonsProps {
     teamOverview: DivisionTeamDto;
-    onClose(): Promise<any>;
+    onClose(): UntypedPromise;
 }
 
 interface IChanges {

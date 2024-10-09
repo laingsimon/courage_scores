@@ -27,9 +27,10 @@ import {
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {useBranding} from "../common/BrandingContainer";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IDivisionFixturesProps {
-    setNewFixtures(fixtures: DivisionFixtureDateDto[]): Promise<any>;
+    setNewFixtures(fixtures: DivisionFixtureDateDto[]): UntypedPromise;
 }
 
 export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {

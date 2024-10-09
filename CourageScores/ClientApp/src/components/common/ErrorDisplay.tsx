@@ -1,12 +1,13 @@
 import {useState} from 'react';
 import {Dialog} from "./Dialog";
 import {useApp} from "./AppContainer";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IErrorDisplayProps {
     errors?: any;
     messages?: string[];
     warnings?: string[];
-    onClose(): Promise<any>;
+    onClose(): UntypedPromise;
     title?: string;
     Exception?: IServerSideException;
 }

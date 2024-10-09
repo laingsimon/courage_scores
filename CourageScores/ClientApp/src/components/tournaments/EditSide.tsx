@@ -17,13 +17,14 @@ import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGam
 import {
     DivisionTournamentFixtureDetailsDto
 } from "../../interfaces/models/dtos/Division/DivisionTournamentFixtureDetailsDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditSideProps {
     side: TournamentSideDto;
-    onChange?(side: TournamentSideDto): Promise<any>;
-    onClose(): Promise<any>;
-    onApply(saveOptions: ISaveSideOptions): Promise<any>;
-    onDelete?(side: TournamentSideDto): Promise<any>;
+    onChange?(side: TournamentSideDto): UntypedPromise;
+    onClose(): UntypedPromise;
+    onApply(saveOptions: ISaveSideOptions): UntypedPromise;
+    onDelete?(side: TournamentSideDto): UntypedPromise;
     initialAddAsIndividuals?: boolean;
     initialAddMultiplePlayers?: boolean;
 }

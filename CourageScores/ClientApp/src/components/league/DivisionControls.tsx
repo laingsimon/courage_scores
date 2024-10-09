@@ -14,10 +14,11 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IDivisionControlsProps {
     originalSeasonData: DivisionDataSeasonDto;
-    onDivisionOrSeasonChanged?(preventReloadIfIdsAreTheSame?: boolean): Promise<any>;
+    onDivisionOrSeasonChanged?(preventReloadIfIdsAreTheSame?: boolean): UntypedPromise;
     originalDivisionData: DivisionDataDto;
     overrideMode?: string;
 }

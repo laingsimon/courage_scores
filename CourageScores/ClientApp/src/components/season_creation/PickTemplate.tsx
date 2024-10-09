@@ -5,11 +5,12 @@ import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDrop
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ActionResultDto} from "../../interfaces/models/dtos/ActionResultDto";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPickTemplateProps {
     selectedTemplate: ActionResultDto<TemplateDto> | null;
     loading: boolean;
-    setSelectedTemplate(template: ActionResultDto<TemplateDto>): Promise<any>;
+    setSelectedTemplate(template: ActionResultDto<TemplateDto>): UntypedPromise;
     templates: IClientActionResultDto<ActionResultDto<TemplateDto>[]>;
 }
 

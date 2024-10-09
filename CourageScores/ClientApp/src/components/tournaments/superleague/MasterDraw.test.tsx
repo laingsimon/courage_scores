@@ -27,6 +27,7 @@ import {ISaygApi} from "../../../interfaces/apis/ISaygApi";
 import {RecordedScoreAsYouGoDto} from "../../../interfaces/models/dtos/Game/Sayg/RecordedScoreAsYouGoDto";
 import {saygBuilder} from "../../../helpers/builders/sayg";
 import {START_SCORING} from "../tournaments";
+import {UntypedPromise} from "../../../interfaces/UntypedPromise";
 
 describe('MasterDraw', () => {
     let context: TestContext;
@@ -76,7 +77,7 @@ describe('MasterDraw', () => {
         return null;
     }
 
-    async function setTournamentData(_: TournamentGameDto): Promise<any> {
+    async function setTournamentData(_: TournamentGameDto): UntypedPromise {
     }
 
     function setPreventScroll(_: boolean) {

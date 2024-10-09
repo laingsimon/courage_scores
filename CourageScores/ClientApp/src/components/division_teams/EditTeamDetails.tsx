@@ -9,12 +9,13 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditTeamDetailsProps {
     divisionId: string;
-    onSaved(team: TeamDto): Promise<any>;
-    onChange?(name: string, value: string): Promise<any>;
-    onCancel(): Promise<any>;
+    onSaved(team: TeamDto): UntypedPromise;
+    onChange?(name: string, value: string): UntypedPromise;
+    onCancel(): UntypedPromise;
     seasonId: string;
     team: EditTeamDto;
     lastUpdated?: string;

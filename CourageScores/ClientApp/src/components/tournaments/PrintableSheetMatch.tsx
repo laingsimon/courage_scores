@@ -15,6 +15,7 @@ import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTo
 import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 import {ILayoutDataForSide} from "./layout/ILayoutDataForSide";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
@@ -22,7 +23,7 @@ export interface IPrintableSheetMatchProps {
     matchIndex: number;
     possibleSides: TournamentSideDto[];
     editable?: boolean;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): UntypedPromise;
     round?: TournamentRoundDto;
 }
 

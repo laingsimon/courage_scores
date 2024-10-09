@@ -1,9 +1,10 @@
 import {valueChanged} from "../../helpers/events";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditMatchOptionsProps {
     matchOptions: GameMatchOptionDto;
-    onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;
+    onMatchOptionsChanged(newOptions: GameMatchOptionDto): UntypedPromise;
     hideNumberOfPlayers?: boolean;
 }
 
