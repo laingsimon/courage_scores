@@ -45,12 +45,12 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
         setSaving(true);
         try {
             const results: IClientActionResultDto<TeamDto>[] = [];
-            for (let seasonId of changes.removed) {
+            for (const seasonId of changes.removed) {
                 const result: IClientActionResultDto<TeamDto> = await teamApi.delete(team.id, seasonId);
                 results.push(result);
             }
 
-            for (let seasonId of changes.added) {
+            for (const seasonId of changes.added) {
                 const details: ModifyTeamSeasonDto = {
                     id: team.id,
                     seasonId: seasonId,
@@ -70,7 +70,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
             }
 
             const errors: IClientActionResultDto<TeamDto>[] = results.filter((r: IClientActionResultDto<TeamDto>) => !r.success);
-            for (let res of errors) {
+            for (const res of errors) {
                 console.error(res);
             }
             window.alert(`There were ${errors.length} error/s when applying these changes; some changes may not have been saved`);

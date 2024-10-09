@@ -50,7 +50,7 @@ function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDt
     }
 
     if (round.matches) {
-        for (let match of round.matches) {
+        for (const match of round.matches) {
             if (match.sideA && match.sideA.id === side.id) {
                 match.sideA = side;
             } else if (match.sideB && match.sideB.id === side.id) {

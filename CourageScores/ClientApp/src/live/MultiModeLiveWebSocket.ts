@@ -51,7 +51,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             setContext: this.setSocketContext,
             setSubscriptions: this.setSubscriptions,
         };
-        for (let s of strategies) {
+        for (const s of strategies) {
             s.refresh(strategyProps);
         }
 
@@ -75,7 +75,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             setContext: this.setSocketContext,
             setSubscriptions: this.setSubscriptions,
         };
-        for (let s of strategies) {
+        for (const s of strategies) {
             s.refresh(strategyProps);
         }
 
@@ -120,7 +120,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             setSubscriptions: this.setSubscriptions,
         };
 
-        for (let mode of this.socketContext.modes) {
+        for (const mode of this.socketContext.modes) {
             const strategy: IUpdateStrategy = this.getStrategy(mode);
             if (!strategy) {
                 continue; // null strategy

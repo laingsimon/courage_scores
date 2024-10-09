@@ -41,10 +41,10 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
             .filter((mnemonic: string) => !!mnemonic));
         const mnemonics: string[][] = [];
 
-        for (let mnemonic of allMnemonics) {
+        for (const mnemonic of allMnemonics) {
             let mnemonicsThatArePlayingAlwaysAtDifferentVenues: string[] = allMnemonics.filter((m: string) => !!m); // copy the array of all mnemonics
 
-            for (let date of division.dates) {
+            for (const date of division.dates) {
                 const mnemonicsThatAreAtHome: string[] = date.fixtures.map((f: FixtureTemplateDto) => f.home);
                 if (!any(mnemonicsThatAreAtHome, m => m === mnemonic)) {
                     continue;

@@ -37,7 +37,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
     function getTeamsWithUniqueAddresses(division: DivisionDto): IBootstrapDropdownItem[] {
         const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
         const addressCounts: { [address: string]: number } = {};
-        for (let team of teamsInDivision) {
+        for (const team of teamsInDivision) {
             if (addressCounts[team.address] === undefined) {
                 addressCounts[team.address] = 1;
             } else {
@@ -58,7 +58,7 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
     function getTeamsWithSharedAddresses(division: DivisionDto, sharedAddressSize: number): IBootstrapDropdownItem[] {
         const teamsInDivision: TeamDto[] = teams.filter((t: TeamDto) => any(t.seasons, (ts: TeamSeasonDto) => ts.seasonId === seasonId && ts.divisionId === division.id && !ts.deleted));
         const addressCounts: { [address: string]: number } = {};
-        for (let team of teamsInDivision) {
+        for (const team of teamsInDivision) {
             if (addressCounts[team.address] === undefined) {
                 addressCounts[team.address] = 1;
             } else {
@@ -99,13 +99,13 @@ export function AssignPlaceholders({ seasonId, selectedTemplate, placeholderMapp
             const otherTeamsWithSameAddress: TeamDto[] = teamsInDivision.filter((t: TeamDto) => t.address === team.address).filter((t: TeamDto) => t.id !== teamId);
 
             newMappings[placeholder] = teamId;
-            for (let otherPlaceholder of otherSharedAddressPlaceholders) {
+            for (const otherPlaceholder of otherSharedAddressPlaceholders) {
                 const otherTeam: TeamDto = otherTeamsWithSameAddress.shift();
                 newMappings[otherPlaceholder] = otherTeam.id;
             }
         } else {
             delete newMappings[placeholder];
-            for (let otherPlaceholder of otherSharedAddressPlaceholders) {
+            for (const otherPlaceholder of otherSharedAddressPlaceholders) {
                 delete newMappings[otherPlaceholder];
             }
         }

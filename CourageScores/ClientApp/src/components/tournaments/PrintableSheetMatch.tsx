@@ -167,7 +167,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
         const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
 
-        let currentMatch: TournamentMatchDto = newRound.matches[matchIndex];
+        const currentMatch: TournamentMatchDto = newRound.matches[matchIndex];
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
 
         newMatch['side' + editSide.designation] = { players: [] };

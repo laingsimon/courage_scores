@@ -24,7 +24,7 @@ export function Practice() {
     }
 
     function getInteger(key: string): number {
-        let value = query.get(key);
+        const value = query.get(key);
         return value ? Number.parseInt(value) : null;
     }
 

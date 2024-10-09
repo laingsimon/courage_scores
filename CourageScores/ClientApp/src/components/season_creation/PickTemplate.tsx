@@ -20,7 +20,7 @@ export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, t
         : [];
 
     function getTemplateOption(compatibility: ActionResultDto<TemplateDto>): IBootstrapDropdownItem {
-        let text = compatibility.success
+        const text = compatibility.success
             ? <div>{compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
             : <div>🚫 {compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
 

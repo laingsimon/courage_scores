@@ -25,7 +25,7 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
-            for (let request of liveOptions.subscribeAtStartup) {
+            for (const request of liveOptions.subscribeAtStartup) {
                 // noinspection JSIgnoredPromiseFromCall
                 enableLiveUpdates(true, request);
             }

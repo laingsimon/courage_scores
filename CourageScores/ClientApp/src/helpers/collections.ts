@@ -42,7 +42,7 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
     const oneEightyMap: { [id: string]: number } = {};
     const itemLookup: { [id: string]: T } = {};
 
-    for (let item of items) {
+    for (const item of items) {
         const id = item[property];
 
         if (oneEightyMap[id]) {
@@ -165,7 +165,7 @@ export function distinct(items: any[], property?: string): any[] {
 
     const map: StringMapObject = {};
 
-    for (let item of items) {
+    for (const item of items) {
         const key = getValue(item, property);
         if (!map[key]) {
             map[key] = item;
@@ -181,7 +181,7 @@ export function distinct(items: any[], property?: string): any[] {
 export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), valueSelector?: (a: T) => any): StringMapObject {
     const dict: StringMapObject = {};
 
-    for (let item of items) {
+    for (const item of items) {
         const key = keySelector(item);
         if (dict[key]) {
             throw new Error('Duplicate key found: ' + key);
@@ -198,7 +198,7 @@ export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), val
 * */
 export function reverse<T>(items: T[]): T[] {
     const backwards: T[] = [];
-    for (let item of items) {
+    for (const item of items) {
         backwards.unshift(item);
     }
 

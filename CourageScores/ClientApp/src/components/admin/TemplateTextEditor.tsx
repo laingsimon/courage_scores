@@ -78,7 +78,7 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
 
         function* generateFixtures(fixtures: string[]) {
             let fixtureBatch: string[] = [];
-            for (let fixture of fixtures) {
+            for (const fixture of fixtures) {
                 if (!fixture) {
                     continue;
                 }

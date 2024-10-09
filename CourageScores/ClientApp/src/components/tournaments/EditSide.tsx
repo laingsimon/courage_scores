@@ -227,7 +227,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
 
         let newSide: TournamentSideDto = side;
         // select the new players
-        for (let playerIndex in newPlayers) {
+        for (const playerIndex in newPlayers) {
             const player: TeamPlayerDto = newPlayers[playerIndex];
             newSide = await onSelectPlayer({
                 id: player.id,

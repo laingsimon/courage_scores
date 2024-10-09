@@ -46,7 +46,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
             exportRequest.division = [tournamentData.divisionId];
         }
 
-        for (let side of tournamentData.sides) {
+        for (const side of tournamentData.sides) {
             if (side.teamId) {
                 teamIds = teamIds.concat([side.teamId]);
             } else if (any(side.players || [])) {
