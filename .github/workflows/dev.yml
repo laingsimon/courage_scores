@@ -17,7 +17,7 @@ on:
         description: 'Bypass cve warnings from npm?'
         required: false
         type: boolean
-        default: false
+        default: true
   pull_request:
     types: [opened,reopened,synchronize]
     branches:
