@@ -2,6 +2,8 @@ import {useState} from 'react';
 import {Dialog} from "./Dialog";
 import {useApp} from "./AppContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {IServerSideException} from "../../interfaces/IServerSideException";
+import {IServerSideError} from "../../interfaces/IServerSideError";
 
 export interface IErrorDisplayProps {
     errors?: any;
@@ -12,18 +14,8 @@ export interface IErrorDisplayProps {
     Exception?: IServerSideException;
 }
 
-export interface IServerSideError {
-    Exception?: IServerSideException;
-}
-
 export interface IServerSideValidationErrors {
     [ key: string ]: string[];
-}
-
-export interface IServerSideException {
-    Type: string;
-    StackTrace?: string[];
-    Message: string;
 }
 
 export function ErrorDisplay({errors, messages, warnings, onClose, title, Exception}: IErrorDisplayProps) {
