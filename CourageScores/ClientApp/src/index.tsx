@@ -8,9 +8,7 @@ import {IBrandingData} from "./components/common/IBrandingData";
 
 /* istanbul ignore file */
 
-// @ts-ignore
 const baseUrl: string = document.getElementsByTagName('base')[0].getAttribute('href');
-// @ts-ignore
 const rootElement: HTMLElement = document.getElementById('root');
 const root = createRoot(rootElement);
 const search: string = document.location.search;

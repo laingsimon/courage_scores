@@ -195,7 +195,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         }
         // Unset any properties that are in newRound but not in updatedRound
         for (const newRoundKey in newRound) {
-            if (!updatedRound[newRoundKey] === undefined) {
+            if (updatedRound[newRoundKey] === undefined) {
                 delete newRound[newRoundKey];
             }
         }

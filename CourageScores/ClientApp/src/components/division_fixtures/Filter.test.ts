@@ -1,4 +1,5 @@
 import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "./Filter";
+import {IFilter} from "./IFilter";
 
 describe('Filter', () => {
     describe('Filter', () => {
@@ -101,9 +102,9 @@ describe('Filter', () => {
 
     describe('NullFilter', () => {
         it('returns true', () => {
-            const filter = new NullFilter();
+            const filter: IFilter<string> = new NullFilter();
 
-            const result = filter.apply({anything: true});
+            const result = filter.apply("anything");
 
             expect(result).toEqual(true);
         });

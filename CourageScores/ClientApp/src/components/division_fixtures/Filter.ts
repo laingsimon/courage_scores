@@ -73,7 +73,7 @@ export class NotFilter<T> implements IFilter<T> {
 }
 
 export class NullFilter<T> implements IFilter<T> {
-    apply(_?: T) {
+    apply() {
         return true;
     }
 }

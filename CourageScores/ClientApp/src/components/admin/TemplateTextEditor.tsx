@@ -64,6 +64,8 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
             await setValid(true);
             await onUpdate(Object.assign({}, template, updatedTemplate));
         } catch (e) {
+            /* istanbul ignore next */
+            console.error(e);
             await setValid(false);
         }
     }
