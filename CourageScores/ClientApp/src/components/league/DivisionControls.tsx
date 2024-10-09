@@ -155,14 +155,16 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
         switch (navigateToMode) {
             case 'teams':
             case 'players':
-            case 'fixtures':
-                const params = new URLSearchParams(search);
+            case 'fixtures': {
+                const params: URLSearchParams = new URLSearchParams(search);
                 params.set('division', divisionName);
                 const newSearch: string = params.toString();
 
                 return `/${navigateToMode}/${seasonName}/${(newSearch ? '?' + newSearch : '')}`;
-            default:
+            }
+            default: {
                 return `/division/${divisionName}/${navigateToMode}/${seasonName}${search}`;
+            }
         }
     }
 

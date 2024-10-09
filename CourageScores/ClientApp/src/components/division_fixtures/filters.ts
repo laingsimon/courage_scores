@@ -130,13 +130,14 @@ export function getNotesFilter(notesFilter: string): IFilter<IEditableDivisionFi
     switch (notesFilter) {
         case 'only-with-fixtures':
             return new Filter<IEditableDivisionFixtureDateDto>((fd: DivisionFixtureDateDto) => any(fd.fixtures) || any(fd.tournamentFixtures));
-        default:
+        default: {
             const filters: string[] = notesFilter.split(';').map(f => f.toLowerCase());
             return new OrFilter<IEditableDivisionFixtureDateDto>(
                 filters.map((filter: string) => new Filter<IEditableDivisionFixtureDateDto>((fd: DivisionFixtureDateDto) => any(
                     fd.notes.map((noteDto: FixtureDateNoteDto) => noteDto.note.toLowerCase()),
                     (note: string) => !!note.match(filter))))
             );
+        }
     }
 }
 

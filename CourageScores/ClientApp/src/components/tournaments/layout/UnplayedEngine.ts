@@ -158,7 +158,7 @@ export class UnplayedEngine implements ILayoutEngine {
                 return 'Semi-Final';
             case 1:
                 return 'Final';
-            default:
+            default: {
                 // const matchesInFirstFullRound: number = firstFullRoundNumberOfSides / 2;
                 const totalNumberOfFullRounds: number = Math.log2(context.firstFullRoundNumberOfSides);
                 const numberOfNonFinalRounds: number = totalNumberOfFullRounds - 3;
@@ -168,6 +168,7 @@ export class UnplayedEngine implements ILayoutEngine {
 
                 const roundIndexForNumberOfMatches = matchesPerNonFinalRound.indexOf(matches);
                 return `Round ${roundIndexForNumberOfMatches + 1}`;
+            }
         }
     }
 }
