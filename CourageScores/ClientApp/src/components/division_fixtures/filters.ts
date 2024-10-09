@@ -22,6 +22,7 @@ export interface IFixtureMapping {
     tournamentFixture?: DivisionTournamentFixtureDetailsDto;
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function isLastFixtureBeforeToday(renderContext: IRenderContext, fixtures: any, date: any): boolean {
     if (!renderContext.lastFixtureDateBeforeToday) {
         const dates = fixtures.map((f: {date: string}) => f.date).filter(isInPast);
@@ -48,6 +49,7 @@ export function isNextFixtureAfterToday(renderContext: IRenderContext, date: str
     return false;
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function optionallyInvertFilter<T>(getFilter: (constraint: string, context: IRenderContext, fixtures: any) => IFilter<T>, filterInput?: string, renderContext?: any, fixtures?: DivisionFixtureDateDto[]): IFilter<T> {
     if (filterInput && filterInput.indexOf('not(') === 0) {
         const withoutNot: string = filterInput.substring(4, filterInput.length - 1);
@@ -141,6 +143,7 @@ export function getNotesFilter(notesFilter: string): IFilter<IEditableDivisionFi
     }
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function getFixtureFilters(filter: any): IFilter<IFixtureMapping> {
     return new AndFilter<IFixtureMapping>([
         optionallyInvertFilter<IFixtureMapping>(getTypeFilter, filter.type),

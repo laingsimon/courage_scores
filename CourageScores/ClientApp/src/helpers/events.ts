@@ -5,8 +5,11 @@ import {Dispatch, SetStateAction} from "react";
 import {UntypedPromise} from "../interfaces/UntypedPromise";
 
 export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((value: T) => UntypedPromise), nullIf?: string) {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return async (event: any) => {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const newData: any = Object.assign({}, get);
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const target: any = event.target;
         newData[target.name] = target.type === 'checkbox'
             ? target.checked
@@ -28,7 +31,9 @@ export function valueChanged<T>(get: T, set: Dispatch<SetStateAction<T>> | ((val
 * */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: string): (x: any, y?: any) => UntypedPromise {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const setProp = (prop: string, value: any) => {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const newData: any = Object.assign({}, get);
         newData[prop] = value;
         set(newData);
@@ -36,6 +41,7 @@ export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: 
     };
 
     if (prop) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         return (value: any) => setProp(prop, value);
     }
 
@@ -46,7 +52,9 @@ export function propChanged<T>(get: T, set: Dispatch<SetStateAction<T>>, prop?: 
 * Set a state property based on an input changing
 * */
 export function stateChanged<T>(set: Dispatch<SetStateAction<T>>) {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return (event: any) => {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const target: any = event.target;
         const value = target.type === 'checkbox'
             ? target.checked
@@ -57,13 +65,16 @@ export function stateChanged<T>(set: Dispatch<SetStateAction<T>>) {
 }
 
 /* An event handler that will invoke a function with the name of the element and its value */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function handleChange(handler?: (name: string, value: any) => UntypedPromise) {
     if (!handler) {
         // prevent updates
         return () => false;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     return async (event: any) => {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const target: any = event.target;
         const value = target.type === 'checkbox'
             ? target.checked

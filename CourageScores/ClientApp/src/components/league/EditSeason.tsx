@@ -13,6 +13,7 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 export interface IEditSeasonProps {
     onClose(): UntypedPromise;
     onSave(): UntypedPromise;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     setSaveError(error: any): UntypedPromise;
     data: EditSeasonDto & DivisionDataSeasonDto;
     onUpdateData(season: EditSeasonDto): UntypedPromise;

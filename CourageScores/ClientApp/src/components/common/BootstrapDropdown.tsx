@@ -4,7 +4,9 @@ import {isEmpty} from "../../helpers/collections";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IBootstrapDropdownItem {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     value: any;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     text?: any;  // Element | string
     collapsedText?: string;
     disabled?: boolean;
@@ -19,6 +21,7 @@ export interface IBootstrapDropdownProps {
     className?: string;
     disabled?: boolean;
     readOnly?: boolean;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     onChange?(value: any): UntypedPromise;
     onOpen?(willBeOpen: boolean): UntypedPromise;
     slim?: boolean;

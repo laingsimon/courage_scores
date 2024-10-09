@@ -6,6 +6,7 @@ import {IServerSideException} from "../../interfaces/IServerSideException";
 import {IServerSideError} from "../../interfaces/IServerSideError";
 
 export interface IErrorDisplayProps {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     errors?: any;
     messages?: string[];
     warnings?: string[];

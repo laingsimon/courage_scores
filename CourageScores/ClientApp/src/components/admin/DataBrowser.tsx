@@ -110,6 +110,7 @@ export function DataBrowser() {
         navigate(`/admin/browser/?table=${table}${idQuery}`);
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function renderValue(value: any, depth: number) {
         if (typeof value === "string" && value.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
             return (<abbr title={value} onClick={() => window.alert(value)}>{renderDate(value)}</abbr>);
@@ -122,6 +123,7 @@ export function DataBrowser() {
         return value;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function shouldShowProperty(key: string, value: any, depth: number): boolean {
         if (key.startsWith('_')) {
             return false;

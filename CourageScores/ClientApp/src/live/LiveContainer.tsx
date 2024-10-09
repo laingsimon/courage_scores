@@ -14,6 +14,7 @@ export function useLive(): ILive {
 
 export interface ILiveContainerProps {
     children?: React.ReactNode;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     onDataUpdate?(data: any): UntypedPromise;
     liveOptions: ILiveOptions;
 }

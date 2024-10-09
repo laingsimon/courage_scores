@@ -43,6 +43,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         this.pollingStrategy = pollingStrategy;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     async publish(id: string, type: LiveDataType, data: any): Promise<boolean> {
         const strategies: IUpdateStrategy[] = this.getAllStrategies(this.socketContext);
         const strategyProps: IStrategyData = {
@@ -98,6 +99,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         await this.setSocketContext(newStrategyProps.context);
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     async subscribe(request: ISubscriptionRequest, dataHandler?: (data: any) => void, errorHandler?: (error: any) => void) {
         if (this.subscriptions[request.id]) {
             console.log(`WARN: ${request.type} subscription is being replaced`);
@@ -107,7 +109,9 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         const newSubscription: ISubscription = {
             id: request.id,
             type: request.type,
+            /* eslint-disable @typescript-eslint/no-explicit-any */
             updateHandler: dataHandler || ((msg: any) => console.log(msg)),
+            /* eslint-disable @typescript-eslint/no-explicit-any */
             errorHandler: errorHandler || ((err: any) => console.error(err)),
         };
         newSubscriptions[request.id] = newSubscription;

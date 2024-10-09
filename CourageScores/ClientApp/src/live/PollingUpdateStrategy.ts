@@ -37,6 +37,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         this.refreshContext = props;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     async publish(props: IStrategyData, id: string, type: LiveDataType, data: any): Promise<IWebSocketContext | null> {
         await this.liveApi.postUpdate(id, type, data);
         return props.context;

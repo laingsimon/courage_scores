@@ -14,6 +14,7 @@ export interface IMergeHiCheckAnd180sProps {
 export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeHiCheckAnd180sProps) {
     const {onError} = useApp();
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function getRecordsToMerge(team: string, record: string): any[] {
         const submission: GameDto = data[team + 'Submission'];
         if (!submission) {
