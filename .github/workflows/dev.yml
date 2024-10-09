@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      bypass_npm_cve_warnings:
+        description: 'Bypass cve warnings from npm?'
+        required: false
+        type: boolean
+        default: false
   pull_request:
     types: [opened,reopened,synchronize]
     branches:
@@ -48,6 +53,7 @@ jobs:
       branch-name: ${{ needs.branch-name.outputs.branch-name }}
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
+      bypass-npm-cve-warnings:  ${{ github.event.inputs.bypass_npm_cve_warnings }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}
