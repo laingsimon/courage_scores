@@ -25,7 +25,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
     const {divisions, onError} = useApp();
     const {teamApi} = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<any>(null);
+    const [saveError, setSaveError] = useState(null);
     const divisionOptions: IBootstrapDropdownItem[] = divisions.map((division: DivisionDto) => {
         return {value: division.id, text: division.name};
     });

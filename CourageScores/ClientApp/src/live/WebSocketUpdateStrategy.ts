@@ -8,6 +8,7 @@ import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {IStrategyData} from "./IStrategyData";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 import {LiveMessageDto} from "../interfaces/models/dtos/LiveMessageDto";
+import {IError} from "../components/common/IError";
 
 export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private readonly createSocket: () => WebSocket;
@@ -104,11 +105,12 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
                         context.webSocket.close(); // Assume closing the socket is good practice, even though it isn't at an applicable ready state
                         resolve(null); // report that this strategy was unable to connect
                     }
-                } catch (e: any) {
+                } catch (e) {
+                    const error: IError = e as IError;
                     /* istanbul ignore next */
                     console.error(e);
                     window.clearInterval(handle);
-                    reject(e.message || 'Error waiting for socket to be ready');
+                    reject(error.message || 'Error waiting for socket to be ready');
                 }
             }, 100);
         });

@@ -30,7 +30,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
-    const [saveError, setSaveError] = useState<any | null>(null);
+    const [saveError, setSaveError] = useState(null);
     const [seasonData, setSeasonData] = useState<DivisionDataSeasonDto | null>(null);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [divisionData, setDivisionData] = useState<DivisionDataDto | null>(null);
@@ -86,7 +86,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                     }
                     setSeasonData(null);
                 }}
-                setSaveError={async (error: any) => setSaveError(error)}/>
+                setSaveError={async (error) => setSaveError(error)}/>
         </Dialog>);
     }
 

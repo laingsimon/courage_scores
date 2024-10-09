@@ -40,16 +40,16 @@ export function DataBrowser() {
 
         const value: string = search.get(name).toLowerCase().trim();
         if (typeof defaultValue === 'boolean') {
-            return (value === 'true' || value === '1') as any;
+            return (value === 'true' || value === '1') as T;
         }
         if (typeof defaultValue === 'number') {
             const numberValue = Number.parseInt(value);
             if (Number.isFinite(numberValue)) {
-                return numberValue as any;
+                return numberValue as T;
             }
         }
 
-        return value as any;
+        return value as T;
     }
 
     async function fetchData() {

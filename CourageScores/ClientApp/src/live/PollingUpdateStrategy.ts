@@ -10,6 +10,7 @@ import {WebSocketMode} from "./WebSocketMode";
 import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 import {IStrategyData} from "./IStrategyData";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {IError} from "../components/common/IError";
 
 enum PollResult {
     Updated,
@@ -144,7 +145,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
             });
             return PollResult.Error;
         } catch (e) {
-            const error = e as any;
+            const error: IError = e as IError;
 
             subscription.errorHandler({
                 message: error.message ? error.message : error,

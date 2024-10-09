@@ -283,7 +283,7 @@ export function Score() {
                 return;
             }
 
-            const failedRequest = (gameData as any) as IFailedRequest;
+            const failedRequest: IFailedRequest = gameData as IFailedRequest;
             if (failedRequest.status) {
                 /* istanbul ignore next */
                 console.log(gameData);
