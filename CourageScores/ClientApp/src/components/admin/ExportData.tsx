@@ -28,7 +28,7 @@ export function ExportData() {
     useEffect(() => {
             const selected: TableDto[] = tables.filter((t: TableDto) => t.canExport);
             const newExportRequest: ExportDataRequestDto = Object.assign({}, exportRequest);
-            newExportRequest.tables = toDictionary(selected, (t: TableDto) => t.name, (_: TableDto) => []);
+            newExportRequest.tables = toDictionary(selected, (t: TableDto) => t.name, () => []);
             setExportRequest(newExportRequest);
         },
         // eslint-disable-next-line
@@ -65,7 +65,7 @@ export function ExportData() {
 
     async function tableChanged(newTables: string[]) {
         const newExportRequest: ExportDataRequestDto = Object.assign({}, exportRequest);
-        newExportRequest.tables = toDictionary(newTables, (t: string) => t, (_: string) => []);
+        newExportRequest.tables = toDictionary(newTables, (t: string) => t, () => []);
         setExportRequest(newExportRequest);
     }
 

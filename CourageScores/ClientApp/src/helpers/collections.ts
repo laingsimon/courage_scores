@@ -103,7 +103,7 @@ export function isEmpty<T>(iterable: T[], predicate?: (a: T) => boolean): boolea
 * Return the number of items (that match the optional predicate)
 * */
 export function count<T>(iterable: T[], predicate?: (a: T, index?: number) => boolean): number {
-    return iterable.filter(predicate || (_ => true)).length;
+    return iterable.filter(predicate || (() => true)).length;
 }
 
 /*
