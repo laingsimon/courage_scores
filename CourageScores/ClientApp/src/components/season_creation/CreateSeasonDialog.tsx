@@ -20,10 +20,11 @@ import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDat
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;
-    onClose(): Promise<any>;
+    onClose(): UntypedPromise;
 }
 
 export interface IFixtureToSave {
@@ -93,7 +94,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
 
     async function onNext() {
         switch (stage) {
-            case '1-pick':
+            case '1-pick': {
                 if (!selectedTemplate.success) {
                     alert('This template is not compatible with this season, pick another template');
                     return;
@@ -101,14 +102,17 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
 
                 setStage('2-assign-placeholders');
                 return;
-            case '2-assign-placeholders':
+            }
+            case '2-assign-placeholders': {
                 await onPropose();
                 return;
-            case '3-review':
+            }
+            case '3-review': {
                 await changeVisibleDivision(selectedDivisionId);
                 setStage('4-review-proposals');
                 return;
-            case '4-review-proposals':
+            }
+            case '4-review-proposals': {
                 const toSave: IFixtureToSave[] = response.result.divisions
                     .flatMap((d: DivisionDataDto) => d.fixtures.flatMap((fd: DivisionFixtureDateDto) => fd.fixtures.map((f: DivisionFixtureDto) => {
                         return {fixture: f, date: fd, division: d}
@@ -118,18 +122,22 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
                 setFixturesToSave(toSave);
                 setStage('5-confirm-save');
                 break;
-            case '5-confirm-save':
+            }
+            case '5-confirm-save': {
                 setSaveMessage(`Starting save...`);
                 setStage('6-saving');
                 await setDivisionData(null);
                 return;
-            case 'aborted':
+            }
+            case 'aborted': {
                 setSaveMessage(`Resuming save...`);
                 setStage('6-saving');
                 return;
+            }
             /* istanbul ignore next */
-            default:
+            default: {
                 return;
+            }
         }
     }
 

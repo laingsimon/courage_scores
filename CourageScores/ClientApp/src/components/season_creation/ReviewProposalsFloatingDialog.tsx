@@ -7,13 +7,14 @@ import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/Template
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IReviewProposalsFloatingDialogProps {
     proposalResult: ProposalResultDto;
-    changeVisibleDivision(id: string): Promise<any>;
+    changeVisibleDivision(id: string): UntypedPromise;
     selectedDivisionId: string;
-    onPrevious(): Promise<any>;
-    onNext(): Promise<any>;
+    onPrevious(): UntypedPromise;
+    onNext(): UntypedPromise;
 }
 
 export function ReviewProposalsFloatingDialog({ proposalResult, changeVisibleDivision, selectedDivisionId, onPrevious, onNext }: IReviewProposalsFloatingDialogProps) {

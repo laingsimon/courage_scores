@@ -17,6 +17,8 @@ on:
         value: ${{ jobs.branch.outputs.deploy }}
       commit-date:
         value: ${{ jobs.branch.outputs.commit-date }}
+      bypass-npm-cve-warnings:
+        value: ${{ jobs.branch.outputs.bypass-npm-cve-warnings }}
 
 jobs:
   dotnet:
@@ -41,6 +43,7 @@ jobs:
     outputs:
       deploy: ${{ steps.should-deploy.outputs.deploy }}
       commit-date: ${{ steps.export-commit-date.outputs.commit-date }}
+      bypass-npm-cve-warnings: ${{ steps.bypass-npm-cve-warnings.outputs.bypass-npm-cve-warnings }}
 
     steps:
       - name: Print branch
@@ -60,3 +63,9 @@ jobs:
         shell: bash
         run: |
           echo "commit-date=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+
+      - name: Should bypass npm cve warnings
+        id: bypass-npm-cve-warnings
+        shell: bash
+        run: |
+          echo "bypass-npm-cve-warnings=true" >> $GITHUB_OUTPUT

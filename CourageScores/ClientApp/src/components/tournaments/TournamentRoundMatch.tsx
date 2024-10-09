@@ -7,6 +7,7 @@ import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMa
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournamentRoundMatchProps {
     readOnly?: boolean;
@@ -15,10 +16,10 @@ export interface ITournamentRoundMatchProps {
     sides: TournamentSideDto[];
     exceptSelected(side: TournamentSideDto, matchIndex: number, sideAOrB: string): boolean;
     matchIndex: number;
-    onChange?(round: TournamentRoundDto): Promise<any>;
+    onChange?(round: TournamentRoundDto): UntypedPromise;
     round: TournamentRoundDto;
     matchOptions: GameMatchOptionDto;
-    onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;
+    onMatchOptionsChanged(newOptions: GameMatchOptionDto): UntypedPromise;
 }
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sides, exceptSelected, matchIndex, onChange,

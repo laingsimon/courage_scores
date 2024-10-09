@@ -11,10 +11,11 @@ import {DivisionTeamDto} from "../../interfaces/models/dtos/Division/DivisionTea
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ModifyTeamSeasonDto} from "../../interfaces/models/dtos/Team/ModifyTeamSeasonDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IAssignTeamToSeasonsProps {
     teamOverview: DivisionTeamDto;
-    onClose(): Promise<any>;
+    onClose(): UntypedPromise;
 }
 
 interface IChanges {
@@ -44,12 +45,12 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
         setSaving(true);
         try {
             const results: IClientActionResultDto<TeamDto>[] = [];
-            for (let seasonId of changes.removed) {
+            for (const seasonId of changes.removed) {
                 const result: IClientActionResultDto<TeamDto> = await teamApi.delete(team.id, seasonId);
                 results.push(result);
             }
 
-            for (let seasonId of changes.added) {
+            for (const seasonId of changes.added) {
                 const details: ModifyTeamSeasonDto = {
                     id: team.id,
                     seasonId: seasonId,
@@ -69,7 +70,7 @@ export function AssignTeamToSeasons({teamOverview, onClose}: IAssignTeamToSeason
             }
 
             const errors: IClientActionResultDto<TeamDto>[] = results.filter((r: IClientActionResultDto<TeamDto>) => !r.success);
-            for (let res of errors) {
+            for (const res of errors) {
                 console.error(res);
             }
             window.alert(`There were ${errors.length} error/s when applying these changes; some changes may not have been saved`);

@@ -3,6 +3,7 @@ import {useLive} from "../../live/LiveContainer";
 import {useApp} from "./AppContainer";
 import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IRefreshControlProps extends ISubscriptionRequest {
 }
 

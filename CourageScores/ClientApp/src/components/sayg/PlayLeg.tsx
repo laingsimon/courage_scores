@@ -10,16 +10,17 @@ import {CHECKOUT_1_DART, CHECKOUT_2_DART, CHECKOUT_3_DART} from "../../helpers/c
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {isEmpty} from "../../helpers/collections";
 import {useEditableSayg} from "./EditableSaygContainer";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPlayLegProps {
     leg?: LegDto;
     home: string;
     away: string;
-    onChange(newLeg: LegDto): Promise<any>;
-    onChangePrevious(newLeg: LegDto): Promise<any>;
-    onLegComplete(accumulatorName: string, leg: LegDto): Promise<any>;
-    on180(accumulatorName: string): Promise<any>;
-    onHiCheck(accumulatorName: string, score: number): Promise<any>;
+    onChange(newLeg: LegDto): UntypedPromise;
+    onChangePrevious(newLeg: LegDto): UntypedPromise;
+    onLegComplete(accumulatorName: string, leg: LegDto): UntypedPromise;
+    on180(accumulatorName: string): UntypedPromise;
+    onHiCheck(accumulatorName: string, score: number): UntypedPromise;
     homeScore: number;
     awayScore?: number;
     singlePlayer?: boolean;

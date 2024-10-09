@@ -15,6 +15,7 @@ import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTo
 import {ILayoutDataForMatch} from "./layout/ILayoutDataForMatch";
 import {ILayoutDataForSide} from "./layout/ILayoutDataForSide";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPrintableSheetMatchProps {
     matchData: ILayoutDataForMatch;
@@ -22,7 +23,7 @@ export interface IPrintableSheetMatchProps {
     matchIndex: number;
     possibleSides: TournamentSideDto[];
     editable?: boolean;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): Promise<any>;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean): UntypedPromise;
     round?: TournamentRoundDto;
 }
 
@@ -166,7 +167,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
         const newRound: TournamentRoundDto = getEditableRound(newTournamentData, true);
 
-        let currentMatch: TournamentMatchDto = newRound.matches[matchIndex];
+        const currentMatch: TournamentMatchDto = newRound.matches[matchIndex];
         const newMatch: TournamentMatchDto = Object.assign({}, currentMatch);
 
         newMatch['side' + editSide.designation] = { players: [] };
@@ -194,7 +195,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         }
         // Unset any properties that are in newRound but not in updatedRound
         for (const newRoundKey in newRound) {
-            if (!updatedRound[newRoundKey] === undefined) {
+            if (updatedRound[newRoundKey] === undefined) {
                 delete newRound[newRoundKey];
             }
         }

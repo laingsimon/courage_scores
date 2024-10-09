@@ -8,6 +8,7 @@ import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {IStrategyData} from "./IStrategyData";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
 import {LiveMessageDto} from "../interfaces/models/dtos/LiveMessageDto";
+import {IError} from "../components/common/IError";
 
 export class WebSocketUpdateStrategy implements IUpdateStrategy {
     private readonly createSocket: () => WebSocket;
@@ -21,10 +22,12 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
             return;
         }
 
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         props.context.webSocket.onmessage = ((msg: any) => this.handleWebSocketMessage(props, msg));
         props.context.webSocket.onclose = (async () => await props.setContext(await this.handleDisconnect(props.context)));
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     async publish(props: IStrategyData, id: string, type: LiveDataType, data: any): Promise<IWebSocketContext | null> {
         let context: IWebSocketContext = props.context;
         if (!props.context.webSocket) {
@@ -104,11 +107,12 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
                         context.webSocket.close(); // Assume closing the socket is good practice, even though it isn't at an applicable ready state
                         resolve(null); // report that this strategy was unable to connect
                     }
-                } catch (e: any) {
+                } catch (e) {
+                    const error: IError = e as IError;
                     /* istanbul ignore next */
                     console.error(e);
                     window.clearInterval(handle);
-                    reject(e.message || 'Error waiting for socket to be ready');
+                    reject(error.message || 'Error waiting for socket to be ready');
                 }
             }, 100);
         });
@@ -138,6 +142,7 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
         }
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     private alertSubscribers(allSubscriptions: ISubscriptions, id: string, error: any) {
         const subscriptions: ISubscription[] = id
             ? [ allSubscriptions[id] ].filter((s: ISubscription) => s)

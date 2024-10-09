@@ -5,6 +5,7 @@ import {ReportCellDto} from "../../interfaces/models/dtos/Report/ReportCellDto";
 import {Link} from "react-router-dom";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {repeat} from "../../helpers/projection";
+import {ReactNode} from "react";
 
 export interface IReportProps {
     rows: ReportRowDto[];
@@ -19,7 +20,7 @@ export function Report({rows, columns}: IReportProps) {
     }
 
     function renderReportCell(cell: ReportCellDto, cellIndex: number) {
-        let content: any = cell.text;
+        let content: string | ReactNode = cell.text;
 
         const player: string = cell.playerName || cell.playerId;
         const team: string = cell.teamName || cell.teamId;

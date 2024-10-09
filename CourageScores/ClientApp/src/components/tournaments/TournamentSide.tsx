@@ -3,13 +3,14 @@ import {EditSide, ISaveSideOptions} from "./EditSide";
 import {count, isEmpty} from "../../helpers/collections";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournamentSideProps {
     side: TournamentSideDto;
-    onChange?(editSide: TournamentSideDto, options: ISaveSideOptions): Promise<any>;
+    onChange?(editSide: TournamentSideDto, options: ISaveSideOptions): UntypedPromise;
     winner?: boolean;
     readOnly?: boolean;
-    onRemove(): Promise<any>;
+    onRemove(): UntypedPromise;
 }
 
 export function TournamentSide({side, onChange, winner, readOnly, onRemove}: ITournamentSideProps) {

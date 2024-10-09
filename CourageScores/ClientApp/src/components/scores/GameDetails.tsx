@@ -2,12 +2,13 @@ import {ShareButton} from "../common/ShareButton";
 import {valueChanged} from "../../helpers/events";
 import {useBranding} from "../common/BrandingContainer";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IGameDetailsProps {
     saving: boolean;
     access: string;
     fixtureData: GameDto;
-    setFixtureData(newData: GameDto): Promise<any>;
+    setFixtureData(newData: GameDto): UntypedPromise;
 }
 
 export function GameDetails({saving, access, fixtureData, setFixtureData}: IGameDetailsProps) {

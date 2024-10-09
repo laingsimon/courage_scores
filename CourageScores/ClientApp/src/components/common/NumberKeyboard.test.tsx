@@ -46,7 +46,7 @@ describe('NumberKeyboard', () => {
         const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
         const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent);
 
-        for (let text of buttonText) {
+        for (const text of buttonText) {
             const button = buttonLookup[text];
             if (!button) {
                 throw new Error(`Button not found: ${text}`);
@@ -60,7 +60,7 @@ describe('NumberKeyboard', () => {
         const buttons: HTMLButtonElement[] = Array.from(context.container.querySelectorAll('button'));
         const buttonLookup: StringMapObject = toDictionary(buttons, (b: HTMLButtonElement) => b.textContent);
 
-        for (let text of buttonText) {
+        for (const text of buttonText) {
             const button = buttonLookup[text];
             if (!button) {
                 throw new Error(`Button not found: ${text}`);

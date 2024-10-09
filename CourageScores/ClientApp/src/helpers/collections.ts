@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type StringMapObject = {[key: string] : any};
 
 /*
 * Sort any array by the given property
 * */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function sortBy(property: string, descending?: boolean): (a: any, b: any) => number {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function getValue(item: any, property: string): object {
         if (property.indexOf('.') !== -1) {
             const parentProperty = property.substring(0, property.indexOf('.'));
@@ -42,7 +45,7 @@ export function groupAndSortByOccurrences<T>(items: T[], property: string): (T &
     const oneEightyMap: { [id: string]: number } = {};
     const itemLookup: { [id: string]: T } = {};
 
-    for (let item of items) {
+    for (const item of items) {
         const id = item[property];
 
         if (oneEightyMap[id]) {
@@ -103,7 +106,7 @@ export function isEmpty<T>(iterable: T[], predicate?: (a: T) => boolean): boolea
 * Return the number of items (that match the optional predicate)
 * */
 export function count<T>(iterable: T[], predicate?: (a: T, index?: number) => boolean): number {
-    return iterable.filter(predicate || (_ => true)).length;
+    return iterable.filter(predicate || (() => true)).length;
 }
 
 /*
@@ -111,6 +114,7 @@ export function count<T>(iterable: T[], predicate?: (a: T, index?: number) => bo
 * */
 export function sum<T>(iterable: T[], selector?: (a: T) => number): number {
     return iterable.reduce((prev: number, current: T) => {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const next: any = (selector ? selector(current) : current);
         return prev + next;
     }, 0);
@@ -121,6 +125,7 @@ export function sum<T>(iterable: T[], selector?: (a: T) => number): number {
 * */
 export function max<T>(iterable: T[], selector?: (a: T) => number): number {
     return iterable.reduce((prev: number, current: T) => {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const currentValue: any = selector ? selector(current) : current;
         return currentValue > prev
             ? currentValue
@@ -142,7 +147,9 @@ export function elementAt<T>(items: T[], index: number, selector?: (a: T) => any
 /*
 * Reduce the given items to have only one with the given property value
 * */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function distinct(items: any[], property?: string): any[] {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function getValue(item: any, property: string | undefined): any {
         if (!property) {
             return item;
@@ -165,7 +172,7 @@ export function distinct(items: any[], property?: string): any[] {
 
     const map: StringMapObject = {};
 
-    for (let item of items) {
+    for (const item of items) {
         const key = getValue(item, property);
         if (!map[key]) {
             map[key] = item;
@@ -178,10 +185,11 @@ export function distinct(items: any[], property?: string): any[] {
 /*
 * Produce a map of items keyed on the given selector
 * */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), valueSelector?: (a: T) => any): StringMapObject {
     const dict: StringMapObject = {};
 
-    for (let item of items) {
+    for (const item of items) {
         const key = keySelector(item);
         if (dict[key]) {
             throw new Error('Duplicate key found: ' + key);
@@ -198,7 +206,7 @@ export function toDictionary<T>(items: T[], keySelector: ((a: T) => string), val
 * */
 export function reverse<T>(items: T[]): T[] {
     const backwards: T[] = [];
-    for (let item of items) {
+    for (const item of items) {
         backwards.unshift(item);
     }
 

@@ -22,6 +22,7 @@ import {IBrowserType} from "./components/common/IBrowserType";
 import {PreferencesContainer} from "./components/common/PreferencesContainer";
 import {DivisionUriContainer, UrlStyle} from "./components/league/DivisionUriContainer";
 import {Division} from "./components/league/Division";
+import {IError} from "./components/common/IError";
 
 export interface IAppProps {
     embed: boolean;
@@ -36,7 +37,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
     const [seasons, setSeasons] = useState<SeasonDto[]>([]);
     const [teams, setTeams] = useState<TeamDto[]>([]);
     const [appLoading, setAppLoading] = useState<boolean | null>(null);
-    const [error, setError] = useState<any | null>(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
             // should only fire on componentDidMount
@@ -53,7 +54,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         parentHeight.setupInterval();
     });
 
-    function onError(error: any) {
+    function onError(error: string | IError) {
         console.error(error);
         setError(mapError(error));
     }
@@ -102,7 +103,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
         setAccount(account);
     }
 
-    async function reportClientSideException(error: any) {
+    async function reportClientSideException(error: IError) {
         await errorApi.add(mapForLogging(error, account));
     }
 

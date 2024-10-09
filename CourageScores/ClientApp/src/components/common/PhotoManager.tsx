@@ -6,11 +6,12 @@ import {renderDate} from "../../helpers/rendering";
 import {useDependencies} from "./IocContainer";
 import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 import {any} from "../../helpers/collections";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPhotoManagerProps {
     doUpload(file: File): Promise<boolean>;
     doDelete(id: string): Promise<boolean>;
-    onClose?(): Promise<any>;
+    onClose?(): UntypedPromise;
     photos: PhotoReferenceDto[];
 
     canViewAllPhotos?: boolean;

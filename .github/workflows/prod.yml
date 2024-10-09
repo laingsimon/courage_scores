@@ -28,6 +28,7 @@ jobs:
       branch-name: 'release'
       commit-sha: ${{ github.sha }}
       commit-date: ${{ needs.setup.outputs.commit-date }}
+      bypass-npm-cve-warnings:  ${{ needs.setup.outputs.bypass-npm-cve-warnings }}
 
   deploy:
     needs: 

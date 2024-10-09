@@ -8,7 +8,7 @@ import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentP
 
 export const START_SCORING: string = '📊 Start scoring...';
 
-export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number, _: ISaveSideOptions): TournamentGameDto {
+export function sideChanged(tournamentData: TournamentGameDto, newSide: TournamentSideDto, sideIndex: number, /* eslint-disable @typescript-eslint/no-unused-vars */ _options: ISaveSideOptions): TournamentGameDto {
     const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
     newSide.name = (newSide.name || '').trim();
     newTournamentData.sides[sideIndex] = newSide;
@@ -50,7 +50,7 @@ function updateSideDataInRound(round: TournamentRoundDto, side: TournamentSideDt
     }
 
     if (round.matches) {
-        for (let match of round.matches) {
+        for (const match of round.matches) {
             if (match.sideA && match.sideA.id === side.id) {
                 match.sideA = side;
             } else if (match.sideB && match.sideB.id === side.id) {

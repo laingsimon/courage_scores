@@ -48,7 +48,7 @@ describe('MatchLog', () => {
     function* after(iterable: string[], afterText: string) {
         let collect: boolean = false;
 
-        for (let item of iterable) {
+        for (const item of iterable) {
             if (item === afterText) {
                 collect = true;
                 continue;

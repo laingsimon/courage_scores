@@ -8,10 +8,11 @@ import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRo
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {createTemporaryId} from "../../helpers/projection";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournamentRoundProps {
     round: TournamentRoundDto;
-    onChange?(newRound: TournamentRoundDto): Promise<any>;
+    onChange?(newRound: TournamentRoundDto): UntypedPromise;
     sides: TournamentSideDto[];
     readOnly?: boolean;
 }

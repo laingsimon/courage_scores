@@ -8,7 +8,7 @@ import {
     doChange,
     doClick, ErrorState,
     findButton,
-    iocProps,
+    iocProps, noop,
     renderApp, TestContext
 } from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
@@ -357,6 +357,7 @@ describe('Templates', () => {
         });
 
         it('prevents saving an invalid template', async () => {
+            console.error = noop;
             const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
@@ -449,6 +450,7 @@ describe('Templates', () => {
         });
 
         it('an empty template does not exit editing', async () => {
+            console.error = noop;
             const template: TemplateDto = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',

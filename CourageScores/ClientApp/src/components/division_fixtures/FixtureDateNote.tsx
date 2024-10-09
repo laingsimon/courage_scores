@@ -2,15 +2,16 @@ import {useState} from "react";
 import {useDependencies} from "../common/IocContainer";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {useApp} from "../common/AppContainer";
-import ReactMarkdown from 'react-markdown';
-import gfm from 'remark-gfm';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IFixtureDateNoteProps {
     note: EditFixtureDateNoteDto;
-    setEditNote?(note: EditFixtureDateNoteDto): Promise<any>;
+    setEditNote?(note: EditFixtureDateNoteDto): UntypedPromise;
     preventDelete?: boolean;
 }
 
@@ -51,7 +52,7 @@ export function FixtureDateNote({note, setEditNote, preventDelete}: IFixtureDate
 
     return (<div className="alert alert-warning alert-dismissible fade show pb-0 mb-1" role="alert" key={note.id}>
         <span className="margin-right float-start">📌</span>
-        <ReactMarkdown remarkPlugins={[gfm]}>{note.note}</ReactMarkdown>
+        <Markdown remarkPlugins={[remarkGfm]}>{note.note}</Markdown>
         {isNoteAdmin && !preventDelete && note.id
             ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close"
                        onClick={deleteNote}></button>)

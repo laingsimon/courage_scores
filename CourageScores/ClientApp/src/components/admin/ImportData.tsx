@@ -22,7 +22,7 @@ export function ImportData() {
         tables: []
     });
     const [response, setResponse] = useState<IClientActionResultDto<ImportDataResultDto>>(null);
-    const [saveError, setSaveError] = useState<any>(null);
+    const [saveError, setSaveError] = useState(null);
 
     useEffect(() => {
             if (!tables) {

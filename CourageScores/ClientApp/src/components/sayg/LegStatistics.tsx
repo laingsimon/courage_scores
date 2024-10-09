@@ -7,6 +7,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {LegCompetitorScoreDto} from "../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ILegStatisticsProps {
     leg: LegDto;
@@ -15,8 +16,8 @@ export interface ILegStatisticsProps {
     legNumber: number;
     singlePlayer?: boolean;
     oneDartAverage?: boolean;
-    onChangeLeg?(newLeg: LegDto): Promise<any>;
-    updateLegDisplayOptions(options: ILegDisplayOptions): Promise<any>;
+    onChangeLeg?(newLeg: LegDto): UntypedPromise;
+    updateLegDisplayOptions(options: ILegDisplayOptions): UntypedPromise;
     legDisplayOptions: ILegDisplayOptions;
 }
 

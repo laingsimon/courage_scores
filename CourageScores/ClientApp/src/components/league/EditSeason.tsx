@@ -8,13 +8,15 @@ import {useNavigate} from "react-router-dom";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {DivisionDataSeasonDto} from "../../interfaces/models/dtos/Division/DivisionDataSeasonDto";
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditSeasonProps {
-    onClose(): Promise<any>;
-    onSave(): Promise<any>;
-    setSaveError(error: any): Promise<any>;
+    onClose(): UntypedPromise;
+    onSave(): UntypedPromise;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    setSaveError(error: any): UntypedPromise;
     data: EditSeasonDto & DivisionDataSeasonDto;
-    onUpdateData(season: EditSeasonDto): Promise<any>;
+    onUpdateData(season: EditSeasonDto): UntypedPromise;
 }
 
 export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}: IEditSeasonProps) {
