@@ -13,26 +13,46 @@
     <meta content="https://couragescores.azurewebsites.net/social.png" property="og:image"/>
     <meta content="https://couragescores.azurewebsites.net/social.png" name="twitter:image"/>
     <meta content="summary_large_image" name="twitter:card"/>
-    <title>Courage Scores</title>
+    <title>The Courage League</title>
     <base href="/"/>
-    <link href="/layout.css" rel="stylesheet"/>
-    <link href="/manifest.json" rel="manifest">
-    <link href="/favicon.png" rel="shortcut icon">
-    <meta content="%VITE_APP_BRANCH%" name="build:branch"/>
-    <meta content="%VITE_APP_SHA%" name="build:sha"/>
-    <meta content="%VITE_APP_DATE%" name="build:date"/>
+    <link href="/dev/dev.css" rel="stylesheet"/>
+    <link href="layout.css" rel="stylesheet"/>
+    <script defer src="/static/js/bundle.js"></script>
+    <!-- Dynamic content end -->
+    <link href="/dev.css" rel="stylesheet"/>
 </head>
 <body class="darts-background">
 <noscript>
     You need to enable JavaScript to run this app.
 </noscript>
 <script>
-    function onError(message, source, lineno, colno, error) {
-        window.alert(`Some error occurred: ${message}\n${source}@${lineno}:${colno}\n${JSON.stringify(error)}`);
+    window.branding = {
+        name: 'Courage Scores',
+        email: 'info@couragescores.co.uk',
+        facebook: 'unset',
+        twitter: 'unset',
+        website: 'https://github.com/laingsimon/courage_scores',
+        custodians: [
+            'Simon Laing'
+        ],
+        menu: {
+            beforeDivisions: [{
+                text: 'Project page',
+                url: 'https://github.com/laingsimon/courage_scores',
+            }, {
+                text: 'Practice',
+                url: '/practice',
+            }],
+            afterDivisions: [{
+                text: 'Help',
+                url: 'https://github.com/laingsimon/courage_scores/wiki',
+            }, {
+                text: 'About',
+                url: '/about',
+            }]
+        }
     }
-    window.onerror = onError;
 </script>
 <div id="root"></div>
-<script type="module" src="/src/index.tsx"></script>
 </body>
 </html>
