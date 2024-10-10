@@ -68,4 +68,4 @@ jobs:
         id: bypass-npm-cve-warnings
         shell: bash
         run: |
-          echo "bypass-npm-cve-warnings=true" >> $GITHUB_OUTPUT
+          echo "bypass-npm-cve-warnings=false" >> $GITHUB_OUTPUT
