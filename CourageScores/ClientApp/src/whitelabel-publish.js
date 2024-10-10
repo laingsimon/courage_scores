@@ -25,11 +25,11 @@ function readContent(path, callback) {
     });
 }
 
-function replaceContent(path, replacement, callback) {
-    readContent(path, (content) => {
-        const newContent = content.replace(/<\/title>(.+)<\/head>/s, '</title>' + replacement + '</head>');
-        console.log('Writing whitelabel content to ' + path);
-        writeFile(path, newContent, callback);
+function insertBuiltContentIntoWhiteLabelIndex(whiteLabelFilePath, builtContent, callback) {
+    readContent(whiteLabelFilePath, (whiteLabelFileContent) => {
+        const whiteLabelAndBuiltContent = whiteLabelFileContent.replace(/<\/title>(.+)<\/head>/s, '</title>' + builtContent + '</head>');
+        console.log('Writing whitelabel content to ' + whiteLabelFilePath);
+        writeFile(whiteLabelFilePath, whiteLabelAndBuiltContent, callback);
     });
 }
 
@@ -50,8 +50,8 @@ function exhaustArray(array, itemCallback, completeCallback) {
     });
 }
 
-function getContentForReplacement(content) {
-    const result = content.match(/<\/title>(.+)<\/head>/s);
+function getBuiltContentToAddToWhiteLabelTemplates(builtHtmlContent) {
+    const result = builtHtmlContent.match(/<\/title>(.+)<\/head>/s);
     const fragment = result[1].replaceAll('>', '>\n');
     // console.log(`Built content: ${fragment}`);
     return fragment;
@@ -68,7 +68,7 @@ function removeCustomHeaderFromWebConfig(path, callback) {
 }
 
 readContent(contentPath + '/index.html', (content) => {
-    const segment = getContentForReplacement(content); // find the segment to replace in the other files
+    const builtContent = getBuiltContentToAddToWhiteLabelTemplates(content); // find the segment to replace in the other files
     const filesToCopyIntoBrand = ['layout.css', 'web.config', 'manifest.json', 'host.html', 'parentHeight.js'];
 
     readdir(contentPath, (_, fileOrDirectoryName) => {
@@ -88,9 +88,9 @@ readContent(contentPath + '/index.html', (content) => {
             console.log(`Replacing content in ${brandedPagePaths.length} files...`);
             exhaustArray(
                 brandedPagePaths,
-                (brandPath, callback) => replaceContent(
+                (brandPath, callback) => insertBuiltContentIntoWhiteLabelIndex(
                     brandPath + '/index.html',
-                    segment,
+                    builtContent,
                     () => exhaustArray(
                         filesToCopyIntoBrand,
                         (file, cb) => copyFile(brandPath, file, cb),
