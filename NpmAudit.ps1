@@ -3,7 +3,7 @@ $AuditCommentHeading = "npm audit report"
 $OutdatedCommentHeading = "npm outdated report"
 $BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
 
-Function Get-PullRequestComments($CommentHeading, [flag] $ExactMatch) 
+Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
@@ -108,12 +108,16 @@ Function Add-PullRequestComment($Markdown)
 
 Function Run-NpmCommand([string] $Command)
 {
+    $currentDirectory = (Get-Item .).FullName
+
     $processStartInfo = [System.Diagnostics.ProcessStartInfo]::new()
-    $processStartInfo.FileName = 'npm'
+    $processStartInfo.WorkingDirectory = $currentDirectory
+    $processStartInfo.CreateNoWindow = $true
+    $processStartInfo.FileName = $PathToNpm
     $processStartInfo.Arguments = $Command
     $processStartInfo.RedirectStandardOutput = $true
     $processStartInfo.RedirectStandardError = $true
-    $processStartInfo.UseShellExecute = $true
+    $processStartInfo.UseShellExecute = $false
     $process = [System.Diagnostics.Process]::new()
     $process.StartInfo = $processStartInfo
     $success = $process.Start()
@@ -126,9 +130,19 @@ Function Run-NpmCommand([string] $Command)
         output = $stdOut;
         error = $stdErr;
         exitCode = $exitCode;
+        workingDirectory = $processStartInfo.WorkingDirectory
+        path = $processStartInfo.FileName
     }
 }
 
+Function Get-PathToNpm()
+{
+    $npm = Get-Command "npm"
+    # Write-Message "Found npm command at $($npm.Path)"
+    return $npm.Path
+}
+
+$PathToNpm = Get-PathToNpm
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
 If ($RefName -ne $null)
@@ -147,16 +161,28 @@ Remove-ExistingComments $AuditComments
 Remove-ExistingComments $OutdatedComments
 
 $NpmAuditResult = Run-NpmCommand -Command "audit"
-Write-Output $NpmAuditResult.output
-Write-Error $NpmAuditResult.error
+If ($NpmAuditResult.output -ne "")
+{
+    Write-Output $NpmAuditResult.output
+}
+If ($NpmAuditResult.error -ne "")
+{
+    Write-Error $NpmAuditResult.error
+}
 If ($NpmAuditResult.ExitCode -ne 0)
 {
     Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($NpmAuditResult.output)`n`n$($NpmAuditResult.error)`n`nAdd comment to this PR with the content '$($BypassNpmAuditViaCommentCommentContent)' to bypass these vulnerabilities"
 }
 
 $NpmOutdatedResult = Run-NpmCommand -Command "outdated"
-Write-Output $NpmOutdatedResult.output
-Write-Error $NpmOutdatedResult.error
+If ($NpmOutdatedResult.output -ne "")
+{
+    Write-Output $NpmOutdatedResult.output
+}
+If ($NpmOutdatedResult.error -ne "")
+{
+    Write-Error $NpmOutdatedResult.error
+}
 If ($NpmOutdatedResult.ExitCode -ne 0)
 {
     Add-PullRequestComment "#### $($OutdatedCommentHeading)`n`n$($NpmOutdatedResult.output)`n`n$($NpmOutdatedResult.error)"
