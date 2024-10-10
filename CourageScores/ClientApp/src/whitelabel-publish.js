@@ -27,7 +27,7 @@ function readContent(path, callback) {
 
 function insertBuiltContentIntoWhiteLabelIndex(whiteLabelFilePath, builtContent, callback) {
     readContent(whiteLabelFilePath, (whiteLabelFileContent) => {
-        const whiteLabelAndBuiltContent = whiteLabelFileContent.replace(/<\/title>(.+)<\/head>/s, '</title>' + builtContent + '</head>');
+        const whiteLabelAndBuiltContent = whiteLabelFileContent.replace(/<\/title>(.+)<!-- Dynamic content end -->/s, '</title>' + builtContent);
         console.log('Writing whitelabel content to ' + whiteLabelFilePath);
         writeFile(whiteLabelFilePath, whiteLabelAndBuiltContent, callback);
     });
