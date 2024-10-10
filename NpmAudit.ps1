@@ -1,8 +1,9 @@
 param([string] $NpmAuditBypassCveWarnings)
 $AuditCommentHeading = "npm audit report"
 $OutdatedCommentHeading = "npm outdated report"
+$BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
 
-Function Get-PullRequestComments($CommentHeading) 
+Function Get-PullRequestComments($CommentHeading, [flag] $ExactMatch) 
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
@@ -28,6 +29,12 @@ Function Get-PullRequestComments($CommentHeading)
     }
 
     $Json = $Response | ConvertFrom-Json
+    if ($ExactMatch)
+    {
+        Return $Json `
+        | Where-Object { $_.body -eq $CommentHeading } `
+    }
+
     Return $Json `
         | Where-Object { $_.body -like "*$($CommentHeading)*" } `
 }
@@ -134,6 +141,7 @@ else
 }
 $Repo = $env:GITHUB_REPOSITORY
 $AuditComments = Get-PullRequestComments $AuditCommentHeading
+$BypassNpmAuditViaCommentComments = Get-PullRequestComments $BypassNpmAuditViaCommentCommentContent -ExactMatch
 $OutdatedComments = Get-PullRequestComments $OutdatedCommentHeading
 Remove-ExistingComments $AuditComments
 Remove-ExistingComments $OutdatedComments
@@ -143,7 +151,7 @@ Write-Output $NpmAuditResult.output
 Write-Error $NpmAuditResult.error
 If ($NpmAuditResult.ExitCode -ne 0)
 {
-    Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($NpmAuditResult.output)`n`n$($NpmAuditResult.error)"
+    Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($NpmAuditResult.output)`n`n$($NpmAuditResult.error)`n`nAdd comment to this PR with the content '$($BypassNpmAuditViaCommentCommentContent)' to bypass these vulnerabilities"
 }
 
 $NpmOutdatedResult = Run-NpmCommand -Command "outdated"
@@ -154,7 +162,10 @@ If ($NpmOutdatedResult.ExitCode -ne 0)
     Add-PullRequestComment "#### $($OutdatedCommentHeading)`n`n$($NpmOutdatedResult.output)`n`n$($NpmOutdatedResult.error)"
 }
 
-If ($NpmAuditBypassCveWarnings -eq "true")
+If ($NpmAuditBypassCveWarnings -eq "true" -or $BypassNpmAuditViaCommentComments.Length -gt 0)
 {
-    Exit $NpmAuditResult.exitCode
+    Write-Message "npm audit warnings have been bypassed by request"
+    Exit 0
 }
+
+Exit $NpmAuditResult.exitCode
