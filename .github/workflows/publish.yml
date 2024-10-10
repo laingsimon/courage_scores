@@ -15,9 +15,6 @@ on:
       commit-date:
         required: true
         type: string
-      bypass-npm-cve-warnings:
-        required: true
-        type: string
 permissions:
   pull-requests: write  
 jobs:
@@ -52,7 +49,7 @@ jobs:
 
       - name: Run npm audit
         shell: pwsh
-        run: ../../NpmAudit.ps1 -NpmAuditBypassCveWarnings ${{ inputs.bypass-npm-cve-warnings }}
+        run: ../../NpmAudit.ps1
         working-directory: ./CourageScores/ClientApp
         env:
           GITHUB_TOKEN: ${{ github.token }}

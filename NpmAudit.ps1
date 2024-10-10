@@ -1,4 +1,4 @@
-param([string] $NpmAuditBypassCveWarnings)
+param()
 $AuditCommentHeading = "npm audit report"
 $OutdatedCommentHeading = "npm outdated report"
 $BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
@@ -204,7 +204,7 @@ If ($NpmOutdatedResult.ExitCode -ne 0)
     Add-PullRequestComment "#### $($OutdatedCommentHeading)`n`n$(Format-NpmOutdatedContent -output $NpmOutdatedResult.output -error $NpmOutdatedResult.error)"
 }
 
-If ($NpmAuditResult.ExitCode -ne 0 -and ($NpmAuditBypassCveWarnings -eq "true" -or $BypassNpmAuditViaCommentComments.Length -gt 0))
+If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
 {
     Write-Message "npm audit warnings have been bypassed by request"
     Exit 0
