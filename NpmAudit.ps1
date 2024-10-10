@@ -1,8 +1,8 @@
 param([string] $NpmAuditBypassCveWarnings)
-$CommentHeading = "npm audit report"
+$AuditCommentHeading = "npm audit report"
+$OutdatedCommentHeading = "npm outdated report"
 
-
-Function Get-PullRequestComments() 
+Function Get-PullRequestComments($CommentHeading) 
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
@@ -53,7 +53,7 @@ Function Remove-ExistingComment($Comment)
     }
 }
 
-Function Remove-ExistingComments() 
+Function Remove-ExistingComments($Comments) 
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
     {
@@ -99,11 +99,11 @@ Function Add-PullRequestComment($Markdown)
     }
 }
 
-Function Run-NpmAudit()
+Function Run-NpmCommand([string] $Command)
 {
     $processStartInfo = [System.Diagnostics.ProcessStartInfo]::new()
     $processStartInfo.FileName = 'npm'
-    $processStartInfo.Arguments = 'audit'
+    $processStartInfo.Arguments = $Command
     $processStartInfo.RedirectStandardOutput = $true
     $processStartInfo.RedirectStandardError = $true
     $processStartInfo.UseShellExecute = $true
@@ -133,16 +133,25 @@ else
     $PullRequestNumber = ""
 }
 $Repo = $env:GITHUB_REPOSITORY
-$Comments = Get-PullRequestComments
-Remove-ExistingComments
+$AuditComments = Get-PullRequestComments $AuditCommentHeading
+$OutdatedComments = Get-PullRequestComments $OutdatedCommentHeading
+Remove-ExistingComments $AuditComments
+Remove-ExistingComments $OutdatedComments
 
-$NpmAuditResult = Run-NpmAudit
+$NpmAuditResult = Run-NpmCommand -Command "audit"
 Write-Output $NpmAuditResult.output
 Write-Error $NpmAuditResult.error
 If ($NpmAuditResult.ExitCode -ne 0)
 {
-    # add a comment to the PR if content isn't empty - must contain $CommentHeading
-    Add-PullRequestComment "#### $($CommentHeading)`n`n$($NpmAuditResult.output)`n`n$($NpmAuditResult.error)"
+    Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($NpmAuditResult.output)`n`n$($NpmAuditResult.error)"
+}
+
+$NpmOutdatedResult = Run-NpmCommand -Command "outdated"
+Write-Output $NpmOutdatedResult.output
+Write-Error $NpmOutdatedResult.error
+If ($NpmOutdatedResult.ExitCode -ne 0)
+{
+    Add-PullRequestComment "#### $($OutdatedCommentHeading)`n`n$($NpmOutdatedResult.output)`n`n$($NpmOutdatedResult.error)"
 }
 
 If ($NpmAuditBypassCveWarnings -eq "true")
