@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: dotnet publish
-        run: dotnet publish --configuration Release --property PublishDir=myapp --property NpmAuditBypassCveWarnings=${{ inputs.bypass-npm-cve-warnings }}
+        run: dotnet publish --configuration Release --property PublishDir=myapp
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
@@ -47,6 +47,12 @@ jobs:
         if: ${{ github.event.inputs.ignore_sizes != 'true' }}
         shell: pwsh
         run: ./BuildChecks.ps1 -ErrorThreshold 500 -Extension '.ts'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run npm audit
+        shell: pwsh
+        run: ./NpmAudit.ps1 -NpmAuditBypassCveWarnings ${{ inputs.bypass-npm-cve-warnings }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
