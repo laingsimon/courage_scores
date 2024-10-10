@@ -145,4 +145,7 @@ If ($NpmAuditResult.ExitCode -ne 0)
     Add-PullRequestComment "#### $($CommentHeading)`n`n$($NpmAuditResult.output)`n`n$($NpmAuditResult.error)"
 }
 
-Exit $NpmAuditResult.exitCode
+If ($NpmAuditBypassCveWarnings -eq "true")
+{
+    Exit $NpmAuditResult.exitCode
+}
