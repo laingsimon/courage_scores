@@ -56,8 +56,8 @@ jobs:
 
       - name: Setup whitelabel variants
         shell: pwsh
-        run: ./ClientApp/WhiteLabel-Publish.ps1 -PublishDir myapp/wwwroot
-        working-directory: ./CourageScores
+        run: ./WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot
+        working-directory: ./CourageScores/ClientApp
 
       - name: Publish react coverage
         uses: coverallsapp/github-action@v2
