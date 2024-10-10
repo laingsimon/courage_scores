@@ -13,14 +13,14 @@ Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch)
     }
 
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
-    Write-Message "Get pull-request comments"
+    Write-Message "Get pull-request comments - $($CommentHeading)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
+        -Method Get `
         -Headers @{
             Authorization="Bearer $($Token)";
-        } `
-        -Method Get `
+        }
 
     if ($Response.StatusCode -ne 200) 
     {
@@ -43,6 +43,13 @@ Function Remove-ExistingComment($Comment)
 {
     $CommentId = $Comment.id
     $Url = $Comment.url
+
+    if ($CommentId -eq "" -or $CommentId -eq $null)
+    {
+        Write-Error "Cannot delete comment, no id: $($Comment)"
+        Return
+    }
+
     Write-Message "Deleting comment '$($CommentId)'"
 
     $Response = Invoke-WebRequest `
@@ -68,8 +75,11 @@ Function Remove-ExistingComments($Comments)
         Return
     }
 
-    Write-Message "Remove existing comments: $($Comments.Count)"
-    $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
+    If ($Comments.Count -gt 0)
+    {
+        Write-Message "Remove existing comments: $($Comments.Count)"
+        $Comments | ForEach-Object { Remove-ExistingComment -Comment $_ }
+    }
 }
 
 Function Write-Message($Message)
@@ -142,6 +152,12 @@ Function Get-PathToNpm()
     return $npm.Path
 }
 
+Function Format-NpmOutdatedContent($output, $error)
+{
+    $GitHubMarkdownCodeBlock="``````"
+    return "$($GitHubMarkdownCodeBlock)plaintext`n$($output)`n$($error)`n$($GitHubMarkdownCodeBlock)"
+}
+
 $PathToNpm = Get-PathToNpm
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
@@ -154,11 +170,11 @@ else
     $PullRequestNumber = ""
 }
 $Repo = $env:GITHUB_REPOSITORY
-$AuditComments = Get-PullRequestComments $AuditCommentHeading
-$BypassNpmAuditViaCommentComments = Get-PullRequestComments $BypassNpmAuditViaCommentCommentContent -ExactMatch
-$OutdatedComments = Get-PullRequestComments $OutdatedCommentHeading
-Remove-ExistingComments $AuditComments
-Remove-ExistingComments $OutdatedComments
+$AuditComments = [array] (Get-PullRequestComments $AuditCommentHeading)
+$BypassNpmAuditViaCommentComments = [array] (Get-PullRequestComments $BypassNpmAuditViaCommentCommentContent -ExactMatch)
+Remove-ExistingComments -Comments $AuditComments
+$OutdatedComments = [array] (Get-PullRequestComments $OutdatedCommentHeading)
+Remove-ExistingComments -Comments $OutdatedComments
 
 $NpmAuditResult = Run-NpmCommand -Command "audit"
 If ($NpmAuditResult.output -ne "")
@@ -185,10 +201,10 @@ If ($NpmOutdatedResult.error -ne "")
 }
 If ($NpmOutdatedResult.ExitCode -ne 0)
 {
-    Add-PullRequestComment "#### $($OutdatedCommentHeading)`n`n$($NpmOutdatedResult.output)`n`n$($NpmOutdatedResult.error)"
+    Add-PullRequestComment "#### $($OutdatedCommentHeading)`n`n$(Format-NpmOutdatedContent -output $NpmOutdatedResult.output -error $NpmOutdatedResult.error)"
 }
 
-If ($NpmAuditBypassCveWarnings -eq "true" -or $BypassNpmAuditViaCommentComments.Length -gt 0)
+If ($NpmAuditResult.ExitCode -ne 0 -and ($NpmAuditBypassCveWarnings -eq "true" -or $BypassNpmAuditViaCommentComments.Length -gt 0))
 {
     Write-Message "npm audit warnings have been bypassed by request"
     Exit 0
