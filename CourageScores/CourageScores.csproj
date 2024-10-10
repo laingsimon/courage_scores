@@ -76,8 +76,4 @@
             </ResolvedFileToPublish>
         </ItemGroup>
     </Target>
-
-    <Target Name="RunWhitelabellingScript" AfterTargets="AfterPublish">
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm run postpublish $(ProjectDir) $(PublishDir)"/>
-    </Target>
 </Project>

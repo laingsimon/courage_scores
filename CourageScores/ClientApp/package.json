@@ -69,8 +69,7 @@
     "compile-ts": "tsc",
     "build": "tsc && vite build --emptyOutDir",
     "preview": "vite preview",
-    "test": "jest --runInBand --env=jsdom",
-    "postpublish": "node ./src/whitelabel-publish.js"
+    "test": "jest --runInBand --env=jsdom"
   },
   "eslintConfig": {
     "extends": [
