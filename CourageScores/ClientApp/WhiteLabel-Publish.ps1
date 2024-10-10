@@ -18,7 +18,11 @@ function Set-BuiltContent([string] $File, [string] $Content)
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
     $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "<\/title>(.+)<!-- Dynamic content end -->", "</title>$($Content)", $RegexSingleLine)
 
-    Write-Host "Writing whitelabel content to $($File)"
+    Write-Host "Writing " -NoNewline
+    Write-Host "whitelabel" -ForegroundColor Green -NoNewline
+    Write-Host " content to " -NoNewline
+    Write-Host "$([System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($File)))" -NoNewline -ForegroundColor Cyan
+    Write-Host "/$([System.IO.Path]::GetFileName($File))"
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
@@ -27,7 +31,11 @@ function Remove-CustomHeaderFromWebConfig([string] $File)
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
     $AllContent = [System.Text.RegularExpressions.Regex]::Replace($AllContent, "<customHeaders>(.+)<\/customHeaders>", "", $RegexSingleLine)
 
-    Write-Host "Writing updated web.config to $($File)"
+    Write-Host "Writing updated " -NoNewline
+    Write-Host "web.config" -ForegroundColor Green -NoNewline
+    Write-Host " to " -NoNewline
+    Write-Host "$([System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($File)))" -NoNewline -ForegroundColor Cyan
+    Write-Host "/$([System.IO.Path]::GetFileName($File))"
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
@@ -39,13 +47,17 @@ Get-ChildItem -Path "$BuildDir" -Directory `
     } `
     | ForEach-Object {
         $Directory = $_
-        Write-Host "Replacing content in $($Directory.Name)"
+        Write-Host "Replacing content in " -NoNewline
+        Write-Host -ForegroundColor Cyan "$($Directory.Name)"
 
         Set-BuiltContent -File "$($Directory.FullName)/index.html" -Content $BuiltContent
         $FilesToCopyIntoBrand | ForEach-Object {
             $FileToCopy = "$($WorkingDirectory)/public/$_"
 
-            Write-Host "Copying $($_) to $($Directory.Name)"
+            Write-Host "Copying " -NoNewline
+            Write-Host "$($_)" -ForegroundColor Green -NoNewline
+            Write-Host " to " -NoNewline
+            Write-Host -ForegroundColor Cyan "$($Directory.Name)"
             Copy-Item $FileToCopy "$($Directory.FullName)/$_"
         }
 
