@@ -82,4 +82,4 @@ jobs:
         with:
           name: JestTestResults
           path: './CourageScores/ClientApp/junit.xml'
-          if-no-files-found: error
+          if-no-files-found: ignore
