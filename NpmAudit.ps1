@@ -155,7 +155,31 @@ Function Get-PathToNpm()
 
 Function Format-NpmOutdatedContent($output, $error)
 {
-    return "$($GitHubMarkdownCodeBlock)plaintext`n$($output)`n$($error)`n$($GitHubMarkdownCodeBlock)"
+    $Formatted = "$($error)`n"
+    $Formatted = "$($Formatted)|Package|Current|Wanted|Latest|Location|DependedBy|`n"
+    $Formatted = "$($Formatted)|----|----|----|----|----|----|`n"
+
+    $output -split "`n" | ForEach-Object {
+        $line = $_
+        if ($line -ne "")
+        {
+            # replace windows drive letter prefixes to allow a split on :
+            $line = $line.Replace("C:\", "/c/")
+
+            $parts = $line -split ":"
+            $package=[System.IO.Path]::GetFileName($parts[0])
+            $current=$parts[1].Split("@")[1]
+            $wanted=$parts[2].Split("@")[1]
+            $latest=$parts[3].Split("@")[1]
+            $location=$parts[0].Substring([System.Math]::Max($parts[0].IndexOf("node_modules"), 0)).Replace("\", "/")
+            $dependedBy=$parts[4]
+
+            $FormattedLine = "|$($package)|$($current)|$($wanted)|$($latest)|$($location)|$($dependedBy)|"
+            $Formatted = "$($Formatted)$($FormattedLine)`n"
+        }
+    }
+
+    Return $Formatted
 }
 
 $PathToNpm = Get-PathToNpm
@@ -190,18 +214,10 @@ If ($NpmAuditResult.ExitCode -ne 0)
     Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`nAdd comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"
 }
 
-$NpmOutdatedResult = Run-NpmCommand -Command "outdated"
-If ($NpmOutdatedResult.output -ne "")
-{
-    Write-Output $NpmOutdatedResult.output
-}
-If ($NpmOutdatedResult.error -ne "")
-{
-    Write-Error $NpmOutdatedResult.error
-}
+$NpmOutdatedResult = Run-NpmCommand -Command "outdated --parseable"
 If ($NpmOutdatedResult.ExitCode -ne 0)
 {
-    Add-PullRequestComment "#### $($OutdatedCommentHeading)`n`n$(Format-NpmOutdatedContent -output $NpmOutdatedResult.output -error $NpmOutdatedResult.error)"
+    Add-PullRequestComment "#### $($OutdatedCommentHeading)`n$(Format-NpmOutdatedContent -output $NpmOutdatedResult.output -error $NpmOutdatedResult.error)"
 }
 
 If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
