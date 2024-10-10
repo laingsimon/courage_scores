@@ -1,9 +1,12 @@
+param($PublishDir)
 $FilesToCopyIntoBrand = "layout.css","web.config","manifest.json","host.html","parentHeight.js"
 $WorkingDirectory = (Get-Item .).FullName
 $RegexSingleLine=[System.Text.RegularExpressions.RegexOptions]::Singleline
+$BuildDir="$($WorkingDirectory)/$($PublishDir)"
 
 function Get-BuiltContent([string] $File)
 {
+    Write-Host "Getting built content from $($File)"
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
     $Match = [System.Text.RegularExpressions.Regex]::Match($AllContent, "<\/title>(.+)<\/head>", $RegexSingleLine)
     $BuiltContent = $Match.Groups[1].Value
@@ -28,8 +31,8 @@ function Remove-CustomHeaderFromWebConfig([string] $File)
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
-$BuiltContent = Get-BuiltContent -File "$($WorkingDirectory)/index.html"
-Get-ChildItem -Path "$($WorkingDirectory)/public" -Directory `
+$BuiltContent = Get-BuiltContent -File "$($BuildDir)/index.html"
+Get-ChildItem -Path "$BuildDir" -Directory `
     | Where-Object {
         $Directory = $_
         return [System.IO.File]::Exists("$($Directory.FullName)/index.html")
