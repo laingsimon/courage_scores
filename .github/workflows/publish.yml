@@ -54,6 +54,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: Setup whitelabel variants
+        shell: pwsh
+        run: ./WhiteLabel-Publish.ps1
+        working-directory: ./CourageScores/ClientApp
+
       - name: Publish react coverage
         uses: coverallsapp/github-action@v2
         with:
