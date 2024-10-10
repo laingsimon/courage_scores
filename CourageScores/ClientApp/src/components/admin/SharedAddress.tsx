@@ -1,13 +1,14 @@
 import React, {useState} from "react";
 import {stateChanged} from "../../helpers/events";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ISharedAddressProps {
     address: string[];
-    onUpdate(addresses: string[]): Promise<any>;
-    onDelete(): Promise<any>,
+    onUpdate(addresses: string[]): UntypedPromise;
+    onDelete(): UntypedPromise,
     className?: string;
     highlight?: string;
-    setHighlight(highlight?: string): Promise<any>;
+    setHighlight(highlight?: string): UntypedPromise;
 }
 
 export function SharedAddress({ address, onUpdate, onDelete, className, highlight, setHighlight }: ISharedAddressProps) {

@@ -23,14 +23,15 @@ import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournam
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {add180, addHiCheck} from "../common/Accolades";
 import {START_SCORING} from "./tournaments";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMatchSaygProps {
     round: TournamentRoundDto;
     match: TournamentMatchDto;
     matchIndex: number;
     matchOptions: GameMatchOptionDto;
-    onChange?(round: TournamentRoundDto): Promise<any>;
-    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): Promise<any>;
+    onChange?(round: TournamentRoundDto): UntypedPromise;
+    patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): UntypedPromise;
     readOnly?: boolean;
     showViewSayg?: boolean;
     firstPlayerStartsFinalLeg?: boolean;
@@ -48,8 +49,8 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
     const saygId: string = match.saygId;
     const scoreA: number = match.scoreA;
     const scoreB: number = match.scoreB;
-    const onHiCheck: (player: TournamentPlayerDto, score: number) => Promise<any> = addHiCheck(tournamentData, setTournamentData);
-    const on180: (player: TournamentPlayerDto) => Promise<any> = add180(tournamentData, setTournamentData);
+    const onHiCheck: (player: TournamentPlayerDto, score: number) => UntypedPromise = addHiCheck(tournamentData, setTournamentData);
+    const on180: (player: TournamentPlayerDto) => UntypedPromise = add180(tournamentData, setTournamentData);
 
     function changeDialogState(state: boolean) {
         setPreventScroll(state);

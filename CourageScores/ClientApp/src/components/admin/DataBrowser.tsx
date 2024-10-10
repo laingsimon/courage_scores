@@ -40,16 +40,16 @@ export function DataBrowser() {
 
         const value: string = search.get(name).toLowerCase().trim();
         if (typeof defaultValue === 'boolean') {
-            return (value === 'true' || value === '1') as any;
+            return (value === 'true' || value === '1') as T;
         }
         if (typeof defaultValue === 'number') {
             const numberValue = Number.parseInt(value);
             if (Number.isFinite(numberValue)) {
-                return numberValue as any;
+                return numberValue as T;
             }
         }
 
-        return value as any;
+        return value as T;
     }
 
     async function fetchData() {
@@ -110,6 +110,7 @@ export function DataBrowser() {
         navigate(`/admin/browser/?table=${table}${idQuery}`);
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function renderValue(value: any, depth: number) {
         if (typeof value === "string" && value.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
             return (<abbr title={value} onClick={() => window.alert(value)}>{renderDate(value)}</abbr>);
@@ -122,6 +123,7 @@ export function DataBrowser() {
         return value;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function shouldShowProperty(key: string, value: any, depth: number): boolean {
         if (key.startsWith('_')) {
             return false;

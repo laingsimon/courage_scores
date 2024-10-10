@@ -5,17 +5,18 @@ import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 import {any, distinct} from "../../helpers/collections";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateDivisionProps {
     divisionNo: number;
     division: DivisionTemplateDto;
-    onUpdate(update: DivisionTemplateDto): Promise<any>;
-    onCopyToDivision(destinationDivisionIndex: number): Promise<any>;
-    onDelete(): Promise<any>;
+    onUpdate(update: DivisionTemplateDto): UntypedPromise;
+    onCopyToDivision(destinationDivisionIndex: number): UntypedPromise;
+    onDelete(): UntypedPromise;
     templateSharedAddresses: string[];
     divisionCount: number;
     highlight?: string;
-    setHighlight(highlight?: string): Promise<any>;
+    setHighlight(highlight?: string): UntypedPromise;
 }
 
 export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, templateSharedAddresses, divisionCount, onCopyToDivision, highlight, setHighlight }: ITemplateDivisionProps) {
@@ -40,10 +41,10 @@ export function TemplateDivision({ divisionNo, division, onUpdate, onDelete, tem
             .filter((mnemonic: string) => !!mnemonic));
         const mnemonics: string[][] = [];
 
-        for (let mnemonic of allMnemonics) {
+        for (const mnemonic of allMnemonics) {
             let mnemonicsThatArePlayingAlwaysAtDifferentVenues: string[] = allMnemonics.filter((m: string) => !!m); // copy the array of all mnemonics
 
-            for (let date of division.dates) {
+            for (const date of division.dates) {
                 const mnemonicsThatAreAtHome: string[] = date.fixtures.map((f: FixtureTemplateDto) => f.home);
                 if (!any(mnemonicsThatAreAtHome, m => m === mnemonic)) {
                     continue;

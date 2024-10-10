@@ -1,5 +1,5 @@
-﻿function gfm() {
+﻿function remarkGfm() {
     return {};
 }
 
-export default gfm;
+export default remarkGfm;

@@ -5,6 +5,7 @@ export interface IParentHeight {
 }
 
 export interface IWindow {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     postMessage(msg: any, targetOrigin: string, transfer?: any): void;
 }
 

@@ -5,11 +5,12 @@ import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDrop
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {ActionResultDto} from "../../interfaces/models/dtos/ActionResultDto";
 import {TemplateDto} from "../../interfaces/models/dtos/Season/Creation/TemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPickTemplateProps {
     selectedTemplate: ActionResultDto<TemplateDto> | null;
     loading: boolean;
-    setSelectedTemplate(template: ActionResultDto<TemplateDto>): Promise<any>;
+    setSelectedTemplate(template: ActionResultDto<TemplateDto>): UntypedPromise;
     templates: IClientActionResultDto<ActionResultDto<TemplateDto>[]>;
 }
 
@@ -19,7 +20,7 @@ export function PickTemplate({ selectedTemplate, loading, setSelectedTemplate, t
         : [];
 
     function getTemplateOption(compatibility: ActionResultDto<TemplateDto>): IBootstrapDropdownItem {
-        let text = compatibility.success
+        const text = compatibility.success
             ? <div>{compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
             : <div>🚫 {compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
 

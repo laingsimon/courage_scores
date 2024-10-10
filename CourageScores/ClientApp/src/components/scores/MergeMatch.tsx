@@ -4,6 +4,7 @@ import {repeat} from "../../helpers/projection";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMergeMatchProps {
     readOnly?: boolean;
@@ -11,7 +12,7 @@ export interface IMergeMatchProps {
     matchIndex: number;
     homeSubmission?: GameDto;
     awaySubmission?: GameDto;
-    setFixtureData(newData: GameDto): Promise<any>;
+    setFixtureData(newData: GameDto): UntypedPromise;
     fixtureData: GameDto;
 }
 

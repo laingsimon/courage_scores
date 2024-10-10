@@ -5,6 +5,7 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {UserDto} from "../../interfaces/models/dtos/Identity/UserDto";
 import {IError} from "./IError";
 import {IBrowserType} from "./IBrowserType";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IApp {
     error?: IError;
@@ -17,13 +18,13 @@ export interface IApp {
     account?: UserDto | null;
     appLoading?: boolean;
     controls?: boolean;
-    reloadDivisions(): Promise<any>;
-    reloadAccount(): Promise<any>;
-    reloadAll(): Promise<any>;
-    reloadTeams(): Promise<any>;
-    reloadSeasons(): Promise<any>;
-    clearError(): Promise<any>;
-    invalidateCacheAndTryAgain(): Promise<any>;
+    reloadDivisions(): UntypedPromise;
+    reloadAccount(): UntypedPromise;
+    reloadAll(): UntypedPromise;
+    reloadTeams(): UntypedPromise;
+    reloadSeasons(): UntypedPromise;
+    clearError(): UntypedPromise;
+    invalidateCacheAndTryAgain(): UntypedPromise;
     build: IBuild;
     reportClientSideException: (err: any) => void;
     browser: IBrowserType;

@@ -16,6 +16,7 @@ import {seasonBuilder} from "./seasons";
 import {IDivisionDataContainerProps} from "../../components/league/DivisionDataContainer";
 import {tournamentBuilder} from "./tournaments";
 import {ReactNode} from "react";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IDivisionFixtureBuilder extends IAddableBuilder<IDatedDivisionFixtureDto> {
     withOtherFixtureUsingUsingAddress(name: string, id?: string, awayName?: string): IDivisionFixtureBuilder;
@@ -254,7 +255,7 @@ export interface IDivisionDataBuilder extends IAddableBuilder<DivisionDataDto & 
     superleague(): IDivisionDataBuilder;
 
     onReloadDivision(onReloadDivision: (preventReloadIfIdsAreTheSame?: boolean) => Promise<DivisionDataDto | null>): IDivisionDataBuilder;
-    setDivisionData(setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => Promise<any>): IDivisionDataBuilder;
+    setDivisionData(setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => UntypedPromise): IDivisionDataBuilder;
     children(children: ReactNode): IDivisionDataBuilder;
     favouritesEnabled(enabled?: boolean): IDivisionDataBuilder;
 }
@@ -319,7 +320,7 @@ export function divisionDataBuilder(divisionOrId?: any): IDivisionDataBuilder {
             divisionData.onReloadDivision = onReloadDivision;
             return builder;
         },
-        setDivisionData: (setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => Promise<any>) => {
+        setDivisionData: (setDivisionData: (value: (((prevState: DivisionDataDto) => DivisionDataDto) | DivisionDataDto)) => UntypedPromise) => {
             divisionData.setDivisionData = setDivisionData;
             return builder;
         },

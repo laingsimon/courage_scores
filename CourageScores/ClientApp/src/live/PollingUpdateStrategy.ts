@@ -10,6 +10,7 @@ import {WebSocketMode} from "./WebSocketMode";
 import {UpdatedDataDto} from "../interfaces/models/dtos/Live/UpdatedDataDto";
 import {IStrategyData} from "./IStrategyData";
 import {LiveDataType} from "../interfaces/models/dtos/Live/LiveDataType";
+import {IError} from "../components/common/IError";
 
 enum PollResult {
     Updated,
@@ -36,12 +37,13 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         this.refreshContext = props;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     async publish(props: IStrategyData, id: string, type: LiveDataType, data: any): Promise<IWebSocketContext | null> {
         await this.liveApi.postUpdate(id, type, data);
         return props.context;
     }
 
-    async unsubscribe(props: IStrategyData, _: string): Promise<IWebSocketContext> {
+    async unsubscribe(props: IStrategyData, /* eslint-disable @typescript-eslint/no-unused-vars */ _id: string): Promise<IWebSocketContext> {
         const anySubscriptions: boolean = any(Object.keys(props.subscriptions));
         if (anySubscriptions) {
             return props.context;
@@ -53,7 +55,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
         return newContext;
     }
 
-    async subscribe(props: IStrategyData, _: ISubscriptionRequest): Promise<IWebSocketContext | null> {
+    async subscribe(props: IStrategyData, /* eslint-disable @typescript-eslint/no-unused-vars */ _request: ISubscriptionRequest): Promise<IWebSocketContext | null> {
         if (props.context.pollingHandle) {
             return props.context;
         }
@@ -144,7 +146,7 @@ export class PollingUpdateStrategy implements IUpdateStrategy {
             });
             return PollResult.Error;
         } catch (e) {
-            const error = e as any;
+            const error: IError = e as IError;
 
             subscription.errorHandler({
                 message: error.message ? error.message : error,

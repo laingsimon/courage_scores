@@ -14,6 +14,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>$(NoWarn);1591</NoWarn>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <NpmAuditBypassCveWarnings>false</NpmAuditBypassCveWarnings>
     </PropertyGroup>
 
     <ItemGroup>
@@ -62,7 +63,6 @@
     <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
         <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm install --no-audit --no-fund"/>
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm audit --omit=dev"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --outDir $(ProjectDir)$(PublishDir)wwwroot"/>
         <Exec WorkingDirectory="$(SpaRoot)" Command="npm test -- --coverage --reporters=jest-junit --reporters=default" UseUtf8Encoding="Always"/>
 
@@ -75,9 +75,5 @@
                 <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
             </ResolvedFileToPublish>
         </ItemGroup>
-    </Target>
-
-    <Target Name="RunWhitelabellingScript" AfterTargets="AfterPublish">
-        <Exec WorkingDirectory="$(SpaRoot)" Command="npm run postpublish $(ProjectDir) $(PublishDir)"/>
     </Target>
 </Project>

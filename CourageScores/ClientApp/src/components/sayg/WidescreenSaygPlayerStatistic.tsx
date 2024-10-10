@@ -1,12 +1,13 @@
 import {sum} from "../../helpers/collections";
 import {ifNaN, round2dp} from "../../helpers/rendering";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IWidescreenSaygPlayerStatisticProps {
     legs: { [legKey: number]: LegDto };
     player: 'home' | 'away';
     oneDartAverage: boolean;
-    setOneDartAverage(newValue: boolean): Promise<any>;
+    setOneDartAverage(newValue: boolean): UntypedPromise;
 }
 
 export function WidescreenSaygPlayerStatistic({legs, player, oneDartAverage, setOneDartAverage }: IWidescreenSaygPlayerStatisticProps) {

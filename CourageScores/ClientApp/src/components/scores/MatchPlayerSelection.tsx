@@ -18,15 +18,16 @@ import {LiveContainer} from "../../live/LiveContainer";
 import {ILiveOptions} from "../../live/ILiveOptions";
 import {Link} from "react-router-dom";
 import {EditableSaygContainer} from "../sayg/EditableSaygContainer";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export const NEW_PLAYER: string = 'NEW_PLAYER';
 
 export interface IMatchPlayerSelectionProps {
     match: GameMatchDto;
-    onMatchChanged?(newMatch: GameMatchDto): Promise<any>;
-    onMatchOptionsChanged(newOptions: GameMatchOptionDto): Promise<any>;
-    on180(player: GamePlayerDto): Promise<any>;
-    onHiCheck(player: GamePlayerDto, score: number): Promise<any>;
+    onMatchChanged?(newMatch: GameMatchDto): UntypedPromise;
+    onMatchOptionsChanged(newOptions: GameMatchOptionDto): UntypedPromise;
+    on180(player: GamePlayerDto): UntypedPromise;
+    onHiCheck(player: GamePlayerDto, score: number): UntypedPromise;
 }
 
 export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}: IMatchPlayerSelectionProps) {

@@ -14,10 +14,11 @@ import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IDivisionControlsProps {
     originalSeasonData: DivisionDataSeasonDto;
-    onDivisionOrSeasonChanged?(preventReloadIfIdsAreTheSame?: boolean): Promise<any>;
+    onDivisionOrSeasonChanged?(preventReloadIfIdsAreTheSame?: boolean): UntypedPromise;
     originalDivisionData: DivisionDataDto;
     overrideMode?: string;
 }
@@ -29,7 +30,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
-    const [saveError, setSaveError] = useState<any | null>(null);
+    const [saveError, setSaveError] = useState(null);
     const [seasonData, setSeasonData] = useState<DivisionDataSeasonDto | null>(null);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
     const [divisionData, setDivisionData] = useState<DivisionDataDto | null>(null);
@@ -85,7 +86,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
                     }
                     setSeasonData(null);
                 }}
-                setSaveError={async (error: any) => setSaveError(error)}/>
+                setSaveError={async (error) => setSaveError(error)}/>
         </Dialog>);
     }
 
@@ -154,14 +155,16 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
         switch (navigateToMode) {
             case 'teams':
             case 'players':
-            case 'fixtures':
-                const params = new URLSearchParams(search);
+            case 'fixtures': {
+                const params: URLSearchParams = new URLSearchParams(search);
                 params.set('division', divisionName);
                 const newSearch: string = params.toString();
 
                 return `/${navigateToMode}/${seasonName}/${(newSearch ? '?' + newSearch : '')}`;
-            default:
+            }
+            default: {
                 return `/division/${divisionName}/${navigateToMode}/${seasonName}${search}`;
+            }
         }
     }
 

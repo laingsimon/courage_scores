@@ -14,6 +14,7 @@ import {ReactNode, useEffect} from "react";
 import {MessageType} from "../interfaces/models/dtos/MessageType";
 import {IPreferenceData, PreferencesContainer} from "../components/common/PreferencesContainer";
 import {Cookies, useCookies} from "react-cookie";
+import {UntypedPromise} from "../interfaces/UntypedPromise";
 
 /* istanbul ignore file */
 
@@ -81,7 +82,7 @@ export async function triggerMouseLeave(element: Element, ctrlDown: boolean) {
 
 export interface TestContext {
     container: HTMLElement;
-    cleanUp(): Promise<any>;
+    cleanUp(): UntypedPromise;
     user: UserEvent;
     cookies: Cookies;
 }
@@ -301,7 +302,7 @@ function ReplaceCookieOnLoad({ cookieName, cookieValue, children }) {
     return (<>{children}</>);
 }
 
-export async function cleanUp(context: TestContext): Promise<any> {
+export async function cleanUp(context: TestContext): UntypedPromise {
     if (context) {
         await context.cleanUp();
     }
@@ -349,6 +350,6 @@ export async function doSelectOption(container: Element | undefined | null, text
     await doClick(matchingItems[0]);
 }
 
-export async function noop(): Promise<any> {
+export async function noop(): UntypedPromise {
     // do nothing
 }

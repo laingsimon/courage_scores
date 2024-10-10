@@ -7,12 +7,13 @@ import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {ISelectablePlayer} from "../common/PlayerSelection";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IHiCheckAnd180sProps {
     access: string;
     saving: boolean;
     fixtureData: GameDto;
-    setFixtureData(newData: GameDto): Promise<any>;
+    setFixtureData(newData: GameDto): UntypedPromise;
 }
 
 export function HiCheckAnd180s({access, saving, fixtureData, setFixtureData}: IHiCheckAnd180sProps) {

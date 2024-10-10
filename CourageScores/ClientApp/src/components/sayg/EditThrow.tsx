@@ -1,5 +1,6 @@
 import {Dialog} from "../common/Dialog";
 import React from "react";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditThrowProps {
     score?: number;
@@ -9,9 +10,9 @@ export interface IEditThrowProps {
     competitor: 'home' | 'away';
     index: number;
     bust?: boolean;
-    onClose(): Promise<any>;
-    onChange(event: React.ChangeEvent<HTMLInputElement>): Promise<any>;
-    onSave(): Promise<any>;
+    onClose(): UntypedPromise;
+    onChange(event: React.ChangeEvent<HTMLInputElement>): UntypedPromise;
+    onSave(): UntypedPromise;
 }
 
 export function EditThrow({ score, noOfDarts, home, away, competitor, index, bust, onClose, onChange, onSave }: IEditThrowProps) {

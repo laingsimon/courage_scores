@@ -4,6 +4,7 @@ import {useApp} from "../components/common/AppContainer";
 import {ILive} from "./ILive";
 import {ILiveOptions} from "./ILiveOptions";
 import {ISubscriptionRequest} from "./ISubscriptionRequest";
+import {UntypedPromise} from "../interfaces/UntypedPromise";
 
 const LiveContext = createContext({});
 
@@ -13,7 +14,8 @@ export function useLive(): ILive {
 
 export interface ILiveContainerProps {
     children?: React.ReactNode;
-    onDataUpdate?(data: any): Promise<any>;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    onDataUpdate?(data: any): UntypedPromise;
     liveOptions: ILiveOptions;
 }
 
@@ -24,7 +26,7 @@ export function LiveContainer({children, onDataUpdate, liveOptions}: ILiveContai
 
     useEffect(() => {
         if (liveOptions && liveOptions.subscribeAtStartup) {
-            for (let request of liveOptions.subscribeAtStartup) {
+            for (const request of liveOptions.subscribeAtStartup) {
                 // noinspection JSIgnoredPromiseFromCall
                 enableLiveUpdates(true, request);
             }

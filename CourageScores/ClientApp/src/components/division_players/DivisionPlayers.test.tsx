@@ -120,6 +120,8 @@ describe('DivisionPlayers', () => {
             captain.singles.matchesPlayed = 0;
             captain.singles.matchesWon = 0;
             captain.singles.matchesLost = 0;
+            captain.over100Checkouts = 0;
+            captain.oneEighties = 0;
 
             await renderComponent(
                 {...divisionData, onReloadDivision, setDivisionData},
@@ -129,6 +131,48 @@ describe('DivisionPlayers', () => {
             const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
             expect(playersRows.length).toEqual(1);
             assertPlayer(playersRows[0], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
+        });
+
+        it('includes players who have not played a singles match but have 180', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
+            captain.singles.matchesPlayed = 0;
+            captain.singles.matchesWon = 0;
+            captain.singles.matchesLost = 0;
+            captain.oneEighties = 1;
+            captain.over100Checkouts = 0;
+
+            await renderComponent(
+                {...divisionData, onReloadDivision, setDivisionData},
+                {hideVenue: undefined, hideHeading: undefined});
+
+            reportedError.verifyNoError();
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
+            expect(playersRows.length).toEqual(2);
+            assertPlayer(playersRows[0], ['1', '🤴 A captain', 'A team', '0', '0', '0', '2', '3', '1', '0']);
+            assertPlayer(playersRows[1], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
+        });
+
+        it('includes players who have not played a singles match but have a hi-check', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
+            captain.singles.matchesPlayed = 0;
+            captain.singles.matchesWon = 0;
+            captain.singles.matchesLost = 0;
+            captain.oneEighties = 0;
+            captain.over100Checkouts = 1;
+
+            await renderComponent(
+                {...divisionData, onReloadDivision, setDivisionData},
+                {hideVenue: undefined, hideHeading: undefined});
+
+            reportedError.verifyNoError();
+            const playersRows = Array.from(context.container.querySelectorAll('.content-background table.table tbody tr')) as HTMLTableRowElement[];
+            expect(playersRows.length).toEqual(2);
+            assertPlayer(playersRows[0], ['1', '🤴 A captain', 'A team', '0', '0', '0', '2', '3', '0', '1']);
+            assertPlayer(playersRows[1], ['11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15']);
         });
 
         it('without heading', async () => {

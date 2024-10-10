@@ -26,6 +26,7 @@ import {DivisionDataFilter} from "../../interfaces/models/dtos/Division/Division
 import {ConfiguredFeatureDto} from "../../interfaces/models/dtos/ConfiguredFeatureDto";
 import {INVALID, useDivisionUri} from "./DivisionUriContainer";
 import {IIdish} from "./IDivisionUri";
+import {IError} from "../common/IError";
 
 export interface IRequestedDivisionDataDto extends DivisionDataDto, IFailedRequest {
     requested?: { divisionId: string[], seasonId: string };
@@ -149,7 +150,7 @@ export function Division() {
                 name: null,
                 status: 500,
                 errors: {
-                    Exception: (e as any).message,
+                    Exception: [ (e as IError).message ],
                 },
                 requested: {
                     divisionId: requestedDivisionIds,

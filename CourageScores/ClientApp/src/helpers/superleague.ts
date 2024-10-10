@@ -66,7 +66,7 @@ export function sumOverThrows(saygData: ScoreAsYouGoDto | null | undefined, accu
 export function maxNoOfThrowsAllMatches(saygMatches: ISuperleagueSayg[]) {
     let throws: number = 0;
 
-    for (let saygMatch of saygMatches) {
+    for (const saygMatch of saygMatches) {
         const saygData = saygMatch.saygData;
         if (!saygData || !saygData.legs) {
             continue;
@@ -86,7 +86,7 @@ export function getMatchWinner(saygData: ScoreAsYouGoDto) {
     let homeScore = 0;
     let awayScore = 0;
 
-    for (let legIndex in saygData.legs) {
+    for (const legIndex in saygData.legs) {
         const leg: LegDto = saygData.legs[legIndex];
         const startingScore = leg.startingScore;
         const homeWinner = sum(leg.home!.throws!, (thr: LegThrowDto) => thr.bust ? 0 : thr.score) === startingScore;

@@ -44,7 +44,7 @@ export function DivisionPlayers({hideVenue, hideHeading, players}: IDivisionPlay
                 </thead>
                 <tbody>
                 {playersToShow
-                    .filter(p => isAdmin || p.singles.matchesPlayed > 0)
+                    .filter(p => isAdmin || p.singles.matchesPlayed > 0 || p.oneEighties > 0 || p.over100Checkouts > 0)
                     .sort(sortBy('rank'))
                     .map(player => (<DivisionPlayer
                         key={player.id}

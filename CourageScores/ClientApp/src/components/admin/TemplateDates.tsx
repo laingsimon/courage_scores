@@ -3,17 +3,18 @@ import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/Date
 import {repeat} from "../../helpers/projection";
 import {any} from "../../helpers/collections";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateDatesProps {
     dates: DateTemplateDto[];
-    onUpdate(newDates: DateTemplateDto[]): Promise<any>;
-    onCopyToDivision(destinationDivisionIndex: number): Promise<any>;
+    onUpdate(newDates: DateTemplateDto[]): UntypedPromise;
+    onCopyToDivision(destinationDivisionIndex: number): UntypedPromise;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
     divisionNo: number;
     divisionCount: number;
     highlight?: string;
-    setHighlight(highlight?: string): Promise<any>;
+    setHighlight(highlight?: string): UntypedPromise;
 }
 
 export function TemplateDates({ dates, onUpdate, divisionSharedAddresses, templateSharedAddresses, divisionCount, divisionNo, onCopyToDivision, highlight, setHighlight }: ITemplateDatesProps) {

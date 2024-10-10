@@ -4,7 +4,6 @@
 export function createTemporaryId(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = Math.random() * 16 | 0;
-        // eslint-disable-next-line
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
@@ -13,8 +12,10 @@ export function createTemporaryId(): string {
 /*
 * Create a collection of items, containing the given number of items, provided by the given function
 * */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function repeat<T>(times: number, itemProvider?: (x: number) => T): any[] {
-    const items = [];
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const items: any[] = [];
     for (let index = 0; index < times; index++) {
         items.push(itemProvider ? itemProvider(index) : index);
     }

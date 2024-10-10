@@ -7,13 +7,14 @@ import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {Link} from "react-router-dom";
 import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IScoreCardHeadingProps {
     data: GameDto;
     access: string;
     submission?: string;
-    setSubmission(submissionToShow: string): Promise<any>;
-    setFixtureData(data: GameDto): Promise<any>;
+    setSubmission(submissionToShow: string): UntypedPromise;
+    setFixtureData(data: GameDto): UntypedPromise;
 }
 
 export function ScoreCardHeading({data, access, submission, setSubmission, setFixtureData}: IScoreCardHeadingProps) {

@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useState} from "react";
 import {IEditingThrow} from "./IEditingThrow";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 const EditableSaygContext = createContext({});
 
@@ -9,7 +10,7 @@ export function useEditableSayg(): IEditableSayg {
 
 export interface IEditableSayg {
     editScore?: IEditingThrow;
-    setEditScore(edit: IEditingThrow): Promise<any>;
+    setEditScore(edit: IEditingThrow): UntypedPromise;
 }
 
 export interface IEditableSaygContainerProps {

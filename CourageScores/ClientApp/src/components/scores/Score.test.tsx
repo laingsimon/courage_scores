@@ -584,7 +584,7 @@ describe('Score', () => {
             await renderComponent(fixture.id, appData);
             newPlayerApiResult = (createdPlayer) => {
                 const existingTeam = Object.assign({}, appData.teams.filter(t => t.id === createdPlayer.teamId)[0]);
-                for (let teamSeasonDto of existingTeam.seasons) {
+                for (const teamSeasonDto of existingTeam.seasons) {
                     teamSeasonDto.deleted = '2020-01-02T04:05:06Z'; // modify the team season so it is deleted
                 }
 
@@ -760,7 +760,7 @@ describe('Score', () => {
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
-            for (let match of fixtureData.homeSubmission.matches) {
+            for (const match of fixtureData.homeSubmission.matches) {
                 match.homeScore = 1;
                 match.awayScore = 1;
             }
@@ -788,7 +788,7 @@ describe('Score', () => {
             fixtureData.resultsPublished = true;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
-            for (let match of fixtureData.awaySubmission.matches) {
+            for (const match of fixtureData.awaySubmission.matches) {
                 match.homeScore = 2;
                 match.awayScore = 2;
             }
@@ -816,7 +816,7 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = getPlayedFixtureData(appData);
             fixtureData.awaySubmission = null;
-            for (let match of fixtureData.homeSubmission.matches) {
+            for (const match of fixtureData.homeSubmission.matches) {
                 match.homeScore = 1;
                 match.awayScore = 1;
             }
@@ -834,7 +834,7 @@ describe('Score', () => {
             fixtureData.resultsPublished = false;
             fixtureData.homeSubmission = null;
             fixtureData.awaySubmission = getPlayedFixtureData(appData);
-            for (let match of fixtureData.awaySubmission.matches) {
+            for (const match of fixtureData.awaySubmission.matches) {
                 match.homeScore = 1;
                 match.awayScore = 1;
             }

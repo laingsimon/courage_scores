@@ -15,7 +15,6 @@
     <meta content="summary_large_image" name="twitter:card"/>
     <title>Courage Scores</title>
     <base href="/"/>
-    <link href="/whitelabel.css" rel="stylesheet"/>
     <link href="/layout.css" rel="stylesheet"/>
     <link href="/manifest.json" rel="manifest">
     <link href="/favicon.png" rel="shortcut icon">
@@ -32,34 +31,6 @@
         window.alert(`Some error occurred: ${message}\n${source}@${lineno}:${colno}\n${JSON.stringify(error)}`);
     }
     window.onerror = onError;
-</script>
-<script>
-    window.branding = {
-        name: 'Courage Scores',
-        email: 'info@couragescores.co.uk',
-        facebook: 'unset',
-        twitter: 'unset',
-        website: 'https://github.com/laingsimon/courage_scores',
-        custodians: [
-            'Simon Laing'
-        ],
-        menu: {
-            beforeDivisions: [{
-                text: 'Project page',
-                url: 'https://github.com/laingsimon/courage_scores',
-            }, {
-                text: 'Practice',
-                url: '/practice',
-            }],
-            afterDivisions: [{
-                text: 'Help',
-                url: 'https://github.com/laingsimon/courage_scores/wiki',
-            }, {
-                text: 'About',
-                url: '/about',
-            }]
-        }
-    }
 </script>
 <div id="root"></div>
 <script type="module" src="/src/index.tsx"></script>

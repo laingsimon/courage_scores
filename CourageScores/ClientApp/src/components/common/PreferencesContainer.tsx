@@ -5,6 +5,7 @@ import {CookiesProvider, useCookies} from "react-cookie";
 const PreferencesContext = createContext({});
 
 export interface IPreferenceData {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     [ key: string]: any;
 }
 

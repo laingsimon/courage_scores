@@ -66,7 +66,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
 
     function processLiveStateChange(enabled: ISubscription) {
         if (enabled) {
-            for (let saygId in saygDataMap) {
+            for (const saygId in saygDataMap) {
                 if (!subscriptions[saygId]) {
                     // noinspection JSIgnoredPromiseFromCall
                     webSocket.subscribe({ id: saygId, type: LiveDataType.sayg }, (newSaygData: RecordedScoreAsYouGoDto) => {
@@ -81,7 +81,7 @@ export function SuperLeaguePrintout({division, patchData, readOnly}: ISuperLeagu
         }
 
         // foreach socket in saygSockets, close and remove it
-        for (let saygId in saygDataMap) {
+        for (const saygId in saygDataMap) {
             if (subscriptions[saygId]) {
                 // noinspection JSIgnoredPromiseFromCall
                 webSocket.unsubscribe(saygId);

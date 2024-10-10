@@ -14,6 +14,7 @@ import {ReportDto} from "../../interfaces/models/dtos/Report/ReportDto";
 import {ReportRequestDto} from "../../interfaces/models/dtos/Report/ReportRequestDto";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useBranding} from "../common/BrandingContainer";
+import {IServerSideError} from "../../interfaces/IServerSideError";
 
 export function DivisionReports() {
     const {id: divisionId, name, name: divisionName, season} = useDivisionData();
@@ -77,8 +78,8 @@ export function DivisionReports() {
                 if (!selectedReportExists) {
                     setActiveReport(result.reports[0].name);
                 }
-            } else if ((result as any).Exception) {
-                onError((result as any).Exception.Message);
+            } else if ((result as IServerSideError).Exception) {
+                onError((result as IServerSideError).Exception.Message);
             } else {
                 setActiveReport(null);
             }

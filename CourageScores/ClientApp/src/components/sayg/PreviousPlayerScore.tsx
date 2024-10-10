@@ -29,7 +29,6 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);
     },
-    // eslint-disable-next-line
     [maxThrows]);
 
     function getMaxThrows(homeThrows: LegThrowDto[], awayThrows: LegThrowDto[]) {

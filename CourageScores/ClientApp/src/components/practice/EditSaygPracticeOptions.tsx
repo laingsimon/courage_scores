@@ -39,7 +39,7 @@ export function EditSaygPracticeOptions() {
 
     async function updateQueryParameters(newSayg: UpdateRecordedScoreAsYouGoDto) {
         const newQuery: URLSearchParams = new URLSearchParams();
-        for (let entry of query.entries()) {
+        for (const entry of query.entries()) {
             newQuery.set(entry[0], entry[1]);
         }
         setQueryString(newQuery, 'yourName', newSayg.yourName);

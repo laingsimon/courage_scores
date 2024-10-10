@@ -1,10 +1,11 @@
 import {MouseEvent, useEffect} from "react";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface INumberKeyboardProps {
     value: string;
-    onChange: (newValue: string) => Promise<any>;
+    onChange: (newValue: string) => UntypedPromise;
     maxValue?: number;
-    onEnter: (value: string) => Promise<any>;
+    onEnter: (value: string) => UntypedPromise;
 }
 
 export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKeyboardProps) {
@@ -75,7 +76,7 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
         }
     }
 
-    function renderButton(buttonValue: number, className: string, handler: (event: MouseEvent<HTMLButtonElement>) => Promise<any>) {
+    function renderButton(buttonValue: number, className: string, handler: (event: MouseEvent<HTMLButtonElement>) => UntypedPromise) {
         let disabled: boolean = false;
         if (buttonValue === 0 && value === '0') {
             // don't allow leading 0's

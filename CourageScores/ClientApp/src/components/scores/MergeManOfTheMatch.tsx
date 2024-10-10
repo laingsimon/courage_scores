@@ -1,10 +1,11 @@
 import {useApp} from "../common/AppContainer";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMergeManOfTheMatchProps {
     data: GameDto;
-    setData(newData: GameDto): Promise<any>;
+    setData(newData: GameDto): UntypedPromise;
     allPlayers: TeamPlayerDto[];
 }
 

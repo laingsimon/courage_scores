@@ -516,7 +516,7 @@ describe('EditPlayerDetails', () => {
                             }
 
                             const newTeamSeason: TeamSeasonDto = Object.assign({}, ts);
-                            for (let p of cumulativeCreatedPlayers) {
+                            for (const p of cumulativeCreatedPlayers) {
                                 newTeamSeason.players = ts.players.concat(p as TeamPlayerDto);
                             }
                             return newTeamSeason;

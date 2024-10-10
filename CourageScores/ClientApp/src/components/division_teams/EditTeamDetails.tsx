@@ -9,12 +9,13 @@ import {TeamDto} from "../../interfaces/models/dtos/Team/TeamDto";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
 import {EditTeamDto} from "../../interfaces/models/dtos/Team/EditTeamDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditTeamDetailsProps {
     divisionId: string;
-    onSaved(team: TeamDto): Promise<any>;
-    onChange?(name: string, value: string): Promise<any>;
-    onCancel(): Promise<any>;
+    onSaved(team: TeamDto): UntypedPromise;
+    onChange?(name: string, value: string): UntypedPromise;
+    onCancel(): UntypedPromise;
     seasonId: string;
     team: EditTeamDto;
     lastUpdated?: string;
@@ -24,7 +25,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
     const {divisions, onError} = useApp();
     const {teamApi} = useDependencies();
     const [saving, setSaving] = useState<boolean>(false);
-    const [saveError, setSaveError] = useState<any>(null);
+    const [saveError, setSaveError] = useState(null);
     const divisionOptions: IBootstrapDropdownItem[] = divisions.map((division: DivisionDto) => {
         return {value: division.id, text: division.name};
     });

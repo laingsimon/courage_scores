@@ -230,9 +230,9 @@ export function Score() {
 
         const players: (ISelectablePlayer & IRenamedPlayer)[] = teamSeasons[seasonId].players.map((p: TeamPlayerDto) => p as ISelectablePlayer & IRenamedPlayer); // copy the players list
 
-        for (let match of matches) {
+        for (const match of matches) {
             const matchPlayers: ICaptainMatchPlayer[] = match[teamType + 'Players'];
-            for (let matchPlayer of matchPlayers) {
+            for (const matchPlayer of matchPlayers) {
                 const correspondingPlayer: TeamPlayerDto & ISelectablePlayer & IRenamedPlayer = players.filter((p: TeamPlayerDto & ISelectablePlayer & IRenamedPlayer) => p.id === matchPlayer.id)[0];
                 if (correspondingPlayer && correspondingPlayer.name !== matchPlayer.name && !correspondingPlayer.renamed) {
                     correspondingPlayer.name = `${correspondingPlayer.name} (nee ${matchPlayer.name})`;
@@ -283,7 +283,7 @@ export function Score() {
                 return;
             }
 
-            const failedRequest = (gameData as any) as IFailedRequest;
+            const failedRequest: IFailedRequest = gameData as IFailedRequest;
             if (failedRequest.status) {
                 /* istanbul ignore next */
                 console.log(gameData);
@@ -395,7 +395,7 @@ export function Score() {
 
     function renderMatchPlayerSelection(index: number, _: number, playerCount: number) {
         const matchesExceptIndex: GameMatchDto[] = fixtureData.matches.filter((_: GameMatchDto, matchIndex: number) => {
-            let matchOptions: GameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions, fixtureData.isKnockout))
+            const matchOptions: GameMatchOptionDto = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions, fixtureData.isKnockout))
 
             return matchIndex !== index && matchOptions.playerCount === playerCount;
         });

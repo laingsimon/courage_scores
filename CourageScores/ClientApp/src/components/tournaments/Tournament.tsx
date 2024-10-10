@@ -125,7 +125,7 @@ export function Tournament() {
                 if (fixtureDate) {
                     const tournamentFixtures: DivisionTournamentFixtureDetailsDto[] = fixtureDate.tournamentFixtures
                         .filter((f: DivisionTournamentFixtureDetailsDto) => !f.proposed && f.id !== tournamentData.id);
-                    for (let tournamentFixture of tournamentFixtures) {
+                    for (const tournamentFixture of tournamentFixtures) {
                         tournamentFixture.players.forEach((playerId: string) => {
                             tournamentPlayerMap[playerId] = tournamentFixture;
                         });
@@ -272,7 +272,7 @@ export function Tournament() {
     }
 
     function updateMatchOptions(round: TournamentRoundDto, numberOfLegs: number) {
-        for (let matchOptions of round.matchOptions) {
+        for (const matchOptions of round.matchOptions) {
             matchOptions.numberOfLegs = numberOfLegs;
         }
 

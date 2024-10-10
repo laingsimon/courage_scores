@@ -11,11 +11,12 @@ import {TeamPlayerDto} from "../../interfaces/models/dtos/Team/TeamPlayerDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditTeamPlayerDto} from "../../interfaces/models/dtos/Team/EditTeamPlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditPlayerDetailsProps {
-    onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): Promise<any>;
-    onChange(name: string, value: string): Promise<any>;
-    onCancel(): Promise<any>;
+    onSaved(team: TeamDto, newPlayers: TeamPlayerDto[] | null): UntypedPromise;
+    onChange(name: string, value: string): UntypedPromise;
+    onCancel(): UntypedPromise;
     seasonId: string;
     team?: { id: string };
     gameId?: string;
@@ -155,7 +156,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
 
         const results: ICreatedPlayerResponse[] = [];
         let success: boolean = true;
-        for (let playerDetails of multiPlayerDetails) {
+        for (const playerDetails of multiPlayerDetails) {
             const createForDivisionId: string = getDivisionIdForTeam();
             const response: ICreatedPlayerResponse = await playerApi.create(createForDivisionId, seasonId, player.teamId || team.id, playerDetails);
             results.push(response);

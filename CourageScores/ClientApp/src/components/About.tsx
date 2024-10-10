@@ -5,7 +5,6 @@ import {useBranding} from "./common/BrandingContainer";
 export function About() {
     const {build} = useApp();
     const {name, website, custodians} = useBranding();
-    const connection: { type?: ConnectionType } = (window.navigator.connection || {});
     const {setTitle} = useBranding();
 
     setTitle('About');
@@ -79,7 +78,6 @@ export function About() {
                     <span className="margin-right">
                         {window.navigator.onLine ? '▶' : '⏸'}
                     </span>
-                    {connection.type || 'unknown type'}
                 </td>
             </tr>
             <tr>

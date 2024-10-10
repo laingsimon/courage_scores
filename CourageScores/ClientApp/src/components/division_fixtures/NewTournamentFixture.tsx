@@ -18,11 +18,12 @@ import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSid
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {Dialog} from "../common/Dialog";
 import {stateChanged} from "../../helpers/events";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface INewTournamentFixtureProps {
     date: string,
     tournamentFixtures: DivisionTournamentFixtureDetailsDto[];
-    onTournamentChanged(): Promise<any>;
+    onTournamentChanged(): UntypedPromise;
 }
 
 export function NewTournamentFixture({date, tournamentFixtures, onTournamentChanged}: INewTournamentFixtureProps) {

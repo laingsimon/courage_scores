@@ -1,12 +1,13 @@
 import {ifNaN, round2dp} from "../../helpers/rendering";
 import {stateChanged} from "../../helpers/events";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMatchAverageProps {
     homeAverage: number;
     awayAverage: number;
     singlePlayer?: boolean;
     oneDartAverage?: boolean;
-    setOneDartAverage(onDartAverage: boolean): Promise<any>;
+    setOneDartAverage(onDartAverage: boolean): UntypedPromise;
 }
 
 export function MatchAverage({homeAverage, awayAverage, singlePlayer, oneDartAverage, setOneDartAverage}: IMatchAverageProps) {

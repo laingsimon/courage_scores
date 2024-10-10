@@ -3,16 +3,18 @@ import {useApp} from "../common/AppContainer";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IMergeHiCheckAnd180sProps {
     fixtureData: GameDto;
     data: GameDto;
-    setFixtureData(data: GameDto): Promise<any>;
+    setFixtureData(data: GameDto): UntypedPromise;
 }
 
 export function MergeHiCheckAnd180s({fixtureData, data, setFixtureData}: IMergeHiCheckAnd180sProps) {
     const {onError} = useApp();
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function getRecordsToMerge(team: string, record: string): any[] {
         const submission: GameDto = data[team + 'Submission'];
         if (!submission) {

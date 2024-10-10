@@ -8,9 +8,11 @@ import {IBrandingData} from "./components/common/IBrandingData";
 
 /* istanbul ignore file */
 
-// @ts-ignore
+interface IConfiguredPage {
+    branding?: IBrandingData;
+}
+
 const baseUrl: string = document.getElementsByTagName('base')[0].getAttribute('href');
-// @ts-ignore
 const rootElement: HTMLElement = document.getElementById('root');
 const root = createRoot(rootElement);
 const search: string = document.location.search;
@@ -18,8 +20,11 @@ const hash: string = document.location.hash;
 const embed: boolean = search.indexOf('embed=true') !== -1 || hash.indexOf('embed=true') !== -1;
 const controls: boolean = (search.indexOf('controls=') === -1 || search.indexOf('controls=true') !== -1)
     && (hash.indexOf('controls=') === -1 || hash.indexOf('controls=true') !== -1);
-// noinspection JSUnresolvedReference
-const branding: IBrandingData = (window as any).branding || {};
+const configuredPage: IConfiguredPage = window as IConfiguredPage;
+const branding: IBrandingData = configuredPage.branding || {
+    name: 'unknown',
+    menu: null,
+};
 const noServices: IIocContainerProps = null;
 
 root.render(

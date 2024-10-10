@@ -1,9 +1,10 @@
 import {NumberKeyboard} from "../common/NumberKeyboard";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IPlayerInputProps {
     score: string;
-    setScore(score: string): Promise<any>;
-    handleScore(score: string): Promise<any>;
+    setScore(score: string): UntypedPromise;
+    handleScore(score: string): UntypedPromise;
 }
 
 export function PlayerInput({score, handleScore, setScore}: IPlayerInputProps) {

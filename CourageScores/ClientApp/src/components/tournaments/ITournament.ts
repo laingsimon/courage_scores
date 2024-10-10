@@ -4,20 +4,21 @@ import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOpt
 import {ITournamentPlayerMap} from "./Tournament";
 import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {ISelectablePlayer} from "../common/PlayerSelection";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournament {
     tournamentData: TournamentGameDto;
-    setTournamentData?(newData: TournamentGameDto): Promise<any>;
+    setTournamentData?(newData: TournamentGameDto): UntypedPromise;
     season?: SeasonDto;
     division?: DivisionDto;
     alreadyPlaying?: ITournamentPlayerMap;
     allPlayers?: ISelectablePlayer[];
     saveTournament?(preventLoading?: boolean): Promise<TournamentGameDto>;
-    setWarnBeforeEditDialogClose?(warning: string): Promise<any>;
+    setWarnBeforeEditDialogClose?(warning: string): UntypedPromise;
     matchOptionDefaults?: GameMatchOptionDto;
     saving?: boolean;
     editTournament?: string;
-    setEditTournament?(edit: string): Promise<any>;
+    setEditTournament?(edit: string): UntypedPromise;
     preventScroll: boolean;
     setPreventScroll(prevent: boolean): void;
 }

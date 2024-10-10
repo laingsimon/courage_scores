@@ -11,10 +11,11 @@ import {useApp} from "../common/AppContainer";
 import {TournamentGameDto} from "../../interfaces/models/dtos/Game/TournamentGameDto";
 import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITournamentDetailsProps {
     tournamentData: TournamentGameDto;
-    setTournamentData(data: TournamentGameDto): Promise<any>;
+    setTournamentData(data: TournamentGameDto): UntypedPromise;
     disabled?: boolean;
 }
 
@@ -45,7 +46,7 @@ export function TournamentDetails({ tournamentData, disabled, setTournamentData 
             exportRequest.division = [tournamentData.divisionId];
         }
 
-        for (let side of tournamentData.sides) {
+        for (const side of tournamentData.sides) {
             if (side.teamId) {
                 teamIds = teamIds.concat([side.teamId]);
             } else if (any(side.players || [])) {

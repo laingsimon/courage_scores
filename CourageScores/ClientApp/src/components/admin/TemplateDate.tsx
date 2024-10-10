@@ -3,18 +3,19 @@ import {any} from "../../helpers/collections";
 import {valueChanged} from "../../helpers/events";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateDateProps {
     date: DateTemplateDto;
-    onUpdate(newDate: DateTemplateDto): Promise<any>;
-    onDelete(): Promise<any>;
+    onUpdate(newDate: DateTemplateDto): UntypedPromise;
+    onDelete(): UntypedPromise;
     divisionSharedAddresses: string[];
     templateSharedAddresses: string[];
-    moveEarlier?(): Promise<any>;
-    moveLater?(): Promise<any>;
+    moveEarlier?(): UntypedPromise;
+    moveLater?(): UntypedPromise;
     highlight?: string;
-    setHighlight(highlight?: string): Promise<any>;
-    deleteDates(mnemonic: string): Promise<any>;
+    setHighlight(highlight?: string): UntypedPromise;
+    deleteDates(mnemonic: string): UntypedPromise;
 }
 
 export function TemplateDate({ date, onUpdate, onDelete, divisionSharedAddresses, templateSharedAddresses, moveEarlier, moveLater, highlight, setHighlight, deleteDates }: ITemplateDateProps) {

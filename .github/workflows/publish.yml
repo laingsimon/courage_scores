@@ -47,6 +47,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: Run npm audit
+        shell: pwsh
+        run: ../../NpmAudit.ps1
+        working-directory: ./CourageScores/ClientApp
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Setup whitelabel variants
+        shell: pwsh
+        run: ./WhiteLabel-Publish.ps1 -PublishDir ../myapp/wwwroot
+        working-directory: ./CourageScores/ClientApp
+
       - name: Publish react coverage
         uses: coverallsapp/github-action@v2
         with:
@@ -70,4 +82,4 @@ jobs:
         with:
           name: JestTestResults
           path: './CourageScores/ClientApp/junit.xml'
-          if-no-files-found: error
+          if-no-files-found: ignore

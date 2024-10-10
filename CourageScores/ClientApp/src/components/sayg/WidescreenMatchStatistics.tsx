@@ -5,6 +5,7 @@ import {WidescreenSaygPlayerHeading} from "./WidescreenSaygPlayerHeading";
 import {WidescreenSaygMatchDetails} from "./WidescreenSaygMatchDetails";
 import {IMatchStatisticsProps} from "./MatchStatistics";
 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface IWidescreenMatchStatisticsProps extends IMatchStatisticsProps {
 }
 

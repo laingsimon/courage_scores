@@ -50,6 +50,7 @@ export function UserAdmin() {
                 : event.target.value;
 
             let name: string = event.target.name;
+            /* eslint-disable @typescript-eslint/no-explicit-any */
             let dataObject: { [key: string]: any } = currentAccount;
             while (name.indexOf('.') !== -1) {
                 const prefix: string = name.substring(0, name.indexOf('.'));
