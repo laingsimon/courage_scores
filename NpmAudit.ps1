@@ -2,6 +2,7 @@ param()
 $AuditCommentHeading = "npm audit report"
 $OutdatedCommentHeading = "npm outdated report"
 $BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
+$GitHubMarkdownCodeBlock="``````"
 
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
@@ -154,7 +155,6 @@ Function Get-PathToNpm()
 
 Function Format-NpmOutdatedContent($output, $error)
 {
-    $GitHubMarkdownCodeBlock="``````"
     return "$($GitHubMarkdownCodeBlock)plaintext`n$($output)`n$($error)`n$($GitHubMarkdownCodeBlock)"
 }
 
@@ -187,7 +187,7 @@ If ($NpmAuditResult.error -ne "")
 }
 If ($NpmAuditResult.ExitCode -ne 0)
 {
-    Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($NpmAuditResult.output)`n`n$($NpmAuditResult.error)`n`nAdd comment to this PR with the content '$($BypassNpmAuditViaCommentCommentContent)' to bypass these vulnerabilities"
+    Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`nAdd comment to this PR with the content **$($BypassNpmAuditViaCommentCommentContent)** to bypass these vulnerabilities when the workflow runs next"
 }
 
 $NpmOutdatedResult = Run-NpmCommand -Command "outdated"
