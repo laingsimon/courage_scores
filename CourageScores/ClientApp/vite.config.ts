@@ -16,7 +16,6 @@ export default defineConfig({
         mkcert(),
         eslint({
             emitWarningAsError: true,
-
         }),
         legacy({}),
         circleDependency({

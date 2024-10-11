@@ -33,6 +33,7 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {ISubscriptionRequest} from "../../live/ISubscriptionRequest";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {MessageType} from "../../interfaces/models/dtos/MessageType";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 describe('SaygLoadingContainer', () => {
     let context: TestContext;
@@ -421,7 +422,7 @@ describe('SaygLoadingContainer', () => {
 
     describe('live updates', () => {
         it('given sayg, when enabling, creates a socket', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -459,7 +460,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given error live message type, shows error', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -508,7 +509,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given update live message type, updates sayg data', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             let renderedData: UpdateRecordedScoreAsYouGoDto;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
@@ -566,7 +567,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given no socket, when disabling, does nothing', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -597,7 +598,7 @@ describe('SaygLoadingContainer', () => {
         });
 
         it('given an open socket, when disabling, closes socket', async () => {
-            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => Promise<any>;
+            let enableLiveUpdates: (enabled: boolean, request: ISubscriptionRequest) => UntypedPromise;
             const saygData: RecordedScoreAsYouGoDto = saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
@@ -643,7 +644,7 @@ describe('SaygLoadingContainer', () => {
         sayg: ILoadedScoreAsYouGoDto,
         setSayg(newData: ILoadedScoreAsYouGoDto): Promise<ILoadedScoreAsYouGoDto>,
         saveDataAndGetId(useData?: ILoadedScoreAsYouGoDto): Promise<string>,
-        enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest): Promise<any>,
+        enableLiveUpdates(enabled: boolean, request: ISubscriptionRequest): UntypedPromise,
         subscriptions: ISubscriptions,
         liveOptions: ILiveOptions
     }

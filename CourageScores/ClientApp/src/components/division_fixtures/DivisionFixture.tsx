@@ -19,13 +19,14 @@ import {TeamSeasonDto} from "../../interfaces/models/dtos/Team/TeamSeasonDto";
 import {usePreferences} from "../common/PreferencesContainer";
 import {ToggleFavouriteTeam} from "../common/ToggleFavouriteTeam";
 import {DivisionDto} from "../../interfaces/models/dtos/DivisionDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IDivisionFixtureProps {
     fixture: IEditableDivisionFixtureDto;
     date: string;
     readOnly?: boolean;
-    onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): Promise<any>;
-    beforeReloadDivision?(): Promise<any>;
+    onUpdateFixtures(adaptFixtures: (currentFixtureDates: IEditableDivisionFixtureDateDto[]) => DivisionFixtureDateDto[]): UntypedPromise;
+    beforeReloadDivision?(): UntypedPromise;
 }
 
 export interface IEditableDivisionFixtureDto extends DivisionFixtureDto {
@@ -87,13 +88,13 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     function getUnavailableReason(t: DivisionTeamDto): string {
-        let otherFixtureSameDate: DivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
+        const otherFixtureSameDate: DivisionFixtureDto = isSelectedInAnotherFixtureOnThisDate(t);
         if (otherFixtureSameDate) {
             return otherFixtureSameDate.awayTeam.id === t.id
                 ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
                 : `Already playing against ${otherFixtureSameDate.awayTeam.name}`;
         }
-        let sameFixtureDifferentDate: string = isSelectedInSameFixtureOnAnotherDate(t);
+        const sameFixtureDifferentDate: string = isSelectedInSameFixtureOnAnotherDate(t);
         if (sameFixtureDifferentDate) {
             return `Already playing same leg on ${renderDate(sameFixtureDifferentDate)}`;
         }

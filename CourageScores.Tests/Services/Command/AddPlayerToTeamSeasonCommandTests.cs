@@ -143,7 +143,7 @@ public class AddPlayerToTeamSeasonCommandTests
 
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
         _addSeasonToTeamCommand.Verify(c => c.ApplyUpdate(_team, _token));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 
@@ -294,7 +294,7 @@ public class AddPlayerToTeamSeasonCommandTests
         Assert.That(teamPlayer.Captain, Is.True);
         Assert.That(teamPlayer.EmailAddress, Is.EqualTo("the_captain@america.com"));
         _auditingHelper.Verify(h => h.SetUpdated(teamPlayer, _token));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 
@@ -323,7 +323,7 @@ public class AddPlayerToTeamSeasonCommandTests
         Assert.That(teamPlayer.Captain, Is.True);
         Assert.That(teamPlayer.EmailAddress, Is.EqualTo("the_captain@america.com"));
         _auditingHelper.Verify(h => h.SetUpdated(teamPlayer, _token));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 }

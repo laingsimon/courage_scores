@@ -3,18 +3,19 @@ import {IError} from "../components/common/IError";
 import {ErrorDetailDto} from "../interfaces/models/dtos/ErrorDetailDto";
 import {createTemporaryId} from "./projection";
 
-export function mapError(error: any): IError {
-    if (error.stack) {
+export function mapError(error: string | IError): IError {
+    const errorObject: IError = error as IError;
+    if (errorObject.stack) {
         console.error(error);
     }
-    if (error.message) {
-        return {message: error.message, stack: error.stack};
+    if (errorObject.message) {
+        return {message: errorObject.message, stack: errorObject.stack};
     }
 
-    return {message: error};
+    return {message: error as string};
 }
 
-export function mapForLogging(error: any, account?: UserDto): ErrorDetailDto {
+export function mapForLogging(error: IError, account?: UserDto): ErrorDetailDto {
     // noinspection JSUnresolvedReference
     const userAgent = window.navigator.userAgent;
 

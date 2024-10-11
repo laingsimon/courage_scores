@@ -9,12 +9,13 @@ import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {EditFixtureDateNoteDto} from "../../interfaces/models/dtos/EditFixtureDateNoteDto";
 import {FixtureDateNoteDto} from "../../interfaces/models/dtos/FixtureDateNoteDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditNoteProps {
     note: EditFixtureDateNoteDto;
-    onNoteChanged(newNote: FixtureDateNoteDto): Promise<any>;
-    onClose(): Promise<any>;
-    onSaved?(): Promise<any>;
+    onNoteChanged(newNote: FixtureDateNoteDto): UntypedPromise;
+    onClose(): UntypedPromise;
+    onSaved?(): UntypedPromise;
 }
 
 export function EditNote({note, onNoteChanged, onClose, onSaved}: IEditNoteProps) {

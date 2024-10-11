@@ -1,4 +1,5 @@
 import {BootstrapDropdown, IBootstrapDropdownItem} from "./BootstrapDropdown";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ISelectablePlayer {
     id: string;
@@ -9,7 +10,7 @@ export interface IPlayerSelectionProps {
     players: ISelectablePlayer[];
     disabled?: boolean;
     selected?: { id: string };
-    onChange?(element: Element, selected: ISelectablePlayer): Promise<any>;
+    onChange?(element: Element, selected: ISelectablePlayer): UntypedPromise;
     except?: string[];
     readOnly?: boolean;
     className?: string;

@@ -5,10 +5,11 @@ import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IEditFeatureProps {
     feature: ConfiguredFeatureDto;
-    onChanged: () => Promise<any>;
+    onChanged: () => UntypedPromise;
 }
 
 export function EditFeature({ feature, onChanged }: IEditFeatureProps) {

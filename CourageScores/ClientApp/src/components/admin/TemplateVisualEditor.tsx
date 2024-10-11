@@ -3,10 +3,11 @@ import {TemplateDivisions} from "./TemplateDivisions";
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
 import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 import {useState} from "react";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateVisualEditorProps {
     template: EditTemplateDto;
-    onUpdate(template: EditTemplateDto): Promise<any>;
+    onUpdate(template: EditTemplateDto): UntypedPromise;
 }
 
 export function TemplateVisualEditor({ template, onUpdate }: ITemplateVisualEditorProps) {

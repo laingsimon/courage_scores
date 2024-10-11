@@ -4,12 +4,13 @@ import {useApp} from "../common/AppContainer";
 import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {GameMatchDto} from "../../interfaces/models/dtos/Game/GameMatchDto";
 import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IManOfTheMatchInputProps {
     fixtureData: GameDto;
     access: string;
     saving: boolean;
-    setFixtureData(newData: GameDto): Promise<any>;
+    setFixtureData(newData: GameDto): UntypedPromise;
     disabled?: boolean;
 }
 

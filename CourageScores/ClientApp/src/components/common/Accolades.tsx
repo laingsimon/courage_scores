@@ -2,13 +2,15 @@ import {GamePlayerDto} from "../../interfaces/models/dtos/Game/GamePlayerDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
 import {NotablePlayerDto} from "../../interfaces/models/dtos/Game/NotablePlayerDto";
 import {NotableTournamentPlayerDto} from "../../interfaces/models/dtos/Game/NotableTournamentPlayerDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IAccoladeFixtureData {
     oneEighties?: (GamePlayerDto | TournamentPlayerDto)[];
     over100Checkouts?: (NotablePlayerDto | NotableTournamentPlayerDto)[];
 }
 
-export function add180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto) => Promise<any> {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function add180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto) => UntypedPromise {
     return async (player: GamePlayerDto | TournamentPlayerDto) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
@@ -25,7 +27,8 @@ export function add180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtur
     }
 }
 
-export function remove180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (playerId: string, index: number) => Promise<any> {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function remove180<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (playerId: string, index: number) => UntypedPromise {
     return async (_: string, index: number) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
@@ -35,7 +38,8 @@ export function remove180<T extends IAccoladeFixtureData>(fixtureData: T, setFix
     }
 }
 
-export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto, score: number) => Promise<any> {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (player: NotablePlayerDto | NotableTournamentPlayerDto, score: number) => UntypedPromise {
     return async (player: NotablePlayerDto | NotableTournamentPlayerDto, score: number) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 
@@ -53,7 +57,8 @@ export function addHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFi
     }
 }
 
-export function removeHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (playerId: string, index: number) => Promise<any> {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function removeHiCheck<T extends IAccoladeFixtureData>(fixtureData: T, setFixtureData: (newData: T) => any): (playerId: string, index: number) => UntypedPromise {
     return async (_: string, index: number) => {
         const newFixtureData: T = Object.assign({}, fixtureData);
 

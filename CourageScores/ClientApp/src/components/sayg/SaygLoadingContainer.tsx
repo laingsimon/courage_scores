@@ -13,6 +13,7 @@ import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {EditableSaygContainer} from "./EditableSaygContainer";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 const SaygContext = createContext({});
 
@@ -25,10 +26,10 @@ export interface ISaygLoadingContainerProps {
     id: string;
     defaultData?: ILoadedScoreAsYouGoDto;
     autoSave?: boolean;
-    on180?(sideName: string): Promise<any>;
-    onHiCheck?(sideName: string, score: number): Promise<any>;
-    onSaved?(data: ILoadedScoreAsYouGoDto): Promise<any>;
-    onLoadError?(error: string): Promise<any>;
+    on180?(sideName: string): UntypedPromise;
+    onHiCheck?(sideName: string, score: number): UntypedPromise;
+    onSaved?(data: ILoadedScoreAsYouGoDto): UntypedPromise;
+    onLoadError?(error: string): UntypedPromise;
     liveOptions: ILiveOptions;
     matchStatisticsOnly?: boolean;
     lastLegDisplayOptions?: ILegDisplayOptions;
@@ -36,7 +37,7 @@ export interface ISaygLoadingContainerProps {
     firstPlayerStartsFirstLeg?: boolean;
 
     // for testing only
-    onScoreChange?(homeScore: number, awayScore: number): Promise<any>;
+    onScoreChange?(homeScore: number, awayScore: number): UntypedPromise;
 }
 
 export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {

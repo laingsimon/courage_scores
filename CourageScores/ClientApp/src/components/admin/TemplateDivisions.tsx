@@ -2,13 +2,14 @@ import {TemplateDivision} from "./TemplateDivision";
 import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DivisionTemplateDto";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateDivisionsProps {
     divisions: DivisionTemplateDto[];
-    onUpdate(a: DivisionTemplateDto[]): Promise<any>;
+    onUpdate(a: DivisionTemplateDto[]): UntypedPromise;
     templateSharedAddresses: string[];
     highlight?: string;
-    setHighlight(highlight?: string): Promise<any>;
+    setHighlight(highlight?: string): UntypedPromise;
 }
 
 export function TemplateDivisions({ divisions, onUpdate, templateSharedAddresses, highlight, setHighlight }: ITemplateDivisionsProps) {

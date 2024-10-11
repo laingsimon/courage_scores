@@ -1,11 +1,12 @@
 import {SharedAddress} from "./SharedAddress";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ISharedAddressesProps {
     addresses: string[][];
-    onUpdate(addresses: string[][]): Promise<any>;
+    onUpdate(addresses: string[][]): UntypedPromise;
     className: string;
     highlight?: string;
-    setHighlight(highlight?: string): Promise<any>;
+    setHighlight(highlight?: string): UntypedPromise;
     mnemonicsThatCanShareAddresses?: string[][];
 }
 

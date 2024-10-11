@@ -7,7 +7,7 @@ import {
     brandingProps,
     appProps,
     ErrorState,
-    TestContext
+    TestContext, noop
 } from "../../helpers/tests";
 import {ITemplateTextEditorProps, TemplateTextEditor} from "./TemplateTextEditor";
 import {createTemporaryId} from "../../helpers/projection";
@@ -70,6 +70,7 @@ describe('TemplateTextEditor', () => {
                 onUpdate,
                 setValid,
             });
+            console.error = noop;
 
             await doChange(context.container, 'textarea', 'foo', context.user);
 

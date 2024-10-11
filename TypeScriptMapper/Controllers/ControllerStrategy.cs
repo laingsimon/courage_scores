@@ -122,7 +122,7 @@ public class ControllerStrategy: IStrategy
             ? GetBodyParameter(method.Parameters, attribute.Template)
             : "";
         var queryParameter = method.Parameters.SingleOrDefault(p => p.IsQueryStringParameter);
-        var queryStringSuffix = queryParameter != null ? $"?${{new URLSearchParams({queryParameter.Name} as any).toString()}}" : "";
+        var queryStringSuffix = queryParameter != null ? $"?${{new URLSearchParams({queryParameter.Name} as Record<string, string>).toString()}}" : "";
         var headers = $"{{{GetHeaders(method.Headers)}}}";
 
         return $"return this.http.{httpMethod.ToLower()}(`{url}{queryStringSuffix}`, {headers}{body});";

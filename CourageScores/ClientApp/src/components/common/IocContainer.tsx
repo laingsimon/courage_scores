@@ -12,7 +12,7 @@ import {SaygApi} from "../../interfaces/apis/ISaygApi";
 import {SeasonTemplateApi} from "../../interfaces/apis/ISeasonTemplateApi";
 import {DivisionApi} from "../../interfaces/apis/IDivisionApi";
 import {GameApi} from "../../interfaces/apis/IGameApi";
-import {LiveApi} from "../../interfaces/apis/ILiveApi";
+import {ILiveApi, LiveApi} from "../../interfaces/apis/ILiveApi";
 import {NoteApi} from "../../interfaces/apis/INoteApi";
 import {SeasonApi} from "../../interfaces/apis/ISeasonApi";
 import {PlayerApi} from "../../interfaces/apis/IPlayerApi";
@@ -47,7 +47,7 @@ export function IocContainer({children, overrideHttp, overrideParentHeight, ...s
     const [subscriptions, setSubscriptions] = useState<ISubscriptions>({});
     const settings: ISettings = new Settings();
     const http: IHttp = overrideHttp || new Http(settings);
-    const liveApi = (services as any).liveApi || new LiveApi(http);
+    const liveApi: ILiveApi = (services as IDependencies).liveApi || new LiveApi(http);
     const oneSecond: number = 1000;
     const defaultServices: IDependencies = {
         settings: settings,

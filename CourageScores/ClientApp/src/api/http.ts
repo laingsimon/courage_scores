@@ -1,15 +1,20 @@
 import {ISettings} from "./settings";
+import {UntypedPromise} from "../interfaces/UntypedPromise";
 
 export interface IHeaders {
     [name: string]: string;
 }
 
 export interface IHttp {
-    get(relativeUrl: string, headers: IHeaders): Promise<any>;
-    post(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
-    patch(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
-    delete(relativeUrl: string, headers: IHeaders, content?: any): Promise<any>;
-    put(relativeUrl: string, headers: IHeaders, content: any): Promise<any>;
+    get(relativeUrl: string, headers: IHeaders): UntypedPromise;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    post(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    patch(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    delete(relativeUrl: string, headers: IHeaders, content?: any): UntypedPromise;
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    put(relativeUrl: string, headers: IHeaders, content: any): UntypedPromise;
 }
 
 /* istanbul ignore file */
@@ -24,18 +29,22 @@ class Http implements IHttp {
         return this.send('GET', headers, relativeUrl, null);
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     post(relativeUrl: string, headers: IHeaders, content: any) {
         return this.send('POST', headers, relativeUrl, content);
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     patch(relativeUrl: string, headers: IHeaders, content: any) {
         return this.send('PATCH', headers, relativeUrl, content);
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     delete(relativeUrl: string, headers: IHeaders, content?: any) {
         return this.send('DELETE', headers, relativeUrl, content ? content : null);
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     put(relativeUrl: string, headers: IHeaders, content: any) {
         return this.send('PUT', headers, relativeUrl, content);
     }
@@ -66,6 +75,7 @@ class Http implements IHttp {
         return defaultHeaders;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     async send(httpMethod: string, headers: IHeaders, relativeUrl: string, content?: any) {
         if (relativeUrl.indexOf('/') !== 0) {
             relativeUrl = '/' + relativeUrl;

@@ -9,19 +9,20 @@ import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/S
 import {ScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoDto";
 import {IBrowserType} from "../common/IBrowserType";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
     home: string;
     away?: string;
-    onChange(data: ScoreAsYouGoDto): Promise<any>;
-    onLegComplete(homeScore: number, awayScore: number): Promise<any>;
+    onChange(data: ScoreAsYouGoDto): UntypedPromise;
+    onLegComplete(homeScore: number, awayScore: number): UntypedPromise;
     startingScore: number;
     numberOfLegs: number;
     awayScore?: number;
     homeScore?: number;
-    on180(accumulatorName: string): Promise<any>;
-    onHiCheck(accumulatorName: string, score: number): Promise<any>;
+    on180(accumulatorName: string): UntypedPromise;
+    onHiCheck(accumulatorName: string, score: number): UntypedPromise;
     singlePlayer?: boolean;
     lastLegDisplayOptions?: ILegDisplayOptions;
     matchStatisticsOnly?: boolean;
@@ -93,7 +94,7 @@ export function ScoreAsYouGo({
         return newData;
     }
 
-    async function saveChangedLeg(newLeg: LegDto, legIndex: number): Promise<any> {
+    async function saveChangedLeg(newLeg: LegDto, legIndex: number): UntypedPromise {
         const newData: ScoreAsYouGoDto = await legChanged(newLeg, legIndex);
         await saveDataAndGetId(newData);
     }

@@ -6,6 +6,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {useApp} from "../common/AppContainer";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface IWidescreenSaygPlayerProps {
     saygId: string;
@@ -13,7 +14,7 @@ export interface IWidescreenSaygPlayerProps {
     player: 'home' | 'away';
     scoreFirst?: boolean;
     finished: boolean;
-    changeStatisticsView?(widescreen: boolean): Promise<any>;
+    changeStatisticsView?(widescreen: boolean): UntypedPromise;
     showOptions?: boolean;
 }
 

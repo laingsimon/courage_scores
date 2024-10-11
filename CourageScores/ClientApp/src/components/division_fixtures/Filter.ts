@@ -2,6 +2,7 @@ import {all, any} from "../../helpers/collections";
 import {IFilter} from "./IFilter";
 
 export class Filter<T> implements IFilter<T> {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     _expression: (item: T) => any;
 
     constructor(expression: (item: T) => boolean) {
@@ -73,7 +74,7 @@ export class NotFilter<T> implements IFilter<T> {
 }
 
 export class NullFilter<T> implements IFilter<T> {
-    apply(_?: T) {
+    apply() {
         return true;
     }
 }

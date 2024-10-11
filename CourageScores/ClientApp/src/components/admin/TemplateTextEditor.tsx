@@ -3,11 +3,12 @@ import {stateChanged} from "../../helpers/events";
 import {DateTemplateDto} from "../../interfaces/models/dtos/Season/Creation/DateTemplateDto";
 import {FixtureTemplateDto} from "../../interfaces/models/dtos/Season/Creation/FixtureTemplateDto";
 import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 export interface ITemplateTextEditorProps {
     template: EditTemplateDto;
-    setValid(valid: boolean): Promise<any>;
-    onUpdate(update: EditTemplateDto): Promise<any>;
+    setValid(valid: boolean): UntypedPromise;
+    onUpdate(update: EditTemplateDto): UntypedPromise;
 }
 
 export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTextEditorProps) {
@@ -36,6 +37,7 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
         return jsonString;
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     function excludePropertiesFromEdit(key: string, value: any) {
         switch (key) {
             case 'id':
@@ -63,6 +65,8 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
             await setValid(true);
             await onUpdate(Object.assign({}, template, updatedTemplate));
         } catch (e) {
+            /* istanbul ignore next */
+            console.error(e);
             await setValid(false);
         }
     }
@@ -77,7 +81,7 @@ export function TemplateTextEditor({ template, setValid, onUpdate }: ITemplateTe
 
         function* generateFixtures(fixtures: string[]) {
             let fixtureBatch: string[] = [];
-            for (let fixture of fixtures) {
+            for (const fixture of fixtures) {
                 if (!fixture) {
                     continue;
                 }

@@ -15,6 +15,7 @@ import {teamBuilder} from "../../helpers/builders/teams";
 import {IInitialisedFilters} from "./filters";
 import {DivisionDataDto} from "../../interfaces/models/dtos/Division/DivisionDataDto";
 import {IPreferenceData} from "../common/PreferencesContainer";
+import {UntypedPromise} from "../../interfaces/UntypedPromise";
 
 describe('FilterFixtures', () => {
     let context: TestContext;
@@ -27,7 +28,7 @@ describe('FilterFixtures', () => {
         return null;
     }
 
-    async function setDivisionData(_: DivisionDataDto): Promise<any> {
+    async function setDivisionData(_: DivisionDataDto): UntypedPromise {
         return null;
     }
 
