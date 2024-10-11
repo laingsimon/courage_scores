@@ -1,4 +1,7 @@
 param($PublishDir)
+
+$PSStyle.OutputRendering = "ANSI"
+
 $FilesToCopyIntoBrand = "layout.css","web.config","manifest.json","host.html","parentHeight.js"
 $WorkingDirectory = (Get-Item .).FullName
 $RegexSingleLine=[System.Text.RegularExpressions.RegexOptions]::Singleline
