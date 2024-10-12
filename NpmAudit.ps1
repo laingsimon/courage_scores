@@ -99,7 +99,7 @@ Function Add-PullRequestComment($Markdown)
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
 
-    Write-Message "Sending POST request to $($Url) with body $($Body)"
+    # Write-Message "Sending POST request to $($Url) with body $($Body)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
