@@ -99,7 +99,7 @@ Function Add-PullRequestComment($Markdown)
     $Body = "{""body"": ""$($Markdown.Replace("`n", "\n"))""}"
     $Url="https://api.github.com/repos/$($Repo)/issues/$($PullRequestNumber)/comments"
 
-    Write-Message "Sending POST request to $($Url) with body $($Body)"
+    # Write-Message "Sending POST request to $($Url) with body $($Body)"
 
     $Response = Invoke-WebRequest `
         -Uri $Url `
@@ -168,8 +168,8 @@ Function Format-NpmOutdatedContent($output, $error)
 
             $parts = $line -split ":"
             $package=[System.IO.Path]::GetFileName($parts[0])
-            $current=$parts[1].Split("@")[1]
-            $wanted=$parts[2].Split("@")[1]
+            $wanted=$parts[1].Split("@")[1]
+            $current=$parts[2].Split("@")[1]
             $latest=$parts[3].Split("@")[1]
             $location=$parts[0].Substring([System.Math]::Max($parts[0].IndexOf("node_modules"), 0)).Replace("\", "/")
             $dependedBy=$parts[4]
