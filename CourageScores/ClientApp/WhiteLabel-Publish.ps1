@@ -10,7 +10,7 @@ $reset="`e[0m"
 
 function Get-BuiltContent([string] $File)
 {
-    Write-Output "Getting built content from $($green)$($File)$($reset)"
+    Write-Host "Getting built content from $($green)$($File)$($reset)"
     $AllContent = Get-Content -Path $File -Raw -Encoding UTF8
     $Match = [System.Text.RegularExpressions.Regex]::Match($AllContent, "<\/title>(.+)<\/head>", $RegexSingleLine)
     $BuiltContent = $Match.Groups[1].Value
@@ -24,7 +24,7 @@ function Set-BuiltContent([string] $File, [string] $Content)
 
     $Brand = $([System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($File)))
     $FileName = $([System.IO.Path]::GetFileName($File))
-    Write-Output "Writing whitelabel content to $($blue)$($Brand)$($reset)/$($green)$($FileName)$($reset)"
+    Write-Host "Writing whitelabel content to $($blue)$($Brand)$($reset)/$($green)$($FileName)$($reset)"
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
@@ -36,7 +36,7 @@ function Remove-CustomHeaderFromWebConfig([string] $File)
     $Brand = $([System.IO.Path]::GetFileName([System.IO.Path]::GetDirectoryName($File)))
     $FileName = $([System.IO.Path]::GetFileName($File))
 
-    Write-Output "Writing updated $($green)web.config$($reset) to $($blue)$($Brand)$($reset)/$($green)$($FileName)$($reset)"
+    Write-Host "Writing updated $($green)web.config$($reset) to $($blue)$($Brand)$($reset)/$($green)$($FileName)$($reset)"
     [System.IO.File]::WriteAllText($File, $AllContent, [System.Text.Encoding]::UTF8)
 }
 
@@ -48,13 +48,13 @@ Get-ChildItem -Path "$BuildDir" -Directory `
     } `
     | ForEach-Object {
         $Directory = $_
-        Write-Output "Replacing content in $($blue)$($Directory.Name)$($reset)"
+        Write-Host "Replacing content in $($blue)$($Directory.Name)$($reset)"
 
         Set-BuiltContent -File "$($Directory.FullName)/index.html" -Content $BuiltContent
         $FilesToCopyIntoBrand | ForEach-Object {
             $FileToCopy = "$($WorkingDirectory)/public/$_"
 
-            Write-Output "Copying $($green)$($_)$($reset) to $($blue)$($Directory.Name)$($reset)"
+            Write-Host "Copying $($green)$($_)$($reset) to $($blue)$($Directory.Name)$($reset)"
             Copy-Item $FileToCopy "$($Directory.FullName)/$_"
         }
 
