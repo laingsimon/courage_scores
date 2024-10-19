@@ -14,13 +14,13 @@ public class CachingDivisionService : ICachingDivisionService
     private static readonly ConcurrentDictionary<DivisionDataCacheKey, object> CacheKeys = new();
     private readonly IHttpContextAccessor _accessor;
     private readonly IDivisionService _divisionService;
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICache _cache;
     private readonly IUserService _userService;
 
-    public CachingDivisionService(IDivisionService divisionService, IMemoryCache memoryCache, IUserService userService, IHttpContextAccessor accessor)
+    public CachingDivisionService(IDivisionService divisionService, ICache cache, IUserService userService, IHttpContextAccessor accessor)
     {
         _divisionService = divisionService;
-        _memoryCache = memoryCache;
+        _cache = cache;
         _userService = userService;
         _accessor = accessor;
     }
@@ -64,7 +64,7 @@ public class CachingDivisionService : ICachingDivisionService
         var key = GetKey(filter, "GetDivisionData");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
-        return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token));
+        return await _cache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token));
     }
 
     public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
@@ -75,7 +75,7 @@ public class CachingDivisionService : ICachingDivisionService
         }, "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
-        return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.Get(id, token));
+        return await _cache.GetOrCreateAsync(key, _ => _divisionService.Get(id, token));
     }
 
     public async IAsyncEnumerable<DivisionDto> GetAll([EnumeratorCancellation] CancellationToken token)
@@ -84,7 +84,7 @@ public class CachingDivisionService : ICachingDivisionService
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.TryAdd(key, new object());
 
-        foreach (var division in await _memoryCache.GetOrCreateAsync(key, async _ => await _divisionService.GetAll(token).ToList()))
+        foreach (var division in await _cache.GetOrCreateAsync(key, async _ => await _divisionService.GetAll(token).ToList()))
         {
             yield return division;
         }
@@ -141,7 +141,7 @@ public class CachingDivisionService : ICachingDivisionService
         if (noCacheHeaderPresent == true)
         {
             CacheKeys.TryRemove(key, out _);
-            _memoryCache.Remove(key);
+            _cache.Remove(key);
         }
     }
 
@@ -157,7 +157,7 @@ public class CachingDivisionService : ICachingDivisionService
     {
         foreach (var key in keys)
         {
-            _memoryCache.Remove(key);
+            _cache.Remove(key);
             CacheKeys.TryRemove(key, out _);
         }
     }

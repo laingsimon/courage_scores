@@ -13,14 +13,14 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     where TDto : AuditedDto
 {
     private readonly IHttpContextAccessor _accessor;
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICache _cache;
     private readonly IGenericDataService<TModel, TDto> _underlyingService;
     private readonly IUserService _userService;
 
-    public CachingDataService(IGenericDataService<TModel, TDto> underlyingService, IMemoryCache memoryCache, IUserService userService, IHttpContextAccessor accessor)
+    public CachingDataService(IGenericDataService<TModel, TDto> underlyingService, ICache cache, IUserService userService, IHttpContextAccessor accessor)
     {
         _underlyingService = underlyingService;
-        _memoryCache = memoryCache;
+        _cache = cache;
         _userService = userService;
         _accessor = accessor;
     }
@@ -83,7 +83,7 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
                 key,
             });
         }
-        return await _memoryCache.GetOrCreateAsync(key, _ => provider());
+        return await _cache.GetOrCreateAsync(key, _ => provider());
     }
 
     private bool IsNoCacheRequest()
@@ -96,7 +96,7 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         foreach (var key in keys)
         {
-            _memoryCache.Remove(key);
+            _cache.Remove(key);
         }
     }
 

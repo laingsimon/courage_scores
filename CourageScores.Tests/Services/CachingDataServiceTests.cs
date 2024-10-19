@@ -29,7 +29,7 @@ public class CachingDataServiceTests
     };
     private CachingDataService<CosmosTeam, TeamDto> _service = null!;
     private Mock<IGenericDataService<CosmosTeam, TeamDto>> _underlyingService = null!;
-    private IMemoryCache _cache = null!;
+    private ICache _cache = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private UserDto? _user;
@@ -40,7 +40,7 @@ public class CachingDataServiceTests
     {
         _userService = new Mock<IUserService>();
         _underlyingService = new Mock<IGenericDataService<CosmosTeam, TeamDto>>();
-        _cache = new MemoryCache(new MemoryCacheOptions());
+        _cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _context = new DefaultHttpContext();
         _user = null;

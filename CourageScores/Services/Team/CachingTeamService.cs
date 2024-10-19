@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Team;
 
@@ -9,8 +8,8 @@ public class CachingTeamService : CachingDataService<Models.Cosmos.Team.Team, Te
 {
     private readonly ITeamService _teamService;
 
-    public CachingTeamService(ITeamService teamService, IMemoryCache memoryCache, IUserService userService, IHttpContextAccessor accessor)
-        : base(teamService, memoryCache, userService, accessor)
+    public CachingTeamService(ITeamService teamService, ICache cache, IUserService userService, IHttpContextAccessor accessor)
+        : base(teamService, cache, userService, accessor)
     {
         _teamService = teamService;
     }

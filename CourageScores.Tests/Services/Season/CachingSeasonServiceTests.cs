@@ -1,5 +1,6 @@
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,7 @@ public class CachingSeasonServiceTests
     private readonly SeasonDto? _latestSeason = new();
     private CachingSeasonService _service = null!;
     private Mock<ISeasonService> _underlyingService = null!;
-    private IMemoryCache _cache = null!;
+    private ICache _cache = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private UserDto? _user;
@@ -28,7 +29,7 @@ public class CachingSeasonServiceTests
     {
         _userService = new Mock<IUserService>();
         _underlyingService = new Mock<ISeasonService>();
-        _cache = new MemoryCache(new MemoryCacheOptions());
+        _cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _context = new DefaultHttpContext();
         _user = null;
