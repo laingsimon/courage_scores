@@ -12,18 +12,18 @@ public class StatusService : IStatusService
     private readonly ApplicationMetrics _applicationMetrics;
     private readonly IUserService _userService;
     private readonly ICollection<IWebSocketContract> _webSockets;
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICache _cache;
     private readonly ISeasonService _seasonService;
 
     public StatusService(
         ISeasonService seasonService,
-        IMemoryCache memoryCache,
+        ICache cache,
         ApplicationMetrics applicationMetrics,
         IUserService userService,
         ICollection<IWebSocketContract> webSockets)
     {
         _seasonService = seasonService;
-        _memoryCache = memoryCache;
+        _cache = cache;
         _applicationMetrics = applicationMetrics;
         _userService = userService;
         _webSockets = webSockets;
@@ -57,7 +57,7 @@ public class StatusService : IStatusService
                 : default;
         });
 
-        status.CachedEntries = Try<int?>(result, () => _memoryCache.GetKeys().Count());
+        status.CachedEntries = Try<int?>(result, () => _cache.GetKeys().Count());
         status.StartTime = _applicationMetrics.Started;
         status.UpTime = _applicationMetrics.UpTime;
         status.OpenSockets = _webSockets.Count;
@@ -83,12 +83,12 @@ public class StatusService : IStatusService
         }
 
         var count = 0;
-        foreach (var key in _memoryCache.GetKeys())
+        foreach (var key in _cache.GetKeys())
         {
             token.ThrowIfCancellationRequested();
 
             dto.Keys.Add(key.ExposeFieldsAndProperties());
-            _memoryCache.Remove(key);
+            _cache.Remove(key);
             count++;
         }
 
@@ -114,7 +114,7 @@ public class StatusService : IStatusService
             return result;
         }
 
-        foreach (var key in _memoryCache.GetKeys())
+        foreach (var key in _cache.GetKeys())
         {
             token.ThrowIfCancellationRequested();
 

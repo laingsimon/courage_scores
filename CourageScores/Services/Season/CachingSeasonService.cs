@@ -1,6 +1,5 @@
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services.Identity;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Season;
 
@@ -8,9 +7,9 @@ public class CachingSeasonService : CachingDataService<Models.Cosmos.Season.Seas
 {
     private readonly ISeasonService _seasonService;
 
-    public CachingSeasonService(ISeasonService seasonService, IMemoryCache memoryCache, IUserService userService,
+    public CachingSeasonService(ISeasonService seasonService, ICache cache, IUserService userService,
         IHttpContextAccessor accessor)
-        : base(seasonService, memoryCache, userService, accessor)
+        : base(seasonService, cache, userService, accessor)
     {
         _seasonService = seasonService;
     }
