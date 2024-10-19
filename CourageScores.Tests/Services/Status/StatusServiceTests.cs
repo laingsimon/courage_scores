@@ -217,7 +217,7 @@ public class StatusServiceTests
     }
 
     [Test]
-    public async Task GetCachedEntries_WhenLoggedIn_ClearsCache()
+    public async Task GetCachedEntries_WhenLoggedIn_ReturnsCachedEntry()
     {
         var key = new CacheEntryKey(name: "NAME")
         {
