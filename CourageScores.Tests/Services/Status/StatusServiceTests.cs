@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Status;
+using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Live;
 using CourageScores.Services.Season;
@@ -19,7 +20,7 @@ public class StatusServiceTests
     private StatusService _service = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<IUserService> _userService = null!;
-    private IMemoryCache _memoryCache = null!;
+    private ICache _cache = null!;
     private ApplicationMetrics _applicationMetrics = null!;
     private UserDto? _user;
     private Mock<ICollection<IWebSocketContract>> _sockets = null!;
@@ -31,10 +32,10 @@ public class StatusServiceTests
 
         _seasonService = new Mock<ISeasonService>();
         _userService = new Mock<IUserService>();
-        _memoryCache = new MemoryCache(new MemoryCacheOptions());
+        _cache = new InterceptingMemoryCache(new MemoryCache(new MemoryCacheOptions()));
         _applicationMetrics = ApplicationMetrics.Create();
         _sockets = new Mock<ICollection<IWebSocketContract>>();
-        _service = new StatusService(_seasonService.Object, _memoryCache, _applicationMetrics, _userService.Object, _sockets.Object);
+        _service = new StatusService(_seasonService.Object, _cache, _applicationMetrics, _userService.Object, _sockets.Object);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
@@ -139,22 +140,6 @@ public class StatusServiceTests
     }
 
     [Test]
-    public async Task GetStatus_WhenUnableToRetrieveCacheSize_ReturnsNullCacheSize()
-    {
-        _service = new StatusService(
-            _seasonService.Object,
-            new Mock<IMemoryCache>().Object, // not a MemoryCache instance
-            _applicationMetrics,
-            _userService.Object,
-            _sockets.Object);
-
-        var result = await _service.GetStatus(_token);
-
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Result!.CachedEntries, Is.Null);
-    }
-
-    [Test]
     public async Task ClearCache_WhenLoggedOut_ReturnsNotPermitted()
     {
         _user = null;
@@ -181,7 +166,7 @@ public class StatusServiceTests
         {
             Address = "ADDRESS",
         };
-        _memoryCache.GetOrCreate(key, _ => key);
+        _cache.GetOrCreate(key, _ => key);
 
         var result = await _service.ClearCache(_token);
 
@@ -223,7 +208,7 @@ public class StatusServiceTests
         {
             Address = "ADDRESS",
         };
-        _memoryCache.GetOrCreate(key, _ => key);
+        _cache.GetOrCreate(key, _ => key);
 
         var result = await _service.GetCachedEntries(_token);
 
