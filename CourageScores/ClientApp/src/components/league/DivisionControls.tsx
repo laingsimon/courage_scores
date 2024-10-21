@@ -224,7 +224,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
             {saveError
                 ? (<ErrorDisplay
                     {...saveError}
-                    onClose={() => setSaveError(null)}
+                    onClose={async () => setSaveError(null)}
                     title="Could not save details"/>)
                 : null}
         </div>);

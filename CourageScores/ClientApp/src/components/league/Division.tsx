@@ -10,7 +10,7 @@ import {TeamOverview} from "../division_teams/TeamOverview";
 import {IPlayerOverviewProps, PlayerOverview} from "../division_players/PlayerOverview";
 import {Loading} from "../common/Loading";
 import {all, any} from "../../helpers/collections";
-import {propChanged} from "../../helpers/events";
+import {asyncCallback, propChanged} from "../../helpers/events";
 import {useDependencies} from "../common/IocContainer";
 import {useApp} from "../common/AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
@@ -302,7 +302,7 @@ export function Division() {
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
             </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData} favouritesEnabled={favouritesEnabled}
-                                              setDivisionData={async (data: DivisionDataDto) => setOverrideDivisionData(data)}>
+                                              setDivisionData={asyncCallback(setOverrideDivisionData)}>
                 {effectiveTab === 'teams' && divisionDataToUse.season
                     ? (<DivisionTeams/>)
                     : null}

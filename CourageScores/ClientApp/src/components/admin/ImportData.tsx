@@ -136,7 +136,7 @@ export function ImportData() {
             </div>
         </div>) : null}
         {saveError
-            ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not import data"/>)
+            ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not import data"/>)
             : null}
     </div>);
 }

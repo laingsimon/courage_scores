@@ -10,6 +10,7 @@ import {ScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/ScoreAsYou
 import {IBrowserType} from "../common/IBrowserType";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {asyncCallback} from "../../helpers/events";
 
 export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
@@ -145,7 +146,7 @@ export function ScoreAsYouGo({
                 away={away}
                 singlePlayer={singlePlayer}
                 numberOfLegs={numberOfLegs}
-                changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)}
+                changeStatisticsView={asyncCallback(setUseWidescreenStatistics)}
                 lastLegDisplayOptions={lastLegDisplayOptions} />
         }
 
@@ -159,7 +160,7 @@ export function ScoreAsYouGo({
             singlePlayer={singlePlayer}
             numberOfLegs={numberOfLegs}
             legChanged={canEditThrows ? saveChangedLeg : null}
-            changeStatisticsView={async (op: boolean) => setUseWidescreenStatistics(op)}
+            changeStatisticsView={asyncCallback(setUseWidescreenStatistics)}
             lastLegDisplayOptions={lastLegDisplayOptions} />
     }
 

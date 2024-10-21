@@ -4,6 +4,7 @@ import {DivisionTemplateDto} from "../../interfaces/models/dtos/Season/Creation/
 import {EditTemplateDto} from "../../interfaces/models/dtos/Season/Creation/EditTemplateDto";
 import {useState} from "react";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {asyncCallback} from "../../helpers/events";
 
 export interface ITemplateVisualEditorProps {
     template: EditTemplateDto;
@@ -30,13 +31,13 @@ export function TemplateVisualEditor({ template, onUpdate }: ITemplateVisualEdit
             onUpdate={updateTemplateSharedAddress}
             addresses={template.sharedAddresses}
             highlight={highlight}
-            setHighlight={async (highlight: string) => setHighlight(highlight)}
+            setHighlight={asyncCallback(setHighlight)}
             className="bg-warning" />
         <TemplateDivisions
             onUpdate={updateDivisions}
             divisions={template.divisions}
             templateSharedAddresses={template.sharedAddresses.flatMap((a: string[]) => a)}
             highlight={highlight}
-            setHighlight={async (highlight: string) => setHighlight(highlight)} />
+            setHighlight={asyncCallback(setHighlight)} />
     </div>);
 }

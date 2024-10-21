@@ -5,7 +5,7 @@ import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DivisionControls} from "../league/DivisionControls";
 import {any, elementAt, isEmpty, sortBy} from "../../helpers/collections";
-import {propChanged} from "../../helpers/events";
+import {asyncCallback, propChanged} from "../../helpers/events";
 import {EMPTY_ID, repeat} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {Loading} from "../common/Loading";
@@ -432,8 +432,8 @@ export function Score() {
                 match={fixtureData.matches[index]}
                 onMatchChanged={async (newMatch: GameMatchDto) => onMatchChanged(newMatch, index)}
                 onMatchOptionsChanged={onMatchOptionsChanged}
-                on180={add180(fixtureData, async (data) => setFixtureData(data))}
-                onHiCheck={addHiCheck(fixtureData, async (data) => setFixtureData(data))} />
+                on180={add180(fixtureData, asyncCallback<GameDto>(setFixtureData))}
+                onHiCheck={addHiCheck(fixtureData, asyncCallback<GameDto>(setFixtureData))} />
         </MatchTypeContainer>);
     }
 
@@ -445,7 +445,7 @@ export function Score() {
                 matches={fixtureData.matches}
                 homeSubmission={fixtureData.homeSubmission}
                 awaySubmission={fixtureData.awaySubmission}
-                setFixtureData={async (data: GameDto) => setFixtureData(data)}
+                setFixtureData={asyncCallback<GameDto>(setFixtureData)}
                 fixtureData={fixtureData}/>);
         }
 
@@ -459,7 +459,7 @@ export function Score() {
                 saving={saving}
                 access={access}
                 disabled={access === 'admin' && !!submission}
-                setFixtureData={async (data: GameDto) => setFixtureData(data)}/>);
+                setFixtureData={asyncCallback<GameDto>(setFixtureData)}/>);
         }
 
         return null;
@@ -483,7 +483,7 @@ export function Score() {
             && access === 'admin'
             && (data.homeSubmission || data.awaySubmission)
             && ((!hasManOfTheMatch(data, 'home') && hasManOfTheMatch(data.homeSubmission, 'home')) || (!hasManOfTheMatch(data, 'away') && hasManOfTheMatch(data.awaySubmission, 'away')))) {
-            return (<MergeManOfTheMatch data={data} setData={async (data: GameDto) => setData(data)} allPlayers={allPlayers}/>);
+            return (<MergeManOfTheMatch data={data} setData={asyncCallback<GameDto>(setData)} allPlayers={allPlayers}/>);
         }
 
         return null;
@@ -494,12 +494,12 @@ export function Score() {
             saving={saving || (access === 'admin' && !!submission)}
             access={access}
             fixtureData={fixtureData}
-            setFixtureData={async (data: GameDto) => setFixtureData(data)} />);
+            setFixtureData={asyncCallback<GameDto>(setFixtureData)} />);
     }
 
     function renderMerge180sAndHiCheck() {
         if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
-            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={async (data: GameDto) => setFixtureData(data)}/>);
+            return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={asyncCallback<GameDto>(setFixtureData)}/>);
         }
 
         return null;
