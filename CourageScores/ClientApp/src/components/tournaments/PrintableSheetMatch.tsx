@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {BootstrapDropdown, IBootstrapDropdownItem} from "../common/BootstrapDropdown";
-import {propChanged, stateChanged} from "../../helpers/events";
+import {asyncClear, propChanged, stateChanged} from "../../helpers/events";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {useTournament} from "./TournamentContainer";
 import {any, sortBy} from "../../helpers/collections";
@@ -250,7 +250,7 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
             </div>
             <div className="modal-footer px-0 pb-0 mt-3">
                 <div className="left-aligned mx-0">
-                    <button className="btn btn-secondary" onClick={() => setEditSide(null)}>Close</button>
+                    <button className="btn btn-secondary" onClick={asyncClear(setEditSide)}>Close</button>
                 </div>
                 {matchData['side' + editSide.designation] && matchData['side' + editSide.designation].id ? (<button className="btn btn-danger" onClick={onRemove}>
                     Remove

@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
 import {any} from "../../helpers/collections";
-import {propChanged, valueChanged} from "../../helpers/events";
+import {asyncClear, propChanged, valueChanged} from "../../helpers/events";
 import {useDependencies} from "../common/IocContainer";
 import {useAdmin} from "./AdminContainer";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
@@ -136,7 +136,7 @@ export function ImportData() {
             </div>
         </div>) : null}
         {saveError
-            ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not import data"/>)
+            ? (<ErrorDisplay {...saveError} onClose={asyncClear(setSaveError)} title="Could not import data"/>)
             : null}
     </div>);
 }

@@ -92,3 +92,10 @@ export function asyncCallback<T>(sync: (input: T) => void): (input: T) => Untype
     return async (input: T) => sync(input);
 }
 
+/*
+* Convert a sync method call (with no parameters) into an async call
+* */
+export function asyncClear<T>(sync: (input?: T) => void): () => UntypedPromise {
+    /* istanbul ignore next */
+    return async () => sync();
+}

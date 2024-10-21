@@ -5,7 +5,7 @@ import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DivisionControls} from "../league/DivisionControls";
 import {any, elementAt, isEmpty, sortBy} from "../../helpers/collections";
-import {asyncCallback, propChanged} from "../../helpers/events";
+import {asyncCallback, asyncClear, propChanged} from "../../helpers/events";
 import {EMPTY_ID, repeat} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {Loading} from "../common/Loading";
@@ -692,7 +692,7 @@ export function Score() {
                 canViewAllPhotos={access === 'admin' || (account && account.access && account.access.viewAnyPhoto)}
             />) : null}
             {saveError ? (
-                <ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save score"/>) : null}
+                <ErrorDisplay {...saveError} onClose={asyncClear(setSaveError)} title="Could not save score"/>) : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */
