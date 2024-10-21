@@ -57,6 +57,7 @@
       "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$": "<rootDir>/src/__mocks__/file-mock.js"
     },
     "collectCoverageFrom": [
+      "!src/index.tsx",
       "!src/tests/**/*.ts",
       "!coverage/**/*.js",
       "!dist/**/*.*",
