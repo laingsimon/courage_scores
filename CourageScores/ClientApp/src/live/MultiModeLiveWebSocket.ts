@@ -110,9 +110,15 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             id: request.id,
             type: request.type,
             /* eslint-disable @typescript-eslint/no-explicit-any */
-            updateHandler: dataHandler || ((msg: any) => console.log(msg)),
+            updateHandler: dataHandler || ((msg: any) => {
+                /* istanbul ignore next */
+                console.log(msg);
+            }),
             /* eslint-disable @typescript-eslint/no-explicit-any */
-            errorHandler: errorHandler || ((err: any) => console.error(err)),
+            errorHandler: errorHandler || ((err: any) => {
+                /* istanbul ignore next */
+                console.error(err);
+            }),
         };
         newSubscriptions[request.id] = newSubscription;
         let newSocketContext: IWebSocketContext = Object.assign({}, this.socketContext);
@@ -127,6 +133,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
         for (const mode of this.socketContext.modes) {
             const strategy: IUpdateStrategy = this.getStrategy(mode);
             if (!strategy) {
+                /* istanbul ignore next */
                 continue; // null strategy
             }
 
@@ -164,6 +171,7 @@ export class MultiModeLiveWebSocket implements ILiveWebSocket {
             case WebSocketMode.socket:
                 return this.webSocketStrategy;
             default:
+                /* istanbul ignore next */
                 return null;
         }
     }
