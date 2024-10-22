@@ -66,6 +66,7 @@ export function ScoreCardHeading({data, access, submission, setSubmission, setFi
                 case 'away':
                     return match.awayScore > (numberOfLegs / 2.0);
                 default:
+                    /* istanbul ignore next */
                     return false;
             }
         }

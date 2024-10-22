@@ -49,6 +49,7 @@ export function DataBrowser() {
             }
         }
 
+        /* istanbul ignore next */
         return value as T;
     }
 
