@@ -6,9 +6,7 @@ import {IIocContainerProps, IocContainer} from "./components/common/IocContainer
 import {BrandingContainer} from "./components/common/BrandingContainer";
 import {IBrandingData} from "./components/common/IBrandingData";
 
-/* istanbul ignore file */
-
-interface IConfiguredPage {
+    interface IConfiguredPage {
     branding?: IBrandingData;
 }
 

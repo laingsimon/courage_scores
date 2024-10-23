@@ -21,6 +21,7 @@ import {GameDto} from "../../interfaces/models/dtos/Game/GameDto";
 import {DivisionFixtureDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDto";
 import {DivisionFixtureDateDto} from "../../interfaces/models/dtos/Division/DivisionFixtureDateDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {asyncCallback} from "../../helpers/events";
 
 export interface ICreateSeasonDialogProps {
     seasonId: string;
@@ -278,7 +279,7 @@ export function CreateSeasonDialog({seasonId, onClose}: ICreateSeasonDialogProps
                 seasonId={seasonId}
                 selectedTemplate={selectedTemplate}
                 placeholderMappings={placeholderMappings || {}}
-                setPlaceholderMappings={async (mappings: IPlaceholderMappings) => setPlaceholderMappings(mappings)} />) : null}
+                setPlaceholderMappings={asyncCallback(setPlaceholderMappings)} />) : null}
             {stage === '3-review' ? (<ReviewProposalHealth response={response} />) : null}
             {stage === '5-confirm-save'
                 ? (<ConfirmSave noOfFixturesToSave={fixturesToSave.length} noOfDivisions={divisions.length} />)

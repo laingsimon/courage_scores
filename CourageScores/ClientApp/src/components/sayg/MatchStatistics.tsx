@@ -9,6 +9,7 @@ import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LiveDataType} from "../../interfaces/models/dtos/Live/LiveDataType";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {asyncCallback} from "../../helpers/events";
 
 export interface IMatchStatisticsProps {
     saygId: string;
@@ -119,7 +120,7 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
                 awayAverage={sumOf('away', 'score') / (sumOf('away', 'noOfDarts') / 3)}
                 singlePlayer={singlePlayer}
                 oneDartAverage={oneDartAverage}
-                setOneDartAverage={async (option: boolean) => setOneDartAverage(option)}/>
+                setOneDartAverage={asyncCallback<boolean>(setOneDartAverage)}/>
             <MatchDartCount
                 homeCount={sumOf('home', 'noOfDarts')}
                 awayCount={sumOf('away', 'noOfDarts')}

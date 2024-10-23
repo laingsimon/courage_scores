@@ -24,6 +24,7 @@ import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTo
 import {add180, addHiCheck} from "../common/Accolades";
 import {START_SCORING} from "./tournaments";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {asyncClear} from "../../helpers/events";
 
 export interface IMatchSaygProps {
     round: TournamentRoundDto;
@@ -266,7 +267,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
         {saveError
             ? (<ErrorDisplay
                 {...saveError}
-                onClose={async () => setSaveError(null)}
+                onClose={asyncClear(setSaveError)}
                 title="Could not create sayg session"/>)
             : null}
         {saygOpen ? renderSaygDialog() : null}

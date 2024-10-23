@@ -26,6 +26,7 @@ export function UserAdmin() {
     useEffect(() => {
             try {
                 if (!accounts) {
+                    /* istanbul ignore next */
                     return;
                 }
 

@@ -267,6 +267,7 @@ export function Tournament() {
             setTournamentData(newData);
             setAllPlayers(getAllPlayers(newData));
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

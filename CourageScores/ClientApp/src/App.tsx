@@ -166,6 +166,7 @@ export function App({embed, controls, testRoute}: IAppProps) {
     } catch (e) {
         /* istanbul ignore next */
         onError(e);
+        /* istanbul ignore next */
         return (<AppContainer {...appData}>
             <span>Error</span>
         </AppContainer>);

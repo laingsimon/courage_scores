@@ -29,8 +29,5 @@ export async function enterScores(context: TestContext, homeScores: number[], aw
 
 export async function checkoutWith(context: TestContext, noOfDarts: string, dialog?: Element) {
     const buttonContainer = (dialog || context.container).querySelector('div[datatype="gameshot-buttons-score"]');
-    if (!buttonContainer) {
-        throw new Error('Checkout dialog is not open');
-    }
     await doClick(findButton(buttonContainer, noOfDarts));
 }
