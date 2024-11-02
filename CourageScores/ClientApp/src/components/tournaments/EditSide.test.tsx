@@ -739,19 +739,14 @@ describe('EditSide', () => {
             expect(applied).toEqual(false);
         });
 
-        it('cannot save side if no teamId and no players', async () => {
+        it('can save side when no teamId and no players', async () => {
             const side: TournamentSideDto = sideBuilder('NAME').build();
             await renderComponent(containerProps(tournamentData, season), props(side), [team]);
-            let alert: string;
-            window.alert = (msg) => {
-                alert = msg;
-            };
 
             await doClick(findButton(context.container, 'Save'));
 
             reportedError.verifyNoError();
-            expect(alert).toEqual('Select a team or some players');
-            expect(applied).toEqual(false);
+            expect(applied).toEqual(true);
         });
 
         it('can save side', async () => {
