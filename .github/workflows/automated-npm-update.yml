@@ -27,6 +27,7 @@ jobs:
 
       - name: Report outdated modules
         run: npm outdated
+        continue-on-error: true
         working-directory: ./CourageScores/ClientApp
 
       - name: Update packages
