@@ -3,7 +3,7 @@ import {FilterFixtures} from "./FilterFixtures";
 import {useLocation} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, sortBy} from "../../helpers/collections";
-import {stateChanged} from "../../helpers/events";
+import {asyncCallback, stateChanged} from "../../helpers/events";
 import {useApp} from "../common/AppContainer";
 import {useDivisionData} from "../league/DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
@@ -72,8 +72,8 @@ export function DivisionFixtures({setNewFixtures}: IDivisionFixturesProps) {
             date={fixtureDate}
             showPlayers={showPlayers}
             startAddNote={startAddNote}
-            setEditNote={async (note: EditFixtureDateNoteDto) => setEditNote(note)}
-            setShowPlayers={async (players: { [p: string]: boolean }) => setShowPlayers(players)}
+            setEditNote={asyncCallback(setEditNote)}
+            setShowPlayers={asyncCallback(setShowPlayers)}
             setNewFixtures={setNewFixtures}
             onTournamentChanged={onTournamentChanged}
         />);

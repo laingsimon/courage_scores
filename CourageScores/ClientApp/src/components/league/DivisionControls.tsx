@@ -15,6 +15,7 @@ import {SeasonDto} from "../../interfaces/models/dtos/Season/SeasonDto";
 import {EditSeasonDto} from "../../interfaces/models/dtos/Season/EditSeasonDto";
 import {IClientActionResultDto} from "../common/IClientActionResultDto";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {asyncClear} from "../../helpers/events";
 
 export interface IDivisionControlsProps {
     originalSeasonData: DivisionDataSeasonDto;
@@ -224,7 +225,7 @@ export function DivisionControls({originalSeasonData, onDivisionOrSeasonChanged,
             {saveError
                 ? (<ErrorDisplay
                     {...saveError}
-                    onClose={() => setSaveError(null)}
+                    onClose={asyncClear(setSaveError)}
                     title="Could not save details"/>)
                 : null}
         </div>);

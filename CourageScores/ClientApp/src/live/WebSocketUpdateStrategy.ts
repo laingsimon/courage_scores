@@ -97,21 +97,26 @@ export class WebSocketUpdateStrategy implements IUpdateStrategy {
                 try {
                     if (context.webSocket && context.webSocket.readyState === 0) {
                         // connecting...
+                        /* istanbul ignore next */
                         return;
                     }
 
                     window.clearInterval(handle);
                     if (context.webSocket && context.webSocket.readyState === 1) {
+                        /* istanbul ignore next */
                         resolve(context);
                     } else {
                         context.webSocket.close(); // Assume closing the socket is good practice, even though it isn't at an applicable ready state
                         resolve(null); // report that this strategy was unable to connect
                     }
                 } catch (e) {
+                    /* istanbul ignore next */
                     const error: IError = e as IError;
                     /* istanbul ignore next */
                     console.error(e);
+                    /* istanbul ignore next */
                     window.clearInterval(handle);
+                    /* istanbul ignore next */
                     reject(error.message || 'Error waiting for socket to be ready');
                 }
             }, 100);

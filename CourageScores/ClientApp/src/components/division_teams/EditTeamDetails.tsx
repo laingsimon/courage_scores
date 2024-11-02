@@ -111,7 +111,7 @@ export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, season
             </button>
         </div>
         {saveError
-            ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details"/>)
+            ? (<ErrorDisplay {...saveError} onClose={async () => setSaveError(null)} title="Could not save team details"/>)
             : null}
     </div>)
 }
