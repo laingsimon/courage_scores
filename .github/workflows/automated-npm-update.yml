@@ -46,8 +46,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
           add-paths: |
-            package-lock.json
-            package.json
+            CourageScores/ClientApp/package-lock.json
+            CourageScores/ClientApp/package.json
           commit-message: Update npm dependencies
           title: ${{ env.pr_title }}
           body: 'Automated npm update via GitHub workflow'
