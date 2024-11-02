@@ -51,5 +51,6 @@ jobs:
           commit-message: Update npm dependencies
           title: ${{ env.pr_title }}
           body: 'Automated npm update via GitHub workflow'
-          branch: automated-npm-update
+          branch: automated/npm-update
           delete-branch: true
+          assignees: laingsimon
