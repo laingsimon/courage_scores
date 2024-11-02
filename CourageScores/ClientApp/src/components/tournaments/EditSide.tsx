@@ -186,11 +186,6 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
     }
 
     async function onSave() {
-        if (!side.teamId && !any(side.players || [])) {
-            window.alert('Select a team or some players');
-            return;
-        }
-
         if (!side.name) {
             window.alert('Please enter a name for this side');
             return;
