@@ -23,12 +23,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ./CourageScores/ClientApp
 
       - name: Report outdated modules
         run: npm outdated
+        working-directory: ./CourageScores/ClientApp
 
       - name: Update packages
         run: npm update
+        working-directory: ./CourageScores/ClientApp
 
       - name: Check for changes
         id: git-check
