@@ -17,6 +17,10 @@ on:
     types: [opened,reopened,synchronize]
     branches:
       - 'main'
+  workflow_run:
+    workflows: ['Automated npm update']
+    types:
+      - completed
 
 jobs:
   branch-name:
