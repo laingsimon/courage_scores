@@ -41,7 +41,7 @@ jobs:
 
       - name: Create Pull Request
         if: ${{ steps.git-check.outputs.changes == 'true' }}
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7.0.5
         with:
           token: ${{ secrets.AUTOMATED_NPM_UPDATE_PAT }}
           base: main
