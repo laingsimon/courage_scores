@@ -43,7 +43,7 @@ jobs:
         if: ${{ steps.git-check.outputs.changes == 'true' }}
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.AUTOMATED_NPM_UPDATE_PAT }}
           base: main
           add-paths: |
             CourageScores/ClientApp/package-lock.json
