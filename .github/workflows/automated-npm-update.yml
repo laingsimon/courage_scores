@@ -30,6 +30,11 @@ jobs:
         continue-on-error: true
         working-directory: ./CourageScores/ClientApp
 
+      - name: Stash formatted outdated modules
+        shell: pwsh
+        run: ../../Format-OutdatedNpmModules.ps1 -Prefix "Automated npm update via GitHub workflow<br/>" -FileName "OutdatedComment.gfm" >> $GITHUB_OUTPUT
+        working-directory: ./CourageScores/ClientApp
+
       - name: Update packages
         run: npm update
         working-directory: ./CourageScores/ClientApp
@@ -50,7 +55,7 @@ jobs:
             CourageScores/ClientApp/package.json
           commit-message: Update npm dependencies
           title: ${{ env.pr_title }}
-          body: 'Automated npm update via GitHub workflow'
+          body-path: OutdatedComment.gfm
           branch: automated/npm-update
           delete-branch: true
           assignees: laingsimon
