@@ -34,11 +34,18 @@ Function Get-PathToNpm()
     return $npm.Path
 }
 
-Function Format-NpmOutdatedContent($output, $error)
+Function Format-NpmOutdatedContent($output, $error, $narrow)
 {
     $Formatted = "$($error)`n"
-    $Formatted = "$($Formatted)|Package|Current|Wanted|Latest|Location|DependedBy|`n"
-    $Formatted = "$($Formatted)|----|----|----|----|----|----|`n"
+    if ($Narrow -eq $true)
+    {
+
+    }
+    else
+    {
+        $Formatted = "$($Formatted)|Package|Current|Wanted|Latest|`n"
+        $Formatted = "$($Formatted)|----|----|----|----|`n"
+    }
 
     $output -split "`n" | ForEach-Object {
         $line = $_
@@ -55,7 +62,14 @@ Function Format-NpmOutdatedContent($output, $error)
             $location=$parts[0].Substring([System.Math]::Max($parts[0].IndexOf("node_modules"), 0)).Replace("\", "/")
             $dependedBy=$parts[4]
 
-            $FormattedLine = "|$($package)|$($current)|$($wanted)|$($latest)|$($location)|$($dependedBy)|"
+            if ($Narrow -eq $true)
+            {
+                $FormattedLine = "|$($package)|$($current)|$($wanted)|$($latest)|"
+            }
+            else
+            {
+                $FormattedLine = "|$($package)|$($current)|$($wanted)|$($latest)|$($location)|$($dependedBy)|"
+            }
             $Formatted = "$($Formatted)$($FormattedLine)`n"
         }
     }
