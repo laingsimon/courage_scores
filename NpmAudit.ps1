@@ -157,7 +157,7 @@ If ($NpmAuditResult.ExitCode -ne 0)
 }
 
 $NpmOutdatedResult = Invoke-NpmCommand -Command "outdated --parseable"
-$OutdatedNpmModulesComment = Invoke-Item "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1" -OutdatedCommentHeading $OutdatedCommentHeading
+$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading $OutdatedCommentHeading"
 If ($OutdatedNpmModulesComment -ne "")
 {
     Add-PullRequestComment $OutdatedNpmModulesComment
