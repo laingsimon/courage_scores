@@ -43,8 +43,8 @@ Function Format-NpmOutdatedContent($output, $error, $narrow)
     }
     else
     {
-        $Formatted = "$($Formatted)|Package|Current|Wanted|Latest|`n"
-        $Formatted = "$($Formatted)|----|----|----|----|`n"
+        $Formatted = "$($Formatted)|Package|Current|Latest|`n"
+        $Formatted = "$($Formatted)|----|----|----|`n"
     }
 
     $output -split "`n" | ForEach-Object {
@@ -64,7 +64,7 @@ Function Format-NpmOutdatedContent($output, $error, $narrow)
 
             if ($Narrow -eq $true)
             {
-                $FormattedLine = "|$($package)|$($current)|$($wanted)|$($latest)|"
+                $FormattedLine = "|$($package)|$($current)|$($latest)|"
             }
             else
             {
