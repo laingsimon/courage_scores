@@ -86,8 +86,12 @@ describe('App', () => {
         document.body.appendChild(container);
 
         let root: ReactDOM.Root;
+        const futureOptions = {
+            v7_relativeSplatPath: true,
+            v7_startTransition: true,
+        };
         await act(async () => {
-            const component = (<MemoryRouter initialEntries={[currentPath || '/']}>
+            const component = (<MemoryRouter initialEntries={[currentPath || '/']} future={futureOptions}>
                 <IocContainer {...iocProps}>{content}</IocContainer>
             </MemoryRouter>);
             root = ReactDOM.createRoot(container)

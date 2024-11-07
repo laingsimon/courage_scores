@@ -250,9 +250,13 @@ export async function renderApp(iocProps: IIocContainerProps, brandingProps: IBr
     cookies.update();
 
     const currentPathAsInitialEntry: any = currentPath;
+    const futureOptions = {
+        v7_relativeSplatPath: true,
+        v7_startTransition: true,
+    };
     let root: ReactDOM.Root;
     await act(async () => {
-        const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]}>
+        const component = (<MemoryRouter initialEntries={[currentPathAsInitialEntry]} future={futureOptions}>
             <Routes>
                 <Route path={route} element={<IocContainer {...iocProps}>
                     <BrandingContainer {...brandingProps}>
