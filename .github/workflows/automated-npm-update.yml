@@ -32,7 +32,7 @@ jobs:
 
       - name: Stash formatted outdated modules
         shell: pwsh
-        run: ../../Format-OutdatedNpmModules.ps1 -Prefix "Automated npm update via GitHub workflow<br/>" -FileName "../../PrDescription.gfm" >> $GITHUB_OUTPUT
+        run: ../../Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading "Automated npm update via GitHub workflow" -FileName "../../PrDescription.gfm" >> $GITHUB_OUTPUT
         working-directory: ./CourageScores/ClientApp
 
       - name: Update packages
