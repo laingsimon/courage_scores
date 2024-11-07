@@ -1,4 +1,4 @@
-param([string] $Prefix, [string] $FileName)
+param([string] $Prefix, [string] $FileName, [string] $OutdatedCommentHeading)
 
 Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
 
