@@ -40,8 +40,8 @@ export function Practice() {
     };
 
     async function clearError() {
-        navigate('/practice');
         setDataError(null);
+        navigate('/practice');
     }
 
     async function noop() {
