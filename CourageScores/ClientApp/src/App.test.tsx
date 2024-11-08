@@ -20,6 +20,7 @@ import {IDivisionApi} from "./interfaces/apis/IDivisionApi";
 import {ISeasonApi} from "./interfaces/apis/ISeasonApi";
 import {ITeamApi} from "./interfaces/apis/ITeamApi";
 import React from "react";
+import {RouterFutureConfig} from "./helpers/router";
 
 describe('App', () => {
     let context: TestContext;
@@ -86,12 +87,8 @@ describe('App', () => {
         document.body.appendChild(container);
 
         let root: ReactDOM.Root;
-        const futureOptions = {
-            v7_relativeSplatPath: true,
-            v7_startTransition: true,
-        };
         await act(async () => {
-            const component = (<MemoryRouter initialEntries={[currentPath || '/']} future={futureOptions}>
+            const component = (<MemoryRouter initialEntries={[currentPath || '/']} future={RouterFutureConfig}>
                 <IocContainer {...iocProps}>{content}</IocContainer>
             </MemoryRouter>);
             root = ReactDOM.createRoot(container)
