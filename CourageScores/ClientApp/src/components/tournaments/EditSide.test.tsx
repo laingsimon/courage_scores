@@ -183,7 +183,10 @@ describe('EditSide', () => {
             .build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const team: TeamDto = teamBuilder('TEAM')
-            .forSeason(season, tournamentData.divisionId, [ player, anotherPlayer ])
+            .forSeason(season, tournamentData.divisionId, [ player ])
+            .build();
+        const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
+            .forSeason(season, tournamentData.divisionId, [ anotherPlayer ])
             .build();
         const sideWithPlayer: TournamentSideDto = sideBuilder('SIDE NAME')
             .withPlayer(player)
@@ -233,10 +236,20 @@ describe('EditSide', () => {
             expect(context.container.querySelector('ol.list-group').textContent).not.toContain('DELETED PLAYER');
         });
 
-        it('filtered players', async () => {
-            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
+        it('players filtered by player name', async () => {
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team, anotherTeam]);
 
-            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER', context.user);
+            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER player', context.user);
+
+            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
+            expect(playerItems.map(li => li.textContent)).toEqual(['ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")']);
+        });
+
+        it('players filtered by team name', async () => {
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team, anotherTeam]);
+
+            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER team', context.user);
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
@@ -245,18 +258,18 @@ describe('EditSide', () => {
 
         it('players with common name with their team name', async () => {
             const playerWithSameNameInDifferentTeam: TeamPlayerDto = playerBuilder(player.name).build();
-            const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
+            const differentTeam: TeamDto = teamBuilder('DIFFERENT TEAM')
                 .forSeason(season, tournamentData.divisionId, [ playerWithSameNameInDifferentTeam ])
                 .build();
 
-            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team, anotherTeam]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team, anotherTeam, differentTeam]);
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
             expect(playerItems.map(li => li.textContent)).toEqual([
                 'ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")',
                 'PLAYER [TEAM]',
-                'PLAYER [ANOTHER TEAM]']);
+                'PLAYER [DIFFERENT TEAM]']);
         });
 
         it('side with teamId', async () => {
@@ -399,7 +412,7 @@ describe('EditSide', () => {
         });
 
         it('unselectable players when selected in another side', async () => {
-            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [anotherTeam]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -407,7 +420,7 @@ describe('EditSide', () => {
         });
 
         it('selectable players when selected in this side', async () => {
-            await renderComponent(containerProps(tournamentData, season), props(tournamentData.sides[0]), [team]);
+            await renderComponent(containerProps(tournamentData, season), props(tournamentData.sides[0]), [anotherTeam]);
 
             reportedError.verifyNoError();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
