@@ -56,11 +56,12 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string = leg.currentThrow === currentPlayer
-            ? 'text-primary fw-bold bg-info text-white'
+            ? 'fw-bold bg-info text-dark'
             : null;
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
-            {currentPlayer === 'home' ? home : away}
-            <span className="fs-1 ms-3">{leg.startingScore - score}</span>
+            <div>{currentPlayer === 'home' ? home : away}</div>
+            <br />
+            <span style={{ fontSize: '60px' }}>{leg.startingScore - score}</span>
         </div>);
     }
 
@@ -156,7 +157,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         away: leg.startingScore,
     };
     return (<div className="d-flex flex-column">
-        <div className="d-flex flex-row justify-content-stretch fs-3">
+        <div className="d-flex flex-row justify-content-stretch">
             {renderPlayer('home', leg.home.score, 'text-center me-5')}
             {singlePlayer
                 ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-1 text-center">Leg {homeScore + 1}</div>)

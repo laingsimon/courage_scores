@@ -144,7 +144,7 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
             publish: true,
         };
 
-        return (<Dialog slim={true} className="text-start">
+        return (<Dialog className="text-start" fullScreen={true}>
             <SaygLoadingContainer
                 id={saygId}
                 onHiCheck={recordHiCheck}
