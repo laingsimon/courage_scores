@@ -183,7 +183,10 @@ describe('EditSide', () => {
             .build();
         const season: SeasonDto = seasonBuilder('SEASON').build();
         const team: TeamDto = teamBuilder('TEAM')
-            .forSeason(season, tournamentData.divisionId, [ player, anotherPlayer ])
+            .forSeason(season, tournamentData.divisionId, [ player ])
+            .build();
+        const anotherTeam: TeamDto = teamBuilder('ANOTHER TEAM')
+            .forSeason(season, tournamentData.divisionId, [ anotherPlayer ])
             .build();
         const sideWithPlayer: TournamentSideDto = sideBuilder('SIDE NAME')
             .withPlayer(player)
@@ -233,10 +236,20 @@ describe('EditSide', () => {
             expect(context.container.querySelector('ol.list-group').textContent).not.toContain('DELETED PLAYER');
         });
 
-        it('filtered players', async () => {
-            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team]);
+        it('players filtered by player name', async () => {
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team, anotherTeam]);
 
-            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER', context.user);
+            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER player', context.user);
+
+            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
+            expect(playerItems.map(li => li.textContent)).toEqual(['ANOTHER PLAYER (🚫 Selected in "ANOTHER SIDE")']);
+        });
+
+        it('players filtered by team name', async () => {
+            await renderComponent(containerProps(tournamentData, season), props(sideWithPlayer), [team, anotherTeam]);
+
+            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER team', context.user);
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
