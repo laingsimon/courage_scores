@@ -194,12 +194,15 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
         await onApply(saveOptions);
     }
 
-    function matchesPlayerFilter(player: TournamentPlayerDto): boolean {
+    function matchesFilter(player: ITeamPlayerMap): boolean {
         if (!playerFilter) {
             return true;
         }
 
-        return player.name.toLowerCase().indexOf(playerFilter.toLowerCase()) !== -1;
+        const lowerCaseFilter = playerFilter.toLowerCase();
+
+        return player.name.toLowerCase().indexOf(lowerCaseFilter) !== -1
+            || player.team.name.toLowerCase().indexOf(lowerCaseFilter) !== -1;
     }
 
     function renderCreatePlayerDialog(season: SeasonDto) {
@@ -244,7 +247,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
     }
 
     try {
-        const filteredPlayers: ITeamPlayerMap[] = allPossiblePlayers.filter(matchesPlayerFilter);
+        const filteredPlayers: ITeamPlayerMap[] = allPossiblePlayers.filter(matchesFilter);
 
         return (<Dialog title={side.id ? 'Edit side' : (saveOptions.addAsIndividuals ? 'Add players' : 'Add side')} slim={true} className="d-print-none">
             {saveOptions.addAsIndividuals ? null : (<div className="form-group input-group mb-3 d-print-none">
