@@ -21,6 +21,13 @@ import {ISaygApi} from "../../interfaces/apis/ISaygApi";
 import {CHECKOUT_3_DART, ENTER_SCORE_BUTTON} from "../../helpers/constants";
 import {checkoutWith, keyPad} from "../../helpers/sayg";
 
+const mockedUsedNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: () => mockedUsedNavigate,
+}));
+
 describe('Practice', () => {
     let context: TestContext;
     let reportedError: ErrorState;
@@ -145,7 +152,7 @@ describe('Practice', () => {
 
             await doClick(findButton(context.container.querySelector('div[data-name="data-error"]'), 'Clear'));
 
-            assertNoDataError();
+            expect(mockedUsedNavigate).toHaveBeenCalledWith(`/practice`);
         });
 
         it('renders given valid unfinished json data', async () => {

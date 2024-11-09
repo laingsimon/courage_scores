@@ -30,6 +30,11 @@ jobs:
         continue-on-error: true
         working-directory: ./CourageScores/ClientApp
 
+      - name: Stash formatted outdated modules
+        shell: pwsh
+        run: ../../Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading "Automated npm update via GitHub workflow" -FileName "../../PrDescription.gfm" >> $GITHUB_OUTPUT
+        working-directory: ./CourageScores/ClientApp
+
       - name: Update packages
         run: npm update
         working-directory: ./CourageScores/ClientApp
@@ -41,16 +46,16 @@ jobs:
 
       - name: Create Pull Request
         if: ${{ steps.git-check.outputs.changes == 'true' }}
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7.0.5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.AUTOMATED_NPM_UPDATE_PAT }}
           base: main
           add-paths: |
             CourageScores/ClientApp/package-lock.json
             CourageScores/ClientApp/package.json
           commit-message: Update npm dependencies
           title: ${{ env.pr_title }}
-          body: 'Automated npm update via GitHub workflow'
+          body-path: PrDescription.gfm
           branch: automated/npm-update
           delete-branch: true
           assignees: laingsimon

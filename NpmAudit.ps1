@@ -4,6 +4,8 @@ $OutdatedCommentHeading = "npm outdated report"
 $BypassNpmAuditViaCommentCommentContent = "bypass npm audit"
 $GitHubMarkdownCodeBlock="``````"
 
+Import-Module -Name "$PSScriptRoot/NpmFunctions.psm1"
+
 Function Get-PullRequestComments($CommentHeading, [switch] $ExactMatch) 
 {
     If ($env:GITHUB_EVENT_NAME -ne "pull_request") 
@@ -117,72 +119,6 @@ Function Add-PullRequestComment($Markdown)
     }
 }
 
-Function Run-NpmCommand([string] $Command)
-{
-    $currentDirectory = (Get-Item .).FullName
-
-    $processStartInfo = [System.Diagnostics.ProcessStartInfo]::new()
-    $processStartInfo.WorkingDirectory = $currentDirectory
-    $processStartInfo.CreateNoWindow = $true
-    $processStartInfo.FileName = $PathToNpm
-    $processStartInfo.Arguments = $Command
-    $processStartInfo.RedirectStandardOutput = $true
-    $processStartInfo.RedirectStandardError = $true
-    $processStartInfo.UseShellExecute = $false
-    $process = [System.Diagnostics.Process]::new()
-    $process.StartInfo = $processStartInfo
-    $success = $process.Start()
-    $stdOut = $process.StandardOutput.ReadToEnd()
-    $stdErr = $process.StandardError.ReadToEnd()
-    $exitCode = $process.ExitCode
-
-    return @{
-        success = $success;
-        output = $stdOut;
-        error = $stdErr;
-        exitCode = $exitCode;
-        workingDirectory = $processStartInfo.WorkingDirectory
-        path = $processStartInfo.FileName
-    }
-}
-
-Function Get-PathToNpm()
-{
-    $npm = Get-Command "npm"
-    # Write-Message "Found npm command at $($npm.Path)"
-    return $npm.Path
-}
-
-Function Format-NpmOutdatedContent($output, $error)
-{
-    $Formatted = "$($error)`n"
-    $Formatted = "$($Formatted)|Package|Current|Wanted|Latest|Location|DependedBy|`n"
-    $Formatted = "$($Formatted)|----|----|----|----|----|----|`n"
-
-    $output -split "`n" | ForEach-Object {
-        $line = $_
-        if ($line -ne "")
-        {
-            # replace windows drive letter prefixes to allow a split on :
-            $line = $line.Replace("C:\", "/c/")
-
-            $parts = $line -split ":"
-            $package=[System.IO.Path]::GetFileName($parts[0])
-            $wanted=$parts[1].Split("@")[1]
-            $current=$parts[2].Split("@")[1]
-            $latest=$parts[3].Split("@")[1]
-            $location=$parts[0].Substring([System.Math]::Max($parts[0].IndexOf("node_modules"), 0)).Replace("\", "/")
-            $dependedBy=$parts[4]
-
-            $FormattedLine = "|$($package)|$($current)|$($wanted)|$($latest)|$($location)|$($dependedBy)|"
-            $Formatted = "$($Formatted)$($FormattedLine)`n"
-        }
-    }
-
-    Return $Formatted
-}
-
-$PathToNpm = Get-PathToNpm
 $RefName=$env:GITHUB_REF_NAME # will be in the format <pr_number>/merge
 $Token=$env:GITHUB_TOKEN
 If ($RefName -ne $null)
@@ -200,7 +136,7 @@ Remove-ExistingComments -Comments $AuditComments
 $OutdatedComments = [array] (Get-PullRequestComments $OutdatedCommentHeading)
 Remove-ExistingComments -Comments $OutdatedComments
 
-$NpmAuditResult = Run-NpmCommand -Command "audit"
+$NpmAuditResult = Invoke-NpmCommand -Command "audit"
 If ($NpmAuditResult.output -ne "")
 {
     Write-Output $NpmAuditResult.output
@@ -220,10 +156,11 @@ If ($NpmAuditResult.ExitCode -ne 0)
     Add-PullRequestComment "#### $($AuditCommentHeading)`n`n$($GitHubMarkdownCodeBlock)`n$($NpmAuditResult.output)`n$($NpmAuditResult.error)`n$($GitHubMarkdownCodeBlock)`n$($BypassInstruction)"
 }
 
-$NpmOutdatedResult = Run-NpmCommand -Command "outdated --parseable"
-If ($NpmOutdatedResult.ExitCode -ne 0)
+$NpmOutdatedResult = Invoke-NpmCommand -Command "outdated --parseable"
+$OutdatedNpmModulesComment = Invoke-Expression "$($PSScriptRoot)/Format-OutdatedNpmModules.ps1 -OutdatedCommentHeading ""$OutdatedCommentHeading"""
+If ($OutdatedNpmModulesComment -ne "")
 {
-    Add-PullRequestComment "#### $($OutdatedCommentHeading)`n$(Format-NpmOutdatedContent -output $NpmOutdatedResult.output -error $NpmOutdatedResult.error)"
+    Add-PullRequestComment $OutdatedNpmModulesComment
 }
 
 If ($NpmAuditResult.ExitCode -ne 0 -and $BypassNpmAuditViaCommentComments.Length -gt 0)
