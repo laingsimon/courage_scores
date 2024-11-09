@@ -276,7 +276,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete, initialAdd
                     <div>
                         <label htmlFor="playerFilter" className="margin-right">Filter</label>
                         <input id="playerFilter" name="playerFilter" onChange={stateChanged(setPlayerFilter)}
-                               value={playerFilter}/>
+                               value={playerFilter} placeholder="Player or team name"/>
                         {playerFilter
                             ? (<span className="margin-left">
                                 {filteredPlayers.length} of {allPossiblePlayers.length} player/s
