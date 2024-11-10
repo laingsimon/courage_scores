@@ -15,7 +15,6 @@ import {DebugOptions} from "../common/DebugOptions";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {count} from "../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
-import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
@@ -27,11 +26,9 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {asyncClear} from "../../helpers/events";
 
 export interface IMatchSaygProps {
-    round: TournamentRoundDto;
     match: TournamentMatchDto;
     matchIndex: number;
     matchOptions: GameMatchOptionDto;
-    onChange?(round: TournamentRoundDto): UntypedPromise;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): UntypedPromise;
     readOnly?: boolean;
     showViewSayg?: boolean;
@@ -39,7 +36,7 @@ export interface IMatchSaygProps {
     finalLegPlayerSequence?: ('home' | 'away')[];
 }
 
-export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg, firstLegPlayerSequence, finalLegPlayerSequence } : IMatchSaygProps) {
+export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence, finalLegPlayerSequence } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
@@ -235,11 +232,14 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                 return;
             }
 
-            const newRound: TournamentRoundDto = Object.assign({}, round);
-            const newMatch: TournamentMatchDto = Object.assign({}, match);
-            newRound.matches[matchIndex] = newMatch;
-            newMatch.saygId = null;
-            await onChange(newRound);
+            if (window.confirm('Clear match score (to allow scores to be re-recorded?)')) {
+                const responseRound = response.result.round;
+                const responseMatch = responseRound.matches[matchIndex];
+
+                responseMatch.scoreA = 0;
+                responseMatch.scoreB = 0;
+            }
+
             changeDialogState(false);
             await setTournamentData(response.result);
         } catch (e) {

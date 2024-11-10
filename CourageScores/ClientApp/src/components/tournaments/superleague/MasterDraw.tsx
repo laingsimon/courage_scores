@@ -1,10 +1,8 @@
 import {useApp} from "../../common/AppContainer";
 import {renderDate} from "../../../helpers/rendering";
 import {TournamentMatchDto} from "../../../interfaces/models/dtos/Game/TournamentMatchDto";
-import {TournamentGameDto} from "../../../interfaces/models/dtos/Game/TournamentGameDto";
 import {useTournament} from "../TournamentContainer";
 import {MatchSayg} from "../MatchSayg";
-import {TournamentRoundDto} from "../../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {PatchTournamentDto} from "../../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {GameMatchOptionDto} from "../../../interfaces/models/dtos/Game/GameMatchOptionDto";
@@ -22,17 +20,10 @@ export interface IMasterDrawProps {
 
 export function MasterDraw({matches, host, opponent, gender, date, type, patchData, readOnly}: IMasterDrawProps) {
     const {onError} = useApp();
-    const {tournamentData, setTournamentData, setEditTournament } = useTournament();
+    const {tournamentData, setEditTournament } = useTournament();
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs: tournamentData.bestOf,
     };
-
-    async function onChange(updatedRound: TournamentRoundDto) {
-        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-        newTournamentData.round = updatedRound;
-
-        await setTournamentData(newTournamentData);
-    }
 
     async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string) {
         if (!nestInRound) {
@@ -71,8 +62,6 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                                 <td className="d-print-none">
                                     <MatchSayg
                                         match={m}
-                                        round={tournamentData.round}
-                                        onChange={onChange}
                                         matchOptions={matchOptions}
                                         matchIndex={index}
                                         patchData={patchRoundData}

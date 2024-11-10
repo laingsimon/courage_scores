@@ -21,7 +21,6 @@ import {
     tournamentMatchBuilder
 } from "../../helpers/builders/tournaments";
 import {matchOptionsBuilder} from "../../helpers/builders/games";
-import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {PatchTournamentDto} from "../../interfaces/models/dtos/Game/PatchTournamentDto";
 import {PatchTournamentRoundDto} from "../../interfaces/models/dtos/Game/PatchTournamentRoundDto";
 import {createTemporaryId} from "../../helpers/projection";
@@ -41,7 +40,6 @@ describe('MatchSayg', () => {
     let context: TestContext;
     let reportedError: ErrorState;
     let updatedTournament: TournamentGameDto;
-    let changedData: TournamentRoundDto;
     let patchedData: { patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string }[];
     let tournamentSaved: { preventLoading?: boolean };
     let addedSayg: { id: string, saygRequest: CreateTournamentSaygDto };
@@ -95,10 +93,6 @@ describe('MatchSayg', () => {
         return null;
     }
 
-    async function onChange(newRound: TournamentRoundDto) {
-        changedData = newRound;
-    }
-
     async function patchData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string) {
         patchedData.push({ patch, nestInRound, saygId });
     }
@@ -114,7 +108,6 @@ describe('MatchSayg', () => {
     beforeEach(() => {
         reportedError = new ErrorState();
         updatedTournament = null;
-        changedData = null;
         patchedData = [];
         tournamentSaved = null;
         addedSayg = null;
@@ -187,8 +180,6 @@ describe('MatchSayg', () => {
             }, {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -204,8 +195,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
             });
@@ -221,8 +210,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
             }, notPermitted);
@@ -240,8 +227,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             });
@@ -259,8 +244,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             });
@@ -276,8 +259,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
                 showViewSayg: true,
@@ -294,8 +275,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
                 showViewSayg: true,
@@ -312,8 +291,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
                 showViewSayg: false,
@@ -329,8 +306,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -345,8 +320,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -361,8 +334,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match: sideAvsSideBMatch,
                 matchIndex: 0,
-                round: sideAvsSideBRound,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -379,8 +350,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -398,8 +367,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -457,8 +424,6 @@ describe('MatchSayg', () => {
             }, {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
                 readOnly
@@ -486,8 +451,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
                 showViewSayg: true,
@@ -506,8 +469,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -529,8 +490,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -554,8 +513,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -582,8 +539,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -612,8 +567,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -645,8 +598,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -675,8 +626,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -705,8 +654,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -733,8 +680,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permitted);
@@ -940,8 +885,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permittedWithDebug);
@@ -981,8 +924,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permittedWithDebug);
@@ -992,6 +933,10 @@ describe('MatchSayg', () => {
             await doClick(createDataButton);
             const dialog = context.container.querySelector('.modal-dialog');
             window.confirm = () => true;
+            apiResponse = {
+                result: tournamentData,
+                success: true,
+            };
 
             await doClick(findButton(dialog, 'Debug options'));
             const deleteButton = dialog.querySelector('.dropdown-item.text-danger');
@@ -1003,11 +948,7 @@ describe('MatchSayg', () => {
                 id: tournamentData.id,
                 matchId: match.id,
             });
-            expect(changedData.matches[0].saygId).toBeNull();
-            expect(updatedTournament).toEqual({
-                id: tournamentData.id,
-                type: 'SAYG DELETED',
-            });
+            expect(updatedTournament).toEqual(tournamentData);
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
@@ -1027,8 +968,6 @@ describe('MatchSayg', () => {
             await renderComponent(containerProps(tournamentData), {
                 match,
                 matchIndex: 0,
-                round,
-                onChange,
                 patchData,
                 matchOptions,
             }, permittedWithDebug);
@@ -1053,7 +992,6 @@ describe('MatchSayg', () => {
                 id: tournamentData.id,
                 matchId: match.id,
             });
-            expect(changedData).toBeNull();
             expect(updatedTournament).toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
         });

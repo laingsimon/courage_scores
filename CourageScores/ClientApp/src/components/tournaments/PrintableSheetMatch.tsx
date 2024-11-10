@@ -184,25 +184,6 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
         setEditSide(null);
     }
 
-    async function onChange(updatedRound: TournamentRoundDto) {
-        const newTournamentData: TournamentGameDto = Object.assign({}, tournamentData);
-        const newRound: TournamentRoundDto = getEditableRound(newTournamentData, false);
-
-        // NOTE: This approach prevents the need to create a whole-new find-the-parent-of-the-round method
-        // Instead we patch across every property from the provided round into an editable version
-        for (const updatedRoundKey in updatedRound) {
-            newRound[updatedRoundKey] = updatedRound[updatedRoundKey];
-        }
-        // Unset any properties that are in newRound but not in updatedRound
-        for (const newRoundKey in newRound) {
-            if (updatedRound[newRoundKey] === undefined) {
-                delete newRound[newRoundKey];
-            }
-        }
-
-        await setTournamentData(newTournamentData);
-    }
-
     async function patchRoundData(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean) {
         if (!nestInRound) {
             // e.g. 180s/hi-checks, which don't apply to rounds, so can be pass up without including the nested round info.
@@ -294,8 +275,6 @@ export function PrintableSheetMatch({ round, matchData, possibleSides, roundInde
                             vs
                             {matchData.match ? (<MatchSayg
                                 match={matchData.match}
-                                round={round}
-                                onChange={onChange}
                                 matchOptions={matchOptions}
                                 matchIndex={matchIndex}
                                 patchData={patchRoundData}
