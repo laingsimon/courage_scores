@@ -461,7 +461,8 @@ describe('SaygIntegrationTest', () => {
                 id: sayg.id,
                 liveOptions: {},
                 autoSave: true,
-                firstPlayerStartsFinalLeg: true,
+                firstLegPlayerSequence: ['away', 'home'],
+                finalLegPlayerSequence: ['away', 'home'],
             });
 
             // opponent first

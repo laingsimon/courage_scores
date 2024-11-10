@@ -33,8 +33,8 @@ export interface ISaygLoadingContainerProps {
     liveOptions: ILiveOptions;
     matchStatisticsOnly?: boolean;
     lastLegDisplayOptions?: ILegDisplayOptions;
-    firstPlayerStartsFinalLeg?: boolean;
-    firstPlayerStartsFirstLeg?: boolean;
+    firstLegPlayerSequence?: ('home' | 'away')[];
+    finalLegPlayerSequence?: ('home' | 'away')[];
 
     // for testing only
     onScoreChange?(homeScore: number, awayScore: number): UntypedPromise;
@@ -45,7 +45,8 @@ export interface ILoadedScoreAsYouGoDto extends UpdateRecordedScoreAsYouGoDto {
 }
 
 export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved,
-                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions, firstPlayerStartsFinalLeg, firstPlayerStartsFirstLeg }: ISaygLoadingContainerProps) {
+                                         onLoadError, matchStatisticsOnly, lastLegDisplayOptions, liveOptions,
+                                        firstLegPlayerSequence, finalLegPlayerSequence }: ISaygLoadingContainerProps) {
     const [sayg, setSayg] = useState<ILoadedScoreAsYouGoDto>(defaultData);
     const [saveError, setSaveError] = useState<IClientActionResultDto<ILoadedScoreAsYouGoDto> | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -193,8 +194,8 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                         lastLegDisplayOptions={lastLegDisplayOptions}
                         matchStatisticsOnly={matchStatisticsOnly}
                         saveDataAndGetId={saveDataAndGetId}
-                        firstPlayerStartsFinalLeg={firstPlayerStartsFinalLeg}
-                        firstPlayerStartsFirstLeg={firstPlayerStartsFirstLeg}
+                        firstLegPlayerSequence={firstLegPlayerSequence}
+                        finalLegPlayerSequence={finalLegPlayerSequence}
                     />
                 </div>) : null}
             </SaygContext.Provider>

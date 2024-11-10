@@ -11,6 +11,7 @@ import {IBrowserType} from "../common/IBrowserType";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {asyncCallback} from "../../helpers/events";
+import {LegPlayerSequenceDto} from "../../interfaces/models/dtos/Game/Sayg/LegPlayerSequenceDto";
 
 export interface IScoreAsYouGoProps {
     data: UpdateRecordedScoreAsYouGoDto;
@@ -28,14 +29,14 @@ export interface IScoreAsYouGoProps {
     lastLegDisplayOptions?: ILegDisplayOptions;
     matchStatisticsOnly?: boolean;
     saveDataAndGetId(useData?: ScoreAsYouGoDto): Promise<string>;
-    firstPlayerStartsFinalLeg?: boolean;
-    firstPlayerStartsFirstLeg?: boolean;
+    firstLegPlayerSequence?: ('home' | 'away')[];
+    finalLegPlayerSequence?: ('home' | 'away')[];
 }
 
 export function ScoreAsYouGo({
                                  data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer, lastLegDisplayOptions, matchStatisticsOnly,
-                                 saveDataAndGetId, firstPlayerStartsFinalLeg, firstPlayerStartsFirstLeg
+                                 saveDataAndGetId, firstLegPlayerSequence, finalLegPlayerSequence
                              }: IScoreAsYouGoProps) {
     const {onError, account, browser} = useApp();
     const canEditThrows: boolean = account && account.access && account.access.recordScoresAsYouGo;
@@ -71,15 +72,15 @@ export function ScoreAsYouGo({
         return newData;
     }
 
-    function getPlayerSequence() {
+    function getPlayerSequence(): LegPlayerSequenceDto[] {
         if (singlePlayer) {
             return [{value: 'home', text: home}, {value: 'away',text: 'unused-single-player'}];
         }
 
-        if (firstPlayerStartsFirstLeg) {
-            return [
-                {value: 'home', text: home},
-                {value: 'away', text: away}];
+        if (firstLegPlayerSequence) {
+            return firstLegPlayerSequence.map((key: string) => {
+                return { value: key, text: key === 'home' ? home : away };
+            });
         }
 
         return null;
@@ -117,9 +118,16 @@ export function ScoreAsYouGo({
                     newLeg.currentThrow = newLeg.playerSequence[0].value;
                 }
 
-                if (newLeg.isLastLeg && newHomeScore === newAwayScore && newHomeScore > 0 && !firstPlayerStartsFinalLeg) {
-                    // prompt for who should throw first.
-                    newLeg.currentThrow = null;
+                if (newLeg.isLastLeg && newHomeScore === newAwayScore && newHomeScore > 0) {
+                    if (finalLegPlayerSequence) {
+                        newLeg.playerSequence = finalLegPlayerSequence.map(key => {
+                            return { value: key, text: key === 'home' ? home : away };
+                        });
+                    }
+                    else {
+                        // prompt for who should throw first.
+                        newLeg.currentThrow = null;
+                    }
                 }
 
                 await onChange(newData);

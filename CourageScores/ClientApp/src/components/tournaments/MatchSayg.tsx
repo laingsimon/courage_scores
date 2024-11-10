@@ -35,12 +35,11 @@ export interface IMatchSaygProps {
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): UntypedPromise;
     readOnly?: boolean;
     showViewSayg?: boolean;
-    firstPlayerStartsFinalLeg?: boolean;
-    reverseOrder?: boolean;
-    firstPlayerStartsFirstLeg?: boolean;
+    firstLegPlayerSequence?: ('home' | 'away')[];
+    finalLegPlayerSequence?: ('home' | 'away')[];
 }
 
-export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg, firstPlayerStartsFinalLeg, reverseOrder, firstPlayerStartsFirstLeg } : IMatchSaygProps) {
+export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg, firstLegPlayerSequence, finalLegPlayerSequence } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
@@ -84,7 +83,6 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             const request: CreateTournamentSaygDto = {
                 matchOptions: matchOptions,
                 matchId: match.id,
-                reverseOrder,
             };
             const response: IClientActionResultDto<TournamentGameDto> = await tournamentApi.addSayg(tournamentData.id, request);
             if (response.success) {
@@ -166,8 +164,8 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                         }
                     }, true, saygId);
                 }): null}
-                firstPlayerStartsFinalLeg={firstPlayerStartsFinalLeg}
-                firstPlayerStartsFirstLeg={firstPlayerStartsFirstLeg}>
+                firstLegPlayerSequence={firstLegPlayerSequence}
+                finalLegPlayerSequence={finalLegPlayerSequence}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
             <div className="modal-footer px-0 pb-0 mt-3">
