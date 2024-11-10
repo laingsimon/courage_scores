@@ -1,11 +1,12 @@
 import {useApp} from "../common/AppContainer";
 import {useBranding} from "../common/BrandingContainer";
+import {renderDate} from "../../helpers/rendering";
 
 export function Heading() {
     const {build} = useApp();
     const {email, facebook, twitter, name} = useBranding();
 
-    const version = build && build.branch && build.version && build.branch !== 'release' && build.version.substring(0, 8);
+    const version = build && build.branch && build.version && build.branch !== 'release' && build.date;
 
     function showVersion() {
         window.alert(`Branch: ${build.branch}\nSHA: ${build.version.substring(0, 8)}`);
@@ -16,7 +17,7 @@ export function Heading() {
                 <div className="">
                     <a href={`mailto:${email}`} className="white-link no-underline">✉️ {email}</a>
                 </div>
-                {version ? (<span className="text-black bg-warning px-3" onClick={showVersion}>{version}</span>) : null}
+                {version ? (<span className="text-black bg-warning px-3" onClick={showVersion}>{renderDate(version)}</span>) : null}
                 <div className="">
                     <a href={`https://www.facebook.com/${facebook}`} className="white-link no-underline social-icon"
                        target="_blank" rel="noreferrer">
