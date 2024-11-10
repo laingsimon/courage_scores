@@ -235,7 +235,6 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                 return;
             }
 
-            window.alert('Sayg removed from match');
             const newRound: TournamentRoundDto = Object.assign({}, round);
             const newMatch: TournamentMatchDto = Object.assign({}, match);
             newRound.matches[matchIndex] = newMatch;
