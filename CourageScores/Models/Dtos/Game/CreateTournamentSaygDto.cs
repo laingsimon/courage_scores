@@ -14,9 +14,4 @@ public class CreateTournamentSaygDto
     /// The options for this match
     /// </summary>
     public GameMatchOptionDto? MatchOptions { get; set; }
-
-    /// <summary>
-    /// Reverse the order of sides
-    /// </summary>
-    public bool ReverseOrder { get; set; }
 }
