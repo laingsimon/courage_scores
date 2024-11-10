@@ -61,7 +61,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                         </thead>
                         <tbody>
                         {matches.map((m: TournamentMatchDto, index: number) => {
-                            const evenNumberedMatch: boolean = (index + 1) % 2 === 0;
+                            const oddNumberedMatch: boolean = (index + 1) % 2 !== 0;
 
                             return (<tr key={index}>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{index + 1}</td>
@@ -78,9 +78,8 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                                         patchData={patchRoundData}
                                         readOnly={readOnly}
                                         showViewSayg={true}
-                                        firstPlayerStartsFinalLeg={true}
-                                        firstPlayerStartsFirstLeg={true}
-                                        reverseOrder={evenNumberedMatch} />
+                                        firstLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']}
+                                        finalLegPlayerSequence={oddNumberedMatch ? ['away', 'home'] : ['home', 'away']} />
                                 </td>
                             </tr>);
                         })}
