@@ -5,6 +5,7 @@ import {useEffect} from "react";
 import {IEditingThrow} from "./IEditingThrow";
 import {useEditableSayg} from "./EditableSaygContainer";
 import {useTournament} from "../tournaments/TournamentContainer";
+import {useApp} from "../common/AppContainer";
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;
@@ -27,6 +28,8 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const {editScore, setEditScore} = useEditableSayg();
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
     const {preventScroll} = useTournament();
+    const {account} = useApp();
+    const largeScores = preventScroll || (account && account.access && account.access.kioskMode);
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);
@@ -163,7 +166,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         away: leg.startingScore,
     };
     return (<div className="d-flex flex-column">
-        <div className={`d-flex flex-row justify-content-stretch${preventScroll ? ' super-size' : ''}`}>
+        <div className={`d-flex flex-row justify-content-stretch${largeScores ? ' super-size' : ''}`}>
             {renderPlayer('home', leg.home.score, 'text-center me-5')}
             {singlePlayer
                 ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-1 text-center">Leg {homeScore + 1}</div>)
