@@ -2,6 +2,7 @@ import {appProps, cleanUp, doClick, iocProps, renderApp, TestContext} from "../.
 import {Heading} from "./Heading";
 import {IBuild} from "../common/IBuild";
 import {IBrandingContainerProps} from "../common/BrandingContainer";
+import {renderDate} from "../../helpers/rendering";
 
 describe('Heading', () => {
     let context: TestContext;
@@ -85,7 +86,7 @@ describe('Heading', () => {
 
             const version = context.container.querySelector('span.bg-warning') as HTMLElement;
             expect(version).toBeTruthy();
-            expect(version.textContent).toEqual('01234567');
+            expect(version.textContent).toEqual(renderDate('2023-04-05T06:07:08'));
         });
 
         it('when clicked', async () => {

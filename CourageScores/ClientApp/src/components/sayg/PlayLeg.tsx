@@ -25,9 +25,10 @@ export interface IPlayLegProps {
     awayScore?: number;
     singlePlayer?: boolean;
     previousLeg?: LegDto;
+    minimisePlayerNames?: boolean;
 }
 
-export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious}: IPlayLegProps) {
+export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer, previousLeg, onChangePrevious, minimisePlayerNames}: IPlayLegProps) {
     const [savingInput, setSavingInput] = useState<boolean>(false);
     const [showCheckout, setShowCheckout] = useState<'home' | 'away'>(null);
     const [score, setScore] = useState('');
@@ -191,8 +192,8 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
         const lastThrow: LegThrowDto = winner.throws[winner.throws.length - 1];
 
-        return (<div className="position-absolute left-0 right-0 mt-2" datatype="change-checkout">
-            <div className="alert alert-info mt-5 text-center">
+        return (<div className="position-relative left-0 right-0" datatype="change-checkout">
+            <div className="position-absolute alert alert-info text-center bottom-0 left-0 right-0">
                 <div>
                     <b>{previousWinner === 'home' ? home : 'away'}</b> checked out <b>{lastThrow.score}</b> with <b>{lastThrow.noOfDarts}</b> dart/s.
                 </div>
@@ -210,7 +211,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             {playerOptions().map((op: IBootstrapDropdownItem) => (<button key={op.value} className="btn btn-primary margin-right"
                                                                           onClick={() => firstPlayerChanged(op.value)}>🎯<br/>{op.text}</button>))}
         </div>)}
-        {canEditPreviousCheckout ? renderEditCheckoutDarts() : null}
         {leg.playerSequence && leg.currentThrow ? (<PreviousPlayerScore
             leg={leg}
             homeScore={homeScore}
@@ -219,7 +219,9 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             home={home}
             away={away}
             currentScore={score ? Number.parseInt(score) : null}
+            minimisePlayerNames={minimisePlayerNames}
         />) : null}
+        {canEditPreviousCheckout ? renderEditCheckoutDarts() : null}
         {leg.playerSequence && leg.currentThrow ? (<div className={editScore ? ' bg-warning' : ''}>
             <PlayerInput
                 score={score}

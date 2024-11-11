@@ -4,6 +4,8 @@ import {repeat} from "../../helpers/projection";
 import {useEffect} from "react";
 import {IEditingThrow} from "./IEditingThrow";
 import {useEditableSayg} from "./EditableSaygContainer";
+import {useTournament} from "../tournaments/TournamentContainer";
+import {useApp} from "../common/AppContainer";
 
 export interface IPreviousPlayerScoreProps {
     homeScore: number;
@@ -13,6 +15,7 @@ export interface IPreviousPlayerScoreProps {
     home: string;
     away: string;
     currentScore?: number;
+    minimisePlayerNames?: boolean;
 }
 
 interface IRunningScore {
@@ -20,11 +23,14 @@ interface IRunningScore {
     away: number;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore, minimisePlayerNames}: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
     const {editScore, setEditScore} = useEditableSayg();
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
+    const {preventScroll} = useTournament();
+    const {account} = useApp();
+    const largeScores = preventScroll || (account && account.access && account.access.kioskMode);
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);
@@ -56,12 +62,17 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
 
     function renderPlayer(currentPlayer: string, score: number, className: string) {
         const suffix: string = leg.currentThrow === currentPlayer
-            ? 'text-primary fw-bold bg-info text-white'
+            ? 'bg-info text-dark'
             : null;
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
-            {currentPlayer === 'home' ? home : away}
-            <span className="fs-1 ms-3">{leg.startingScore - score}</span>
+            <div className={`overflow-hidden no-wrap${minimisePlayerNames ? ' fs-4 d-block' : ''}`}>{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
+            <div>{leg.startingScore - score}</div>
         </div>);
+    }
+
+    function firstNameOnly(name: string): string {
+        const names: string[] = name?.split(' ') || [];
+        return names.length >= 1 ? names[0] : '';
     }
 
     function renderScoreBeingEdited(score: number, remaining: number, bust: boolean) {
@@ -156,11 +167,11 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
         away: leg.startingScore,
     };
     return (<div className="d-flex flex-column">
-        <div className="d-flex flex-row justify-content-stretch fs-3">
+        <div className={`d-flex flex-row justify-content-stretch${largeScores ? ' super-size' : ''}`}>
             {renderPlayer('home', leg.home.score, 'text-center me-5')}
             {singlePlayer
                 ? (<div className="flex-basis-0 flex-grow-1 flex-shrink-1 text-center">Leg {homeScore + 1}</div>)
-                : (<div>{homeScore} - {awayScore}</div>)}
+                : (<div>{homeScore} - {awayScore || '0'}</div>)}
 
             {!singlePlayer ? renderPlayer('away', leg.away.score, 'text-center ms-5') : null}
         </div>

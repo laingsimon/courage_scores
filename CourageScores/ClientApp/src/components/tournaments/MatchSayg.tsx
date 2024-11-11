@@ -15,7 +15,6 @@ import {DebugOptions} from "../common/DebugOptions";
 import {TournamentSideDto} from "../../interfaces/models/dtos/Game/TournamentSideDto";
 import {count} from "../../helpers/collections";
 import {useTournament} from "./TournamentContainer";
-import {TournamentRoundDto} from "../../interfaces/models/dtos/Game/TournamentRoundDto";
 import {TournamentMatchDto} from "../../interfaces/models/dtos/Game/TournamentMatchDto";
 import {GameMatchOptionDto} from "../../interfaces/models/dtos/Game/GameMatchOptionDto";
 import {TournamentPlayerDto} from "../../interfaces/models/dtos/Game/TournamentPlayerDto";
@@ -27,11 +26,9 @@ import {UntypedPromise} from "../../interfaces/UntypedPromise";
 import {asyncClear} from "../../helpers/events";
 
 export interface IMatchSaygProps {
-    round: TournamentRoundDto;
     match: TournamentMatchDto;
     matchIndex: number;
     matchOptions: GameMatchOptionDto;
-    onChange?(round: TournamentRoundDto): UntypedPromise;
     patchData?(patch: PatchTournamentDto | PatchTournamentRoundDto, nestInRound?: boolean, saygId?: string): UntypedPromise;
     readOnly?: boolean;
     showViewSayg?: boolean;
@@ -39,7 +36,7 @@ export interface IMatchSaygProps {
     finalLegPlayerSequence?: ('home' | 'away')[];
 }
 
-export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, patchData, readOnly, showViewSayg, firstLegPlayerSequence, finalLegPlayerSequence } : IMatchSaygProps) {
+export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly, showViewSayg, firstLegPlayerSequence, finalLegPlayerSequence } : IMatchSaygProps) {
     const {tournamentData, setTournamentData, saveTournament, setPreventScroll} = useTournament();
     const {account, onError} = useApp();
     const {tournamentApi, settings} = useDependencies();
@@ -147,7 +144,7 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
             publish: true,
         };
 
-        return (<Dialog slim={true} className="text-start">
+        return (<Dialog className="text-start" fullScreen={true}>
             <SaygLoadingContainer
                 id={saygId}
                 onHiCheck={recordHiCheck}
@@ -165,7 +162,8 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                     }, true, saygId);
                 }): null}
                 firstLegPlayerSequence={firstLegPlayerSequence}
-                finalLegPlayerSequence={finalLegPlayerSequence}>
+                finalLegPlayerSequence={finalLegPlayerSequence}
+                minimisePlayerNames={false}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
             <div className="modal-footer px-0 pb-0 mt-3">
@@ -235,14 +233,20 @@ export function MatchSayg({ round, match, matchIndex, matchOptions, onChange, pa
                 return;
             }
 
-            window.alert('Sayg removed from match');
-            const newRound: TournamentRoundDto = Object.assign({}, round);
-            const newMatch: TournamentMatchDto = Object.assign({}, match);
-            newRound.matches[matchIndex] = newMatch;
-            newMatch.saygId = null;
-            await onChange(newRound);
-            changeDialogState(false);
+            const clearScores = window.confirm('Clear match score (to allow scores to be re-recorded?)');
+            if (clearScores) {
+                const responseRound = response.result.round;
+                const responseMatch = responseRound.matches[matchIndex];
+
+                responseMatch.scoreA = 0;
+                responseMatch.scoreB = 0;
+            }
+
             await setTournamentData(response.result);
+            if (clearScores) {
+                await saveTournament(true); // prevent a loading display; which will corrupt the state of this component instance
+            }
+            changeDialogState(false);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);

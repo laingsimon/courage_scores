@@ -106,6 +106,9 @@ describe('PrintableSheetMatch', () => {
             matchOptionDefaults,
             preventScroll: false,
             setPreventScroll,
+            async saveTournament(): Promise<TournamentGameDto> {
+                return tournamentData;
+            }
         };
     }
 
@@ -233,9 +236,21 @@ describe('PrintableSheetMatch', () => {
         const sideB = sideBuilder('SIDE B').build();
         const sideC = sideBuilder('SIDE C').build();
         const tournamentData: TournamentGameDto = tournamentBuilder().build();
+        let saygData: RecordedScoreAsYouGoDto & UpdateRecordedScoreAsYouGoDto;
+        let matchData: ILayoutDataForMatch;
+        let tournamentDataWithMatch: TournamentGameDto;
 
-        it('can change side and score for sideA', async () => {
-            const matchData: ILayoutDataForMatch = {
+        beforeEach(() => {
+             saygData = saygBuilder()
+                .yourName('SIDE A')
+                .opponentName('SIDE B')
+                .scores(1, 2)
+                .numberOfLegs(3)
+                .startingScore(501)
+                .addTo(saygDataLookup)
+                .build();
+
+             matchData = {
                 scoreB: '7',
                 scoreA: '5',
                 sideA: { id: null, name: null, link: null },
@@ -243,6 +258,17 @@ describe('PrintableSheetMatch', () => {
                 mnemonic: 'M1',
                 hideMnemonic: true,
             };
+
+            tournamentDataWithMatch = tournamentBuilder()
+                .round((r: ITournamentRoundBuilder) => r
+                    .withMatch((m: ITournamentMatchBuilder) => m
+                        .sideA(sideA)
+                        .sideB(sideB)
+                        .saygId(saygData.id)))
+                .build();
+        })
+
+        it('can change side and score for sideA', async () => {
             await renderComponent(
                 containerProps(tournamentData, matchOptionDefaults),
                 props(matchData, true, sideA, sideB, sideC),
@@ -274,14 +300,6 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('can change side and score for sideB', async () => {
-            const matchData: ILayoutDataForMatch = {
-                scoreB: '7',
-                scoreA: '5',
-                sideA: { id: null, name: null, link: null },
-                sideB: { id: null, name: null, link: null },
-                mnemonic: 'M1',
-                hideMnemonic: true,
-            };
             await renderComponent(
                 containerProps(tournamentData, matchOptionDefaults),
                 props(matchData, true, sideA, sideB, sideC),
@@ -455,14 +473,7 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('preselects side to mnemonic', async () => {
-            const matchData: ILayoutDataForMatch = {
-                scoreB: '7',
-                scoreA: '5',
-                sideA: { id: null, name: null, link: null, mnemonic: sideC.name },
-                sideB: { id: null, name: null, link: null },
-                mnemonic: 'M1',
-                hideMnemonic: true,
-            };
+            matchData.sideA.mnemonic = sideC.name;
             await renderComponent(
                 containerProps(tournamentData, matchOptionDefaults),
                 props(matchData, true, sideA, sideB, sideC),
@@ -492,14 +503,6 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('cannot save side when no side selected', async () => {
-            const matchData: ILayoutDataForMatch = {
-                scoreB: '7',
-                scoreA: '5',
-                sideA: { id: null, name: null, link: null },
-                sideB: { id: null, name: null, link: null },
-                mnemonic: 'M1',
-                hideMnemonic: true,
-            };
             await renderComponent(
                 containerProps(tournamentData, matchOptionDefaults),
                 props(matchData, true, sideA, sideB, sideC),
@@ -710,16 +713,7 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('shows layout match options number of legs when present', async () => {
-            const matchOptions: GameMatchOptionDto = matchOptionsBuilder().numberOfLegs(9).build();
-            const matchData: ILayoutDataForMatch = {
-                scoreB: '7',
-                scoreA: '5',
-                sideA: { id: null, name: null, link: null },
-                sideB: { id: null, name: null, link: null },
-                mnemonic: 'M1',
-                hideMnemonic: true,
-                matchOptions,
-            };
+            matchData.matchOptions = matchOptionsBuilder().numberOfLegs(9).build();
             await renderComponent(
                 containerProps(tournamentData, matchOptionDefaults),
                 props(matchData, true, sideA, sideB, sideC),
@@ -734,14 +728,6 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('shows default match options number of legs when match options not present', async () => {
-            const matchData: ILayoutDataForMatch = {
-                scoreB: '7',
-                scoreA: '5',
-                sideA: { id: null, name: null, link: null },
-                sideB: { id: null, name: null, link: null },
-                mnemonic: 'M1',
-                hideMnemonic: true,
-            };
             await renderComponent(
                 containerProps(tournamentData, matchOptionDefaults),
                 props(matchData, true, sideA, sideB, sideC),
@@ -884,21 +870,6 @@ describe('PrintableSheetMatch', () => {
         });
 
         it('can view scores for match with sayg', async () => {
-            const saygData = saygBuilder()
-                .yourName('SIDE A')
-                .opponentName('SIDE B')
-                .scores(1, 2)
-                .numberOfLegs(3)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-            const tournamentData: TournamentGameDto = tournamentBuilder()
-                .round((r: ITournamentRoundBuilder) => r
-                    .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(sideA)
-                        .sideB(sideB)
-                        .saygId(saygData.id)))
-                .build();
             const matchData: ILayoutDataForMatch = {
                 scoreA: '1',
                 scoreB: '2',
@@ -906,10 +877,10 @@ describe('PrintableSheetMatch', () => {
                 sideB: { id: createTemporaryId(), link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
                 mnemonic: 'M1',
                 hideMnemonic: true,
-                match: tournamentData.round.matches[0],
+                match: tournamentDataWithMatch.round.matches[0],
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
+                containerProps(tournamentDataWithMatch, matchOptionDefaults),
                 patchable(props(matchData, true)),
                 appProps({ }, reportedError));
 
@@ -918,21 +889,12 @@ describe('PrintableSheetMatch', () => {
             expect(link.href).toEqual(`http://localhost/live/match/${saygData.id}`);
         });
 
-        it('can delete sayg from match', async () => {
-            const saygData = saygBuilder()
-                .yourName('SIDE A')
-                .opponentName('SIDE B')
-                .scores(1, 2)
-                .numberOfLegs(3)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+        it('can delete sayg from match and keep scores', async () => {
+            const tournamentDataWithoutSayg: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
-                        .sideA(sideA)
-                        .sideB(sideB)
-                        .saygId(saygData.id)))
+                        .sideA(sideA, 1)
+                        .sideB(sideB, 2)))
                 .build();
             const matchData: ILayoutDataForMatch = {
                 scoreA: '1',
@@ -941,20 +903,18 @@ describe('PrintableSheetMatch', () => {
                 sideB: { id: createTemporaryId(), link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
                 mnemonic: 'M1',
                 hideMnemonic: true,
-                match: tournamentData.round.matches[0],
+                match: tournamentDataWithMatch.round.matches[0],
                 saygId: saygData.id,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
-                withRound(patchable(props(matchData, true)), tournamentData.round),
+                containerProps(tournamentDataWithMatch, matchOptionDefaults),
+                withRound(patchable(props(matchData, true)), tournamentDataWithMatch.round),
                 appProps({ account: user(true, true) }, reportedError));
             window.confirm = (msg: string) => msg === 'Are you sure you want to delete the sayg data for this match?';
-            let alert: string = null;
-            window.alert = (msg) => alert = msg;
             deletedSaygResponse = {
                 success: true,
-                result: tournamentData,
-            }
+                result: tournamentDataWithoutSayg,
+            };
 
             await doClick(findButton(context.container, START_SCORING));
             const dialog = context.container.querySelector('.modal-dialog');
@@ -964,28 +924,20 @@ describe('PrintableSheetMatch', () => {
 
             reportedError.verifyNoError();
             expect(deletedSayg).toEqual({
-                id: tournamentData.id,
-                matchId: tournamentData.round.matches[0].id,
+                id: tournamentDataWithMatch.id,
+                matchId: tournamentDataWithMatch.round.matches[0].id,
             });
-            expect(updatedTournament.round.matches[0].saygId).toBeNull();
-            expect(alert).toEqual('Sayg removed from match');
+            expect(updatedTournament.round.matches[0].saygId).toBeFalsy();
+            expect(updatedTournament.round.matches[0].scoreA).toEqual(1);
+            expect(updatedTournament.round.matches[0].scoreB).toEqual(2);
         });
 
-        it('handles error deleting sayg from match', async () => {
-            const saygData = saygBuilder()
-                .yourName('SIDE A')
-                .opponentName('SIDE B')
-                .scores(1, 2)
-                .numberOfLegs(3)
-                .startingScore(501)
-                .addTo(saygDataLookup)
-                .build();
-            const tournamentData: TournamentGameDto = tournamentBuilder()
+        it('can delete sayg from match and clear scores', async () => {
+            const tournamentDataWithoutSayg: TournamentGameDto = tournamentBuilder()
                 .round((r: ITournamentRoundBuilder) => r
                     .withMatch((m: ITournamentMatchBuilder) => m
                         .sideA(sideA)
-                        .sideB(sideB)
-                        .saygId(saygData.id)))
+                        .sideB(sideB)))
                 .build();
             const matchData: ILayoutDataForMatch = {
                 scoreA: '1',
@@ -994,12 +946,49 @@ describe('PrintableSheetMatch', () => {
                 sideB: { id: createTemporaryId(), link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
                 mnemonic: 'M1',
                 hideMnemonic: true,
-                match: tournamentData.round.matches[0],
+                match: tournamentDataWithMatch.round.matches[0],
                 saygId: saygData.id,
             };
             await renderComponent(
-                containerProps(tournamentData, matchOptionDefaults),
-                withRound(patchable(props(matchData, true)), tournamentData.round),
+                containerProps(tournamentDataWithMatch, matchOptionDefaults),
+                withRound(patchable(props(matchData, true)), tournamentDataWithMatch.round),
+                appProps({ account: user(true, true) }, reportedError));
+            window.confirm = (msg: string) => msg === 'Are you sure you want to delete the sayg data for this match?' || msg === 'Clear match score (to allow scores to be re-recorded?)';
+            deletedSaygResponse = {
+                success: true,
+                result: tournamentDataWithoutSayg,
+            };
+
+            await doClick(findButton(context.container, START_SCORING));
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Debug options'));
+            await doSelectOption(dialog.querySelector('[datatype="debug-options"] .dropdown-menu'), 'Delete sayg');
+
+            reportedError.verifyNoError();
+            expect(deletedSayg).toEqual({
+                id: tournamentDataWithMatch.id,
+                matchId: tournamentDataWithMatch.round.matches[0].id,
+            });
+            expect(updatedTournament.round.matches[0].saygId).toBeFalsy();
+            expect(updatedTournament.round.matches[0].scoreA).toEqual(0);
+            expect(updatedTournament.round.matches[0].scoreB).toEqual(0);
+        });
+
+        it('handles error deleting sayg from match', async () => {
+            const matchData: ILayoutDataForMatch = {
+                scoreA: '1',
+                scoreB: '2',
+                sideA: { id: createTemporaryId(), link: (<span>SIDE A</span>), name: '', mnemonic: 'A' },
+                sideB: { id: createTemporaryId(), link: (<span>SIDE B</span>), name: '', mnemonic: 'B' },
+                mnemonic: 'M1',
+                hideMnemonic: true,
+                match: tournamentDataWithMatch.round.matches[0],
+                saygId: saygData.id,
+            };
+            await renderComponent(
+                containerProps(tournamentDataWithMatch, matchOptionDefaults),
+                withRound(patchable(props(matchData, true)), tournamentDataWithMatch.round),
                 appProps({ account: user(true, true) }, reportedError));
             window.confirm = (msg: string) => msg === 'Are you sure you want to delete the sayg data for this match?';
             deletedSaygResponse = {
@@ -1013,8 +1002,8 @@ describe('PrintableSheetMatch', () => {
             await doSelectOption(dialog.querySelector('[datatype="debug-options"] .dropdown-menu'), 'Delete sayg');
 
             expect(deletedSayg).toEqual({
-                id: tournamentData.id,
-                matchId: tournamentData.round.matches[0].id,
+                id: tournamentDataWithMatch.id,
+                matchId: tournamentDataWithMatch.round.matches[0].id,
             });
             expect(updatedTournament).toBeNull();
         });
