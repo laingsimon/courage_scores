@@ -20,6 +20,7 @@ export function NavMenu() {
     const [collapsed, setCollapsed] = useState<boolean>(true);
     const [navMenuError, setNavMenuError] = useState<IError | null>(null);
     const location = useLocation();
+    const fullScreen = account && account.access && account.access.kioskMode;
 
     useEffect(() => {
         setCollapsed(true);
@@ -111,7 +112,7 @@ export function NavMenu() {
     try {
         return (<header className="d-print-none" data-state={collapsed ? 'collapsed' : 'expanded'}>
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container>
-                <NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>
+                {fullScreen ? null : (<NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>)}
                 <button onClick={() => setCollapsed(!collapsed)} type="button" className="mr-2 navbar-toggler">
                     {appLoading
                         ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
@@ -119,14 +120,14 @@ export function NavMenu() {
                 </button>
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
-                        {renderItems('beforeDivisions')}
+                        {fullScreen ? null : renderItems('beforeDivisions')}
                         {!appLoading && divisions.filter(shouldShowDivision).map((division: DivisionDto) => (
                             <li className="nav-item" key={division.id}>
                                 <NavLink tag={Link} onClick={navigate} to={getDivisionAddress(division)}>
                                     {division.name}
                                 </NavLink>
                             </li>))}
-                        {renderItems('afterDivisions')}
+                        {fullScreen ? null : renderItems('afterDivisions')}
                         {appLoading ? (<li className="nav-item"><NavLink><LoadingSpinnerSmall/></NavLink></li>) : null}
                         {!appLoading && account && account.access && hasAdminAccess(account.access)
                             ? (<li className="nav-item">
