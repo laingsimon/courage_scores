@@ -15,6 +15,7 @@ export interface IPreviousPlayerScoreProps {
     home: string;
     away: string;
     currentScore?: number;
+    minimisePlayerNames?: boolean;
 }
 
 interface IRunningScore {
@@ -22,7 +23,7 @@ interface IRunningScore {
     away: number;
 }
 
-export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore}: IPreviousPlayerScoreProps) {
+export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, singlePlayer, currentScore, minimisePlayerNames}: IPreviousPlayerScoreProps) {
     const homeThrows: LegThrowDto[] = leg.home ? leg.home.throws : [];
     const awayThrows: LegThrowDto[] = leg.away ? leg.away.throws : [];
     const {editScore, setEditScore} = useEditableSayg();
@@ -64,7 +65,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
             ? 'bg-info text-dark'
             : null;
         return (<div className={`flex-basis-0 flex-grow-1 flex-shrink-1 ${className} ${suffix}`} datatype={currentPlayer === leg.currentThrow ? 'current-player' : ''}>
-            <div className="overflow-hidden no-wrap">{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
+            <div className={`overflow-hidden no-wrap${minimisePlayerNames ? ' fs-4 d-block' : ''}`}>{firstNameOnly(currentPlayer === 'home' ? home : away)}</div>
             <div>{leg.startingScore - score}</div>
         </div>);
     }

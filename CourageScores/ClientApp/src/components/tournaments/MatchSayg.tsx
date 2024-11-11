@@ -162,7 +162,8 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                     }, true, saygId);
                 }): null}
                 firstLegPlayerSequence={firstLegPlayerSequence}
-                finalLegPlayerSequence={finalLegPlayerSequence}>
+                finalLegPlayerSequence={finalLegPlayerSequence}
+                minimisePlayerNames={false}>
                 <SuperleagueMatchHeading match={match} />
             </SaygLoadingContainer>
             <div className="modal-footer px-0 pb-0 mt-3">
