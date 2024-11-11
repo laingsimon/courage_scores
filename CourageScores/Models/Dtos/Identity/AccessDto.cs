@@ -31,4 +31,5 @@ public class AccessDto
     public bool DeleteAnyPhoto { get; set; }
     public bool BulkDeleteLeagueFixtures { get; set; }
     public bool ManageFeatures { get; set; }
+    public bool KioskMode { get; set; }
 }

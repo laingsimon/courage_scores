@@ -35,6 +35,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ViewAnyPhoto = model.ViewAnyPhoto,
             BulkDeleteLeagueFixtures = model.BulkDeleteLeagueFixtures,
             ManageFeatures = model.ManageFeatures,
+            KioskMode = model.KioskMode,
         });
     }
 
@@ -68,6 +69,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ViewAnyPhoto = dto.ViewAnyPhoto,
             BulkDeleteLeagueFixtures = dto.BulkDeleteLeagueFixtures,
             ManageFeatures = dto.ManageFeatures,
+            KioskMode = dto.KioskMode,
         });
     }
 }
