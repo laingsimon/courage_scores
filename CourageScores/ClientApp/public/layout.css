@@ -420,3 +420,7 @@ body .width-50 {
 .flex-basis-0 {
     flex-basis: 0;
 }
+
+.super-size {
+    font-size: 60px;
+}
