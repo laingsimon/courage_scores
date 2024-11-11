@@ -11,7 +11,8 @@ export interface ILayoutProps {
 }
 
 export function Layout({children}: ILayoutProps) {
-    const {error, onError, embed} = useApp();
+    const {error, onError, embed, account} = useApp();
+    const hideHeaderAndFooter = account && account.access && account.access.kioskMode;
 
     function renderError() {
         return (<PageError error={error}/>)
@@ -28,12 +29,12 @@ export function Layout({children}: ILayoutProps) {
     try {
         return (
             <div>
-                <Heading/>
+                {hideHeaderAndFooter ? null : (<Heading/>)}
                 <NavMenu/>
                 {error ? renderError() : (<Container className="full-screen-print-mode">
                     {children}
                 </Container>)}
-                <Footer/>
+                {hideHeaderAndFooter ? null : (<Footer/>)}
             </div>
         );
     } catch (e) {

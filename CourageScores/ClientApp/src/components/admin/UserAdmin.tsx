@@ -189,6 +189,7 @@ export function UserAdmin() {
                 <h6>Live scoring (super league)</h6>
                 {renderAccessOption('recordScoresAsYouGo', 'Record scores as they\'re played', 'Record scores as matches are played. Required for super league')}
                 {renderAccessOption('useWebSockets', 'Show live results', 'Show results as they\'re recorded on other devices (tv/mobile)')}
+                {renderAccessOption('kioskMode', 'Score results in full screen', 'Enter full screen when recording scores')}
             </div>
             <div className="border-1 border-secondary border-solid m-1 p-2">
                 <h6>Photos</h6>

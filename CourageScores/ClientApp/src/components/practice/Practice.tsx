@@ -76,7 +76,8 @@ export function Practice() {
                     }
                 }}
                 liveOptions={liveOptions}
-                onLoadError={async (error: string) => setDataError(error)}>
+                onLoadError={async (error: string) => setDataError(error)}
+                minimisePlayerNames={true}>
                 <EditSaygPracticeOptions />
             </SaygLoadingContainer>
         </div>);

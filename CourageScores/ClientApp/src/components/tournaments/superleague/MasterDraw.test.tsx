@@ -11,6 +11,7 @@ import {
 import {IMasterDrawProps, MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../helpers/rendering";
 import {
+    ITournamentMatchBuilder,
     ITournamentRoundBuilder,
     tournamentBuilder,
     tournamentMatchBuilder
@@ -50,6 +51,10 @@ describe('MasterDraw', () => {
             saygDeleted = { id, matchId };
             return {
                 success: true,
+                result: tournamentBuilder()
+                    .round((r: ITournamentRoundBuilder) => r
+                        .withMatch((m: ITournamentMatchBuilder) => m))
+                    .build(),
             }
         }
     });
