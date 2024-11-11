@@ -4,12 +4,14 @@ import {useSayg} from "../sayg/SaygLoadingContainer";
 import {UpdateRecordedScoreAsYouGoDto} from "../../interfaces/models/dtos/Game/Sayg/UpdateRecordedScoreAsYouGoDto";
 import {useEditableSayg} from "../sayg/EditableSaygContainer";
 import {useLocation, useNavigate} from "react-router-dom";
+import {useApp} from "../common/AppContainer";
 
 export function EditSaygPracticeOptions() {
     const {sayg, setSayg, saveDataAndGetId} = useSayg();
     const {setEditScore} = useEditableSayg();
     const location = useLocation();
     const navigate = useNavigate();
+    const {account} = useApp();
     const query: URLSearchParams = new URLSearchParams(location.search);
 
     async function restart() {
@@ -19,6 +21,26 @@ export function EditSaygPracticeOptions() {
         newSayg.awayScore = 0;
         await setSayg(newSayg);
         await setEditScore(null);
+        await enterFullScreen();
+    }
+
+    async function enterFullScreen() {
+        if (document.fullscreenEnabled && account && account.access && account.access.kioskMode) {
+            await document.body.requestFullscreen();
+        }
+    }
+
+    async function toggleFullScreen() {
+        if (document.fullscreenElement) {
+            await leaveFullScreen();
+            return;
+        }
+
+        await enterFullScreen();
+    }
+
+    async function leaveFullScreen() {
+        await document.exitFullscreen();
     }
 
     function setQueryString(newQuery: URLSearchParams, key: string, value: string) {
@@ -53,6 +75,10 @@ export function EditSaygPracticeOptions() {
         await setSayg(newSayg);
     }
 
+    if (!sayg) {
+        return null;
+    }
+
     return (<>
         <div className="input-group my-3">
             <div className="input-group-prepend">
@@ -79,6 +105,7 @@ export function EditSaygPracticeOptions() {
             <input placeholder="Optional" className="form-control" name="opponentName"
                    value={sayg.opponentName || ''} onChange={valueChanged(sayg, updateQueryParameters)}/>
             <button className="btn btn-primary" onClick={restart}>Restart...</button>
+            {document.fullscreenEnabled ? (<button className="btn btn-primary" onClick={toggleFullScreen}>🔍</button>) : null}
         </div>
     </>);
 }
