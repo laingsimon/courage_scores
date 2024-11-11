@@ -20,7 +20,7 @@ export interface IMasterDrawProps {
 
 export function MasterDraw({matches, host, opponent, gender, date, type, patchData, readOnly}: IMasterDrawProps) {
     const {onError} = useApp();
-    const {tournamentData, setEditTournament } = useTournament();
+    const {tournamentData, setEditTournament, preventScroll } = useTournament();
     const matchOptions: GameMatchOptionDto = {
         numberOfLegs: tournamentData.bestOf,
     };
@@ -40,8 +40,8 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
             <h2 onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>Master draw</h2>
             <div className="d-flex flex-row">
                 <div>
-                    <table className="table">
-                        <thead>
+                    <table className={`table${preventScroll ? ' max-height-100' : ''}`}>
+                        {preventScroll ? null : (<thead>
                         <tr onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>
                             <th>#</th>
                             <th>{host}</th>
@@ -49,16 +49,16 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                             <th>{opponent}</th>
                             <th className="d-print-none"></th>
                         </tr>
-                        </thead>
+                        </thead>)}
                         <tbody>
                         {matches.map((m: TournamentMatchDto, index: number) => {
                             const oddNumberedMatch: boolean = (index + 1) % 2 !== 0;
 
                             return (<tr key={index}>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{index + 1}</td>
-                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{m.sideA.name}</td>
+                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{preventScroll ? '' : m.sideA.name}</td>
                                 <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>v</td>
-                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{m.sideB.name}</td>
+                                <td onClick={setEditTournament ? async () => await setEditTournament('matches') : null}>{preventScroll ? '' : m.sideB.name}</td>
                                 <td className="d-print-none">
                                     <MatchSayg
                                         match={m}
@@ -73,7 +73,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                             </tr>);
                         })}
                         </tbody>
-                        {setEditTournament ? (<tfoot className="d-print-none">
+                        {setEditTournament && !preventScroll ? (<tfoot className="d-print-none">
                         <tr>
                             <td colSpan={5} onClick={async () => await setEditTournament('matches')}>
                                 <div className="alert alert-warning p-2">
@@ -84,7 +84,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                         </tfoot>) : null}
                     </table>
                 </div>
-                <div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
+                {preventScroll ? null : (<div className="px-5" datatype="details" onClick={setEditTournament ? async () => await setEditTournament('details') : null}>
                     <div>Gender: <span className="fw-bold">{gender}</span></div>
                     <div>Date: <span className="fw-bold">{renderDate(date)}</span></div>
                     {type ? (<div>Notes: <span className="fw-bold">{type}</span></div>) : null}
@@ -92,7 +92,7 @@ export function MasterDraw({matches, host, opponent, gender, date, type, patchDa
                     {setEditTournament ? (<div className="d-print-none alert alert-warning p-2 m-3 ms-0">
                         Click to edit details
                     </div>) : null}
-                </div>
+                </div>)}
             </div>
         </div>);
     } catch (e) {
