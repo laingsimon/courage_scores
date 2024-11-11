@@ -30,7 +30,7 @@ export function PreviousPlayerScore({home, away, leg, homeScore, awayScore, sing
     const maxThrows: number = getMaxThrows(homeThrows, awayThrows);
     const {preventScroll} = useTournament();
     const {account} = useApp();
-    const largeScores = preventScroll || (account && account.access && account.access.kioskMode);
+    const largeScores = preventScroll || (account && account.access && account.access.kioskMode) || document.fullscreenElement;
 
     useEffect(() => {
         window.setTimeout(scrollToLastScore, 10);

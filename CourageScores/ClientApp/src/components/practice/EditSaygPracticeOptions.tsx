@@ -21,11 +21,13 @@ export function EditSaygPracticeOptions() {
         newSayg.awayScore = 0;
         await setSayg(newSayg);
         await setEditScore(null);
-        await enterFullScreen();
+        if (account && account.access && account.access.kioskMode) {
+            await enterFullScreen();
+        }
     }
 
     async function enterFullScreen() {
-        if (document.fullscreenEnabled && account && account.access && account.access.kioskMode) {
+        if (document.fullscreenEnabled) {
             await document.body.requestFullscreen();
         }
     }
