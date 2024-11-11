@@ -113,25 +113,25 @@ export function NumberKeyboard({ value, onChange, maxValue, onEnter }: INumberKe
             {renderNumberButton(8)}
             {renderNumberButton(9)}
 
-            {renderQuickButton(100)}
+            {renderQuickButton(45)}
         </div>
         <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
-            {renderQuickButton(60)}
+            {renderQuickButton(41)}
 
             {renderNumberButton(4)}
             {renderNumberButton(5)}
             {renderNumberButton(6)}
 
-            {renderQuickButton(40)}
+            {renderQuickButton(100)}
         </div>
         <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
-            {renderQuickButton(45)}
+            {renderQuickButton(40)}
 
             {renderNumberButton(1)}
             {renderNumberButton(2)}
             {renderNumberButton(3)}
 
-            {renderQuickButton(26)}
+            {renderQuickButton(60)}
         </div>
         <div className="d-flex flex-row flex-shrink-0 flex-grow-1">
             <button className="btn btn-warning m-1 flex-grow-1 flex-shrink-0 fs-1 px-4 py-2" onClick={onDelete}
