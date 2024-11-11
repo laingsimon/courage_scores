@@ -106,6 +106,9 @@ describe('PrintableSheetMatch', () => {
             matchOptionDefaults,
             preventScroll: false,
             setPreventScroll,
+            async saveTournament(): Promise<TournamentGameDto> {
+                return tournamentData;
+            }
         };
     }
 

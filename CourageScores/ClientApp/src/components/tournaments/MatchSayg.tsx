@@ -233,7 +233,8 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                 return;
             }
 
-            if (window.confirm('Clear match score (to allow scores to be re-recorded?)')) {
+            const clearScores = window.confirm('Clear match score (to allow scores to be re-recorded?)');
+            if (clearScores) {
                 const responseRound = response.result.round;
                 const responseMatch = responseRound.matches[matchIndex];
 
@@ -241,8 +242,11 @@ export function MatchSayg({ match, matchIndex, matchOptions, patchData, readOnly
                 responseMatch.scoreB = 0;
             }
 
-            changeDialogState(false);
             await setTournamentData(response.result);
+            if (clearScores) {
+                await saveTournament(true); // prevent a loading display; which will corrupt the state of this component instance
+            }
+            changeDialogState(false);
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
