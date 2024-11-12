@@ -80,7 +80,11 @@ public class LiveController : Controller
     public async Task PostUpdate(Guid id, LiveDataType type, [FromBody] object data, CancellationToken token)
     {
         await _liveService.ProcessUpdate(id, type, data, token);
-        Response.Headers.Location = $"/api/Live/Update/{id}/{type}";
+        var prefix = "";
+#if !DEBUG
+        prefix = "/data";
+#endif
+        Response.Headers.Location = $"{prefix}/api/Live/Update/{id}/{type}";
         Response.StatusCode = StatusCodes.Status302Found;
     }
 
