@@ -15,10 +15,12 @@ namespace CourageScores.Controllers;
 public class LiveController : Controller
 {
     private readonly ILiveService _liveService;
+    private readonly IConfiguration _configuration;
 
-    public LiveController(ILiveService liveService)
+    public LiveController(ILiveService liveService, IConfiguration configuration)
     {
         _liveService = liveService;
+        _configuration = configuration;
     }
 
     [ExcludeFromTypeScript]
@@ -80,11 +82,7 @@ public class LiveController : Controller
     public async Task PostUpdate(Guid id, LiveDataType type, [FromBody] object data, CancellationToken token)
     {
         await _liveService.ProcessUpdate(id, type, data, token);
-        var prefix = "";
-#if !DEBUG
-        prefix = "/data";
-#endif
-        Response.Headers.Location = $"{prefix}/api/Live/Update/{id}/{type}";
+        Response.Headers.Location = $"{_configuration["ApiPrefix"]}/api/Live/Update/{id}/{type}";
         Response.StatusCode = StatusCodes.Status302Found;
     }
 
