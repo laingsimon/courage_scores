@@ -14,11 +14,6 @@ public class LegDto
     public int StartingScore { get; set; }
 
     /// <summary>
-    /// If any, the winner of the leg
-    /// </summary>
-    public string? Winner { get; set; }
-
-    /// <summary>
     /// Who is playing from the home 'side'
     /// </summary>
     public LegCompetitorScoreDto Home { get; set; } = null!;

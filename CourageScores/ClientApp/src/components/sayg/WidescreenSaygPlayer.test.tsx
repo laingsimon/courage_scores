@@ -77,8 +77,8 @@ describe('WidescreenSaygPlayer', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .build();
         });
 
@@ -315,14 +315,14 @@ describe('WidescreenSaygPlayer', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
-                        .withThrow(2, false, 1)
-                        .withThrow(4, false, 1)
-                        .withThrow(6, false, 1)
-                        .withThrow(8, false, 1)
-                        .withThrow(10, false, 1)
-                        .withThrow(12, true, 1))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100)
+                        .withThrow(2, 1)
+                        .withThrow(4, 1)
+                        .withThrow(6, 1)
+                        .withThrow(8, 1)
+                        .withThrow(10, 1)
+                        .withThrow(12, 1))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .build();
 
             await renderComponent(
@@ -351,24 +351,24 @@ describe('WidescreenSaygPlayer', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
-                        .withThrow(2, false, 1)
-                        .withThrow(4, false, 1)
-                        .withThrow(6, false, 1)
-                        .withThrow(8, false, 1)
-                        .withThrow(10, false, 1)
-                        .withThrow(12, true, 1))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c
+                        .withThrow(2, 1)
+                        .withThrow(4, 1)
+                        .withThrow(6, 1)
+                        .withThrow(8, 1)
+                        .withThrow(10, 1)
+                        .withThrow(12, 1))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .withLeg(1, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
-                        .withThrow(12, false, 1)
-                        .withThrow(14, false, 1)
-                        .withThrow(16, false, 1)
-                        .withThrow(18, false, 1)
-                        .withThrow(110, false, 1)
-                        .withThrow(112, true, 1))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c
+                        .withThrow(12, 1)
+                        .withThrow(14, 1)
+                        .withThrow(16, 1)
+                        .withThrow(18, 1)
+                        .withThrow(110, 1)
+                        .withThrow(112, 1))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .build();
 
             await renderComponent(
@@ -397,11 +397,11 @@ describe('WidescreenSaygPlayer', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3)
-                        .withThrow(2, false, 1)
-                        .withThrow(4, false, 1)
-                        .withThrow(6, false, 1))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c
+                        .withThrow(2, 1)
+                        .withThrow(4, 1)
+                        .withThrow(6, 1))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .build();
 
             await renderComponent(
@@ -434,8 +434,8 @@ describe('WidescreenSaygPlayer', () => {
                 .numberOfLegs(5)
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.score(100).noOfDarts(3))
-                    .away((c: ILegCompetitorScoreBuilder) => c.score(200).noOfDarts(6)))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100).withThrow(100)))
                 .build();
         });
 

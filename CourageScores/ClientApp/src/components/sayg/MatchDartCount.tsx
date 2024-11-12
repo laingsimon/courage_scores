@@ -6,7 +6,7 @@ export interface IMatchDartCountProps {
 
 export function MatchDartCount({homeCount, awayCount, singlePlayer}: IMatchDartCountProps) {
     if (homeCount + awayCount === 0) {
-        return null
+        return null;
     }
 
     return (<tr>
