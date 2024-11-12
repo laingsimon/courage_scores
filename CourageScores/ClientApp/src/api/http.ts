@@ -96,7 +96,11 @@ class Http implements IHttp {
                 return null;
             }
 
-            return await response.json();
+            try {
+                return await response.clone().json();
+            } catch (e) {
+                throw await this.handleError(response, e as Error, httpMethod, relativeUrl, JSON.stringify(content));
+            }
         }
 
         const response = await fetch(absoluteUrl, {
@@ -114,7 +118,25 @@ class Http implements IHttp {
             throw new Error(await response.text());
         }
 
-        return await response.json();
+        try {
+            return await response.clone().json();
+        } catch (e) {
+            throw await this.handleError(response, e as Error, httpMethod, relativeUrl);
+        }
+    }
+
+    async handleError(response: Response, exc: Error, httpMethod: string, relativeUrl: string, requestContent?: string): Promise<Error> {
+        const responseDetails = `Status=${response.status} ${response.statusText}\nContent-Type=${response.headers.get('content-type')}\nContent-Length=${response.headers.get('content-length')}`;
+        let responseBodySnip = 'body content unavailable';
+        try {
+            const snipLength = 50;
+            const fullBody = await response.text();
+            responseBodySnip = `First ${snipLength} of body: ${fullBody.substring(0, snipLength)}`;
+        } catch (e) {
+            console.error(e);
+        }
+        const requestBody = requestContent ? `\n\nRequest content: ${requestContent}` : '';
+        return new Error(`${exc.message}\nError with ${httpMethod} to ${relativeUrl}\n\n${responseDetails}\n\n${responseBodySnip}${requestBody}\n\n----`);
     }
 }
 
