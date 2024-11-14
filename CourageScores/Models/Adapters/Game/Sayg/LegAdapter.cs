@@ -26,7 +26,6 @@ public class LegAdapter : ISimpleAdapter<Leg, LegDto>
         {
             Home = await _legCompetitorScoreAdapter.Adapt(homeAdapterContext, token),
             Away = await _legCompetitorScoreAdapter.Adapt(awayAdapterContext, token),
-            Winner = model.Winner?.ToString().ToLower(),
             StartingScore = model.StartingScore,
             PlayerSequence = await model.PlayerSequence.SelectAsync(ps => _playerSequenceAdapter.Adapt(ps, token)).ToList(),
             CurrentThrow = model.CurrentThrow?.ToString().ToLower(),
@@ -40,7 +39,6 @@ public class LegAdapter : ISimpleAdapter<Leg, LegDto>
         {
             Home = (await _legCompetitorScoreAdapter.Adapt(dto.Home, token)).Score,
             Away = (await _legCompetitorScoreAdapter.Adapt(dto.Away, token)).Score,
-            Winner = dto.Winner != null ? Enum.Parse<CompetitorType>(dto.Winner, true) : null,
             StartingScore = dto.StartingScore,
             PlayerSequence = await dto.PlayerSequence.SelectAsync(ps => _playerSequenceAdapter.Adapt(ps, token)).ToList(),
             CurrentThrow = dto.CurrentThrow != null ? Enum.Parse<CompetitorType>(dto.CurrentThrow, true) : null,

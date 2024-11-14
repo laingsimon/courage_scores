@@ -23,20 +23,21 @@ import {ISuperleagueSayg} from "../components/tournaments/superleague/ISuperleag
 import {LegThrowDto} from "../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {LegCompetitorScoreDto} from "../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {sum} from "./collections";
+import {getScoreFromThrows} from "./sayg";
 
 describe('superleague', () => {
     const ton: LegThrowDto = thr(100);
+    const bust: LegThrowDto = thr(0);
     const nullThrows: LegCompetitorScoreDto = {
         throws: null!,
         noOfDarts: 0,
         score: 0,
     };
 
-    function thr(score: number, bust: boolean = false, noOfDarts: number = 3): LegThrowDto {
+    function thr(score: number, noOfDarts: number = 3): LegThrowDto {
         return {
             score,
             noOfDarts,
-            bust,
         };
     }
 
@@ -44,17 +45,16 @@ describe('superleague', () => {
         return {
             noOfDarts: sum(throws, thr => thr.noOfDarts),
             throws: throws,
-            score: sum(throws, thr => thr.bust ? 0 : thr.score),
+            score: getScoreFromThrows(501, throws),
         };
     }
 
-    function leg(homeThrows: LegCompetitorScoreDto, awayThrows?: LegCompetitorScoreDto, isLastLeg?: boolean, winner?: string): LegDto {
+    function leg(homeThrows: LegCompetitorScoreDto, awayThrows?: LegCompetitorScoreDto, isLastLeg?: boolean): LegDto {
         return {
             home: homeThrows,
             away: awayThrows,
             startingScore: 501,
-            isLastLeg,
-            winner,
+            isLastLeg
         };
     }
 
@@ -68,8 +68,8 @@ describe('superleague', () => {
         it('calculates correct average for home', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(ton, thr(150, true))),
-                    1: leg(score(thr(50, false, 2)))
+                    0: leg(score(ton, bust)),
+                    1: leg(score(thr(50, 2)))
                 }
             };
 
@@ -100,7 +100,7 @@ describe('superleague', () => {
                         ton, thr(139),
 
                         /* invalid */
-                        thr(99), thr(100, true), thr(140))),
+                        thr(99), bust, thr(140))),
                 }
             }
 
@@ -131,7 +131,7 @@ describe('superleague', () => {
                         thr(140), thr(179),
 
                         /* invalid */
-                        thr(139), thr(140, true), thr(180))),
+                        thr(139), bust, thr(180))),
                 }
             }
 
@@ -162,7 +162,7 @@ describe('superleague', () => {
                         thr(180),
 
                         /* invalid */
-                        thr(179), thr(180, true))),
+                        thr(179), bust)),
                 }
             }
 
@@ -248,27 +248,9 @@ describe('superleague', () => {
 
         it('should return sum of props', () => {
             const legs: { [key: number]: LegDto } = {
-                0: leg(score(thr(0, false, 1), thr(0, false, 2), thr(0)))
+                0: leg(score(thr(0, 1), thr(0, 2), thr(0)))
             };
-            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts', false);
-
-            expect(result).toEqual(6);
-        });
-
-        it('should return sum of non-bust props', () => {
-            const legs: { [key: number]: LegDto } = {
-                0: leg(score(thr(0, false, 1), thr(0, true, 2), thr(0)))
-            };
-            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts', false);
-
-            expect(result).toEqual(4);
-        });
-
-        it('should return sum of bust and non-bust props', () => {
-            const legs: { [key: number]: LegDto } = {
-                0: leg(score(thr(0, false, 1), thr(0, true, 2), thr(0)))
-            };
-            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts', true);
+            const result = sumOverThrows({legs: legs}, 'home', 'noOfDarts');
 
             expect(result).toEqual(6);
         });
@@ -299,7 +281,7 @@ describe('superleague', () => {
                 saygData: {
                     legs: {
                         0: leg(
-                            score(thr(0), thr(0), thr(0, true)),
+                            score(thr(0), thr(0), bust),
                             score(thr(0), thr(0)))
                     }
                 }
@@ -316,7 +298,7 @@ describe('superleague', () => {
                     legs: {
                         0: leg(
                             score(thr(0), thr(0), thr(0)),
-                            score(thr(0), thr(0), thr(0), thr(0, true))),
+                            score(thr(0), thr(0), thr(0), bust)),
                     }
                 }
             };
@@ -332,7 +314,7 @@ describe('superleague', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
                     0: leg(
-                        score(ton, ton, ton, ton, thr(50), thr(51, true), thr(51)),
+                        score(ton, ton, ton, ton, thr(50), bust, thr(51)),
                         score(ton, ton, ton, ton))
                 }
             };
@@ -347,7 +329,7 @@ describe('superleague', () => {
                 legs: {
                     0: leg(
                         score(ton, ton, ton, ton),
-                        score(ton, ton, ton, ton, thr(50), thr(51, true), thr(51)))
+                        score(ton, ton, ton, ton, thr(50), bust, thr(51)))
                 }
             };
 
@@ -372,16 +354,8 @@ describe('superleague', () => {
     });
 
     describe('isLegWinner', () => {
-        it('returns true if winner set to accumulator name', () => {
-            const l: LegDto = leg(score(), null, false, 'home');
-
-            const result = isLegWinner(l, 'home');
-
-            expect(result).toEqual(true);
-        });
-
         it('returns true if accumulator has checkout score', () => {
-            const l: LegDto = leg(score(ton, ton, ton, ton, thr(100, true), thr(101)));
+            const l: LegDto = leg(score(ton, ton, ton, ton, bust, thr(101)));
 
             const result = isLegWinner(l, 'home');
 
@@ -420,8 +394,8 @@ describe('superleague', () => {
         it('should return number of won legs for side', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(), null, false, 'home'),
-                    1: leg(score(), null, false, 'home')
+                    0: leg(score(thr(501)), null, false),
+                    1: leg(score(thr(501)), null, false)
                 }
             }
 
@@ -433,8 +407,8 @@ describe('superleague', () => {
         it('should return 0 if not won any legs', () => {
             const saygData: ScoreAsYouGoDto = {
                 legs: {
-                    0: leg(score(thr(0)), null, false, 'away'),
-                    1: leg(score(thr(0)), null, false, 'away')
+                    0: leg(score(thr(0)), null, false),
+                    1: leg(score(thr(0)), null, false)
                 }
             }
 
@@ -463,7 +437,7 @@ describe('superleague', () => {
                 ton, thr(139),
 
                 /* invalid */
-                thr(99), thr(100, true), thr(140)));
+                thr(99), bust, thr(140)));
 
             const result = countLegThrowsBetween(l, 'home', 100, 140);
 
@@ -478,7 +452,7 @@ describe('superleague', () => {
                 ton, thr(140), thr(180),
 
                 /* invalid */
-                thr(100, true), thr(140, true), thr(180, true)));
+                bust));
 
             const result = legTons(l, 'home');
 
@@ -494,7 +468,7 @@ describe('superleague', () => {
                 ton, thr(140), thr(180),
 
                 /* invalid */
-                thr(100, true), thr(140, true), thr(180, true)));
+                bust));
 
             const result = legTonsSplit(l, 'home');
 
@@ -508,7 +482,7 @@ describe('superleague', () => {
                 ton, thr(140),
 
                 /* invalid */
-                thr(100, true), thr(140, true), thr(180, true)));
+                bust));
 
             const result = legTonsSplit(l, 'home');
 
@@ -531,7 +505,7 @@ describe('superleague', () => {
         });
 
         it('returns no of darts', () => {
-            const l: LegDto = leg(score(thr(0), thr(0, true)));
+            const l: LegDto = leg(score(thr(0), bust));
 
             const result = legActualDarts(l, 'home');
 
@@ -583,7 +557,7 @@ describe('superleague', () => {
         });
 
         it('returns remaining score if not the winner of the leg', () => {
-            const l: LegDto = leg(score(ton, ton, ton, thr(75, true), thr(50)));
+            const l: LegDto = leg(score(ton, ton, ton, bust, thr(50)));
 
             const result = legScoreLeft(l, 'home');
 

@@ -103,23 +103,6 @@ public class LegAdapterTests
         Assert.That(result.CurrentThrow, Is.EqualTo(expected));
     }
 
-    [TestCase(null, null)]
-    [TestCase(CompetitorType.Home, "home")]
-    [TestCase(CompetitorType.Away, "away")]
-    public async Task Adapt_GivenModel_SetsWinnerCorrectly(CompetitorType? competitorType, string? expectedWinner)
-    {
-        var leg = new Leg
-        {
-            Home = _homeScore,
-            Away = _awayScore,
-            Winner = competitorType,
-        };
-
-        var result = await _adapter.Adapt(leg, _token);
-
-        Assert.That(result.Winner, Is.EqualTo(expectedWinner));
-    }
-
     [Test]
     public async Task Adapt_GivenModel_SetsStartingScoreCorrectly()
     {
@@ -184,25 +167,6 @@ public class LegAdapterTests
 
         Assert.That(result.Home, Is.EqualTo(_homeScore));
         Assert.That(result.Away, Is.EqualTo(_awayScore));
-    }
-
-    [TestCase(null, null)]
-    [TestCase("home", CompetitorType.Home)]
-    [TestCase("away", CompetitorType.Away)]
-    [TestCase("Home", CompetitorType.Home)]
-    [TestCase("Away", CompetitorType.Away)]
-    public async Task Adapt_GivenDto_SetsWinnerCorrectly(string? winner, CompetitorType? expected)
-    {
-        var leg = new LegDto
-        {
-            Home = _homeScoreDto,
-            Away = _awayScoreDto,
-            Winner = winner,
-        };
-
-        var result = await _adapter.Adapt(leg, _token);
-
-        Assert.That(result.Winner, Is.EqualTo(expected));
     }
 
     [TestCase(null, null)]

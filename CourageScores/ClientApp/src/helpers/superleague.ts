@@ -4,6 +4,7 @@ import {ScoreAsYouGoDto} from "../interfaces/models/dtos/Game/Sayg/ScoreAsYouGoD
 import {LegDto} from "../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {ISuperleagueSayg} from "../components/tournaments/superleague/ISuperleagueSayg";
+import {getScoreFromThrows} from "./sayg";
 
 export function playerOverallAverage(saygData: ScoreAsYouGoDto | null | undefined, sideName: string): number | null {
     if (!saygData || !saygData.legs) {
@@ -15,7 +16,7 @@ export function playerOverallAverage(saygData: ScoreAsYouGoDto | null | undefine
         const side = leg[sideName];
 
         return {
-            score: sum(side.throws, (thr: LegThrowDto) => thr.bust ? 0 : thr.score),
+            score: getScoreFromThrows(leg.startingScore, side.throws),
             noOfDarts: sum(side.throws, (thr: LegThrowDto) => thr.noOfDarts),
         };
     });
@@ -52,7 +53,7 @@ export function getNoOfLegs(saygData: ScoreAsYouGoDto | null | undefined): numbe
         .length;
 }
 
-export function sumOverThrows(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string, prop: string, includeBust?: boolean): number | null {
+export function sumOverThrows(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string, prop: string): number | null {
     if (!saygData) {
         return null;
     }
@@ -60,7 +61,7 @@ export function sumOverThrows(saygData: ScoreAsYouGoDto | null | undefined, accu
     return sum(Object.keys(saygData.legs || {})
         .map((legKey: string): LegDto => saygData.legs![legKey])
         .flatMap((leg: LegDto) => (leg)[accumulatorName].throws)
-        .map((thr: LegThrowDto) => includeBust || !thr.bust ? thr[prop] : 0));
+        .map((thr: LegThrowDto) => thr[prop]));
 }
 
 export function maxNoOfThrowsAllMatches(saygMatches: ISuperleagueSayg[]) {
@@ -88,9 +89,8 @@ export function getMatchWinner(saygData: ScoreAsYouGoDto) {
 
     for (const legIndex in saygData.legs) {
         const leg: LegDto = saygData.legs[legIndex];
-        const startingScore = leg.startingScore;
-        const homeWinner = sum(leg.home!.throws!, (thr: LegThrowDto) => thr.bust ? 0 : thr.score) === startingScore;
-        const awayWinner = leg.away ? sum(leg.away.throws!, (thr: LegThrowDto) => thr.bust ? 0 : thr.score) === startingScore : false;
+        const homeWinner = isLegWinner(leg, 'home');
+        const awayWinner = leg.away ? isLegWinner(leg, 'away') : false;
 
         if (homeWinner) {
             homeScore++;
@@ -111,8 +111,7 @@ export function getMatchWinner(saygData: ScoreAsYouGoDto) {
 
 export function isLegWinner(leg: LegDto, accumulatorName: string): boolean {
     const accumulator = leg[accumulatorName];
-    const winnerByScore = sum(accumulator.throws, (thr: LegThrowDto) => thr.bust ? 0 : thr.score) === leg.startingScore;
-    return leg.winner === accumulatorName || winnerByScore;
+    return getScoreFromThrows(leg.startingScore, accumulator.throws) === leg.startingScore;
 }
 
 export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string): number {
@@ -132,7 +131,7 @@ export function legsWon(saygMatches: ISuperleagueSayg[], accumulatorName: string
 export function countLegThrowsBetween(leg: LegDto, accumulatorName: string, lowerInclusive: number, upperExclusive?: number): number {
     const accumulator: LegCompetitorScoreDto = leg[accumulatorName] || {};
     const throws = accumulator.throws || [];
-    return count(throws, thr => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+    return count(throws, thr => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
 }
 
 export function legTons(leg: LegDto, accumulatorName: string): number {
@@ -181,7 +180,7 @@ export function legScoreLeft(leg: LegDto, accumulatorName: string): number | nul
 
     return isLegWinner(leg, accumulatorName)
         ? null
-        : leg.startingScore - sum(accumulator.throws, thr => thr.bust ? 0 : thr.score);
+        : leg.startingScore - getScoreFromThrows(leg.startingScore, accumulator.throws);
 }
 
 function countMatchThrowsBetween(saygData: ScoreAsYouGoDto | null | undefined, accumulatorName: string, lowerInclusive: number, upperExclusive?: number): number | null {
@@ -195,6 +194,6 @@ function countMatchThrowsBetween(saygData: ScoreAsYouGoDto | null | undefined, a
 
         return count(
             accumulator.throws!,
-            (thr: LegThrowDto) => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+            (thr: LegThrowDto) => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
     }));
 }

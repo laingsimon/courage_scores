@@ -79,6 +79,10 @@ export function ExportData() {
                    name="password" value={exportRequest.password}
                    onChange={valueChanged(exportRequest, setExportRequest)}/>
         </div>
+        <div className="alert alert-warning">
+            Password protected zip archives are (temporarily) unsupported.
+            Archives will not be secured using the password you supply.
+        </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={exporting} type="checkbox" className="form-check-input"

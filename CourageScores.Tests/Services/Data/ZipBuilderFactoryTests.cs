@@ -1,7 +1,7 @@
+using System.IO.Compression;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services;
 using CourageScores.Services.Data;
-using Ionic.Zip;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -33,7 +33,7 @@ public class ZipBuilderFactoryTests
         _clock.Setup(c => c.UtcNow).Returns(_utcNow);
     }
 
-    [Test]
+    [Test, Ignore("Password protected archives are not supported currently")]
     public async Task Create_GivenPassword_CreatesZipFileWithPassword()
     {
         var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto
@@ -45,6 +45,7 @@ public class ZipBuilderFactoryTests
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
     }
 
+    [Ignore("Password protected archives are not supported currently")]
     [TestCase("")]
     [TestCase(null)]
     public async Task Create_GivenNoPassword_CreatesZipFileWithPassword(string password)
@@ -137,15 +138,15 @@ public class ZipBuilderFactoryTests
     private static async Task<ExportMetaData> AssertZipCanBeRead(IZipBuilder builder, string password)
     {
         var zipBytes = await builder.CreateZip();
-        var zip = ZipFile.Read(new MemoryStream(zipBytes));
-        zip.Password = password;
+        var zip = new ZipArchive(new MemoryStream(zipBytes), ZipArchiveMode.Read);
+        // zip.Password = password;
 
         var entries = zip.Entries.ToList();
         Assert.That(entries, Is.Not.Empty);
-        Assert.That(entries.Select(e => e.FileName), Has.Member("meta.json"));
-        var entry = zip.Entries.Single(e => e.FileName == "meta.json");
+        Assert.That(entries.Select(e => e.FullName), Has.Member("meta.json"));
+        var entry = zip.GetEntry("meta.json");
         var content = new MemoryStream();
-        entry.Extract(content);
+        await entry!.Open().CopyToAsync(content);
         content.Seek(0, SeekOrigin.Begin);
 
         var json = await new StreamReader(content).ReadToEndAsync();

@@ -6,6 +6,7 @@ import {countLegThrowsBetween, isLegWinner, legTons} from "../../../helpers/supe
 import {LegDto} from "../../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {LegCompetitorScoreDto} from "../../../interfaces/models/dtos/Game/Sayg/LegCompetitorScoreDto";
 import {LegThrowDto} from "../../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
+import {getScoreFromThrows} from "../../../helpers/sayg";
 
 export interface IMatchLogRowProps {
     leg: LegDto;
@@ -35,27 +36,27 @@ export function MatchLogRow({leg, legNo, accumulatorName, player, noOfThrows, pl
                 ? (<td rowSpan={noOfLegs} className="align-middle bg-white page-break-avoid">{player}</td>)
                 : null}
             <td>{legNo}</td>
-            <td>{sum(accumulator.throws, thr => thr.noOfDarts)}</td>
-            <td>{winner && lastThrow ? lastThrow.score : null}</td>
-            <td>{winner || !lastThrow ? null : leg.startingScore - sum(accumulator.throws, thr => thr.bust ? 0 : thr.score)}</td>
+            <td datatype="actual-darts">{sum(accumulator.throws, thr => thr.noOfDarts)}</td>
+            <td datatype="game-shot">{winner && lastThrow ? lastThrow.score : null}</td>
+            <td datatype="score-left">{winner || !lastThrow ? null : leg.startingScore - getScoreFromThrows(leg.startingScore, accumulator.throws)}</td>
             <td>{countLegThrowsBetween(leg, accumulatorName, 100, 140)}</td>
             <td>{countLegThrowsBetween(leg, accumulatorName, 140, 180)}</td>
             <td>{countLegThrowsBetween(leg, accumulatorName, 180)}</td>
-            <td>{legTons(leg, accumulatorName)}</td>
-            {legNo > 1
-                ? null
-                : (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">
+            <td datatype="tons">{legTons(leg, accumulatorName)}</td>
+            {legNo === 1
+                ? (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">
                     {round2dp(playerOverallAverage)}
-                </td>)}
+                </td>)
+                : null}
             {legNo === 1
                 ? (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">
                     {round2dp(teamAverage)}
                 </td>)
                 : null}
-            <td>{lastThrow ? lastThrow.noOfDarts : null}</td>
+            <td datatype="game-dart">{winner && lastThrow ? lastThrow.noOfDarts : null}</td>
             {repeat(noOfThrows + 1, i => {
                 const playerThrow = accumulator.throws[i] || {};
-                const score = playerThrow.bust ? 0 : playerThrow.score;
+                const score = playerThrow.score;
 
                 return (<td key={i} className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')}>
                     {score}

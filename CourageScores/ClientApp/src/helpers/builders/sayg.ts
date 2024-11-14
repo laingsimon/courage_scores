@@ -84,7 +84,6 @@ export interface ILegBuilder extends IBuilder<LegDto> {
     lastLeg(): ILegBuilder;
     home(competitorOrBuilderFunc: any): ILegBuilder;
     away(competitorOrBuilderFunc: any): ILegBuilder;
-    winner(designation: string): ILegBuilder;
 }
 
 export function legBuilder(): ILegBuilder {
@@ -129,19 +128,13 @@ export function legBuilder(): ILegBuilder {
             leg.away = competitor.build ? competitor.build() : competitor;
             return builder;
         },
-        winner: (designation: string) => {
-            leg.winner = designation;
-            return builder;
-        },
     };
 
     return builder;
 }
 
 export interface ILegCompetitorScoreBuilder extends IBuilder<LegCompetitorScoreDto> {
-    withThrow(score: number, bust?: boolean, noOfDarts?: number): ILegCompetitorScoreBuilder;
-    score(score: number): ILegCompetitorScoreBuilder;
-    noOfDarts(noOfDarts: number): ILegCompetitorScoreBuilder;
+    withThrow(score: number, noOfDarts?: number): ILegCompetitorScoreBuilder;
 }
 
 export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {
@@ -153,20 +146,13 @@ export function saygCompetitorBuilder(): ILegCompetitorScoreBuilder {
 
     const builder: ILegCompetitorScoreBuilder = {
         build: () => competitor,
-        withThrow: (score: number, bust?: boolean, noOfDarts?: number) => {
+        withThrow: (score: number, noOfDarts?: number) => {
             competitor.throws.push({
                 score: score,
-                bust: bust || false,
-                noOfDarts,
+                noOfDarts: noOfDarts || 3,
             });
-            return builder;
-        },
-        score: (score: number) => {
-            competitor.score = score;
-            return builder;
-        },
-        noOfDarts: (noOfDarts: number) => {
-            competitor.noOfDarts = noOfDarts;
+            competitor.noOfDarts += (noOfDarts || 3);
+            competitor.score += score;
             return builder;
         },
     };
