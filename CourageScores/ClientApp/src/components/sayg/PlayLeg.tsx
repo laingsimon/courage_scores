@@ -11,6 +11,8 @@ import {LegThrowDto} from "../../interfaces/models/dtos/Game/Sayg/LegThrowDto";
 import {isEmpty} from "../../helpers/collections";
 import {useEditableSayg} from "./EditableSaygContainer";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {getScoreFromThrows} from "../../helpers/sayg";
+import {isLegWinner} from "../../helpers/superleague";
 
 export interface IPlayLegProps {
     leg?: LegDto;
@@ -93,11 +95,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         const playerThrows: LegCompetitorScoreDto = newLeg[editScore.player];
         const thr: LegThrowDto = playerThrows.throws[editScore.throwIndex];
         thr.score = score;
-        playerThrows.score = playerThrows.throws.reduce((total: number, thr: LegThrowDto) => {
-            const newTotal = total + thr.score;
-            thr.bust = newTotal === newLeg.startingScore - 1 || newTotal > newLeg.startingScore;
-            return total + (thr.bust ? 0 : thr.score);
-        }, 0);
+        playerThrows.score = getScoreFromThrows(newLeg.startingScore, playerThrows.throws);
 
         await onChange(newLeg);
         setScore('');
@@ -116,7 +114,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
             accumulator.throws.push({
                 score,
                 noOfDarts: 3,
-                bust,
             });
 
             accumulator.noOfDarts += 3;
@@ -162,8 +159,6 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         }
 
         lastThrow.noOfDarts = noOfDarts;
-        lastThrow.bust = false;
-        newLeg.winner = accumulatorName;
         if (canEditPreviousCheckout) {
             await onChangePrevious(newLeg);
         } else {
@@ -177,7 +172,7 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
         const newLeg: LegDto = Object.assign({}, leg);
         const accumulator: LegCompetitorScoreDto = newLeg[accumulatorName];
         accumulator.throws.pop(); // remove the last throw
-        accumulator.score = accumulator.throws.reduce((total: 0, thr: LegThrowDto) => total + (thr.bust ? 0 : thr.score), 0);
+        accumulator.score = getScoreFromThrows(newLeg.startingScore, accumulator.throws);
         newLeg.currentThrow = accumulatorName;
 
         await onChange(newLeg);
@@ -185,7 +180,11 @@ export function PlayLeg({leg, home, away, onChange, onLegComplete, on180, onHiCh
     }
 
     function renderEditCheckoutDarts() {
-        const previousWinner = previousLeg.winner as 'home' | 'away';
+        const previousLegWonByHome = isLegWinner(previousLeg, 'home');
+        const previousLegWonByAway = isLegWinner(previousLeg, 'away');
+        const previousWinner = previousLegWonByHome
+            ? 'home'
+            : (previousLegWonByAway ? 'away' : null);
         const winner: LegCompetitorScoreDto = previousLeg[previousWinner];
         if (!winner || !winner.throws || isEmpty(winner.throws)) {
             return null;

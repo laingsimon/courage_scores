@@ -95,6 +95,9 @@ export function ImportData() {
                    name="password" value={importRequest.password}
                    onChange={valueChanged(importRequest, setImportRequest)}/>
         </div>
+        <div className="alert alert-warning">
+            Password protected zip archives are (temporarily) unsupported.
+        </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={importing} type="checkbox" className="form-check-input"

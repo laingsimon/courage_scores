@@ -34,24 +34,61 @@ describe('MatchLogRow', () => {
             'tbody');
     }
 
+    function explainRow(cells: HTMLTableCellElement[], leg: number) {
+        // see MatchLogTableHeading
+        const headings = leg === 1 ? [
+            'Player',
+            'Leg',
+            'AD',
+            'GS',
+            'SL',
+            '100+',
+            '140+',
+            '180',
+            'T',
+            'PlayerAverage',
+            'TeamAverage',
+            'GD',
+        ] : [
+            'Leg',
+            'AD',
+            'GS',
+            'SL',
+            '100+',
+            '140+',
+            '180',
+            'T',
+            'GD',
+        ];
+        const detail = {};
+
+        cells.forEach((cell, index) => {
+            const name = index >= headings.length
+                ? `T${(index - headings.length + 1)}`
+                : headings[index];
+            detail[name] = cell.textContent;
+        });
+
+        return detail;
+    }
+
     describe('renders', () => {
         const homeWinningLeg: LegDto = legBuilder()
             .home((c: ILegCompetitorScoreBuilder) => c
-                .withThrow(140, false, 3)
-                .withThrow(60, false, 3)
-                .withThrow(180, false, 3)
-                .withThrow(20, false, 3)
-                .withThrow(101, false, 2)
-                .noOfDarts(14))
-            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(1))
+                .withThrow(140)
+                .withThrow(60)
+                .withThrow(180)
+                .withThrow(20)
+                .withThrow(101, 2))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(13, 3))
             .startingScore(501)
             .build();
 
         it('null when no darts thrown', async () => {
             await renderComponent({
                 leg: legBuilder()
-                    .home((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
-                    .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                    .home((c: ILegCompetitorScoreBuilder) => c)
+                    .away((c: ILegCompetitorScoreBuilder) => c)
                     .build(),
                 legNo: 1,
                 accumulatorName: 'home',
@@ -82,7 +119,26 @@ describe('MatchLogRow', () => {
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(cells.map(td => td.textContent)).toEqual(['PLAYER', '1', '14', '101', '', '1', '1', '1', '4', '12.34', '23.45', '2', '140', '60', '180', '20', '101', '']);
+            expect(explainRow(cells, 1)).toEqual({
+                'Player': 'PLAYER',
+                'Leg': '1',
+                'AD': '14',
+                'GS': '101',
+                'SL': '',
+                '100+': '1',
+                '140+': '1',
+                '180': '1',
+                'T': '4',
+                'PlayerAverage': '12.34',
+                'TeamAverage': '23.45',
+                'GD': '2',
+                'T1': '140',
+                'T2': '60',
+                'T3': '180',
+                'T4': '20',
+                'T5': '101',
+                'T6': ''
+            });
             expect(context.container.querySelector('tr').className).toEqual('bg-winner');
         });
 
@@ -101,7 +157,23 @@ describe('MatchLogRow', () => {
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(cells.map(td => td.textContent)).toEqual(['2', '14', '101', '', '1', '1', '1', '4', '2', '140', '60', '180', '20', '101', '']);
+            expect(explainRow(cells, 2)).toEqual({
+                'Leg': '2',
+                'AD': '14',
+                'GS': '101',
+                'SL': '',
+                '100+': '1',
+                '140+': '1',
+                '180': '1',
+                'T': '4',
+                'GD': '2',
+                'T1': '140',
+                'T2': '60',
+                'T3': '180',
+                'T4': '20',
+                'T5': '101',
+                'T6': ''
+            });
             expect(context.container.querySelector('tr').className).toEqual('');
         });
 
@@ -120,7 +192,26 @@ describe('MatchLogRow', () => {
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(cells.map(td => td.textContent)).toEqual(['PLAYER', '1', '0', '', '', '0', '0', '0', '0', '12.34', '23.45', '', '', '', '', '', '', '']);
+            expect(explainRow(cells, 1)).toEqual({
+                'Player': 'PLAYER',
+                'Leg': '1',
+                'AD': '3',
+                'GS': '',
+                'SL': '488',
+                '100+': '0',
+                '140+': '0',
+                '180': '0',
+                'T': '0',
+                'PlayerAverage': '12.34',
+                'TeamAverage': '23.45',
+                'GD': '',
+                'T1': '13',
+                'T2': '',
+                'T3': '',
+                'T4': '',
+                'T5': '',
+                'T6': ''
+            });
             expect(context.container.querySelector('tr').className).toEqual('');
         });
 
@@ -139,7 +230,23 @@ describe('MatchLogRow', () => {
 
             reportedError.verifyNoError();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            expect(cells.map(td => td.textContent)).toEqual(['2', '0', '', '', '0', '0', '0', '0', '', '', '', '', '', '', '']);
+            expect(explainRow(cells, 2)).toEqual({
+                'Leg': '2',
+                'AD': '3',
+                'GS': '',
+                'SL': '488',
+                '100+': '0',
+                '140+': '0',
+                '180': '0',
+                'T': '0',
+                'GD': '',
+                'T1': '13',
+                'T2': '',
+                'T3': '',
+                'T4': '',
+                'T5': '',
+                'T6': ''
+            });
             expect(context.container.querySelector('tr').className).toEqual('');
         });
     });

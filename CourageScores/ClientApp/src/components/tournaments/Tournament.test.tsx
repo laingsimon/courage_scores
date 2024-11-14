@@ -440,8 +440,8 @@ describe('Tournament', () => {
             return saygBuilder()
                 .withLeg(0, (l: ILegBuilder) => l
                     .startingScore(501)
-                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(homeScore))
-                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(100, false, 3).score(awayScore))
+                    .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore))
+                    .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore))
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)

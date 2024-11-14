@@ -57,7 +57,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'home',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -74,7 +73,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'away',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -91,7 +89,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'away',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -101,7 +98,6 @@ describe('EditThrow', () => {
             const inputMap = toDictionary(inputs, i => i.getAttribute('name'));
             expect(inputMap['score'].value).toEqual('1');
             expect(inputMap['noOfDarts'].value).toEqual('2');
-            expect(inputMap['bust'].checked).toEqual(true);
         });
 
         it('null score and noOfDarts', async () => {
@@ -112,7 +108,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'away',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -134,7 +129,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'away',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -153,7 +147,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'away',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -172,7 +165,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'away',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -193,7 +185,6 @@ describe('EditThrow', () => {
                 away: 'AWAY',
                 competitor: 'away',
                 index: 3,
-                bust: true,
                 onChange,
                 onSave,
                 onClose,
@@ -203,27 +194,6 @@ describe('EditThrow', () => {
 
             expect(changed).toEqual({
                 noOfDarts: 3,
-            });
-        });
-
-        it('can change whether bust', async () => {
-            await renderComponent({
-                score: 1,
-                noOfDarts: 2,
-                home: 'HOME',
-                away: 'AWAY',
-                competitor: 'away',
-                index: 3,
-                bust: true,
-                onChange,
-                onSave,
-                onClose,
-            });
-
-            await doClick(context.container, 'input[name="bust"]');
-
-            expect(changed).toEqual({
-                bust: false,
             });
         });
     });

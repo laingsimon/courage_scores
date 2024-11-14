@@ -35,8 +35,8 @@ describe('MatchLog', () => {
 
     function createLeg(homeScore: number, awayScore: number): LegDto {
         return legBuilder()
-            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore, false, 3).noOfDarts(3))
-            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore, false, 3).noOfDarts(3))
+            .home((c: ILegCompetitorScoreBuilder) => c.withThrow(homeScore))
+            .away((c: ILegCompetitorScoreBuilder) => c.withThrow(awayScore))
             .startingScore(501)
             .build();
     }
@@ -148,9 +148,9 @@ describe('MatchLog', () => {
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
             expect(rowContent(rows[0], 'th')).toEqual(['HOST', 'Dart average', '', '']);
             expect(rowContent(rows[1], 'th')).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6']);
-            expect(rowContent(rows[2], 'td')).toEqual(['A', '1', '3', '', '401', '1', '0', '0', '1', '33.33', '33.33', '3', '100', '', '', '', '', '']);
-            expect(rowContent(rows[3], 'td')).toEqual(['2', '3', '', '401', '1', '0', '0', '1', '3', '100', '', '', '', '', '']);
-            expect(rowContent(rows[4], 'td')).toEqual(['3', '3', '', '401', '1', '0', '0', '1', '3', '100', '', '', '', '', '']);
+            expect(rowContent(rows[2], 'td')).toEqual(['A', '1', '3', '', '401', '1', '0', '0', '1', '33.33', '33.33', '', '100', '', '', '', '', '']);
+            expect(rowContent(rows[3], 'td')).toEqual(['2', '3', '', '401', '1', '0', '0', '1', '', '100', '', '', '', '', '']);
+            expect(rowContent(rows[4], 'td')).toEqual(['3', '3', '', '401', '1', '0', '0', '1', '', '100', '', '', '', '', '']);
         });
 
         it('first match content for opponent', async () => {
@@ -178,9 +178,9 @@ describe('MatchLog', () => {
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
             expect(rowContent(rows[5], 'th')).toEqual(['OPPONENT', 'Dart average', '', '']);
             expect(rowContent(rows[6], 'th')).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6']);
-            expect(rowContent(rows[7], 'td')).toEqual(['B', '1', '3', '', '451', '0', '0', '0', '0', '16.67', '16.67', '3', '50', '', '', '', '', '']);
-            expect(rowContent(rows[8], 'td')).toEqual(['2', '3', '', '451', '0', '0', '0', '0', '3', '50', '', '', '', '', '']);
-            expect(rowContent(rows[9], 'td')).toEqual(['3', '3', '', '451', '0', '0', '0', '0', '3', '50', '', '', '', '', '']);
+            expect(rowContent(rows[7], 'td')).toEqual(['B', '1', '3', '', '451', '0', '0', '0', '0', '16.67', '16.67', '', '50', '', '', '', '', '']);
+            expect(rowContent(rows[8], 'td')).toEqual(['2', '3', '', '451', '0', '0', '0', '0', '', '50', '', '', '', '', '']);
+            expect(rowContent(rows[9], 'td')).toEqual(['3', '3', '', '451', '0', '0', '0', '0', '', '50', '', '', '', '', '']);
         });
 
         it('second match content for host', async () => {
@@ -217,8 +217,8 @@ describe('MatchLog', () => {
             const firstMatchPlayerAverage = 16.67;
             const secondMatchPlayerAverage = 33.33;
             const overallMatchPlayerAverage = firstMatchPlayerAverage + secondMatchPlayerAverage;
-            expect(rowContent(firstMatchRows[2], 'td')).toEqual(['A', '1', '3', '', '451', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '3', '50', '', '', '', '', '']);
-            expect(rowContent(secondMatchRows[2], 'td')).toEqual(['C', '1', '3', '', '401', '1', '0', '0', '1', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '3', '100', '', '', '', '', '']);
+            expect(rowContent(firstMatchRows[2], 'td')).toEqual(['A', '1', '3', '', '451', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '', '50', '', '', '', '', '']);
+            expect(rowContent(secondMatchRows[2], 'td')).toEqual(['C', '1', '3', '', '401', '1', '0', '0', '1', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '', '100', '', '', '', '', '']);
         });
 
         it('second match content for opponent', async () => {
@@ -255,8 +255,8 @@ describe('MatchLog', () => {
             const firstMatchPlayerAverage = 8.33;
             const secondMatchPlayerAverage = 16.67;
             const overallMatchPlayerAverage = firstMatchPlayerAverage + secondMatchPlayerAverage;
-            expect(rowContent(firstMatchRows[5], 'td')).toEqual(['B', '1', '3', '', '476', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '3', '25', '', '', '', '', '']);
-            expect(rowContent(secondMatchRows[5], 'td')).toEqual(['D', '1', '3', '', '451', '0', '0', '0', '0', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '3', '50', '', '', '', '', '']);
+            expect(rowContent(firstMatchRows[5], 'td')).toEqual(['B', '1', '3', '', '476', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '', '25', '', '', '', '', '']);
+            expect(rowContent(secondMatchRows[5], 'td')).toEqual(['D', '1', '3', '', '451', '0', '0', '0', '0', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '', '50', '', '', '', '', '']);
         });
     });
 });
