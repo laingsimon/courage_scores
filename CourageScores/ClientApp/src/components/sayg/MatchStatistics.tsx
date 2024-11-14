@@ -69,7 +69,12 @@ export function MatchStatistics({legs, homeScore, awayScore, home, away, singleP
     }
 
     function sumOf(player: 'home' | 'away', prop: string) {
-        return sum(Object.values(legs), (leg: LegDto) => leg[player][prop]);
+        const value = sum(Object.values(legs), (leg: LegDto) => leg[player][prop]);
+        if (!Number.isNaN(value)) {
+            return value;
+        }
+
+        throw new Error(`Cannot calculate the sum of ${prop} for ${player}, value results in NaN`);
     }
 
     return (<div>

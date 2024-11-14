@@ -47,8 +47,7 @@ export function WidescreenSaygPlayer({ legs, player, scoreFirst, finished, chang
             {scoreFirst ? score : null}
             <div className="d-flex flex-column flex-grow-0 justify-content-around bg-light">
                 {throwsInLastLegFor(noOfThrowsMax, player).map((thr: LegThrowDto, index: number) =>
-                    (<WidescreenSaygRecentThrow key={index} score={thr.score} bust={thr.bust}
-                                                throwNumber={index + 1}/>))}
+                    (<WidescreenSaygRecentThrow key={index} score={thr.score} throwNumber={index + 1}/>))}
             </div>
             {scoreFirst ? null : score}
             {showOptions ? (<div className="position-absolute p-1">

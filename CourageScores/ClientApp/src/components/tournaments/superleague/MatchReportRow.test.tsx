@@ -42,18 +42,18 @@ describe('MatchReportRow', () => {
 
     function createLeg(homeWinner?: boolean, awayWinner?: boolean): LegDto {
         const winningThrows: LegThrowDto[] = [
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 100, bust: false, noOfDarts: 3},
-            {score: 110, bust: false, noOfDarts: 3},
-            {score: 120, bust: false, noOfDarts: 3},
-            {score: 81, bust: false, noOfDarts: 3},
+            {score: 90, noOfDarts: 3},
+            {score: 100, noOfDarts: 3},
+            {score: 110, noOfDarts: 3},
+            {score: 120, noOfDarts: 3},
+            {score: 81, noOfDarts: 3},
         ];
         const notWinningThrows: LegThrowDto[] = [
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, noOfDarts: 3},
+            {score: 90, noOfDarts: 3},
+            {score: 90, noOfDarts: 3},
+            {score: 90, noOfDarts: 3},
+            {score: 90, noOfDarts: 3},
         ];
 
         return {
@@ -167,32 +167,6 @@ describe('MatchReportRow', () => {
             expect(getRowContent(rows[1])).toEqual([
                 '2', '90', '90', '90', '90', '15', '', '51', '0',
                 '90', '100', '110', '120', '15', '81', '', '3',
-            ]);
-        });
-
-        it('ignores bust scores', async () => {
-            const saygData: RecordedScoreAsYouGoDto = saygBuilder()
-                .withLeg(0, createLeg(true, false))
-                .build();
-            saygData.legs[0].home.throws.forEach((thr, index) => thr.bust = index % 2 === 0);
-            saygData.legs[0].away.throws.forEach((thr, index) => thr.bust = index % 2 !== 0);
-
-            await renderComponent({
-                matchIndex: 0,
-                saygData,
-                noOfThrows: 3,
-                noOfLegs: 2,
-                showWinner: false,
-                hostPlayerName: 'HOST',
-                opponentPlayerName: 'OPPONENT',
-            });
-
-            reportedError.verifyNoError();
-            const rows = Array.from(context.container.querySelectorAll('tr'));
-            expect(getRowContent(rows[0])).toEqual([
-                'M1',
-                '14.67', 'HOST', '1', '0', '100', '0', '120', '15', '', '281', '2',
-                '18', 'OPPONENT', '90', '0', '90', '0', '15', '', '231', '0',
             ]);
         });
 

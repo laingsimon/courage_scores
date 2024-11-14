@@ -43,12 +43,6 @@ describe('WidescreenSaygRecentThrow', () => {
             expect(className).toContain('fw-bold');
         });
 
-        it('busts with line through', async () => {
-            const className = await getClassName({ bust: true, score: 50, throwNumber: 1 });
-
-            expect(className).toContain('text-decoration-line-through');
-        });
-
         it('most recent score with largest font size', async () => {
             const className = await getClassName({ throwNumber: 1, score: 1 });
 

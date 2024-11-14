@@ -141,8 +141,8 @@ describe('SaygLoadingContainer', () => {
                     .noId()
                     .yourName('HOME')
                     .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
-                        .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                        .home((c: ILegCompetitorScoreBuilder) => c)
+                        .away((c: ILegCompetitorScoreBuilder) => c)
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -162,8 +162,8 @@ describe('SaygLoadingContainer', () => {
                 sayg: {
                     legs: {
                         0: legBuilder()
-                            .home((c: ILegCompetitorScoreBuilder) => c.score(0).noOfDarts(0))
-                            .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                            .home((c: ILegCompetitorScoreBuilder) => c)
+                            .away((c: ILegCompetitorScoreBuilder) => c)
                             .startingScore(501)
                             .build()
                     },
@@ -253,8 +253,8 @@ describe('SaygLoadingContainer', () => {
                 defaultData: saygBuilder()
                     .yourName('DEFAULT')
                     .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c.score(0))
-                        .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(0))
+                        .home((c: ILegCompetitorScoreBuilder) => c)
+                        .away((c: ILegCompetitorScoreBuilder) => c)
                         .startingScore(501))
                     .build(),
                 autoSave: false,
@@ -271,8 +271,8 @@ describe('SaygLoadingContainer', () => {
                 await containerProps.setSayg(saygBuilder()
                     .yourName('HOME')
                     .withLeg(0, (l: ILegBuilder) => l
-                        .home((c: ILegCompetitorScoreBuilder) => c.score(1))
-                        .away((c: ILegCompetitorScoreBuilder) => c.noOfDarts(1))
+                        .home((c: ILegCompetitorScoreBuilder) => c.withThrow(1, 0))
+                        .away((c: ILegCompetitorScoreBuilder) => c.withThrow(0, 1))
                         .startingScore(501))
                     .lastUpdated('2023-07-21')
                     .build());

@@ -25,7 +25,7 @@ export function Summary({showWinner, saygMatches, noOfLegs, host, opponent}: ISu
 
     function renderDartsForWindowsAverage(side: string) {
         const sumOfScores = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'score'));
-        const sumOfDarts = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'noOfDarts', true));
+        const sumOfDarts = sum(saygMatches, (s: ISuperleagueSaygMatchMapping) => sumOverThrows(s.saygData, side, 'noOfDarts'));
 
         return (<td title={round2dp(sumOfScores) + ' / ' + round2dp(sumOfDarts)}>
             {ifNaN(round2dp(sumOfScores / sumOfDarts), '-')}

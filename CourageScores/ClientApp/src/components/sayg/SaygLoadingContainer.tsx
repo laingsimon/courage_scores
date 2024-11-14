@@ -14,6 +14,7 @@ import {LegDto} from "../../interfaces/models/dtos/Game/Sayg/LegDto";
 import {EditableSaygContainer} from "./EditableSaygContainer";
 import {ILegDisplayOptions} from "./ILegDisplayOptions";
 import {UntypedPromise} from "../../interfaces/UntypedPromise";
+import {isLegWinner} from "../../helpers/superleague";
 
 const SaygContext = createContext({});
 
@@ -135,8 +136,11 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         const oldFirstLeg: LegDto = sayg.legs[0];
         const newLastLeg: LegDto = newData.legs[Object.keys(newData.legs).length - 1];
         const oldLastLeg: LegDto = sayg.legs[Object.keys(sayg.legs).length - 1];
+        const newLastLegHasWinner: boolean = newLastLeg && (isLegWinner(newLastLeg, 'home') || isLegWinner(newLastLeg, 'away'));
+        const oldLastLegHasWinner: boolean = oldLastLeg && (isLegWinner(oldLastLeg, 'home') || isLegWinner(oldLastLeg, 'away'));
+
         if ((newFirstLeg && !oldFirstLeg && newFirstLeg.currentThrow)
-            || (newLastLeg && oldLastLeg && newLastLeg.winner && !oldLastLeg.winner)
+            || (newLastLeg && oldLastLeg && newLastLegHasWinner && !oldLastLegHasWinner)
             || (newLastLeg && oldLastLeg && newLastLeg.currentThrow && !oldLastLeg.currentThrow)) {
             await saveDataAndGetId(newSayg);
         }
