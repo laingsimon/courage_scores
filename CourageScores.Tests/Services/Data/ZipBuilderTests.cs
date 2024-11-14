@@ -29,7 +29,7 @@ public class ZipBuilderTests
     public async Task CreateZip_WhenPasswordSupplied_CreatesEncryptedZip()
     {
         var encryptor = new ContentEncryptor("password");
-        var writing = new ZipBuilder(new ContentEncryptor("password"));
+        var writing = new ZipBuilder(encryptor);
         await writing.AddFile("content.txt", "content");
 
         var bytes = await writing.CreateZip();
