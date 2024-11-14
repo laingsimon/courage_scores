@@ -3,7 +3,7 @@ name: Automated npm update
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # run every day at midnight
+    - cron: '0 0 * * 5'  # run every day at midnight
   workflow_dispatch:
 
 permissions:
