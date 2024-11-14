@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ionic.Zip;
+using System.IO.Compression;
 
 namespace CourageScores.Services.Data;
 
@@ -17,11 +17,11 @@ public class ZipFileReaderFactory : IZipFileReaderFactory
     {
         return await Task.Run(() =>
         {
-            var zip = ZipFile.Read(stream);
-            if (!string.IsNullOrEmpty(password))
+            var zip = new ZipArchive(stream, ZipArchiveMode.Read);
+            /*if (!string.IsNullOrEmpty(password))
             {
                 zip.Password = password;
-            }
+            }*/
 
             return new ZipFileReader(zip, _serializer);
         });

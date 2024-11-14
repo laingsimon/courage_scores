@@ -1,6 +1,6 @@
+using System.IO.Compression;
 using CourageScores.Services;
 using CourageScores.Services.Data;
-using Ionic.Zip;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -96,23 +96,26 @@ public class ZipFileReaderTests
         }));
     }
 
-    private ZipFile CreateZip(params string[] filePaths)
+    private ZipArchive CreateZip(params string[] filePaths)
     {
-        var zip = new ZipFile();
-        var content = _serializer.SerialiseToString(new ExportMetaData
+        var stream = new MemoryStream();
+        using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
         {
-            Creator = "USER",
-        });
+            var content = _serializer.SerialiseToString(new ExportMetaData
+            {
+                Creator = "USER",
+            });
 
-        foreach (var path in filePaths)
-        {
-            zip.AddEntry(path, content);
+            foreach (var path in filePaths)
+            {
+                var entry = zip.CreateEntry(path);
+                using (var writer = new StreamWriter(entry.Open()))
+                {
+                    writer.WriteAsync(content);
+                }
+            }
         }
 
-        var stream = new MemoryStream();
-        zip.Save(stream);
-        stream.Seek(0, SeekOrigin.Begin);
-
-        return ZipFile.Read(stream);
+        return new ZipArchive(new MemoryStream(stream.ToArray()));
     }
 }
