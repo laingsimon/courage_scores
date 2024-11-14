@@ -86,7 +86,7 @@ describe('Heading', () => {
 
             const version = context.container.querySelector('span.bg-warning') as HTMLElement;
             expect(version).toBeTruthy();
-            expect(version.textContent).toEqual(renderDate('2023-04-05T06:07:08'));
+            expect(version.textContent).toEqual(`${renderDate('2023-04-05')}@06:07`);
         });
 
         it('when clicked', async () => {
