@@ -12,12 +12,17 @@ export function Heading() {
         window.alert(`Branch: ${build.branch}\nSHA: ${build.version.substring(0, 8)}`);
     }
 
+    function renderTime(): string {
+        const time: string = build.date.substring(build.date.length - 8);
+        return time.substring(0, 5); // trim off the seconds
+    }
+
     return (<div className="d-print-none">
             <div className="d-flex p-2 justify-content-between social-header">
                 <div className="">
                     <a href={`mailto:${email}`} className="white-link no-underline">✉️ {email}</a>
                 </div>
-                {version ? (<span className="text-black bg-warning px-3" onClick={showVersion}>{renderDate(version)}</span>) : null}
+                {version ? (<span className="text-black bg-warning px-3" onClick={showVersion}>{renderDate(version)}@{renderTime()}</span>) : null}
                 <div className="">
                     <a href={`https://www.facebook.com/${facebook}`} className="white-link no-underline social-icon"
                        target="_blank" rel="noreferrer">
