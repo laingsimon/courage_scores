@@ -30,7 +30,7 @@ public class ZipBuilder : IZipBuilder
 
     public async Task AddFile(string fileName, string content)
     {
-        using (var entry = _zip.CreateEntry(fileName))
+        var entry = _zip.CreateEntry(fileName);
         using (var stream = entry.Open())
         {
             await WriteContentEncrypted(stream, content);
