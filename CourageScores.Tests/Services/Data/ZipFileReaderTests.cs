@@ -16,7 +16,7 @@ public class ZipFileReaderTests
     public void HasFile_WhenFileExists_ReturnsTrue(string fileName)
     {
         var zip = CreateZip("file.ext");
-        var reader = new ZipFileReader(zip, _serializer);
+        var reader = new ZipFileReader(zip, _serializer, NullContentEncryptor.Instance);
 
         var result = reader.HasFile(fileName);
 
@@ -27,7 +27,7 @@ public class ZipFileReaderTests
     public void HasFile_WhenFileDoesNotExist_ReturnsFalse()
     {
         var zip = CreateZip("file.ext");
-        var reader = new ZipFileReader(zip, _serializer);
+        var reader = new ZipFileReader(zip, _serializer, NullContentEncryptor.Instance);
 
         var result = reader.HasFile("other_file.ext");
 
@@ -38,7 +38,7 @@ public class ZipFileReaderTests
     public async Task ReadJson_WhenFileExists_DeserialisesContent()
     {
         var zip = CreateZip("file.ext");
-        var reader = new ZipFileReader(zip, _serializer);
+        var reader = new ZipFileReader(zip, _serializer, NullContentEncryptor.Instance);
 
         var result = await reader.ReadJson<ExportMetaData>("file.ext");
 
@@ -49,7 +49,7 @@ public class ZipFileReaderTests
     public void ReadJson_WhenFileDoesNotExist_ThrowsFileNotFound()
     {
         var zip = CreateZip("file.ext");
-        var reader = new ZipFileReader(zip, _serializer);
+        var reader = new ZipFileReader(zip, _serializer, NullContentEncryptor.Instance);
 
         Assert.ThrowsAsync<FileNotFoundException>(() => reader.ReadJson<ExportMetaData>("another_file.ext"));
     }
@@ -58,7 +58,7 @@ public class ZipFileReaderTests
     public void EnumerateFiles_GivenPath_ReturnsFilesWithinPath()
     {
         var zip = CreateZip("folder1/file1.ext", "folder1/file2.ext");
-        var reader = new ZipFileReader(zip, _serializer);
+        var reader = new ZipFileReader(zip, _serializer, NullContentEncryptor.Instance);
 
         var result = reader.EnumerateFiles("folder1");
 
@@ -72,7 +72,7 @@ public class ZipFileReaderTests
     public void EnumerateFiles_GivenPath_DoesNotReturnFilesFromRoot()
     {
         var zip = CreateZip("root.ext", "folder1/file1.ext", "folder1/file2.ext");
-        var reader = new ZipFileReader(zip, _serializer);
+        var reader = new ZipFileReader(zip, _serializer, NullContentEncryptor.Instance);
 
         var result = reader.EnumerateFiles("folder1");
 
@@ -86,7 +86,7 @@ public class ZipFileReaderTests
     public void EnumerateFiles_GivenPath_DoesNotReturnFilesFromAnotherDirectory()
     {
         var zip = CreateZip("folder1/file1.ext", "folder1/file2.ext", "folder2/file3.ext");
-        var reader = new ZipFileReader(zip, _serializer);
+        var reader = new ZipFileReader(zip, _serializer, NullContentEncryptor.Instance);
 
         var result = reader.EnumerateFiles("folder1");
 

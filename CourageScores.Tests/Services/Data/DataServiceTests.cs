@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
@@ -66,9 +67,9 @@ public class DataServiceTests
         _zipFileReaderFactory
             .Setup(f => f.Create(It.IsAny<Stream>(), "correct password"))
             .ReturnsAsync(() => _importZip.Object);
-        /*_zipFileReaderFactory
+        _zipFileReaderFactory
             .Setup(f => f.Create(It.IsAny<Stream>(), It.Is<string>(p => p != "correct password")))
-            .Throws(() => new BadPasswordException());*/
+            .Throws(() => new CryptographicException("bad password"));
         _dataImporterFactory
             .Setup(f => f.Create(_importRequest, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
             .ReturnsAsync(_tableImporter.Object);
@@ -184,7 +185,7 @@ public class DataServiceTests
         result.AssertError("Not permitted");
     }
 
-    [Test, Ignore("Password protected archives are not supported currently")]
+    [Test]
     public async Task ImportData_WhenPasswordIncorrect_ReturnsUnsuccessful()
     {
         _importRequest.Password = "incorrect password";

@@ -37,7 +37,10 @@ public class ZipBuilderFactory : IZipBuilderFactory
 #pragma warning restore CS0618
         };
 
-        var builder = new ZipBuilder(exportRequest.Password);
+        var encryptor = string.IsNullOrEmpty(exportRequest.Password)
+            ? NullContentEncryptor.Instance
+            : new ContentEncryptor(exportRequest.Password);
+        var builder = new ZipBuilder(encryptor);
         await builder.AddFile(ExportMetaData.FileName, _serializer.SerialiseToString(metaData));
 
         return builder;

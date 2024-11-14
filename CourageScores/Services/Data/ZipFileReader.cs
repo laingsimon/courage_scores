@@ -5,12 +5,14 @@ namespace CourageScores.Services.Data;
 public class ZipFileReader : IZipFileReader
 {
     private readonly IJsonSerializerService _serializer;
+    private readonly IContentEncryptor _encryptor;
     private readonly ZipArchive _zip;
 
-    public ZipFileReader(ZipArchive zip, IJsonSerializerService serializer)
+    public ZipFileReader(ZipArchive zip, IJsonSerializerService serializer, IContentEncryptor encryptor)
     {
         _zip = zip;
         _serializer = serializer;
+        _encryptor = encryptor;
     }
 
     public bool HasFile(string fileName)
@@ -30,7 +32,11 @@ public class ZipFileReader : IZipFileReader
         await entry.Open().CopyToAsync(stream);
         stream.Seek(0, SeekOrigin.Begin);
 
-        return _serializer.DeserialiseTo<T>(stream);
+        var decrypted = new MemoryStream();
+        await _encryptor.Decrypt(stream, decrypted);
+        decrypted.Seek(0, SeekOrigin.Begin);
+
+        return _serializer.DeserialiseTo<T>(decrypted);
     }
 
     public IEnumerable<string> EnumerateFiles(string path)
