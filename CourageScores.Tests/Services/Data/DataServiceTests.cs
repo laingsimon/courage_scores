@@ -3,7 +3,6 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
 using CourageScores.Services.Data;
 using CourageScores.Services.Identity;
-using Ionic.Zip;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
@@ -67,9 +66,9 @@ public class DataServiceTests
         _zipFileReaderFactory
             .Setup(f => f.Create(It.IsAny<Stream>(), "correct password"))
             .ReturnsAsync(() => _importZip.Object);
-        _zipFileReaderFactory
+        /*_zipFileReaderFactory
             .Setup(f => f.Create(It.IsAny<Stream>(), It.Is<string>(p => p != "correct password")))
-            .Throws(() => new BadPasswordException());
+            .Throws(() => new BadPasswordException());*/
         _dataImporterFactory
             .Setup(f => f.Create(_importRequest, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
             .ReturnsAsync(_tableImporter.Object);
@@ -185,7 +184,7 @@ public class DataServiceTests
         result.AssertError("Not permitted");
     }
 
-    [Test]
+    [Test, Ignore("Password protected archives are not supported currently")]
     public async Task ImportData_WhenPasswordIncorrect_ReturnsUnsuccessful()
     {
         _importRequest.Password = "incorrect password";
